@@ -29,7 +29,9 @@ import com.google.android.exoplayer2.BaseRenderer;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
+import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RendererCapabilities;
+import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.SampleStream.ReadDataResult;
 import com.google.android.exoplayer2.util.Log;
@@ -40,21 +42,26 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.nio.ByteBuffer;
+import java.util.Objects;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 import org.checkerframework.dataflow.qual.SideEffectFree;
 
 /**
- * A renderer for text.
+ * A {@link Renderer} for text.
  *
- * <p>{@link Subtitle}s are decoded from sample data using {@link SubtitleDecoder} instances
- * obtained from a {@link SubtitleDecoderFactory}. The actual rendering of the subtitle {@link Cue}s
- * is delegated to a {@link TextOutput}.
+ * <p>This implementations decodes sample data to {@link Cue} instances. The actual rendering is
+ * delegated to a {@link TextOutput}.
  *
  * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
  *     contains the same ExoPlayer code). See <a
  *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
  *     migration guide</a> for more details, including a script to help with the migration.
  */
+// TODO: b/289916598 - Add an opt-in method for the legacy subtitle decoding flow, and throw an
+//  exception if it's not used and a recognized subtitle MIME type (that isn't
+//  application/x-media3-cues) is passed in.
 @Deprecated
 public final class TextRenderer extends BaseRenderer implements Callback {
 
@@ -89,24 +96,31 @@ public final class TextRenderer extends BaseRenderer implements Callback {
 
   private static final int MSG_UPDATE_OUTPUT = 0;
 
-  @Nullable private final Handler outputHandler;
-  private final TextOutput output;
-  private final SubtitleDecoderFactory decoderFactory;
-  private final FormatHolder formatHolder;
+  // Fields used when handling CuesWithTiming objects from application/x-media3-cues samples.
+  private final CueDecoder cueDecoder;
+  private final DecoderInputBuffer cueDecoderInputBuffer;
+  private @MonotonicNonNull CuesResolver cuesResolver;
 
-  private boolean inputStreamEnded;
-  private boolean outputStreamEnded;
+  // Fields used when handling Subtitle objects from legacy samples.
+  private final SubtitleDecoderFactory subtitleDecoderFactory;
   private boolean waitingForKeyFrame;
   private @ReplacementState int decoderReplacementState;
-  @Nullable private Format streamFormat;
-  @Nullable private SubtitleDecoder decoder;
-  @Nullable private SubtitleInputBuffer nextInputBuffer;
+  @Nullable private SubtitleDecoder subtitleDecoder;
+  @Nullable private SubtitleInputBuffer nextSubtitleInputBuffer;
   @Nullable private SubtitleOutputBuffer subtitle;
   @Nullable private SubtitleOutputBuffer nextSubtitle;
   private int nextSubtitleEventIndex;
-  private long finalStreamEndPositionUs;
+
+  // Fields used with both CuesWithTiming and Subtitle objects
+  @Nullable private final Handler outputHandler;
+  private final TextOutput output;
+  private final FormatHolder formatHolder;
+  private boolean inputStreamEnded;
+  private boolean outputStreamEnded;
+  @Nullable private Format streamFormat;
   private long outputStreamOffsetUs;
   private long lastRendererPositionUs;
+  private long finalStreamEndPositionUs;
 
   /**
    * @param output The output.
@@ -127,15 +141,20 @@ public final class TextRenderer extends BaseRenderer implements Callback {
    *     looper associated with the application's main thread, which can be obtained using {@link
    *     android.app.Activity#getMainLooper()}. Null may be passed if the output should be called
    *     directly on the player's internal rendering thread.
-   * @param decoderFactory A factory from which to obtain {@link SubtitleDecoder} instances.
+   * @param subtitleDecoderFactory A factory from which to obtain {@link SubtitleDecoder} instances.
    */
   public TextRenderer(
-      TextOutput output, @Nullable Looper outputLooper, SubtitleDecoderFactory decoderFactory) {
+      TextOutput output,
+      @Nullable Looper outputLooper,
+      SubtitleDecoderFactory subtitleDecoderFactory) {
     super(C.TRACK_TYPE_TEXT);
     this.output = checkNotNull(output);
     this.outputHandler =
         outputLooper == null ? null : Util.createHandler(outputLooper, /* callback= */ this);
-    this.decoderFactory = decoderFactory;
+    this.subtitleDecoderFactory = subtitleDecoderFactory;
+    this.cueDecoder = new CueDecoder();
+    this.cueDecoderInputBuffer =
+        new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_NORMAL);
     formatHolder = new FormatHolder();
     finalStreamEndPositionUs = C.TIME_UNSET;
     outputStreamOffsetUs = C.TIME_UNSET;
@@ -149,7 +168,7 @@ public final class TextRenderer extends BaseRenderer implements Callback {
 
   @Override
   public @Capabilities int supportsFormat(Format format) {
-    if (decoderFactory.supportsFormat(format)) {
+    if (isCuesWithTiming(format) || subtitleDecoderFactory.supportsFormat(format)) {
       return RendererCapabilities.create(
           format.cryptoType == C.CRYPTO_TYPE_NONE ? C.FORMAT_HANDLED : C.FORMAT_UNSUPPORTED_DRM);
     } else if (MimeTypes.isText(format.sampleMimeType)) {
@@ -182,35 +201,46 @@ public final class TextRenderer extends BaseRenderer implements Callback {
       MediaSource.MediaPeriodId mediaPeriodId) {
     outputStreamOffsetUs = offsetUs;
     streamFormat = formats[0];
-    if (decoder != null) {
-      decoderReplacementState = REPLACEMENT_STATE_SIGNAL_END_OF_STREAM;
+    if (!isCuesWithTiming(streamFormat)) {
+      if (subtitleDecoder != null) {
+        decoderReplacementState = REPLACEMENT_STATE_SIGNAL_END_OF_STREAM;
+      } else {
+        initSubtitleDecoder();
+      }
     } else {
-      initDecoder();
+      this.cuesResolver =
+          streamFormat.cueReplacementBehavior == Format.CUE_REPLACEMENT_BEHAVIOR_MERGE
+              ? new MergingCuesResolver()
+              : new ReplacingCuesResolver();
     }
   }
 
   @Override
   protected void onPositionReset(long positionUs, boolean joining) {
     lastRendererPositionUs = positionUs;
+    if (cuesResolver != null) {
+      cuesResolver.clear();
+    }
     clearOutput();
     inputStreamEnded = false;
     outputStreamEnded = false;
     finalStreamEndPositionUs = C.TIME_UNSET;
-    if (decoderReplacementState != REPLACEMENT_STATE_NONE) {
-      replaceDecoder();
-    } else {
-      releaseBuffers();
-      checkNotNull(decoder).flush();
+    if (streamFormat != null && !isCuesWithTiming(streamFormat)) {
+      if (decoderReplacementState != REPLACEMENT_STATE_NONE) {
+        replaceSubtitleDecoder();
+      } else {
+        releaseSubtitleBuffers();
+        checkNotNull(subtitleDecoder).flush();
+      }
     }
   }
 
   @Override
   public void render(long positionUs, long elapsedRealtimeUs) {
-    lastRendererPositionUs = positionUs;
     if (isCurrentStreamFinal()
         && finalStreamEndPositionUs != C.TIME_UNSET
         && positionUs >= finalStreamEndPositionUs) {
-      releaseBuffers();
+      releaseSubtitleBuffers();
       outputStreamEnded = true;
     }
 
@@ -218,10 +248,83 @@ public final class TextRenderer extends BaseRenderer implements Callback {
       return;
     }
 
+    if (isCuesWithTiming(checkNotNull(streamFormat))) {
+      checkNotNull(cuesResolver);
+      renderFromCuesWithTiming(positionUs);
+    } else {
+      renderFromSubtitles(positionUs);
+    }
+  }
+
+  @RequiresNonNull("this.cuesResolver")
+  private void renderFromCuesWithTiming(long positionUs) {
+    boolean outputNeedsUpdating = readAndDecodeCuesWithTiming(positionUs);
+
+    long nextCueChangeTimeUs = cuesResolver.getNextCueChangeTimeUs(lastRendererPositionUs);
+    if (nextCueChangeTimeUs == C.TIME_END_OF_SOURCE && inputStreamEnded && !outputNeedsUpdating) {
+      outputStreamEnded = true;
+    }
+    if (nextCueChangeTimeUs != C.TIME_END_OF_SOURCE && nextCueChangeTimeUs <= positionUs) {
+      outputNeedsUpdating = true;
+    }
+
+    if (outputNeedsUpdating) {
+      ImmutableList<Cue> cuesAtTimeUs = cuesResolver.getCuesAtTimeUs(positionUs);
+      long previousCueChangeTimeUs = cuesResolver.getPreviousCueChangeTimeUs(positionUs);
+      updateOutput(new CueGroup(cuesAtTimeUs, getPresentationTimeUs(previousCueChangeTimeUs)));
+      cuesResolver.discardCuesBeforeTimeUs(previousCueChangeTimeUs);
+    }
+    lastRendererPositionUs = positionUs;
+  }
+
+  /**
+   * Tries to {@linkplain #readSource(FormatHolder, DecoderInputBuffer, int) read} a buffer, and if
+   * one is read decodes it to a {@link CuesWithTiming} and adds it to {@link MergingCuesResolver}.
+   *
+   * @return true if a {@link CuesWithTiming} was read that changes what should be on screen now.
+   */
+  @RequiresNonNull("this.cuesResolver")
+  private boolean readAndDecodeCuesWithTiming(long positionUs) {
+    if (inputStreamEnded) {
+      return false;
+    }
+    @ReadDataResult
+    int readResult = readSource(formatHolder, cueDecoderInputBuffer, /* readFlags= */ 0);
+    switch (readResult) {
+      case C.RESULT_BUFFER_READ:
+        if (cueDecoderInputBuffer.isEndOfStream()) {
+          inputStreamEnded = true;
+          return false;
+        }
+        cueDecoderInputBuffer.flip();
+        ByteBuffer cueData = checkNotNull(cueDecoderInputBuffer.data);
+        CuesWithTiming cuesWithTiming =
+            cueDecoder.decode(
+                cueDecoderInputBuffer.timeUs,
+                cueData.array(),
+                cueData.arrayOffset(),
+                cueData.limit());
+        cueDecoderInputBuffer.clear();
+
+        cuesResolver.addCues(cuesWithTiming);
+
+        // Return whether the CuesWithTiming we added to CuesMerger changes the subtitles that
+        // should be on-screen *now*.
+        return cuesWithTiming.startTimeUs <= positionUs
+            && positionUs < cuesWithTiming.startTimeUs + cuesWithTiming.durationUs;
+      case C.RESULT_FORMAT_READ:
+      case C.RESULT_NOTHING_READ:
+      default:
+        return false;
+    }
+  }
+
+  private void renderFromSubtitles(long positionUs) {
+    lastRendererPositionUs = positionUs;
     if (nextSubtitle == null) {
-      checkNotNull(decoder).setPositionUs(positionUs);
+      checkNotNull(subtitleDecoder).setPositionUs(positionUs);
       try {
-        nextSubtitle = checkNotNull(decoder).dequeueOutputBuffer();
+        nextSubtitle = checkNotNull(subtitleDecoder).dequeueOutputBuffer();
       } catch (SubtitleDecoderException e) {
         handleDecoderError(e);
         return;
@@ -248,9 +351,9 @@ public final class TextRenderer extends BaseRenderer implements Callback {
       if (nextSubtitle.isEndOfStream()) {
         if (!textRendererNeedsUpdate && getNextEventTime() == Long.MAX_VALUE) {
           if (decoderReplacementState == REPLACEMENT_STATE_WAIT_END_OF_STREAM) {
-            replaceDecoder();
+            replaceSubtitleDecoder();
           } else {
-            releaseBuffers();
+            releaseSubtitleBuffers();
             outputStreamEnded = true;
           }
         }
@@ -281,18 +384,18 @@ public final class TextRenderer extends BaseRenderer implements Callback {
 
     try {
       while (!inputStreamEnded) {
-        @Nullable SubtitleInputBuffer nextInputBuffer = this.nextInputBuffer;
+        @Nullable SubtitleInputBuffer nextInputBuffer = this.nextSubtitleInputBuffer;
         if (nextInputBuffer == null) {
-          nextInputBuffer = checkNotNull(decoder).dequeueInputBuffer();
+          nextInputBuffer = checkNotNull(subtitleDecoder).dequeueInputBuffer();
           if (nextInputBuffer == null) {
             return;
           }
-          this.nextInputBuffer = nextInputBuffer;
+          this.nextSubtitleInputBuffer = nextInputBuffer;
         }
         if (decoderReplacementState == REPLACEMENT_STATE_SIGNAL_END_OF_STREAM) {
           nextInputBuffer.setFlags(C.BUFFER_FLAG_END_OF_STREAM);
-          checkNotNull(decoder).queueInputBuffer(nextInputBuffer);
-          this.nextInputBuffer = null;
+          checkNotNull(subtitleDecoder).queueInputBuffer(nextInputBuffer);
+          this.nextSubtitleInputBuffer = null;
           decoderReplacementState = REPLACEMENT_STATE_WAIT_END_OF_STREAM;
           return;
         }
@@ -316,8 +419,8 @@ public final class TextRenderer extends BaseRenderer implements Callback {
             if (nextInputBuffer.timeUs < getLastResetPositionUs()) {
               nextInputBuffer.addFlag(C.BUFFER_FLAG_DECODE_ONLY);
             }
-            checkNotNull(decoder).queueInputBuffer(nextInputBuffer);
-            this.nextInputBuffer = null;
+            checkNotNull(subtitleDecoder).queueInputBuffer(nextInputBuffer);
+            this.nextSubtitleInputBuffer = null;
           }
         } else if (result == C.RESULT_NOTHING_READ) {
           return;
@@ -335,7 +438,9 @@ public final class TextRenderer extends BaseRenderer implements Callback {
     clearOutput();
     outputStreamOffsetUs = C.TIME_UNSET;
     lastRendererPositionUs = C.TIME_UNSET;
-    releaseDecoder();
+    if (subtitleDecoder != null) {
+      releaseSubtitleDecoder();
+    }
   }
 
   @Override
@@ -350,8 +455,8 @@ public final class TextRenderer extends BaseRenderer implements Callback {
     return true;
   }
 
-  private void releaseBuffers() {
-    nextInputBuffer = null;
+  private void releaseSubtitleBuffers() {
+    nextSubtitleInputBuffer = null;
     nextSubtitleEventIndex = C.INDEX_UNSET;
     if (subtitle != null) {
       subtitle.release();
@@ -363,21 +468,21 @@ public final class TextRenderer extends BaseRenderer implements Callback {
     }
   }
 
-  private void releaseDecoder() {
-    releaseBuffers();
-    checkNotNull(decoder).release();
-    decoder = null;
+  private void releaseSubtitleDecoder() {
+    releaseSubtitleBuffers();
+    checkNotNull(subtitleDecoder).release();
+    subtitleDecoder = null;
     decoderReplacementState = REPLACEMENT_STATE_NONE;
   }
 
-  private void initDecoder() {
+  private void initSubtitleDecoder() {
     waitingForKeyFrame = true;
-    decoder = decoderFactory.createDecoder(checkNotNull(streamFormat));
+    subtitleDecoder = subtitleDecoderFactory.createDecoder(checkNotNull(streamFormat));
   }
 
-  private void replaceDecoder() {
-    releaseDecoder();
-    initDecoder();
+  private void replaceSubtitleDecoder() {
+    releaseSubtitleDecoder();
+    initSubtitleDecoder();
   }
 
   private long getNextEventTime() {
@@ -420,7 +525,7 @@ public final class TextRenderer extends BaseRenderer implements Callback {
   }
 
   /**
-   * Called when {@link #decoder} throws an exception, so it can be logged and playback can
+   * Called when {@link #subtitleDecoder} throws an exception, so it can be logged and playback can
    * continue.
    *
    * <p>Logs {@code e} and resets state to allow decoding the next sample.
@@ -428,7 +533,7 @@ public final class TextRenderer extends BaseRenderer implements Callback {
   private void handleDecoderError(SubtitleDecoderException e) {
     Log.e(TAG, "Subtitle decoding failed. streamFormat=" + streamFormat, e);
     clearOutput();
-    replaceDecoder();
+    replaceSubtitleDecoder();
   }
 
   @RequiresNonNull("subtitle")
@@ -450,5 +555,10 @@ public final class TextRenderer extends BaseRenderer implements Callback {
     checkState(outputStreamOffsetUs != C.TIME_UNSET);
 
     return positionUs - outputStreamOffsetUs;
+  }
+
+  /** Returns whether {@link Format#sampleMimeType} is {@link MimeTypes#APPLICATION_MEDIA3_CUES}. */
+  private static boolean isCuesWithTiming(Format format) {
+    return Objects.equals(format.sampleMimeType, MimeTypes.APPLICATION_MEDIA3_CUES);
   }
 }
