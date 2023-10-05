@@ -231,41 +231,43 @@ public final class GlProgram {
 
     /* Returns the attribute at the given index in the program. */
     public static Attribute create(int programId, int index) {
-      int[] length = new int[1];
+      int[] attributeNameMaxLength = new int[1];
       GLES20.glGetProgramiv(
-          programId, GLES20.GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, length, /* offset= */ 0);
-      byte[] nameBytes = new byte[length[0]];
+          programId,
+          GLES20.GL_ACTIVE_ATTRIBUTE_MAX_LENGTH,
+          attributeNameMaxLength,
+          /* offset= */ 0);
+      byte[] nameBytes = new byte[attributeNameMaxLength[0]];
 
       GLES20.glGetActiveAttrib(
           programId,
           index,
-          length[0],
+          /* bufsize= */ attributeNameMaxLength[0],
           /* unusedLength */ new int[1],
           /* lengthOffset= */ 0,
           /* unusedSize */ new int[1],
           /* sizeOffset= */ 0,
           /* unusedType */ new int[1],
           /* typeOffset= */ 0,
-          nameBytes,
+          /* name= */ nameBytes,
           /* nameOffset= */ 0);
       String name = new String(nameBytes, /* offset= */ 0, getCStringLength(nameBytes));
       int location = getAttributeLocation(programId, name);
 
-      return new Attribute(name, index, location);
+      return new Attribute(name, location);
     }
 
     /** The name of the attribute in the GLSL sources. */
     public final String name;
 
-    private final int index;
+    /** The index or location of the attribute, from glGetAttribLocation. */
     private final int location;
 
     @Nullable private Buffer buffer;
     private int size;
 
-    private Attribute(String name, int index, int location) {
+    private Attribute(String name, int location) {
       this.name = name;
-      this.index = index;
       this.location = location;
     }
 
@@ -291,7 +293,7 @@ public final class GlProgram {
       GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, /* buffer= */ 0);
       GLES20.glVertexAttribPointer(
           location, size, GLES20.GL_FLOAT, /* normalized= */ false, /* stride= */ 0, buffer);
-      GLES20.glEnableVertexAttribArray(index);
+      GLES20.glEnableVertexAttribArray(location);
       GlUtil.checkGlError();
     }
   }
