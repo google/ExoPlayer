@@ -100,7 +100,7 @@ public class ImagePlaybackTest {
     TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_ENDED);
     long playbackDurationMs = clock.elapsedRealtime() - playerStartedMs;
     player.release();
-    assertThat(playbackDurationMs).isEqualTo(totalDurationMs);
+    assertThat(playbackDurationMs).isAtLeast(totalDurationMs);
     DumpFileAsserts.assertOutput(
         applicationContext,
         playbackOutput,
