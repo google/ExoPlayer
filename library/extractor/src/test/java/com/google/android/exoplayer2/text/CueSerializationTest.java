@@ -66,6 +66,7 @@ public class CueSerializationTest {
 
     assertThat(cuesAfterDecoding.startTimeUs).isEqualTo(1000);
     assertThat(cuesAfterDecoding.durationUs).isEqualTo(2000);
+    assertThat(cuesAfterDecoding.endTimeUs).isEqualTo(3000);
 
     Cue cueAfterDecoding = cuesAfterDecoding.cues.get(0);
     assertThat(cueAfterDecoding.text.toString()).isEqualTo(cue.text.toString());
@@ -111,6 +112,7 @@ public class CueSerializationTest {
 
     assertThat(cuesAfterDecoding.startTimeUs).isEqualTo(1000);
     assertThat(cuesAfterDecoding.durationUs).isEqualTo(2000);
+    assertThat(cuesAfterDecoding.endTimeUs).isEqualTo(3000);
 
     assertThat(cuesAfterDecoding.cues).hasSize(2);
     Cue textCueAfterDecoding = cuesAfterDecoding.cues.get(0);
