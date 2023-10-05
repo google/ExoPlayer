@@ -164,6 +164,7 @@ public final class SsaParserTest {
     // Because of the length restriction, we only partially parse the third line of dialogue
     assertThat(allCues.get(1).startTimeUs).isEqualTo(4560000);
     assertThat(allCues.get(1).durationUs).isEqualTo(8900000 - 4560000);
+    assertThat(allCues.get(1).endTimeUs).isEqualTo(8900000);
     assertThat(allCues.get(1).cues.get(0).text.toString()).isEqualTo("This is the third subt");
   }
 
@@ -237,41 +238,49 @@ public final class SsaParserTest {
     assertThat(allCues).hasSize(8);
     assertThat(allCues.get(0).startTimeUs).isEqualTo(1_000_000);
     assertThat(allCues.get(0).durationUs).isEqualTo(1_000_000);
+    assertThat(allCues.get(0).endTimeUs).isEqualTo(2_000_000);
     assertThat(Iterables.transform(allCues.get(0).cues, cue -> cue.text.toString()))
         .containsExactly(firstSubtitleText);
 
     assertThat(allCues.get(1).startTimeUs).isEqualTo(2_000_000);
     assertThat(allCues.get(1).durationUs).isEqualTo(2_230_000);
+    assertThat(allCues.get(1).endTimeUs).isEqualTo(4_230_000);
     assertThat(Iterables.transform(allCues.get(1).cues, cue -> cue.text.toString()))
         .containsExactly(firstSubtitleText, secondSubtitleText);
 
     assertThat(allCues.get(2).startTimeUs).isEqualTo(4_230_000);
     assertThat(allCues.get(2).durationUs).isEqualTo(1_000_000);
+    assertThat(allCues.get(2).endTimeUs).isEqualTo(5_230_000);
     assertThat(Iterables.transform(allCues.get(2).cues, cue -> cue.text.toString()))
         .containsExactly(secondSubtitleText);
 
     assertThat(allCues.get(3).startTimeUs).isEqualTo(6_000_000);
     assertThat(allCues.get(3).durationUs).isEqualTo(2_440_000);
+    assertThat(allCues.get(3).endTimeUs).isEqualTo(8_440_000);
     assertThat(Iterables.transform(allCues.get(3).cues, cue -> cue.text.toString()))
         .containsExactly(thirdSubtitleText);
 
     assertThat(allCues.get(4).startTimeUs).isEqualTo(8_440_000);
     assertThat(allCues.get(4).durationUs).isEqualTo(1_000_000);
+    assertThat(allCues.get(4).endTimeUs).isEqualTo(9_440_000);
     assertThat(Iterables.transform(allCues.get(4).cues, cue -> cue.text.toString()))
         .containsExactly(fourthSubtitleText, fifthSubtitleText);
 
     assertThat(allCues.get(5).startTimeUs).isEqualTo(10_720_000);
     assertThat(allCues.get(5).durationUs).isEqualTo(2_500_000);
+    assertThat(allCues.get(5).endTimeUs).isEqualTo(13_220_000);
     assertThat(Iterables.transform(allCues.get(5).cues, cue -> cue.text.toString()))
         .containsExactly(sixthSubtitleText);
 
     assertThat(allCues.get(6).startTimeUs).isEqualTo(13_220_000);
     assertThat(allCues.get(6).durationUs).isEqualTo(1_000_000);
+    assertThat(allCues.get(6).endTimeUs).isEqualTo(14_220_000);
     assertThat(Iterables.transform(allCues.get(6).cues, cue -> cue.text.toString()))
         .containsExactly(sixthSubtitleText, seventhSubtitleText);
 
     assertThat(allCues.get(7).startTimeUs).isEqualTo(14_220_000);
     assertThat(allCues.get(7).durationUs).isEqualTo(1_430_000);
+    assertThat(allCues.get(7).endTimeUs).isEqualTo(15_650_000);
     assertThat(Iterables.transform(allCues.get(7).cues, cue -> cue.text.toString()))
         .containsExactly(sixthSubtitleText);
   }
@@ -517,6 +526,7 @@ public final class SsaParserTest {
   private static void assertTypicalCue1(CuesWithTiming cuesWithTiming) {
     assertThat(cuesWithTiming.startTimeUs).isEqualTo(0);
     assertThat(cuesWithTiming.durationUs).isEqualTo(1230000);
+    assertThat(cuesWithTiming.endTimeUs).isEqualTo(1230000);
     assertThat(cuesWithTiming.cues.get(0).text.toString()).isEqualTo("This is the first subtitle.");
     assertThat(Objects.requireNonNull(cuesWithTiming.cues.get(0).textAlignment))
         .isEqualTo(Layout.Alignment.ALIGN_CENTER);
@@ -525,6 +535,7 @@ public final class SsaParserTest {
   private static void assertTypicalCue2(CuesWithTiming cuesWithTiming) {
     assertThat(cuesWithTiming.startTimeUs).isEqualTo(2340000);
     assertThat(cuesWithTiming.durationUs).isEqualTo(3450000 - 2340000);
+    assertThat(cuesWithTiming.endTimeUs).isEqualTo(3450000);
     assertThat(cuesWithTiming.cues.get(0).text.toString())
         .isEqualTo("This is the second subtitle \nwith a newline \nand another.");
   }
@@ -532,6 +543,7 @@ public final class SsaParserTest {
   private static void assertTypicalCue3(CuesWithTiming cuesWithTiming) {
     assertThat(cuesWithTiming.startTimeUs).isEqualTo(4560000);
     assertThat(cuesWithTiming.durationUs).isEqualTo(8900000 - 4560000);
+    assertThat(cuesWithTiming.endTimeUs).isEqualTo(8900000);
     assertThat(cuesWithTiming.cues.get(0).text.toString())
         .isEqualTo("This is the third subtitle, with a comma.");
   }

@@ -250,6 +250,7 @@ public final class SubripParserTest {
     assertTypicalCue1(allCues.get(0));
     assertThat(allCues.get(1).startTimeUs).isEqualTo(2_000_000);
     assertThat(allCues.get(1).durationUs).isEqualTo(1_000_000);
+    assertThat(allCues.get(1).endTimeUs).isEqualTo(3_000_000);
     assertTypicalCue3(allCues.get(2));
   }
 
@@ -257,6 +258,7 @@ public final class SubripParserTest {
     assertThat(cuesWithTiming.startTimeUs).isEqualTo(0);
     assertThat(cuesWithTiming.cues.get(0).text.toString()).isEqualTo("This is the first subtitle.");
     assertThat(cuesWithTiming.durationUs).isEqualTo(1234000);
+    assertThat(cuesWithTiming.endTimeUs).isEqualTo(1234000);
   }
 
   private static void assertTypicalCue2(CuesWithTiming cuesWithTiming) {
@@ -264,6 +266,7 @@ public final class SubripParserTest {
     assertThat(cuesWithTiming.cues.get(0).text.toString())
         .isEqualTo("This is the second subtitle.\nSecond subtitle with second line.");
     assertThat(cuesWithTiming.durationUs).isEqualTo(3456000 - 2345000);
+    assertThat(cuesWithTiming.endTimeUs).isEqualTo(3456000);
   }
 
   private static void assertTypicalCue3(CuesWithTiming cuesWithTiming) {
@@ -272,6 +275,7 @@ public final class SubripParserTest {
     assertThat(cuesWithTiming.cues.get(0).text.toString()).isEqualTo("This is the third subtitle.");
     long expectedEndTimeUs = (((2L * 60L * 60L) + 8L) * 1000L + 901L) * 1000L;
     assertThat(cuesWithTiming.durationUs).isEqualTo(expectedEndTimeUs - expectedStartTimeUs);
+    assertThat(cuesWithTiming.endTimeUs).isEqualTo(expectedEndTimeUs);
   }
 
   private static void assertAlignmentCue(

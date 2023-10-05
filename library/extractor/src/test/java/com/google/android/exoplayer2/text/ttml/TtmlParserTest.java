@@ -486,8 +486,10 @@ public final class TtmlParserTest {
     assertThat(allCues).hasSize(2);
     assertThat(allCues.get(0).startTimeUs).isEqualTo(1_000_000);
     assertThat(allCues.get(0).durationUs).isEqualTo(10_000);
+    assertThat(allCues.get(0).endTimeUs).isEqualTo(1_010_000);
     assertThat((double) allCues.get(1).startTimeUs).isWithin(1000).of(1_001_000_000);
     assertThat((double) allCues.get(1).durationUs).isWithin(2000).of(1_001_000_000);
+    assertThat((double) allCues.get(1).endTimeUs).isWithin(2000).of(2_002_000_000);
   }
 
   @Test
@@ -498,6 +500,7 @@ public final class TtmlParserTest {
 
     assertThat(allCues.get(0).startTimeUs).isEqualTo(200_000);
     assertThat(allCues.get(0).durationUs).isEqualTo(2_800_000);
+    assertThat(allCues.get(0).endTimeUs).isEqualTo(3_000_000);
     Cue cue = Iterables.getOnlyElement(allCues.get(0).cues);
     assertThat(cue.text).isNull();
     assertThat(cue.bitmap).isNotNull();
@@ -508,6 +511,7 @@ public final class TtmlParserTest {
 
     assertThat(allCues.get(1).startTimeUs).isEqualTo(3_200_000);
     assertThat(allCues.get(1).durationUs).isEqualTo(3_737_000);
+    assertThat(allCues.get(1).endTimeUs).isEqualTo(6_937_000);
     cue = Iterables.getOnlyElement(allCues.get(1).cues);
     assertThat(cue.text).isNull();
     assertThat(cue.bitmap).isNotNull();
