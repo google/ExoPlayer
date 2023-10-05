@@ -196,6 +196,7 @@ public final class Mp4WebvttParserTest {
     assertThat(result.get(0).cues).isEmpty();
     assertThat(result.get(0).startTimeUs).isEqualTo(C.TIME_UNSET);
     assertThat(result.get(0).durationUs).isEqualTo(C.TIME_UNSET);
+    assertThat(result.get(0).endTimeUs).isEqualTo(C.TIME_UNSET);
   }
 
   // Negative tests.

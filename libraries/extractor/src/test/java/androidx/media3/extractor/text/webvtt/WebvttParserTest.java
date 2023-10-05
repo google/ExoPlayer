@@ -92,11 +92,13 @@ public class WebvttParserTest {
 
     assertThat(allCues.get(0).startTimeUs).isEqualTo(0L);
     assertThat(allCues.get(0).durationUs).isEqualTo(1_234_000L);
+    assertThat(allCues.get(0).endTimeUs).isEqualTo(1_234_000L);
     Cue firstCue = Iterables.getOnlyElement(allCues.get(0).cues);
     assertThat(firstCue.text.toString()).isEqualTo("This is the first subtitle.");
 
     assertThat(allCues.get(1).startTimeUs).isEqualTo(2_345_000L);
     assertThat(allCues.get(1).durationUs).isEqualTo(3_456_000L - 2_345_000L);
+    assertThat(allCues.get(1).endTimeUs).isEqualTo(3_456_000L);
     Cue secondCue = Iterables.getOnlyElement(allCues.get(1).cues);
     assertThat(secondCue.text.toString()).isEqualTo("This is the second subtitle.");
   }
@@ -110,6 +112,7 @@ public class WebvttParserTest {
 
     assertThat(allCues.get(0).startTimeUs).isEqualTo(2_345_000L);
     assertThat(allCues.get(0).durationUs).isEqualTo(3_456_000L - 2_345_000L);
+    assertThat(allCues.get(0).endTimeUs).isEqualTo(3_456_000L);
     Cue secondCue = Iterables.getOnlyElement(allCues.get(0).cues);
     assertThat(secondCue.text.toString()).isEqualTo("This is the second subtitle.");
   }
@@ -124,11 +127,13 @@ public class WebvttParserTest {
 
     assertThat(allCues.get(0).startTimeUs).isEqualTo(2_345_000L);
     assertThat(allCues.get(0).durationUs).isEqualTo(3_456_000L - 2_345_000L);
+    assertThat(allCues.get(0).endTimeUs).isEqualTo(3_456_000L);
     Cue secondCue = Iterables.getOnlyElement(allCues.get(0).cues);
     assertThat(secondCue.text.toString()).isEqualTo("This is the second subtitle.");
 
     assertThat(allCues.get(1).startTimeUs).isEqualTo(0L);
     assertThat(allCues.get(1).durationUs).isEqualTo(1_234_000L);
+    assertThat(allCues.get(1).endTimeUs).isEqualTo(1_234_000L);
     Cue firstCue = Iterables.getOnlyElement(allCues.get(1).cues);
     assertThat(firstCue.text.toString()).isEqualTo("This is the first subtitle.");
   }
@@ -141,11 +146,13 @@ public class WebvttParserTest {
 
     assertThat(allCues.get(0).startTimeUs).isEqualTo(0L);
     assertThat(allCues.get(0).durationUs).isEqualTo(1_234_000L);
+    assertThat(allCues.get(0).endTimeUs).isEqualTo(1_234_000L);
     Cue firstCue = Iterables.getOnlyElement(allCues.get(0).cues);
     assertThat(firstCue.text.toString()).isEqualTo("This is the first subtitle.");
 
     assertThat(allCues.get(1).startTimeUs).isEqualTo(2_345_000L);
     assertThat(allCues.get(1).durationUs).isEqualTo(3_456_000L - 2_345_000L);
+    assertThat(allCues.get(1).endTimeUs).isEqualTo(3_456_000L);
     Cue secondCue = Iterables.getOnlyElement(allCues.get(1).cues);
     assertThat(secondCue.text.toString()).isEqualTo("This is the second subtitle.");
   }
@@ -158,11 +165,13 @@ public class WebvttParserTest {
 
     assertThat(allCues.get(0).startTimeUs).isEqualTo(0L);
     assertThat(allCues.get(0).durationUs).isEqualTo(1_234_000L);
+    assertThat(allCues.get(0).endTimeUs).isEqualTo(1_234_000L);
     Cue firstCue = Iterables.getOnlyElement(allCues.get(0).cues);
     assertThat(firstCue.text.toString()).isEqualTo("This is the first subtitle.");
 
     assertThat(allCues.get(1).startTimeUs).isEqualTo(2_345_000L);
     assertThat(allCues.get(1).durationUs).isEqualTo(3_456_000L - 2_345_000L);
+    assertThat(allCues.get(1).endTimeUs).isEqualTo(3_456_000L);
     Cue secondCue = Iterables.getOnlyElement(allCues.get(1).cues);
     assertThat(secondCue.text.toString()).isEqualTo("This is the second subtitle.");
   }
@@ -175,11 +184,13 @@ public class WebvttParserTest {
 
     assertThat(allCues.get(0).startTimeUs).isEqualTo(0L);
     assertThat(allCues.get(0).durationUs).isEqualTo(1_234_000L);
+    assertThat(allCues.get(0).endTimeUs).isEqualTo(1_234_000L);
     Cue firstCue = Iterables.getOnlyElement(allCues.get(0).cues);
     assertThat(firstCue.text.toString()).isEqualTo("This is the first subtitle.");
 
     assertThat(allCues.get(1).startTimeUs).isEqualTo(2_345_000L);
     assertThat(allCues.get(1).durationUs).isEqualTo(3_456_000L - 2_345_000L);
+    assertThat(allCues.get(1).endTimeUs).isEqualTo(3_456_000L);
     Cue secondCue = Iterables.getOnlyElement(allCues.get(1).cues);
     assertThat(secondCue.text.toString()).isEqualTo("This is the second subtitle.");
   }
@@ -192,11 +203,13 @@ public class WebvttParserTest {
 
     assertThat(allCues.get(0).startTimeUs).isEqualTo(0L);
     assertThat(allCues.get(0).durationUs).isEqualTo(1_234_000L);
+    assertThat(allCues.get(0).endTimeUs).isEqualTo(1_234_000L);
     Cue firstCue = Iterables.getOnlyElement(allCues.get(0).cues);
     assertThat(firstCue.text.toString()).isEqualTo("This is the first subtitle.");
 
     assertThat(allCues.get(1).startTimeUs).isEqualTo(2_345_000L);
     assertThat(allCues.get(1).durationUs).isEqualTo(3_456_000L - 2_345_000L);
+    assertThat(allCues.get(1).endTimeUs).isEqualTo(3_456_000L);
     Cue secondCue = Iterables.getOnlyElement(allCues.get(1).cues);
     assertThat(secondCue.text.toString()).isEqualTo("This is the second subtitle.");
   }
@@ -209,21 +222,25 @@ public class WebvttParserTest {
 
     assertThat(allCues.get(0).startTimeUs).isEqualTo(0L);
     assertThat(allCues.get(0).durationUs).isEqualTo(1_234_000L);
+    assertThat(allCues.get(0).endTimeUs).isEqualTo(1_234_000L);
     Cue firstCue = Iterables.getOnlyElement(allCues.get(0).cues);
     assertThat(firstCue.text.toString()).isEqualTo("This is the first subtitle.");
 
     assertThat(allCues.get(1).startTimeUs).isEqualTo(2_345_000L);
     assertThat(allCues.get(1).durationUs).isEqualTo(3_456_000L - 2_345_000L);
+    assertThat(allCues.get(1).endTimeUs).isEqualTo(3_456_000L);
     Cue secondCue = Iterables.getOnlyElement(allCues.get(1).cues);
     assertThat(secondCue.text.toString()).isEqualTo("This is the second subtitle.");
 
     assertThat(allCues.get(2).startTimeUs).isEqualTo(4_000_000L);
     assertThat(allCues.get(2).durationUs).isEqualTo(5_000_000L - 4_000_000L);
+    assertThat(allCues.get(2).endTimeUs).isEqualTo(5_000_000L);
     Cue thirdCue = Iterables.getOnlyElement(allCues.get(2).cues);
     assertThat(thirdCue.text.toString()).isEqualTo("This is the third subtitle.");
 
     assertThat(allCues.get(3).startTimeUs).isEqualTo(6_000_000L);
     assertThat(allCues.get(3).durationUs).isEqualTo(7_000_000L - 6_000_000L);
+    assertThat(allCues.get(3).endTimeUs).isEqualTo(7_000_000L);
     Cue fourthCue = Iterables.getOnlyElement(allCues.get(3).cues);
     assertThat(fourthCue.text.toString()).isEqualTo("This is the <fourth> &subtitle.");
   }
@@ -236,6 +253,7 @@ public class WebvttParserTest {
 
     assertThat(allCues.get(0).startTimeUs).isEqualTo(0L);
     assertThat(allCues.get(0).durationUs).isEqualTo(1_234_000L);
+    assertThat(allCues.get(0).endTimeUs).isEqualTo(1_234_000L);
     Cue firstCue = Iterables.getOnlyElement(allCues.get(0).cues);
     assertThat(firstCue.text.toString()).isEqualTo("This is the first subtitle.");
     assertThat(firstCue.position).isEqualTo(0.6f);
@@ -250,6 +268,7 @@ public class WebvttParserTest {
 
     assertThat(allCues.get(1).startTimeUs).isEqualTo(2_345_000L);
     assertThat(allCues.get(1).durationUs).isEqualTo(3_456_000L - 2_345_000L);
+    assertThat(allCues.get(1).endTimeUs).isEqualTo(3_456_000L);
     Cue secondCue = Iterables.getOnlyElement(allCues.get(1).cues);
     assertThat(secondCue.text.toString()).isEqualTo("This is the second subtitle.");
     // Position is invalid so defaults to 0.5
@@ -258,6 +277,7 @@ public class WebvttParserTest {
 
     assertThat(allCues.get(2).startTimeUs).isEqualTo(4_000_000L);
     assertThat(allCues.get(2).durationUs).isEqualTo(5_000_000L - 4_000_000L);
+    assertThat(allCues.get(2).endTimeUs).isEqualTo(5_000_000L);
     Cue thirdCue = Iterables.getOnlyElement(allCues.get(2).cues);
     assertThat(thirdCue.text.toString()).isEqualTo("This is the third subtitle.");
     assertThat(thirdCue.line).isEqualTo(0.45f);
@@ -269,6 +289,7 @@ public class WebvttParserTest {
 
     assertThat(allCues.get(3).startTimeUs).isEqualTo(6_000_000L);
     assertThat(allCues.get(3).durationUs).isEqualTo(7_000_000L - 6_000_000L);
+    assertThat(allCues.get(3).endTimeUs).isEqualTo(7_000_000L);
     Cue fourthCue = Iterables.getOnlyElement(allCues.get(3).cues);
     assertThat(fourthCue.text.toString()).isEqualTo("This is the fourth subtitle.");
     assertThat(fourthCue.line).isEqualTo(-10f);
@@ -280,6 +301,7 @@ public class WebvttParserTest {
 
     assertThat(allCues.get(4).startTimeUs).isEqualTo(8_000_000L);
     assertThat(allCues.get(4).durationUs).isEqualTo(9_000_000L - 8_000_000L);
+    assertThat(allCues.get(4).endTimeUs).isEqualTo(9_000_000L);
     Cue fifthCue = Iterables.getOnlyElement(allCues.get(4).cues);
     assertThat(fifthCue.text.toString()).isEqualTo("This is the fifth subtitle.");
     assertThat(fifthCue.textAlignment).isEqualTo(Alignment.ALIGN_OPPOSITE);
@@ -289,6 +311,7 @@ public class WebvttParserTest {
 
     assertThat(allCues.get(5).startTimeUs).isEqualTo(10_000_000L);
     assertThat(allCues.get(5).durationUs).isEqualTo(11_000_000L - 10_000_000L);
+    assertThat(allCues.get(5).endTimeUs).isEqualTo(11_000_000L);
     Cue sixthCue = Iterables.getOnlyElement(allCues.get(5).cues);
     assertThat(sixthCue.text.toString()).isEqualTo("This is the sixth subtitle.");
     assertThat(sixthCue.textAlignment).isEqualTo(Alignment.ALIGN_CENTER);
@@ -298,12 +321,14 @@ public class WebvttParserTest {
 
     assertThat(allCues.get(6).startTimeUs).isEqualTo(12_000_000L);
     assertThat(allCues.get(6).durationUs).isEqualTo(13_000_000L - 12_000_000L);
+    assertThat(allCues.get(6).endTimeUs).isEqualTo(13_000_000L);
     Cue seventhCue = Iterables.getOnlyElement(allCues.get(6).cues);
     assertThat(seventhCue.text.toString()).isEqualTo("This is the seventh subtitle.");
     assertThat(seventhCue.positionAnchor).isEqualTo(Cue.ANCHOR_TYPE_START);
 
     assertThat(allCues.get(7).startTimeUs).isEqualTo(14_000_000L);
     assertThat(allCues.get(7).durationUs).isEqualTo(15_000_000L - 14_000_000L);
+    assertThat(allCues.get(7).endTimeUs).isEqualTo(15_000_000L);
     Cue eighthCue = Iterables.getOnlyElement(allCues.get(7).cues);
     assertThat(eighthCue.text.toString()).isEqualTo("This is the eighth subtitle.");
     assertThat(eighthCue.positionAnchor).isEqualTo(Cue.ANCHOR_TYPE_END);
@@ -317,6 +342,7 @@ public class WebvttParserTest {
 
     assertThat(allCues.get(0).startTimeUs).isEqualTo(0);
     assertThat(allCues.get(0).durationUs).isEqualTo(1_000_000);
+    assertThat(allCues.get(0).endTimeUs).isEqualTo(1_000_000);
     Cue firstCue = Iterables.getOnlyElement(allCues.get(0).cues);
     assertThat(firstCue.text.toString()).isEqualTo("Displayed at the bottom for 3 seconds.");
     assertThat(firstCue.line).isEqualTo(-1f);
@@ -324,6 +350,7 @@ public class WebvttParserTest {
 
     assertThat(allCues.get(1).startTimeUs).isEqualTo(1_000_000);
     assertThat(allCues.get(1).durationUs).isEqualTo(1_000_000);
+    assertThat(allCues.get(1).endTimeUs).isEqualTo(2_000_000);
     ImmutableList<Cue> firstAndSecondCue = allCues.get(1).cues;
     assertThat(firstAndSecondCue).hasSize(2);
     assertThat(firstAndSecondCue.get(0).text.toString())
@@ -337,6 +364,7 @@ public class WebvttParserTest {
 
     assertThat(allCues.get(2).startTimeUs).isEqualTo(2_000_000);
     assertThat(allCues.get(2).durationUs).isEqualTo(1_000_000);
+    assertThat(allCues.get(2).endTimeUs).isEqualTo(3_000_000);
     Cue thirdCue = Iterables.getOnlyElement(allCues.get(2).cues);
     assertThat(thirdCue.text.toString()).isEqualTo("Displayed at the bottom for 3 seconds.");
     assertThat(thirdCue.line).isEqualTo(-1f);
@@ -344,6 +372,7 @@ public class WebvttParserTest {
 
     assertThat(allCues.get(3).startTimeUs).isEqualTo(4_000_000);
     assertThat(allCues.get(3).durationUs).isEqualTo(1_000_000);
+    assertThat(allCues.get(3).endTimeUs).isEqualTo(5_000_000);
     Cue fourthCue = Iterables.getOnlyElement(allCues.get(3).cues);
     assertThat(fourthCue.text.toString()).isEqualTo("Displayed at the bottom for 2 seconds.");
     assertThat(fourthCue.line).isEqualTo(-1f);
@@ -351,6 +380,7 @@ public class WebvttParserTest {
 
     assertThat(allCues.get(4).startTimeUs).isEqualTo(5_000_000);
     assertThat(allCues.get(4).durationUs).isEqualTo(1_000_000);
+    assertThat(allCues.get(4).endTimeUs).isEqualTo(6_000_000);
     ImmutableList<Cue> fourthAndFifth = allCues.get(4).cues;
     assertThat(fourthAndFifth).hasSize(2);
     assertThat(fourthAndFifth.get(0).text.toString())
@@ -364,6 +394,7 @@ public class WebvttParserTest {
 
     assertThat(allCues.get(5).startTimeUs).isEqualTo(6_000_000);
     assertThat(allCues.get(5).durationUs).isEqualTo(1_000_000);
+    assertThat(allCues.get(5).endTimeUs).isEqualTo(7_000_000);
     Cue sixthCue = Iterables.getOnlyElement(allCues.get(5).cues);
     assertThat(sixthCue.text.toString())
         .isEqualTo("Appears directly above the previous cue, then replaces it after 1 second.");
@@ -379,18 +410,21 @@ public class WebvttParserTest {
 
     assertThat(allCues.get(0).startTimeUs).isEqualTo(0L);
     assertThat(allCues.get(0).durationUs).isEqualTo(1_234_000L);
+    assertThat(allCues.get(0).endTimeUs).isEqualTo(1_234_000L);
     Cue firstCue = Iterables.getOnlyElement(allCues.get(0).cues);
     assertThat(firstCue.text.toString()).isEqualTo("Vertical right-to-left (e.g. Japanese)");
     assertThat(firstCue.verticalType).isEqualTo(Cue.VERTICAL_TYPE_RL);
 
     assertThat(allCues.get(1).startTimeUs).isEqualTo(2_345_000L);
     assertThat(allCues.get(1).durationUs).isEqualTo(3_456_000L - 2_345_000L);
+    assertThat(allCues.get(1).endTimeUs).isEqualTo(3_456_000L);
     Cue secondCue = Iterables.getOnlyElement(allCues.get(1).cues);
     assertThat(secondCue.text.toString()).isEqualTo("Vertical left-to-right (e.g. Mongolian)");
     assertThat(secondCue.verticalType).isEqualTo(Cue.VERTICAL_TYPE_LR);
 
     assertThat(allCues.get(2).startTimeUs).isEqualTo(4_000_000L);
     assertThat(allCues.get(2).durationUs).isEqualTo(5_000_000L - 4_000_000L);
+    assertThat(allCues.get(2).endTimeUs).isEqualTo(5_000_000L);
     Cue thirdCue = Iterables.getOnlyElement(allCues.get(2).cues);
     assertThat(thirdCue.text.toString()).isEqualTo("No vertical setting (i.e. horizontal)");
     assertThat(thirdCue.verticalType).isEqualTo(Cue.TYPE_UNSET);
@@ -449,11 +483,13 @@ public class WebvttParserTest {
 
     assertThat(allCues.get(0).startTimeUs).isEqualTo(0L);
     assertThat(allCues.get(0).durationUs).isEqualTo(1_234_000L);
+    assertThat(allCues.get(0).endTimeUs).isEqualTo(1_234_000L);
     Cue firstCue = Iterables.getOnlyElement(allCues.get(0).cues);
     assertThat(firstCue.text.toString()).isEqualTo("This is the first subtitle.");
 
     assertThat(allCues.get(1).startTimeUs).isEqualTo(4_000_000L);
     assertThat(allCues.get(1).durationUs).isEqualTo(5_000_000L - 4_000_000L);
+    assertThat(allCues.get(1).endTimeUs).isEqualTo(5_000_000L);
     Cue secondCue = Iterables.getOnlyElement(allCues.get(1).cues);
     assertThat(secondCue.text.toString()).isEqualTo("This is the third subtitle.");
   }
@@ -466,6 +502,7 @@ public class WebvttParserTest {
 
     assertThat(allCues.get(0).startTimeUs).isEqualTo(0L);
     assertThat(allCues.get(0).durationUs).isEqualTo(2_000_000L);
+    assertThat(allCues.get(0).endTimeUs).isEqualTo(2_000_000L);
     Cue firstCue = Iterables.getOnlyElement(allCues.get(0).cues);
     assertThat(firstCue.text.toString()).isEqualTo("Sentence with font-size set to 4.4em.");
     assertThat((Spanned) firstCue.text)
@@ -474,12 +511,14 @@ public class WebvttParserTest {
 
     assertThat(allCues.get(1).startTimeUs).isEqualTo(2_100_000L);
     assertThat(allCues.get(1).durationUs).isEqualTo(2_400_000L - 2_100_000L);
+    assertThat(allCues.get(1).endTimeUs).isEqualTo(2_400_000L);
     Cue secondCue = Iterables.getOnlyElement(allCues.get(1).cues);
     assertThat(secondCue.text.toString()).isEqualTo("Sentence with bad font-size unit.");
     assertThat((Spanned) secondCue.text).hasNoSpans();
 
     assertThat(allCues.get(2).startTimeUs).isEqualTo(2_500_000L);
     assertThat(allCues.get(2).durationUs).isEqualTo(4_000_000L - 2_500_000L);
+    assertThat(allCues.get(2).endTimeUs).isEqualTo(4_000_000L);
     Cue thirdCue = Iterables.getOnlyElement(allCues.get(2).cues);
     assertThat(thirdCue.text.toString()).isEqualTo("Absolute font-size expressed in px unit!");
     assertThat((Spanned) thirdCue.text)
@@ -488,6 +527,7 @@ public class WebvttParserTest {
 
     assertThat(allCues.get(3).startTimeUs).isEqualTo(4_500_000L);
     assertThat(allCues.get(3).durationUs).isEqualTo(6_000_000L - 4_500_000L);
+    assertThat(allCues.get(3).endTimeUs).isEqualTo(6_000_000L);
     Cue fourthCue = Iterables.getOnlyElement(allCues.get(3).cues);
     assertThat(fourthCue.text.toString()).isEqualTo("Relative font-size expressed in % unit!");
     assertThat((Spanned) fourthCue.text)
@@ -496,12 +536,14 @@ public class WebvttParserTest {
 
     assertThat(allCues.get(4).startTimeUs).isEqualTo(6_100_000L);
     assertThat(allCues.get(4).durationUs).isEqualTo(6_400_000L - 6_100_000L);
+    assertThat(allCues.get(4).endTimeUs).isEqualTo(6_400_000L);
     Cue fifthCue = Iterables.getOnlyElement(allCues.get(4).cues);
     assertThat(fifthCue.text.toString()).isEqualTo("Sentence with bad font-size value.");
     assertThat((Spanned) secondCue.text).hasNoSpans();
 
     assertThat(allCues.get(5).startTimeUs).isEqualTo(6_500_000L);
     assertThat(allCues.get(5).durationUs).isEqualTo(8_000_000L - 6_500_000L);
+    assertThat(allCues.get(5).endTimeUs).isEqualTo(8_000_000L);
     Cue sixthCue = Iterables.getOnlyElement(allCues.get(5).cues);
     assertThat(sixthCue.text.toString())
         .isEqualTo("Upper and lower case letters in font-size unit.");

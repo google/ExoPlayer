@@ -76,22 +76,26 @@ public class SubtitleExtractorTest {
     CuesWithTiming cues0 = decodeSample(trackOutput, 0);
     assertThat(cues0.startTimeUs).isEqualTo(0);
     assertThat(cues0.durationUs).isEqualTo(1_234_000);
+    assertThat(cues0.endTimeUs).isEqualTo(1_234_000);
     assertThat(cues0.cues).hasSize(1);
     assertThat(cues0.cues.get(0).text.toString()).isEqualTo("This is the first subtitle.");
     CuesWithTiming cues1 = decodeSample(trackOutput, 1);
     assertThat(cues1.startTimeUs).isEqualTo(2_345_000);
     assertThat(cues1.durationUs).isEqualTo(2_600_000 - 2_345_000);
+    assertThat(cues1.endTimeUs).isEqualTo(2_600_000);
     assertThat(cues1.cues).hasSize(1);
     assertThat(cues1.cues.get(0).text.toString()).isEqualTo("This is the second subtitle.");
     CuesWithTiming cues2 = decodeSample(trackOutput, 2);
     assertThat(cues2.startTimeUs).isEqualTo(2_600_000);
     assertThat(cues2.durationUs).isEqualTo(3_456_000 - 2_600_000);
+    assertThat(cues2.endTimeUs).isEqualTo(3_456_000);
     assertThat(cues2.cues).hasSize(2);
     assertThat(cues2.cues.get(0).text.toString()).isEqualTo("This is the second subtitle.");
     assertThat(cues2.cues.get(1).text.toString()).isEqualTo("This is the third subtitle.");
     CuesWithTiming cues3 = decodeSample(trackOutput, 3);
     assertThat(cues3.startTimeUs).isEqualTo(3_456_000);
     assertThat(cues3.durationUs).isEqualTo(4_567_000 - 3_456_000);
+    assertThat(cues3.endTimeUs).isEqualTo(4_567_000);
     assertThat(cues3.cues).hasSize(1);
     assertThat(cues3.cues.get(0).text.toString()).isEqualTo("This is the third subtitle.");
   }
@@ -122,17 +126,20 @@ public class SubtitleExtractorTest {
     CuesWithTiming cues0 = decodeSample(trackOutput, 0);
     assertThat(cues0.startTimeUs).isEqualTo(2_345_000L);
     assertThat(cues0.durationUs).isEqualTo(2_600_000 - 2_345_000L);
+    assertThat(cues0.endTimeUs).isEqualTo(2_600_000);
     assertThat(cues0.cues).hasSize(1);
     assertThat(cues0.cues.get(0).text.toString()).isEqualTo("This is the second subtitle.");
     CuesWithTiming cues1 = decodeSample(trackOutput, 1);
     assertThat(cues1.startTimeUs).isEqualTo(2_600_000);
     assertThat(cues1.durationUs).isEqualTo(3_456_000 - 2_600_000);
+    assertThat(cues1.endTimeUs).isEqualTo(3_456_000);
     assertThat(cues1.cues).hasSize(2);
     assertThat(cues1.cues.get(0).text.toString()).isEqualTo("This is the second subtitle.");
     assertThat(cues1.cues.get(1).text.toString()).isEqualTo("This is the third subtitle.");
     CuesWithTiming cues2 = decodeSample(trackOutput, 2);
     assertThat(cues2.startTimeUs).isEqualTo(3_456_000);
     assertThat(cues2.durationUs).isEqualTo(4_567_000L - 3_456_000);
+    assertThat(cues2.endTimeUs).isEqualTo(4_567_000L);
     assertThat(cues2.cues).hasSize(1);
     assertThat(cues2.cues.get(0).text.toString()).isEqualTo("This is the third subtitle.");
   }
@@ -163,17 +170,20 @@ public class SubtitleExtractorTest {
     CuesWithTiming cues0 = decodeSample(trackOutput, 0);
     assertThat(cues0.startTimeUs).isEqualTo(2_345_000L);
     assertThat(cues0.durationUs).isEqualTo(2_600_000 - 2_345_000L);
+    assertThat(cues0.endTimeUs).isEqualTo(2_600_000);
     assertThat(cues0.cues).hasSize(1);
     assertThat(cues0.cues.get(0).text.toString()).isEqualTo("This is the second subtitle.");
     CuesWithTiming cues1 = decodeSample(trackOutput, 1);
     assertThat(cues1.startTimeUs).isEqualTo(2_600_000);
     assertThat(cues1.durationUs).isEqualTo(3_456_000 - 2_600_000);
+    assertThat(cues1.endTimeUs).isEqualTo(3_456_000);
     assertThat(cues1.cues).hasSize(2);
     assertThat(cues1.cues.get(0).text.toString()).isEqualTo("This is the second subtitle.");
     assertThat(cues1.cues.get(1).text.toString()).isEqualTo("This is the third subtitle.");
     CuesWithTiming cues2 = decodeSample(trackOutput, 2);
     assertThat(cues2.startTimeUs).isEqualTo(3_456_000);
     assertThat(cues2.durationUs).isEqualTo(4_567_000L - 3_456_000);
+    assertThat(cues2.endTimeUs).isEqualTo(4_567_000L);
     assertThat(cues2.cues).hasSize(1);
     assertThat(cues2.cues.get(0).text.toString()).isEqualTo("This is the third subtitle.");
   }

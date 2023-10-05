@@ -72,6 +72,7 @@ public final class Tx3gParserTest {
     assertThat(cuesWithTiming.cues).isEmpty();
     assertThat(cuesWithTiming.startTimeUs).isEqualTo(C.TIME_UNSET);
     assertThat(cuesWithTiming.durationUs).isEqualTo(C.TIME_UNSET);
+    assertThat(cuesWithTiming.endTimeUs).isEqualTo(C.TIME_UNSET);
   }
 
   @Test
@@ -86,6 +87,7 @@ public final class Tx3gParserTest {
 
     assertThat(cuesWithTiming.startTimeUs).isEqualTo(C.TIME_UNSET);
     assertThat(cuesWithTiming.durationUs).isEqualTo(C.TIME_UNSET);
+    assertThat(cuesWithTiming.endTimeUs).isEqualTo(C.TIME_UNSET);
     assertThat(text.toString()).isEqualTo("CC Test");
     assertThat(text).hasNoSpans();
     assertFractionalLinePosition(singleCue, 0.85f);
@@ -103,6 +105,7 @@ public final class Tx3gParserTest {
 
     assertThat(cuesWithTiming.startTimeUs).isEqualTo(C.TIME_UNSET);
     assertThat(cuesWithTiming.durationUs).isEqualTo(C.TIME_UNSET);
+    assertThat(cuesWithTiming.endTimeUs).isEqualTo(C.TIME_UNSET);
     assertThat(text.toString()).isEqualTo("CC Test");
     assertThat(text).hasBoldItalicSpanBetween(0, 6);
     assertThat(text).hasUnderlineSpanBetween(0, 6);
@@ -171,6 +174,7 @@ public final class Tx3gParserTest {
 
     assertThat(cuesWithTiming.startTimeUs).isEqualTo(C.TIME_UNSET);
     assertThat(cuesWithTiming.durationUs).isEqualTo(C.TIME_UNSET);
+    assertThat(cuesWithTiming.endTimeUs).isEqualTo(C.TIME_UNSET);
     assertThat(text.toString()).isEqualTo("CC Test");
     assertThat(text).hasNoSpans();
     assertFractionalLinePosition(singleCue, 0.85f);
@@ -188,6 +192,7 @@ public final class Tx3gParserTest {
 
     assertThat(cuesWithTiming.startTimeUs).isEqualTo(C.TIME_UNSET);
     assertThat(cuesWithTiming.durationUs).isEqualTo(C.TIME_UNSET);
+    assertThat(cuesWithTiming.endTimeUs).isEqualTo(C.TIME_UNSET);
     assertThat(text.toString()).isEqualTo("你好");
     assertThat(text).hasNoSpans();
     assertFractionalLinePosition(singleCue, 0.85f);
@@ -204,6 +209,7 @@ public final class Tx3gParserTest {
 
     assertThat(cuesWithTiming.startTimeUs).isEqualTo(C.TIME_UNSET);
     assertThat(cuesWithTiming.durationUs).isEqualTo(C.TIME_UNSET);
+    assertThat(cuesWithTiming.endTimeUs).isEqualTo(C.TIME_UNSET);
 
     assertThat(text.toString()).isEqualTo("你好");
     assertThat(text).hasNoSpans();
@@ -223,6 +229,7 @@ public final class Tx3gParserTest {
 
     assertThat(cuesWithTiming.startTimeUs).isEqualTo(C.TIME_UNSET);
     assertThat(cuesWithTiming.durationUs).isEqualTo(C.TIME_UNSET);
+    assertThat(cuesWithTiming.endTimeUs).isEqualTo(C.TIME_UNSET);
     assertThat(text.toString()).isEqualTo("Line 2\nLine 3");
     assertThat(text).hasItalicSpanBetween(0, 5);
     assertThat(text).hasUnderlineSpanBetween(7, 12);
@@ -244,6 +251,7 @@ public final class Tx3gParserTest {
 
     assertThat(cuesWithTiming.startTimeUs).isEqualTo(C.TIME_UNSET);
     assertThat(cuesWithTiming.durationUs).isEqualTo(C.TIME_UNSET);
+    assertThat(cuesWithTiming.endTimeUs).isEqualTo(C.TIME_UNSET);
     assertThat(text.toString()).isEqualTo("CC Test");
     assertThat(text).hasBoldSpanBetween(0, 6);
     assertThat(text).hasForegroundColorSpanBetween(0, 6).withColor(Color.GREEN);
@@ -264,6 +272,7 @@ public final class Tx3gParserTest {
 
     assertThat(cuesWithTiming.startTimeUs).isEqualTo(C.TIME_UNSET);
     assertThat(cuesWithTiming.durationUs).isEqualTo(C.TIME_UNSET);
+    assertThat(cuesWithTiming.endTimeUs).isEqualTo(C.TIME_UNSET);
     assertThat(text.toString()).isEqualTo("CC Test");
     assertThat(text).hasBoldItalicSpanBetween(0, 7);
     assertThat(text).hasUnderlineSpanBetween(0, 7);
@@ -288,6 +297,7 @@ public final class Tx3gParserTest {
 
     assertThat(cuesWithTiming.startTimeUs).isEqualTo(C.TIME_UNSET);
     assertThat(cuesWithTiming.durationUs).isEqualTo(C.TIME_UNSET);
+    assertThat(cuesWithTiming.endTimeUs).isEqualTo(C.TIME_UNSET);
     assertThat(text.toString()).isEqualTo("CC Test");
     assertThat(text).hasBoldItalicSpanBetween(0, 7);
     assertThat(text).hasUnderlineSpanBetween(0, 7);
@@ -311,6 +321,7 @@ public final class Tx3gParserTest {
 
     assertThat(cuesWithTiming.startTimeUs).isEqualTo(C.TIME_UNSET);
     assertThat(cuesWithTiming.durationUs).isEqualTo(C.TIME_UNSET);
+    assertThat(cuesWithTiming.endTimeUs).isEqualTo(C.TIME_UNSET);
     assertThat(text.toString()).isEqualTo("CC Test");
     assertThat(text).hasBoldItalicSpanBetween(0, 6);
     assertThat(text).hasUnderlineSpanBetween(0, 6);

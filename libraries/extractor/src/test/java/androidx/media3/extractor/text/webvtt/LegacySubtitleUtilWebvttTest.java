@@ -72,10 +72,12 @@ public class LegacySubtitleUtilWebvttTest {
     assertThat(cuesWithTimingsList).hasSize(2);
     assertThat(cuesWithTimingsList.get(0).startTimeUs).isEqualTo(1_000_000);
     assertThat(cuesWithTimingsList.get(0).durationUs).isEqualTo(1_000_000);
+    assertThat(cuesWithTimingsList.get(0).endTimeUs).isEqualTo(2_000_000);
     assertThat(Lists.transform(cuesWithTimingsList.get(0).cues, c -> c.text))
         .containsExactly(FIRST_SUBTITLE_STRING);
     assertThat(cuesWithTimingsList.get(1).startTimeUs).isEqualTo(3_000_000);
     assertThat(cuesWithTimingsList.get(1).durationUs).isEqualTo(1_000_000);
+    assertThat(cuesWithTimingsList.get(1).endTimeUs).isEqualTo(4_000_000);
     assertThat(Lists.transform(cuesWithTimingsList.get(1).cues, c -> c.text))
         .containsExactly(SECOND_SUBTITLE_STRING);
   }
@@ -88,15 +90,18 @@ public class LegacySubtitleUtilWebvttTest {
     assertThat(cuesWithTimingsList).hasSize(3);
     assertThat(cuesWithTimingsList.get(0).startTimeUs).isEqualTo(1_000_000);
     assertThat(cuesWithTimingsList.get(0).durationUs).isEqualTo(1_000_000);
+    assertThat(cuesWithTimingsList.get(0).endTimeUs).isEqualTo(2_000_000);
     assertThat(Lists.transform(cuesWithTimingsList.get(0).cues, c -> c.text))
         .containsExactly(FIRST_SUBTITLE_STRING);
     assertThat(cuesWithTimingsList.get(1).startTimeUs).isEqualTo(2_000_000);
     assertThat(cuesWithTimingsList.get(1).durationUs).isEqualTo(1_000_000);
+    assertThat(cuesWithTimingsList.get(1).endTimeUs).isEqualTo(3_000_000);
     assertThat(Lists.transform(cuesWithTimingsList.get(1).cues, c -> c.text))
         .containsExactly(FIRST_SUBTITLE_STRING, SECOND_SUBTITLE_STRING)
         .inOrder();
     assertThat(cuesWithTimingsList.get(2).startTimeUs).isEqualTo(3_000_000);
     assertThat(cuesWithTimingsList.get(2).durationUs).isEqualTo(1_000_000);
+    assertThat(cuesWithTimingsList.get(2).endTimeUs).isEqualTo(4_000_000);
     assertThat(Lists.transform(cuesWithTimingsList.get(2).cues, c -> c.text))
         .containsExactly(SECOND_SUBTITLE_STRING);
   }
@@ -109,6 +114,7 @@ public class LegacySubtitleUtilWebvttTest {
     assertThat(cuesWithTimingsList).hasSize(1);
     assertThat(cuesWithTimingsList.get(0).startTimeUs).isEqualTo(3_000_000);
     assertThat(cuesWithTimingsList.get(0).durationUs).isEqualTo(1_000_000);
+    assertThat(cuesWithTimingsList.get(0).endTimeUs).isEqualTo(4_000_000);
     assertThat(Lists.transform(cuesWithTimingsList.get(0).cues, c -> c.text))
         .containsExactly(SECOND_SUBTITLE_STRING);
   }
@@ -121,6 +127,7 @@ public class LegacySubtitleUtilWebvttTest {
     assertThat(cuesWithTimingsList).hasSize(1);
     assertThat(cuesWithTimingsList.get(0).startTimeUs).isEqualTo(3_000_000);
     assertThat(cuesWithTimingsList.get(0).durationUs).isEqualTo(1_000_000);
+    assertThat(cuesWithTimingsList.get(0).endTimeUs).isEqualTo(4_000_000);
     assertThat(Lists.transform(cuesWithTimingsList.get(0).cues, c -> c.text))
         .containsExactly(SECOND_SUBTITLE_STRING);
   }
@@ -133,6 +140,7 @@ public class LegacySubtitleUtilWebvttTest {
     assertThat(cuesWithTimingsList).hasSize(1);
     assertThat(cuesWithTimingsList.get(0).startTimeUs).isEqualTo(3_000_000);
     assertThat(cuesWithTimingsList.get(0).durationUs).isEqualTo(1_000_000);
+    assertThat(cuesWithTimingsList.get(0).endTimeUs).isEqualTo(4_000_000);
     assertThat(Lists.transform(cuesWithTimingsList.get(0).cues, c -> c.text))
         .containsExactly(SECOND_SUBTITLE_STRING);
   }
@@ -145,10 +153,12 @@ public class LegacySubtitleUtilWebvttTest {
     assertThat(cuesWithTimingsList).hasSize(2);
     assertThat(cuesWithTimingsList.get(0).startTimeUs).isEqualTo(1_000_000);
     assertThat(cuesWithTimingsList.get(0).durationUs).isEqualTo(1_000_000);
+    assertThat(cuesWithTimingsList.get(0).endTimeUs).isEqualTo(2_000_000);
     assertThat(Lists.transform(cuesWithTimingsList.get(0).cues, c -> c.text))
         .containsExactly(FIRST_SUBTITLE_STRING);
     assertThat(cuesWithTimingsList.get(1).startTimeUs).isEqualTo(3_000_000);
     assertThat(cuesWithTimingsList.get(1).durationUs).isEqualTo(1_000_000);
+    assertThat(cuesWithTimingsList.get(1).endTimeUs).isEqualTo(4_000_000);
     assertThat(Lists.transform(cuesWithTimingsList.get(1).cues, c -> c.text))
         .containsExactly(SECOND_SUBTITLE_STRING);
   }
@@ -162,11 +172,13 @@ public class LegacySubtitleUtilWebvttTest {
     assertThat(cuesWithTimingsList).hasSize(2);
     assertThat(cuesWithTimingsList.get(0).startTimeUs).isEqualTo(2_000_000);
     assertThat(cuesWithTimingsList.get(0).durationUs).isEqualTo(1_000_000);
+    assertThat(cuesWithTimingsList.get(0).endTimeUs).isEqualTo(3_000_000);
     assertThat(Lists.transform(cuesWithTimingsList.get(0).cues, c -> c.text))
         .containsExactly(FIRST_SUBTITLE_STRING, SECOND_SUBTITLE_STRING)
         .inOrder();
     assertThat(cuesWithTimingsList.get(1).startTimeUs).isEqualTo(3_000_000);
     assertThat(cuesWithTimingsList.get(1).durationUs).isEqualTo(1_000_000);
+    assertThat(cuesWithTimingsList.get(1).endTimeUs).isEqualTo(4_000_000);
     assertThat(Lists.transform(cuesWithTimingsList.get(1).cues, c -> c.text))
         .containsExactly(SECOND_SUBTITLE_STRING);
   }
@@ -181,10 +193,12 @@ public class LegacySubtitleUtilWebvttTest {
     assertThat(cuesWithTimingsList).hasSize(2);
     assertThat(cuesWithTimingsList.get(0).startTimeUs).isEqualTo(3_000_000);
     assertThat(cuesWithTimingsList.get(0).durationUs).isEqualTo(1_000_000);
+    assertThat(cuesWithTimingsList.get(0).endTimeUs).isEqualTo(4_000_000);
     assertThat(Lists.transform(cuesWithTimingsList.get(0).cues, c -> c.text))
         .containsExactly(SECOND_SUBTITLE_STRING);
     assertThat(cuesWithTimingsList.get(1).startTimeUs).isEqualTo(1_000_000);
     assertThat(cuesWithTimingsList.get(1).durationUs).isEqualTo(1_000_000);
+    assertThat(cuesWithTimingsList.get(1).endTimeUs).isEqualTo(2_000_000);
     assertThat(Lists.transform(cuesWithTimingsList.get(1).cues, c -> c.text))
         .containsExactly(FIRST_SUBTITLE_STRING);
   }
@@ -199,15 +213,18 @@ public class LegacySubtitleUtilWebvttTest {
     assertThat(cuesWithTimingsList).hasSize(3);
     assertThat(cuesWithTimingsList.get(0).startTimeUs).isEqualTo(2_000_000);
     assertThat(cuesWithTimingsList.get(0).durationUs).isEqualTo(1_000_000);
+    assertThat(cuesWithTimingsList.get(0).endTimeUs).isEqualTo(3_000_000);
     assertThat(Lists.transform(cuesWithTimingsList.get(0).cues, c -> c.text))
         .containsExactly(FIRST_SUBTITLE_STRING, SECOND_SUBTITLE_STRING)
         .inOrder();
     assertThat(cuesWithTimingsList.get(1).startTimeUs).isEqualTo(3_000_000);
     assertThat(cuesWithTimingsList.get(1).durationUs).isEqualTo(1_000_000);
+    assertThat(cuesWithTimingsList.get(1).endTimeUs).isEqualTo(4_000_000);
     assertThat(Lists.transform(cuesWithTimingsList.get(1).cues, c -> c.text))
         .containsExactly(SECOND_SUBTITLE_STRING);
     assertThat(cuesWithTimingsList.get(2).startTimeUs).isEqualTo(1_000_000);
     assertThat(cuesWithTimingsList.get(2).durationUs).isEqualTo(1_000_000);
+    assertThat(cuesWithTimingsList.get(2).endTimeUs).isEqualTo(2_000_000);
     assertThat(Lists.transform(cuesWithTimingsList.get(2).cues, c -> c.text))
         .containsExactly(FIRST_SUBTITLE_STRING);
   }
