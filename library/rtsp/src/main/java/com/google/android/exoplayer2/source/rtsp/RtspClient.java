@@ -106,7 +106,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   public static final int RTSP_STATE_PLAYING = 2;
 
   private static final String TAG = "RtspClient";
-  private static final long DEFAULT_RTSP_KEEP_ALIVE_INTERVAL_MS = 30_000;
+
+  /**
+   * The default divisor used on the session timeout value to be set as the {@link
+   * KeepAliveMonitor#intervalMs}.
+   */
+  private static final int DEFAULT_RTSP_KEEP_ALIVE_INTERVAL_DIVISOR = 2;
 
   /** A listener for session information update. */
   public interface SessionInfoListener {
@@ -153,6 +158,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private RtspMessageChannel messageChannel;
   @Nullable private RtspAuthUserInfo rtspAuthUserInfo;
   @Nullable private String sessionId;
+  private long sessionTimeoutMs;
   @Nullable private KeepAliveMonitor keepAliveMonitor;
   @Nullable private RtspAuthenticationInfo rtspAuthenticationInfo;
   private @RtspState int rtspState;
@@ -194,6 +200,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.messageSender = new MessageSender();
     this.uri = RtspMessageUtil.removeUserInfo(uri);
     this.messageChannel = new RtspMessageChannel(new MessageListener());
+    this.sessionTimeoutMs = RtspMessageUtil.DEFAULT_RTSP_TIMEOUT_MS;
     this.rtspAuthUserInfo = RtspMessageUtil.parseUserInfo(uri);
     this.pendingSeekPositionUs = C.TIME_UNSET;
     this.rtspState = RTSP_STATE_UNINITIALIZED;
@@ -741,6 +748,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
       rtspState = RTSP_STATE_READY;
       sessionId = response.sessionHeader.sessionId;
+      sessionTimeoutMs = response.sessionHeader.timeoutMs;
       continueSetupRtspTrack();
     }
 
@@ -749,7 +757,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
       rtspState = RTSP_STATE_PLAYING;
       if (keepAliveMonitor == null) {
-        keepAliveMonitor = new KeepAliveMonitor(DEFAULT_RTSP_KEEP_ALIVE_INTERVAL_MS);
+        keepAliveMonitor =
+            new KeepAliveMonitor(
+                /* intervalMs= */ sessionTimeoutMs / DEFAULT_RTSP_KEEP_ALIVE_INTERVAL_DIVISOR);
         keepAliveMonitor.start();
       }
 

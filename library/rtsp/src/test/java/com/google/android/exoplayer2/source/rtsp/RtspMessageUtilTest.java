@@ -407,13 +407,19 @@ public final class RtspMessageUtilTest {
   }
 
   @Test
-  public void parseSessionHeader_withSessionIdContainingSpecialCharactersAndTimeout_succeeds()
-      throws Exception {
-    String sessionHeaderString = "610a63df-9b57.4856_97ac$665f+56e9c04;timeout=60";
+  public void parseSessionHeader_usingDefaultTimeout_succeeds() throws Exception {
+    String sessionHeaderString = "610a63df-9b57.4856_97ac$665f+56e9c04";
     RtspMessageUtil.RtspSessionHeader sessionHeader =
         RtspMessageUtil.parseSessionHeader(sessionHeaderString);
-    assertThat(sessionHeader.sessionId).isEqualTo("610a63df-9b57.4856_97ac$665f+56e9c04");
-    assertThat(sessionHeader.timeoutMs).isEqualTo(60_000);
+    assertThat(sessionHeader.timeoutMs).isEqualTo(RtspMessageUtil.DEFAULT_RTSP_TIMEOUT_MS);
+  }
+
+  @Test
+  public void parseSessionHeader_withCustomTimeout_succeeds() throws Exception {
+    String sessionHeaderString = "610a63df-9b57.4856_97ac$665f+56e9c04;timeout=30";
+    RtspMessageUtil.RtspSessionHeader sessionHeader =
+        RtspMessageUtil.parseSessionHeader(sessionHeaderString);
+    assertThat(sessionHeader.timeoutMs).isEqualTo(30_000);
   }
 
   @Test
