@@ -51,10 +51,29 @@ public class CuesWithTiming {
    */
   public final long durationUs;
 
+  /**
+   * The time at which {@link #cues} should stop being shown on screen, in microseconds, or {@link
+   * C#TIME_UNSET} if not known.
+   *
+   * <p>The time base of this is the same as {@link #startTimeUs}.
+   *
+   * <p>If {@link Format#cueReplacementBehavior} is {@link Format#CUE_REPLACEMENT_BEHAVIOR_MERGE}
+   * then cues from multiple instances will be shown on screen simultaneously if their start and
+   * times overlap.
+   *
+   * <p>{@link C#TIME_UNSET} is only permitted if the {@link Format#cueReplacementBehavior} of the
+   * current track is {@link Format#CUE_REPLACEMENT_BEHAVIOR_REPLACE}.
+   */
+  public final long endTimeUs;
+
   /** Creates an instance. */
   public CuesWithTiming(List<Cue> cues, long startTimeUs, long durationUs) {
     this.cues = ImmutableList.copyOf(cues);
     this.startTimeUs = startTimeUs;
     this.durationUs = durationUs;
+    this.endTimeUs =
+        startTimeUs == C.TIME_UNSET || durationUs == C.TIME_UNSET
+            ? C.TIME_UNSET
+            : startTimeUs + durationUs;
   }
 }
