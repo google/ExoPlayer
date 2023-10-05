@@ -386,9 +386,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
               if (pendingInputStreamInfo != null) {
                 InputStreamInfo pendingInputStreamInfo = this.pendingInputStreamInfo;
                 videoFrameProcessingTaskExecutor.submit(
-                    () -> {
-                      configureEffects(pendingInputStreamInfo, /* forceReconfigure= */ false);
-                    });
+                    () -> configureEffects(pendingInputStreamInfo, /* forceReconfigure= */ false));
                 this.pendingInputStreamInfo = null;
               }
             }
@@ -555,6 +553,9 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
 
   @Override
   public void flush() {
+    if (!inputSwitcher.hasActiveInput()) {
+      return;
+    }
     try {
       videoFrameProcessingTaskExecutor.flush();
       CountDownLatch latch = new CountDownLatch(1);

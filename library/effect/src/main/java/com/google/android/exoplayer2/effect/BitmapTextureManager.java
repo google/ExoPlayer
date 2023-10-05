@@ -65,6 +65,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private boolean currentInputStreamEnded;
   private boolean isNextFrameInTexture;
 
+  @Nullable private volatile VideoFrameProcessingTaskExecutor.Task onFlushCompleteTask;
+
   /**
    * Creates a new instance.
    *
@@ -91,6 +93,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           downstreamShaderProgramCapacity++;
           maybeQueueToShaderProgram();
         });
+  }
+
+  @Override
+  public void onFlush() {
+    videoFrameProcessingTaskExecutor.submit(this::flush);
   }
 
   @Override
@@ -128,7 +135,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   @Override
   public void setOnFlushCompleteListener(@Nullable VideoFrameProcessingTaskExecutor.Task task) {
-    // Do nothing.
+    onFlushCompleteTask = task;
   }
 
   @Override
@@ -193,6 +200,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             DebugTraceUtil.EVENT_BITMAP_TEXTURE_MANAGER_SIGNAL_EOS, C.TIME_END_OF_SOURCE);
         currentInputStreamEnded = false;
       }
+    }
+  }
+
+  private void flush() {
+    pendingBitmaps.clear();
+    if (onFlushCompleteTask != null) {
+      videoFrameProcessingTaskExecutor.submitWithHighPriority(onFlushCompleteTask);
     }
   }
 
