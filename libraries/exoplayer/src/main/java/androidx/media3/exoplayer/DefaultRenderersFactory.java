@@ -407,7 +407,8 @@ public class DefaultRenderersFactory implements RenderersFactory {
 
     try {
       // Full class names used for constructor args so the LINT rule triggers if any of them move.
-      Class<?> clazz = Class.forName("androidx.media3.decoder.ffmpeg.FfmpegVideoRenderer");
+      Class<?> clazz =
+          Class.forName("androidx.media3.decoder.ffmpeg.ExperimentalFfmpegVideoRenderer");
       Constructor<?> constructor =
           clazz.getConstructor(
               long.class,

@@ -36,16 +36,16 @@ import androidx.media3.exoplayer.RendererCapabilities;
 import androidx.media3.exoplayer.video.DecoderVideoRenderer;
 import androidx.media3.exoplayer.video.VideoRendererEventListener;
 
-// TODO: Remove the NOTE below.
+// TODO: Merge actual implementation in https://github.com/google/ExoPlayer/pull/7132.
 /**
  * <b>NOTE: This class if under development and is not yet functional.</b>
  *
  * <p>Decodes and renders video using FFmpeg.
  */
 @UnstableApi
-public final class FfmpegVideoRenderer extends DecoderVideoRenderer {
+public final class ExperimentalFfmpegVideoRenderer extends DecoderVideoRenderer {
 
-  private static final String TAG = "FfmpegVideoRenderer";
+  private static final String TAG = "ExperimentalFfmpegVideoRenderer";
 
   /**
    * Creates a new instance.
@@ -58,7 +58,7 @@ public final class FfmpegVideoRenderer extends DecoderVideoRenderer {
    * @param maxDroppedFramesToNotify The maximum number of frames that can be dropped between
    *     invocations of {@link VideoRendererEventListener#onDroppedFrames(int, long)}.
    */
-  public FfmpegVideoRenderer(
+  public ExperimentalFfmpegVideoRenderer(
       long allowedJoiningTimeMs,
       @Nullable Handler eventHandler,
       @Nullable VideoRendererEventListener eventListener,
@@ -75,7 +75,7 @@ public final class FfmpegVideoRenderer extends DecoderVideoRenderer {
   @Override
   public final @RendererCapabilities.Capabilities int supportsFormat(Format format) {
     // TODO: Remove this line and uncomment the implementation below.
-    return C.FORMAT_UNSUPPORTED_TYPE;
+    return RendererCapabilities.create(C.FORMAT_UNSUPPORTED_TYPE);
     /*
     String mimeType = Assertions.checkNotNull(format.sampleMimeType);
     if (!FfmpegLibrary.isAvailable() || !MimeTypes.isVideo(mimeType)) {
