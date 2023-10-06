@@ -12,27 +12,27 @@ track 0:
     codecs = audio/midi
   sample 0:
     time = 0
-    flags = -2147483647
+    flags = 1
     data = length 3, hash 70FB
   sample 1:
     time = 0
-    flags = -2147483647
+    flags = 1
     data = length 3, hash FFFF56B6
   sample 2:
     time = 0
-    flags = -2147483647
+    flags = 1
     data = length 7, hash C95FA238
   sample 3:
     time = 0
-    flags = -2147483647
+    flags = 1
     data = length 3, hash FFFF494C
   sample 4:
     time = 0
-    flags = -2147483647
+    flags = 1
     data = length 6, hash 37A83E76
   sample 5:
     time = 4999999
-    flags = -2147483647
+    flags = 1
     data = length 3, hash 8DE
   sample 6:
     time = 5500000

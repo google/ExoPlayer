@@ -234,8 +234,9 @@ public class SampleQueue implements TrackOutput {
   }
 
   /**
-   * Sets the start time for the queue. Samples with earlier timestamps will be discarded or have
-   * the {@link C#BUFFER_FLAG_DECODE_ONLY} flag set when read.
+   * Sets the start time for the queue. Samples with earlier timestamps will be discarded if
+   * {@linkplain MimeTypes#allSamplesAreSyncSamples all samples are sync samples} in the given input
+   * format.
    *
    * @param startTimeUs The start time, in microseconds.
    */
@@ -698,7 +699,9 @@ public class SampleQueue implements TrackOutput {
     sampleDataQueue.rewind();
   }
 
-  @SuppressWarnings("ReferenceEquality") // See comments in setUpstreamFormat
+  // Setting deprecated decode-only flag for compatibility with renderers that are still using it.
+  // See comments in setUpstreamFormat for reference equality warning.
+  @SuppressWarnings({"ReferenceEquality", "deprecation"})
   private synchronized int peekSampleMetadata(
       FormatHolder formatHolder,
       DecoderInputBuffer buffer,

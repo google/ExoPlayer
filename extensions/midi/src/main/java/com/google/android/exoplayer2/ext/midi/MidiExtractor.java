@@ -354,9 +354,7 @@ public final class MidiExtractor implements Extractor, SeekMap {
 
       if (nextTimestampUs != C.TIME_UNSET && nextTimestampUs < seekTimeUs) {
         nextChunk.outputFrontSample(
-            trackOutput,
-            C.BUFFER_FLAG_KEY_FRAME | C.BUFFER_FLAG_DECODE_ONLY,
-            /* skipNoteEvents= */ true);
+            trackOutput, C.BUFFER_FLAG_KEY_FRAME, /* skipNoteEvents= */ true);
         nextChunk.populateFrontTrackEvent();
         trackPriorityQueue.add(nextChunk);
       }

@@ -235,6 +235,8 @@ public final class TextRenderer extends BaseRenderer implements Callback {
     }
   }
 
+  // Setting deprecated decode-only flag for compatibility with decoders that are still using it.
+  @SuppressWarnings("deprecation")
   @Override
   public void render(long positionUs, long elapsedRealtimeUs) {
     if (isCurrentStreamFinal()
