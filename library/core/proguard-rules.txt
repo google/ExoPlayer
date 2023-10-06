@@ -9,8 +9,8 @@
 -keepclassmembers class com.google.android.exoplayer2.ext.av1.Libgav1VideoRenderer {
   <init>(long, android.os.Handler, com.google.android.exoplayer2.video.VideoRendererEventListener, int);
 }
--dontnote com.google.android.exoplayer2.ext.ffmpeg.FfmpegVideoRenderer
--keepclassmembers class com.google.android.exoplayer2.ext.ffmpeg.FfmpegVideoRenderer {
+-dontnote com.google.android.exoplayer2.ext.ffmpeg.ExperimentalFfmpegVideoRenderer
+-keepclassmembers class com.google.android.exoplayer2.ext.ffmpeg.ExperimentalFfmpegVideoRenderer {
   <init>(long, android.os.Handler, com.google.android.exoplayer2.video.VideoRendererEventListener, int);
 }
 -dontnote com.google.android.exoplayer2.ext.opus.LibopusAudioRenderer
