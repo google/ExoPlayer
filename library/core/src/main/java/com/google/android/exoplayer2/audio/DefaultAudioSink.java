@@ -1400,7 +1400,8 @@ public final class DefaultAudioSink implements AudioSink {
   @Override
   public void pause() {
     playing = false;
-    if (isAudioTrackInitialized() && audioTrackPositionTracker.pause()) {
+    if (isAudioTrackInitialized()
+        && (audioTrackPositionTracker.pause() || isOffloadedPlayback(audioTrack))) {
       audioTrack.pause();
     }
   }
