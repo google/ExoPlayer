@@ -42,13 +42,13 @@ HOST_PLATFORM="linux-x86_64"
 ```
 
 * Fetch FFmpeg and checkout an appropriate branch. We cannot guarantee
-  compatibility with all versions of FFmpeg. We currently recommend version 4.2:
+  compatibility with all versions of FFmpeg. We currently recommend version 6.0:
 
 ```
 cd "<preferred location for ffmpeg>" && \
 git clone git://source.ffmpeg.org/ffmpeg && \
 cd ffmpeg && \
-git checkout release/4.2 && \
+git checkout release/6.0 && \
 FFMPEG_PATH="$(pwd)"
 ```
 

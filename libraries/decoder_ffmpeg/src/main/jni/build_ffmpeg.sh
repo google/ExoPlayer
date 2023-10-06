@@ -35,9 +35,10 @@ COMMON_OPTIONS="
     --disable-postproc
     --disable-avfilter
     --disable-symver
-    --disable-avresample
     --enable-swresample
     --extra-ldexeflags=-pie
+    --disable-v4l2-m2m
+    --disable-vulkan
     "
 TOOLCHAIN_PREFIX="${NDK_PATH}/toolchains/llvm/prebuilt/${HOST_PLATFORM}/bin"
 for decoder in "${ENABLED_DECODERS[@]}"
