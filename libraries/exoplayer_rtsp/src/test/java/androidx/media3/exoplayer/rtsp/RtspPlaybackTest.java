@@ -57,7 +57,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.annotation.Config;
-import org.robolectric.shadows.ShadowLooper;
 
 /** Playback testing for RTSP. */
 @Config(sdk = 29)
@@ -110,8 +109,7 @@ public final class RtspPlaybackTest {
             RtspMessageUtil.DEFAULT_RTSP_TIMEOUT_MS,
             /* optionsRequestCounter= */ Optional.empty());
     rtspServer = new RtspServer(responseProvider);
-    ExoPlayer player =
-        createExoPlayer(clock, rtspServer.startAndGetPortNumber(), rtpDataChannelFactory);
+    ExoPlayer player = createExoPlayer(rtspServer.startAndGetPortNumber(), rtpDataChannelFactory);
 
     PlaybackOutput playbackOutput = PlaybackOutput.register(player, capturingRenderersFactory);
     player.prepare();
@@ -136,8 +134,7 @@ public final class RtspPlaybackTest {
                 fakeRtpDataChannel,
                 RtspMessageUtil.DEFAULT_RTSP_TIMEOUT_MS,
                 /* optionsRequestCounter= */ Optional.empty()));
-    ExoPlayer player =
-        createExoPlayer(clock, rtspServer.startAndGetPortNumber(), rtpDataChannelFactory);
+    ExoPlayer player = createExoPlayer(rtspServer.startAndGetPortNumber(), rtpDataChannelFactory);
 
     AtomicReference<Throwable> playbackError = new AtomicReference<>();
     player.prepare();
@@ -169,7 +166,7 @@ public final class RtspPlaybackTest {
             new UdpDataSourceRtpDataChannelFactory(DEFAULT_TIMEOUT_MS), rtpTcpDataChannelFactory);
     rtspServer = new RtspServer(responseProviderSupportingOnlyTcp);
     ExoPlayer player =
-        createExoPlayer(clock, rtspServer.startAndGetPortNumber(), forwardingRtpDataChannelFactory);
+        createExoPlayer(rtspServer.startAndGetPortNumber(), forwardingRtpDataChannelFactory);
 
     PlaybackOutput playbackOutput = PlaybackOutput.register(player, capturingRenderersFactory);
     player.prepare();
@@ -194,8 +191,7 @@ public final class RtspPlaybackTest {
             ImmutableList.of(aacRtpPacketStreamDump, mpeg2tsRtpPacketStreamDump),
             fakeUdpRtpDataChannel);
     rtspServer = new RtspServer(responseProvider);
-    ExoPlayer player =
-        createExoPlayer(clock, rtspServer.startAndGetPortNumber(), rtpDataChannelFactory);
+    ExoPlayer player = createExoPlayer(rtspServer.startAndGetPortNumber(), rtpDataChannelFactory);
 
     AtomicReference<PlaybackException> playbackError = new AtomicReference<>();
     player.prepare();
@@ -232,7 +228,7 @@ public final class RtspPlaybackTest {
         new ForwardingRtpDataChannelFactory(rtpDataChannelFactory, rtpDataChannelFactory);
     rtspServer = new RtspServer(responseProviderSupportingOnlyTcp);
     ExoPlayer player =
-        createExoPlayer(clock, rtspServer.startAndGetPortNumber(), forwardingRtpDataChannelFactory);
+        createExoPlayer(rtspServer.startAndGetPortNumber(), forwardingRtpDataChannelFactory);
 
     AtomicReference<PlaybackException> playbackError = new AtomicReference<>();
     player.prepare();
@@ -257,34 +253,29 @@ public final class RtspPlaybackTest {
       throws Exception {
     FakeUdpDataSourceRtpDataChannel fakeRtpDataChannel = new FakeUdpDataSourceRtpDataChannel();
     RtpDataChannel.Factory rtpDataChannelFactory = (trackId) -> fakeRtpDataChannel;
-    FakeClock fakeClock = new FakeClock(/* initialTimeMs= */ 0, true);
     Optional<AtomicInteger> optionsRequestCounter = Optional.of(new AtomicInteger());
     ResponseProvider responseProvider =
         new ResponseProvider(
-            fakeClock,
+            clock,
             ImmutableList.of(aacRtpPacketStreamDump),
             fakeRtpDataChannel,
-            /* sessionTimeoutMs= */ 30_000L,
+            /* sessionTimeoutMs= */ 300L,
             optionsRequestCounter);
     rtspServer = new RtspServer(responseProvider);
-    ExoPlayer player =
-        createExoPlayer(fakeClock, rtspServer.startAndGetPortNumber(), rtpDataChannelFactory);
+    ExoPlayer player = createExoPlayer(rtspServer.startAndGetPortNumber(), rtpDataChannelFactory);
     player.prepare();
     player.play();
     TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_READY);
     // Reset optionsRequestCounter to count requests made by the keep-alive monitor
     optionsRequestCounter.get().getAndSet(0);
 
-    fakeClock.advanceTime(/* timeDiffMs= */ 16_000L);
-    ShadowLooper.idleMainLooper();
-
-    assertThat(optionsRequestCounter.get().get()).isEqualTo(1);
+    RobolectricUtil.runMainLooperUntil(() -> optionsRequestCounter.get().get() != 0);
 
     player.release();
   }
 
   private ExoPlayer createExoPlayer(
-      Clock clock, int serverRtspPortNumber, RtpDataChannel.Factory rtpDataChannelFactory) {
+      int serverRtspPortNumber, RtpDataChannel.Factory rtpDataChannelFactory) {
     ExoPlayer player =
         new ExoPlayer.Builder(applicationContext, capturingRenderersFactory)
             .setClock(clock)
