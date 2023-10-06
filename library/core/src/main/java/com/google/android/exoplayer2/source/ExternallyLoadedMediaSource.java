@@ -1,0 +1,134 @@
+/*
+ * Copyright 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.google.android.exoplayer2.source;
+
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+
+import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.drm.DrmSessionManagerProvider;
+import com.google.android.exoplayer2.upstream.Allocator;
+import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
+import com.google.android.exoplayer2.upstream.TransferListener;
+import com.google.common.base.Charsets;
+
+/**
+ * A {@link MediaSource} for media loaded outside of the usual ExoPlayer loading mechanism.
+ *
+ * <p>Puts the {@link MediaItem.LocalConfiguration#uri} (encoded with {@link Charsets#UTF_8}) in a
+ * single sample belonging to a single {@link MediaPeriod}.
+ *
+ * <p>Typically used for image content that is managed by an external image management framework
+ * (for example, Glide).
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
+public final class ExternallyLoadedMediaSource extends BaseMediaSource {
+
+  /** Factory for {@link ExternallyLoadedMediaSource}. */
+  public static final class Factory implements MediaSource.Factory {
+
+    private final long timelineDurationUs;
+
+    /**
+     * Creates an instance.
+     *
+     * @param timelineDurationUs The duration of the {@link SinglePeriodTimeline} created.
+     */
+    Factory(long timelineDurationUs) {
+      this.timelineDurationUs = timelineDurationUs;
+    }
+
+    /** Does nothing. {@link ExternallyLoadedMediaSource} does not support DRM. */
+    @Override
+    public MediaSource.Factory setDrmSessionManagerProvider(
+        DrmSessionManagerProvider drmSessionManagerProvider) {
+      return this;
+    }
+
+    /**
+     * Does nothing. {@link ExternallyLoadedMediaSource} does not support error handling policies.
+     */
+    @Override
+    public MediaSource.Factory setLoadErrorHandlingPolicy(
+        LoadErrorHandlingPolicy loadErrorHandlingPolicy) {
+      return this;
+    }
+
+    @Override
+    public @C.ContentType int[] getSupportedTypes() {
+      return new int[] {C.CONTENT_TYPE_OTHER};
+    }
+
+    @Override
+    public ExternallyLoadedMediaSource createMediaSource(MediaItem mediaItem) {
+      return new ExternallyLoadedMediaSource(mediaItem, timelineDurationUs);
+    }
+  }
+
+  private final MediaItem mediaItem;
+  private final Timeline timeline;
+
+  private ExternallyLoadedMediaSource(MediaItem mediaItem, long timelineDurationUs) {
+    this.mediaItem = mediaItem;
+    this.timeline =
+        new SinglePeriodTimeline(
+            timelineDurationUs,
+            /* isSeekable= */ true,
+            /* isDynamic= */ false,
+            /* useLiveConfiguration= */ false,
+            /* manifest= */ null,
+            mediaItem);
+  }
+
+  @Override
+  protected void prepareSourceInternal(@Nullable TransferListener mediaTransferListener) {
+    refreshSourceInfo(timeline);
+  }
+
+  @Override
+  protected void releaseSourceInternal() {
+    // Do nothing.
+  }
+
+  @Override
+  public MediaItem getMediaItem() {
+    return mediaItem;
+  }
+
+  @Override
+  public void maybeThrowSourceInfoRefreshError() {
+    // Do nothing.
+  }
+
+  @Override
+  public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator, long startPositionUs) {
+    checkNotNull(mediaItem.localConfiguration);
+    checkNotNull(
+        mediaItem.localConfiguration.mimeType, "Externally loaded mediaItems require a MIME type.");
+    return new ExternallyLoadedMediaPeriod(
+        mediaItem.localConfiguration.uri, mediaItem.localConfiguration.mimeType);
+  }
+
+  @Override
+  public void releasePeriod(MediaPeriod mediaPeriod) {}
+}

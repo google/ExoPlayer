@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.source;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
+import static com.google.android.exoplayer2.util.Util.msToUs;
 
 import android.content.Context;
 import android.net.Uri;
@@ -59,6 +60,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
@@ -422,6 +424,12 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
     if (scheme != null && scheme.equals(C.SSAI_SCHEME)) {
       return checkNotNull(serverSideAdInsertionMediaSourceFactory).createMediaSource(mediaItem);
     }
+    if (Objects.equals(
+        mediaItem.localConfiguration.mimeType, MimeTypes.APPLICATION_EXTERNALLY_LOADED_IMAGE)) {
+      return new ExternallyLoadedMediaSource.Factory(
+              msToUs(mediaItem.localConfiguration.imageDurationMs))
+          .createMediaSource(mediaItem);
+    }
     @C.ContentType
     int type =
         Util.inferContentTypeForUriAndMimeType(
@@ -518,8 +526,8 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
     }
     return new ClippingMediaSource(
         mediaSource,
-        Util.msToUs(mediaItem.clippingConfiguration.startPositionMs),
-        Util.msToUs(mediaItem.clippingConfiguration.endPositionMs),
+        msToUs(mediaItem.clippingConfiguration.startPositionMs),
+        msToUs(mediaItem.clippingConfiguration.endPositionMs),
         /* enableInitialDiscontinuity= */ !mediaItem.clippingConfiguration.startsAtKeyFrame,
         /* allowDynamicClippingUpdates= */ mediaItem.clippingConfiguration.relativeToLiveWindow,
         mediaItem.clippingConfiguration.relativeToDefaultPosition);
