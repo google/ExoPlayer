@@ -33,8 +33,11 @@ import com.google.common.collect.ImmutableList;
 @Deprecated
 /* package */ interface CuesResolver {
 
-  /** Adds cues to this instance. */
-  void addCues(CuesWithTiming cues);
+  /**
+   * Adds {@code cues} to this instance, returning whether this changes the cues displayed at {@code
+   * currentPositionUs}.
+   */
+  boolean addCues(CuesWithTiming cues, long currentPositionUs);
 
   /**
    * Returns the {@linkplain Cue cues} that should be shown at time {@code timeUs}.

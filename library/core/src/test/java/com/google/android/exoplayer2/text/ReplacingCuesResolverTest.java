@@ -62,8 +62,8 @@ public final class ReplacingCuesResolverTest {
             SECOND_CUES, /* startTimeUs= */ 6_000_000, /* durationUs= */ C.TIME_UNSET);
 
     // Reverse the addCues call to check everything still works (it should).
-    replacingCuesResolver.addCues(secondCuesWithTiming);
-    replacingCuesResolver.addCues(cuesWithTiming);
+    replacingCuesResolver.addCues(secondCuesWithTiming, /* currentPositionUs= */ 0);
+    replacingCuesResolver.addCues(cuesWithTiming, /* currentPositionUs= */ 0);
 
     assertCuesStartAt(replacingCuesResolver, 3_000_000);
     assertCueTextBetween(replacingCuesResolver, 3_000_000, 6_000_000, "first cue");
@@ -79,8 +79,8 @@ public final class ReplacingCuesResolverTest {
     CuesWithTiming secondCuesWithTiming =
         new CuesWithTiming(SECOND_CUES, /* startTimeUs= */ 6_000_000, /* durationUs= */ 1_000_000);
 
-    replacingCuesResolver.addCues(firstCuesWithTiming);
-    replacingCuesResolver.addCues(secondCuesWithTiming);
+    replacingCuesResolver.addCues(firstCuesWithTiming, /* currentPositionUs= */ 0);
+    replacingCuesResolver.addCues(secondCuesWithTiming, /* currentPositionUs= */ 0);
 
     assertCuesStartAt(replacingCuesResolver, 3_000_000);
 
@@ -99,8 +99,8 @@ public final class ReplacingCuesResolverTest {
     CuesWithTiming secondCuesWithTiming =
         new CuesWithTiming(SECOND_CUES, /* startTimeUs= */ 2_000_000, /* durationUs= */ 4_000_000);
 
-    replacingCuesResolver.addCues(firstCuesWithTiming);
-    replacingCuesResolver.addCues(secondCuesWithTiming);
+    replacingCuesResolver.addCues(firstCuesWithTiming, /* currentPositionUs= */ 0);
+    replacingCuesResolver.addCues(secondCuesWithTiming, /* currentPositionUs= */ 0);
 
     assertCuesStartAt(replacingCuesResolver, 1_000_000);
     assertCueTextBetween(replacingCuesResolver, 1_000_000, 2_000_000, "first cue");
@@ -117,13 +117,82 @@ public final class ReplacingCuesResolverTest {
     CuesWithTiming secondCuesWithTiming =
         new CuesWithTiming(SECOND_CUES, /* startTimeUs= */ 1_000_000, /* durationUs= */ 3_000_000);
 
-    replacingCuesResolver.addCues(firstCuesWithTiming);
-    replacingCuesResolver.addCues(secondCuesWithTiming);
+    replacingCuesResolver.addCues(firstCuesWithTiming, /* currentPositionUs= */ 0);
+    replacingCuesResolver.addCues(secondCuesWithTiming, /* currentPositionUs= */ 0);
 
     assertCuesStartAt(replacingCuesResolver, 1_000_000);
     assertCueTextBetween(
         replacingCuesResolver, 1_000_000, 4_000_000, "second group: cue1", "second group: cue2");
     assertCuesEndAt(replacingCuesResolver, 4_000_000);
+  }
+
+  @Test
+  public void addCues_cuesStartAfterCurrentPosition() {
+    ReplacingCuesResolver replacingCuesResolver = new ReplacingCuesResolver();
+    CuesWithTiming cuesWithTiming =
+        new CuesWithTiming(FIRST_CUES, /* startTimeUs= */ 3_000_000, /* durationUs= */ 2_000_000);
+
+    assertThat(replacingCuesResolver.addCues(cuesWithTiming, /* currentPositionUs= */ 1_000_000))
+        .isFalse();
+  }
+
+  @Test
+  public void addCues_cuesStartAtCurrentPosition() {
+    ReplacingCuesResolver replacingCuesResolver = new ReplacingCuesResolver();
+    CuesWithTiming cuesWithTiming =
+        new CuesWithTiming(FIRST_CUES, /* startTimeUs= */ 3_000_000, /* durationUs= */ 2_000_000);
+
+    assertThat(replacingCuesResolver.addCues(cuesWithTiming, /* currentPositionUs= */ 3_000_000))
+        .isTrue();
+  }
+
+  @Test
+  public void addCues_cuesDisplayedAtCurrentPosition() {
+    ReplacingCuesResolver replacingCuesResolver = new ReplacingCuesResolver();
+    CuesWithTiming cuesWithTiming =
+        new CuesWithTiming(FIRST_CUES, /* startTimeUs= */ 3_000_000, /* durationUs= */ 2_000_000);
+
+    assertThat(replacingCuesResolver.addCues(cuesWithTiming, /* currentPositionUs= */ 4_000_000))
+        .isTrue();
+  }
+
+  @Test
+  public void addCues_cuesDisplayedAtCurrentPosition_butAlreadyReplacedByLaterCues() {
+    ReplacingCuesResolver replacingCuesResolver = new ReplacingCuesResolver();
+    CuesWithTiming firstCuesWithTiming =
+        new CuesWithTiming(FIRST_CUES, /* startTimeUs= */ 3_000_000, /* durationUs= */ 3_000_000);
+    CuesWithTiming secondCuesWithTiming =
+        new CuesWithTiming(SECOND_CUES, /* startTimeUs= */ 4_000_000, /* durationUs= */ 3_000_000);
+    CuesWithTiming thirdCuesWithTiming =
+        new CuesWithTiming(THIRD_CUES, /* startTimeUs= */ 5_000_000, /* durationUs= */ 3_000_000);
+    replacingCuesResolver.addCues(thirdCuesWithTiming, /* currentPositionUs= */ 0);
+
+    assertThat(
+            replacingCuesResolver.addCues(firstCuesWithTiming, /* currentPositionUs= */ 5_000_000))
+        .isFalse();
+    assertThat(
+            replacingCuesResolver.addCues(secondCuesWithTiming, /* currentPositionUs= */ 5_500_000))
+        .isFalse();
+  }
+
+  @Test
+  public void addCues_cuesEndBeforeCurrentPosition() {
+    ReplacingCuesResolver replacingCuesResolver = new ReplacingCuesResolver();
+    CuesWithTiming cuesWithTiming =
+        new CuesWithTiming(FIRST_CUES, /* startTimeUs= */ 3_000_000, /* durationUs= */ 2_000_000);
+
+    assertThat(replacingCuesResolver.addCues(cuesWithTiming, /* currentPositionUs= */ 6_000_000))
+        .isFalse();
+  }
+
+  @Test
+  public void addCues_cuesEndAtCurrentPosition() {
+    ReplacingCuesResolver replacingCuesResolver = new ReplacingCuesResolver();
+    CuesWithTiming cuesWithTiming =
+        new CuesWithTiming(FIRST_CUES, /* startTimeUs= */ 3_000_000, /* durationUs= */ 2_000_000);
+
+    assertThat(replacingCuesResolver.addCues(cuesWithTiming, /* currentPositionUs= */ 5_000_000))
+        .isFalse();
   }
 
   @Test
@@ -134,8 +203,8 @@ public final class ReplacingCuesResolverTest {
     CuesWithTiming secondCuesWithTiming =
         new CuesWithTiming(SECOND_CUES, /* startTimeUs= */ 6_000_000, /* durationUs= */ 1_000_000);
 
-    replacingCuesResolver.addCues(firstCuesWithTiming);
-    replacingCuesResolver.addCues(secondCuesWithTiming);
+    replacingCuesResolver.addCues(firstCuesWithTiming, /* currentPositionUs= */ 0);
+    replacingCuesResolver.addCues(secondCuesWithTiming, /* currentPositionUs= */ 0);
 
     // Remove firstCuesWithTiming
     replacingCuesResolver.discardCuesBeforeTimeUs(5_500_000);
@@ -156,9 +225,9 @@ public final class ReplacingCuesResolverTest {
     CuesWithTiming thirdCuesWithTiming =
         new CuesWithTiming(THIRD_CUES, /* startTimeUs= */ 8_000_000, /* durationUs= */ 4_000_000);
 
-    replacingCuesResolver.addCues(firstCuesWithTiming);
-    replacingCuesResolver.addCues(secondCuesWithTiming);
-    replacingCuesResolver.addCues(thirdCuesWithTiming);
+    replacingCuesResolver.addCues(firstCuesWithTiming, /* currentPositionUs= */ 0);
+    replacingCuesResolver.addCues(secondCuesWithTiming, /* currentPositionUs= */ 0);
+    replacingCuesResolver.addCues(thirdCuesWithTiming, /* currentPositionUs= */ 0);
 
     replacingCuesResolver.clear();
 
