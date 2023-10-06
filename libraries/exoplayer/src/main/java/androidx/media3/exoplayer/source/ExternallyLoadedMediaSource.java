@@ -16,7 +16,9 @@
 package androidx.media3.exoplayer.source;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
+import static androidx.media3.common.util.Util.msToUs;
 
+import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
@@ -27,6 +29,7 @@ import androidx.media3.exoplayer.drm.DrmSessionManagerProvider;
 import androidx.media3.exoplayer.upstream.Allocator;
 import androidx.media3.exoplayer.upstream.LoadErrorHandlingPolicy;
 import com.google.common.base.Charsets;
+import java.util.Objects;
 
 /**
  * A {@link MediaSource} for media loaded outside of the usual ExoPlayer loading mechanism.
@@ -81,23 +84,26 @@ public final class ExternallyLoadedMediaSource extends BaseMediaSource {
     }
   }
 
-  private final MediaItem mediaItem;
-  private final Timeline timeline;
+  private final long timelineDurationUs;
+
+  @GuardedBy("this")
+  private MediaItem mediaItem;
 
   private ExternallyLoadedMediaSource(MediaItem mediaItem, long timelineDurationUs) {
     this.mediaItem = mediaItem;
-    this.timeline =
+    this.timelineDurationUs = timelineDurationUs;
+  }
+
+  @Override
+  protected void prepareSourceInternal(@Nullable TransferListener mediaTransferListener) {
+    Timeline timeline =
         new SinglePeriodTimeline(
             timelineDurationUs,
             /* isSeekable= */ true,
             /* isDynamic= */ false,
             /* useLiveConfiguration= */ false,
             /* manifest= */ null,
-            mediaItem);
-  }
-
-  @Override
-  protected void prepareSourceInternal(@Nullable TransferListener mediaTransferListener) {
+            getMediaItem());
     refreshSourceInfo(timeline);
   }
 
@@ -107,8 +113,24 @@ public final class ExternallyLoadedMediaSource extends BaseMediaSource {
   }
 
   @Override
-  public MediaItem getMediaItem() {
+  public synchronized MediaItem getMediaItem() {
     return mediaItem;
+  }
+
+  @Override
+  public synchronized boolean canUpdateMediaItem(MediaItem mediaItem) {
+    @Nullable MediaItem.LocalConfiguration newConfiguration = mediaItem.localConfiguration;
+    MediaItem.LocalConfiguration oldConfiguration = checkNotNull(getMediaItem().localConfiguration);
+    return newConfiguration != null
+        && newConfiguration.uri.equals(oldConfiguration.uri)
+        && Objects.equals(newConfiguration.mimeType, oldConfiguration.mimeType)
+        && (newConfiguration.imageDurationMs == C.TIME_UNSET
+            || msToUs(newConfiguration.imageDurationMs) == timelineDurationUs);
+  }
+
+  @Override
+  public synchronized void updateMediaItem(MediaItem mediaItem) {
+    this.mediaItem = mediaItem;
   }
 
   @Override
@@ -118,6 +140,7 @@ public final class ExternallyLoadedMediaSource extends BaseMediaSource {
 
   @Override
   public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator, long startPositionUs) {
+    MediaItem mediaItem = getMediaItem();
     checkNotNull(mediaItem.localConfiguration);
     checkNotNull(
         mediaItem.localConfiguration.mimeType, "Externally loaded mediaItems require a MIME type.");
@@ -126,5 +149,7 @@ public final class ExternallyLoadedMediaSource extends BaseMediaSource {
   }
 
   @Override
-  public void releasePeriod(MediaPeriod mediaPeriod) {}
+  public void releasePeriod(MediaPeriod mediaPeriod) {
+    // Do nothing.
+  }
 }
