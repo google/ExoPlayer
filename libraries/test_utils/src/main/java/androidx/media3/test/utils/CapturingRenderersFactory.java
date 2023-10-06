@@ -73,6 +73,7 @@ public class CapturingRenderersFactory implements RenderersFactory, Dumper.Dumpa
   private final CapturingMediaCodecAdapter.Factory mediaCodecAdapterFactory;
   private final CapturingAudioSink audioSink;
   private final CapturingImageOutput imageOutput;
+  private ImageDecoder.Factory imageDecoderFactory;
 
   /**
    * Creates an instance.
@@ -96,6 +97,23 @@ public class CapturingRenderersFactory implements RenderersFactory, Dumper.Dumpa
     this.audioSink = new CapturingAudioSink(new DefaultAudioSink.Builder(context).build());
     this.imageOutput = new CapturingImageOutput();
     this.addImageRenderer = addImageRenderer;
+    this.imageDecoderFactory = ImageDecoder.Factory.DEFAULT;
+  }
+
+  /**
+   * Sets the {@link ImageDecoder.Factory} used by the {@link ImageRenderer}.
+   *
+   * <p>Must {@code addImageRenderer} when creating the {@link
+   * CapturingRenderersFactory#CapturingRenderersFactory(Context, boolean)}.
+   *
+   * @param imageDecoderFactory The {@link ImageDecoder.Factory}.
+   * @return This factory, for convenience.
+   */
+  public CapturingRenderersFactory setImageDecoderFactory(
+      ImageDecoder.Factory imageDecoderFactory) {
+    checkState(addImageRenderer);
+    this.imageDecoderFactory = imageDecoderFactory;
+    return this;
   }
 
   @Override
@@ -149,7 +167,7 @@ public class CapturingRenderersFactory implements RenderersFactory, Dumper.Dumpa
     temp.add(new MetadataRenderer(metadataRendererOutput, eventHandler.getLooper()));
 
     if (addImageRenderer) {
-      temp.add(new ImageRenderer(ImageDecoder.Factory.DEFAULT, imageOutput));
+      temp.add(new ImageRenderer(imageDecoderFactory, imageOutput));
     }
     return temp.toArray(new Renderer[] {});
   }
