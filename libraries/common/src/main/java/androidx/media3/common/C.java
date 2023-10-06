@@ -618,6 +618,7 @@ public final class C {
    * {@link #BUFFER_FLAG_LAST_SAMPLE}, {@link #BUFFER_FLAG_ENCRYPTED} and {@link
    * #BUFFER_FLAG_DECODE_ONLY}.
    */
+  @SuppressWarnings("deprecation") // Includes deprecated BUFFER_FLAG_DECODE_ONLY flag.
   @UnstableApi
   @Documented
   @Retention(RetentionPolicy.SOURCE)
@@ -654,8 +655,12 @@ public final class C {
   /** Indicates that a buffer is (at least partially) encrypted. */
   @UnstableApi public static final int BUFFER_FLAG_ENCRYPTED = 1 << 30; // 0x40000000
 
-  /** Indicates that a buffer should be decoded but not rendered. */
-  @UnstableApi public static final int BUFFER_FLAG_DECODE_ONLY = 1 << 31; // 0x80000000
+  /**
+   * @deprecated Renderers and decoders will check whether the buffer time is greater or equal to
+   *     the desired start time without the need to set this flag. Custom decoders can mark other
+   *     buffers with {@code DecoderOutputBuffer.shouldBeSkipped} if needed.
+   */
+  @UnstableApi @Deprecated public static final int BUFFER_FLAG_DECODE_ONLY = 1 << 31; // 0x80000000
 
   /** A realtime {@linkplain MediaFormat#KEY_PRIORITY codec priority}. */
   @UnstableApi public static final int MEDIA_CODEC_PRIORITY_REALTIME = 0;

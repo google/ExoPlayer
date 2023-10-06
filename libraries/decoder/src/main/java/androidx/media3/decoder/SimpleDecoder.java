@@ -236,6 +236,9 @@ public abstract class SimpleDecoder<
     }
   }
 
+  // Setting and checking deprecated decode-only flag for compatibility with custom decoders that
+  // are still using it.
+  @SuppressWarnings("deprecation")
   private boolean decode() throws InterruptedException {
     I inputBuffer;
     O outputBuffer;

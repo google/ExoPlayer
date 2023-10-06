@@ -79,6 +79,8 @@ import java.util.PriorityQueue;
     return dequeuedInputBuffer;
   }
 
+  // Still using deprecated decoder-only flag until this decoder is replaced by a SubtitleParser.
+  @SuppressWarnings("deprecation")
   @Override
   public void queueInputBuffer(SubtitleInputBuffer inputBuffer) throws SubtitleDecoderException {
     Assertions.checkArgument(inputBuffer == dequeuedInputBuffer);

@@ -478,6 +478,8 @@ public abstract class DecoderAudioRenderer<
     }
   }
 
+  // Setting deprecated decode-only flag for compatibility with decoders that are still using it.
+  @SuppressWarnings("deprecation")
   private boolean feedInputBuffer() throws DecoderException, ExoPlaybackException {
     if (decoder == null
         || decoderReinitializationState == REINITIALIZATION_STATE_WAIT_END_OF_STREAM

@@ -156,6 +156,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     sampleDataStart = sampleStart + size;
   }
 
+  // Clearing deprecated decode-only flag for compatibility with decoders that are still using it.
+  @SuppressWarnings("deprecation")
   private void outputSample(CuesWithTiming cuesWithTiming, long timeUs, int flags) {
     checkStateNotNull(currentFormat); // format() must be called before sampleMetadata()
     byte[] cuesWithDurationBytes =
