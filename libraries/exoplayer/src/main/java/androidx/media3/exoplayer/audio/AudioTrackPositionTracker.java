@@ -362,6 +362,9 @@ import java.lang.reflect.Method;
 
   /** Starts position tracking. Must be called immediately before {@link AudioTrack#play()}. */
   public void start() {
+    if (stopTimestampUs != C.TIME_UNSET) {
+      stopTimestampUs = msToUs(clock.elapsedRealtime());
+    }
     checkNotNull(audioTimestampPoller).reset();
   }
 
@@ -464,6 +467,7 @@ import java.lang.reflect.Method;
       checkNotNull(audioTimestampPoller).reset();
       return true;
     }
+    stopPlaybackHeadPosition = getPlaybackHeadPosition();
     // We've handled the end of the stream already, so there's no need to pause the track.
     return false;
   }
@@ -623,6 +627,10 @@ import java.lang.reflect.Method;
   private long getPlaybackHeadPosition() {
     long currentTimeMs = clock.elapsedRealtime();
     if (stopTimestampUs != C.TIME_UNSET) {
+      if (checkNotNull(this.audioTrack).getPlayState() == AudioTrack.PLAYSTATE_PAUSED) {
+        // If AudioTrack is paused while stopping, then return cached playback head position.
+        return stopPlaybackHeadPosition;
+      }
       // Simulate the playback head position up to the total number of frames submitted.
       long elapsedTimeSinceStopUs = msToUs(currentTimeMs) - stopTimestampUs;
       long mediaTimeSinceStopUs =
