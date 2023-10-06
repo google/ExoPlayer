@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright 2023 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<resources>
+   <string-array name="preset_descriptions">
+      <item>720p H264 video and AAC audio</item>
+      <item>1080p H265 video and AAC audio</item>
+      <item>360p H264 video and AAC audio</item>
+      <item>360p VP8 video and Vorbis audio</item>
+      <item>4K H264 video and AAC audio (portrait, no B-frames)</item>
+      <item>8k H265 video and AAC audio</item>
+      <item>Short 1080p H265 video and AAC audio</item>
+      <item>Long 180p H264 video and AAC audio</item>
+      <item>H264 video and AAC audio (portrait, H &gt; W, 0°)</item>
+      <item>H264 video and AAC audio (portrait, H &lt; W, 90°)</item>
+      <item>London JPG image (Plays for 5secs at 30fps)</item>
+      <item>Tokyo JPG image (Portrait, Plays for 5secs at 30fps)</item>
+      <item>SEF slow motion with 240 fps</item>
+      <item>480p DASH (non-square pixels)</item>
+      <item>HDR (HDR10) H265 limited range video (encoding may fail)</item>
+      <item>HDR (HLG) H265 limited range video (encoding may fail)</item>
+      <item>720p H264 video with no audio</item>
+   </string-array>
+   <string-array name="preset_uris">
+      <item>https://storage.googleapis.com/exoplayer-test-media-1/mp4/android-screens-10s.mp4</item>
+      <item>https://storage.googleapis.com/exoplayer-test-media-0/android-block-1080-hevc.mp4</item>
+      <item>https://html5demos.com/assets/dizzy.mp4</item>
+      <item>https://html5demos.com/assets/dizzy.webm</item>
+      <item>https://storage.googleapis.com/exoplayer-test-media-1/mp4/portrait_4k60.mp4</item>
+      <item>https://storage.googleapis.com/exoplayer-test-media-1/mp4/8k24fps_4s.mp4</item>
+      <item>https://storage.googleapis.com/exoplayer-test-media-1/mp4/1920w_1080h_4s.mp4</item>
+      <item>https://storage.googleapis.com/exoplayer-test-media-0/BigBuckBunny_320x180.mp4</item>
+      <item>https://storage.googleapis.com/exoplayer-test-media-1/mp4/portrait_avc_aac.mp4</item>
+      <item>https://storage.googleapis.com/exoplayer-test-media-1/mp4/portrait_rotated_avc_aac.mp4</item>
+      <item>https://storage.googleapis.com/exoplayer-test-media-1/jpg/london.jpg</item>
+      <item>https://storage.googleapis.com/exoplayer-test-media-1/jpg/tokyo.jpg</item>
+      <item>https://storage.googleapis.com/exoplayer-test-media-1/mp4/slow-motion/slowMotion_stopwatch_240fps_long.mp4</item>
+      <item>https://storage.googleapis.com/exoplayer-test-media-1/gen/screens/dash-vod-single-segment/manifest-baseline.mpd</item>
+      <item>https://storage.googleapis.com/exoplayer-test-media-1/mp4/samsung-s21-hdr-hdr10.mp4</item>
+      <item>https://storage.googleapis.com/exoplayer-test-media-1/mp4/Pixel7Pro_HLG_1080P.mp4</item>
+      <item>https://storage.googleapis.com/exoplayer-test-media-1/mp4/sample_video_track_only.mp4</item>
+   </string-array>
+</resources>

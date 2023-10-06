@@ -80,4 +80,7 @@
   <string name="overlay_text">Text</string>
   <string name="overlay_text_color">Text color</string>
   <string name="text_overlay_settings">Specify text overlay settings</string>
+  <string name="preview" translatable="false">Preview</string>
+  <string name="preview_single_sequence" translatable="false">Single sequence preview</string>
+  <string name="single_sequence_items" translatable="false">Single sequence items:</string>
 </resources>
