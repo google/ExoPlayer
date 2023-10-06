@@ -15,6 +15,8 @@
  */
 package androidx.media3.exoplayer.text;
 
+import static androidx.media3.common.util.Assertions.checkArgument;
+
 import androidx.media3.common.C;
 import androidx.media3.common.text.Cue;
 import androidx.media3.extractor.text.CuesWithTiming;
@@ -43,14 +45,23 @@ import java.util.ArrayList;
   }
 
   @Override
-  public void addCues(CuesWithTiming cues) {
+  public boolean addCues(CuesWithTiming cues, long currentPositionUs) {
+    checkArgument(cues.startTimeUs != C.TIME_UNSET);
+    boolean cuesAreShownAtCurrentTime =
+        cues.startTimeUs <= currentPositionUs
+            && (cues.endTimeUs == C.TIME_UNSET || currentPositionUs < cues.endTimeUs);
     for (int i = cuesWithTimingList.size() - 1; i >= 0; i--) {
       if (cues.startTimeUs >= cuesWithTimingList.get(i).startTimeUs) {
         cuesWithTimingList.add(i + 1, cues);
-        return;
+        return cuesAreShownAtCurrentTime;
+      } else if (cuesWithTimingList.get(i).startTimeUs <= currentPositionUs) {
+        // There's a cue that starts after the new cues, but before the current time, meaning
+        // the new cues will not be displayed at the current time.
+        cuesAreShownAtCurrentTime = false;
       }
     }
     cuesWithTimingList.add(0, cues);
+    return cuesAreShownAtCurrentTime;
   }
 
   @Override

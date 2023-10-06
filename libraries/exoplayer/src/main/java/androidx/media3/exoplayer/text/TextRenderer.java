@@ -312,12 +312,7 @@ public final class TextRenderer extends BaseRenderer implements Callback {
                 cueData.limit());
         cueDecoderInputBuffer.clear();
 
-        cuesResolver.addCues(cuesWithTiming);
-
-        // Return whether the CuesWithTiming we added to CuesMerger changes the subtitles that
-        // should be on-screen *now*.
-        return cuesWithTiming.startTimeUs <= positionUs
-            && positionUs < cuesWithTiming.startTimeUs + cuesWithTiming.durationUs;
+        return cuesResolver.addCues(cuesWithTiming, positionUs);
       case C.RESULT_FORMAT_READ:
       case C.RESULT_NOTHING_READ:
       default:

@@ -62,8 +62,8 @@ public final class MergingCuesResolverTest {
         new CuesWithTiming(SECOND_CUES, /* startTimeUs= */ 6_000_000, /* durationUs= */ 1_000_000);
 
     // Reverse the addCues call to check everything still works (it should).
-    mergingCuesResolver.addCues(secondCuesWithTiming);
-    mergingCuesResolver.addCues(firstCuesWithTiming);
+    mergingCuesResolver.addCues(secondCuesWithTiming, /* currentPositionUs= */ 0);
+    mergingCuesResolver.addCues(firstCuesWithTiming, /* currentPositionUs= */ 0);
 
     assertCuesStartAt(mergingCuesResolver, 3_000_000);
 
@@ -82,8 +82,8 @@ public final class MergingCuesResolverTest {
     CuesWithTiming secondCuesWithTiming =
         new CuesWithTiming(SECOND_CUES, /* startTimeUs= */ 2_000_000, /* durationUs= */ 4_000_000);
 
-    mergingCuesResolver.addCues(firstCuesWithTiming);
-    mergingCuesResolver.addCues(secondCuesWithTiming);
+    mergingCuesResolver.addCues(firstCuesWithTiming, /* currentPositionUs= */ 0);
+    mergingCuesResolver.addCues(secondCuesWithTiming, /* currentPositionUs= */ 0);
 
     assertCuesStartAt(mergingCuesResolver, 1_000_000);
     assertCueTextBetween(mergingCuesResolver, 1_000_000, 2_000_000, "first cue");
@@ -109,8 +109,8 @@ public final class MergingCuesResolverTest {
     CuesWithTiming secondCuesWithTiming =
         new CuesWithTiming(SECOND_CUES, /* startTimeUs= */ 1_000_000, /* durationUs= */ 3_000_000);
 
-    mergingCuesResolver.addCues(firstCuesWithTiming);
-    mergingCuesResolver.addCues(secondCuesWithTiming);
+    mergingCuesResolver.addCues(firstCuesWithTiming, /* currentPositionUs= */ 0);
+    mergingCuesResolver.addCues(secondCuesWithTiming, /* currentPositionUs= */ 0);
 
     assertCuesStartAt(mergingCuesResolver, 1_000_000);
     // secondCuesWithTiming has a shorter duration than firstCuesWithTiming, so should appear later
@@ -134,8 +134,8 @@ public final class MergingCuesResolverTest {
     CuesWithTiming secondCuesWithTiming =
         new CuesWithTiming(SECOND_CUES, /* startTimeUs= */ 2_000_000, /* durationUs= */ 3_000_000);
 
-    mergingCuesResolver.addCues(firstCuesWithTiming);
-    mergingCuesResolver.addCues(secondCuesWithTiming);
+    mergingCuesResolver.addCues(firstCuesWithTiming, /* currentPositionUs= */ 0);
+    mergingCuesResolver.addCues(secondCuesWithTiming, /* currentPositionUs= */ 0);
 
     assertCuesStartAt(mergingCuesResolver, 1_000_000);
     // secondCuesWithTiming has a shorter duration than firstCuesWithTiming, so should appear later
@@ -158,7 +158,59 @@ public final class MergingCuesResolverTest {
         new CuesWithTiming(
             FIRST_CUES, /* startTimeUs= */ 3_000_000, /* durationUs= */ C.TIME_UNSET);
 
-    assertThrows(IllegalArgumentException.class, () -> mergingCuesResolver.addCues(cuesWithTiming));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> mergingCuesResolver.addCues(cuesWithTiming, /* currentPositionUs= */ 0));
+  }
+
+  @Test
+  public void addCues_cuesStartAfterCurrentPosition() {
+    MergingCuesResolver mergingCuesResolver = new MergingCuesResolver();
+    CuesWithTiming cuesWithTiming =
+        new CuesWithTiming(FIRST_CUES, /* startTimeUs= */ 3_000_000, /* durationUs= */ 2_000_000);
+
+    assertThat(mergingCuesResolver.addCues(cuesWithTiming, /* currentPositionUs= */ 1_000_000))
+        .isFalse();
+  }
+
+  @Test
+  public void addCues_cuesStartAtCurrentPosition() {
+    MergingCuesResolver mergingCuesResolver = new MergingCuesResolver();
+    CuesWithTiming cuesWithTiming =
+        new CuesWithTiming(FIRST_CUES, /* startTimeUs= */ 3_000_000, /* durationUs= */ 2_000_000);
+
+    assertThat(mergingCuesResolver.addCues(cuesWithTiming, /* currentPositionUs= */ 3_000_000))
+        .isTrue();
+  }
+
+  @Test
+  public void addCues_cuesDisplayedAtCurrentPosition() {
+    MergingCuesResolver mergingCuesResolver = new MergingCuesResolver();
+    CuesWithTiming cuesWithTiming =
+        new CuesWithTiming(FIRST_CUES, /* startTimeUs= */ 3_000_000, /* durationUs= */ 2_000_000);
+
+    assertThat(mergingCuesResolver.addCues(cuesWithTiming, /* currentPositionUs= */ 4_000_000))
+        .isTrue();
+  }
+
+  @Test
+  public void addCues_cuesEndBeforeCurrentPosition() {
+    MergingCuesResolver mergingCuesResolver = new MergingCuesResolver();
+    CuesWithTiming cuesWithTiming =
+        new CuesWithTiming(FIRST_CUES, /* startTimeUs= */ 3_000_000, /* durationUs= */ 2_000_000);
+
+    assertThat(mergingCuesResolver.addCues(cuesWithTiming, /* currentPositionUs= */ 6_000_000))
+        .isFalse();
+  }
+
+  @Test
+  public void addCues_cuesEndAtCurrentPosition() {
+    MergingCuesResolver mergingCuesResolver = new MergingCuesResolver();
+    CuesWithTiming cuesWithTiming =
+        new CuesWithTiming(FIRST_CUES, /* startTimeUs= */ 3_000_000, /* durationUs= */ 2_000_000);
+
+    assertThat(mergingCuesResolver.addCues(cuesWithTiming, /* currentPositionUs= */ 5_000_000))
+        .isFalse();
   }
 
   @Test
@@ -171,9 +223,9 @@ public final class MergingCuesResolverTest {
     CuesWithTiming thirdCuesWithTiming =
         new CuesWithTiming(THIRD_CUES, /* startTimeUs= */ 8_000_000, /* durationUs= */ 4_000_000);
 
-    mergingCuesResolver.addCues(firstCuesWithTiming);
-    mergingCuesResolver.addCues(secondCuesWithTiming);
-    mergingCuesResolver.addCues(thirdCuesWithTiming);
+    mergingCuesResolver.addCues(firstCuesWithTiming, /* currentPositionUs= */ 0);
+    mergingCuesResolver.addCues(secondCuesWithTiming, /* currentPositionUs= */ 0);
+    mergingCuesResolver.addCues(thirdCuesWithTiming, /* currentPositionUs= */ 0);
 
     // Remove only firstCuesWithTiming (secondCuesWithTiming should be kept because it ends after
     // this time).
@@ -195,9 +247,9 @@ public final class MergingCuesResolverTest {
     CuesWithTiming thirdCuesWithTiming =
         new CuesWithTiming(THIRD_CUES, /* startTimeUs= */ 8_000_000, /* durationUs= */ 4_000_000);
 
-    mergingCuesResolver.addCues(firstCuesWithTiming);
-    mergingCuesResolver.addCues(secondCuesWithTiming);
-    mergingCuesResolver.addCues(thirdCuesWithTiming);
+    mergingCuesResolver.addCues(firstCuesWithTiming, /* currentPositionUs= */ 0);
+    mergingCuesResolver.addCues(secondCuesWithTiming, /* currentPositionUs= */ 0);
+    mergingCuesResolver.addCues(thirdCuesWithTiming, /* currentPositionUs= */ 0);
 
     mergingCuesResolver.clear();
 

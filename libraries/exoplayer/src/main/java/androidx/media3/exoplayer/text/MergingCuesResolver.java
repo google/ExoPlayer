@@ -60,16 +60,19 @@ import java.util.List;
   }
 
   @Override
-  public void addCues(CuesWithTiming cues) {
+  public boolean addCues(CuesWithTiming cues, long currentPositionUs) {
     checkArgument(cues.startTimeUs != C.TIME_UNSET);
     checkArgument(cues.durationUs != C.TIME_UNSET);
+    boolean cuesAreShownAtCurrentTime =
+        cues.startTimeUs <= currentPositionUs && currentPositionUs < cues.endTimeUs;
     for (int i = cuesWithTimingList.size() - 1; i >= 0; i--) {
       if (cues.startTimeUs >= cuesWithTimingList.get(i).startTimeUs) {
         cuesWithTimingList.add(i + 1, cues);
-        return;
+        return cuesAreShownAtCurrentTime;
       }
     }
     cuesWithTimingList.add(0, cues);
+    return cuesAreShownAtCurrentTime;
   }
 
   @Override
