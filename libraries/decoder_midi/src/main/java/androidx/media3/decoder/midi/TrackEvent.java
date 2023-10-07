@@ -37,6 +37,8 @@ import androidx.media3.common.util.UnstableApi;
   public static final int DATA_FIELD_UNSET = Integer.MIN_VALUE;
 
   private static final int TICKS_UNSET = -1;
+  private static final int SYSEX_BEGIN_STATUS = 0xF0;
+  private static final int SYSEX_END_STATUS = 0xF7;
   private static final int META_EVENT_STATUS = 0xFF;
   private static final int META_END_OF_TRACK = 0x2F;
   private static final int META_TEMPO_CHANGE = 0x51;
@@ -139,10 +141,17 @@ import androidx.media3.common.util.UnstableApi;
           default: // Ignore all other Meta events.
             parsableTrackEventBytes.skipBytes(eventLength);
         }
-      } else {
+      } else if (firstByte == SYSEX_BEGIN_STATUS) {
         // TODO(b/228838584): Handle this gracefully.
+        statusByte = firstByte;
+
+        int currentByte;
+        do { // eat SysEx Message
+          currentByte = parsableTrackEventBytes.readUnsignedByte();
+        } while (currentByte != SYSEX_END_STATUS);
+      } else {
         throw ParserException.createForUnsupportedContainerFeature(
-            "SysEx track events are not yet supported.");
+            "Unknown track events.");
       }
     }
 
@@ -155,7 +164,7 @@ import androidx.media3.common.util.UnstableApi;
 
   public boolean isMidiEvent() {
     // TODO(b/228838584): Update with SysEx event check when implemented.
-    return statusByte != META_EVENT_STATUS;
+    return statusByte != META_EVENT_STATUS && statusByte != SYSEX_BEGIN_STATUS;
   }
 
   public boolean isNoteChannelEvent() {
