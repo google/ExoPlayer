@@ -175,5 +175,8 @@ public final class CompositingVideoSinkProviderTest {
 
     @Override
     public void onFrameRendered() {}
+
+    @Override
+    public void onFrameDropped() {}
   }
 }

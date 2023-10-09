@@ -564,6 +564,12 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer implements Video
     lastRenderRealtimeUs = Util.msToUs(getClock().elapsedRealtime());
   }
 
+  @Override
+  public void onFrameDropped() {
+    updateDroppedBufferCounters(
+        /* droppedInputBufferCount= */ 0, /* droppedDecoderBufferCount= */ 1);
+  }
+
   // Other methods
 
   /**

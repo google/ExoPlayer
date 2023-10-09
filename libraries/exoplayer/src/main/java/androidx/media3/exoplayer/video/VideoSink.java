@@ -100,6 +100,9 @@ import java.util.concurrent.Executor;
 
     /** Informs the rendering control that a video frame was rendered. */
     void onFrameRendered();
+
+    /** Informs the rendering control that a video frame was dropped. */
+    void onFrameDropped();
   }
 
   /**
