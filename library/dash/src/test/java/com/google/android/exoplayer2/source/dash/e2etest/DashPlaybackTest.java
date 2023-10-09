@@ -67,14 +67,14 @@ public final class DashPlaybackTest {
     DefaultTrackSelector trackSelector =
         checkNotNull((DefaultTrackSelector) player.getTrackSelector());
     trackSelector.setParameters(trackSelector.buildUponParameters().setPreferredTextLanguage("en"));
-    player.setMediaItem(MediaItem.fromUri("asset:///media/dash/ttml-in-mp4/sample.mpd"));
+    player.setMediaItem(MediaItem.fromUri("asset:///media/dash/standalone-ttml/sample.mpd"));
     player.prepare();
     player.play();
     TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_ENDED);
     player.release();
 
     DumpFileAsserts.assertOutput(
-        applicationContext, playbackOutput, "playbackdumps/dash/ttml-in-mp4.dump");
+        applicationContext, playbackOutput, "playbackdumps/dash/standalone-ttml.dump");
   }
 
   // https://github.com/google/ExoPlayer/issues/7985
