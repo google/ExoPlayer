@@ -111,6 +111,7 @@ public class SubtitleExtractor implements Extractor {
             .buildUpon()
             .setSampleMimeType(MimeTypes.APPLICATION_MEDIA3_CUES)
             .setCodecs(format.sampleMimeType)
+            .setCueReplacementBehavior(subtitleParser.getCueReplacementBehavior())
             .build();
     samples = new ArrayList<>();
     state = STATE_CREATED;
