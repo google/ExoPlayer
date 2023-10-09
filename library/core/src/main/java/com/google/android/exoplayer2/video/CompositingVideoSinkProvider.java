@@ -554,7 +554,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     private void releaseProcessedFrameInternal(long releaseTimeNs, boolean isLastFrame) {
       videoFrameProcessor.renderOutputFrame(releaseTimeNs);
       processedFramesBufferTimestampsUs.remove();
-      if (releaseTimeNs != VideoFrameProcessor.DROP_OUTPUT_FRAME) {
+      if (releaseTimeNs == VideoFrameProcessor.DROP_OUTPUT_FRAME) {
+        renderControl.onFrameDropped();
+      } else {
         renderControl.onFrameRendered();
         if (!renderedFirstFrame) {
           if (listener != null) {
