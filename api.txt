@@ -226,8 +226,8 @@ package androidx.media3.common {
 
   public final class MediaItem {
     method public androidx.media3.common.MediaItem.Builder buildUpon();
-    method public static androidx.media3.common.MediaItem fromUri(String);
     method public static androidx.media3.common.MediaItem fromUri(android.net.Uri);
+    method public static androidx.media3.common.MediaItem fromUri(String);
     field public static final String DEFAULT_MEDIA_ID = "";
     field public static final androidx.media3.common.MediaItem EMPTY;
     field public final androidx.media3.common.MediaItem.ClippingConfiguration clippingConfiguration;
@@ -264,8 +264,8 @@ package androidx.media3.common {
     method public androidx.media3.common.MediaItem.Builder setRequestMetadata(androidx.media3.common.MediaItem.RequestMetadata);
     method public androidx.media3.common.MediaItem.Builder setSubtitleConfigurations(java.util.List<androidx.media3.common.MediaItem.SubtitleConfiguration>);
     method public androidx.media3.common.MediaItem.Builder setTag(@Nullable Object);
-    method public androidx.media3.common.MediaItem.Builder setUri(@Nullable String);
     method public androidx.media3.common.MediaItem.Builder setUri(@Nullable android.net.Uri);
+    method public androidx.media3.common.MediaItem.Builder setUri(@Nullable String);
   }
 
   public static class MediaItem.ClippingConfiguration {
@@ -617,8 +617,8 @@ package androidx.media3.common {
 
   public class PlaybackException extends java.lang.Exception {
     method @CallSuper public boolean errorInfoEquals(@Nullable androidx.media3.common.PlaybackException);
-    method public static String getErrorCodeName(@androidx.media3.common.PlaybackException.ErrorCode int);
     method public final String getErrorCodeName();
+    method public static String getErrorCodeName(@androidx.media3.common.PlaybackException.ErrorCode int);
     field public static final int CUSTOM_ERROR_CODE_BASE = 1000000; // 0xf4240
     field public static final int ERROR_CODE_AUDIO_TRACK_INIT_FAILED = 5001; // 0x1389
     field public static final int ERROR_CODE_AUDIO_TRACK_WRITE_FAILED = 5002; // 0x138a
@@ -674,8 +674,8 @@ package androidx.media3.common {
     method public void addListener(androidx.media3.common.Player.Listener);
     method public void addMediaItem(androidx.media3.common.MediaItem);
     method public void addMediaItem(int, androidx.media3.common.MediaItem);
-    method public void addMediaItems(java.util.List<androidx.media3.common.MediaItem>);
     method public void addMediaItems(int, java.util.List<androidx.media3.common.MediaItem>);
+    method public void addMediaItems(java.util.List<androidx.media3.common.MediaItem>);
     method public boolean canAdvertiseSession();
     method public void clearMediaItems();
     method public void clearVideoSurface();
@@ -751,8 +751,8 @@ package androidx.media3.common {
     method public void replaceMediaItems(int, int, java.util.List<androidx.media3.common.MediaItem>);
     method public void seekBack();
     method public void seekForward();
-    method public void seekTo(long);
     method public void seekTo(int, long);
+    method public void seekTo(long);
     method public void seekToDefaultPosition();
     method public void seekToDefaultPosition(int);
     method public void seekToNext();
@@ -765,8 +765,8 @@ package androidx.media3.common {
     method @Deprecated public void setDeviceVolume(@IntRange(from=0) int);
     method public void setDeviceVolume(@IntRange(from=0) int, int);
     method public void setMediaItem(androidx.media3.common.MediaItem);
-    method public void setMediaItem(androidx.media3.common.MediaItem, long);
     method public void setMediaItem(androidx.media3.common.MediaItem, boolean);
+    method public void setMediaItem(androidx.media3.common.MediaItem, long);
     method public void setMediaItems(java.util.List<androidx.media3.common.MediaItem>);
     method public void setMediaItems(java.util.List<androidx.media3.common.MediaItem>, boolean);
     method public void setMediaItems(java.util.List<androidx.media3.common.MediaItem>, int, long);
@@ -1522,8 +1522,8 @@ package androidx.media3.session {
     method public final void addListener(androidx.media3.common.Player.Listener);
     method public final void addMediaItem(androidx.media3.common.MediaItem);
     method public final void addMediaItem(int, androidx.media3.common.MediaItem);
-    method public final void addMediaItems(java.util.List<androidx.media3.common.MediaItem>);
     method public final void addMediaItems(int, java.util.List<androidx.media3.common.MediaItem>);
+    method public final void addMediaItems(java.util.List<androidx.media3.common.MediaItem>);
     method public final boolean canAdvertiseSession();
     method public final void clearMediaItems();
     method public final void clearVideoSurface();
@@ -1590,8 +1590,8 @@ package androidx.media3.session {
     method public final boolean isLoading();
     method public final boolean isPlaying();
     method public final boolean isPlayingAd();
-    method public final boolean isSessionCommandAvailable(@androidx.media3.session.SessionCommand.CommandCode int);
     method public final boolean isSessionCommandAvailable(androidx.media3.session.SessionCommand);
+    method public final boolean isSessionCommandAvailable(@androidx.media3.session.SessionCommand.CommandCode int);
     method public final void moveMediaItem(int, int);
     method public final void moveMediaItems(int, int, int);
     method public final void pause();
@@ -1606,8 +1606,8 @@ package androidx.media3.session {
     method public final void replaceMediaItems(int, int, java.util.List<androidx.media3.common.MediaItem>);
     method public final void seekBack();
     method public final void seekForward();
-    method public final void seekTo(long);
     method public final void seekTo(int, long);
+    method public final void seekTo(long);
     method public final void seekToDefaultPosition();
     method public final void seekToDefaultPosition(int);
     method public final void seekToNext();
@@ -1621,8 +1621,8 @@ package androidx.media3.session {
     method @Deprecated public final void setDeviceVolume(@IntRange(from=0) int);
     method public final void setDeviceVolume(@IntRange(from=0) int, @androidx.media3.common.C.VolumeFlags int);
     method public final void setMediaItem(androidx.media3.common.MediaItem);
-    method public final void setMediaItem(androidx.media3.common.MediaItem, long);
     method public final void setMediaItem(androidx.media3.common.MediaItem, boolean);
+    method public final void setMediaItem(androidx.media3.common.MediaItem, long);
     method public final void setMediaItems(java.util.List<androidx.media3.common.MediaItem>);
     method public final void setMediaItems(java.util.List<androidx.media3.common.MediaItem>, boolean);
     method public final void setMediaItems(java.util.List<androidx.media3.common.MediaItem>, int, long);
@@ -1630,8 +1630,8 @@ package androidx.media3.session {
     method public final void setPlaybackParameters(androidx.media3.common.PlaybackParameters);
     method public final void setPlaybackSpeed(float);
     method public final void setPlaylistMetadata(androidx.media3.common.MediaMetadata);
-    method public final com.google.common.util.concurrent.ListenableFuture<androidx.media3.session.SessionResult> setRating(String, androidx.media3.common.Rating);
     method public final com.google.common.util.concurrent.ListenableFuture<androidx.media3.session.SessionResult> setRating(androidx.media3.common.Rating);
+    method public final com.google.common.util.concurrent.ListenableFuture<androidx.media3.session.SessionResult> setRating(String, androidx.media3.common.Rating);
     method public final void setRepeatMode(@androidx.media3.common.Player.RepeatMode int);
     method public final void setShuffleModeEnabled(boolean);
     method public final void setTrackSelectionParameters(androidx.media3.common.TrackSelectionParameters);
@@ -1743,8 +1743,8 @@ package androidx.media3.session {
     method public default void onDisconnected(androidx.media3.session.MediaSession, androidx.media3.session.MediaSession.ControllerInfo);
     method @Deprecated @androidx.media3.session.SessionResult.Code public default int onPlayerCommandRequest(androidx.media3.session.MediaSession, androidx.media3.session.MediaSession.ControllerInfo, @androidx.media3.common.Player.Command int);
     method public default void onPostConnect(androidx.media3.session.MediaSession, androidx.media3.session.MediaSession.ControllerInfo);
-    method public default com.google.common.util.concurrent.ListenableFuture<androidx.media3.session.SessionResult> onSetRating(androidx.media3.session.MediaSession, androidx.media3.session.MediaSession.ControllerInfo, String, androidx.media3.common.Rating);
     method public default com.google.common.util.concurrent.ListenableFuture<androidx.media3.session.SessionResult> onSetRating(androidx.media3.session.MediaSession, androidx.media3.session.MediaSession.ControllerInfo, androidx.media3.common.Rating);
+    method public default com.google.common.util.concurrent.ListenableFuture<androidx.media3.session.SessionResult> onSetRating(androidx.media3.session.MediaSession, androidx.media3.session.MediaSession.ControllerInfo, String, androidx.media3.common.Rating);
   }
 
   public static final class MediaSession.ConnectionResult {
