@@ -19,9 +19,6 @@
   <string name="open_player_content_description">Click to view your play list</string>
   <string name="added_media_item_format">Added %1$s to playlist</string>
   <string name="shuffle">Shuffle</string>
-  <string name="repeat">Repeat</string>
   <string name="play_button">Play</string>
-  <string name="no_item_prompt">
-    "! No media in the play list !\nPlease try to add more from browser"
-  </string>
+  <string name="waiting_for_metadata">Waiting for playlist to load…</string>
 </resources>

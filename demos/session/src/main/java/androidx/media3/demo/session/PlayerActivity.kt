@@ -30,11 +30,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.media3.common.C.TRACK_TYPE_TEXT
 import androidx.media3.common.MediaItem
-import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
 import androidx.media3.common.Player.EVENT_MEDIA_ITEM_TRANSITION
+import androidx.media3.common.Player.EVENT_MEDIA_METADATA_CHANGED
+import androidx.media3.common.Player.EVENT_TIMELINE_CHANGED
 import androidx.media3.common.Player.EVENT_TRACKS_CHANGED
-import androidx.media3.common.Timeline
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
@@ -96,6 +96,7 @@ class PlayerActivity : AppCompatActivity() {
           SessionToken(this, ComponentName(this, PlaybackService::class.java))
         )
         .buildAsync()
+    updateMediaMetadataUI()
     controllerFuture.addListener({ setController() }, MoreExecutors.directExecutor())
   }
 
@@ -110,37 +111,43 @@ class PlayerActivity : AppCompatActivity() {
     playerView.player = controller
 
     updateCurrentPlaylistUI()
-    updateMediaMetadataUI(controller.mediaMetadata)
+    updateMediaMetadataUI()
     playerView.setShowSubtitleButton(controller.currentTracks.isTypeSupported(TRACK_TYPE_TEXT))
 
     controller.addListener(
       object : Player.Listener {
-        override fun onTimelineChanged(timeline: Timeline, reason: Int) {
-          if (reason == Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED) {
-            updateCurrentPlaylistUI()
-          }
-        }
-
         override fun onEvents(player: Player, events: Player.Events) {
-          if (events.contains(EVENT_MEDIA_ITEM_TRANSITION)) {
-            updateMediaMetadataUI(player.currentMediaItem?.mediaMetadata ?: MediaMetadata.EMPTY)
-          }
           if (events.contains(EVENT_TRACKS_CHANGED)) {
             playerView.setShowSubtitleButton(player.currentTracks.isTypeSupported(TRACK_TYPE_TEXT))
+          }
+          if (events.contains(EVENT_TIMELINE_CHANGED)) {
+            updateCurrentPlaylistUI()
+          }
+          if (events.contains(EVENT_MEDIA_METADATA_CHANGED)) {
+            updateMediaMetadataUI()
+          }
+          if (events.contains(EVENT_MEDIA_ITEM_TRANSITION)) {
+            // Trigger adapter update to change highlight of current item.
+            mediaItemListAdapter.notifyDataSetChanged()
           }
         }
       }
     )
   }
 
-  private fun updateMediaMetadataUI(mediaMetadata: MediaMetadata) {
+  private fun updateMediaMetadataUI() {
+    val controller = this.controller
+    if (controller == null || controller.mediaItemCount == 0) {
+      findViewById<TextView>(R.id.media_title).text = getString(R.string.waiting_for_metadata)
+      findViewById<TextView>(R.id.media_artist).text = ""
+      return
+    }
+
+    val mediaMetadata = controller.mediaMetadata
     val title: CharSequence = mediaMetadata.title ?: ""
 
     findViewById<TextView>(R.id.media_title).text = title
     findViewById<TextView>(R.id.media_artist).text = mediaMetadata.artist
-
-    // Trick to update playlist UI
-    mediaItemListAdapter.notifyDataSetChanged()
   }
 
   private fun updateCurrentPlaylistUI() {
