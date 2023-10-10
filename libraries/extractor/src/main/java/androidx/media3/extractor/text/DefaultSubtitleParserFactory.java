@@ -17,6 +17,7 @@ package androidx.media3.extractor.text;
 
 import androidx.annotation.Nullable;
 import androidx.media3.common.Format;
+import androidx.media3.common.Format.CueReplacementBehavior;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.extractor.text.dvb.DvbParser;
@@ -62,6 +63,34 @@ public final class DefaultSubtitleParserFactory implements SubtitleParser.Factor
   }
 
   @Override
+  public @CueReplacementBehavior int getCueReplacementBehavior(Format format) {
+    @Nullable String mimeType = format.sampleMimeType;
+    if (mimeType != null) {
+      switch (mimeType) {
+        case MimeTypes.TEXT_SSA:
+          return SsaParser.CUE_REPLACEMENT_BEHAVIOR;
+        case MimeTypes.TEXT_VTT:
+          return WebvttParser.CUE_REPLACEMENT_BEHAVIOR;
+        case MimeTypes.APPLICATION_MP4VTT:
+          return Mp4WebvttParser.CUE_REPLACEMENT_BEHAVIOR;
+        case MimeTypes.APPLICATION_SUBRIP:
+          return SubripParser.CUE_REPLACEMENT_BEHAVIOR;
+        case MimeTypes.APPLICATION_TX3G:
+          return Tx3gParser.CUE_REPLACEMENT_BEHAVIOR;
+        case MimeTypes.APPLICATION_PGS:
+          return PgsParser.CUE_REPLACEMENT_BEHAVIOR;
+        case MimeTypes.APPLICATION_DVBSUBS:
+          return DvbParser.CUE_REPLACEMENT_BEHAVIOR;
+        case MimeTypes.APPLICATION_TTML:
+          return TtmlParser.CUE_REPLACEMENT_BEHAVIOR;
+        default:
+          break;
+      }
+    }
+    throw new IllegalArgumentException("Unsupported MIME type: " + mimeType);
+  }
+
+  @Override
   public SubtitleParser create(Format format) {
     @Nullable String mimeType = format.sampleMimeType;
     if (mimeType != null) {
@@ -86,7 +115,6 @@ public final class DefaultSubtitleParserFactory implements SubtitleParser.Factor
           break;
       }
     }
-    throw new IllegalArgumentException(
-        "Attempted to create parser for unsupported MIME type: " + mimeType);
+    throw new IllegalArgumentException("Unsupported MIME type: " + mimeType);
   }
 }

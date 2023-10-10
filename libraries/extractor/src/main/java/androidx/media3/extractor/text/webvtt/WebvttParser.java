@@ -17,6 +17,8 @@ package androidx.media3.extractor.text.webvtt;
 
 import android.text.TextUtils;
 import androidx.annotation.Nullable;
+import androidx.media3.common.Format;
+import androidx.media3.common.Format.CueReplacementBehavior;
 import androidx.media3.common.ParserException;
 import androidx.media3.common.util.Consumer;
 import androidx.media3.common.util.ParsableByteArray;
@@ -36,6 +38,13 @@ import java.util.List;
 @UnstableApi
 public final class WebvttParser implements SubtitleParser {
 
+  /**
+   * The {@link CueReplacementBehavior} for consecutive {@link CuesWithTiming} emitted by this
+   * implementation.
+   */
+  public static final @CueReplacementBehavior int CUE_REPLACEMENT_BEHAVIOR =
+      Format.CUE_REPLACEMENT_BEHAVIOR_MERGE;
+
   private static final int EVENT_NONE = -1;
   private static final int EVENT_END_OF_FILE = 0;
   private static final int EVENT_COMMENT = 1;
@@ -51,6 +60,11 @@ public final class WebvttParser implements SubtitleParser {
   public WebvttParser() {
     parsableWebvttData = new ParsableByteArray();
     cssParser = new WebvttCssParser();
+  }
+
+  @Override
+  public @CueReplacementBehavior int getCueReplacementBehavior() {
+    return CUE_REPLACEMENT_BEHAVIOR;
   }
 
   @Override

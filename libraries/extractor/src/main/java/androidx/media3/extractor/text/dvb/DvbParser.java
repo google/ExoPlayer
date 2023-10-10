@@ -45,6 +45,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 @UnstableApi
 public final class DvbParser implements SubtitleParser {
 
+  /**
+   * The {@link CueReplacementBehavior} for consecutive {@link CuesWithTiming} emitted by this
+   * implementation.
+   */
+  public static final @CueReplacementBehavior int CUE_REPLACEMENT_BEHAVIOR =
+      Format.CUE_REPLACEMENT_BEHAVIOR_REPLACE;
+
   private static final String TAG = "DvbParser";
 
   // Segment types, as defined by ETSI EN 300 743 Table 2
@@ -132,7 +139,7 @@ public final class DvbParser implements SubtitleParser {
 
   @Override
   public @CueReplacementBehavior int getCueReplacementBehavior() {
-    return Format.CUE_REPLACEMENT_BEHAVIOR_REPLACE;
+    return CUE_REPLACEMENT_BEHAVIOR;
   }
 
   @Override

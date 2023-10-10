@@ -23,6 +23,8 @@ import static java.lang.Math.min;
 import android.text.Layout;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
+import androidx.media3.common.Format;
+import androidx.media3.common.Format.CueReplacementBehavior;
 import androidx.media3.common.text.Cue;
 import androidx.media3.common.text.TextAnnotation;
 import androidx.media3.common.util.Assertions;
@@ -77,6 +79,13 @@ import org.xmlpull.v1.XmlPullParserFactory;
 @UnstableApi
 public final class TtmlParser implements SubtitleParser {
 
+  /**
+   * The {@link CueReplacementBehavior} for consecutive {@link CuesWithTiming} emitted by this
+   * implementation.
+   */
+  public static final @CueReplacementBehavior int CUE_REPLACEMENT_BEHAVIOR =
+      Format.CUE_REPLACEMENT_BEHAVIOR_MERGE;
+
   private static final String TAG = "TtmlParser";
 
   private static final String TTP = "http://www.w3.org/ns/ttml#parameter";
@@ -117,6 +126,11 @@ public final class TtmlParser implements SubtitleParser {
     } catch (XmlPullParserException e) {
       throw new RuntimeException("Couldn't create XmlPullParserFactory instance", e);
     }
+  }
+
+  @Override
+  public @CueReplacementBehavior int getCueReplacementBehavior() {
+    return CUE_REPLACEMENT_BEHAVIOR;
   }
 
   @Override

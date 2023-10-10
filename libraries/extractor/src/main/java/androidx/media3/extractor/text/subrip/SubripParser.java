@@ -22,6 +22,8 @@ import android.text.Spanned;
 import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
+import androidx.media3.common.Format;
+import androidx.media3.common.Format.CueReplacementBehavior;
 import androidx.media3.common.text.Cue;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.Log;
@@ -39,6 +41,13 @@ import java.util.regex.Pattern;
 /** A {@link SubtitleParser} for SubRip. */
 @UnstableApi
 public final class SubripParser implements SubtitleParser {
+
+  /**
+   * The {@link CueReplacementBehavior} for consecutive {@link CuesWithTiming} emitted by this
+   * implementation.
+   */
+  public static final @CueReplacementBehavior int CUE_REPLACEMENT_BEHAVIOR =
+      Format.CUE_REPLACEMENT_BEHAVIOR_MERGE;
 
   // Fractional positions for use when alignment tags are present.
   private static final float START_FRACTION = 0.08f;
@@ -75,6 +84,11 @@ public final class SubripParser implements SubtitleParser {
     textBuilder = new StringBuilder();
     tags = new ArrayList<>();
     parsableByteArray = new ParsableByteArray();
+  }
+
+  @Override
+  public @CueReplacementBehavior int getCueReplacementBehavior() {
+    return CUE_REPLACEMENT_BEHAVIOR;
   }
 
   @Nullable
