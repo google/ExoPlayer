@@ -55,10 +55,10 @@ import java.lang.annotation.Target;
  * <p>By default usages of APIs annotated with this annotation generate lint errors in Gradle and
  * Android Studio, in order to alert developers to the risk of breaking changes.
  *
- * <p>Individual usage sites can be opted-in to suppress the lint error by using the {@link
- * androidx.annotation.OptIn} annotation.
+ * <p>Individual usage sites or whole packages can be opted-in to suppress the lint error by using
+ * the {@link androidx.annotation.OptIn} annotation.
  *
- * <p>In Java:
+ * <p>In a Java class:
  *
  * <pre>{@code
  * import androidx.annotation.OptIn;
@@ -66,6 +66,16 @@ import java.lang.annotation.Target;
  * ...
  * @OptIn(markerClass = UnstableApi.class)
  * private void methodUsingUnstableApis() { ... }
+ * }</pre>
+ *
+ * <p>In a {@code package-info.java} file, to opt-in a whole package:
+ *
+ * <pre>{@code
+ * @OptIn(markerClass = UnstableApi.class)
+ * package name.of.your.package;
+ *
+ * import androidx.annotation.OptIn;
+ * import androidx.media3.common.util.UnstableApi;
  * }</pre>
  *
  * <p>In Kotlin:
