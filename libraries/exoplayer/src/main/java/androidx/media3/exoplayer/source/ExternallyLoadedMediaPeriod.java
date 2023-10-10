@@ -16,6 +16,7 @@
 package androidx.media3.exoplayer.source;
 
 import android.net.Uri;
+import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.TrackGroup;
@@ -24,8 +25,17 @@ import androidx.media3.decoder.DecoderInputBuffer;
 import androidx.media3.exoplayer.FormatHolder;
 import androidx.media3.exoplayer.LoadingInfo;
 import androidx.media3.exoplayer.SeekParameters;
+import androidx.media3.exoplayer.source.ExternalLoader.LoadRequest;
 import androidx.media3.exoplayer.trackselection.ExoTrackSelection;
 import com.google.common.base.Charsets;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
+import java.io.IOException;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * A {@link MediaPeriod} that puts a {@link Charsets#UTF_8}-encoded {@link Uri} into the sample
@@ -33,24 +43,42 @@ import com.google.common.base.Charsets;
  */
 /* package */ final class ExternallyLoadedMediaPeriod implements MediaPeriod {
 
-  private final Format format;
+  private final Uri uri;
+  private final ExternalLoader externalLoader;
   private final TrackGroupArray tracks;
   private final byte[] sampleData;
+  private final AtomicBoolean loadingFinished;
+  private final AtomicReference<Throwable> loadingThrowable;
+  private @MonotonicNonNull ListenableFuture<?> loadingFuture;
 
-  // TODO: b/303375301 - Removing this variable (replacing it with static returns in the methods
-  // that
-  //   use it) causes playback to hang.
-  private boolean loadingFinished;
-
-  public ExternallyLoadedMediaPeriod(Uri uri, String mimeType) {
-    this.format = new Format.Builder().setSampleMimeType(mimeType).build();
+  public ExternallyLoadedMediaPeriod(Uri uri, String mimeType, ExternalLoader externalLoader) {
+    this.uri = uri;
+    Format format = new Format.Builder().setSampleMimeType(mimeType).build();
+    this.externalLoader = externalLoader;
     tracks = new TrackGroupArray(new TrackGroup(format));
     sampleData = uri.toString().getBytes(Charsets.UTF_8);
+    loadingFinished = new AtomicBoolean();
+    loadingThrowable = new AtomicReference<>();
   }
 
   @Override
   public void prepare(Callback callback, long positionUs) {
     callback.onPrepared(this);
+    loadingFuture = externalLoader.load(new LoadRequest(uri));
+    Futures.addCallback(
+        loadingFuture,
+        new FutureCallback<@NullableType Object>() {
+          @Override
+          public void onSuccess(@Nullable Object result) {
+            loadingFinished.set(true);
+          }
+
+          @Override
+          public void onFailure(Throwable t) {
+            loadingThrowable.set(t);
+          }
+        },
+        MoreExecutors.directExecutor());
   }
 
   @Override
@@ -105,26 +133,22 @@ import com.google.common.base.Charsets;
 
   @Override
   public long getBufferedPositionUs() {
-    return loadingFinished ? C.TIME_END_OF_SOURCE : 0;
+    return loadingFinished.get() ? C.TIME_END_OF_SOURCE : 0;
   }
 
   @Override
   public long getNextLoadPositionUs() {
-    return loadingFinished ? C.TIME_END_OF_SOURCE : 0;
+    return loadingFinished.get() ? C.TIME_END_OF_SOURCE : 0;
   }
 
   @Override
   public boolean continueLoading(LoadingInfo loadingInfo) {
-    if (loadingFinished) {
-      return false;
-    }
-    loadingFinished = true;
-    return true;
+    return !loadingFinished.get();
   }
 
   @Override
   public boolean isLoading() {
-    return !loadingFinished;
+    return !loadingFinished.get();
   }
 
   @Override
@@ -132,8 +156,13 @@ import com.google.common.base.Charsets;
     // Do nothing.
   }
 
-  private final class SampleStreamImpl implements SampleStream {
+  public void releasePeriod() {
+    if (loadingFuture != null) {
+      loadingFuture.cancel(/* mayInterruptIfRunning= */ false);
+    }
+  }
 
+  private final class SampleStreamImpl implements SampleStream {
     private static final int STREAM_STATE_SEND_FORMAT = 0;
     private static final int STREAM_STATE_SEND_SAMPLE = 1;
     private static final int STREAM_STATE_END_OF_STREAM = 2;
@@ -146,13 +175,16 @@ import com.google.common.base.Charsets;
 
     @Override
     public boolean isReady() {
-      return loadingFinished;
+      return loadingFinished.get();
     }
 
     @Override
-    public void maybeThrowError() {
-      // Do nothing.
-
+    public void maybeThrowError() throws IOException {
+      @Nullable
+      Throwable loadingThrowable = ExternallyLoadedMediaPeriod.this.loadingThrowable.get();
+      if (loadingThrowable != null) {
+        throw new IOException(loadingThrowable);
+      }
     }
 
     @Override
@@ -168,6 +200,10 @@ import com.google.common.base.Charsets;
         formatHolder.format = tracks.get(0).getFormat(0);
         streamState = STREAM_STATE_SEND_SAMPLE;
         return C.RESULT_FORMAT_READ;
+      }
+
+      if (!loadingFinished.get()) {
+        return C.RESULT_NOTHING_READ;
       }
 
       int sampleSize = sampleData.length;
