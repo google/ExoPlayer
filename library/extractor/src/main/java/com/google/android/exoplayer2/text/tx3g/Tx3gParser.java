@@ -55,6 +55,13 @@ import java.util.List;
 @Deprecated
 public final class Tx3gParser implements SubtitleParser {
 
+  /**
+   * The {@link CueReplacementBehavior} for consecutive {@link CuesWithTiming} emitted by this
+   * implementation.
+   */
+  public static final @CueReplacementBehavior int CUE_REPLACEMENT_BEHAVIOR =
+      Format.CUE_REPLACEMENT_BEHAVIOR_REPLACE;
+
   private static final String TAG = "Tx3gParser";
 
   private static final int TYPE_STYL = 0x7374796c;
@@ -130,7 +137,7 @@ public final class Tx3gParser implements SubtitleParser {
 
   @Override
   public @CueReplacementBehavior int getCueReplacementBehavior() {
-    return Format.CUE_REPLACEMENT_BEHAVIOR_REPLACE;
+    return CUE_REPLACEMENT_BEHAVIOR;
   }
 
   @Override

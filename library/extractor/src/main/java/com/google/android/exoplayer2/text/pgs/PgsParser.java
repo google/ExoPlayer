@@ -43,6 +43,13 @@ import java.util.zip.Inflater;
 @Deprecated
 public final class PgsParser implements SubtitleParser {
 
+  /**
+   * The {@link CueReplacementBehavior} for consecutive {@link CuesWithTiming} emitted by this
+   * implementation.
+   */
+  public static final @CueReplacementBehavior int CUE_REPLACEMENT_BEHAVIOR =
+      Format.CUE_REPLACEMENT_BEHAVIOR_REPLACE;
+
   private static final int SECTION_TYPE_PALETTE = 0x14;
   private static final int SECTION_TYPE_BITMAP_PICTURE = 0x15;
   private static final int SECTION_TYPE_IDENTIFIER = 0x16;
@@ -63,7 +70,7 @@ public final class PgsParser implements SubtitleParser {
 
   @Override
   public @CueReplacementBehavior int getCueReplacementBehavior() {
-    return Format.CUE_REPLACEMENT_BEHAVIOR_REPLACE;
+    return CUE_REPLACEMENT_BEHAVIOR;
   }
 
   @Override

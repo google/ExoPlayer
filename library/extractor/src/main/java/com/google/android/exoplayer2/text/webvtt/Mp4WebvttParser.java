@@ -43,6 +43,13 @@ import java.util.List;
 @Deprecated
 public final class Mp4WebvttParser implements SubtitleParser {
 
+  /**
+   * The {@link CueReplacementBehavior} for consecutive {@link CuesWithTiming} emitted by this
+   * implementation.
+   */
+  public static final @CueReplacementBehavior int CUE_REPLACEMENT_BEHAVIOR =
+      Format.CUE_REPLACEMENT_BEHAVIOR_REPLACE;
+
   private static final int BOX_HEADER_SIZE = 8;
 
   @SuppressWarnings("ConstantCaseForConstants")
@@ -62,7 +69,7 @@ public final class Mp4WebvttParser implements SubtitleParser {
 
   @Override
   public @CueReplacementBehavior int getCueReplacementBehavior() {
-    return Format.CUE_REPLACEMENT_BEHAVIOR_REPLACE;
+    return CUE_REPLACEMENT_BEHAVIOR;
   }
 
   @Override

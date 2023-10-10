@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.text;
 
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.Format.CueReplacementBehavior;
 import com.google.android.exoplayer2.text.dvb.DvbParser;
 import com.google.android.exoplayer2.text.pgs.PgsParser;
 import com.google.android.exoplayer2.text.ssa.SsaParser;
@@ -66,6 +67,34 @@ public final class DefaultSubtitleParserFactory implements SubtitleParser.Factor
   }
 
   @Override
+  public @CueReplacementBehavior int getCueReplacementBehavior(Format format) {
+    @Nullable String mimeType = format.sampleMimeType;
+    if (mimeType != null) {
+      switch (mimeType) {
+        case MimeTypes.TEXT_SSA:
+          return SsaParser.CUE_REPLACEMENT_BEHAVIOR;
+        case MimeTypes.TEXT_VTT:
+          return WebvttParser.CUE_REPLACEMENT_BEHAVIOR;
+        case MimeTypes.APPLICATION_MP4VTT:
+          return Mp4WebvttParser.CUE_REPLACEMENT_BEHAVIOR;
+        case MimeTypes.APPLICATION_SUBRIP:
+          return SubripParser.CUE_REPLACEMENT_BEHAVIOR;
+        case MimeTypes.APPLICATION_TX3G:
+          return Tx3gParser.CUE_REPLACEMENT_BEHAVIOR;
+        case MimeTypes.APPLICATION_PGS:
+          return PgsParser.CUE_REPLACEMENT_BEHAVIOR;
+        case MimeTypes.APPLICATION_DVBSUBS:
+          return DvbParser.CUE_REPLACEMENT_BEHAVIOR;
+        case MimeTypes.APPLICATION_TTML:
+          return TtmlParser.CUE_REPLACEMENT_BEHAVIOR;
+        default:
+          break;
+      }
+    }
+    throw new IllegalArgumentException("Unsupported MIME type: " + mimeType);
+  }
+
+  @Override
   public SubtitleParser create(Format format) {
     @Nullable String mimeType = format.sampleMimeType;
     if (mimeType != null) {
@@ -90,7 +119,6 @@ public final class DefaultSubtitleParserFactory implements SubtitleParser.Factor
           break;
       }
     }
-    throw new IllegalArgumentException(
-        "Attempted to create parser for unsupported MIME type: " + mimeType);
+    throw new IllegalArgumentException("Unsupported MIME type: " + mimeType);
   }
 }

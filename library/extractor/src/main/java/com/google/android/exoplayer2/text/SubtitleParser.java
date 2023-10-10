@@ -16,8 +16,6 @@
 
 package com.google.android.exoplayer2.text;
 
-import static com.google.android.exoplayer2.Format.CUE_REPLACEMENT_BEHAVIOR_MERGE;
-
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -55,7 +53,24 @@ public interface SubtitleParser {
      */
     boolean supportsFormat(Format format);
 
-    /** Creates a {@link SubtitleParser} for the given {@link Format}. */
+    /**
+     * Returns the {@link CueReplacementBehavior} of the {@link SubtitleParser} implementation that
+     * handles {@code format}.
+     *
+     * @return The replacement behavior.
+     * @throws IllegalArgumentException if {@code format} is {@linkplain #supportsFormat(Format) not
+     *     supported} by this factory.
+     */
+    @CueReplacementBehavior
+    int getCueReplacementBehavior(Format format);
+
+    /**
+     * Creates a {@link SubtitleParser} for the given {@link Format}.
+     *
+     * @return The {@link SubtitleParser} instance.
+     * @throws IllegalArgumentException if {@code format} is {@linkplain #supportsFormat(Format) not
+     *     supported} by this factory.
+     */
     SubtitleParser create(Format format);
   }
 
@@ -251,10 +266,7 @@ public interface SubtitleParser {
    * this implementation.
    *
    * <p>A given instance must always return the same value from this method.
-   *
-   * <p>The default implementation returns {@link Format#CUE_REPLACEMENT_BEHAVIOR_MERGE}.
    */
-  default @CueReplacementBehavior int getCueReplacementBehavior() {
-    return CUE_REPLACEMENT_BEHAVIOR_MERGE;
-  }
+  @CueReplacementBehavior
+  int getCueReplacementBehavior();
 }
