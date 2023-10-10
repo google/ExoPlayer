@@ -489,6 +489,75 @@ public class WearUnsuitableOutputPlaybackSuppressionResolverListenerTest {
   }
 
   /**
+   * Test for automatic resumption of the ongoing playback when it is transferred from one suitable
+   * device to another within set time out.
+   */
+  @Test
+  public void
+      transferOnGoingPlaybackFromOneSuitableDeviceToAnotherWithinSetTimeOut_shouldContinuePlayback()
+          throws TimeoutException {
+    shadowPackageManager.setSystemFeature(PackageManager.FEATURE_WATCH, /* supported= */ true);
+    setupConnectedAudioOutput(
+        AudioDeviceInfo.TYPE_BUILTIN_SPEAKER, AudioDeviceInfo.TYPE_BLUETOOTH_A2DP);
+    testPlayer.addListener(
+        new WearUnsuitableOutputPlaybackSuppressionResolverListener(
+            ApplicationProvider.getApplicationContext()));
+    testPlayer.setMediaItem(
+        MediaItem.fromUri("asset:///media/mp4/sample_with_increasing_timestamps_360p.mp4"));
+    testPlayer.prepare();
+    testPlayer.play();
+    runUntilPlaybackState(testPlayer, Player.STATE_READY);
+
+    removeConnectedAudioOutput(AudioDeviceInfo.TYPE_BLUETOOTH_A2DP);
+    runUntilPlayWhenReady(testPlayer, /* expectedPlayWhenReady= */ false);
+
+    addConnectedAudioOutput(
+        AudioDeviceInfo.TYPE_BLUETOOTH_A2DP, /* notifyAudioDeviceCallbacks= */ true);
+    runUntilPlayWhenReady(testPlayer, /* expectedPlayWhenReady= */ true);
+
+    assertThat(testPlayer.isPlaying()).isTrue();
+  }
+
+  /**
+   * Test for automatic pause of the ongoing playback when it is transferred from one suitable
+   * device to another and the time difference between switching is more than default time out
+   */
+  @Test
+  public void
+      transferOnGoingPlaybackFromOneSuitableDeviceToAnotherAfterTimeOut_shouldNotContinuePlayback()
+          throws TimeoutException {
+    shadowPackageManager.setSystemFeature(PackageManager.FEATURE_WATCH, /* supported= */ true);
+    setupConnectedAudioOutput(
+        AudioDeviceInfo.TYPE_BUILTIN_SPEAKER, AudioDeviceInfo.TYPE_BLUETOOTH_A2DP);
+    FakeClock fakeClock = new FakeClock(/* isAutoAdvancing= */ true);
+    testPlayer.addListener(
+        new WearUnsuitableOutputPlaybackSuppressionResolverListener(
+            ApplicationProvider.getApplicationContext(),
+            WearUnsuitableOutputPlaybackSuppressionResolverListener
+                .DEFAULT_PLAYBACK_SUPPRESSION_AUTO_RESUME_TIMEOUT_MS,
+            fakeClock));
+    testPlayer.setMediaItem(
+        MediaItem.fromUri("asset:///media/mp4/sample_with_increasing_timestamps_360p.mp4"));
+    testPlayer.prepare();
+    testPlayer.play();
+    runUntilPlaybackState(testPlayer, Player.STATE_READY);
+
+    removeConnectedAudioOutput(AudioDeviceInfo.TYPE_BLUETOOTH_A2DP);
+    runUntilPlayWhenReady(testPlayer, /* expectedPlayWhenReady= */ false);
+
+    fakeClock.advanceTime(
+        WearUnsuitableOutputPlaybackSuppressionResolverListener
+                .DEFAULT_PLAYBACK_SUPPRESSION_AUTO_RESUME_TIMEOUT_MS
+            * 2);
+
+    addConnectedAudioOutput(
+        AudioDeviceInfo.TYPE_BLUETOOTH_A2DP, /* notifyAudioDeviceCallbacks= */ true);
+    runUntilPlayWhenReady(testPlayer, /* expectedPlayWhenReady= */ false);
+
+    assertThat(testPlayer.isPlaying()).isFalse();
+  }
+
+  /**
    * Test for no pause on the Player when the playback is not suppressed due to unsuitable output.
    */
   @Test

@@ -161,9 +161,9 @@ public final class WearUnsuitableOutputPlaybackSuppressionResolverListener
         && player.getPlaybackSuppressionReason()
             == Player.PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_OUTPUT) {
       player.pause();
+      unsuitableOutputPlaybackSuppressionStartRealtimeMs = clock.elapsedRealtime();
       if (events.contains(Player.EVENT_PLAY_WHEN_READY_CHANGED)) {
         launchSystemMediaOutputSwitcherUi(applicationContext);
-        unsuitableOutputPlaybackSuppressionStartRealtimeMs = clock.elapsedRealtime();
       }
     } else if (events.contains(Player.EVENT_PLAYBACK_SUPPRESSION_REASON_CHANGED)
         && player.getPlaybackSuppressionReason() == Player.PLAYBACK_SUPPRESSION_REASON_NONE
