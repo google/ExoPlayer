@@ -1375,7 +1375,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
         if (bitmapFuture.isDone()) {
           try {
             artworkBitmap = Futures.getDone(bitmapFuture);
-          } catch (ExecutionException e) {
+          } catch (CancellationException | ExecutionException e) {
             Log.w(TAG, getBitmapLoadErrorMessage(e));
           }
         } else {

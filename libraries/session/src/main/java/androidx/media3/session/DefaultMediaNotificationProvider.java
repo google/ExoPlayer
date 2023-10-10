@@ -53,6 +53,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
@@ -348,7 +349,7 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
         if (bitmapFuture.isDone()) {
           try {
             builder.setLargeIcon(Futures.getDone(bitmapFuture));
-          } catch (ExecutionException e) {
+          } catch (CancellationException | ExecutionException e) {
             Log.w(TAG, getBitmapLoadErrorMessage(e));
           }
         } else {

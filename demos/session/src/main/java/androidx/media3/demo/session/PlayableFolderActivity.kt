@@ -43,7 +43,7 @@ import com.google.common.util.concurrent.ListenableFuture
 class PlayableFolderActivity : AppCompatActivity() {
   private lateinit var browserFuture: ListenableFuture<MediaBrowser>
   private val browser: MediaBrowser?
-    get() = if (browserFuture.isDone) browserFuture.get() else null
+    get() = if (browserFuture.isDone && !browserFuture.isCancelled) browserFuture.get() else null
 
   private lateinit var mediaList: ListView
   private lateinit var mediaListAdapter: PlayableMediaItemArrayAdapter

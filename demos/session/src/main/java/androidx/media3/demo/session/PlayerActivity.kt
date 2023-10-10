@@ -45,7 +45,8 @@ import com.google.common.util.concurrent.MoreExecutors
 class PlayerActivity : AppCompatActivity() {
   private lateinit var controllerFuture: ListenableFuture<MediaController>
   private val controller: MediaController?
-    get() = if (controllerFuture.isDone) controllerFuture.get() else null
+    get() =
+      if (controllerFuture.isDone && !controllerFuture.isCancelled) controllerFuture.get() else null
 
   private lateinit var playerView: PlayerView
   private lateinit var mediaItemListView: ListView

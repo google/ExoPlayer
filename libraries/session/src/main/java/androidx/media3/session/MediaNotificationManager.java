@@ -214,7 +214,7 @@ import java.util.concurrent.TimeoutException;
     if (controllerAndListener != null && controllerAndListener.controller.isDone()) {
       try {
         mediaNotificationController = Futures.getDone(controllerAndListener.controller);
-      } catch (ExecutionException e) {
+      } catch (CancellationException | ExecutionException e) {
         // Ignore.
       }
     }
@@ -323,7 +323,7 @@ import java.util.concurrent.TimeoutException;
     }
     try {
       return Futures.getDone(controllerAndListener.controller);
-    } catch (ExecutionException exception) {
+    } catch (CancellationException | ExecutionException exception) {
       // We should never reach this.
       throw new IllegalStateException(exception);
     }
