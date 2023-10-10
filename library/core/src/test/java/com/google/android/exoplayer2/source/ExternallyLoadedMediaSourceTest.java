@@ -26,6 +26,7 @@ import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.robolectric.RobolectricUtil;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.common.util.concurrent.SettableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -128,7 +129,7 @@ public class ExternallyLoadedMediaSourceTest {
 
   private static MediaSource buildMediaSource(MediaItem mediaItem) {
     return new ExternallyLoadedMediaSource.Factory(
-            msToUs(mediaItem.localConfiguration.imageDurationMs))
+            msToUs(mediaItem.localConfiguration.imageDurationMs), unused -> SettableFuture.create())
         .createMediaSource(mediaItem);
   }
 }

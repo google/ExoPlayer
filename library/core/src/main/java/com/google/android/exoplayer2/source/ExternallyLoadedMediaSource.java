@@ -47,18 +47,24 @@ import java.util.Objects;
 @Deprecated
 public final class ExternallyLoadedMediaSource extends BaseMediaSource {
 
+  private final ExternalLoader externalLoader;
+
   /** Factory for {@link ExternallyLoadedMediaSource}. */
   public static final class Factory implements MediaSource.Factory {
-
     private final long timelineDurationUs;
+    private final ExternalLoader externalLoader;
 
     /**
      * Creates an instance.
      *
-     * @param timelineDurationUs The duration of the {@link SinglePeriodTimeline} created.
+     * @param timelineDurationUs The duration of the {@link SinglePeriodTimeline} created, in
+     *     microseconds.
+     * @param externalLoader The {@link ExternalLoader} to load the media in preparation for
+     *     playback.
      */
-    Factory(long timelineDurationUs) {
+    public Factory(long timelineDurationUs, ExternalLoader externalLoader) {
       this.timelineDurationUs = timelineDurationUs;
+      this.externalLoader = externalLoader;
     }
 
     /** Does nothing. {@link ExternallyLoadedMediaSource} does not support DRM. */
@@ -84,7 +90,7 @@ public final class ExternallyLoadedMediaSource extends BaseMediaSource {
 
     @Override
     public ExternallyLoadedMediaSource createMediaSource(MediaItem mediaItem) {
-      return new ExternallyLoadedMediaSource(mediaItem, timelineDurationUs);
+      return new ExternallyLoadedMediaSource(mediaItem, timelineDurationUs, externalLoader);
     }
   }
 
@@ -93,9 +99,11 @@ public final class ExternallyLoadedMediaSource extends BaseMediaSource {
   @GuardedBy("this")
   private MediaItem mediaItem;
 
-  private ExternallyLoadedMediaSource(MediaItem mediaItem, long timelineDurationUs) {
+  private ExternallyLoadedMediaSource(
+      MediaItem mediaItem, long timelineDurationUs, ExternalLoader externalLoader) {
     this.mediaItem = mediaItem;
     this.timelineDurationUs = timelineDurationUs;
+    this.externalLoader = externalLoader;
   }
 
   @Override
@@ -122,7 +130,7 @@ public final class ExternallyLoadedMediaSource extends BaseMediaSource {
   }
 
   @Override
-  public synchronized boolean canUpdateMediaItem(MediaItem mediaItem) {
+  public boolean canUpdateMediaItem(MediaItem mediaItem) {
     @Nullable MediaItem.LocalConfiguration newConfiguration = mediaItem.localConfiguration;
     MediaItem.LocalConfiguration oldConfiguration = checkNotNull(getMediaItem().localConfiguration);
     return newConfiguration != null
@@ -149,11 +157,11 @@ public final class ExternallyLoadedMediaSource extends BaseMediaSource {
     checkNotNull(
         mediaItem.localConfiguration.mimeType, "Externally loaded mediaItems require a MIME type.");
     return new ExternallyLoadedMediaPeriod(
-        mediaItem.localConfiguration.uri, mediaItem.localConfiguration.mimeType);
+        mediaItem.localConfiguration.uri, mediaItem.localConfiguration.mimeType, externalLoader);
   }
 
   @Override
   public void releasePeriod(MediaPeriod mediaPeriod) {
-    // Do nothing.
+    ((ExternallyLoadedMediaPeriod) mediaPeriod).releasePeriod();
   }
 }

@@ -120,6 +120,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
 
   private DataSource.Factory dataSourceFactory;
   @Nullable private MediaSource.Factory serverSideAdInsertionMediaSourceFactory;
+  @Nullable private ExternalLoader externalImageLoader;
   @Nullable private AdsLoader.Provider adsLoaderProvider;
   @Nullable private AdViewProvider adViewProvider;
   @Nullable private LoadErrorHandlingPolicy loadErrorHandlingPolicy;
@@ -313,6 +314,25 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
   }
 
   /**
+   * Sets the {@link ExternalLoader} to be called when loading starts in {@link
+   * ExternallyLoadedMediaSource} when loading images in an external Image Management Framework (for
+   * example, Glide).
+   *
+   * <p>This loader is only used when the {@link MediaItem.LocalConfiguration#mimeType} is set to
+   * {@link MimeTypes#APPLICATION_EXTERNALLY_LOADED_IMAGE}.
+   *
+   * @param externalImageLoader The {@link ExternalLoader} to load the media or {@code null} to
+   *     remove a previously set {@link ExternalLoader}.
+   * @return This factory, for convenience.
+   */
+  @CanIgnoreReturnValue
+  public DefaultMediaSourceFactory setExternalImageLoader(
+      @Nullable ExternalLoader externalImageLoader) {
+    this.externalImageLoader = externalImageLoader;
+    return this;
+  }
+
+  /**
    * Sets the target live offset for live streams, in milliseconds.
    *
    * @param liveTargetOffsetMs The target live offset, in milliseconds, or {@link C#TIME_UNSET} to
@@ -427,7 +447,8 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
     if (Objects.equals(
         mediaItem.localConfiguration.mimeType, MimeTypes.APPLICATION_EXTERNALLY_LOADED_IMAGE)) {
       return new ExternallyLoadedMediaSource.Factory(
-              msToUs(mediaItem.localConfiguration.imageDurationMs))
+              msToUs(mediaItem.localConfiguration.imageDurationMs),
+              checkNotNull(externalImageLoader))
           .createMediaSource(mediaItem);
     }
     @C.ContentType
