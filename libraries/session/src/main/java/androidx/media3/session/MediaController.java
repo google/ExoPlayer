@@ -538,7 +538,7 @@ public class MediaController implements Player {
    * controller.
    */
   public static void releaseFuture(Future<? extends MediaController> controllerFuture) {
-    if (controllerFuture.cancel(/* mayInterruptIfRunning= */ true)) {
+    if (controllerFuture.cancel(/* mayInterruptIfRunning= */ false)) {
       // Successfully canceled the Future. The controller will be released by MediaControllerHolder.
       return;
     }
