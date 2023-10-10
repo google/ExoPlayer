@@ -22,6 +22,8 @@ import static androidx.media3.common.C.FORMAT_UNSUPPORTED_TYPE;
 import static androidx.media3.common.TrackSelectionParameters.AudioOffloadPreferences.AUDIO_OFFLOAD_MODE_ENABLED;
 import static androidx.media3.common.TrackSelectionParameters.AudioOffloadPreferences.AUDIO_OFFLOAD_MODE_REQUIRED;
 import static androidx.media3.exoplayer.RendererCapabilities.ADAPTIVE_NOT_SEAMLESS;
+import static androidx.media3.exoplayer.RendererCapabilities.ADAPTIVE_NOT_SUPPORTED;
+import static androidx.media3.exoplayer.RendererCapabilities.ADAPTIVE_SEAMLESS;
 import static androidx.media3.exoplayer.RendererCapabilities.AUDIO_OFFLOAD_GAPLESS_SUPPORTED;
 import static androidx.media3.exoplayer.RendererCapabilities.AUDIO_OFFLOAD_SUPPORTED;
 import static androidx.media3.exoplayer.RendererCapabilities.DECODER_SUPPORT_FALLBACK;
@@ -1858,6 +1860,94 @@ public final class DefaultTrackSelectorTest {
         trackSelector.selectTracks(
             new RendererCapabilities[] {rendererCapabilities}, trackGroups, periodId, TIMELINE);
     assertAdaptiveSelection(result.selections[0], trackGroups.get(0), 3, 2, 0);
+  }
+
+  @Test
+  public void selectTracks_withMultipleAudioTracksWithoutAdaptationSupport_selectsFixed()
+      throws Exception {
+    FakeRendererCapabilities seamlessAudioCapabilities =
+        new FakeRendererCapabilities(
+            C.TRACK_TYPE_AUDIO,
+            RendererCapabilities.create(
+                FORMAT_HANDLED, ADAPTIVE_NOT_SUPPORTED, TUNNELING_NOT_SUPPORTED));
+
+    Format.Builder formatBuilder = AUDIO_FORMAT.buildUpon();
+    TrackGroupArray trackGroups =
+        singleTrackGroup(formatBuilder.setId("0").build(), formatBuilder.setId("1").build());
+    // Explicitly allow non-seamless adaptation to ensure it's not used.
+    trackSelector.setParameters(
+        defaultParameters.buildUpon().setAllowAudioNonSeamlessAdaptiveness(true));
+    TrackSelectorResult result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {seamlessAudioCapabilities},
+            trackGroups,
+            periodId,
+            TIMELINE);
+    assertThat(result.length).isEqualTo(1);
+    assertFixedSelection(result.selections[0], trackGroups.get(0), /* expectedTrack= */ 0);
+  }
+
+  @Test
+  public void
+      selectTracks_withMultipleAudioTracksWithNonSeamlessAdaptiveness_selectsAdaptiveOnlyIfAllowed()
+          throws Exception {
+    FakeRendererCapabilities nonSeamlessAudioCapabilities =
+        new FakeRendererCapabilities(
+            C.TRACK_TYPE_AUDIO,
+            RendererCapabilities.create(
+                FORMAT_HANDLED, ADAPTIVE_NOT_SEAMLESS, TUNNELING_NOT_SUPPORTED));
+
+    Format.Builder formatBuilder = AUDIO_FORMAT.buildUpon();
+    TrackGroupArray trackGroups =
+        singleTrackGroup(formatBuilder.setId("0").build(), formatBuilder.setId("1").build());
+    trackSelector.setParameters(
+        defaultParameters.buildUpon().setAllowAudioNonSeamlessAdaptiveness(true));
+    TrackSelectorResult result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {nonSeamlessAudioCapabilities},
+            trackGroups,
+            periodId,
+            TIMELINE);
+    assertThat(result.length).isEqualTo(1);
+    assertAdaptiveSelection(
+        result.selections[0], trackGroups.get(0), /* expectedTracks...= */ 0, 1);
+
+    trackSelector.setParameters(
+        defaultParameters.buildUpon().setAllowAudioNonSeamlessAdaptiveness(false));
+    result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {nonSeamlessAudioCapabilities},
+            trackGroups,
+            periodId,
+            TIMELINE);
+    assertThat(result.length).isEqualTo(1);
+    assertFixedSelection(result.selections[0], trackGroups.get(0), /* expectedTrack= */ 0);
+  }
+
+  @Test
+  public void selectTracks_withMultipleAudioTracksWithSeamlessAdaptiveness_selectsAdaptive()
+      throws Exception {
+    FakeRendererCapabilities seamlessAudioCapabilities =
+        new FakeRendererCapabilities(
+            C.TRACK_TYPE_AUDIO,
+            RendererCapabilities.create(
+                FORMAT_HANDLED, ADAPTIVE_SEAMLESS, TUNNELING_NOT_SUPPORTED));
+
+    Format.Builder formatBuilder = AUDIO_FORMAT.buildUpon();
+    TrackGroupArray trackGroups =
+        singleTrackGroup(formatBuilder.setId("0").build(), formatBuilder.setId("1").build());
+    // Explicitly disallow non-seamless adaptation to ensure it's not used.
+    trackSelector.setParameters(
+        defaultParameters.buildUpon().setAllowAudioNonSeamlessAdaptiveness(false));
+    TrackSelectorResult result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {seamlessAudioCapabilities},
+            trackGroups,
+            periodId,
+            TIMELINE);
+    assertThat(result.length).isEqualTo(1);
+    assertAdaptiveSelection(
+        result.selections[0], trackGroups.get(0), /* expectedTracks...= */ 0, 1);
   }
 
   @Test

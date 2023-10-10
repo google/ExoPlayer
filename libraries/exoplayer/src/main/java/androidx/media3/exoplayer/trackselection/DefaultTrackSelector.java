@@ -386,7 +386,9 @@ public class DefaultTrackSelector extends MappingTrackSelector
     /**
      * Sets whether to allow adaptive audio selections containing mixed MIME types.
      *
-     * <p>Adaptations between different MIME types may not be completely seamless.
+     * <p>Adaptations between different MIME types may not be completely seamless, in which case
+     * {@link Parameters.Builder#setAllowAudioNonSeamlessAdaptiveness(boolean)} also needs to be
+     * {@code true} for mixed MIME type selections to be made.
      *
      * @param allowAudioMixedMimeTypeAdaptiveness Whether to allow adaptive audio selections
      *     containing mixed MIME types.
@@ -769,6 +771,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
       private boolean allowAudioMixedSampleRateAdaptiveness;
       private boolean allowAudioMixedChannelCountAdaptiveness;
       private boolean allowAudioMixedDecoderSupportAdaptiveness;
+      private boolean allowAudioNonSeamlessAdaptiveness;
       private boolean constrainAudioChannelCountToDeviceCapabilities;
       // General
       private boolean exceedRendererCapabilitiesIfNecessary;
@@ -825,6 +828,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
             initialValues.allowAudioMixedChannelCountAdaptiveness;
         allowAudioMixedDecoderSupportAdaptiveness =
             initialValues.allowAudioMixedDecoderSupportAdaptiveness;
+        allowAudioNonSeamlessAdaptiveness = initialValues.allowAudioNonSeamlessAdaptiveness;
         constrainAudioChannelCountToDeviceCapabilities =
             initialValues.constrainAudioChannelCountToDeviceCapabilities;
         // General
@@ -881,6 +885,10 @@ public class DefaultTrackSelector extends MappingTrackSelector
             bundle.getBoolean(
                 Parameters.FIELD_ALLOW_AUDIO_MIXED_DECODER_SUPPORT_ADAPTIVENESS,
                 defaultValue.allowAudioMixedDecoderSupportAdaptiveness));
+        setAllowAudioNonSeamlessAdaptiveness(
+            bundle.getBoolean(
+                Parameters.FIELD_ALLOW_AUDIO_NON_SEAMLESS_ADAPTIVENESS,
+                defaultValue.allowAudioNonSeamlessAdaptiveness));
         setConstrainAudioChannelCountToDeviceCapabilities(
             bundle.getBoolean(
                 Parameters.FIELD_CONSTRAIN_AUDIO_CHANNEL_COUNT_TO_DEVICE_CAPABILITIES,
@@ -1136,7 +1144,9 @@ public class DefaultTrackSelector extends MappingTrackSelector
       /**
        * Sets whether to allow adaptive audio selections containing mixed MIME types.
        *
-       * <p>Adaptations between different MIME types may not be completely seamless.
+       * <p>Adaptations between different MIME types may not be completely seamless, in which case
+       * {@link #setAllowAudioNonSeamlessAdaptiveness(boolean)} also needs to be {@code true} for
+       * mixed MIME type selections to be made.
        *
        * @param allowAudioMixedMimeTypeAdaptiveness Whether to allow adaptive audio selections
        *     containing mixed MIME types.
@@ -1208,6 +1218,21 @@ public class DefaultTrackSelector extends MappingTrackSelector
       @Override
       public Builder setPreferredAudioMimeTypes(String... mimeTypes) {
         super.setPreferredAudioMimeTypes(mimeTypes);
+        return this;
+      }
+
+      /**
+       * Sets whether to allow adaptive audio selections where adaptation may not be completely
+       * seamless.
+       *
+       * @param allowAudioNonSeamlessAdaptiveness Whether to allow adaptive audio selections where
+       *     adaptation may not be completely seamless.
+       * @return This builder.
+       */
+      @CanIgnoreReturnValue
+      public Builder setAllowAudioNonSeamlessAdaptiveness(
+          boolean allowAudioNonSeamlessAdaptiveness) {
+        this.allowAudioNonSeamlessAdaptiveness = allowAudioNonSeamlessAdaptiveness;
         return this;
       }
 
@@ -1580,6 +1605,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
         allowAudioMixedSampleRateAdaptiveness = false;
         allowAudioMixedChannelCountAdaptiveness = false;
         allowAudioMixedDecoderSupportAdaptiveness = false;
+        allowAudioNonSeamlessAdaptiveness = true;
         constrainAudioChannelCountToDeviceCapabilities = true;
         // General
         exceedRendererCapabilitiesIfNecessary = true;
@@ -1713,7 +1739,9 @@ public class DefaultTrackSelector extends MappingTrackSelector
 
     /**
      * Whether to allow adaptive audio selections containing mixed MIME types. Adaptations between
-     * different MIME types may not be completely seamless. The default value is {@code false}.
+     * different MIME types may not be completely seamless, in which case {@link
+     * #allowAudioNonSeamlessAdaptiveness} also needs to be {@code true} for mixed MIME type
+     * selections to be made. The default value is {@code false}.
      */
     public final boolean allowAudioMixedMimeTypeAdaptiveness;
 
@@ -1736,6 +1764,12 @@ public class DefaultTrackSelector extends MappingTrackSelector
      * RendererCapabilities.HardwareAccelerationSupport}.
      */
     public final boolean allowAudioMixedDecoderSupportAdaptiveness;
+
+    /**
+     * Whether to allow adaptive audio selections where adaptation may not be completely seamless.
+     * The default value is {@code true}.
+     */
+    public final boolean allowAudioNonSeamlessAdaptiveness;
 
     /**
      * Whether to constrain audio track selection so that the selected track's channel count does
@@ -1793,6 +1827,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
       allowAudioMixedSampleRateAdaptiveness = builder.allowAudioMixedSampleRateAdaptiveness;
       allowAudioMixedChannelCountAdaptiveness = builder.allowAudioMixedChannelCountAdaptiveness;
       allowAudioMixedDecoderSupportAdaptiveness = builder.allowAudioMixedDecoderSupportAdaptiveness;
+      allowAudioNonSeamlessAdaptiveness = builder.allowAudioNonSeamlessAdaptiveness;
       constrainAudioChannelCountToDeviceCapabilities =
           builder.constrainAudioChannelCountToDeviceCapabilities;
       // General
@@ -1885,6 +1920,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
               == other.allowAudioMixedChannelCountAdaptiveness
           && allowAudioMixedDecoderSupportAdaptiveness
               == other.allowAudioMixedDecoderSupportAdaptiveness
+          && allowAudioNonSeamlessAdaptiveness == other.allowAudioNonSeamlessAdaptiveness
           && constrainAudioChannelCountToDeviceCapabilities
               == other.constrainAudioChannelCountToDeviceCapabilities
           // General
@@ -1913,6 +1949,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
       result = 31 * result + (allowAudioMixedSampleRateAdaptiveness ? 1 : 0);
       result = 31 * result + (allowAudioMixedChannelCountAdaptiveness ? 1 : 0);
       result = 31 * result + (allowAudioMixedDecoderSupportAdaptiveness ? 1 : 0);
+      result = 31 * result + (allowAudioNonSeamlessAdaptiveness ? 1 : 0);
       result = 31 * result + (constrainAudioChannelCountToDeviceCapabilities ? 1 : 0);
       // General
       result = 31 * result + (exceedRendererCapabilitiesIfNecessary ? 1 : 0);
@@ -1961,6 +1998,8 @@ public class DefaultTrackSelector extends MappingTrackSelector
         Util.intToStringMaxRadix(FIELD_CUSTOM_ID_BASE + 16);
     private static final String FIELD_ALLOW_INVALIDATE_SELECTIONS_ON_RENDERER_CAPABILITIES_CHANGE =
         Util.intToStringMaxRadix(FIELD_CUSTOM_ID_BASE + 17);
+    private static final String FIELD_ALLOW_AUDIO_NON_SEAMLESS_ADAPTIVENESS =
+        Util.intToStringMaxRadix(FIELD_CUSTOM_ID_BASE + 18);
 
     @Override
     public Bundle toBundle() {
@@ -1989,6 +2028,8 @@ public class DefaultTrackSelector extends MappingTrackSelector
       bundle.putBoolean(
           FIELD_ALLOW_AUDIO_MIXED_DECODER_SUPPORT_ADAPTIVENESS,
           allowAudioMixedDecoderSupportAdaptiveness);
+      bundle.putBoolean(
+          FIELD_ALLOW_AUDIO_NON_SEAMLESS_ADAPTIVENESS, allowAudioNonSeamlessAdaptiveness);
       bundle.putBoolean(
           FIELD_CONSTRAIN_AUDIO_CHANNEL_COUNT_TO_DEVICE_CAPABILITIES,
           constrainAudioChannelCountToDeviceCapabilities);
@@ -2678,7 +2719,8 @@ public class DefaultTrackSelector extends MappingTrackSelector
                 params,
                 support,
                 hasVideoRendererWithMappedTracksFinal,
-                this::isAudioFormatWithinAudioChannelCountConstraints),
+                this::isAudioFormatWithinAudioChannelCountConstraints,
+                rendererMixedMimeTypeAdaptationSupports[rendererIndex]),
         AudioTrackInfo::compareSelections);
   }
 
@@ -3348,7 +3390,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
         TrackGroup trackGroup,
         Parameters params,
         @Capabilities int[] formatSupport,
-        @AdaptiveSupport int mixedMimeTypeAdaptionSupport) {
+        @AdaptiveSupport int mixedMimeTypeAdaptationSupport) {
       int maxPixelsToRetainForViewport =
           getMaxVideoPixelsToRetainForViewport(
               trackGroup,
@@ -3368,7 +3410,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
                 /* trackIndex= */ i,
                 params,
                 formatSupport[i],
-                mixedMimeTypeAdaptionSupport,
+                mixedMimeTypeAdaptationSupport,
                 isSuitableForViewport));
       }
       return listBuilder.build();
@@ -3482,7 +3524,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
               && format.bitrate != Format.NO_VALUE
               && !parameters.forceHighestSupportedBitrate
               && !parameters.forceLowestBitrate
-              && ((rendererSupport & requiredAdaptiveSupport) != 0)
+              && (rendererSupport & requiredAdaptiveSupport) != 0
           ? SELECTION_ELIGIBILITY_ADAPTIVE
           : SELECTION_ELIGIBILITY_FIXED;
     }
@@ -3562,7 +3604,8 @@ public class DefaultTrackSelector extends MappingTrackSelector
         Parameters params,
         @Capabilities int[] formatSupport,
         boolean hasMappedVideoTracks,
-        Predicate<Format> withinAudioChannelCountConstraints) {
+        Predicate<Format> withinAudioChannelCountConstraints,
+        @AdaptiveSupport int mixedMimeTypeAdaptationSupport) {
       ImmutableList.Builder<AudioTrackInfo> listBuilder = ImmutableList.builder();
       for (int i = 0; i < trackGroup.length; i++) {
         listBuilder.add(
@@ -3573,7 +3616,8 @@ public class DefaultTrackSelector extends MappingTrackSelector
                 params,
                 formatSupport[i],
                 hasMappedVideoTracks,
-                withinAudioChannelCountConstraints));
+                withinAudioChannelCountConstraints,
+                mixedMimeTypeAdaptationSupport));
       }
       return listBuilder.build();
     }
@@ -3586,6 +3630,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
     private final int preferredLanguageScore;
     private final int preferredLanguageIndex;
     private final int preferredRoleFlagsScore;
+    private final boolean allowMixedMimeTypes;
     private final boolean hasMainOrNoRoleFlag;
     private final int localeLanguageMatchIndex;
     private final int localeLanguageScore;
@@ -3604,9 +3649,19 @@ public class DefaultTrackSelector extends MappingTrackSelector
         Parameters parameters,
         @Capabilities int formatSupport,
         boolean hasMappedVideoTracks,
-        Predicate<Format> withinAudioChannelCountConstraints) {
+        Predicate<Format> withinAudioChannelCountConstraints,
+        @AdaptiveSupport int mixedMimeTypeAdaptationSupport) {
       super(rendererIndex, trackGroup, trackIndex);
       this.parameters = parameters;
+      @SuppressLint("WrongConstant")
+      int requiredAdaptiveSupport =
+          parameters.allowAudioNonSeamlessAdaptiveness
+              ? (RendererCapabilities.ADAPTIVE_NOT_SEAMLESS
+                  | RendererCapabilities.ADAPTIVE_SEAMLESS)
+              : RendererCapabilities.ADAPTIVE_SEAMLESS;
+      allowMixedMimeTypes =
+          parameters.allowAudioMixedMimeTypeAdaptiveness
+              && (mixedMimeTypeAdaptationSupport & requiredAdaptiveSupport) != 0;
       this.language = normalizeUndeterminedLanguageToNull(format.language);
       isWithinRendererCapabilities =
           isSupported(formatSupport, /* allowExceedsCapabilities= */ false);
@@ -3669,7 +3724,8 @@ public class DefaultTrackSelector extends MappingTrackSelector
           RendererCapabilities.getHardwareAccelerationSupport(formatSupport)
               == RendererCapabilities.HARDWARE_ACCELERATION_SUPPORTED;
       selectionEligibility =
-          evaluateSelectionEligibility(parameters, formatSupport, hasMappedVideoTracks);
+          evaluateSelectionEligibility(
+              parameters, formatSupport, hasMappedVideoTracks, requiredAdaptiveSupport);
     }
 
     @Override
@@ -3682,7 +3738,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
       return (parameters.allowAudioMixedChannelCountAdaptiveness
               || (format.channelCount != Format.NO_VALUE
                   && format.channelCount == otherTrack.format.channelCount))
-          && (parameters.allowAudioMixedMimeTypeAdaptiveness
+          && (allowMixedMimeTypes
               || (format.sampleMimeType != null
                   && TextUtils.equals(format.sampleMimeType, otherTrack.format.sampleMimeType)))
           && (parameters.allowAudioMixedSampleRateAdaptiveness
@@ -3743,7 +3799,10 @@ public class DefaultTrackSelector extends MappingTrackSelector
     }
 
     private @SelectionEligibility int evaluateSelectionEligibility(
-        Parameters params, @Capabilities int rendererSupport, boolean hasMappedVideoTracks) {
+        Parameters params,
+        @Capabilities int rendererSupport,
+        boolean hasMappedVideoTracks,
+        @AdaptiveSupport int requiredAdaptiveSupport) {
       if (!isSupported(rendererSupport, parameters.exceedRendererCapabilitiesIfNecessary)) {
         return SELECTION_ELIGIBILITY_NO;
       }
@@ -3761,6 +3820,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
               && !parameters.forceLowestBitrate
               && (parameters.allowMultipleAdaptiveSelections || !hasMappedVideoTracks)
               && params.audioOffloadPreferences.audioOffloadMode != AUDIO_OFFLOAD_MODE_REQUIRED
+              && (rendererSupport & requiredAdaptiveSupport) != 0
           ? SELECTION_ELIGIBILITY_ADAPTIVE
           : SELECTION_ELIGIBILITY_FIXED;
     }
