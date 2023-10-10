@@ -17,14 +17,6 @@
   <issue id="UnsafeOptInUsageError">
     <ignore path='libraries/'
       regexp='\(markerClass = androidx\.media3\.common\.util\.UnstableApi\.class\)' />
-    <ignore path='demos/cast/'
-      regexp='\(markerClass = androidx\.media3\.common\.util\.UnstableApi\.class\)' />
-    <ignore path='demos/gl/'
-      regexp='\(markerClass = androidx\.media3\.common\.util\.UnstableApi\.class\)' />
-    <ignore path='demos/surface/'
-      regexp='\(markerClass = androidx\.media3\.common\.util\.UnstableApi\.class\)' />
-    <ignore path='demos/transformer/'
-      regexp='\(markerClass = androidx\.media3\.common\.util\.UnstableApi\.class\)' />
     <ignore path='testapps/'
       regexp='\(markerClass = androidx\.media3\.common\.util\.UnstableApi\.class\)' />
   </issue>
