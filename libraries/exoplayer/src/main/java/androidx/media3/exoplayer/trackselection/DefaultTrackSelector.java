@@ -3725,7 +3725,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
               == RendererCapabilities.HARDWARE_ACCELERATION_SUPPORTED;
       selectionEligibility =
           evaluateSelectionEligibility(
-              parameters, formatSupport, hasMappedVideoTracks, requiredAdaptiveSupport);
+              formatSupport, hasMappedVideoTracks, requiredAdaptiveSupport);
     }
 
     @Override
@@ -3799,7 +3799,6 @@ public class DefaultTrackSelector extends MappingTrackSelector
     }
 
     private @SelectionEligibility int evaluateSelectionEligibility(
-        Parameters params,
         @Capabilities int rendererSupport,
         boolean hasMappedVideoTracks,
         @AdaptiveSupport int requiredAdaptiveSupport) {
@@ -3809,8 +3808,8 @@ public class DefaultTrackSelector extends MappingTrackSelector
       if (!isWithinConstraints && !parameters.exceedAudioConstraintsIfNecessary) {
         return SELECTION_ELIGIBILITY_NO;
       }
-      if (params.audioOffloadPreferences.audioOffloadMode == AUDIO_OFFLOAD_MODE_REQUIRED
-          && !rendererSupportsOffload(params, rendererSupport, format)) {
+      if (parameters.audioOffloadPreferences.audioOffloadMode == AUDIO_OFFLOAD_MODE_REQUIRED
+          && !rendererSupportsOffload(parameters, rendererSupport, format)) {
         return SELECTION_ELIGIBILITY_NO;
       }
       return isSupported(rendererSupport, /* allowExceedsCapabilities= */ false)
@@ -3819,7 +3818,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
               && !parameters.forceHighestSupportedBitrate
               && !parameters.forceLowestBitrate
               && (parameters.allowMultipleAdaptiveSelections || !hasMappedVideoTracks)
-              && params.audioOffloadPreferences.audioOffloadMode != AUDIO_OFFLOAD_MODE_REQUIRED
+              && parameters.audioOffloadPreferences.audioOffloadMode != AUDIO_OFFLOAD_MODE_REQUIRED
               && (rendererSupport & requiredAdaptiveSupport) != 0
           ? SELECTION_ELIGIBILITY_ADAPTIVE
           : SELECTION_ELIGIBILITY_FIXED;
