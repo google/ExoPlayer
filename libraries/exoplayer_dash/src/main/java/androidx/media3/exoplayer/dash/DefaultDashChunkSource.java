@@ -60,6 +60,7 @@ import androidx.media3.exoplayer.upstream.CmcdData;
 import androidx.media3.exoplayer.upstream.LoadErrorHandlingPolicy;
 import androidx.media3.exoplayer.upstream.LoaderErrorThrower;
 import androidx.media3.extractor.ChunkIndex;
+import androidx.media3.extractor.text.SubtitleParser;
 import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -71,6 +72,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 @UnstableApi
 public class DefaultDashChunkSource implements DashChunkSource {
 
+  /** {@link DashChunkSource.Factory} for {@link DefaultDashChunkSource} instances. */
   public static final class Factory implements DashChunkSource.Factory {
 
     private final DataSource.Factory dataSourceFactory;
@@ -108,6 +110,21 @@ public class DefaultDashChunkSource implements DashChunkSource {
       this.chunkExtractorFactory = chunkExtractorFactory;
       this.dataSourceFactory = dataSourceFactory;
       this.maxSegmentsPerLoad = maxSegmentsPerLoad;
+    }
+
+    /**
+     * Sets the {@link SubtitleParser.Factory} to be used for parsing subtitles during extraction,
+     * or null to parse subtitles during decoding.
+     *
+     * <p>This may only be used with {@link BundledChunkExtractor.Factory}.
+     */
+    /* package */ Factory setSubtitleParserFactory(
+        @Nullable SubtitleParser.Factory subtitleParserFactory) {
+      if (chunkExtractorFactory instanceof BundledChunkExtractor.Factory) {
+        ((BundledChunkExtractor.Factory) chunkExtractorFactory)
+            .experimentalSetSubtitleParserFactory(subtitleParserFactory);
+      }
+      return this;
     }
 
     @Override

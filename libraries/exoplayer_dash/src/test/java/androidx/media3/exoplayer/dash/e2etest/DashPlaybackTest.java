@@ -22,9 +22,11 @@ import android.graphics.SurfaceTexture;
 import android.view.Surface;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.Player;
+import androidx.media3.datasource.DefaultDataSource;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.exoplayer.Renderer;
 import androidx.media3.exoplayer.RenderersFactory;
+import androidx.media3.exoplayer.dash.DashMediaSource;
 import androidx.media3.exoplayer.metadata.MetadataDecoderFactory;
 import androidx.media3.exoplayer.metadata.MetadataRenderer;
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector;
@@ -79,14 +81,15 @@ public final class DashPlaybackTest {
 
   // https://github.com/google/ExoPlayer/issues/7985
   @Test
-  @Ignore(
-      "Disabled until subtitles are reliably asserted in robolectric tests [internal b/174661563].")
   public void webvttInMp4() throws Exception {
     Context applicationContext = ApplicationProvider.getApplicationContext();
     CapturingRenderersFactory capturingRenderersFactory =
         new CapturingRenderersFactory(applicationContext);
     ExoPlayer player =
         new ExoPlayer.Builder(applicationContext, capturingRenderersFactory)
+            .setMediaSourceFactory(
+                new DashMediaSource.Factory(new DefaultDataSource.Factory(applicationContext))
+                    .experimentalParseSubtitlesDuringExtraction(true))
             .setClock(new FakeClock(/* isAutoAdvancing= */ true))
             .build();
     player.setVideoSurface(new Surface(new SurfaceTexture(/* texName= */ 1)));

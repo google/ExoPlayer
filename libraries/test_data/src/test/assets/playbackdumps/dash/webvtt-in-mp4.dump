@@ -244,3 +244,6 @@ TextOutput:
       position = 0.5
       positionAnchor = 1
       size = 1.0
+  Subtitle[4]:
+    presentationTimeUs = 456000
+    Cues = []

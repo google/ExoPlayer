@@ -26,6 +26,7 @@ import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.ParsableByteArray;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.exoplayer.analytics.PlayerId;
 import androidx.media3.extractor.ChunkIndex;
 import androidx.media3.extractor.DummyTrackOutput;
 import androidx.media3.extractor.Extractor;
@@ -36,7 +37,10 @@ import androidx.media3.extractor.SeekMap;
 import androidx.media3.extractor.TrackOutput;
 import androidx.media3.extractor.mkv.MatroskaExtractor;
 import androidx.media3.extractor.mp4.FragmentedMp4Extractor;
+import androidx.media3.extractor.text.SubtitleParser;
+import androidx.media3.extractor.text.SubtitleTranscodingExtractor;
 import java.io.IOException;
+import java.util.List;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
@@ -46,36 +50,68 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 @UnstableApi
 public final class BundledChunkExtractor implements ExtractorOutput, ChunkExtractor {
 
-  /** {@link ChunkExtractor.Factory} for instances of this class. */
-  public static final ChunkExtractor.Factory FACTORY =
-      (primaryTrackType,
-          format,
-          enableEventMessageTrack,
-          closedCaptionFormats,
-          playerEmsgTrackOutput,
-          playerId) -> {
-        @Nullable String containerMimeType = format.containerMimeType;
-        Extractor extractor;
-        if (MimeTypes.isText(containerMimeType)) {
-          // Text types do not need an extractor.
-          return null;
-        } else if (MimeTypes.isMatroska(containerMimeType)) {
-          extractor = new MatroskaExtractor(MatroskaExtractor.FLAG_DISABLE_SEEK_FOR_CUES);
-        } else {
-          int flags = 0;
-          if (enableEventMessageTrack) {
-            flags |= FragmentedMp4Extractor.FLAG_ENABLE_EMSG_TRACK;
-          }
-          extractor =
-              new FragmentedMp4Extractor(
-                  flags,
-                  /* timestampAdjuster= */ null,
-                  /* sideloadedTrack= */ null,
-                  closedCaptionFormats,
-                  playerEmsgTrackOutput);
+  /** {@link ChunkExtractor.Factory} for {@link BundledChunkExtractor}. */
+  public static final class Factory implements ChunkExtractor.Factory {
+
+    /** Non-null if subtitles should be parsed during extraction, null otherwise. */
+    @Nullable private SubtitleParser.Factory subtitleParserFactory;
+
+    /**
+     * Sets the {@link SubtitleParser.Factory} to use for parsing subtitles during extraction, or
+     * null to parse subtitles during decoding. The default is null (subtitles parsed after
+     * decoding).
+     *
+     * <p>This method is experimental. Its default value may change, or it may be renamed or removed
+     * in a future release.
+     *
+     * @param subtitleParserFactory The {@link SubtitleParser.Factory} for parsing subtitles during
+     *     extraction.
+     * @return This factory, for convenience.
+     */
+    public Factory experimentalSetSubtitleParserFactory(
+        @Nullable SubtitleParser.Factory subtitleParserFactory) {
+      this.subtitleParserFactory = subtitleParserFactory;
+      return this;
+    }
+
+    @Nullable
+    @Override
+    public ChunkExtractor createProgressiveMediaExtractor(
+        @C.TrackType int primaryTrackType,
+        Format representationFormat,
+        boolean enableEventMessageTrack,
+        List<Format> closedCaptionFormats,
+        @Nullable TrackOutput playerEmsgTrackOutput,
+        PlayerId playerId) {
+      @Nullable String containerMimeType = representationFormat.containerMimeType;
+      Extractor extractor;
+      if (MimeTypes.isText(containerMimeType)) {
+        // Text types do not need an extractor.
+        return null;
+      } else if (MimeTypes.isMatroska(containerMimeType)) {
+        extractor = new MatroskaExtractor(MatroskaExtractor.FLAG_DISABLE_SEEK_FOR_CUES);
+      } else {
+        int flags = 0;
+        if (enableEventMessageTrack) {
+          flags |= FragmentedMp4Extractor.FLAG_ENABLE_EMSG_TRACK;
         }
-        return new BundledChunkExtractor(extractor, primaryTrackType, format);
-      };
+        extractor =
+            new FragmentedMp4Extractor(
+                flags,
+                /* timestampAdjuster= */ null,
+                /* sideloadedTrack= */ null,
+                closedCaptionFormats,
+                playerEmsgTrackOutput);
+      }
+      if (subtitleParserFactory != null) {
+        extractor = new SubtitleTranscodingExtractor(extractor, subtitleParserFactory);
+      }
+      return new BundledChunkExtractor(extractor, primaryTrackType, representationFormat);
+    }
+  }
+
+  /** {@link Factory} for {@link BundledChunkExtractor}. */
+  public static final Factory FACTORY = new Factory();
 
   private static final PositionHolder POSITION_HOLDER = new PositionHolder();
 
