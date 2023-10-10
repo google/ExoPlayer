@@ -25,7 +25,6 @@ import static java.lang.Math.max;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.Format.CueReplacementBehavior;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.upstream.DataReader;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -92,8 +91,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     if (currentSubtitleParser == null) {
       delegate.format(format);
     } else {
-      @CueReplacementBehavior
-      int nextCuesBehavior = currentSubtitleParser.getCueReplacementBehavior();
       delegate.format(
           format
               .buildUpon()
@@ -102,7 +99,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               // Reset this value to the default. All non-default timestamp adjustments are done
               // below in sampleMetadata() and there are no 'subsamples' after transcoding.
               .setSubsampleOffsetUs(Format.OFFSET_SAMPLE_RELATIVE)
-              .setCueReplacementBehavior(nextCuesBehavior)
+              .setCueReplacementBehavior(subtitleParserFactory.getCueReplacementBehavior(format))
               .build());
     }
   }

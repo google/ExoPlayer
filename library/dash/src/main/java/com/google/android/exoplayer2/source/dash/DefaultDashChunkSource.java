@@ -48,6 +48,7 @@ import com.google.android.exoplayer2.source.dash.manifest.BaseUrl;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
 import com.google.android.exoplayer2.source.dash.manifest.RangedUri;
 import com.google.android.exoplayer2.source.dash.manifest.Representation;
+import com.google.android.exoplayer2.text.SubtitleParser;
 import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.upstream.CmcdConfiguration;
 import com.google.android.exoplayer2.upstream.CmcdData;
@@ -77,6 +78,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 @Deprecated
 public class DefaultDashChunkSource implements DashChunkSource {
 
+  /** {@link DashChunkSource.Factory} for {@link DefaultDashChunkSource} instances. */
   public static final class Factory implements DashChunkSource.Factory {
 
     private final DataSource.Factory dataSourceFactory;
@@ -114,6 +116,21 @@ public class DefaultDashChunkSource implements DashChunkSource {
       this.chunkExtractorFactory = chunkExtractorFactory;
       this.dataSourceFactory = dataSourceFactory;
       this.maxSegmentsPerLoad = maxSegmentsPerLoad;
+    }
+
+    /**
+     * Sets the {@link SubtitleParser.Factory} to be used for parsing subtitles during extraction,
+     * or null to parse subtitles during decoding.
+     *
+     * <p>This may only be used with {@link BundledChunkExtractor.Factory}.
+     */
+    /* package */ Factory setSubtitleParserFactory(
+        @Nullable SubtitleParser.Factory subtitleParserFactory) {
+      if (chunkExtractorFactory instanceof BundledChunkExtractor.Factory) {
+        ((BundledChunkExtractor.Factory) chunkExtractorFactory)
+            .experimentalSetSubtitleParserFactory(subtitleParserFactory);
+      }
+      return this;
     }
 
     @Override

@@ -49,6 +49,7 @@ import com.google.android.exoplayer2.source.dash.manifest.Descriptor;
 import com.google.android.exoplayer2.source.dash.manifest.EventStream;
 import com.google.android.exoplayer2.source.dash.manifest.Period;
 import com.google.android.exoplayer2.source.dash.manifest.Representation;
+import com.google.android.exoplayer2.text.SubtitleParser;
 import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.CmcdConfiguration;
@@ -138,7 +139,8 @@ import java.util.regex.Pattern;
       Allocator allocator,
       CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory,
       PlayerEmsgCallback playerEmsgCallback,
-      PlayerId playerId) {
+      PlayerId playerId,
+      @Nullable SubtitleParser.Factory subtitleParserFactory) {
     this.id = id;
     this.manifest = manifest;
     this.baseUrlExclusionList = baseUrlExclusionList;
@@ -164,7 +166,8 @@ import java.util.regex.Pattern;
     Period period = manifest.getPeriod(periodIndex);
     eventStreams = period.eventStreams;
     Pair<TrackGroupArray, TrackGroupInfo[]> result =
-        buildTrackGroups(drmSessionManager, period.adaptationSets, eventStreams);
+        buildTrackGroups(
+            drmSessionManager, subtitleParserFactory, period.adaptationSets, eventStreams);
     trackGroups = result.first;
     trackGroupInfos = result.second;
   }
@@ -509,6 +512,7 @@ import java.util.regex.Pattern;
 
   private static Pair<TrackGroupArray, TrackGroupInfo[]> buildTrackGroups(
       DrmSessionManager drmSessionManager,
+      @Nullable SubtitleParser.Factory subtitleParserFactory,
       List<AdaptationSet> adaptationSets,
       List<EventStream> eventStreams) {
     int[][] groupedAdaptationSetIndices = getGroupedAdaptationSetIndices(adaptationSets);
@@ -531,6 +535,7 @@ import java.util.regex.Pattern;
     int trackGroupCount =
         buildPrimaryAndEmbeddedTrackGroupInfos(
             drmSessionManager,
+            subtitleParserFactory,
             adaptationSets,
             groupedAdaptationSetIndices,
             primaryGroupCount,
@@ -670,6 +675,7 @@ import java.util.regex.Pattern;
 
   private static int buildPrimaryAndEmbeddedTrackGroupInfos(
       DrmSessionManager drmSessionManager,
+      @Nullable SubtitleParser.Factory subtitleParserFactory,
       List<AdaptationSet> adaptationSets,
       int[][] groupedAdaptationSetIndices,
       int primaryGroupCount,
@@ -686,8 +692,24 @@ import java.util.regex.Pattern;
       }
       Format[] formats = new Format[representations.size()];
       for (int j = 0; j < formats.length; j++) {
-        Format format = representations.get(j).format;
-        formats[j] = format.copyWithCryptoType(drmSessionManager.getCryptoType(format));
+        Format originalFormat = representations.get(j).format;
+        Format.Builder updatedFormat =
+            originalFormat
+                .buildUpon()
+                .setCryptoType(drmSessionManager.getCryptoType(originalFormat));
+        if (subtitleParserFactory != null && subtitleParserFactory.supportsFormat(originalFormat)) {
+          updatedFormat
+              .setSampleMimeType(MimeTypes.APPLICATION_MEDIA3_CUES)
+              .setCueReplacementBehavior(
+                  subtitleParserFactory.getCueReplacementBehavior(originalFormat))
+              .setCodecs(
+                  originalFormat.sampleMimeType
+                      + (originalFormat.codecs != null ? " " + originalFormat.codecs : ""))
+              // Reset this value to the default. All non-default timestamp adjustments are done
+              // by SubtitleTranscodingExtractor and there are no 'subsamples' after transcoding.
+              .setSubsampleOffsetUs(Format.OFFSET_SAMPLE_RELATIVE);
+        }
+        formats[j] = updatedFormat.build();
       }
 
       AdaptationSet firstAdaptationSet = adaptationSets.get(adaptationSetIndices[0]);
