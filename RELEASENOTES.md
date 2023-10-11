@@ -123,6 +123,8 @@ This release includes the following changes since the
     *   Renamed `onExperimentalSleepingForOffloadChanged` as
         `onSleepingForOffloadChanged` and `onExperimentalOffloadedPlayback` as
         `onOffloadedPlayback`.
+    *   Move audio offload mode related `TrackSelectionParameters` interfaces
+        and definitions to an inner `AudioOffloadPreferences` class.
 *   Effect:
     *   Changed `frameRate` and `durationUs` parameters of
         `VideoFrameProcessor.queueInputBitmap` to `TimestampIterator`.
