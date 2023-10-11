@@ -21,4 +21,6 @@
   <string name="shuffle">Shuffle</string>
   <string name="play_button">Play</string>
   <string name="waiting_for_metadata">Waiting for playlist to load…</string>
+  <string name="notification_permission_denied">
+    "Without notification access the app can't warn about failed background operations"</string>
 </resources>

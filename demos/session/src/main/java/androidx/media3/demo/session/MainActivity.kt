@@ -15,8 +15,11 @@
  */
 package androidx.media3.demo.session
 
+import android.Manifest
 import android.content.ComponentName
 import android.content.Context
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -25,6 +28,7 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.ListView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -81,6 +85,14 @@ class MainActivity : AppCompatActivity() {
         }
       }
     )
+
+    if (
+      Build.VERSION.SDK_INT >= 33 &&
+        checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) !=
+          PackageManager.PERMISSION_GRANTED
+    ) {
+      requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), /* requestCode= */ 0)
+    }
   }
 
   override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -99,6 +111,23 @@ class MainActivity : AppCompatActivity() {
   override fun onStop() {
     releaseBrowser()
     super.onStop()
+  }
+
+  override fun onRequestPermissionsResult(
+    requestCode: Int,
+    permissions: Array<out String>,
+    grantResults: IntArray
+  ) {
+    super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    if (grantResults.isEmpty()) {
+      // Empty results are triggered if a permission is requested while another request was already
+      // pending and can be safely ignored in this case.
+      return
+    }
+    if (grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+      Toast.makeText(applicationContext, R.string.notification_permission_denied, Toast.LENGTH_LONG)
+        .show()
+    }
   }
 
   private fun initializeBrowser() {

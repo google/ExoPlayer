@@ -13,6 +13,8 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<manifest  package="androidx.media3.demo.session.service">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+  package="androidx.media3.demo.session.service">
   <uses-sdk />
+  <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 </manifest>
