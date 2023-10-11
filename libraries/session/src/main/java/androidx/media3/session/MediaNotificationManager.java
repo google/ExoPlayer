@@ -392,7 +392,9 @@ import java.util.concurrent.TimeoutException;
 
     @Override
     public void onDisconnected(MediaController controller) {
-      mediaSessionService.removeSession(session);
+      if (mediaSessionService.isSessionAdded(session)) {
+        mediaSessionService.removeSession(session);
+      }
       // We may need to hide the notification.
       mediaSessionService.onUpdateNotificationInternal(
           session, /* startInForegroundWhenPaused= */ false);
