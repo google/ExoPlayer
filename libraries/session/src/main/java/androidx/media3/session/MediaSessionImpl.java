@@ -117,6 +117,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final Runnable periodicSessionPositionInfoUpdateRunnable;
   private final Handler mainHandler;
   private final boolean playIfSuppressed;
+  private final boolean isPeriodicPositionUpdateEnabled;
 
   private PlayerInfo playerInfo;
   private PlayerWrapper playerWrapper;
@@ -148,7 +149,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       MediaSession.Callback callback,
       Bundle tokenExtras,
       BitmapLoader bitmapLoader,
-      boolean playIfSuppressed) {
+      boolean playIfSuppressed,
+      boolean isPeriodicPositionUpdateEnabled) {
     this.context = context;
     this.instance = instance;
 
@@ -166,6 +168,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.callback = callback;
     this.bitmapLoader = bitmapLoader;
     this.playIfSuppressed = playIfSuppressed;
+    this.isPeriodicPositionUpdateEnabled = isPeriodicPositionUpdateEnabled;
 
     playerInfo = PlayerInfo.DEFAULT;
     onPlayerInfoChangedHandler = new PlayerInfoChangedHandler(player.getApplicationLooper());
@@ -1053,7 +1056,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   private void schedulePeriodicSessionPositionInfoChanges() {
     applicationHandler.removeCallbacks(periodicSessionPositionInfoUpdateRunnable);
-    if (sessionPositionUpdateDelayMs > 0
+    if (isPeriodicPositionUpdateEnabled
+        && sessionPositionUpdateDelayMs > 0
         && (playerWrapper.isPlaying() || playerWrapper.isLoading())) {
       applicationHandler.postDelayed(
           periodicSessionPositionInfoUpdateRunnable, sessionPositionUpdateDelayMs);

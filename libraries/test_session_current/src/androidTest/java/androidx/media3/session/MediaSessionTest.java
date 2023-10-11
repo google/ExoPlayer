@@ -33,6 +33,7 @@ import android.support.v4.media.session.MediaSessionCompat;
 import android.text.TextUtils;
 import androidx.media.MediaSessionManager;
 import androidx.media3.common.MediaLibraryInfo;
+import androidx.media3.common.Player;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.Util;
 import androidx.media3.test.session.common.HandlerThreadTestRule;
@@ -41,6 +42,8 @@ import androidx.media3.test.session.common.TestHandler;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -432,5 +435,63 @@ public class MediaSessionTest {
     // TODO(b/199226670): The expected version should vary if the test runs with the previous
     //  version of remote controller.
     assertThat(controllerVersionRef.get()).isEqualTo(MediaLibraryInfo.VERSION_INT);
+  }
+
+  @Test
+  public void setPeriodicPositionUpdateEnabled_periodicUpdatesEnabled_bufferedPositionMsUpdated()
+      throws Exception {
+    player.playWhenReady = true;
+    player.playbackState = Player.STATE_READY;
+    MediaSession session =
+        sessionTestRule.ensureReleaseAfterTest(
+            new MediaSession.Builder(context, player)
+                .setPeriodicPositionUpdateEnabled(true)
+                .setId(
+                    "setPeriodicPositionUpdateEnabled_periodicUpdatesEnabled_bufferedPositionMsUpdated")
+                .build());
+    threadTestRule.getHandler().postAndSync(() -> session.setSessionPositionUpdateDelayMs(10L));
+    MediaController controller =
+        new MediaController.Builder(ApplicationProvider.getApplicationContext(), session.getToken())
+            .buildAsync()
+            .get();
+    List<Long> bufferedPositionsMs = new ArrayList<>();
+    TestHandler testHandler = new TestHandler(controller.getApplicationLooper());
+
+    for (long bufferedPositionMs = 0; bufferedPositionMs < 5000; bufferedPositionMs += 1000) {
+      player.bufferedPosition = bufferedPositionMs;
+      Thread.sleep(50L);
+      bufferedPositionsMs.add(testHandler.postAndSync(controller::getBufferedPosition));
+    }
+
+    assertThat(bufferedPositionsMs).containsExactly(0L, 1000L, 2000L, 3000L, 4000L).inOrder();
+  }
+
+  @Test
+  public void setPeriodicPositionUpdateEnabled_periodicUpdatesDisabled_bufferedPositionMsUnchanged()
+      throws Exception {
+    player.playWhenReady = true;
+    player.playbackState = Player.STATE_READY;
+    MediaSession session =
+        sessionTestRule.ensureReleaseAfterTest(
+            new MediaSession.Builder(context, player)
+                .setPeriodicPositionUpdateEnabled(false)
+                .setId(
+                    "setPeriodicPositionUpdateEnabled_periodicUpdatesDisabled_bufferedPositionMsUnchanged")
+                .build());
+    threadTestRule.getHandler().postAndSync(() -> session.setSessionPositionUpdateDelayMs(10L));
+    MediaController controller =
+        new MediaController.Builder(ApplicationProvider.getApplicationContext(), session.getToken())
+            .buildAsync()
+            .get();
+    List<Long> bufferedPositionsMs = new ArrayList<>();
+    TestHandler testHandler = new TestHandler(controller.getApplicationLooper());
+
+    for (long bufferedPositionMs = 0; bufferedPositionMs < 5000; bufferedPositionMs += 1000) {
+      player.bufferedPosition = bufferedPositionMs;
+      Thread.sleep(50L);
+      bufferedPositionsMs.add(testHandler.postAndSync(controller::getBufferedPosition));
+    }
+
+    assertThat(bufferedPositionsMs).containsExactly(0L, 0L, 0L, 0L, 0L).inOrder();
   }
 }

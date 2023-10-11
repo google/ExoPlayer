@@ -377,6 +377,20 @@ public class MediaSession {
     }
 
     /**
+     * Sets whether periodic position updates should be sent to controllers while playing. If false,
+     * no periodic position updates are sent to controllers.
+     *
+     * <p>The default is {@code true}.
+     *
+     * @param isEnabled Whether periodic position update is enabled.
+     */
+    @UnstableApi
+    @Override
+    public Builder setPeriodicPositionUpdateEnabled(boolean isEnabled) {
+      return super.setPeriodicPositionUpdateEnabled(isEnabled);
+    }
+
+    /**
      * Sets whether a play button is shown if playback is {@linkplain
      * Player#getPlaybackSuppressionReason() suppressed}.
      *
@@ -413,7 +427,8 @@ public class MediaSession {
           callback,
           extras,
           checkNotNull(bitmapLoader),
-          playIfSuppressed);
+          playIfSuppressed,
+          isPeriodicPositionUpdateEnabled);
     }
   }
 
@@ -606,7 +621,8 @@ public class MediaSession {
       Callback callback,
       Bundle tokenExtras,
       BitmapLoader bitmapLoader,
-      boolean playIfSuppressed) {
+      boolean playIfSuppressed,
+      boolean isPeriodicPositionUpdateEnabled) {
     synchronized (STATIC_LOCK) {
       if (SESSION_ID_TO_SESSION_MAP.containsKey(id)) {
         throw new IllegalStateException("Session ID must be unique. ID=" + id);
@@ -623,7 +639,8 @@ public class MediaSession {
             callback,
             tokenExtras,
             bitmapLoader,
-            playIfSuppressed);
+            playIfSuppressed,
+            isPeriodicPositionUpdateEnabled);
   }
 
   /* package */ MediaSessionImpl createImpl(
@@ -635,7 +652,8 @@ public class MediaSession {
       Callback callback,
       Bundle tokenExtras,
       BitmapLoader bitmapLoader,
-      boolean playIfSuppressed) {
+      boolean playIfSuppressed,
+      boolean isPeriodicPositionUpdateEnabled) {
     return new MediaSessionImpl(
         this,
         context,
@@ -646,7 +664,8 @@ public class MediaSession {
         callback,
         tokenExtras,
         bitmapLoader,
-        playIfSuppressed);
+        playIfSuppressed,
+        isPeriodicPositionUpdateEnabled);
   }
 
   /* package */ MediaSessionImpl getImpl() {
@@ -1798,8 +1817,8 @@ public class MediaSession {
     /* package */ Bundle extras;
     /* package */ @MonotonicNonNull BitmapLoader bitmapLoader;
     /* package */ boolean playIfSuppressed;
-
     /* package */ ImmutableList<CommandButton> customLayout;
+    /* package */ boolean isPeriodicPositionUpdateEnabled;
 
     public BuilderBase(Context context, Player player, CallbackT callback) {
       this.context = checkNotNull(context);
@@ -1810,6 +1829,7 @@ public class MediaSession {
       extras = Bundle.EMPTY;
       customLayout = ImmutableList.of();
       playIfSuppressed = true;
+      isPeriodicPositionUpdateEnabled = true;
     }
 
     @SuppressWarnings("unchecked")
@@ -1852,6 +1872,12 @@ public class MediaSession {
     public BuilderT setShowPlayButtonIfPlaybackIsSuppressed(
         boolean showPlayButtonIfPlaybackIsSuppressed) {
       this.playIfSuppressed = showPlayButtonIfPlaybackIsSuppressed;
+      return (BuilderT) this;
+    }
+
+    @SuppressWarnings("unchecked")
+    public BuilderT setPeriodicPositionUpdateEnabled(boolean isPeriodicPositionUpdateEnabled) {
+      this.isPeriodicPositionUpdateEnabled = isPeriodicPositionUpdateEnabled;
       return (BuilderT) this;
     }
 

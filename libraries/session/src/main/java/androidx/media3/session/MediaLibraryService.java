@@ -519,6 +519,20 @@ public abstract class MediaLibraryService extends MediaSessionService {
       }
 
       /**
+       * Sets whether periodic position updates should be sent to controllers while playing. If
+       * false, no periodic position updates are sent to controllers.
+       *
+       * <p>The default is {@code true}.
+       *
+       * @param isEnabled Whether periodic position update is enabled.
+       */
+      @UnstableApi
+      @Override
+      public Builder setPeriodicPositionUpdateEnabled(boolean isEnabled) {
+        return super.setPeriodicPositionUpdateEnabled(isEnabled);
+      }
+
+      /**
        * Builds a {@link MediaLibrarySession}.
        *
        * @return A new session.
@@ -539,7 +553,8 @@ public abstract class MediaLibraryService extends MediaSessionService {
             callback,
             extras,
             checkNotNull(bitmapLoader),
-            playIfSuppressed);
+            playIfSuppressed,
+            isPeriodicPositionUpdateEnabled);
       }
     }
 
@@ -552,7 +567,8 @@ public abstract class MediaLibraryService extends MediaSessionService {
         MediaSession.Callback callback,
         Bundle tokenExtras,
         BitmapLoader bitmapLoader,
-        boolean playIfSuppressed) {
+        boolean playIfSuppressed,
+        boolean isPeriodicPositionUpdateEnabled) {
       super(
           context,
           id,
@@ -562,7 +578,8 @@ public abstract class MediaLibraryService extends MediaSessionService {
           callback,
           tokenExtras,
           bitmapLoader,
-          playIfSuppressed);
+          playIfSuppressed,
+          isPeriodicPositionUpdateEnabled);
     }
 
     @Override
@@ -575,7 +592,8 @@ public abstract class MediaLibraryService extends MediaSessionService {
         MediaSession.Callback callback,
         Bundle tokenExtras,
         BitmapLoader bitmapLoader,
-        boolean playIfSuppressed) {
+        boolean playIfSuppressed,
+        boolean isPeriodicPositionUpdateEnabled) {
       return new MediaLibrarySessionImpl(
           this,
           context,
@@ -586,7 +604,8 @@ public abstract class MediaLibraryService extends MediaSessionService {
           (Callback) callback,
           tokenExtras,
           bitmapLoader,
-          playIfSuppressed);
+          playIfSuppressed,
+          isPeriodicPositionUpdateEnabled);
     }
 
     @Override

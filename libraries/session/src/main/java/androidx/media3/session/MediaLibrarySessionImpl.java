@@ -75,7 +75,8 @@ import java.util.concurrent.Future;
       MediaLibrarySession.Callback callback,
       Bundle tokenExtras,
       BitmapLoader bitmapLoader,
-      boolean playIfSuppressed) {
+      boolean playIfSuppressed,
+      boolean isPeriodicPositionUpdateEnabled) {
     super(
         instance,
         context,
@@ -86,7 +87,8 @@ import java.util.concurrent.Future;
         callback,
         tokenExtras,
         bitmapLoader,
-        playIfSuppressed);
+        playIfSuppressed,
+        isPeriodicPositionUpdateEnabled);
     this.instance = instance;
     this.callback = callback;
     parentIdToSubscribedControllers = HashMultimap.create();
