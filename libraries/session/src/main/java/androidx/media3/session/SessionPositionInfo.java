@@ -21,6 +21,7 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.media3.common.Bundleable;
 import androidx.media3.common.C;
+import androidx.media3.common.Player;
 import androidx.media3.common.Player.PositionInfo;
 import androidx.media3.common.util.Util;
 import com.google.common.base.Objects;
@@ -101,9 +102,9 @@ import com.google.common.base.Objects;
       return false;
     }
     SessionPositionInfo other = (SessionPositionInfo) obj;
-    return positionInfo.equals(other.positionInfo)
+    return eventTimeMs == other.eventTimeMs
+        && positionInfo.equals(other.positionInfo)
         && isPlayingAd == other.isPlayingAd
-        && eventTimeMs == other.eventTimeMs
         && durationMs == other.durationMs
         && bufferedPositionMs == other.bufferedPositionMs
         && bufferedPercentage == other.bufferedPercentage
@@ -168,30 +169,69 @@ import com.google.common.base.Objects;
   private static final String FIELD_CONTENT_DURATION_MS = Util.intToStringMaxRadix(8);
   private static final String FIELD_CONTENT_BUFFERED_POSITION_MS = Util.intToStringMaxRadix(9);
 
-  @Override
-  public Bundle toBundle() {
-    return toBundle(/* canAccessCurrentMediaItem= */ true, /* canAccessTimeline= */ true);
+  /**
+   * Returns a copy of this session position info, filtered by the specified available commands.
+   *
+   * <p>The filtered fields are reset to their default values.
+   *
+   * <p>The return value may be the same object if nothing is filtered.
+   *
+   * @param canAccessCurrentMediaItem Whether {@link Player#COMMAND_GET_CURRENT_MEDIA_ITEM} is
+   *     available.
+   * @param canAccessTimeline Whether {@link Player#COMMAND_GET_TIMELINE} is available.
+   * @return The filtered session position info.
+   */
+  public SessionPositionInfo filterByAvailableCommands(
+      boolean canAccessCurrentMediaItem, boolean canAccessTimeline) {
+    if (canAccessCurrentMediaItem && canAccessTimeline) {
+      return this;
+    }
+    return new SessionPositionInfo(
+        positionInfo.filterByAvailableCommands(canAccessCurrentMediaItem, canAccessTimeline),
+        canAccessCurrentMediaItem && isPlayingAd,
+        eventTimeMs,
+        canAccessCurrentMediaItem ? durationMs : C.TIME_UNSET,
+        canAccessCurrentMediaItem ? bufferedPositionMs : 0,
+        canAccessCurrentMediaItem ? bufferedPercentage : 0,
+        canAccessCurrentMediaItem ? totalBufferedDurationMs : 0,
+        canAccessCurrentMediaItem ? currentLiveOffsetMs : C.TIME_UNSET,
+        canAccessCurrentMediaItem ? contentDurationMs : C.TIME_UNSET,
+        canAccessCurrentMediaItem ? contentBufferedPositionMs : 0);
   }
 
-  public Bundle toBundle(boolean canAccessCurrentMediaItem, boolean canAccessTimeline) {
+  @Override
+  public Bundle toBundle() {
     Bundle bundle = new Bundle();
-    bundle.putBundle(
-        FIELD_POSITION_INFO, positionInfo.toBundle(canAccessCurrentMediaItem, canAccessTimeline));
-    bundle.putBoolean(FIELD_IS_PLAYING_AD, canAccessCurrentMediaItem && isPlayingAd);
-    bundle.putLong(FIELD_EVENT_TIME_MS, eventTimeMs);
-    bundle.putLong(FIELD_DURATION_MS, canAccessCurrentMediaItem ? durationMs : C.TIME_UNSET);
-    bundle.putLong(FIELD_BUFFERED_POSITION_MS, canAccessCurrentMediaItem ? bufferedPositionMs : 0);
-    bundle.putInt(FIELD_BUFFERED_PERCENTAGE, canAccessCurrentMediaItem ? bufferedPercentage : 0);
-    bundle.putLong(
-        FIELD_TOTAL_BUFFERED_DURATION_MS, canAccessCurrentMediaItem ? totalBufferedDurationMs : 0);
-    bundle.putLong(
-        FIELD_CURRENT_LIVE_OFFSET_MS,
-        canAccessCurrentMediaItem ? currentLiveOffsetMs : C.TIME_UNSET);
-    bundle.putLong(
-        FIELD_CONTENT_DURATION_MS, canAccessCurrentMediaItem ? contentDurationMs : C.TIME_UNSET);
-    bundle.putLong(
-        FIELD_CONTENT_BUFFERED_POSITION_MS,
-        canAccessCurrentMediaItem ? contentBufferedPositionMs : 0);
+    if (!DEFAULT_POSITION_INFO.equalsForBundling(positionInfo)) {
+      bundle.putBundle(FIELD_POSITION_INFO, positionInfo.toBundle());
+    }
+    if (isPlayingAd) {
+      bundle.putBoolean(FIELD_IS_PLAYING_AD, isPlayingAd);
+    }
+    if (eventTimeMs != C.TIME_UNSET) {
+      bundle.putLong(FIELD_EVENT_TIME_MS, eventTimeMs);
+    }
+    if (durationMs != C.TIME_UNSET) {
+      bundle.putLong(FIELD_DURATION_MS, durationMs);
+    }
+    if (bufferedPositionMs != 0) {
+      bundle.putLong(FIELD_BUFFERED_POSITION_MS, bufferedPositionMs);
+    }
+    if (bufferedPercentage != 0) {
+      bundle.putInt(FIELD_BUFFERED_PERCENTAGE, bufferedPercentage);
+    }
+    if (totalBufferedDurationMs != 0) {
+      bundle.putLong(FIELD_TOTAL_BUFFERED_DURATION_MS, totalBufferedDurationMs);
+    }
+    if (currentLiveOffsetMs != C.TIME_UNSET) {
+      bundle.putLong(FIELD_CURRENT_LIVE_OFFSET_MS, currentLiveOffsetMs);
+    }
+    if (contentDurationMs != C.TIME_UNSET) {
+      bundle.putLong(FIELD_CONTENT_DURATION_MS, contentDurationMs);
+    }
+    if (contentBufferedPositionMs != 0) {
+      bundle.putLong(FIELD_CONTENT_BUFFERED_POSITION_MS, contentBufferedPositionMs);
+    }
     return bundle;
   }
 

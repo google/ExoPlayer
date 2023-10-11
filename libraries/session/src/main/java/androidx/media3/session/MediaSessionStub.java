@@ -1913,17 +1913,20 @@ import java.util.concurrent.ExecutionException;
       boolean bundlingExclusionsTracks =
           excludeTracks || !availableCommands.contains(Player.COMMAND_GET_TRACKS);
       if (controllerInterfaceVersion >= 2) {
+        PlayerInfo filteredPlayerInfo =
+            playerInfo.filterByAvailableCommands(availableCommands, excludeTimeline, excludeTracks);
         iController.onPlayerInfoChangedWithExclusions(
             sequenceNumber,
-            playerInfo.toBundle(availableCommands, excludeTimeline, excludeTracks),
+            filteredPlayerInfo.toBundle(),
             new PlayerInfo.BundlingExclusions(bundlingExclusionsTimeline, bundlingExclusionsTracks)
                 .toBundle());
       } else {
+        PlayerInfo filteredPlayerInfo =
+            playerInfo.filterByAvailableCommands(
+                availableCommands, excludeTimeline, /* excludeTracks= */ true);
         //noinspection deprecation
         iController.onPlayerInfoChanged(
-            sequenceNumber,
-            playerInfo.toBundle(availableCommands, excludeTimeline, /* excludeTracks= */ true),
-            bundlingExclusionsTimeline);
+            sequenceNumber, filteredPlayerInfo.toBundle(), bundlingExclusionsTimeline);
       }
     }
 
@@ -1992,7 +1995,9 @@ import java.util.concurrent.ExecutionException;
         throws RemoteException {
       iController.onPeriodicSessionPositionInfoChanged(
           sequenceNumber,
-          sessionPositionInfo.toBundle(canAccessCurrentMediaItem, canAccessTimeline));
+          sessionPositionInfo
+              .filterByAvailableCommands(canAccessCurrentMediaItem, canAccessTimeline)
+              .toBundle());
     }
 
     @Override

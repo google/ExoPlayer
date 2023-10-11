@@ -350,15 +350,9 @@ public interface Player {
         return false;
       }
       PositionInfo that = (PositionInfo) o;
-      return mediaItemIndex == that.mediaItemIndex
-          && periodIndex == that.periodIndex
-          && positionMs == that.positionMs
-          && contentPositionMs == that.contentPositionMs
-          && adGroupIndex == that.adGroupIndex
-          && adIndexInAdGroup == that.adIndexInAdGroup
+      return equalsForBundling(that)
           && Objects.equal(windowUid, that.windowUid)
-          && Objects.equal(periodUid, that.periodUid)
-          && Objects.equal(mediaItem, that.mediaItem);
+          && Objects.equal(periodUid, that.periodUid);
     }
 
     @Override
@@ -375,6 +369,21 @@ public interface Player {
           adIndexInAdGroup);
     }
 
+    /**
+     * Returns whether this position info and the other position info would result in the same
+     * {@link #toBundle() Bundle}.
+     */
+    @UnstableApi
+    public boolean equalsForBundling(PositionInfo other) {
+      return mediaItemIndex == other.mediaItemIndex
+          && periodIndex == other.periodIndex
+          && positionMs == other.positionMs
+          && contentPositionMs == other.contentPositionMs
+          && adGroupIndex == other.adGroupIndex
+          && adIndexInAdGroup == other.adIndexInAdGroup
+          && Objects.equal(mediaItem, other.mediaItem);
+    }
+
     // Bundleable implementation.
 
     private static final String FIELD_MEDIA_ITEM_INDEX = Util.intToStringMaxRadix(0);
@@ -386,6 +395,36 @@ public interface Player {
     private static final String FIELD_AD_INDEX_IN_AD_GROUP = Util.intToStringMaxRadix(6);
 
     /**
+     * Returns a copy of this position info, filtered by the specified available commands.
+     *
+     * <p>The filtered fields are reset to their default values.
+     *
+     * <p>The return value may be the same object if nothing is filtered.
+     *
+     * @param canAccessCurrentMediaItem Whether {@link Player#COMMAND_GET_CURRENT_MEDIA_ITEM} is
+     *     available.
+     * @param canAccessTimeline Whether {@link Player#COMMAND_GET_TIMELINE} is available.
+     * @return The filtered position info.
+     */
+    @UnstableApi
+    public PositionInfo filterByAvailableCommands(
+        boolean canAccessCurrentMediaItem, boolean canAccessTimeline) {
+      if (canAccessCurrentMediaItem && canAccessTimeline) {
+        return this;
+      }
+      return new PositionInfo(
+          windowUid,
+          canAccessTimeline ? mediaItemIndex : 0,
+          canAccessCurrentMediaItem ? mediaItem : null,
+          periodUid,
+          canAccessTimeline ? periodIndex : 0,
+          canAccessCurrentMediaItem ? positionMs : 0,
+          canAccessCurrentMediaItem ? contentPositionMs : 0,
+          canAccessCurrentMediaItem ? adGroupIndex : C.INDEX_UNSET,
+          canAccessCurrentMediaItem ? adIndexInAdGroup : C.INDEX_UNSET);
+    }
+
+    /**
      * {@inheritDoc}
      *
      * <p>It omits the {@link #windowUid} and {@link #periodUid} fields. The {@link #windowUid} and
@@ -394,31 +433,28 @@ public interface Player {
     @UnstableApi
     @Override
     public Bundle toBundle() {
-      return toBundle(/* canAccessCurrentMediaItem= */ true, /* canAccessTimeline= */ true);
-    }
-
-    /**
-     * Returns a {@link Bundle} representing the information stored in this object, filtered by
-     * available commands.
-     *
-     * @param canAccessCurrentMediaItem Whether the {@link Bundle} should contain information
-     *     accessbile with {@link #COMMAND_GET_CURRENT_MEDIA_ITEM}.
-     * @param canAccessTimeline Whether the {@link Bundle} should contain information accessbile
-     *     with {@link #COMMAND_GET_TIMELINE}.
-     */
-    @UnstableApi
-    public Bundle toBundle(boolean canAccessCurrentMediaItem, boolean canAccessTimeline) {
       Bundle bundle = new Bundle();
-      bundle.putInt(FIELD_MEDIA_ITEM_INDEX, canAccessTimeline ? mediaItemIndex : 0);
-      if (mediaItem != null && canAccessCurrentMediaItem) {
+      if (mediaItemIndex != 0) {
+        bundle.putInt(FIELD_MEDIA_ITEM_INDEX, mediaItemIndex);
+      }
+      if (mediaItem != null) {
         bundle.putBundle(FIELD_MEDIA_ITEM, mediaItem.toBundle());
       }
-      bundle.putInt(FIELD_PERIOD_INDEX, canAccessTimeline ? periodIndex : 0);
-      bundle.putLong(FIELD_POSITION_MS, canAccessCurrentMediaItem ? positionMs : 0);
-      bundle.putLong(FIELD_CONTENT_POSITION_MS, canAccessCurrentMediaItem ? contentPositionMs : 0);
-      bundle.putInt(FIELD_AD_GROUP_INDEX, canAccessCurrentMediaItem ? adGroupIndex : C.INDEX_UNSET);
-      bundle.putInt(
-          FIELD_AD_INDEX_IN_AD_GROUP, canAccessCurrentMediaItem ? adIndexInAdGroup : C.INDEX_UNSET);
+      if (periodIndex != 0) {
+        bundle.putInt(FIELD_PERIOD_INDEX, periodIndex);
+      }
+      if (positionMs != 0) {
+        bundle.putLong(FIELD_POSITION_MS, positionMs);
+      }
+      if (contentPositionMs != 0) {
+        bundle.putLong(FIELD_CONTENT_POSITION_MS, contentPositionMs);
+      }
+      if (adGroupIndex != C.INDEX_UNSET) {
+        bundle.putInt(FIELD_AD_GROUP_INDEX, adGroupIndex);
+      }
+      if (adIndexInAdGroup != C.INDEX_UNSET) {
+        bundle.putInt(FIELD_AD_INDEX_IN_AD_GROUP, adIndexInAdGroup);
+      }
       return bundle;
     }
 
