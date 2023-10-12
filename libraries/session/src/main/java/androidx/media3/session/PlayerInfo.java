@@ -22,7 +22,9 @@ import static androidx.media3.common.Player.PLAY_WHEN_READY_CHANGE_REASON_USER_R
 import static androidx.media3.common.Player.STATE_IDLE;
 import static androidx.media3.common.Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED;
 
+import android.os.Binder;
 import android.os.Bundle;
+import android.os.IBinder;
 import androidx.annotation.CheckResult;
 import androidx.annotation.FloatRange;
 import androidx.annotation.Nullable;
@@ -44,6 +46,7 @@ import androidx.media3.common.Tracks;
 import androidx.media3.common.VideoSize;
 import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.Assertions;
+import androidx.media3.common.util.BundleUtil;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import com.google.common.base.Objects;
@@ -824,8 +827,9 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
   private static final String FIELD_TRACK_SELECTION_PARAMETERS = Util.intToStringMaxRadix(29);
   private static final String FIELD_CURRENT_TRACKS = Util.intToStringMaxRadix(30);
   private static final String FIELD_TIMELINE_CHANGE_REASON = Util.intToStringMaxRadix(31);
+  private static final String FIELD_IN_PROCESS_BINDER = Util.intToStringMaxRadix(32);
 
-  // Next field key = 32
+  // Next field key = 33
 
   /**
    * Returns a copy of this player info, filtered by the specified available commands.
@@ -880,6 +884,16 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
       builder.setCurrentTracks(Tracks.EMPTY);
     }
     return builder.build();
+  }
+
+  /**
+   * Returns a {@link Bundle} that stores a direct object reference to this class for in-process
+   * sharing.
+   */
+  public Bundle toBundleInProcess() {
+    Bundle bundle = new Bundle();
+    BundleUtil.putBinder(bundle, FIELD_IN_PROCESS_BINDER, new InProcessBinder());
+    return bundle;
   }
 
   @Override
@@ -985,6 +999,10 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
   public static final Creator<PlayerInfo> CREATOR = PlayerInfo::fromBundle;
 
   private static PlayerInfo fromBundle(Bundle bundle) {
+    @Nullable IBinder inProcessBinder = BundleUtil.getBinder(bundle, FIELD_IN_PROCESS_BINDER);
+    if (inProcessBinder instanceof InProcessBinder) {
+      return ((InProcessBinder) inProcessBinder).getPlayerInfo();
+    }
     @Nullable Bundle playerErrorBundle = bundle.getBundle(FIELD_PLAYBACK_ERROR);
     @Nullable
     PlaybackException playerError =
@@ -1114,5 +1132,11 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
         maxSeekToPreviousPosition,
         currentTracks,
         trackSelectionParameters);
+  }
+
+  private final class InProcessBinder extends Binder {
+    public PlayerInfo getPlayerInfo() {
+      return PlayerInfo.this;
+    }
   }
 }

@@ -1915,9 +1915,13 @@ import java.util.concurrent.ExecutionException;
       if (controllerInterfaceVersion >= 2) {
         PlayerInfo filteredPlayerInfo =
             playerInfo.filterByAvailableCommands(availableCommands, excludeTimeline, excludeTracks);
+        Bundle playerInfoBundle =
+            iController instanceof MediaControllerStub
+                ? filteredPlayerInfo.toBundleInProcess()
+                : filteredPlayerInfo.toBundle();
         iController.onPlayerInfoChangedWithExclusions(
             sequenceNumber,
-            filteredPlayerInfo.toBundle(),
+            playerInfoBundle,
             new PlayerInfo.BundlingExclusions(bundlingExclusionsTimeline, bundlingExclusionsTracks)
                 .toBundle());
       } else {
