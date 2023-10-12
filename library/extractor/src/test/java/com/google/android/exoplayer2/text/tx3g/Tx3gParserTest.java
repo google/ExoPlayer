@@ -20,6 +20,7 @@ import static com.google.android.exoplayer2.testutil.truth.SpannedSubject.assert
 import static com.google.common.truth.Truth.assertThat;
 
 import android.graphics.Color;
+import android.text.Spanned;
 import android.text.SpannedString;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -27,9 +28,12 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.CuesWithTiming;
+import com.google.android.exoplayer2.text.SubtitleParser;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -67,7 +71,9 @@ public final class Tx3gParserTest {
     Tx3gParser parser = new Tx3gParser(ImmutableList.of());
     byte[] bytes = TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), NO_SUBTITLE);
 
-    CuesWithTiming cuesWithTiming = Iterables.getOnlyElement(parser.parse(bytes));
+    List<CuesWithTiming> allCues = new ArrayList<>(/* initialCapacity= */ 1);
+    parser.parse(bytes, SubtitleParser.OutputOptions.allCues(), allCues::add);
+    CuesWithTiming cuesWithTiming = Iterables.getOnlyElement(allCues);
 
     assertThat(cuesWithTiming.cues).isEmpty();
     assertThat(cuesWithTiming.startTimeUs).isEqualTo(C.TIME_UNSET);
@@ -81,13 +87,9 @@ public final class Tx3gParserTest {
     byte[] bytes =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), SAMPLE_JUST_TEXT);
 
-    CuesWithTiming cuesWithTiming = Iterables.getOnlyElement(parser.parse(bytes));
-    Cue singleCue = Iterables.getOnlyElement(cuesWithTiming.cues);
+    Cue singleCue = parseToSingleCue(parser, bytes);
     SpannedString text = new SpannedString(singleCue.text);
 
-    assertThat(cuesWithTiming.startTimeUs).isEqualTo(C.TIME_UNSET);
-    assertThat(cuesWithTiming.durationUs).isEqualTo(C.TIME_UNSET);
-    assertThat(cuesWithTiming.endTimeUs).isEqualTo(C.TIME_UNSET);
     assertThat(text.toString()).isEqualTo("CC Test");
     assertThat(text).hasNoSpans();
     assertFractionalLinePosition(singleCue, 0.85f);
@@ -99,13 +101,9 @@ public final class Tx3gParserTest {
     byte[] bytes =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), SAMPLE_WITH_STYL);
 
-    CuesWithTiming cuesWithTiming = Iterables.getOnlyElement(parser.parse(bytes));
-    Cue singleCue = Iterables.getOnlyElement(cuesWithTiming.cues);
-    SpannedString text = new SpannedString(singleCue.text);
+    Cue singleCue = parseToSingleCue(parser, bytes);
+    Spanned text = (Spanned) singleCue.text;
 
-    assertThat(cuesWithTiming.startTimeUs).isEqualTo(C.TIME_UNSET);
-    assertThat(cuesWithTiming.durationUs).isEqualTo(C.TIME_UNSET);
-    assertThat(cuesWithTiming.endTimeUs).isEqualTo(C.TIME_UNSET);
     assertThat(text.toString()).isEqualTo("CC Test");
     assertThat(text).hasBoldItalicSpanBetween(0, 6);
     assertThat(text).hasUnderlineSpanBetween(0, 6);
@@ -127,9 +125,8 @@ public final class Tx3gParserTest {
         TestUtil.getByteArray(
             ApplicationProvider.getApplicationContext(), SAMPLE_WITH_STYL_START_TOO_LARGE);
 
-    CuesWithTiming cuesWithTiming = Iterables.getOnlyElement(parser.parse(bytes));
-    Cue singleCue = Iterables.getOnlyElement(cuesWithTiming.cues);
-    SpannedString text = new SpannedString(singleCue.text);
+    Cue singleCue = parseToSingleCue(parser, bytes);
+    Spanned text = (Spanned) singleCue.text;
 
     assertThat(text.toString()).isEqualTo("CC 🙂");
     assertThat(text).hasNoSpans();
@@ -150,9 +147,8 @@ public final class Tx3gParserTest {
         TestUtil.getByteArray(
             ApplicationProvider.getApplicationContext(), SAMPLE_WITH_STYL_END_TOO_LARGE);
 
-    CuesWithTiming cuesWithTiming = Iterables.getOnlyElement(parser.parse(bytes));
-    Cue singleCue = Iterables.getOnlyElement(cuesWithTiming.cues);
-    SpannedString text = new SpannedString(singleCue.text);
+    Cue singleCue = parseToSingleCue(parser, bytes);
+    Spanned text = (Spanned) singleCue.text;
 
     assertThat(text.toString()).isEqualTo("CC 🙂");
     assertThat(text).hasBoldItalicSpanBetween(0, 5);
@@ -168,13 +164,9 @@ public final class Tx3gParserTest {
         TestUtil.getByteArray(
             ApplicationProvider.getApplicationContext(), SAMPLE_WITH_STYL_ALL_DEFAULTS);
 
-    CuesWithTiming cuesWithTiming = Iterables.getOnlyElement(parser.parse(bytes));
-    Cue singleCue = Iterables.getOnlyElement(cuesWithTiming.cues);
-    SpannedString text = new SpannedString(singleCue.text);
+    Cue singleCue = parseToSingleCue(parser, bytes);
+    Spanned text = (Spanned) singleCue.text;
 
-    assertThat(cuesWithTiming.startTimeUs).isEqualTo(C.TIME_UNSET);
-    assertThat(cuesWithTiming.durationUs).isEqualTo(C.TIME_UNSET);
-    assertThat(cuesWithTiming.endTimeUs).isEqualTo(C.TIME_UNSET);
     assertThat(text.toString()).isEqualTo("CC Test");
     assertThat(text).hasNoSpans();
     assertFractionalLinePosition(singleCue, 0.85f);
@@ -186,13 +178,9 @@ public final class Tx3gParserTest {
     byte[] bytes =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), SAMPLE_UTF16_BE_NO_STYL);
 
-    CuesWithTiming cuesWithTiming = Iterables.getOnlyElement(parser.parse(bytes));
-    Cue singleCue = Iterables.getOnlyElement(cuesWithTiming.cues);
-    SpannedString text = new SpannedString(singleCue.text);
+    Cue singleCue = parseToSingleCue(parser, bytes);
+    Spanned text = (Spanned) singleCue.text;
 
-    assertThat(cuesWithTiming.startTimeUs).isEqualTo(C.TIME_UNSET);
-    assertThat(cuesWithTiming.durationUs).isEqualTo(C.TIME_UNSET);
-    assertThat(cuesWithTiming.endTimeUs).isEqualTo(C.TIME_UNSET);
     assertThat(text.toString()).isEqualTo("你好");
     assertThat(text).hasNoSpans();
     assertFractionalLinePosition(singleCue, 0.85f);
@@ -203,13 +191,8 @@ public final class Tx3gParserTest {
     Tx3gParser parser = new Tx3gParser(ImmutableList.of());
     byte[] bytes =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), SAMPLE_UTF16_LE_NO_STYL);
-    CuesWithTiming cuesWithTiming = Iterables.getOnlyElement(parser.parse(bytes));
-    Cue singleCue = Iterables.getOnlyElement(cuesWithTiming.cues);
-    SpannedString text = new SpannedString(singleCue.text);
-
-    assertThat(cuesWithTiming.startTimeUs).isEqualTo(C.TIME_UNSET);
-    assertThat(cuesWithTiming.durationUs).isEqualTo(C.TIME_UNSET);
-    assertThat(cuesWithTiming.endTimeUs).isEqualTo(C.TIME_UNSET);
+    Cue singleCue = parseToSingleCue(parser, bytes);
+    Spanned text = (Spanned) singleCue.text;
 
     assertThat(text.toString()).isEqualTo("你好");
     assertThat(text).hasNoSpans();
@@ -223,13 +206,9 @@ public final class Tx3gParserTest {
         TestUtil.getByteArray(
             ApplicationProvider.getApplicationContext(), SAMPLE_WITH_MULTIPLE_STYL);
 
-    CuesWithTiming cuesWithTiming = Iterables.getOnlyElement(parser.parse(bytes));
-    Cue singleCue = Iterables.getOnlyElement(cuesWithTiming.cues);
-    SpannedString text = new SpannedString(singleCue.text);
+    Cue singleCue = parseToSingleCue(parser, bytes);
+    Spanned text = (Spanned) singleCue.text;
 
-    assertThat(cuesWithTiming.startTimeUs).isEqualTo(C.TIME_UNSET);
-    assertThat(cuesWithTiming.durationUs).isEqualTo(C.TIME_UNSET);
-    assertThat(cuesWithTiming.endTimeUs).isEqualTo(C.TIME_UNSET);
     assertThat(text.toString()).isEqualTo("Line 2\nLine 3");
     assertThat(text).hasItalicSpanBetween(0, 5);
     assertThat(text).hasUnderlineSpanBetween(7, 12);
@@ -245,13 +224,9 @@ public final class Tx3gParserTest {
         TestUtil.getByteArray(
             ApplicationProvider.getApplicationContext(), SAMPLE_WITH_OTHER_EXTENSION);
 
-    CuesWithTiming cuesWithTiming = Iterables.getOnlyElement(parser.parse(bytes));
-    Cue singleCue = Iterables.getOnlyElement(cuesWithTiming.cues);
-    SpannedString text = new SpannedString(singleCue.text);
+    Cue singleCue = parseToSingleCue(parser, bytes);
+    Spanned text = (Spanned) singleCue.text;
 
-    assertThat(cuesWithTiming.startTimeUs).isEqualTo(C.TIME_UNSET);
-    assertThat(cuesWithTiming.durationUs).isEqualTo(C.TIME_UNSET);
-    assertThat(cuesWithTiming.endTimeUs).isEqualTo(C.TIME_UNSET);
     assertThat(text.toString()).isEqualTo("CC Test");
     assertThat(text).hasBoldSpanBetween(0, 6);
     assertThat(text).hasForegroundColorSpanBetween(0, 6).withColor(Color.GREEN);
@@ -266,13 +241,9 @@ public final class Tx3gParserTest {
     byte[] bytes =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), SAMPLE_WITH_STYL);
 
-    CuesWithTiming cuesWithTiming = Iterables.getOnlyElement(parser.parse(bytes));
-    Cue singleCue = Iterables.getOnlyElement(cuesWithTiming.cues);
-    SpannedString text = new SpannedString(singleCue.text);
+    Cue singleCue = parseToSingleCue(parser, bytes);
+    Spanned text = (Spanned) singleCue.text;
 
-    assertThat(cuesWithTiming.startTimeUs).isEqualTo(C.TIME_UNSET);
-    assertThat(cuesWithTiming.durationUs).isEqualTo(C.TIME_UNSET);
-    assertThat(cuesWithTiming.endTimeUs).isEqualTo(C.TIME_UNSET);
     assertThat(text.toString()).isEqualTo("CC Test");
     assertThat(text).hasBoldItalicSpanBetween(0, 7);
     assertThat(text).hasUnderlineSpanBetween(0, 7);
@@ -291,13 +262,9 @@ public final class Tx3gParserTest {
     byte[] bytes =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), SAMPLE_WITH_TBOX);
 
-    CuesWithTiming cuesWithTiming = Iterables.getOnlyElement(parser.parse(bytes));
-    Cue singleCue = Iterables.getOnlyElement(cuesWithTiming.cues);
-    SpannedString text = new SpannedString(singleCue.text);
+    Cue singleCue = parseToSingleCue(parser, bytes);
+    Spanned text = (Spanned) singleCue.text;
 
-    assertThat(cuesWithTiming.startTimeUs).isEqualTo(C.TIME_UNSET);
-    assertThat(cuesWithTiming.durationUs).isEqualTo(C.TIME_UNSET);
-    assertThat(cuesWithTiming.endTimeUs).isEqualTo(C.TIME_UNSET);
     assertThat(text.toString()).isEqualTo("CC Test");
     assertThat(text).hasBoldItalicSpanBetween(0, 7);
     assertThat(text).hasUnderlineSpanBetween(0, 7);
@@ -315,13 +282,9 @@ public final class Tx3gParserTest {
     byte[] bytes =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), SAMPLE_WITH_STYL);
 
-    CuesWithTiming cuesWithTiming = Iterables.getOnlyElement(parser.parse(bytes));
-    Cue singleCue = Iterables.getOnlyElement(cuesWithTiming.cues);
-    SpannedString text = new SpannedString(singleCue.text);
+    Cue singleCue = parseToSingleCue(parser, bytes);
+    Spanned text = (Spanned) singleCue.text;
 
-    assertThat(cuesWithTiming.startTimeUs).isEqualTo(C.TIME_UNSET);
-    assertThat(cuesWithTiming.durationUs).isEqualTo(C.TIME_UNSET);
-    assertThat(cuesWithTiming.endTimeUs).isEqualTo(C.TIME_UNSET);
     assertThat(text.toString()).isEqualTo("CC Test");
     assertThat(text).hasBoldItalicSpanBetween(0, 6);
     assertThat(text).hasUnderlineSpanBetween(0, 6);
@@ -333,5 +296,17 @@ public final class Tx3gParserTest {
     assertThat(cue.lineType).isEqualTo(Cue.LINE_TYPE_FRACTION);
     assertThat(cue.lineAnchor).isEqualTo(Cue.ANCHOR_TYPE_START);
     assertThat(cue.line).isWithin(1e-6f).of(expectedFraction);
+  }
+
+  private static Cue parseToSingleCue(SubtitleParser parser, byte[] data) {
+    List<CuesWithTiming> result = new ArrayList<>(/* initialCapacity= */ 1);
+    parser.parse(data, SubtitleParser.OutputOptions.allCues(), result::add);
+    CuesWithTiming cuesWithTiming = Iterables.getOnlyElement(result);
+
+    assertThat(cuesWithTiming.startTimeUs).isEqualTo(C.TIME_UNSET);
+    assertThat(cuesWithTiming.durationUs).isEqualTo(C.TIME_UNSET);
+    assertThat(cuesWithTiming.endTimeUs).isEqualTo(C.TIME_UNSET);
+
+    return Iterables.getOnlyElement(cuesWithTiming.cues);
   }
 }
