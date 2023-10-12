@@ -63,6 +63,11 @@ public class DefaultAudioTrackBufferSizeProvider
    */
   private static final int AC3_BUFFER_MULTIPLICATION_FACTOR = 2;
 
+  /**
+   * Default multiplication factor to apply to DTS Express passthrough buffer to avoid underruns.
+   */
+  private static final int DTSHD_BUFFER_MULTIPLICATION_FACTOR = 4;
+
   /** A builder to create {@link DefaultAudioTrackBufferSizeProvider} instances. */
   public static class Builder {
 
@@ -72,6 +77,7 @@ public class DefaultAudioTrackBufferSizeProvider
     private int passthroughBufferDurationUs;
     private int offloadBufferDurationUs;
     private int ac3BufferMultiplicationFactor;
+    private int dtshdBufferMultiplicationFactor;
 
     /** Creates a new builder. */
     public Builder() {
@@ -81,6 +87,7 @@ public class DefaultAudioTrackBufferSizeProvider
       passthroughBufferDurationUs = PASSTHROUGH_BUFFER_DURATION_US;
       offloadBufferDurationUs = OFFLOAD_BUFFER_DURATION_US;
       ac3BufferMultiplicationFactor = AC3_BUFFER_MULTIPLICATION_FACTOR;
+      dtshdBufferMultiplicationFactor = DTSHD_BUFFER_MULTIPLICATION_FACTOR;
     }
 
     /**
@@ -143,6 +150,16 @@ public class DefaultAudioTrackBufferSizeProvider
       return this;
     }
 
+    /**
+     * Sets the multiplication factor to apply to the passthrough buffer for DTS-HD (DTS Express) to
+     * avoid underruns. Default is {@link #DTSHD_BUFFER_MULTIPLICATION_FACTOR}.
+     */
+    @CanIgnoreReturnValue
+    public Builder setDtshdBufferMultiplicationFactor(int dtshdBufferMultiplicationFactor) {
+      this.dtshdBufferMultiplicationFactor = dtshdBufferMultiplicationFactor;
+      return this;
+    }
+
     /** Build the {@link DefaultAudioTrackBufferSizeProvider}. */
     public DefaultAudioTrackBufferSizeProvider build() {
       return new DefaultAudioTrackBufferSizeProvider(this);
@@ -170,6 +187,12 @@ public class DefaultAudioTrackBufferSizeProvider
    */
   public final int ac3BufferMultiplicationFactor;
 
+  /**
+   * The multiplication factor to apply to DTS-HD (DTS Express) passthrough buffer to avoid
+   * underruns.
+   */
+  public final int dtshdBufferMultiplicationFactor;
+
   protected DefaultAudioTrackBufferSizeProvider(Builder builder) {
     minPcmBufferDurationUs = builder.minPcmBufferDurationUs;
     maxPcmBufferDurationUs = builder.maxPcmBufferDurationUs;
@@ -177,6 +200,7 @@ public class DefaultAudioTrackBufferSizeProvider
     passthroughBufferDurationUs = builder.passthroughBufferDurationUs;
     offloadBufferDurationUs = builder.offloadBufferDurationUs;
     ac3BufferMultiplicationFactor = builder.ac3BufferMultiplicationFactor;
+    dtshdBufferMultiplicationFactor = builder.dtshdBufferMultiplicationFactor;
   }
 
   @Override
@@ -232,7 +256,13 @@ public class DefaultAudioTrackBufferSizeProvider
     int bufferSizeUs = passthroughBufferDurationUs;
     if (encoding == C.ENCODING_AC3) {
       bufferSizeUs *= ac3BufferMultiplicationFactor;
+    } else if (encoding == C.ENCODING_DTS_HD) {
+      // DTS-HD (DTS Express) for streaming uses a frame size (number of audio samples per channel
+      // per frame) of 4096. This requires a higher multiple for the buffersize computation.
+      // Otherwise, there will be buffer underflow during DASH playback.
+      bufferSizeUs *= dtshdBufferMultiplicationFactor;
     }
+
     int byteRate =
         bitrate != Format.NO_VALUE
             ? divide(bitrate, 8, RoundingMode.CEILING)
