@@ -64,8 +64,7 @@ public class DefaultAudioTrackBufferSizeProvider
   private static final int AC3_BUFFER_MULTIPLICATION_FACTOR = 2;
 
   /**
-   * Default multiplication factor to apply to DTS Express passthrough buffer to avoid underruns on
-   * some devices (e.g., Xiaomi A2 TV).
+   * Default multiplication factor to apply to DTS Express passthrough buffer to avoid underruns.
    */
   private static final int DTSHD_BUFFER_MULTIPLICATION_FACTOR = 4;
 
@@ -153,8 +152,7 @@ public class DefaultAudioTrackBufferSizeProvider
 
     /**
      * Sets the multiplication factor to apply to the passthrough buffer for DTS-HD (DTS Express) to
-     * avoid underruns on some devices (e.g., Xiaomi A2 TV). Default is {@link
-     * #DTSHD_BUFFER_MULTIPLICATION_FACTOR}.
+     * avoid underruns. Default is {@link #DTSHD_BUFFER_MULTIPLICATION_FACTOR}.
      */
     @CanIgnoreReturnValue
     public Builder setDtshdBufferMultiplicationFactor(int dtshdBufferMultiplicationFactor) {
@@ -191,7 +189,7 @@ public class DefaultAudioTrackBufferSizeProvider
 
   /**
    * The multiplication factor to apply to DTS-HD (DTS Express) passthrough buffer to avoid
-   * underruns on some devices (e.g., Xiaomi A2 TV).
+   * underruns.
    */
   public final int dtshdBufferMultiplicationFactor;
 
