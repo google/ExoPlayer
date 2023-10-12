@@ -1092,133 +1092,6 @@ import java.util.List;
             .build();
   }
 
-  // Helper class for parsing syntax elements from AV1 bitstream.
-  // Bitstream specification: https://aomediacodec.github.io/av1-spec/av1-spec.pdf
-  private static final class Av1BitstreamParser {
-    private static final String TAG = "Av1BitstreamParser";
-
-    private ParsableByteArray data;
-    private int bitCount;
-    private int currentByte;
-
-    public int colorDescriptionPresentFlag;
-    public int colorPrimaries;
-    public int transferCharacteristics;
-    public int matrixCoefficients;
-    public int colorRange;
-
-    public Av1BitstreamParser(ParsableByteArray data) {
-      this.data = data;
-    }
-
-    private int f(int length) {
-      // 4.10.2. f(n): Unsigned n-bit number appearing directly in the bitstream.
-      // The bits are read from high to low order.
-      int result = 0;
-      while (length > 0) {
-        if (bitCount == 0) {
-          currentByte = data.readUnsignedByte();
-          bitCount = 8;
-        }
-        int newBitCount = min(length, bitCount);
-        bitCount -= newBitCount;
-        length -= newBitCount;
-        result = (result << newBitCount) |
-            ((currentByte >> bitCount) & ((1 << newBitCount) - 1));
-      }
-      return result;
-    }
-
-    public boolean parseSequenceHeader() {
-      // 5.3.1. General OBU syntax
-      f(1); // obu_forbidden_bit
-      int obuType = f(4); // obu_type
-      if (obuType != 1) { // obu_type != OBU_SEQUENCE_HEADER
-        Log.e(TAG, "Unsupported obu_type: " + obuType);
-        return false;
-      } else if (f(1) != 0) { // obu_extension_flag
-        Log.e(TAG, "Unsupported obu_extension_flag");
-        return false;
-      }
-      int obuHasSizeField = f(1); // obu_has_size_field
-      f(1); // obu_reserved_1bit
-      if (obuHasSizeField == 1 && f(8) > 127) { // obu_size
-        Log.e(TAG, "Excessive obu_size");
-        return false;
-      }
-      // 5.5.1. General sequence header OBU syntax
-      int seqProfile = f(3); // seq_profile
-      f(1); // still_picture
-      if (f(1) != 0) { // reduced_still_picture_header
-        Log.e(TAG, "Unsupported reduced_still_picture_header");
-        return false;
-      } else if (f(1) != 0) { // timing_info_present_flag
-        Log.e(TAG, "Unsupported timing_info_present_flag");
-        return false;
-      } else if (f(1) != 0) { // initial_display_delay_present_flag
-        Log.e(TAG, "Unsupported initial_display_delay_present_flag");
-        return false;
-      }
-      int operatingPointsCntMinus1 = f(5); // operating_points_cnt_minus_1
-      for (int i = 0; i <= operatingPointsCntMinus1; i++) {
-        f(12); // operating_point_idc[i]
-        int seqLevelIdx = f(5); // seq_level_idx[i]
-        if (seqLevelIdx > 7) {
-          f(1); // seq_tier[i]
-        }
-      }
-      int frameWidthBitsMinus1 = f(4); // frame_width_bits_minus_1
-      int frameHeightBitsMinus1 = f(4); // frame_height_bits_minus_1
-      f(frameWidthBitsMinus1 + 1); // max_frame_width_minus_1
-      f(frameHeightBitsMinus1 + 1); // max_frame_height_minus_1
-      if (f(1) == 1) { // frame_id_numbers_present_flag
-        f(7); // delta_frame_id_length_minus_2, additional_frame_id_length_minus_1
-      }
-      f(7); // use_128x128_superblock...enable_dual_filter: 7 flags
-      int enableOrderHint = f(1); // enable_order_hint
-      if (enableOrderHint == 1) {
-        f(2); // enable_jnt_comp, enable_ref_frame_mvs
-      }
-      int seqForceScreenContentTools = 2; // SELECT_SCREEN_CONTENT_TOOLS
-      if (f(1) == 0) { // seq_choose_screen_content_tools
-        seqForceScreenContentTools = f(1); // seq_force_screen_content_tools
-      }
-      if (seqForceScreenContentTools > 0) {
-        if (f(1) == 0) { // seq_choose_integer_mv
-          f(1); // seq_force_integer_mv
-        }
-      }
-      if (enableOrderHint == 1) {
-        f(3); // order_hint_bits_minus_1
-      }
-      f(3); // enable_superres, enable_cdef, enable_restoration
-      // 5.5.2. Color config syntax
-      int highBitdepth = f(1); // high_bitdepth
-      if (seqProfile == 2 && highBitdepth == 1) {
-        f(1); // twelve_bit
-      }
-      int monoChrome = 0;
-      if (seqProfile != 1) {
-        monoChrome = f(1); // mono_chrome
-      }
-      colorDescriptionPresentFlag = f(1); // color_description_present_flag
-      if (colorDescriptionPresentFlag == 1) {
-        colorPrimaries = f(8); // color_primaries
-        transferCharacteristics = f(8); // transfer_characteristics
-        matrixCoefficients = f(8); // matrix_coefficients
-        if (monoChrome == 0
-            && colorPrimaries == 1 // CP_BT_709
-            && transferCharacteristics == 13 // TC_SRGB
-            && matrixCoefficients == 0) { // MC_IDENTITY
-          colorRange = 1;
-        } else {
-          colorRange = f(1); // color_range
-        }
-      }
-      return true;
-    }
-  }
-
   // hdrStaticInfo is allocated using allocate() in allocateHdrStaticInfo().
   @SuppressWarnings("ByteBufferBackingArray")
   private static void parseVideoSampleEntry(
@@ -2306,6 +2179,156 @@ import java.util.List;
           return currentByte & 0x0F;
         }
       }
+    }
+  }
+
+  /**
+   * Helper class for parsing syntax elements from AV1 bitstream.
+   *
+   * Bitstream specification: https://aomediacodec.github.io/av1-spec/av1-spec.pdf
+   */
+  private static final class Av1BitstreamParser {
+    private static final String TAG = "Av1BitstreamParser";
+
+    public int colorDescriptionPresentFlag;
+    public int colorPrimaries;
+    public int transferCharacteristics;
+    public int matrixCoefficients;
+    public int colorRange;
+
+    private final ParsableByteArray data;
+    private int bitCount;
+    private int currentByte;
+    private boolean parseSequenceHeaderCalled;
+
+    public Av1BitstreamParser(ParsableByteArray data) {
+      this.data = data;
+    }
+
+    /**
+     * Parses a fixed-length unsigned number.
+     *
+     * See AV1 bitstream spec 4.10.2.
+     * f(n): Unsigned n-bit number appearing directly in the bitstream.
+     * The bits are read from high to low order.
+     *
+     * @param length The length (in bits) of the number to decode.
+     * @return Parsed unsigned number.
+     */
+    private int parseF(int length) {
+      int result = 0;
+      while (length > 0) {
+        if (bitCount == 0) {
+          currentByte = data.readUnsignedByte();
+          bitCount = 8;
+        }
+        int newBitCount = min(length, bitCount);
+        bitCount -= newBitCount;
+        length -= newBitCount;
+        result = (result << newBitCount) |
+            ((currentByte >> bitCount) & ((1 << newBitCount) - 1));
+      }
+      return result;
+    }
+
+    /**
+     * Parses the AV1 sequence header.
+     *
+     * See AV1 bitstream spec 5.5.1.
+     * This method can only be called once.
+     */
+    public boolean parseSequenceHeader() {
+      if (parseSequenceHeaderCalled) {
+        return false;
+      }
+      parseSequenceHeaderCalled = true;
+
+      // 5.3.1. General OBU syntax
+      parseF(1); // obu_forbidden_bit
+      int obuType = parseF(4); // obu_type
+      if (obuType != 1) { // obu_type != OBU_SEQUENCE_HEADER
+        Log.e(TAG, "Unsupported obu_type: " + obuType);
+        return false;
+      } else if (parseF(1) != 0) { // obu_extension_flag
+        Log.e(TAG, "Unsupported obu_extension_flag");
+        return false;
+      }
+      int obuHasSizeField = parseF(1); // obu_has_size_field
+      parseF(1); // obu_reserved_1bit
+      if (obuHasSizeField == 1 && parseF(8) > 127) { // obu_size
+        Log.e(TAG, "Excessive obu_size");
+        return false;
+      }
+      // 5.5.1. General sequence header OBU syntax
+      int seqProfile = parseF(3); // seq_profile
+      parseF(1); // still_picture
+      if (parseF(1) != 0) { // reduced_still_picture_header
+        Log.e(TAG, "Unsupported reduced_still_picture_header");
+        return false;
+      } else if (parseF(1) != 0) { // timing_info_present_flag
+        Log.e(TAG, "Unsupported timing_info_present_flag");
+        return false;
+      } else if (parseF(1) != 0) { // initial_display_delay_present_flag
+        Log.e(TAG, "Unsupported initial_display_delay_present_flag");
+        return false;
+      }
+      int operatingPointsCntMinus1 = parseF(5); // operating_points_cnt_minus_1
+      for (int i = 0; i <= operatingPointsCntMinus1; i++) {
+        parseF(12); // operating_point_idc[i]
+        int seqLevelIdx = parseF(5); // seq_level_idx[i]
+        if (seqLevelIdx > 7) {
+          parseF(1); // seq_tier[i]
+        }
+      }
+      int frameWidthBitsMinus1 = parseF(4); // frame_width_bits_minus_1
+      int frameHeightBitsMinus1 = parseF(4); // frame_height_bits_minus_1
+      parseF(frameWidthBitsMinus1 + 1); // max_frame_width_minus_1
+      parseF(frameHeightBitsMinus1 + 1); // max_frame_height_minus_1
+      if (parseF(1) == 1) { // frame_id_numbers_present_flag
+        parseF(7); // delta_frame_id_length_minus_2, additional_frame_id_length_minus_1
+      }
+      parseF(7); // use_128x128_superblock...enable_dual_filter: 7 flags
+      int enableOrderHint = parseF(1); // enable_order_hint
+      if (enableOrderHint == 1) {
+        parseF(2); // enable_jnt_comp, enable_ref_frame_mvs
+      }
+      int seqForceScreenContentTools = 2; // SELECT_SCREEN_CONTENT_TOOLS
+      if (parseF(1) == 0) { // seq_choose_screen_content_tools
+        seqForceScreenContentTools = parseF(1); // seq_force_screen_content_tools
+      }
+      if (seqForceScreenContentTools > 0) {
+        if (parseF(1) == 0) { // seq_choose_integer_mv
+          parseF(1); // seq_force_integer_mv
+        }
+      }
+      if (enableOrderHint == 1) {
+        parseF(3); // order_hint_bits_minus_1
+      }
+      parseF(3); // enable_superres, enable_cdef, enable_restoration
+      // 5.5.2. Color config syntax
+      int highBitdepth = parseF(1); // high_bitdepth
+      if (seqProfile == 2 && highBitdepth == 1) {
+        parseF(1); // twelve_bit
+      }
+      int monoChrome = 0;
+      if (seqProfile != 1) {
+        monoChrome = parseF(1); // mono_chrome
+      }
+      colorDescriptionPresentFlag = parseF(1); // color_description_present_flag
+      if (colorDescriptionPresentFlag == 1) {
+        colorPrimaries = parseF(8); // color_primaries
+        transferCharacteristics = parseF(8); // transfer_characteristics
+        matrixCoefficients = parseF(8); // matrix_coefficients
+        if (monoChrome == 0
+            && colorPrimaries == 1 // CP_BT_709
+            && transferCharacteristics == 13 // TC_SRGB
+            && matrixCoefficients == 0) { // MC_IDENTITY
+          colorRange = 1;
+        } else {
+          colorRange = parseF(1); // color_range
+        }
+      }
+      return true;
     }
   }
 }
