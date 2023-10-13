@@ -38,6 +38,9 @@
 *   Cast Extension:
 *   Test Utilities:
 *   Remove deprecated symbols:
+    *   Remove deprecated `DownloadNotificationHelper.buildProgressNotification`
+        method, use a non deprecated method that takes a `notMetRequirements`
+        parameter instead.
 
 ## 1.2
 

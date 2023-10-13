@@ -52,21 +52,6 @@ public final class DownloadNotificationHelper {
   }
 
   /**
-   * @deprecated Use {@link #buildProgressNotification(Context, int, PendingIntent, String, List,
-   *     int)}.
-   */
-  @Deprecated
-  public Notification buildProgressNotification(
-      Context context,
-      @DrawableRes int smallIcon,
-      @Nullable PendingIntent contentIntent,
-      @Nullable String message,
-      List<Download> downloads) {
-    return buildProgressNotification(
-        context, smallIcon, contentIntent, message, downloads, /* notMetRequirements= */ 0);
-  }
-
-  /**
    * Returns a progress notification for the given downloads.
    *
    * @param context A context.
