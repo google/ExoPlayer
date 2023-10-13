@@ -41,7 +41,6 @@ import androidx.media3.extractor.text.Subtitle;
 import androidx.media3.extractor.text.SubtitleDecoderException;
 import androidx.media3.extractor.text.SubtitleParser;
 import com.google.common.base.Ascii;
-import com.google.common.collect.ImmutableList;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayDeque;
@@ -131,13 +130,6 @@ public final class TtmlParser implements SubtitleParser {
   @Override
   public @CueReplacementBehavior int getCueReplacementBehavior() {
     return CUE_REPLACEMENT_BEHAVIOR;
-  }
-
-  @Override
-  public ImmutableList<CuesWithTiming> parse(byte[] data, int offset, int length) {
-    ImmutableList.Builder<CuesWithTiming> cues = ImmutableList.builder();
-    parse(data, offset, length, OutputOptions.allCues(), cues::add);
-    return cues.build();
   }
 
   @Override

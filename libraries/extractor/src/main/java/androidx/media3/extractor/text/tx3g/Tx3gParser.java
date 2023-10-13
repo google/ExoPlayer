@@ -32,6 +32,7 @@ import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.Format.CueReplacementBehavior;
 import androidx.media3.common.text.Cue;
+import androidx.media3.common.util.Consumer;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.ParsableByteArray;
 import androidx.media3.common.util.UnstableApi;
@@ -137,16 +138,22 @@ public final class Tx3gParser implements SubtitleParser {
   }
 
   @Override
-  public ImmutableList<CuesWithTiming> parse(byte[] data, int offset, int length) {
+  public void parse(
+      byte[] data,
+      int offset,
+      int length,
+      OutputOptions outputOptions,
+      Consumer<CuesWithTiming> output) {
     parsableByteArray.reset(data, /* limit= */ offset + length);
     parsableByteArray.setPosition(offset);
     String cueTextString = readSubtitleText(parsableByteArray);
     if (cueTextString.isEmpty()) {
-      return ImmutableList.of(
+      output.accept(
           new CuesWithTiming(
               /* cues= */ ImmutableList.of(),
               /* startTimeUs= */ C.TIME_UNSET,
               /* durationUs= */ C.TIME_UNSET));
+      return;
     }
     // Attach default styles.
     SpannableStringBuilder cueText = new SpannableStringBuilder(cueTextString);
@@ -180,7 +187,7 @@ public final class Tx3gParser implements SubtitleParser {
             .setLine(verticalPlacement, LINE_TYPE_FRACTION)
             .setLineAnchor(ANCHOR_TYPE_START)
             .build();
-    return ImmutableList.of(
+    output.accept(
         new CuesWithTiming(
             ImmutableList.of(cue),
             /* startTimeUs= */ C.TIME_UNSET,

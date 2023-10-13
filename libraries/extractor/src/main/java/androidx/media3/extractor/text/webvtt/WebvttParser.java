@@ -26,7 +26,6 @@ import androidx.media3.common.util.UnstableApi;
 import androidx.media3.extractor.text.CuesWithTiming;
 import androidx.media3.extractor.text.LegacySubtitleUtil;
 import androidx.media3.extractor.text.SubtitleParser;
-import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -65,13 +64,6 @@ public final class WebvttParser implements SubtitleParser {
   @Override
   public @CueReplacementBehavior int getCueReplacementBehavior() {
     return CUE_REPLACEMENT_BEHAVIOR;
-  }
-
-  @Override
-  public ImmutableList<CuesWithTiming> parse(byte[] data, int offset, int length) {
-    ImmutableList.Builder<CuesWithTiming> result = ImmutableList.builder();
-    parse(data, offset, length, OutputOptions.allCues(), result::add);
-    return result.build();
   }
 
   @Override

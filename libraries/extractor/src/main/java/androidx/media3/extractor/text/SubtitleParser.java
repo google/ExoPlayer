@@ -16,21 +16,18 @@
 
 package androidx.media3.extractor.text;
 
-import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.Format.CueReplacementBehavior;
 import androidx.media3.common.util.Consumer;
 import androidx.media3.common.util.UnstableApi;
 import com.google.common.collect.ImmutableList;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Parses subtitle data into timed {@linkplain CuesWithTiming} instances.
  *
- * <p>Instances are stateful, so samples can be fed in repeated calls to {@link #parse(byte[])}, and
- * one or more complete {@link CuesWithTiming} instances will be returned when enough data has been
+ * <p>Instances are stateful, so samples can be fed in repeated calls to {@link #parse}, and one or
+ * more complete {@link CuesWithTiming} instances will be returned when enough data has been
  * received. Due to this stateful-ness, {@link #reset()} must be called after a seek or similar
  * discontinuity in the source data.
  */
@@ -125,17 +122,6 @@ public interface SubtitleParser {
   }
 
   /**
-   * Parses {@code data} (and any data stored from previous invocations) and returns any resulting
-   * complete {@link CuesWithTiming} instances.
-   *
-   * <p>Equivalent to {@link #parse(byte[], int, int) parse(data, 0, data.length)}.
-   */
-  @Nullable
-  default List<CuesWithTiming> parse(byte[] data) {
-    return parse(data, /* offset= */ 0, data.length);
-  }
-
-  /**
    * Parses {@code data} (and any data stored from previous invocations) and emits resulting {@link
    * CuesWithTiming} instances.
    *
@@ -145,33 +131,6 @@ public interface SubtitleParser {
   default void parse(byte[] data, OutputOptions outputOptions, Consumer<CuesWithTiming> output) {
     parse(data, /* offset= */ 0, data.length, outputOptions, output);
   }
-
-  /**
-   * Parses {@code data} (and any data stored from previous invocations) and returns any resulting
-   * complete {@link CuesWithTiming} instances.
-   *
-   * <p>Any samples not used from {@code data} will be persisted and used during subsequent calls to
-   * this method.
-   *
-   * <p>{@link CuesWithTiming#startTimeUs} in the returned instance is derived only from the
-   * provided sample data, so has to be considered together with any relevant {@link
-   * Format#subsampleOffsetUs}. If the provided sample doesn't contain any timing information then
-   * at most one {@link CuesWithTiming} instance will be returned, with {@link
-   * CuesWithTiming#startTimeUs} set to {@link C#TIME_UNSET}, in which case {@link
-   * Format#subsampleOffsetUs} <b>must</b> be {@link Format#OFFSET_SAMPLE_RELATIVE}.
-   *
-   * @param data The subtitle data to parse. This must contain only complete samples. For subtitles
-   *     muxed inside a media container, a sample is usually defined by the container. For subtitles
-   *     read from a text file, a sample is usually the entire contents of the text file.
-   * @param offset The index in {@code data} to start reading from (inclusive).
-   * @param length The number of bytes to read from {@code data}.
-   * @return The {@linkplain CuesWithTiming} instances parsed from {@code data} (and possibly
-   *     previous provided samples too), sorted in ascending order by {@link
-   *     CuesWithTiming#startTimeUs}. Otherwise null if there is insufficient data to generate a
-   *     complete {@link CuesWithTiming}.
-   */
-  @Nullable
-  List<CuesWithTiming> parse(byte[] data, int offset, int length);
 
   /**
    * Parses {@code data} (and any data stored from previous invocations) and emits any resulting
@@ -197,35 +156,12 @@ public interface SubtitleParser {
    *     will be made on the thread that called this method, and will be completed before this
    *     method returns.
    */
-  default void parse(
+  void parse(
       byte[] data,
       int offset,
       int length,
       OutputOptions outputOptions,
-      Consumer<CuesWithTiming> output) {
-    List<CuesWithTiming> cuesWithTimingList = parse(data, offset, length);
-    if (cuesWithTimingList == null) {
-      return;
-    }
-    @Nullable
-    List<CuesWithTiming> cuesWithTimingBeforeRequestedStartTimeUs =
-        outputOptions.startTimeUs != C.TIME_UNSET && outputOptions.outputAllCues
-            ? new ArrayList<>()
-            : null;
-    for (CuesWithTiming cuesWithTiming : cuesWithTimingList) {
-      if (outputOptions.startTimeUs == C.TIME_UNSET
-          || cuesWithTiming.startTimeUs >= outputOptions.startTimeUs) {
-        output.accept(cuesWithTiming);
-      } else if (cuesWithTimingBeforeRequestedStartTimeUs != null) {
-        cuesWithTimingBeforeRequestedStartTimeUs.add(cuesWithTiming);
-      }
-    }
-    if (cuesWithTimingBeforeRequestedStartTimeUs != null) {
-      for (CuesWithTiming cuesWithTiming : cuesWithTimingBeforeRequestedStartTimeUs) {
-        output.accept(cuesWithTiming);
-      }
-    }
-  }
+      Consumer<CuesWithTiming> output);
 
   /**
    * Parses {@code data} to a legacy {@link Subtitle} instance.
@@ -250,7 +186,7 @@ public interface SubtitleParser {
   }
 
   /**
-   * Clears any data stored inside this parser from previous {@link #parse(byte[])} calls.
+   * Clears any data stored inside this parser from previous {@link #parse} calls.
    *
    * <p>This must be called after a seek or other similar discontinuity in the source data.
    *

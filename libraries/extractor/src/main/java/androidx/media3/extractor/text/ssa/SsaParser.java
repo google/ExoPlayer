@@ -32,6 +32,7 @@ import androidx.media3.common.Format;
 import androidx.media3.common.Format.CueReplacementBehavior;
 import androidx.media3.common.text.Cue;
 import androidx.media3.common.util.Assertions;
+import androidx.media3.common.util.Consumer;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.ParsableByteArray;
 import androidx.media3.common.util.UnstableApi;
@@ -40,7 +41,6 @@ import androidx.media3.extractor.text.CuesWithTiming;
 import androidx.media3.extractor.text.SubtitleParser;
 import com.google.common.base.Ascii;
 import com.google.common.base.Charsets;
-import com.google.common.collect.ImmutableList;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -131,9 +131,13 @@ public final class SsaParser implements SubtitleParser {
     return CUE_REPLACEMENT_BEHAVIOR;
   }
 
-  @Nullable
   @Override
-  public ImmutableList<CuesWithTiming> parse(byte[] data, int offset, int length) {
+  public void parse(
+      byte[] data,
+      int offset,
+      int length,
+      OutputOptions outputOptions,
+      Consumer<CuesWithTiming> output) {
     List<List<Cue>> cues = new ArrayList<>();
     List<Long> startTimesUs = new ArrayList<>();
 
@@ -146,7 +150,11 @@ public final class SsaParser implements SubtitleParser {
     }
     parseEventBody(parsableByteArray, cues, startTimesUs, charset);
 
-    ImmutableList.Builder<CuesWithTiming> cuesWithStartTimeAndDuration = ImmutableList.builder();
+    @Nullable
+    List<CuesWithTiming> cuesWithTimingBeforeRequestedStartTimeUs =
+        outputOptions.startTimeUs != C.TIME_UNSET && outputOptions.outputAllCues
+            ? new ArrayList<>()
+            : null;
     for (int i = 0; i < cues.size(); i++) {
       List<Cue> cuesForThisStartTime = cues.get(i);
       if (cuesForThisStartTime.isEmpty() && i != 0) {
@@ -160,10 +168,19 @@ public final class SsaParser implements SubtitleParser {
       long startTimeUs = startTimesUs.get(i);
       // It's safe to inspect element i+1, because we already exited the loop above if i=size()-1.
       long durationUs = startTimesUs.get(i + 1) - startTimesUs.get(i);
-      cuesWithStartTimeAndDuration.add(
-          new CuesWithTiming(cuesForThisStartTime, startTimeUs, durationUs));
+      if (outputOptions.startTimeUs == C.TIME_UNSET || startTimeUs >= outputOptions.startTimeUs) {
+        output.accept(new CuesWithTiming(cuesForThisStartTime, startTimeUs, durationUs));
+
+      } else if (cuesWithTimingBeforeRequestedStartTimeUs != null) {
+        cuesWithTimingBeforeRequestedStartTimeUs.add(
+            new CuesWithTiming(cuesForThisStartTime, startTimeUs, durationUs));
+      }
     }
-    return cuesWithStartTimeAndDuration.build();
+    if (cuesWithTimingBeforeRequestedStartTimeUs != null) {
+      for (CuesWithTiming cuesWithTiming : cuesWithTimingBeforeRequestedStartTimeUs) {
+        output.accept(cuesWithTiming);
+      }
+    }
   }
 
   /**
