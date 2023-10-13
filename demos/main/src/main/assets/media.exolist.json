@@ -260,13 +260,6 @@
       {
         "name": "Super speed (MP4, H264, Clear)",
         "uri": "https://playready.directtaps.net/smoothstreaming/SSWSS720H264/SuperSpeedway_720.ism/Manifest"
-      },
-      {
-        "name": "Super speed (MP4, H264, PlayReady)",
-        "uri": "https://playready.directtaps.net/smoothstreaming/SSWSS720H264PR/SuperSpeedway_720.ism/Manifest",
-        "drm_scheme": "playready",
-        "drm_license_uri": "https://playready.directtaps.net/pr/svc/rightsmanager.asmx",
-        "drm_force_default_license_uri": true
       }
     ]
   },
