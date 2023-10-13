@@ -34,6 +34,7 @@ import com.google.android.exoplayer2.Format.CueReplacementBehavior;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.CuesWithTiming;
 import com.google.android.exoplayer2.text.SubtitleParser;
+import com.google.android.exoplayer2.util.Consumer;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
@@ -141,16 +142,22 @@ public final class Tx3gParser implements SubtitleParser {
   }
 
   @Override
-  public ImmutableList<CuesWithTiming> parse(byte[] data, int offset, int length) {
+  public void parse(
+      byte[] data,
+      int offset,
+      int length,
+      OutputOptions outputOptions,
+      Consumer<CuesWithTiming> output) {
     parsableByteArray.reset(data, /* limit= */ offset + length);
     parsableByteArray.setPosition(offset);
     String cueTextString = readSubtitleText(parsableByteArray);
     if (cueTextString.isEmpty()) {
-      return ImmutableList.of(
+      output.accept(
           new CuesWithTiming(
               /* cues= */ ImmutableList.of(),
               /* startTimeUs= */ C.TIME_UNSET,
               /* durationUs= */ C.TIME_UNSET));
+      return;
     }
     // Attach default styles.
     SpannableStringBuilder cueText = new SpannableStringBuilder(cueTextString);
@@ -184,7 +191,7 @@ public final class Tx3gParser implements SubtitleParser {
             .setLine(verticalPlacement, LINE_TYPE_FRACTION)
             .setLineAnchor(ANCHOR_TYPE_START)
             .build();
-    return ImmutableList.of(
+    output.accept(
         new CuesWithTiming(
             ImmutableList.of(cue),
             /* startTimeUs= */ C.TIME_UNSET,

@@ -25,9 +25,9 @@ import com.google.android.exoplayer2.Format.CueReplacementBehavior;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.CuesWithTiming;
 import com.google.android.exoplayer2.text.SubtitleParser;
+import com.google.android.exoplayer2.util.Consumer;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
-import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.zip.Inflater;
@@ -74,7 +74,12 @@ public final class PgsParser implements SubtitleParser {
   }
 
   @Override
-  public ImmutableList<CuesWithTiming> parse(byte[] data, int offset, int length) {
+  public void parse(
+      byte[] data,
+      int offset,
+      int length,
+      OutputOptions outputOptions,
+      Consumer<CuesWithTiming> output) {
     buffer.reset(data, /* limit= */ offset + length);
     buffer.setPosition(offset);
     maybeInflateData(buffer);
@@ -86,7 +91,7 @@ public final class PgsParser implements SubtitleParser {
         cues.add(cue);
       }
     }
-    return ImmutableList.of(
+    output.accept(
         new CuesWithTiming(cues, /* startTimeUs= */ C.TIME_UNSET, /* durationUs= */ C.TIME_UNSET));
   }
 

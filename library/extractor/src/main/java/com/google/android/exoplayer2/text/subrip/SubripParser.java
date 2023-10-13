@@ -22,18 +22,21 @@ import android.text.Spanned;
 import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Format.CueReplacementBehavior;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.CuesWithTiming;
 import com.google.android.exoplayer2.text.SubtitleParser;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Consumer;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableList;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -97,15 +100,22 @@ public final class SubripParser implements SubtitleParser {
     return CUE_REPLACEMENT_BEHAVIOR;
   }
 
-  @Nullable
   @Override
-  public ImmutableList<CuesWithTiming> parse(byte[] data, int offset, int length) {
-    ImmutableList.Builder<CuesWithTiming> cues = new ImmutableList.Builder<>();
-
+  public void parse(
+      byte[] data,
+      int offset,
+      int length,
+      OutputOptions outputOptions,
+      Consumer<CuesWithTiming> output) {
     parsableByteArray.reset(data, /* limit= */ offset + length);
     parsableByteArray.setPosition(offset);
     Charset charset = detectUtfCharset(parsableByteArray);
 
+    @Nullable
+    List<CuesWithTiming> cuesWithTimingBeforeRequestedStartTimeUs =
+        outputOptions.startTimeUs != C.TIME_UNSET && outputOptions.outputAllCues
+            ? new ArrayList<>()
+            : null;
     @Nullable String currentLine;
     while ((currentLine = parsableByteArray.readLine(charset)) != null) {
       if (currentLine.length() == 0) {
@@ -162,13 +172,25 @@ public final class SubripParser implements SubtitleParser {
           break;
         }
       }
-      cues.add(
-          new CuesWithTiming(
-              ImmutableList.of(buildCue(text, alignmentTag)),
-              startTimeUs,
-              /* durationUs= */ endTimeUs - startTimeUs));
+      if (outputOptions.startTimeUs == C.TIME_UNSET || startTimeUs >= outputOptions.startTimeUs) {
+        output.accept(
+            new CuesWithTiming(
+                ImmutableList.of(buildCue(text, alignmentTag)),
+                startTimeUs,
+                /* durationUs= */ endTimeUs - startTimeUs));
+      } else if (cuesWithTimingBeforeRequestedStartTimeUs != null) {
+        cuesWithTimingBeforeRequestedStartTimeUs.add(
+            new CuesWithTiming(
+                ImmutableList.of(buildCue(text, alignmentTag)),
+                startTimeUs,
+                /* durationUs= */ endTimeUs - startTimeUs));
+      }
     }
-    return cues.build();
+    if (cuesWithTimingBeforeRequestedStartTimeUs != null) {
+      for (CuesWithTiming cuesWithTiming : cuesWithTimingBeforeRequestedStartTimeUs) {
+        output.accept(cuesWithTiming);
+      }
+    }
   }
 
   /**

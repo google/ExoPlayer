@@ -24,9 +24,9 @@ import com.google.android.exoplayer2.Format.CueReplacementBehavior;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.CuesWithTiming;
 import com.google.android.exoplayer2.text.SubtitleParser;
+import com.google.android.exoplayer2.util.Consumer;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
-import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -73,7 +73,12 @@ public final class Mp4WebvttParser implements SubtitleParser {
   }
 
   @Override
-  public ImmutableList<CuesWithTiming> parse(byte[] data, int offset, int length) {
+  public void parse(
+      byte[] data,
+      int offset,
+      int length,
+      OutputOptions outputOptions,
+      Consumer<CuesWithTiming> output) {
     parsableByteArray.reset(data, /* limit= */ offset + length);
     parsableByteArray.setPosition(offset);
     List<Cue> cues = new ArrayList<>();
@@ -92,7 +97,7 @@ public final class Mp4WebvttParser implements SubtitleParser {
         parsableByteArray.skipBytes(boxSize - BOX_HEADER_SIZE);
       }
     }
-    return ImmutableList.of(
+    output.accept(
         new CuesWithTiming(cues, /* startTimeUs= */ C.TIME_UNSET, /* durationUs= */ C.TIME_UNSET));
   }
 

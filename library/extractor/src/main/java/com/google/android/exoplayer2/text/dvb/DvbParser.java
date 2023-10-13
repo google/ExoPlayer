@@ -31,6 +31,7 @@ import com.google.android.exoplayer2.Format.CueReplacementBehavior;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.CuesWithTiming;
 import com.google.android.exoplayer2.text.SubtitleParser;
+import com.google.android.exoplayer2.util.Consumer;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
@@ -149,9 +150,19 @@ public final class DvbParser implements SubtitleParser {
   }
 
   @Override
-  public ImmutableList<CuesWithTiming> parse(byte[] data, int offset, int length) {
+  public void parse(
+      byte[] data,
+      int offset,
+      int length,
+      OutputOptions outputOptions,
+      Consumer<CuesWithTiming> output) {
     ParsableBitArray dataBitArray = new ParsableBitArray(data, /* limit= */ offset + length);
     dataBitArray.setPosition(offset);
+    output.accept(parse(dataBitArray));
+  }
+
+  private CuesWithTiming parse(ParsableBitArray dataBitArray) {
+
     while (dataBitArray.bitsLeft() >= 48 // sync_byte (8) + segment header (40)
         && dataBitArray.readBits(8) == 0x0F) {
       parseSubtitlingSegment(dataBitArray, subtitleService);
@@ -159,9 +170,8 @@ public final class DvbParser implements SubtitleParser {
 
     @Nullable PageComposition pageComposition = subtitleService.pageComposition;
     if (pageComposition == null) {
-      return ImmutableList.of(
-          new CuesWithTiming(
-              ImmutableList.of(), /* startTimeUs= */ C.TIME_UNSET, /* durationUs= */ C.TIME_UNSET));
+      return new CuesWithTiming(
+          ImmutableList.of(), /* startTimeUs= */ C.TIME_UNSET, /* durationUs= */ C.TIME_UNSET);
     }
 
     // Update the canvas bitmap if necessary.
@@ -272,8 +282,8 @@ public final class DvbParser implements SubtitleParser {
       canvas.restore();
     }
 
-    return ImmutableList.of(
-        new CuesWithTiming(cues, /* startTimeUs= */ C.TIME_UNSET, /* durationUs= */ C.TIME_UNSET));
+    return new CuesWithTiming(
+        cues, /* startTimeUs= */ C.TIME_UNSET, /* durationUs= */ C.TIME_UNSET);
   }
 
   // Static parsing.

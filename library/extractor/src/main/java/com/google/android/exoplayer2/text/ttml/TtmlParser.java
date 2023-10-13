@@ -40,7 +40,6 @@ import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.util.XmlPullParserUtil;
 import com.google.common.base.Ascii;
-import com.google.common.collect.ImmutableList;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayDeque;
@@ -135,13 +134,6 @@ public final class TtmlParser implements SubtitleParser {
   @Override
   public @CueReplacementBehavior int getCueReplacementBehavior() {
     return CUE_REPLACEMENT_BEHAVIOR;
-  }
-
-  @Override
-  public ImmutableList<CuesWithTiming> parse(byte[] data, int offset, int length) {
-    ImmutableList.Builder<CuesWithTiming> cues = ImmutableList.builder();
-    parse(data, offset, length, OutputOptions.allCues(), cues::add);
-    return cues.build();
   }
 
   @Override
