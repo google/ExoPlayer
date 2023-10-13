@@ -15,9 +15,8 @@
  */
 package com.google.android.exoplayer2.text;
 
-import static java.lang.Math.max;
-
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.text.SubtitleParser.OutputOptions;
 import com.google.android.exoplayer2.util.Consumer;
 import java.util.List;
 
@@ -42,21 +41,54 @@ public class LegacySubtitleUtil {
    * and the last event is an empty cue list.
    */
   public static void toCuesWithTiming(
-      Subtitle subtitle,
-      SubtitleParser.OutputOptions outputOptions,
-      Consumer<CuesWithTiming> output) {
-    int startIndex =
-        outputOptions.startTimeUs != C.TIME_UNSET
-            ? max(subtitle.getNextEventTimeIndex(outputOptions.startTimeUs) - 1, 0)
-            : 0;
+      Subtitle subtitle, OutputOptions outputOptions, Consumer<CuesWithTiming> output) {
+    int startIndex = getStartIndex(subtitle, outputOptions);
+    boolean startedInMiddleOfCue = false;
+    if (outputOptions.startTimeUs != C.TIME_UNSET) {
+      List<Cue> cuesAtStartTime = subtitle.getCues(outputOptions.startTimeUs);
+      long firstEventTimeUs = subtitle.getEventTime(startIndex);
+      if (!cuesAtStartTime.isEmpty()
+          && startIndex < subtitle.getEventTimeCount()
+          && outputOptions.startTimeUs < firstEventTimeUs) {
+        output.accept(
+            new CuesWithTiming(
+                cuesAtStartTime,
+                outputOptions.startTimeUs,
+                firstEventTimeUs - outputOptions.startTimeUs));
+        startedInMiddleOfCue = true;
+      }
+    }
     for (int i = startIndex; i < subtitle.getEventTimeCount(); i++) {
       outputSubtitleEvent(subtitle, i, output);
     }
     if (outputOptions.outputAllCues) {
-      for (int i = 0; i < startIndex; i++) {
+      int endIndex = startedInMiddleOfCue ? startIndex - 1 : startIndex;
+      for (int i = 0; i < endIndex; i++) {
         outputSubtitleEvent(subtitle, i, output);
       }
+      if (startedInMiddleOfCue) {
+        output.accept(
+            new CuesWithTiming(
+                subtitle.getCues(outputOptions.startTimeUs),
+                subtitle.getEventTime(endIndex),
+                outputOptions.startTimeUs - subtitle.getEventTime(endIndex)));
+      }
     }
+  }
+
+  private static int getStartIndex(Subtitle subtitle, OutputOptions outputOptions) {
+    if (outputOptions.startTimeUs == C.TIME_UNSET) {
+      return 0;
+    }
+    int nextEventTimeIndex = subtitle.getNextEventTimeIndex(outputOptions.startTimeUs);
+    if (nextEventTimeIndex == C.INDEX_UNSET) {
+      return subtitle.getEventTimeCount();
+    }
+    if (nextEventTimeIndex > 0
+        && subtitle.getEventTime(nextEventTimeIndex - 1) == outputOptions.startTimeUs) {
+      nextEventTimeIndex--;
+    }
+    return nextEventTimeIndex;
   }
 
   private static void outputSubtitleEvent(

@@ -25,12 +25,17 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.CuesWithTiming;
+import com.google.android.exoplayer2.text.SubtitleParser.OutputOptions;
 import com.google.android.exoplayer2.text.span.TextAnnotation;
 import com.google.android.exoplayer2.text.span.TextEmphasisSpan;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ColorParser;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -38,6 +43,8 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public final class TtmlParserTest {
 
+  private static final String SIMPLE_TTML_FILE = "media/ttml/simple.xml";
+  private static final String OVERLAPPING_TIMES_TTML_FILE = "media/ttml/overlapping_times.xml";
   private static final String INLINE_ATTRIBUTES_TTML_FILE =
       "media/ttml/inline_style_attributes.xml";
   private static final String INHERIT_STYLE_TTML_FILE = "media/ttml/inherit_style.xml";
@@ -68,6 +75,177 @@ public final class TtmlParserTest {
   private static final String RUBIES_FILE = "media/ttml/rubies.xml";
   private static final String TEXT_EMPHASIS_FILE = "media/ttml/text_emphasis.xml";
   private static final String SHEAR_FILE = "media/ttml/shear.xml";
+
+  @Test
+  public void simple_allCues() throws Exception {
+    ImmutableList<CuesWithTiming> allCues = getAllCues(SIMPLE_TTML_FILE);
+
+    assertThat(allCues).hasSize(3);
+
+    CuesWithTiming firstCue = allCues.get(0);
+    assertThat(firstCue.startTimeUs).isEqualTo(10_000_000);
+    assertThat(firstCue.durationUs).isEqualTo(8_000_000);
+    assertThat(firstCue.endTimeUs).isEqualTo(18_000_000);
+    assertThat(Lists.transform(firstCue.cues, c -> c.text.toString())).containsExactly("cue 1");
+
+    CuesWithTiming secondCue = allCues.get(1);
+    assertThat(secondCue.startTimeUs).isEqualTo(20_000_000);
+    assertThat(secondCue.durationUs).isEqualTo(8_000_000);
+    assertThat(secondCue.endTimeUs).isEqualTo(28_000_000);
+    assertThat(Lists.transform(secondCue.cues, c -> c.text.toString())).containsExactly("cue 2");
+
+    CuesWithTiming thirdCue = allCues.get(2);
+    assertThat(thirdCue.startTimeUs).isEqualTo(30_000_000);
+    assertThat(thirdCue.durationUs).isEqualTo(8_000_000);
+    assertThat(thirdCue.endTimeUs).isEqualTo(38_000_000);
+    assertThat(Lists.transform(thirdCue.cues, c -> c.text.toString())).containsExactly("cue 3");
+  }
+
+  @Test
+  public void simple_onlyCuesAfterTime() throws Exception {
+    TtmlParser parser = new TtmlParser();
+    byte[] bytes =
+        TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), SIMPLE_TTML_FILE);
+
+    List<CuesWithTiming> cues = new ArrayList<>();
+    parser.parse(bytes, OutputOptions.onlyCuesAfter(/* startTimeUs= */ 11_000_000), cues::add);
+
+    assertThat(cues).hasSize(3);
+
+    CuesWithTiming firstCue = cues.get(0);
+    // First cue is truncated to OutputOptions.startTimeUs
+    assertThat(firstCue.startTimeUs).isEqualTo(11_000_000);
+    assertThat(Lists.transform(firstCue.cues, c -> c.text.toString())).containsExactly("cue 1");
+    assertThat(getOnlyCueTextAtIndex(cues, 1).toString()).isEqualTo("cue 2");
+    assertThat(getOnlyCueTextAtIndex(cues, 2).toString()).isEqualTo("cue 3");
+  }
+
+  @Test
+  public void simple_cuesAfterTimeThenCuesBefore() throws Exception {
+    TtmlParser parser = new TtmlParser();
+    byte[] bytes =
+        TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), SIMPLE_TTML_FILE);
+
+    List<CuesWithTiming> cues = new ArrayList<>();
+    parser.parse(bytes, OutputOptions.cuesAfterThenRemainingCuesBefore(11_000_000), cues::add);
+
+    assertThat(cues).hasSize(4);
+
+    CuesWithTiming firstCue = cues.get(0);
+    // First cue is truncated to OutputOptions.startTimeUs
+    assertThat(firstCue.startTimeUs).isEqualTo(11_000_000);
+    assertThat(Lists.transform(firstCue.cues, c -> c.text.toString())).containsExactly("cue 1");
+
+    assertThat(getOnlyCueTextAtIndex(cues, 1).toString()).isEqualTo("cue 2");
+    assertThat(getOnlyCueTextAtIndex(cues, 2).toString()).isEqualTo("cue 3");
+
+    CuesWithTiming fourthCue = cues.get(3);
+    // Last cue is the part of firstCue before OutputOptions.startTimeUs
+    assertThat(fourthCue.startTimeUs).isEqualTo(10_000_000);
+    assertThat(fourthCue.endTimeUs).isEqualTo(11_000_000);
+    assertThat(Lists.transform(fourthCue.cues, c -> c.text.toString())).containsExactly("cue 1");
+  }
+
+  @Test
+  public void overlappingTimes_allCues() throws Exception {
+    ImmutableList<CuesWithTiming> allCues = getAllCues(OVERLAPPING_TIMES_TTML_FILE);
+
+    assertThat(allCues).hasSize(5);
+
+    CuesWithTiming firstCue = allCues.get(0);
+    assertThat(firstCue.startTimeUs).isEqualTo(10_000_000);
+    assertThat(firstCue.durationUs).isEqualTo(5_000_000);
+    assertThat(firstCue.endTimeUs).isEqualTo(15_000_000);
+    assertThat(Lists.transform(firstCue.cues, c -> c.text.toString())).containsExactly("cue 1");
+
+    CuesWithTiming secondCue = allCues.get(1);
+    assertThat(secondCue.startTimeUs).isEqualTo(15_000_000);
+    assertThat(secondCue.durationUs).isEqualTo(1_000_000);
+    assertThat(secondCue.endTimeUs).isEqualTo(16_000_000);
+    assertThat(Lists.transform(secondCue.cues, c -> c.text.toString()))
+        .containsExactly("cue 1\ncue 2: nested inside cue 1");
+
+    CuesWithTiming thirdCue = allCues.get(2);
+    assertThat(thirdCue.startTimeUs).isEqualTo(16_000_000);
+    assertThat(thirdCue.durationUs).isEqualTo(4_000_000);
+    assertThat(thirdCue.endTimeUs).isEqualTo(20_000_000);
+    assertThat(Lists.transform(thirdCue.cues, c -> c.text.toString()))
+        .containsExactly("cue 1\ncue 2: nested inside cue 1\ncue 3: overlaps with cue 2");
+
+    CuesWithTiming fourthCue = allCues.get(3);
+    assertThat(fourthCue.startTimeUs).isEqualTo(20_000_000);
+    assertThat(fourthCue.durationUs).isEqualTo(5_000_000);
+    assertThat(fourthCue.endTimeUs).isEqualTo(25_000_000);
+    assertThat(Lists.transform(fourthCue.cues, c -> c.text.toString()))
+        .containsExactly("cue 1\ncue 3: overlaps with cue 2");
+
+    CuesWithTiming fifthCue = allCues.get(4);
+    assertThat(fifthCue.startTimeUs).isEqualTo(25_000_000);
+    assertThat(fifthCue.durationUs).isEqualTo(3_000_000);
+    assertThat(fifthCue.endTimeUs).isEqualTo(28_000_000);
+    assertThat(Lists.transform(fifthCue.cues, c -> c.text.toString()))
+        .containsExactly("cue 3: overlaps with cue 2");
+  }
+
+  @Test
+  public void overlappingTimes_onlyCuesAfterTime() throws Exception {
+    TtmlParser parser = new TtmlParser();
+    byte[] bytes =
+        TestUtil.getByteArray(
+            ApplicationProvider.getApplicationContext(), OVERLAPPING_TIMES_TTML_FILE);
+
+    List<CuesWithTiming> cues = new ArrayList<>();
+    parser.parse(bytes, OutputOptions.onlyCuesAfter(/* startTimeUs= */ 11_000_000), cues::add);
+
+    assertThat(cues).hasSize(5);
+
+    CuesWithTiming firstCue = cues.get(0);
+    // First cue is truncated to OutputOptions.startTimeUs
+    assertThat(firstCue.startTimeUs).isEqualTo(11_000_000);
+    assertThat(Lists.transform(firstCue.cues, c -> c.text.toString())).containsExactly("cue 1");
+    assertThat(getOnlyCueTextAtIndex(cues, 1).toString())
+        .isEqualTo("cue 1\ncue 2: nested inside cue 1");
+    assertThat(getOnlyCueTextAtIndex(cues, 2).toString())
+        .isEqualTo("cue 1\ncue 2: nested inside cue 1\ncue 3: overlaps with cue 2");
+    assertThat(getOnlyCueTextAtIndex(cues, 3).toString())
+        .isEqualTo("cue 1\ncue 3: overlaps with cue 2");
+    assertThat(getOnlyCueTextAtIndex(cues, 4).toString()).isEqualTo("cue 3: overlaps with cue 2");
+  }
+
+  @Test
+  public void overlappingTimes_cuesAfterTimeThenCuesBefore() throws Exception {
+    TtmlParser parser = new TtmlParser();
+    byte[] bytes =
+        TestUtil.getByteArray(
+            ApplicationProvider.getApplicationContext(), OVERLAPPING_TIMES_TTML_FILE);
+
+    List<CuesWithTiming> cues = new ArrayList<>();
+    parser.parse(
+        bytes,
+        OutputOptions.cuesAfterThenRemainingCuesBefore(/* startTimeUs= */ 11_000_000),
+        cues::add);
+
+    assertThat(cues).hasSize(6);
+
+    CuesWithTiming firstCue = cues.get(0);
+    // First cue is truncated to OutputOptions.startTimeUs
+    assertThat(firstCue.startTimeUs).isEqualTo(11_000_000);
+    assertThat(Lists.transform(firstCue.cues, c -> c.text.toString())).containsExactly("cue 1");
+
+    assertThat(getOnlyCueTextAtIndex(cues, 1).toString())
+        .isEqualTo("cue 1\ncue 2: nested inside cue 1");
+    assertThat(getOnlyCueTextAtIndex(cues, 2).toString())
+        .isEqualTo("cue 1\ncue 2: nested inside cue 1\ncue 3: overlaps with cue 2");
+    assertThat(getOnlyCueTextAtIndex(cues, 3).toString())
+        .isEqualTo("cue 1\ncue 3: overlaps with cue 2");
+    assertThat(getOnlyCueTextAtIndex(cues, 4).toString()).isEqualTo("cue 3: overlaps with cue 2");
+
+    CuesWithTiming sixthCue = cues.get(5);
+    // Last cue is truncated to end at OutputOptions.startTimeUs
+    assertThat(sixthCue.startTimeUs).isEqualTo(10_000_000);
+    assertThat(sixthCue.endTimeUs).isEqualTo(11_000_000);
+    assertThat(Lists.transform(sixthCue.cues, c -> c.text.toString())).containsExactly("cue 1");
+  }
 
   @Test
   public void inlineAttributes() throws Exception {
@@ -904,21 +1082,23 @@ public final class TtmlParserTest {
     assertThat(eighthCue.shearDegrees).isWithin(0.01f).of(90f);
   }
 
-  private static Spanned getOnlyCueTextAtIndex(ImmutableList<CuesWithTiming> allCues, int index) {
+  private static Spanned getOnlyCueTextAtIndex(List<CuesWithTiming> allCues, int index) {
     Cue cue = getOnlyCueAtIndex(allCues, index);
     assertThat(cue.text).isInstanceOf(Spanned.class);
     return (Spanned) Assertions.checkNotNull(cue.text);
   }
 
-  private static Cue getOnlyCueAtIndex(ImmutableList<CuesWithTiming> allCues, int index) {
+  private static Cue getOnlyCueAtIndex(List<CuesWithTiming> allCues, int index) {
     ImmutableList<Cue> cues = allCues.get(index).cues;
     assertThat(cues).hasSize(1);
     return cues.get(0);
   }
 
-  private static ImmutableList<CuesWithTiming> getAllCues(String file) throws Exception {
+  private static ImmutableList<CuesWithTiming> getAllCues(String file) throws IOException {
     TtmlParser ttmlParser = new TtmlParser();
     byte[] bytes = TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), file);
-    return ttmlParser.parse(bytes, 0, bytes.length);
+    ImmutableList.Builder<CuesWithTiming> allCues = ImmutableList.builder();
+    ttmlParser.parse(bytes, OutputOptions.allCues(), allCues::add);
+    return allCues.build();
   }
 }
