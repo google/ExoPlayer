@@ -81,7 +81,8 @@ public interface SubtitleParser {
 
     /**
      * Cues after this time (inclusive) will be emitted first. Cues before this time might be
-     * emitted later, depending on {@link #outputAllCues}.
+     * emitted later, depending on {@link #outputAllCues}. Can be {@link C#TIME_UNSET} to emit all
+     * cues.
      */
     public final long startTimeUs;
 
