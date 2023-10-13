@@ -30,6 +30,9 @@
 *   Cronet Extension:
 *   RTMP Extension:
 *   HLS Extension:
+    *   Refresh the HLS live playlist with an interval calculated from the last
+        load start time rather than the last load completed time
+        ([#663](https://github.com/androidx/media/issues/663)).
 *   DASH Extension:
 *   Smooth Streaming Extension:
 *   RTSP Extension:

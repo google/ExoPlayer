@@ -761,7 +761,8 @@ public final class DefaultHlsPlaylistTracker
                 ? playlistSnapshot.targetDurationUs
                 : (playlistSnapshot.targetDurationUs / 2);
       }
-      earliestNextLoadTimeMs = currentTimeMs + Util.usToMs(durationUntilNextLoadUs);
+      earliestNextLoadTimeMs =
+          currentTimeMs + Util.usToMs(durationUntilNextLoadUs) - loadEventInfo.loadDurationMs;
       // Schedule a load if this is the primary playlist or a playlist of a low-latency stream and
       // it doesn't have an end tag. Else the next load will be scheduled when refreshPlaylist is
       // called, or when this playlist becomes the primary.
