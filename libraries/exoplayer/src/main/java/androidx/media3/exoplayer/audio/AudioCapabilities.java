@@ -406,11 +406,15 @@ public final class AudioCapabilities {
       // TODO(internal b/234351617): Query supported channel masks directly once it's supported,
       // see also b/25994457.
       for (int channelCount = DEFAULT_MAX_CHANNEL_COUNT; channelCount > 0; channelCount--) {
+        int channelConfig = Util.getAudioTrackChannelConfig(channelCount);
+        if (channelConfig == AudioFormat.CHANNEL_INVALID) {
+          continue;
+        }
         AudioFormat audioFormat =
             new AudioFormat.Builder()
                 .setEncoding(encoding)
                 .setSampleRate(sampleRate)
-                .setChannelMask(Util.getAudioTrackChannelConfig(channelCount))
+                .setChannelMask(channelConfig)
                 .build();
         if (AudioTrack.isDirectPlaybackSupported(audioFormat, DEFAULT_AUDIO_ATTRIBUTES)) {
           return channelCount;
