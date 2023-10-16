@@ -31,7 +31,7 @@ import java.util.List;
  *     migration guide</a> for more details, including a script to help with the migration.
  */
 @Deprecated
-/* package */ interface VideoSinkProvider {
+public interface VideoSinkProvider {
 
   /**
    * Initializes the provider for video frame processing. Can be called up to one time and only
@@ -51,8 +51,14 @@ import java.util.List;
   /** Returns a {@link VideoSink} to forward video frames for processing. */
   VideoSink getSink();
 
-  /** Sets video effects on this provider. */
+  /** Sets video effects on this provider to apply immediately. */
   void setVideoEffects(List<Effect> videoEffects);
+
+  /**
+   * Sets video effects on this provider to apply when the next stream is {@linkplain
+   * VideoSink#registerInputStream(int, Format) registered} on the {@link #getSink() VideoSink}.
+   */
+  void setPendingVideoEffects(List<Effect> videoEffects);
 
   /**
    * Sets the offset, in microseconds, that is added to the video frames presentation timestamps
