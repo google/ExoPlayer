@@ -26,6 +26,7 @@ import android.net.Uri;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.container.Mp4TimestampData;
+import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.mp4.MdtaMetadataEntry;
 import com.google.android.exoplayer2.metadata.mp4.MotionPhotoMetadata;
 import com.google.android.exoplayer2.metadata.mp4.SlowMotionData;
@@ -34,6 +35,7 @@ import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.testutil.FakeClock;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.List;
@@ -149,7 +151,7 @@ public class MetadataRetrieverTest {
   }
 
   @Test
-  public void retrieveMetadata_sefSlowMotion_outputsExpectedMetadata() throws Exception {
+  public void retrieveMetadata_sefSlowMotionAvc_outputsExpectedMetadata() throws Exception {
     MediaItem mediaItem =
         MediaItem.fromUri(Uri.parse("asset://android_asset/media/mp4/sample_sef_slow_motion.mp4"));
     MdtaMetadataEntry expectedAndroidVersionMetadata =
@@ -212,6 +214,60 @@ public class MetadataRetrieverTest {
     assertThat(trackGroups.get(1).getFormat(0).metadata.get(3)).isEqualTo(expectedSlowMotionData);
     assertThat(trackGroups.get(1).getFormat(0).metadata.get(4)).isEqualTo(expectedSmtaEntry);
     assertThat(trackGroups.get(1).getFormat(0).metadata.get(5)).isEqualTo(expectedMp4TimestampData);
+  }
+
+  @Test
+  public void retrieveMetadata_sefSlowMotionHevc_outputsExpectedMetadata() throws Exception {
+    MediaItem mediaItem =
+        MediaItem.fromUri(
+            Uri.parse("asset://android_asset/media/mp4/sample_sef_slow_motion_hevc.mp4"));
+    MdtaMetadataEntry expectedAndroidVersionMetadata =
+        new MdtaMetadataEntry(
+            /* key= */ "com.android.version",
+            /* value= */ Util.getUtf8Bytes("13"),
+            /* localeIndicator= */ 0,
+            MdtaMetadataEntry.TYPE_INDICATOR_STRING);
+    SmtaMetadataEntry expectedSmtaEntry =
+        new SmtaMetadataEntry(/* captureFrameRate= */ 240, /* svcTemporalLayerCount= */ 4);
+    SlowMotionData expectedSlowMotionData =
+        new SlowMotionData(
+            ImmutableList.of(
+                new SlowMotionData.Segment(
+                    /* startTimeMs= */ 2128, /* endTimeMs= */ 9856, /* speedDivisor= */ 8)));
+    MdtaMetadataEntry expectedCaptureFpsMdtaEntry =
+        new MdtaMetadataEntry(
+            KEY_ANDROID_CAPTURE_FPS,
+            /* value= */ new byte[] {67, 112, 0, 0},
+            /* localeIndicator= */ 0,
+            /* typeIndicator= */ 23);
+
+    ListenableFuture<TrackGroupArray> trackGroupsFuture =
+        retrieveMetadata(context, mediaItem, clock);
+    ShadowLooper.idleMainLooper();
+    TrackGroupArray trackGroups = trackGroupsFuture.get(TEST_TIMEOUT_SEC, TimeUnit.SECONDS);
+
+    assertThat(trackGroups.length).isEqualTo(2); // Video and audio
+
+    // Video
+    Metadata videoFormatMetadata = trackGroups.get(0).getFormat(0).metadata;
+    List<Metadata.Entry> videoMetadataEntries = new ArrayList<>();
+    for (int i = 0; i < videoFormatMetadata.length(); i++) {
+      videoMetadataEntries.add(videoFormatMetadata.get(i));
+    }
+    assertThat(videoMetadataEntries).contains(expectedAndroidVersionMetadata);
+    assertThat(videoMetadataEntries).contains(expectedSlowMotionData);
+    assertThat(videoMetadataEntries).contains(expectedSmtaEntry);
+    assertThat(videoMetadataEntries).contains(expectedCaptureFpsMdtaEntry);
+
+    // Audio
+    Metadata audioFormatMetadata = trackGroups.get(1).getFormat(0).metadata;
+    List<Metadata.Entry> audioMetadataEntries = new ArrayList<>();
+    for (int i = 0; i < audioFormatMetadata.length(); i++) {
+      audioMetadataEntries.add(audioFormatMetadata.get(i));
+    }
+    assertThat(audioMetadataEntries).contains(expectedAndroidVersionMetadata);
+    assertThat(audioMetadataEntries).contains(expectedSlowMotionData);
+    assertThat(audioMetadataEntries).contains(expectedSmtaEntry);
   }
 
   @Test

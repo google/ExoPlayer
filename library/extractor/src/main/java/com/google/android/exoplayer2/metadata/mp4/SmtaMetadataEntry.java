@@ -25,7 +25,7 @@ import com.google.common.primitives.Floats;
 /**
  * Stores metadata from the Samsung smta box.
  *
- * <p>See [Internal: b/150138465#comment76].
+ * <p>See [Internal: b/150138465#comment76], [Internal: b/301273734#comment17].
  *
  * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
  *     contains the same ExoPlayer code). See <a
