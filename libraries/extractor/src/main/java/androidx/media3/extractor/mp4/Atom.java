@@ -360,6 +360,9 @@ import java.util.List;
   public static final int TYPE_saut = 0x73617574;
 
   @SuppressWarnings("ConstantCaseForConstants")
+  public static final int TYPE_srfr = 0x73726672;
+
+  @SuppressWarnings("ConstantCaseForConstants")
   public static final int TYPE_keys = 0x6b657973;
 
   @SuppressWarnings("ConstantCaseForConstants")

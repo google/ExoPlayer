@@ -46,7 +46,6 @@ import androidx.media3.extractor.GaplessInfoHolder;
 import androidx.media3.extractor.HevcConfig;
 import androidx.media3.extractor.OpusUtil;
 import androidx.media3.extractor.VorbisUtil;
-import androidx.media3.extractor.metadata.mp4.SmtaMetadataEntry;
 import androidx.media3.extractor.mp4.Atom.LeafAtom;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
@@ -177,7 +176,8 @@ import java.util.List;
       } else if (atomType == Atom.TYPE_smta) {
         udtaData.setPosition(atomPosition);
         metadata =
-            metadata.copyWithAppendedEntriesFrom(parseSmta(udtaData, atomPosition + atomSize));
+            metadata.copyWithAppendedEntriesFrom(
+                SmtaAtomUtil.parseSmta(udtaData, atomPosition + atomSize));
       } else if (atomType == Atom.TYPE_xyz) {
         metadata = metadata.copyWithAppendedEntriesFrom(parseXyz(udtaData));
       }
@@ -823,37 +823,6 @@ import java.util.List;
       // Invalid input.
       return null;
     }
-  }
-
-  /**
-   * Parses metadata from a Samsung smta atom.
-   *
-   * <p>See [Internal: b/150138465#comment76].
-   */
-  @Nullable
-  private static Metadata parseSmta(ParsableByteArray smta, int limit) {
-    smta.skipBytes(Atom.FULL_HEADER_SIZE);
-    while (smta.getPosition() < limit) {
-      int atomPosition = smta.getPosition();
-      int atomSize = smta.readInt();
-      int atomType = smta.readInt();
-      if (atomType == Atom.TYPE_saut) {
-        if (atomSize < 14) {
-          return null;
-        }
-        smta.skipBytes(5); // author (4), reserved = 0 (1).
-        int recordingMode = smta.readUnsignedByte();
-        if (recordingMode != 12 && recordingMode != 13) {
-          return null;
-        }
-        float captureFrameRate = recordingMode == 12 ? 240 : 120;
-        smta.skipBytes(1); // reserved = 1 (1).
-        int svcTemporalLayerCount = smta.readUnsignedByte();
-        return new Metadata(new SmtaMetadataEntry(captureFrameRate, svcTemporalLayerCount));
-      }
-      smta.setPosition(atomPosition + atomSize);
-    }
-    return null;
   }
 
   /**
