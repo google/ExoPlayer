@@ -17,9 +17,11 @@ package androidx.media3.demo.session
 
 import android.content.res.AssetManager
 import android.net.Uri
+import androidx.annotation.OptIn
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaItem.SubtitleConfiguration
 import androidx.media3.common.MediaMetadata
+import androidx.media3.common.util.UnstableApi
 import com.google.common.collect.ImmutableList
 import java.io.BufferedReader
 import java.lang.StringBuilder
@@ -275,6 +277,18 @@ object MediaItemTree {
     return treeNodes[id]?.item
   }
 
+  fun expandItem(item: MediaItem): MediaItem? {
+    val treeItem = getItem(item.mediaId) ?: return null
+    @OptIn(UnstableApi::class) // MediaMetadata.populate
+    val metadata = treeItem.mediaMetadata.buildUpon().populate(item.mediaMetadata).build()
+    return item
+      .buildUpon()
+      .setMediaMetadata(metadata)
+      .setSubtitleConfigurations(treeItem.localConfiguration?.subtitleConfigurations ?: listOf())
+      .setUri(treeItem.localConfiguration?.uri)
+      .build()
+  }
+
   /**
    * Returns the media ID of the parent of the given media ID, or null if the media ID wasn't found.
    *
@@ -340,19 +354,6 @@ object MediaItemTree {
 
   fun getChildren(id: String): List<MediaItem> {
     return treeNodes[id]?.getChildren() ?: listOf()
-  }
-
-  fun getRandomItem(): MediaItem {
-    var curRoot = getRootItem()
-    while (curRoot.mediaMetadata.isBrowsable == true) {
-      val children = getChildren(curRoot.mediaId)
-      curRoot = children.random()
-    }
-    return curRoot
-  }
-
-  fun getItemFromTitle(title: String): MediaItem? {
-    return titleMap[title]?.item
   }
 
   private fun normalizeSearchText(text: CharSequence?): String {

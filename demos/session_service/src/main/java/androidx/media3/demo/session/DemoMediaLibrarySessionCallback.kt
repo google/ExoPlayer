@@ -25,6 +25,7 @@ import androidx.media3.session.CommandButton
 import androidx.media3.session.LibraryResult
 import androidx.media3.session.MediaLibraryService
 import androidx.media3.session.MediaSession
+import androidx.media3.session.MediaSession.MediaItemsWithStartPosition
 import androidx.media3.session.SessionCommand
 import androidx.media3.session.SessionResult
 import com.google.common.collect.ImmutableList
@@ -32,7 +33,7 @@ import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
 
 /** A [MediaLibraryService.MediaLibrarySession.Callback] implementation. */
-open class DemoMediaLibrarySessionCallback(private val context: Context) :
+open class DemoMediaLibrarySessionCallback(context: Context) :
   MediaLibraryService.MediaLibrarySession.Callback {
 
   init {
@@ -155,14 +156,7 @@ open class DemoMediaLibrarySessionCallback(private val context: Context) :
     controller: MediaSession.ControllerInfo,
     mediaItems: List<MediaItem>
   ): ListenableFuture<List<MediaItem>> {
-    val playlist = mutableListOf<MediaItem>()
-    mediaItems.forEach { mediaItem ->
-      when (mediaItem.requestMetadata.searchQuery) {
-        null -> MediaItemTree.getItem(mediaItem.mediaId)?.let { playlist.add(it) }
-        else -> playlist.addAll(MediaItemTree.search(mediaItem.requestMetadata.searchQuery!!))
-      }
-    }
-    return Futures.immediateFuture(playlist)
+    return Futures.immediateFuture(resolveMediaItems(mediaItems))
   }
 
   @OptIn(UnstableApi::class) // MediaSession.MediaItemsWithStartPosition
@@ -172,34 +166,57 @@ open class DemoMediaLibrarySessionCallback(private val context: Context) :
     mediaItems: List<MediaItem>,
     startIndex: Int,
     startPositionMs: Long
-  ): ListenableFuture<MediaSession.MediaItemsWithStartPosition> {
+  ): ListenableFuture<MediaItemsWithStartPosition> {
     if (mediaItems.size == 1) {
       // Try to expand a single item to a playlist.
-      val mediaId = mediaItems.first().mediaId
-      val mediaItem = MediaItemTree.getItem(mediaId)
-      val playlist = mutableListOf<MediaItem>()
-      var indexInPlaylist = startIndex
-      mediaItem?.apply {
-        if (mediaMetadata.isBrowsable == true) {
-          // Get children browsable item.
-          playlist.addAll(MediaItemTree.getChildren(mediaId))
-        } else if (requestMetadata.searchQuery == null) {
-          // Try to get the parent and its children.
-          MediaItemTree.getParentId(mediaId)?.let {
-            playlist.addAll(MediaItemTree.getChildren(it))
-            indexInPlaylist = MediaItemTree.getIndexInMediaItems(mediaId, playlist)
-          }
-        }
-      }
-      if (playlist.isNotEmpty()) {
-        // Return the expanded playlist to be set on the player of the session.
-        return Futures.immediateFuture(
-          MediaSession.MediaItemsWithStartPosition(playlist, indexInPlaylist, startPositionMs)
-        )
+      maybeExpandSingleItemToPlaylist(mediaItems.first(), startIndex, startPositionMs)?.also {
+        return Futures.immediateFuture(it)
       }
     }
-    // Let super serve the request if item isn't expanded.
-    return super.onSetMediaItems(mediaSession, browser, mediaItems, startIndex, startPositionMs)
+    return Futures.immediateFuture(
+      MediaItemsWithStartPosition(resolveMediaItems(mediaItems), startIndex, startPositionMs)
+    )
+  }
+
+  private fun resolveMediaItems(mediaItems: List<MediaItem>): List<MediaItem> {
+    val playlist = mutableListOf<MediaItem>()
+    mediaItems.forEach { mediaItem ->
+      if (mediaItem.mediaId.isNotEmpty()) {
+        MediaItemTree.expandItem(mediaItem)?.let { playlist.add(it) }
+      } else if (mediaItem.requestMetadata.searchQuery != null) {
+        playlist.addAll(MediaItemTree.search(mediaItem.requestMetadata.searchQuery!!))
+      }
+    }
+    return playlist
+  }
+
+  @OptIn(UnstableApi::class) // MediaSession.MediaItemsWithStartPosition
+  private fun maybeExpandSingleItemToPlaylist(
+    mediaItem: MediaItem,
+    startIndex: Int,
+    startPositionMs: Long
+  ): MediaItemsWithStartPosition? {
+    var playlist = listOf<MediaItem>()
+    var indexInPlaylist = startIndex
+    MediaItemTree.getItem(mediaItem.mediaId)?.apply {
+      if (mediaMetadata.isBrowsable == true) {
+        // Get children browsable item.
+        playlist = MediaItemTree.getChildren(mediaId)
+      } else if (requestMetadata.searchQuery == null) {
+        // Try to get the parent and its children.
+        MediaItemTree.getParentId(mediaId)?.let {
+          playlist =
+            MediaItemTree.getChildren(it).map { mediaItem ->
+              if (mediaItem.mediaId == mediaId) MediaItemTree.expandItem(mediaItem)!! else mediaItem
+            }
+          indexInPlaylist = MediaItemTree.getIndexInMediaItems(mediaId, playlist)
+        }
+      }
+    }
+    if (playlist.isNotEmpty()) {
+      return MediaItemsWithStartPosition(playlist, indexInPlaylist, startPositionMs)
+    }
+    return null
   }
 
   override fun onSearch(
