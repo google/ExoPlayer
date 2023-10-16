@@ -15,17 +15,23 @@
  */
 package androidx.media3.session;
 
+import static androidx.media3.session.MediaSession.ConnectionResult.DEFAULT_PLAYER_COMMANDS;
+import static androidx.media3.session.RemoteMediaControllerCompat.QUEUE_IS_NULL;
 import static androidx.media3.test.session.common.TestUtils.TIMEOUT_MS;
 import static com.google.common.truth.Truth.assertThat;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.support.v4.media.session.MediaControllerCompat;
+import androidx.media3.common.MediaItem;
+import androidx.media3.common.Player;
 import androidx.media3.test.session.common.HandlerThreadTestRule;
 import androidx.media3.test.session.common.MainLooperTestRule;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import com.google.common.collect.ImmutableList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Before;
@@ -88,5 +94,60 @@ public class MediaSessionWithMediaControllerCompatTest {
 
     assertThat(connectedLatch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(controllerVersionRef.get()).isLessThan(1_000_000);
+  }
+
+  @Test
+  public void notificationController_commandGetTimelineNotAvailable_queueIsNull() throws Exception {
+    Player.Commands playerCommands =
+        DEFAULT_PLAYER_COMMANDS.buildUpon().remove(Player.COMMAND_GET_TIMELINE).build();
+    CountDownLatch connectedLatch = new CountDownLatch(1);
+    MediaSession.Callback callback =
+        new MediaSession.Callback() {
+          @Override
+          public MediaSession.ConnectionResult onConnect(
+              MediaSession session, MediaSession.ControllerInfo controller) {
+            if (session.isMediaNotificationController(controller)) {
+              return new MediaSession.ConnectionResult.AcceptedResultBuilder(session)
+                  .setAvailablePlayerCommands(playerCommands)
+                  .build();
+            }
+            connectedLatch.countDown();
+            return MediaSession.Callback.super.onConnect(session, controller);
+          }
+        };
+    player.timeline =
+        new PlaylistTimeline(
+            ImmutableList.of(
+                new MediaItem.Builder().setMediaId("id1").setUri("https://example.com/1").build(),
+                new MediaItem.Builder().setMediaId("id2").setUri("https://example.com/2").build()));
+    MediaSession session =
+        sessionTestRule.ensureReleaseAfterTest(
+            new MediaSession.Builder(context, player).setId(TAG).setCallback(callback).build());
+    Bundle connectionHints = new Bundle();
+    connectionHints.putBoolean(MediaNotificationManager.KEY_MEDIA_NOTIFICATION_MANAGER, true);
+    new MediaController.Builder(context.getApplicationContext(), session.getToken())
+        .setConnectionHints(connectionHints)
+        .buildAsync()
+        .get();
+
+    RemoteMediaControllerCompat controllerCompat =
+        remoteControllerTestRule.createRemoteControllerCompat(
+            session.getSessionCompat().getSessionToken());
+    controllerCompat.transportControls.play();
+
+    assertThat(connectedLatch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(controllerCompat.getQueueSize()).isEqualTo(QUEUE_IS_NULL);
+
+    session.setAvailableCommands(
+        session.getMediaNotificationControllerInfo(),
+        SessionCommands.EMPTY,
+        Player.Commands.EMPTY.buildUpon().add(Player.COMMAND_GET_TIMELINE).build());
+    RemoteMediaControllerCompat controllerCompat2 =
+        remoteControllerTestRule.createRemoteControllerCompat(
+            session.getSessionCompat().getSessionToken());
+    controllerCompat2.transportControls.pause();
+
+    assertThat(controllerCompat.getQueueSize()).isEqualTo(2);
+    assertThat(controllerCompat2.getQueueSize()).isEqualTo(2);
   }
 }

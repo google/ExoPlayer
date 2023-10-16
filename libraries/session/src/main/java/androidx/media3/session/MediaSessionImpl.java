@@ -476,7 +476,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       ControllerInfo controller, ImmutableList<CommandButton> customLayout) {
     if (isMediaNotificationController(controller)) {
       playerWrapper.setCustomLayout(customLayout);
-      sessionLegacyStub.updateLegacySessionPlaybackStateCompat();
+      sessionLegacyStub.updateLegacySessionPlaybackState(playerWrapper);
     }
     return dispatchRemoteControllerTask(
         controller, (controller1, seq) -> controller1.setCustomLayout(seq, customLayout));
@@ -519,8 +519,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       ControllerInfo controller, SessionCommands sessionCommands, Player.Commands playerCommands) {
     if (sessionStub.getConnectedControllersManager().isConnected(controller)) {
       if (isMediaNotificationController(controller)) {
-        playerWrapper.setAvailableCommands(sessionCommands, playerCommands);
-        sessionLegacyStub.updateLegacySessionPlaybackStateCompat();
+        setAvailableFrameworkControllerCommands(sessionCommands, playerCommands);
         ControllerInfo systemUiControllerInfo = getSystemUiControllerInfo();
         if (systemUiControllerInfo != null) {
           // Set the available commands of the proxy controller to the ConnectedControllerRecord of
@@ -618,13 +617,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             "Callback.onConnect must return non-null future");
     if (isMediaNotificationController(controller)) {
       isMediaNotificationControllerConnected = true;
-      playerWrapper.setAvailableCommands(
-          connectionResult.availableSessionCommands, connectionResult.availablePlayerCommands);
       playerWrapper.setCustomLayout(
           connectionResult.customLayout != null
               ? connectionResult.customLayout
               : instance.getCustomLayout());
-      sessionLegacyStub.updateLegacySessionPlaybackStateCompat();
+      setAvailableFrameworkControllerCommands(
+          connectionResult.availableSessionCommands, connectionResult.availablePlayerCommands);
     }
     return connectionResult;
   }
@@ -894,6 +892,19 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           }
         },
         executor);
+  }
+
+  private void setAvailableFrameworkControllerCommands(
+      SessionCommands sessionCommands, Player.Commands playerCommands) {
+    boolean commandGetTimelineChanged =
+        playerWrapper.getAvailablePlayerCommands().contains(Player.COMMAND_GET_TIMELINE)
+            != playerCommands.contains(Player.COMMAND_GET_TIMELINE);
+    playerWrapper.setAvailableCommands(sessionCommands, playerCommands);
+    if (commandGetTimelineChanged) {
+      sessionLegacyStub.updateLegacySessionPlaybackStateAndQueue(playerWrapper);
+    } else {
+      sessionLegacyStub.updateLegacySessionPlaybackState(playerWrapper);
+    }
   }
 
   private void dispatchRemoteControllerTaskToLegacyStub(RemoteControllerTask task) {

@@ -24,6 +24,12 @@
 *   Muxers:
 *   IMA extension:
 *   Session:
+    *   Do not set the queue of the framework session when
+        `COMMAND_GET_TIMELINE` is not available for the media notification
+        controller. With Android Auto as the client controller reading from the
+        framework session, this has the effect that the `queue` button in the UI
+        of Android Auto is not displayed
+        (([#339](https://github.com/androidx/media/issues/339)).
 *   UI:
 *   Downloads:
 *   OkHttp Extension:
