@@ -524,7 +524,10 @@ import java.util.concurrent.ExecutionException;
             }
             try {
               caller.onConnected(
-                  sequencedFutureManager.obtainNextSequenceNumber(), state.toBundle());
+                  sequencedFutureManager.obtainNextSequenceNumber(),
+                  caller instanceof MediaControllerStub
+                      ? state.toBundleInProcess()
+                      : state.toBundle());
               connected = true;
             } catch (RemoteException e) {
               // Controller may be died prematurely.

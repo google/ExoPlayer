@@ -30,18 +30,21 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import android.content.Context;
 import android.os.Bundle;
 import android.text.TextUtils;
+import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MediaLibraryInfo;
 import androidx.media3.common.Player;
 import androidx.media3.common.Rating;
 import androidx.media3.common.StarRating;
+import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.session.MediaSession.ConnectionResult.AcceptedResultBuilder;
 import androidx.media3.session.MediaSession.ControllerInfo;
 import androidx.media3.test.session.R;
 import androidx.media3.test.session.common.HandlerThreadTestRule;
 import androidx.media3.test.session.common.MainLooperTestRule;
 import androidx.media3.test.session.common.TestUtils;
+import androidx.media3.test.utils.TestExoPlayerBuilder;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -650,7 +653,7 @@ public class MediaSessionCallbackTest {
     RemoteMediaController controller =
         controllerTestRule.createRemoteController(session.getToken());
 
-    controller.setMediaItems(mediaItems, /* startWindowIndex= */ 1, /* startPositionMs= */ 1234);
+    controller.setMediaItems(mediaItems, /* startIndex= */ 1, /* startPositionMs= */ 1234);
     player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS_WITH_START_INDEX, TIMEOUT_MS);
 
     assertThat(requestedMediaItems.get()).containsExactlyElementsIn(mediaItems).inOrder();
@@ -950,7 +953,7 @@ public class MediaSessionCallbackTest {
                 new MediaSession.MediaItemsWithStartPosition(
                     updateMediaItemsWithLocalConfiguration(mediaItems),
                     startIndex,
-                    /* startPosition= */ 200));
+                    /* startPositionMs= */ 200));
           }
         };
     MediaSession session =
@@ -959,7 +962,7 @@ public class MediaSessionCallbackTest {
     RemoteMediaController controller =
         controllerTestRule.createRemoteController(session.getToken());
 
-    controller.setMediaItems(mediaItems, /* startWindowIndex= */ 1, /* startPositionMs= */ 100);
+    controller.setMediaItems(mediaItems, /* startIndex= */ 1, /* startPositionMs= */ 100);
     player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS_WITH_START_INDEX, TIMEOUT_MS);
 
     assertThat(requestedMediaItems.get()).containsExactlyElementsIn(mediaItems).inOrder();
@@ -999,7 +1002,7 @@ public class MediaSessionCallbackTest {
     RemoteMediaController controller =
         controllerTestRule.createRemoteController(session.getToken());
 
-    controller.setMediaItems(mediaItems, /* startWindowIndex= */ 1, /* startPositionMs= */ 100);
+    controller.setMediaItems(mediaItems, /* startIndex= */ 1, /* startPositionMs= */ 100);
     player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS_WITH_RESET_POSITION, TIMEOUT_MS);
 
     assertThat(requestedMediaItems.get()).containsExactlyElementsIn(mediaItems).inOrder();
@@ -1045,7 +1048,7 @@ public class MediaSessionCallbackTest {
     player.currentPosition = 200;
 
     // Re-set media items with start index and position as current index and position
-    controller.setMediaItems(mediaItems, C.INDEX_UNSET, /* startPosition= */ 0);
+    controller.setMediaItems(mediaItems, C.INDEX_UNSET, /* startPositionMs= */ 0);
     player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS_WITH_START_INDEX, TIMEOUT_MS);
 
     assertThat(requestedMediaItems.get()).containsExactlyElementsIn(mediaItems).inOrder();
@@ -1199,6 +1202,66 @@ public class MediaSessionCallbackTest {
         controllerTestRule.createRemoteController(session.getToken());
     controller.release();
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+  }
+
+  @Test
+  public void seekToNextMediaItem_inProcessController_correctMediaItemTransitionsEvents()
+      throws Exception {
+    MediaItem mediaItem1 =
+        new MediaItem.Builder().setMediaId("id1").setUri("http://www.example.com/1").build();
+    MediaItem mediaItem2 =
+        new MediaItem.Builder().setMediaId("id2").setUri("http://www.example.com/2").build();
+    ExoPlayer testPlayer =
+        threadTestRule
+            .getHandler()
+            .postAndSync(
+                () -> {
+                  ExoPlayer exoPlayer = new TestExoPlayerBuilder(context).build();
+                  exoPlayer.setMediaItems(ImmutableList.of(mediaItem1, mediaItem2));
+                  return exoPlayer;
+                });
+    List<String> capturedMediaItemIds = new ArrayList<>();
+    List<Player.Events> capturedEvents = new ArrayList<>();
+    List<String> eventOrder = new ArrayList<>();
+    CountDownLatch latch = new CountDownLatch(1);
+    MediaSession session =
+        sessionTestRule.ensureReleaseAfterTest(
+            new MediaSession.Builder(context, testPlayer)
+                .setId("seekToNextMediaItem_inProcessController_correctMediaItemTransitionsEvents")
+                .build());
+    MediaController controller =
+        new MediaController.Builder(ApplicationProvider.getApplicationContext(), session.getToken())
+            .setApplicationLooper(threadTestRule.getHandler().getLooper())
+            .buildAsync()
+            .get();
+    controller.addListener(
+        new Player.Listener() {
+          @Override
+          public void onMediaItemTransition(@Nullable MediaItem mediaItem, int reason) {
+            capturedMediaItemIds.add(controller.getCurrentMediaItem().mediaId);
+            eventOrder.add("onMediaItemTransition");
+          }
+
+          @Override
+          public void onEvents(Player player, Player.Events events) {
+            if (events.contains(Player.EVENT_MEDIA_ITEM_TRANSITION)) {
+              capturedMediaItemIds.add(controller.getCurrentMediaItem().mediaId);
+              capturedEvents.add(events);
+              eventOrder.add("onEvents");
+              latch.countDown();
+            }
+          }
+        });
+
+    threadTestRule.getHandler().postAndSync(testPlayer::seekToNextMediaItem);
+
+    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(capturedMediaItemIds).containsExactly("id2", "id2").inOrder();
+    assertThat(eventOrder).containsExactly("onMediaItemTransition", "onEvents").inOrder();
+    assertThat(capturedEvents).hasSize(1);
+    assertThat(capturedEvents.get(0).size()).isEqualTo(2);
+    assertThat(capturedEvents.get(0).contains(Player.EVENT_MEDIA_ITEM_TRANSITION)).isTrue();
+    assertThat(capturedEvents.get(0).contains(Player.EVENT_POSITION_DISCONTINUITY)).isTrue();
   }
 
   private static MediaItem updateMediaItemWithLocalConfiguration(MediaItem mediaItem) {
