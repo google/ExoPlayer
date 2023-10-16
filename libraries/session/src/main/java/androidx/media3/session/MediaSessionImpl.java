@@ -15,15 +15,28 @@
  */
 package androidx.media3.session;
 
+import static android.view.KeyEvent.KEYCODE_MEDIA_FAST_FORWARD;
+import static android.view.KeyEvent.KEYCODE_MEDIA_NEXT;
+import static android.view.KeyEvent.KEYCODE_MEDIA_PAUSE;
+import static android.view.KeyEvent.KEYCODE_MEDIA_PLAY;
+import static android.view.KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE;
+import static android.view.KeyEvent.KEYCODE_MEDIA_PREVIOUS;
+import static android.view.KeyEvent.KEYCODE_MEDIA_REWIND;
+import static android.view.KeyEvent.KEYCODE_MEDIA_SKIP_BACKWARD;
+import static android.view.KeyEvent.KEYCODE_MEDIA_SKIP_FORWARD;
+import static android.view.KeyEvent.KEYCODE_MEDIA_STOP;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
+import static androidx.media3.common.util.Util.SDK_INT;
 import static androidx.media3.common.util.Util.postOrRun;
+import static androidx.media3.session.MediaSessionStub.UNKNOWN_SEQUENCE_NUMBER;
 import static androidx.media3.session.SessionResult.RESULT_ERROR_SESSION_DISCONNECTED;
 import static androidx.media3.session.SessionResult.RESULT_ERROR_UNKNOWN;
 import static androidx.media3.session.SessionResult.RESULT_INFO_SKIPPED;
 import static java.lang.Math.min;
 
 import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -37,6 +50,7 @@ import android.os.Process;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.support.v4.media.session.MediaSessionCompat;
+import android.view.KeyEvent;
 import androidx.annotation.CheckResult;
 import androidx.annotation.FloatRange;
 import androidx.annotation.GuardedBy;
@@ -134,7 +148,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private boolean closed;
 
   // Should be only accessed on the application looper
-  private final List<Player.Listener> wrapperListeners;
   private long sessionPositionUpdateDelayMs;
   private boolean isMediaNotificationControllerConnected;
   private ImmutableList<CommandButton> customLayout;
@@ -161,7 +174,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     sessionStub = new MediaSessionStub(thisRef);
     this.sessionActivity = sessionActivity;
     this.customLayout = customLayout;
-    wrapperListeners = new ArrayList<>();
 
     mainHandler = new Handler(Looper.getMainLooper());
     applicationHandler = new Handler(player.getApplicationLooper());
@@ -240,38 +252,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             playerWrapper.getAvailablePlayerCommands()));
   }
 
-  public void addPlayerListener(Player.Listener listener) {
-    postOrRun(
-        applicationHandler,
-        () -> {
-          wrapperListeners.add(listener);
-          playerWrapper.addListener(listener);
-        });
-  }
-
-  public void removePlayerListener(Player.Listener listener) {
-    postOrRun(
-        applicationHandler,
-        () -> {
-          playerWrapper.removeListener(listener);
-          wrapperListeners.remove(listener);
-        });
-  }
-
   private void setPlayerInternal(
       @Nullable PlayerWrapper oldPlayerWrapper, PlayerWrapper newPlayerWrapper) {
     playerWrapper = newPlayerWrapper;
     if (oldPlayerWrapper != null) {
       oldPlayerWrapper.removeListener(checkStateNotNull(this.playerListener));
-      for (int i = 0; i < wrapperListeners.size(); i++) {
-        oldPlayerWrapper.removeListener(wrapperListeners.get(i));
-      }
     }
     PlayerListener playerListener = new PlayerListener(this, newPlayerWrapper);
     newPlayerWrapper.addListener(playerListener);
-    for (int i = 0; i < wrapperListeners.size(); i++) {
-      newPlayerWrapper.addListener(wrapperListeners.get(i));
-    }
     this.playerListener = playerListener;
 
     dispatchRemoteControllerTaskToLegacyStub(
@@ -303,10 +291,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             if (playerListener != null) {
               playerWrapper.removeListener(playerListener);
             }
-            for (int i = 0; i < wrapperListeners.size(); i++) {
-              playerWrapper.removeListener(wrapperListeners.get(i));
-            }
-            wrapperListeners.clear();
           });
     } catch (Exception e) {
       // Catch all exceptions to ensure the rest of this method to be executed as exceptions may be
@@ -1087,6 +1071,75 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     // COMMAND_ADJUST_DEVICE_VOLUME or COMMAND_SET_DEVICE_VOLUME value has changed.
     dispatchRemoteControllerTaskToLegacyStub(
         (callback, seq) -> callback.onDeviceInfoChanged(seq, playerInfo.deviceInfo));
+  }
+
+  /* package */ boolean onMediaButtonEvent(Intent intent) {
+    KeyEvent keyEvent = DefaultActionFactory.getKeyEvent(intent);
+    ComponentName intentComponent = intent.getComponent();
+    if (!Objects.equals(intent.getAction(), Intent.ACTION_MEDIA_BUTTON)
+        || (intentComponent != null
+            && !Objects.equals(intentComponent.getPackageName(), context.getPackageName()))
+        || keyEvent == null
+        || keyEvent.getAction() != KeyEvent.ACTION_DOWN) {
+      return false;
+    }
+    ControllerInfo controllerInfo = getMediaNotificationControllerInfo();
+    if (controllerInfo == null) {
+      if (intentComponent != null) {
+        // Fallback to legacy if this is a media button event sent to one of our components.
+        return getSessionCompat().getController().dispatchMediaButtonEvent(keyEvent)
+            || SDK_INT < 21;
+      }
+      return false;
+    }
+
+    Runnable command;
+    switch (keyEvent.getKeyCode()) {
+      case KEYCODE_MEDIA_PLAY_PAUSE:
+        command =
+            getPlayerWrapper().getPlayWhenReady()
+                ? () -> sessionStub.pauseForControllerInfo(controllerInfo, UNKNOWN_SEQUENCE_NUMBER)
+                : () -> sessionStub.playForControllerInfo(controllerInfo, UNKNOWN_SEQUENCE_NUMBER);
+        break;
+      case KEYCODE_MEDIA_PLAY:
+        command = () -> sessionStub.playForControllerInfo(controllerInfo, UNKNOWN_SEQUENCE_NUMBER);
+        break;
+      case KEYCODE_MEDIA_PAUSE:
+        command = () -> sessionStub.pauseForControllerInfo(controllerInfo, UNKNOWN_SEQUENCE_NUMBER);
+        break;
+      case KEYCODE_MEDIA_NEXT: // Fall through.
+      case KEYCODE_MEDIA_SKIP_FORWARD:
+        command =
+            () -> sessionStub.seekToNextForControllerInfo(controllerInfo, UNKNOWN_SEQUENCE_NUMBER);
+        break;
+      case KEYCODE_MEDIA_PREVIOUS: // Fall through.
+      case KEYCODE_MEDIA_SKIP_BACKWARD:
+        command =
+            () ->
+                sessionStub.seekToPreviousForControllerInfo(
+                    controllerInfo, UNKNOWN_SEQUENCE_NUMBER);
+        break;
+      case KEYCODE_MEDIA_FAST_FORWARD:
+        command =
+            () -> sessionStub.seekForwardForControllerInfo(controllerInfo, UNKNOWN_SEQUENCE_NUMBER);
+        break;
+      case KEYCODE_MEDIA_REWIND:
+        command =
+            () -> sessionStub.seekBackForControllerInfo(controllerInfo, UNKNOWN_SEQUENCE_NUMBER);
+        break;
+      case KEYCODE_MEDIA_STOP:
+        command = () -> sessionStub.stopForControllerInfo(controllerInfo, UNKNOWN_SEQUENCE_NUMBER);
+        break;
+      default:
+        return false;
+    }
+    postOrRun(
+        getApplicationHandler(),
+        () -> {
+          command.run();
+          sessionStub.getConnectedControllersManager().flushCommandQueue(controllerInfo);
+        });
+    return true;
   }
 
   /* @FunctionalInterface */

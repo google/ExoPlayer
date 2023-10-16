@@ -31,7 +31,6 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.RemoteException;
-import android.view.KeyEvent;
 import androidx.annotation.CallSuper;
 import androidx.annotation.DoNotInline;
 import androidx.annotation.GuardedBy;
@@ -157,7 +156,7 @@ public abstract class MediaSessionService extends Service {
   /** The action for {@link Intent} filter that must be declared by the service. */
   public static final String SERVICE_INTERFACE = "androidx.media3.session.MediaSessionService";
 
-  private static final String TAG = "MSSImpl";
+  private static final String TAG = "MSessionService";
 
   private final Object lock;
   private final Handler mainHandler;
@@ -426,9 +425,8 @@ public abstract class MediaSessionService extends Service {
         }
         addSession(session);
       }
-      @Nullable KeyEvent keyEvent = actionFactory.getKeyEvent(intent);
-      if (keyEvent != null) {
-        getMediaNotificationManager().onMediaButtonEvent(session, keyEvent);
+      if (!session.getImpl().onMediaButtonEvent(intent)) {
+        Log.w(TAG, "Ignoring unrecognized media button intent.");
       }
     } else if (session != null && actionFactory.isCustomAction(intent)) {
       @Nullable String customAction = actionFactory.getCustomAction(intent);

@@ -26,6 +26,7 @@ import static androidx.media3.test.session.common.TestUtils.NO_RESPONSE_TIMEOUT_
 import static androidx.media3.test.session.common.TestUtils.TIMEOUT_MS;
 import static com.google.common.truth.Truth.assertThat;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static org.junit.Assert.fail;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -43,6 +44,7 @@ import androidx.media3.session.MediaSession.ControllerInfo;
 import androidx.media3.test.session.R;
 import androidx.media3.test.session.common.HandlerThreadTestRule;
 import androidx.media3.test.session.common.MainLooperTestRule;
+import androidx.media3.test.session.common.TestHandler;
 import androidx.media3.test.session.common.TestUtils;
 import androidx.media3.test.utils.TestExoPlayerBuilder;
 import androidx.test.core.app.ApplicationProvider;
@@ -61,7 +63,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -73,15 +74,27 @@ import org.junit.runner.RunWith;
 @LargeTest
 public class MediaSessionCallbackTest {
 
-  private static final String TAG = "MSessionCallbackTest";
-
+  // Prepares the main looper.
   @ClassRule public static MainLooperTestRule mainLooperTestRule = new MainLooperTestRule();
 
-  @Rule public final HandlerThreadTestRule threadTestRule = new HandlerThreadTestRule(TAG);
+  @Rule
+  public final HandlerThreadTestRule playerThreadTestRule =
+      new HandlerThreadTestRule("MSessionCallbackTest:player");
 
-  @Rule public final RemoteControllerTestRule controllerTestRule = new RemoteControllerTestRule();
+  @Rule
+  public final HandlerThreadTestRule controllerThreadTestRule =
+      new HandlerThreadTestRule("MSessionCallbackTest:controller");
 
   @Rule public final MediaSessionTestRule sessionTestRule = new MediaSessionTestRule();
+
+  // Used to create controllers in the service running in a different process.
+  @Rule
+  public final RemoteControllerTestRule remoteControllerTestRule = new RemoteControllerTestRule();
+
+  // Used to create controllers on a different thread in the local process.
+  @Rule
+  public final MediaControllerTestRule controllerTestRule =
+      new MediaControllerTestRule(controllerThreadTestRule);
 
   private Context context;
   private MockPlayer player;
@@ -92,7 +105,7 @@ public class MediaSessionCallbackTest {
     context = ApplicationProvider.getApplicationContext();
     player =
         new MockPlayer.Builder()
-            .setApplicationLooper(threadTestRule.getHandler().getLooper())
+            .setApplicationLooper(playerThreadTestRule.getHandler().getLooper())
             .build();
     // Intentionally use an Executor with another thread to test asynchronous workflows involving
     // background tasks.
@@ -129,7 +142,7 @@ public class MediaSessionCallbackTest {
                 .setId("testOnConnect_correctControllerVersions")
                 .build());
 
-    controllerTestRule.createRemoteController(session.getToken());
+    remoteControllerTestRule.createRemoteController(session.getToken());
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(controllerVersion.get()).isEqualTo(MediaLibraryInfo.VERSION_INT);
@@ -185,7 +198,7 @@ public class MediaSessionCallbackTest {
                     "onConnect_acceptWithMissingSessionCommand_buttonDisabledAndPermissionDenied")
                 .build());
     RemoteMediaController remoteController =
-        controllerTestRule.createRemoteController(session.getToken());
+        remoteControllerTestRule.createRemoteController(session.getToken());
 
     ImmutableList<CommandButton> layout = remoteController.getCustomLayout();
 
@@ -215,7 +228,7 @@ public class MediaSessionCallbackTest {
                 .setId("onConnect_emptyPlayerCommands_commandReleaseAlwaysIncluded")
                 .build());
     RemoteMediaController remoteController =
-        controllerTestRule.createRemoteController(session.getToken());
+        remoteControllerTestRule.createRemoteController(session.getToken());
 
     assertThat(remoteController.getAvailableCommands().size()).isEqualTo(1);
     assertThat(remoteController.getAvailableCommands().contains(Player.COMMAND_RELEASE)).isTrue();
@@ -237,7 +250,7 @@ public class MediaSessionCallbackTest {
                 .setCallback(callback)
                 .setId("testOnPostConnect_afterConnected")
                 .build());
-    controllerTestRule.createRemoteController(session.getToken());
+    remoteControllerTestRule.createRemoteController(session.getToken());
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
   }
 
@@ -263,7 +276,7 @@ public class MediaSessionCallbackTest {
                 .setCallback(callback)
                 .setId("testOnPostConnect_afterConnectionRejected")
                 .build());
-    controllerTestRule.createRemoteController(session.getToken());
+    remoteControllerTestRule.createRemoteController(session.getToken());
     assertThat(latch.await(NO_RESPONSE_TIMEOUT_MS, MILLISECONDS)).isFalse();
   }
 
@@ -296,7 +309,7 @@ public class MediaSessionCallbackTest {
                 .setId("testOnCommandRequest")
                 .build());
     RemoteMediaController controller =
-        controllerTestRule.createRemoteController(session.getToken());
+        remoteControllerTestRule.createRemoteController(session.getToken());
 
     controller.prepare();
     Thread.sleep(NO_RESPONSE_TIMEOUT_MS);
@@ -358,7 +371,7 @@ public class MediaSessionCallbackTest {
                 .setId("testOnCustomCommand")
                 .build());
     RemoteMediaController controller =
-        controllerTestRule.createRemoteController(session.getToken());
+        remoteControllerTestRule.createRemoteController(session.getToken());
     SessionResult result = controller.sendCustomCommand(testCommand, testArgs);
     assertThat(result.resultCode).isEqualTo(RESULT_SUCCESS);
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
@@ -398,7 +411,7 @@ public class MediaSessionCallbackTest {
                 .setId("testOnSetRating")
                 .build());
     RemoteMediaController controller =
-        controllerTestRule.createRemoteController(session.getToken());
+        remoteControllerTestRule.createRemoteController(session.getToken());
     SessionResult result = controller.setRating(testMediaId, testRating);
     assertThat(result.resultCode).isEqualTo(RESULT_SUCCESS);
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
@@ -434,7 +447,7 @@ public class MediaSessionCallbackTest {
                 .setId("testOnSetRating")
                 .build());
     RemoteMediaController controller =
-        controllerTestRule.createRemoteController(session.getToken());
+        remoteControllerTestRule.createRemoteController(session.getToken());
     SessionResult result = controller.setRating(testRating);
     assertThat(result.resultCode).isEqualTo(RESULT_SUCCESS);
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
@@ -459,7 +472,7 @@ public class MediaSessionCallbackTest {
         sessionTestRule.ensureReleaseAfterTest(
             new MediaSession.Builder(context, player).setCallback(callback).build());
     RemoteMediaController controller =
-        controllerTestRule.createRemoteController(session.getToken());
+        remoteControllerTestRule.createRemoteController(session.getToken());
 
     controller.setMediaItem(mediaItem);
     player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS_WITH_RESET_POSITION, TIMEOUT_MS);
@@ -476,7 +489,7 @@ public class MediaSessionCallbackTest {
     MediaSession session =
         sessionTestRule.ensureReleaseAfterTest(new MediaSession.Builder(context, player).build());
     RemoteMediaController controller =
-        controllerTestRule.createRemoteController(session.getToken());
+        remoteControllerTestRule.createRemoteController(session.getToken());
 
     // Default MediaSession.Callback.onAddMediaItems will be called
     controller.setMediaItemIncludeLocalConfiguration(mediaItemWithoutLocalConfiguration);
@@ -498,7 +511,7 @@ public class MediaSessionCallbackTest {
     MediaSession session =
         sessionTestRule.ensureReleaseAfterTest(new MediaSession.Builder(context, player).build());
     RemoteMediaController controller =
-        controllerTestRule.createRemoteController(session.getToken());
+        remoteControllerTestRule.createRemoteController(session.getToken());
 
     // Default MediaSession.Callback.onAddMediaItems will be called
     controller.setMediaItemsIncludeLocalConfiguration(mediaItemsWithoutLocalConfiguration);
@@ -518,7 +531,7 @@ public class MediaSessionCallbackTest {
     MediaSession session =
         sessionTestRule.ensureReleaseAfterTest(new MediaSession.Builder(context, player).build());
     RemoteMediaController controller =
-        controllerTestRule.createRemoteController(session.getToken());
+        remoteControllerTestRule.createRemoteController(session.getToken());
 
     // Default MediaSession.Callback.onAddMediaItems will be called
     controller.setMediaItemIncludeLocalConfiguration(mediaItemWithLocalConfiguration);
@@ -538,7 +551,7 @@ public class MediaSessionCallbackTest {
     MediaSession session =
         sessionTestRule.ensureReleaseAfterTest(new MediaSession.Builder(context, player).build());
     RemoteMediaController controller =
-        controllerTestRule.createRemoteController(session.getToken());
+        remoteControllerTestRule.createRemoteController(session.getToken());
 
     // Default MediaSession.Callback.onAddMediaItems will be called
     controller.setMediaItemsIncludeLocalConfiguration(fullMediaItems);
@@ -565,7 +578,7 @@ public class MediaSessionCallbackTest {
         sessionTestRule.ensureReleaseAfterTest(
             new MediaSession.Builder(context, player).setCallback(callback).build());
     RemoteMediaController controller =
-        controllerTestRule.createRemoteController(session.getToken());
+        remoteControllerTestRule.createRemoteController(session.getToken());
 
     controller.setMediaItem(mediaItem, /* startPositionMs= */ 1234);
     player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS_WITH_START_INDEX, TIMEOUT_MS);
@@ -594,7 +607,7 @@ public class MediaSessionCallbackTest {
         sessionTestRule.ensureReleaseAfterTest(
             new MediaSession.Builder(context, player).setCallback(callback).build());
     RemoteMediaController controller =
-        controllerTestRule.createRemoteController(session.getToken());
+        remoteControllerTestRule.createRemoteController(session.getToken());
 
     controller.setMediaItem(mediaItem, /* resetPosition= */ true);
     player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS_WITH_RESET_POSITION, TIMEOUT_MS);
@@ -622,7 +635,7 @@ public class MediaSessionCallbackTest {
         sessionTestRule.ensureReleaseAfterTest(
             new MediaSession.Builder(context, player).setCallback(callback).build());
     RemoteMediaController controller =
-        controllerTestRule.createRemoteController(session.getToken());
+        remoteControllerTestRule.createRemoteController(session.getToken());
 
     controller.setMediaItems(mediaItems);
     player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS_WITH_RESET_POSITION, TIMEOUT_MS);
@@ -651,7 +664,7 @@ public class MediaSessionCallbackTest {
         sessionTestRule.ensureReleaseAfterTest(
             new MediaSession.Builder(context, player).setCallback(callback).build());
     RemoteMediaController controller =
-        controllerTestRule.createRemoteController(session.getToken());
+        remoteControllerTestRule.createRemoteController(session.getToken());
 
     controller.setMediaItems(mediaItems, /* startIndex= */ 1, /* startPositionMs= */ 1234);
     player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS_WITH_START_INDEX, TIMEOUT_MS);
@@ -682,7 +695,7 @@ public class MediaSessionCallbackTest {
         sessionTestRule.ensureReleaseAfterTest(
             new MediaSession.Builder(context, player).setCallback(callback).build());
     RemoteMediaController controller =
-        controllerTestRule.createRemoteController(session.getToken());
+        remoteControllerTestRule.createRemoteController(session.getToken());
 
     controller.setMediaItems(mediaItems, /* resetPosition= */ true);
     player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS_WITH_RESET_POSITION, TIMEOUT_MS);
@@ -712,7 +725,7 @@ public class MediaSessionCallbackTest {
         sessionTestRule.ensureReleaseAfterTest(
             new MediaSession.Builder(context, player).setCallback(callback).build());
     RemoteMediaController controller =
-        controllerTestRule.createRemoteController(session.getToken());
+        remoteControllerTestRule.createRemoteController(session.getToken());
 
     controller.addMediaItem(mediaItem);
     player.awaitMethodCalled(MockPlayer.METHOD_ADD_MEDIA_ITEMS, TIMEOUT_MS);
@@ -729,7 +742,7 @@ public class MediaSessionCallbackTest {
     MediaSession session =
         sessionTestRule.ensureReleaseAfterTest(new MediaSession.Builder(context, player).build());
     RemoteMediaController controller =
-        controllerTestRule.createRemoteController(session.getToken());
+        remoteControllerTestRule.createRemoteController(session.getToken());
 
     // Default MediaSession.Callback.onAddMediaItems will be called
     controller.addMediaItemIncludeLocalConfiguration(mediaItemWithoutLocalConfiguration);
@@ -750,7 +763,7 @@ public class MediaSessionCallbackTest {
     MediaSession session =
         sessionTestRule.ensureReleaseAfterTest(new MediaSession.Builder(context, player).build());
     RemoteMediaController controller =
-        controllerTestRule.createRemoteController(session.getToken());
+        remoteControllerTestRule.createRemoteController(session.getToken());
 
     // Default MediaSession.Callback.onAddMediaItems will be called
     controller.addMediaItemsIncludeLocalConfiguration(mediaItemsWithoutLocalConfiguration);
@@ -769,7 +782,7 @@ public class MediaSessionCallbackTest {
     MediaSession session =
         sessionTestRule.ensureReleaseAfterTest(new MediaSession.Builder(context, player).build());
     RemoteMediaController controller =
-        controllerTestRule.createRemoteController(session.getToken());
+        remoteControllerTestRule.createRemoteController(session.getToken());
 
     // Default MediaSession.Callback.onAddMediaItems will be called
     controller.addMediaItemIncludeLocalConfiguration(mediaItemWithLocalConfiguration);
@@ -789,7 +802,7 @@ public class MediaSessionCallbackTest {
     MediaSession session =
         sessionTestRule.ensureReleaseAfterTest(new MediaSession.Builder(context, player).build());
     RemoteMediaController controller =
-        controllerTestRule.createRemoteController(session.getToken());
+        remoteControllerTestRule.createRemoteController(session.getToken());
 
     // Default MediaSession.Callback.onAddMediaItems will be called
     controller.addMediaItemsIncludeLocalConfiguration(fullMediaItems);
@@ -817,7 +830,7 @@ public class MediaSessionCallbackTest {
         sessionTestRule.ensureReleaseAfterTest(
             new MediaSession.Builder(context, player).setCallback(callback).build());
     RemoteMediaController controller =
-        controllerTestRule.createRemoteController(session.getToken());
+        remoteControllerTestRule.createRemoteController(session.getToken());
     controller.setMediaItem(existingItem);
 
     controller.addMediaItem(/* index= */ 1, mediaItem);
@@ -849,7 +862,7 @@ public class MediaSessionCallbackTest {
         sessionTestRule.ensureReleaseAfterTest(
             new MediaSession.Builder(context, player).setCallback(callback).build());
     RemoteMediaController controller =
-        controllerTestRule.createRemoteController(session.getToken());
+        remoteControllerTestRule.createRemoteController(session.getToken());
 
     controller.addMediaItems(mediaItems);
     player.awaitMethodCalled(MockPlayer.METHOD_ADD_MEDIA_ITEMS, TIMEOUT_MS);
@@ -879,7 +892,7 @@ public class MediaSessionCallbackTest {
         sessionTestRule.ensureReleaseAfterTest(
             new MediaSession.Builder(context, player).setCallback(callback).build());
     RemoteMediaController controller =
-        controllerTestRule.createRemoteController(session.getToken());
+        remoteControllerTestRule.createRemoteController(session.getToken());
     controller.setMediaItem(existingItem);
 
     controller.addMediaItems(/* index= */ 1, mediaItems);
@@ -922,7 +935,7 @@ public class MediaSessionCallbackTest {
         sessionTestRule.ensureReleaseAfterTest(
             new MediaSession.Builder(context, player).setCallback(callback).build());
     RemoteMediaController controller =
-        controllerTestRule.createRemoteController(session.getToken());
+        remoteControllerTestRule.createRemoteController(session.getToken());
 
     controller.setMediaItem(mediaItem, /* startPositionMs= */ 100);
     player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS_WITH_START_INDEX, TIMEOUT_MS);
@@ -960,7 +973,7 @@ public class MediaSessionCallbackTest {
         sessionTestRule.ensureReleaseAfterTest(
             new MediaSession.Builder(context, player).setCallback(callback).build());
     RemoteMediaController controller =
-        controllerTestRule.createRemoteController(session.getToken());
+        remoteControllerTestRule.createRemoteController(session.getToken());
 
     controller.setMediaItems(mediaItems, /* startIndex= */ 1, /* startPositionMs= */ 100);
     player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS_WITH_START_INDEX, TIMEOUT_MS);
@@ -1000,7 +1013,7 @@ public class MediaSessionCallbackTest {
         sessionTestRule.ensureReleaseAfterTest(
             new MediaSession.Builder(context, player).setCallback(callback).build());
     RemoteMediaController controller =
-        controllerTestRule.createRemoteController(session.getToken());
+        remoteControllerTestRule.createRemoteController(session.getToken());
 
     controller.setMediaItems(mediaItems, /* startIndex= */ 1, /* startPositionMs= */ 100);
     player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS_WITH_RESET_POSITION, TIMEOUT_MS);
@@ -1039,7 +1052,7 @@ public class MediaSessionCallbackTest {
         sessionTestRule.ensureReleaseAfterTest(
             new MediaSession.Builder(context, player).setCallback(callback).build());
     RemoteMediaController controller =
-        controllerTestRule.createRemoteController(session.getToken());
+        remoteControllerTestRule.createRemoteController(session.getToken());
     controller.setMediaItems(mediaItems, true);
     player.awaitMethodCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS_WITH_RESET_POSITION, TIMEOUT_MS);
 
@@ -1077,7 +1090,7 @@ public class MediaSessionCallbackTest {
         sessionTestRule.ensureReleaseAfterTest(
             new MediaSession.Builder(context, player).setCallback(callback).build());
     RemoteMediaController controller =
-        controllerTestRule.createRemoteController(session.getToken());
+        remoteControllerTestRule.createRemoteController(session.getToken());
 
     controller.play();
 
@@ -1098,7 +1111,7 @@ public class MediaSessionCallbackTest {
     MediaSession session =
         sessionTestRule.ensureReleaseAfterTest(new MediaSession.Builder(context, player).build());
     RemoteMediaController controller =
-        controllerTestRule.createRemoteController(session.getToken());
+        remoteControllerTestRule.createRemoteController(session.getToken());
 
     controller.play();
 
@@ -1122,7 +1135,7 @@ public class MediaSessionCallbackTest {
           @Override
           public ListenableFuture<MediaSession.MediaItemsWithStartPosition> onPlaybackResumption(
               MediaSession mediaSession, ControllerInfo controller) {
-            Assert.fail();
+            fail();
             return Futures.immediateFuture(
                 new MediaSession.MediaItemsWithStartPosition(
                     MediaTestUtils.createMediaItems(/* size= */ 10),
@@ -1134,7 +1147,7 @@ public class MediaSessionCallbackTest {
         sessionTestRule.ensureReleaseAfterTest(
             new MediaSession.Builder(context, player).setCallback(callback).build());
     RemoteMediaController controller =
-        controllerTestRule.createRemoteController(session.getToken());
+        remoteControllerTestRule.createRemoteController(session.getToken());
 
     controller.play();
 
@@ -1173,7 +1186,7 @@ public class MediaSessionCallbackTest {
     Bundle testConnectionHints = new Bundle();
     testConnectionHints.putString("test_key", "test_value");
 
-    controllerTestRule.createRemoteController(
+    remoteControllerTestRule.createRemoteController(
         session.getToken(), /* waitForConnection= */ false, testConnectionHints);
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(TestUtils.equals(testConnectionHints, connectionHints.get())).isTrue();
@@ -1199,20 +1212,21 @@ public class MediaSessionCallbackTest {
                     })
                 .build());
     RemoteMediaController controller =
-        controllerTestRule.createRemoteController(session.getToken());
+        remoteControllerTestRule.createRemoteController(session.getToken());
     controller.release();
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
   }
 
   @Test
-  public void seekToNextMediaItem_inProcessController_correctMediaItemTransitionsEvents()
-      throws Exception {
+  public void
+      seekToNextMediaItem_controllerListenerTriggeredByMasking_commandNotYetArrivedAtSession()
+          throws Exception {
     MediaItem mediaItem1 =
         new MediaItem.Builder().setMediaId("id1").setUri("http://www.example.com/1").build();
     MediaItem mediaItem2 =
         new MediaItem.Builder().setMediaId("id2").setUri("http://www.example.com/2").build();
     ExoPlayer testPlayer =
-        threadTestRule
+        playerThreadTestRule
             .getHandler()
             .postAndSync(
                 () -> {
@@ -1220,48 +1234,174 @@ public class MediaSessionCallbackTest {
                   exoPlayer.setMediaItems(ImmutableList.of(mediaItem1, mediaItem2));
                   return exoPlayer;
                 });
-    List<String> capturedMediaItemIds = new ArrayList<>();
-    List<Player.Events> capturedEvents = new ArrayList<>();
+    List<MediaItem> currentMediaItemsOfPlayer = new ArrayList<>();
+    AtomicReference<MediaController> controller = new AtomicReference<>();
     List<String> eventOrder = new ArrayList<>();
-    CountDownLatch latch = new CountDownLatch(1);
-    MediaSession session =
-        sessionTestRule.ensureReleaseAfterTest(
-            new MediaSession.Builder(context, testPlayer)
-                .setId("seekToNextMediaItem_inProcessController_correctMediaItemTransitionsEvents")
-                .build());
-    MediaController controller =
-        new MediaController.Builder(ApplicationProvider.getApplicationContext(), session.getToken())
-            .setApplicationLooper(threadTestRule.getHandler().getLooper())
-            .buildAsync()
-            .get();
-    controller.addListener(
+    CountDownLatch latch = new CountDownLatch(2);
+    // Listener added to player before the the session is built and the session adds a listener.
+    testPlayer.addListener(
         new Player.Listener() {
           @Override
           public void onMediaItemTransition(@Nullable MediaItem mediaItem, int reason) {
-            capturedMediaItemIds.add(controller.getCurrentMediaItem().mediaId);
-            eventOrder.add("onMediaItemTransition");
+            currentMediaItemsOfPlayer.add(testPlayer.getCurrentMediaItem());
+            eventOrder.add("player.onMediaItemTransition");
           }
 
           @Override
           public void onEvents(Player player, Player.Events events) {
             if (events.contains(Player.EVENT_MEDIA_ITEM_TRANSITION)) {
-              capturedMediaItemIds.add(controller.getCurrentMediaItem().mediaId);
-              capturedEvents.add(events);
-              eventOrder.add("onEvents");
+              // Player still has the first item. Command has not yet arrived at the session.
+              currentMediaItemsOfPlayer.add(testPlayer.getCurrentMediaItem());
+              eventOrder.add("player.onEvents");
               latch.countDown();
             }
           }
         });
+    MediaSession session =
+        sessionTestRule.ensureReleaseAfterTest(
+            new MediaSession.Builder(context, testPlayer)
+                .setId(
+                    "listener_controllerListenerTriggeredByMasking_commandNotYetArrivedAtSession")
+                .build());
+    controller.set(controllerTestRule.createController(session.getToken()));
+    controller
+        .get()
+        .addListener(
+            /* listener= */ new Player.Listener() {
+              @Override
+              public void onMediaItemTransition(@Nullable MediaItem mediaItem, int reason) {
+                eventOrder.add("controller.onMediaItemTransition");
+                postToPlayerAndSync(
+                    () -> currentMediaItemsOfPlayer.add(testPlayer.getCurrentMediaItem()));
+              }
 
-    threadTestRule.getHandler().postAndSync(testPlayer::seekToNextMediaItem);
+              @Override
+              public void onEvents(Player player, Player.Events events) {
+                if (events.contains(Player.EVENT_MEDIA_ITEM_TRANSITION)) {
+                  // Triggered by masking in the same looper iteration as where
+                  // controller.seekToNextMediaItem() is called.
+                  eventOrder.add("controller.onEvents");
+                  postToPlayerAndSync(
+                      () -> currentMediaItemsOfPlayer.add(testPlayer.getCurrentMediaItem()));
+                  latch.countDown();
+                }
+              }
+            });
+
+    postToControllerAndSync(controller.get()::seekToNextMediaItem);
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
-    assertThat(capturedMediaItemIds).containsExactly("id2", "id2").inOrder();
-    assertThat(eventOrder).containsExactly("onMediaItemTransition", "onEvents").inOrder();
-    assertThat(capturedEvents).hasSize(1);
-    assertThat(capturedEvents.get(0).size()).isEqualTo(2);
-    assertThat(capturedEvents.get(0).contains(Player.EVENT_MEDIA_ITEM_TRANSITION)).isTrue();
-    assertThat(capturedEvents.get(0).contains(Player.EVENT_POSITION_DISCONTINUITY)).isTrue();
+    assertThat(currentMediaItemsOfPlayer)
+        .containsExactly(mediaItem1, mediaItem1, mediaItem2, mediaItem2)
+        .inOrder();
+    assertThat(eventOrder)
+        .containsExactly(
+            "controller.onMediaItemTransition",
+            "controller.onEvents",
+            "player.onMediaItemTransition",
+            "player.onEvents")
+        .inOrder();
+    postToControllerAndSync(() -> controller.get().release());
+  }
+
+  @Test
+  public void seekToNextMediaItem_playerListenerTriggeredByMasking_immediateCallHasStaleController()
+      throws Exception {
+    MediaItem mediaItem1 =
+        new MediaItem.Builder().setMediaId("id1").setUri("http://www.example.com/1").build();
+    MediaItem mediaItem2 =
+        new MediaItem.Builder().setMediaId("id2").setUri("http://www.example.com/2").build();
+    ExoPlayer testPlayer =
+        playerThreadTestRule
+            .getHandler()
+            .postAndSync(
+                () -> {
+                  ExoPlayer exoPlayer = new TestExoPlayerBuilder(context).build();
+                  exoPlayer.setMediaItems(ImmutableList.of(mediaItem1, mediaItem2));
+                  return exoPlayer;
+                });
+    List<String> currentMediaIdsOfController = new ArrayList<>();
+    List<String> eventOrder = new ArrayList<>();
+    CountDownLatch latch = new CountDownLatch(2);
+    AtomicReference<MediaController> controller = new AtomicReference<>();
+    // Listener added to player before the the session is built and the session adds a listener.
+    testPlayer.addListener(
+        new Player.Listener() {
+          @Override
+          public void onMediaItemTransition(@Nullable MediaItem mediaItem, int reason) {
+            postToControllerAndSync(
+                () ->
+                    currentMediaIdsOfController.add(
+                        controller.get().getCurrentMediaItem().mediaId));
+            eventOrder.add("player.onMediaItemTransition");
+          }
+
+          @Override
+          public void onEvents(Player player, Player.Events events) {
+            if (events.contains(Player.EVENT_MEDIA_ITEM_TRANSITION)) {
+              postToControllerAndSync(
+                  () ->
+                      currentMediaIdsOfController.add(
+                          controller.get().getCurrentMediaItem().mediaId));
+              eventOrder.add("player.onEvents");
+              latch.countDown();
+            }
+          }
+        });
+    MediaSession session =
+        sessionTestRule.ensureReleaseAfterTest(
+            new MediaSession.Builder(context, testPlayer)
+                .setId(
+                    "listener_playerListenerTriggeredByMasking_statusUpdateArrivedAtSameProcessController")
+                .build());
+    controller.set(controllerTestRule.createController(session.getToken()));
+    controller
+        .get()
+        .addListener(
+            new Player.Listener() {
+              @Override
+              public void onMediaItemTransition(@Nullable MediaItem mediaItem, int reason) {
+                currentMediaIdsOfController.add(controller.get().getCurrentMediaItem().mediaId);
+                eventOrder.add("controller.onMediaItemTransition");
+              }
+
+              @Override
+              public void onEvents(Player player, Player.Events events) {
+                if (events.contains(Player.EVENT_MEDIA_ITEM_TRANSITION)) {
+                  currentMediaIdsOfController.add(controller.get().getCurrentMediaItem().mediaId);
+                  eventOrder.add("controller.onEvents");
+                  latch.countDown();
+                }
+              }
+            });
+
+    postToPlayerAndSync(testPlayer::seekToNextMediaItem);
+
+    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(currentMediaIdsOfController).containsExactly("id1", "id2", "id2", "id2").inOrder();
+    assertThat(eventOrder)
+        .containsExactly(
+            "player.onMediaItemTransition",
+            "controller.onMediaItemTransition",
+            "controller.onEvents",
+            "player.onEvents")
+        .inOrder();
+  }
+
+  private void postToPlayerAndSync(TestHandler.TestRunnable r) {
+    try {
+      playerThreadTestRule.getHandler().postAndSync(r);
+    } catch (Exception e) {
+      fail(e.getMessage());
+    }
+  }
+
+  private void postToControllerAndSync(TestHandler.TestRunnable r) {
+    try {
+      controllerThreadTestRule.getHandler().postAndSync(r);
+    } catch (Exception e) {
+      fail(e.getMessage());
+    }
   }
 
   private static MediaItem updateMediaItemWithLocalConfiguration(MediaItem mediaItem) {
