@@ -801,8 +801,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer implements Video
       case MSG_SET_VIDEO_EFFECTS:
         @SuppressWarnings("unchecked")
         List<Effect> videoEffects = (List<Effect>) checkNotNull(message);
-        videoSinkProvider.setVideoEffects(videoEffects);
-        hasEffects = true;
+        setVideoEffects(videoEffects);
         break;
       case MSG_SET_VIDEO_OUTPUT_RESOLUTION:
         Size outputResolution = (Size) checkNotNull(message);
@@ -1130,6 +1129,16 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer implements Video
     hasInitializedPlayback = true;
   }
 
+  /** Sets the {@linkplain Effect video effects} to apply. */
+  public void setVideoEffects(List<Effect> effects) {
+    videoSinkProvider.setVideoEffects(effects);
+    hasEffects = true;
+  }
+
+  protected final VideoSinkProvider getVideoSinkProvider() {
+    return videoSinkProvider;
+  }
+
   @Override
   protected void onCodecInitialized(
       String name,
@@ -1238,17 +1247,29 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer implements Video
         new VideoSize(width, height, unappliedRotationDegrees, pixelWidthHeightRatio);
     frameReleaseHelper.onFormatChanged(format.frameRate);
 
-    if (videoSink != null) {
-      videoSink.registerInputStream(
-          /* inputType= */ VideoSink.INPUT_TYPE_SURFACE,
-          format
-              .buildUpon()
-              .setWidth(width)
-              .setHeight(height)
-              .setRotationDegrees(unappliedRotationDegrees)
-              .setPixelWidthHeightRatio(pixelWidthHeightRatio)
-              .build());
+    if (videoSink != null && mediaFormat != null) {
+      onReadyToRegisterVideoSinkInputStream();
+      checkNotNull(videoSink)
+          .registerInputStream(
+              /* inputType= */ VideoSink.INPUT_TYPE_SURFACE,
+              format
+                  .buildUpon()
+                  .setWidth(width)
+                  .setHeight(height)
+                  .setRotationDegrees(unappliedRotationDegrees)
+                  .setPixelWidthHeightRatio(pixelWidthHeightRatio)
+                  .build());
     }
+  }
+
+  /**
+   * Called when ready to {@linkplain VideoSink#registerInputStream(int, Format) register} an input
+   * stream when {@linkplain #setVideoEffects video effects} are enabled.
+   *
+   * <p>The default implementation is a no-op.
+   */
+  protected void onReadyToRegisterVideoSinkInputStream() {
+    // do nothing.
   }
 
   @Override

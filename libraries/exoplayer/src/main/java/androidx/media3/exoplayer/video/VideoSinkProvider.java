@@ -20,10 +20,12 @@ import android.view.Surface;
 import androidx.media3.common.Effect;
 import androidx.media3.common.Format;
 import androidx.media3.common.util.Size;
+import androidx.media3.common.util.UnstableApi;
 import java.util.List;
 
 /** A provider of {@link VideoSink VideoSinks}. */
-/* package */ interface VideoSinkProvider {
+@UnstableApi
+public interface VideoSinkProvider {
 
   /**
    * Initializes the provider for video frame processing. Can be called up to one time and only
@@ -43,8 +45,14 @@ import java.util.List;
   /** Returns a {@link VideoSink} to forward video frames for processing. */
   VideoSink getSink();
 
-  /** Sets video effects on this provider. */
+  /** Sets video effects on this provider to apply immediately. */
   void setVideoEffects(List<Effect> videoEffects);
+
+  /**
+   * Sets video effects on this provider to apply when the next stream is {@linkplain
+   * VideoSink#registerInputStream(int, Format) registered} on the {@link #getSink() VideoSink}.
+   */
+  void setPendingVideoEffects(List<Effect> videoEffects);
 
   /**
    * Sets the offset, in microseconds, that is added to the video frames presentation timestamps

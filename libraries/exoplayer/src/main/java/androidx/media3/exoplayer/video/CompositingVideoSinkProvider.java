@@ -140,6 +140,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   @Override
+  public void setPendingVideoEffects(List<Effect> videoEffects) {
+    this.videoEffects = videoEffects;
+    if (isInitialized()) {
+      checkStateNotNull(videoSinkImpl).setPendingVideoEffects(videoEffects);
+    }
+  }
+
+  @Override
   public void setStreamOffsetUs(long streamOffsetUs) {
     checkStateNotNull(videoSinkImpl).setStreamOffsetUs(streamOffsetUs);
   }
@@ -477,11 +485,19 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       renderedFirstFrame = false;
     }
 
-    /** Sets the {@linkplain Effect video effects}. */
+    /** Sets the {@linkplain Effect video effects} to apply immediately. */
     public void setVideoEffects(List<Effect> videoEffects) {
+      setPendingVideoEffects(videoEffects);
+      maybeRegisterInputStream();
+    }
+
+    /**
+     * Sets the {@linkplain Effect video effects} to apply when the next stream is {@linkplain
+     * #registerInputStream(int, Format) registered}.
+     */
+    public void setPendingVideoEffects(List<Effect> videoEffects) {
       this.videoEffects.clear();
       this.videoEffects.addAll(videoEffects);
-      maybeRegisterInputStream();
     }
 
     public void setStreamOffsetUs(long streamOffsetUs) {
