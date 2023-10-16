@@ -50,6 +50,11 @@ import java.nio.channels.FileChannel;
  *       efficient.
  * </ul>
  *
+ * <p>URIs of the form {@code android.resource://package/id} are also supported, although the
+ * package part is not needed and is not used. This support is due to this format being prevalent in
+ * the ecosystem (including being <a href="https://stackoverflow.com/a/4896272">recommended on Stack
+ * Overflow</a>).
+ *
  * <p>{@link #buildRawResourceUri(int)} can be used to build supported {@link Uri}s.
  *
  * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
