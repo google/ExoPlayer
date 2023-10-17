@@ -45,6 +45,7 @@ import com.google.android.exoplayer2.effect.RgbFilter;
 import com.google.android.exoplayer2.effect.ScaleAndRotateTransformation;
 import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.base.Ascii;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.util.List;
@@ -118,7 +119,9 @@ public final class TransformerSequenceEffectTest {
     assumeFalse(
         "Some older MediaTek encoders have a pixel alignment of 16, which results in a 360 pixel"
             + " width being re-scaled to 368.",
-        SDK_INT == 27 && (Util.MODEL.equals("redmi 6a") || Util.MODEL.equals("vivo 1820")));
+        SDK_INT == 27
+            && (Ascii.equalsIgnoreCase(Util.MODEL, "redmi 6a")
+                || Ascii.equalsIgnoreCase(Util.MODEL, "vivo 1820")));
 
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context,
