@@ -23,6 +23,7 @@ import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_8K24_FORMAT;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_8K24_URI_STRING;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_BT2020_SDR;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_BT2020_SDR_FORMAT;
+import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_SEF_H265_URI_STRING;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_SEF_URI_STRING;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_URI_STRING;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_FORMAT;
@@ -248,6 +249,28 @@ public class ExportTest {
 
     assertThat(result.exportResult.durationMs).isGreaterThan(800);
     assertThat(result.exportResult.durationMs).isLessThan(950);
+  }
+
+  @Test
+  public void exportSefH265() throws Exception {
+    String testId = TAG + "_exportSefH265";
+    Context context = ApplicationProvider.getApplicationContext();
+
+    if (SDK_INT < 25) {
+      // TODO(b/210593256): Remove test skipping after using an in-app muxer that supports B-frames
+      //  before API 25.
+      recordTestSkipped(context, testId, /* reason= */ "API version lacks muxing support");
+      return;
+    }
+
+    Transformer transformer = new Transformer.Builder(context).build();
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem.Builder(MediaItem.fromUri(Uri.parse(MP4_ASSET_SEF_H265_URI_STRING)))
+            .setFlattenForSlowMotion(true)
+            .build();
+    new TransformerAndroidTestRunner.Builder(context, transformer)
+        .build()
+        .run(testId, editedMediaItem);
   }
 
   @Test

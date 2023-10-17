@@ -55,6 +55,9 @@ public final class NalUnitUtil {
   /** Access unit delimiter. */
   public static final int NAL_UNIT_TYPE_AUD = 9;
 
+  /** Prefix NAL unit. */
+  public static final int NAL_UNIT_TYPE_PREFIX = 14;
+
   /** Holds data parsed from a H.264 sequence parameter set NAL unit. */
   public static final class SpsData {
 

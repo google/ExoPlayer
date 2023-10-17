@@ -7,6 +7,7 @@
     *   Add luma and chroma bitdepth to `ColorInfo`
         [#491](https://github.com/androidx/media/pull/491).
 *   Transformer:
+    *   Add support for flattening H.265/HEVC SEF slow motion videos.
 *   Track Selection:
     *   Add `DefaultTrackSelector.Parameters.allowAudioNonSeamlessAdaptiveness`
         to explicitly allow or disallow non-seamless adaptation. The default

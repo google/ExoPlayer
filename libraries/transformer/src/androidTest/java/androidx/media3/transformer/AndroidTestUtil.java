@@ -145,6 +145,17 @@ public final class AndroidTestUtil {
           .setCodecs("avc1.64000D")
           .build();
 
+  public static final String MP4_ASSET_SEF_H265_URI_STRING =
+      "asset:///media/mp4/sample_sef_slow_motion_hevc.mp4";
+  public static final Format MP4_ASSET_SEF_H265_FORMAT =
+      new Format.Builder()
+          .setSampleMimeType(VIDEO_H265)
+          .setWidth(1920)
+          .setHeight(1080)
+          .setFrameRate(30.01679f)
+          .setCodecs("hvc1.1.6.L120.B0")
+          .build();
+
   public static final String MP4_ASSET_BT2020_SDR = "asset:///media/mp4/bt2020-sdr.mp4";
   public static final Format MP4_ASSET_BT2020_SDR_FORMAT =
       new Format.Builder()
@@ -809,6 +820,8 @@ public final class AndroidTestUtil {
         return MP4_ASSET_WITH_INCREASING_TIMESTAMPS_320W_240H_15S_FORMAT;
       case MP4_ASSET_SEF_URI_STRING:
         return MP4_ASSET_SEF_FORMAT;
+      case MP4_ASSET_SEF_H265_URI_STRING:
+        return MP4_ASSET_SEF_H265_FORMAT;
       case MP4_ASSET_4K60_PORTRAIT_URI_STRING:
         return MP4_ASSET_4K60_PORTRAIT_FORMAT;
       case MP4_REMOTE_10_SECONDS_URI_STRING:
