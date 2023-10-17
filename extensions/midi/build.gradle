@@ -37,3 +37,9 @@ dependencies {
      javadocTitle = 'MIDI extension'
  }
  apply from: '../../javadoc_library.gradle'
+
+ext {
+ releaseArtifactId = 'extension-midi'
+ releaseDescription = 'The ExoPlayer library MIDI decoder module.'
+}
+apply from: '../../publish.gradle'
