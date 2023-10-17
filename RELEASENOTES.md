@@ -40,6 +40,12 @@
         load start time rather than the last load completed time
         ([#663](https://github.com/androidx/media/issues/663)).
 *   DASH Extension:
+    *   Add experimental support for parsing subtitles during extraction. This
+        has better support for merging overlapping subtitles, including
+        resolving flickering when transitioning between subtitle segments. You
+        can enable this using
+        `DashMediaSource.Factory.experimentalParseSubtitlesDuringExtraction()`
+        ([#288](https://github.com/androidx/media/issues/288)).
 *   Smooth Streaming Extension:
 *   RTSP Extension:
 *   Decoder Extensions (FFmpeg, VP9, AV1, MIDI, etc.):
@@ -70,12 +76,6 @@ This release includes the following changes since the
         Android Auto.
 *   DASH Extension:
     *   Allow multiple of the same DASH identifier in segment template url.
-    *   Add experimental support for parsing subtitles during extraction. This
-        has better support for merging overlapping subtitles, including
-        resolving flickering when transitioning between subtitle segments. You
-        can enable this using
-        `DashMediaSource.Factory.experimentalParseSubtitlesDuringExtraction()`
-        ([#288](https://github.com/androidx/media/issues/288)).
 *   Smooth Streaming Extension:
 *   RTSP Extension:
     *   Use RTSP Setup Response timeout value in time interval of sending
