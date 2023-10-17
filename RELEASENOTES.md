@@ -4,6 +4,8 @@
 
 *   Common Library:
 *   ExoPlayer:
+    *   Add luma and chroma bitdepth to `ColorInfo`
+        [#491](https://github.com/androidx/media/pull/491).
 *   Transformer:
 *   Track Selection:
     *   Add `DefaultTrackSelector.Parameters.allowAudioNonSeamlessAdaptiveness`

@@ -26,6 +26,7 @@ import static org.junit.Assert.assertThrows;
 
 import android.net.Uri;
 import androidx.media3.common.C;
+import androidx.media3.common.ColorInfo;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.extractor.AacUtil;
@@ -73,6 +74,12 @@ public class RtspMediaTrackTest {
                 .setHeight(544)
                 .setWidth(960)
                 .setCodecs("avc1.64001F")
+                .setColorInfo(
+                    new ColorInfo.Builder()
+                        .setColorRange(1)
+                        .setLumaBitdepth(8)
+                        .setChromaBitdepth(8)
+                        .build())
                 .setInitializationData(
                     ImmutableList.of(
                         new byte[] {
@@ -246,6 +253,12 @@ public class RtspMediaTrackTest {
                 .setHeight(544)
                 .setWidth(960)
                 .setCodecs("avc1.64001F")
+                .setColorInfo(
+                    new ColorInfo.Builder()
+                        .setColorRange(1)
+                        .setChromaBitdepth(8)
+                        .setLumaBitdepth(8)
+                        .build())
                 .setInitializationData(
                     ImmutableList.of(
                         new byte[] {

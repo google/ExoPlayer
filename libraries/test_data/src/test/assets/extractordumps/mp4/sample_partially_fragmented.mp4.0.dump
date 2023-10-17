@@ -12,6 +12,9 @@ track 0:
     codecs = avc1.64001F
     width = 1080
     height = 720
+    colorInfo:
+      lumaBitdepth = 8
+      chromaBitdepth = 8
     initializationData:
       data = length 29, hash 4746B5D9
       data = length 10, hash 7A0D0F2B

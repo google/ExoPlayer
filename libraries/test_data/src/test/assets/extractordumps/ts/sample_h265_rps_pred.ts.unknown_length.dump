@@ -13,6 +13,9 @@ track 256:
     width = 914
     height = 686
     pixelWidthHeightRatio = 1.0003651
+    colorInfo:
+      lumaBitdepth = 8
+      chromaBitdepth = 8
     initializationData:
       data = length 146, hash 61554FEF
   sample 0:

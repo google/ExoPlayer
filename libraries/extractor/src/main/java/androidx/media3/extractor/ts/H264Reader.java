@@ -20,6 +20,7 @@ import static androidx.media3.extractor.ts.TsPayloadReader.FLAG_RANDOM_ACCESS_IN
 import android.util.SparseArray;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
+import androidx.media3.common.ColorInfo;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.Assertions;
@@ -219,6 +220,14 @@ public final class H264Reader implements ElementaryStreamReader {
                   .setCodecs(codecs)
                   .setWidth(spsData.width)
                   .setHeight(spsData.height)
+                  .setColorInfo(
+                      new ColorInfo.Builder()
+                          .setColorSpace(spsData.colorSpace)
+                          .setColorRange(spsData.colorRange)
+                          .setColorTransfer(spsData.colorTransfer)
+                          .setLumaBitdepth(spsData.bitDepthLumaMinus8 + 8)
+                          .setChromaBitdepth(spsData.bitDepthChromaMinus8 + 8)
+                          .build())
                   .setPixelWidthHeightRatio(spsData.pixelWidthHeightRatio)
                   .setInitializationData(initializationData)
                   .build());

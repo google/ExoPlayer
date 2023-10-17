@@ -150,11 +150,12 @@ public class MediaFormatUtilTest {
             .setAverageBitrate(1)
             .setChannelCount(2)
             .setColorInfo(
-                new ColorInfo(
-                    /* colorSpace= */ C.COLOR_SPACE_BT601,
-                    /* colorRange= */ C.COLOR_RANGE_FULL,
-                    /* colorTransfer= */ C.COLOR_TRANSFER_HLG,
-                    new byte[] {3}))
+                new ColorInfo.Builder()
+                    .setColorSpace(C.COLOR_SPACE_BT601)
+                    .setColorRange(C.COLOR_RANGE_FULL)
+                    .setColorTransfer(C.COLOR_TRANSFER_HLG)
+                    .setHdrStaticInfo(new byte[] {3})
+                    .build())
             .setSampleMimeType(MimeTypes.VIDEO_H264)
             .setCodecs("avc.123")
             .setFrameRate(4)

@@ -17,6 +17,9 @@ track 0:
     width = 1080
     height = 720
     frameRate = 32.113037
+    colorInfo:
+      lumaBitdepth = 8
+      chromaBitdepth = 8
     metadata = entries=[Mp4Timestamp: creation time=2083344800, modification time=2083344800, timescale=10000]
     initializationData:
       data = length 29, hash 4746B5D9

@@ -18,6 +18,8 @@ track 0:
     height = 10
     colorInfo:
       colorRange = 1
+      lumaBitdepth = 8
+      chromaBitdepth = 8
     metadata = entries=[mdta: key=SomeStringKey, value=10.0, Mp4Timestamp: creation time=2082849800, modification time=2082849800, timescale=10000]
     initializationData:
       data = length 28, hash 410B510

@@ -12,6 +12,10 @@ track 256:
     codecs = hvc1.1.6.L90.90
     width = 854
     height = 480
+    colorInfo:
+      colorRange = 2
+      lumaBitdepth = 8
+      chromaBitdepth = 8
     initializationData:
       data = length 83, hash 7F428
   sample 0:

@@ -21,6 +21,8 @@ track 0:
       colorSpace = 6
       colorRange = 2
       colorTransfer = 6
+      lumaBitdepth = 10
+      chromaBitdepth = 10
     metadata = entries=[Mp4Timestamp: creation time=2083344800, modification time=2083344800, timescale=10000]
     initializationData:
       data = length 99, hash 99842E5A

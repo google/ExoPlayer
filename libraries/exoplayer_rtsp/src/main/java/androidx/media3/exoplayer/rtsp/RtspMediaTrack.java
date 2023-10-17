@@ -32,6 +32,7 @@ import android.util.Pair;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.media3.common.C;
+import androidx.media3.common.ColorInfo;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.ParserException;
@@ -50,7 +51,6 @@ import com.google.common.collect.ImmutableMap;
   // Format specific parameter names.
   private static final String PARAMETER_PROFILE_LEVEL_ID = "profile-level-id";
   private static final String PARAMETER_SPROP_PARAMS = "sprop-parameter-sets";
-
   private static final String PARAMETER_AMR_OCTET_ALIGN = "octet-align";
   private static final String PARAMETER_AMR_INTERLEAVING = "interleaving";
   private static final String PARAMETER_H265_SPROP_SPS = "sprop-sps";
@@ -421,6 +421,14 @@ import com.google.common.collect.ImmutableMap;
     formatBuilder.setPixelWidthHeightRatio(spsData.pixelWidthHeightRatio);
     formatBuilder.setHeight(spsData.height);
     formatBuilder.setWidth(spsData.width);
+    formatBuilder.setColorInfo(
+        new ColorInfo.Builder()
+            .setColorSpace(spsData.colorSpace)
+            .setColorRange(spsData.colorRange)
+            .setColorTransfer(spsData.colorTransfer)
+            .setLumaBitdepth(spsData.bitDepthLumaMinus8 + 8)
+            .setChromaBitdepth(spsData.bitDepthChromaMinus8 + 8)
+            .build());
 
     @Nullable String profileLevel = fmtpAttributes.get(PARAMETER_PROFILE_LEVEL_ID);
     if (profileLevel != null) {
@@ -464,6 +472,14 @@ import com.google.common.collect.ImmutableMap;
             spsNalDataWithStartCode, NAL_START_CODE.length, spsNalDataWithStartCode.length);
     formatBuilder.setPixelWidthHeightRatio(spsData.pixelWidthHeightRatio);
     formatBuilder.setHeight(spsData.height).setWidth(spsData.width);
+    formatBuilder.setColorInfo(
+        new ColorInfo.Builder()
+            .setColorSpace(spsData.colorSpace)
+            .setColorRange(spsData.colorRange)
+            .setColorTransfer(spsData.colorTransfer)
+            .setLumaBitdepth(spsData.bitDepthLumaMinus8 + 8)
+            .setChromaBitdepth(spsData.bitDepthChromaMinus8 + 8)
+            .build());
 
     formatBuilder.setCodecs(
         CodecSpecificDataUtil.buildHevcCodecString(

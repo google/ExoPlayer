@@ -21,6 +21,8 @@ track 0:
       colorRange = 2
       colorTransfer = 6
       hdrStaticInfo = length 25, hash 423AFC35
+      lumaBitdepth = 10
+      chromaBitdepth = 10
     metadata = entries=[TSSE: description=null: values=[Lavf58.76.100], Mp4Timestamp: creation time=0, modification time=0, timescale=1000]
   sample 0:
     time = 0

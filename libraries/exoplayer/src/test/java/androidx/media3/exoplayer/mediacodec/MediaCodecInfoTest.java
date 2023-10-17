@@ -430,7 +430,10 @@ public final class MediaCodecInfoTest {
   }
 
   private static ColorInfo buildColorInfo(@C.ColorSpace int colorSpace) {
-    return new ColorInfo(
-        colorSpace, C.COLOR_RANGE_FULL, C.COLOR_TRANSFER_HLG, /* hdrStaticInfo= */ null);
+    return new ColorInfo.Builder()
+        .setColorSpace(colorSpace)
+        .setColorRange(C.COLOR_RANGE_FULL)
+        .setColorTransfer(C.COLOR_TRANSFER_HLG)
+        .build();
   }
 }
