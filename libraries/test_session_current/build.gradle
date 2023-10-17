@@ -41,10 +41,9 @@ android {
 dependencies {
     implementation project(modulePrefix + 'lib-session')
     implementation project(modulePrefix + 'test-session-common')
-    implementation project(modulePrefix + 'test-data')
     implementation 'androidx.media:media:' + androidxMediaVersion
-    implementation 'androidx.multidex:multidex:' + androidxMultidexVersion
     implementation 'androidx.test:core:' + androidxTestCoreVersion
+    implementation 'androidx.multidex:multidex:' + androidxMultidexVersion
     implementation project(modulePrefix + 'test-data')
     androidTestImplementation project(modulePrefix + 'lib-exoplayer')
     androidTestImplementation project(modulePrefix + 'test-utils')
