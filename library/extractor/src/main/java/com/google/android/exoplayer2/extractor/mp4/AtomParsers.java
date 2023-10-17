@@ -1119,6 +1119,9 @@ import java.util.List;
     int height = parent.readUnsignedShort();
     boolean pixelWidthHeightRatioFromPasp = false;
     float pixelWidthHeightRatio = 1;
+    // Set default luma and chroma bit depths to 8 as old codecs might not even signal them
+    int bitdepthLuma = 8;
+    int bitdepthChroma = 8;
     parent.skipBytes(50);
 
     int childPosition = parent.getPosition();
@@ -1185,6 +1188,8 @@ import java.util.List;
         colorSpace = avcConfig.colorSpace;
         colorRange = avcConfig.colorRange;
         colorTransfer = avcConfig.colorTransfer;
+        bitdepthLuma = avcConfig.bitdepthLuma;
+        bitdepthChroma = avcConfig.bitdepthChroma;
       } else if (childAtomType == Atom.TYPE_hvcC) {
         ExtractorUtil.checkContainerInput(mimeType == null, /* message= */ null);
         mimeType = MimeTypes.VIDEO_H265;
@@ -1199,6 +1204,8 @@ import java.util.List;
         colorSpace = hevcConfig.colorSpace;
         colorRange = hevcConfig.colorRange;
         colorTransfer = hevcConfig.colorTransfer;
+        bitdepthLuma = hevcConfig.bitdepthLuma;
+        bitdepthChroma = hevcConfig.bitdepthChroma;
       } else if (childAtomType == Atom.TYPE_dvcC || childAtomType == Atom.TYPE_dvvC) {
         @Nullable DolbyVisionConfig dolbyVisionConfig = DolbyVisionConfig.parse(parent);
         if (dolbyVisionConfig != null) {
@@ -1211,7 +1218,10 @@ import java.util.List;
         parent.setPosition(childStartPosition + Atom.FULL_HEADER_SIZE);
         // See vpcC atom syntax: https://www.webmproject.org/vp9/mp4/#syntax_1
         parent.skipBytes(2); // profile(8), level(8)
-        boolean fullRangeFlag = (parent.readUnsignedByte() & 1) != 0;
+        int byte3 = parent.readUnsignedByte();
+        bitdepthLuma = byte3 >> 4;
+        bitdepthChroma = bitdepthLuma;
+        boolean fullRangeFlag = (byte3 & 0b1) != 0;
         int colorPrimaries = parent.readUnsignedByte();
         int transferCharacteristics = parent.readUnsignedByte();
         colorSpace = ColorInfo.isoColorPrimariesToColorSpace(colorPrimaries);
@@ -1221,6 +1231,20 @@ import java.util.List;
       } else if (childAtomType == Atom.TYPE_av1C) {
         ExtractorUtil.checkContainerInput(mimeType == null, /* message= */ null);
         mimeType = MimeTypes.VIDEO_AV1;
+        parent.setPosition(childStartPosition + Atom.HEADER_SIZE);
+        parent.skipBytes(1);
+        int byte2 = parent.readUnsignedByte();
+        int seqProfile = byte2 >> 5;
+        int byte3 = parent.readUnsignedByte();
+        boolean highBitdepth = ((byte3 >> 6) & 0b1) != 0;
+        // From https://aomediacodec.github.io/av1-spec/av1-spec.pdf#page=44
+        if (seqProfile == 2 && highBitdepth) {
+          boolean twelveBit = ((byte3 >> 5) & 0b1) != 0;
+          bitdepthLuma = twelveBit ? 12 : 10;
+        } else if (seqProfile <= 2) {
+          bitdepthLuma = highBitdepth ? 10 : 8;
+        }
+        bitdepthChroma = bitdepthLuma;
       } else if (childAtomType == Atom.TYPE_clli) {
         if (hdrStaticInfo == null) {
           hdrStaticInfo = allocateHdrStaticInfo();
@@ -1347,20 +1371,18 @@ import java.util.List;
             .setProjectionData(projectionData)
             .setStereoMode(stereoMode)
             .setInitializationData(initializationData)
-            .setDrmInitData(drmInitData);
-    if (colorSpace != Format.NO_VALUE
-        || colorRange != Format.NO_VALUE
-        || colorTransfer != Format.NO_VALUE
-        || hdrStaticInfo != null) {
-      // Note that if either mdcv or clli are missing, we leave the corresponding HDR static
-      // metadata bytes with value zero. See [Internal ref: b/194535665].
-      formatBuilder.setColorInfo(
-          new ColorInfo(
-              colorSpace,
-              colorRange,
-              colorTransfer,
-              hdrStaticInfo != null ? hdrStaticInfo.array() : null));
-    }
+            .setDrmInitData(drmInitData)
+            // Note that if either mdcv or clli are missing, we leave the corresponding HDR static
+            // metadata bytes with value zero. See [Internal ref: b/194535665].
+            .setColorInfo(
+                new ColorInfo.Builder()
+                    .setColorSpace(colorSpace)
+                    .setColorRange(colorRange)
+                    .setColorTransfer(colorTransfer)
+                    .setHdrStaticInfo(hdrStaticInfo != null ? hdrStaticInfo.array() : null)
+                    .setLumaBitdepth(bitdepthLuma)
+                    .setChromaBitdepth(bitdepthChroma)
+                    .build());
 
     if (esdsData != null) {
       formatBuilder

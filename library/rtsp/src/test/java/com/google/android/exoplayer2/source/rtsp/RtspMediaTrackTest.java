@@ -30,6 +30,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.audio.AacUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
@@ -73,6 +74,12 @@ public class RtspMediaTrackTest {
                 .setHeight(544)
                 .setWidth(960)
                 .setCodecs("avc1.64001F")
+                .setColorInfo(
+                    new ColorInfo.Builder()
+                        .setColorRange(1)
+                        .setLumaBitdepth(8)
+                        .setChromaBitdepth(8)
+                        .build())
                 .setInitializationData(
                     ImmutableList.of(
                         new byte[] {
@@ -246,6 +253,12 @@ public class RtspMediaTrackTest {
                 .setHeight(544)
                 .setWidth(960)
                 .setCodecs("avc1.64001F")
+                .setColorInfo(
+                    new ColorInfo.Builder()
+                        .setColorRange(1)
+                        .setChromaBitdepth(8)
+                        .setLumaBitdepth(8)
+                        .build())
                 .setInitializationData(
                     ImmutableList.of(
                         new byte[] {

@@ -32,6 +32,7 @@ import com.google.android.exoplayer2.util.NalUnitUtil.SpsData;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.ParsableNalUnitBitArray;
 import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.video.ColorInfo;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -225,6 +226,14 @@ public final class H264Reader implements ElementaryStreamReader {
                   .setCodecs(codecs)
                   .setWidth(spsData.width)
                   .setHeight(spsData.height)
+                  .setColorInfo(
+                      new ColorInfo.Builder()
+                          .setColorSpace(spsData.colorSpace)
+                          .setColorRange(spsData.colorRange)
+                          .setColorTransfer(spsData.colorTransfer)
+                          .setLumaBitdepth(spsData.bitDepthLumaMinus8 + 8)
+                          .setChromaBitdepth(spsData.bitDepthChromaMinus8 + 8)
+                          .build())
                   .setPixelWidthHeightRatio(spsData.pixelWidthHeightRatio)
                   .setInitializationData(initializationData)
                   .build());

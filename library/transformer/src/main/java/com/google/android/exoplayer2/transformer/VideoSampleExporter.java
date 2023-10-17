@@ -105,7 +105,7 @@ import org.checkerframework.dataflow.qual.Pure;
     finalFramePresentationTimeUs = C.TIME_UNSET;
 
     ColorInfo decoderInputColor;
-    if (firstInputFormat.colorInfo == null || !firstInputFormat.colorInfo.isValid()) {
+    if (firstInputFormat.colorInfo == null || !firstInputFormat.colorInfo.isDataSpaceValid()) {
       Log.d(TAG, "colorInfo is null or invalid. Defaulting to SDR_BT709_LIMITED.");
       decoderInputColor = ColorInfo.SDR_BT709_LIMITED;
     } else {

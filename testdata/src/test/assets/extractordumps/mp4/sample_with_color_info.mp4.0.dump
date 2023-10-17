@@ -22,6 +22,8 @@ track 0:
       colorSpace = 6
       colorRange = 2
       colorTransfer = 7
+      lumaBitdepth = 10
+      chromaBitdepth = 10
     metadata = entries=[mdta: key=com.apple.quicktime.location.accuracy.horizontal, value=3.754789, mdta: key=com.apple.quicktime.location.ISO6709, value=+37.7450-122.4301+066.374/, mdta: key=com.apple.quicktime.make, value=Apple, mdta: key=com.apple.quicktime.model, value=iPhone 12 Pro Max, mdta: key=com.apple.quicktime.software, value=14.5.1, mdta: key=com.apple.quicktime.creationdate, value=2021-05-25T09:21:51-0700, Mp4Timestamp: creation time=3704804511, modification time=3704804511, timescale=600]
     initializationData:
       data = length 526, hash 7B3FC433

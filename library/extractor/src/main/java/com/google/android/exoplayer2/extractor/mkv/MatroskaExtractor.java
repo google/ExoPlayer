@@ -238,6 +238,7 @@ public class MatroskaExtractor implements Extractor {
   private static final int ID_STEREO_MODE = 0x53B8;
   private static final int ID_COLOUR = 0x55B0;
   private static final int ID_COLOUR_RANGE = 0x55B9;
+  private static final int ID_COLOUR_BITS_PER_CHANNEL = 0x55B2;
   private static final int ID_COLOUR_TRANSFER = 0x55BA;
   private static final int ID_COLOUR_PRIMARIES = 0x55BB;
   private static final int ID_MAX_CLL = 0x55BC;
@@ -614,6 +615,7 @@ public class MatroskaExtractor implements Extractor {
       case ID_CUE_CLUSTER_POSITION:
       case ID_REFERENCE_BLOCK:
       case ID_STEREO_MODE:
+      case ID_COLOUR_BITS_PER_CHANNEL:
       case ID_COLOUR_RANGE:
       case ID_COLOUR_TRANSFER:
       case ID_COLOUR_PRIMARIES:
@@ -1022,6 +1024,11 @@ public class MatroskaExtractor implements Extractor {
         if (colorTransfer != Format.NO_VALUE) {
           currentTrack.colorTransfer = colorTransfer;
         }
+        break;
+      case ID_COLOUR_BITS_PER_CHANNEL:
+        assertInTrackEntry(id);
+        currentTrack.hasColorInfo = true;
+        currentTrack.bitsPerChannel = (int) value;
         break;
       case ID_COLOUR_RANGE:
         assertInTrackEntry(id);
@@ -2019,6 +2026,7 @@ public class MatroskaExtractor implements Extractor {
     // Video elements.
     public int width = Format.NO_VALUE;
     public int height = Format.NO_VALUE;
+    public int bitsPerChannel = Format.NO_VALUE;
     public int displayWidth = Format.NO_VALUE;
     public int displayHeight = Format.NO_VALUE;
     public int displayUnit = DISPLAY_UNIT_PIXELS;
@@ -2306,7 +2314,15 @@ public class MatroskaExtractor implements Extractor {
         @Nullable ColorInfo colorInfo = null;
         if (hasColorInfo) {
           @Nullable byte[] hdrStaticInfo = getHdrStaticInfo();
-          colorInfo = new ColorInfo(colorSpace, colorRange, colorTransfer, hdrStaticInfo);
+          colorInfo =
+              new ColorInfo.Builder()
+                  .setColorSpace(colorSpace)
+                  .setColorRange(colorRange)
+                  .setColorTransfer(colorTransfer)
+                  .setHdrStaticInfo(hdrStaticInfo)
+                  .setLumaBitdepth(bitsPerChannel)
+                  .setChromaBitdepth(bitsPerChannel)
+                  .build();
         }
         int rotationDegrees = Format.NO_VALUE;
 

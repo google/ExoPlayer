@@ -82,7 +82,9 @@ public final class FormatTest {
             C.COLOR_SPACE_BT709,
             C.COLOR_RANGE_LIMITED,
             C.COLOR_TRANSFER_SDR,
-            new byte[] {1, 2, 3, 4, 5, 6, 7});
+            new byte[] {1, 2, 3, 4, 5, 6, 7},
+            /* lumaBitdepth */ 9,
+            /* chromaBitdepth */ 11);
 
     return new Format.Builder()
         .setId("id")
