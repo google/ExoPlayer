@@ -34,3 +34,9 @@ dependencies {
     testImplementation project(modulePrefix + 'test-data')
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
 }
+
+ext {
+    releaseArtifactId = 'media3-exoplayer-midi'
+    releaseName = 'Media3 MIDI decoder module'
+}
+apply from: '../../publish.gradle'

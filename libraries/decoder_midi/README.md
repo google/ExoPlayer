@@ -9,7 +9,7 @@ MIDI commands and render the PCM output.
 The easiest way to get the module is to add it as a gradle dependency:
 
 ```gradle
-implementation 'androidx.media3:lib-decoder-midi:1.X.X'
+implementation 'androidx.media3:media3-exoplayer-midi:1.X.X'
 ```
 
 where `1.X.X` is the version, which must match the version of the other media

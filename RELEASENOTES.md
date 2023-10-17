@@ -52,6 +52,9 @@
 *   Smooth Streaming Extension:
 *   RTSP Extension:
 *   Decoder Extensions (FFmpeg, VP9, AV1, MIDI, etc.):
+    *   Fix bug publishing MIDI decoder artifact to Maven repository. The
+        artifact is renamed to `media3-exoplayer-midi`
+        ([#734](https://github.com/androidx/media/issues/734)).
 *   Leanback extension:
 *   Cast Extension:
 *   Test Utilities:
