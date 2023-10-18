@@ -1,0 +1,96 @@
+// Copyright 2023 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+apply from: '../../constants.gradle'
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+
+android {
+    namespace 'androidx.media3.demo.shortform'
+
+    compileSdkVersion project.ext.compileSdkVersion
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+
+    defaultConfig {
+        versionName project.ext.releaseVersion
+        versionCode project.ext.releaseVersionCode
+        minSdkVersion project.ext.minSdkVersion
+        targetSdkVersion project.ext.appTargetSdkVersion
+        multiDexEnabled true
+    }
+
+    buildTypes {
+        release {
+            shrinkResources true
+            minifyEnabled true
+            proguardFiles = [
+                'proguard-rules.txt',
+                getDefaultProguardFile('proguard-android-optimize.txt')
+            ]
+            signingConfig signingConfigs.debug
+        }
+        debug {
+            jniDebuggable = true
+        }
+    }
+
+    lintOptions {
+        // The demo app isn't indexed, and doesn't have translations.
+        disable 'GoogleAppIndexingWarning','MissingTranslation'
+    }
+    buildFeatures {
+        viewBinding true
+    }
+    sourceSets {
+        main {
+            java {
+                srcDirs 'src/main/java'
+            }
+        }
+        test {
+            java {
+                srcDirs 'src/test/java'
+            }
+        }
+    }
+}
+
+dependencies {
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.9.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+
+    implementation 'androidx.core:core-ktx:' + androidxCoreVersion
+    implementation 'androidx.appcompat:appcompat:' + androidxAppCompatVersion
+    implementation 'androidx.multidex:multidex:' + androidxMultidexVersion
+    implementation 'com.google.android.material:material:' + androidxMaterialVersion
+    implementation project(modulePrefix + 'lib-exoplayer')
+    implementation project(modulePrefix + 'lib-exoplayer-dash')
+    implementation project(modulePrefix + 'lib-exoplayer-hls')
+    implementation project(modulePrefix + 'lib-ui')
+
+    testImplementation 'androidx.test:core:' + androidxTestCoreVersion
+    testImplementation 'androidx.test.ext:junit:' + androidxTestJUnitVersion
+    testImplementation 'junit:junit:' + junitVersion
+    testImplementation 'com.google.truth:truth:' + truthVersion
+    testImplementation 'org.robolectric:robolectric:' + robolectricVersion
+    testImplementation 'org.robolectric:robolectric:' + robolectricVersion
+}

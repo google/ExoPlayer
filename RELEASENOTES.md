@@ -6,6 +6,12 @@
 *   ExoPlayer:
     *   Add luma and chroma bitdepth to `ColorInfo`
         [#491](https://github.com/androidx/media/pull/491).
+    *   Add `PreloadMediaSource` and `PreloadMediaPeriod` that allows apps to
+        preload the media source at a specific start position before playback,
+        where the efforts include preparing the source for a `Timeline`,
+        preparing and caching the period, selecting tracks and loading the data
+        on the period. Apps are able to control the preload progress by
+        implementing `PreloadMediaSource.PreloadControl`.
 *   Transformer:
     *   Add support for flattening H.265/HEVC SEF slow motion videos.
 *   Track Selection:
@@ -62,6 +68,9 @@
     *   Remove deprecated `DownloadNotificationHelper.buildProgressNotification`
         method, use a non deprecated method that takes a `notMetRequirements`
         parameter instead.
+*   Demo app:
+    *   Add a shortform demo module to demo the usage of `PreloadMediaSource`
+        with the short-form content use case.
 
 ## 1.2
 
