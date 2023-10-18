@@ -45,6 +45,10 @@
 *   Downloads:
 *   OkHttp Extension:
 *   Cronet Extension:
+*   HttpEngine Extension:
+    *   Implement `HttpEngineDataSource`, an `HttpDataSource` using the
+        [HttpEngine](https://developer.android.com/reference/android/net/http/HttpEngine)
+        API.
 *   RTMP Extension:
 *   HLS Extension:
     *   Refresh the HLS live playlist with an interval calculated from the last
