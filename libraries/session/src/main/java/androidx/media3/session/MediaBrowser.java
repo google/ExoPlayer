@@ -35,6 +35,7 @@ import androidx.media3.common.util.BitmapLoader;
 import androidx.media3.common.util.Consumer;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
+import androidx.media3.datasource.DataSourceBitmapLoader;
 import androidx.media3.session.MediaLibraryService.LibraryParams;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.Futures;
@@ -126,8 +127,8 @@ public final class MediaBrowser extends MediaController {
 
     /**
      * Sets a {@link BitmapLoader} for the {@link MediaBrowser} to decode bitmaps from compressed
-     * binary data. If not set, a {@link CacheBitmapLoader} that wraps a {@link SimpleBitmapLoader}
-     * will be used.
+     * binary data. If not set, a {@link CacheBitmapLoader} that wraps a {@link
+     * DataSourceBitmapLoader} will be used.
      *
      * @param bitmapLoader The bitmap loader.
      * @return The builder to allow chaining.
@@ -168,7 +169,7 @@ public final class MediaBrowser extends MediaController {
     public ListenableFuture<MediaBrowser> buildAsync() {
       MediaControllerHolder<MediaBrowser> holder = new MediaControllerHolder<>(applicationLooper);
       if (token.isLegacySession() && bitmapLoader == null) {
-        bitmapLoader = new CacheBitmapLoader(new SimpleBitmapLoader());
+        bitmapLoader = new CacheBitmapLoader(new DataSourceBitmapLoader(context));
       }
       MediaBrowser browser =
           new MediaBrowser(

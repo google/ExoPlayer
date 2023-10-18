@@ -38,6 +38,7 @@ import androidx.media3.common.Player;
 import androidx.media3.common.util.BitmapLoader;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
+import androidx.media3.datasource.DataSourceBitmapLoader;
 import androidx.media3.session.MediaSession.ControllerInfo;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.Futures;
@@ -453,15 +454,14 @@ public abstract class MediaLibraryService extends MediaSessionService {
 
       /**
        * Sets a {@link BitmapLoader} for the {@link MediaLibrarySession} to decode bitmaps from
-       * compressed binary data or load bitmaps from {@link Uri}. If not set, a {@link
-       * CacheBitmapLoader} with a {@link SimpleBitmapLoader} inside will be used.
+       * compressed binary data or load bitmaps from {@link Uri}.
        *
        * <p>The provided instance will likely be called repeatedly with the same request, so it
        * would be best if any provided instance does some caching. Simple caching can be added to
        * any {@link BitmapLoader} implementation by wrapping it in {@link CacheBitmapLoader} before
        * passing it to this method.
        *
-       * <p>If no instance is set, a {@link CacheBitmapLoader} with a {@link SimpleBitmapLoader}
+       * <p>If no instance is set, a {@link CacheBitmapLoader} with a {@link DataSourceBitmapLoader}
        * inside will be used.
        *
        * @param bitmapLoader The bitmap loader {@link BitmapLoader}.
@@ -542,7 +542,7 @@ public abstract class MediaLibraryService extends MediaSessionService {
       @Override
       public MediaLibrarySession build() {
         if (bitmapLoader == null) {
-          bitmapLoader = new CacheBitmapLoader(new SimpleBitmapLoader());
+          bitmapLoader = new CacheBitmapLoader(new DataSourceBitmapLoader(context));
         }
         return new MediaLibrarySession(
             context,

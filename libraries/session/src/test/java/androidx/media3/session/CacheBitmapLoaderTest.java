@@ -20,18 +20,22 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertThrows;
 import static org.robolectric.annotation.GraphicsMode.Mode.NATIVE;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.net.Uri;
+import androidx.media3.datasource.DataSourceBitmapLoader;
+import androidx.media3.datasource.HttpDataSource;
 import androidx.media3.test.utils.TestUtil;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.util.concurrent.ListenableFuture;
-import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okio.Buffer;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -54,21 +58,26 @@ public class CacheBitmapLoaderTest {
 
   @Rule public final TemporaryFolder tempFolder = new TemporaryFolder();
 
+  private Context context;
+
+  @Before
+  public void setUp() {
+    context = ApplicationProvider.getApplicationContext();
+  }
+
   @Test
   public void decodeBitmap_requestWithSameDataTwice_success() throws Exception {
-    CacheBitmapLoader cacheBitmapLoader = new CacheBitmapLoader(new SimpleBitmapLoader());
-    byte[] imageData =
-        TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), TEST_IMAGE_PATH);
+    CacheBitmapLoader cacheBitmapLoader =
+        new CacheBitmapLoader(new DataSourceBitmapLoader(context));
+    byte[] imageData = TestUtil.getByteArray(context, TEST_IMAGE_PATH);
+    Bitmap expectedBitmap =
+        apply90DegreeExifRotation(
+            BitmapFactory.decodeByteArray(imageData, /* offset= */ 0, imageData.length));
 
     // First request, no cached bitmap load request.
     ListenableFuture<Bitmap> future1 = cacheBitmapLoader.decodeBitmap(imageData);
 
-    assertThat(
-            future1
-                .get(10, SECONDS)
-                .sameAs(
-                    BitmapFactory.decodeByteArray(imageData, /* offset= */ 0, imageData.length)))
-        .isTrue();
+    assertThat(future1.get(10, SECONDS).sameAs(expectedBitmap)).isTrue();
 
     // Second request, has cached bitmap load request.
     ListenableFuture<Bitmap> future2 = cacheBitmapLoader.decodeBitmap(imageData);
@@ -78,37 +87,33 @@ public class CacheBitmapLoaderTest {
 
   @Test
   public void decodeBitmap_requestWithDifferentData_success() throws Exception {
-    CacheBitmapLoader cacheBitmapLoader = new CacheBitmapLoader(new SimpleBitmapLoader());
-    byte[] imageData1 =
-        TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), TEST_IMAGE_PATH);
-    byte[] imageData2 =
-        TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), SECOND_TEST_IMAGE_PATH);
+    CacheBitmapLoader cacheBitmapLoader =
+        new CacheBitmapLoader(new DataSourceBitmapLoader(context));
+    byte[] imageData1 = TestUtil.getByteArray(context, TEST_IMAGE_PATH);
+    byte[] imageData2 = TestUtil.getByteArray(context, SECOND_TEST_IMAGE_PATH);
+    Bitmap expectedBitmap1 =
+        apply90DegreeExifRotation(
+            BitmapFactory.decodeByteArray(imageData1, /* offset= */ 0, imageData1.length));
+    Bitmap expectedBitmap2 =
+        apply90DegreeExifRotation(
+            BitmapFactory.decodeByteArray(imageData2, /* offset= */ 0, imageData2.length));
 
     // First request.
     ListenableFuture<Bitmap> future1 = cacheBitmapLoader.decodeBitmap(imageData1);
 
-    assertThat(
-            future1
-                .get(10, SECONDS)
-                .sameAs(
-                    BitmapFactory.decodeByteArray(imageData1, /* offset= */ 0, imageData1.length)))
-        .isTrue();
+    assertThat(future1.get(10, SECONDS).sameAs(expectedBitmap1)).isTrue();
 
     // Second request.
     ListenableFuture<Bitmap> future2 = cacheBitmapLoader.decodeBitmap(imageData2);
 
-    assertThat(
-            future2
-                .get(10, SECONDS)
-                .sameAs(
-                    BitmapFactory.decodeByteArray(imageData2, /* offset= */ 0, imageData2.length)))
-        .isTrue();
+    assertThat(future2.get(10, SECONDS).sameAs(expectedBitmap2)).isTrue();
     assertThat(future1).isNotSameInstanceAs(future2);
   }
 
   @Test
   public void decodeBitmap_requestWithSameDataTwice_throwsException() {
-    CacheBitmapLoader cacheBitmapLoader = new CacheBitmapLoader(new SimpleBitmapLoader());
+    CacheBitmapLoader cacheBitmapLoader =
+        new CacheBitmapLoader(new DataSourceBitmapLoader(context));
 
     // First request, no cached bitmap load request.
     ListenableFuture<Bitmap> future1 = cacheBitmapLoader.decodeBitmap(new byte[0]);
@@ -125,39 +130,35 @@ public class CacheBitmapLoaderTest {
 
   @Test
   public void loadBitmap_httpUri_requestWithSameUriTwice_success() throws Exception {
-    CacheBitmapLoader cacheBitmapLoader = new CacheBitmapLoader(new SimpleBitmapLoader());
-    byte[] imageData =
-        TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), TEST_IMAGE_PATH);
+    CacheBitmapLoader cacheBitmapLoader =
+        new CacheBitmapLoader(new DataSourceBitmapLoader(context));
+    byte[] imageData = TestUtil.getByteArray(context, TEST_IMAGE_PATH);
     Buffer responseBody = new Buffer().write(imageData);
     MockWebServer mockWebServer = new MockWebServer();
     mockWebServer.enqueue(new MockResponse().setResponseCode(200).setBody(responseBody));
     Uri uri = Uri.parse(mockWebServer.url("test_path").toString());
+    Bitmap expectedBitmap =
+        apply90DegreeExifRotation(
+            BitmapFactory.decodeByteArray(imageData, /* offset= */ 0, imageData.length));
 
     // First request, no cached bitmap load request.
     Bitmap bitmap = cacheBitmapLoader.loadBitmap(uri).get(10, SECONDS);
 
-    assertThat(
-            bitmap.sameAs(
-                BitmapFactory.decodeByteArray(imageData, /* offset= */ 0, imageData.length)))
-        .isTrue();
+    assertThat(bitmap.sameAs(expectedBitmap)).isTrue();
 
     // Second request, has cached bitmap load request.
     bitmap = cacheBitmapLoader.loadBitmap(uri).get(10, SECONDS);
 
-    assertThat(
-            bitmap.sameAs(
-                BitmapFactory.decodeByteArray(imageData, /* offset= */ 0, imageData.length)))
-        .isTrue();
+    assertThat(bitmap.sameAs(expectedBitmap)).isTrue();
     assertThat(mockWebServer.getRequestCount()).isEqualTo(1);
   }
 
   @Test
   public void loadBitmap_httpUri_requestWithDifferentUri_success() throws Exception {
-    CacheBitmapLoader cacheBitmapLoader = new CacheBitmapLoader(new SimpleBitmapLoader());
-    byte[] imageData1 =
-        TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), TEST_IMAGE_PATH);
-    byte[] imageData2 =
-        TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), SECOND_TEST_IMAGE_PATH);
+    CacheBitmapLoader cacheBitmapLoader =
+        new CacheBitmapLoader(new DataSourceBitmapLoader(context));
+    byte[] imageData1 = TestUtil.getByteArray(context, TEST_IMAGE_PATH);
+    byte[] imageData2 = TestUtil.getByteArray(context, SECOND_TEST_IMAGE_PATH);
     Buffer responseBody1 = new Buffer().write(imageData1);
     Buffer responseBody2 = new Buffer().write(imageData2);
     MockWebServer mockWebServer = new MockWebServer();
@@ -165,28 +166,29 @@ public class CacheBitmapLoaderTest {
     mockWebServer.enqueue(new MockResponse().setResponseCode(200).setBody(responseBody2));
     Uri uri1 = Uri.parse(mockWebServer.url("test_path_1").toString());
     Uri uri2 = Uri.parse(mockWebServer.url("test_path_2").toString());
+    Bitmap expectedBitmap1 =
+        apply90DegreeExifRotation(
+            BitmapFactory.decodeByteArray(imageData1, /* offset= */ 0, imageData1.length));
+    Bitmap expectedBitmap2 =
+        apply90DegreeExifRotation(
+            BitmapFactory.decodeByteArray(imageData2, /* offset= */ 0, imageData2.length));
 
     // First request.
     Bitmap bitmap = cacheBitmapLoader.loadBitmap(uri1).get(10, SECONDS);
 
-    assertThat(
-            bitmap.sameAs(
-                BitmapFactory.decodeByteArray(imageData1, /* offset= */ 0, imageData1.length)))
-        .isTrue();
+    assertThat(bitmap.sameAs(expectedBitmap1)).isTrue();
 
     // Second request.
     bitmap = cacheBitmapLoader.loadBitmap(uri2).get(10, SECONDS);
 
-    assertThat(
-            bitmap.sameAs(
-                BitmapFactory.decodeByteArray(imageData2, /* offset= */ 0, imageData2.length)))
-        .isTrue();
+    assertThat(bitmap.sameAs(expectedBitmap2)).isTrue();
     assertThat(mockWebServer.getRequestCount()).isEqualTo(2);
   }
 
   @Test
-  public void loadBitmap_httpUri_requestWithSameUriTwice_throwsException() throws Exception {
-    CacheBitmapLoader cacheBitmapLoader = new CacheBitmapLoader(new SimpleBitmapLoader());
+  public void loadBitmap_httpUri_requestWithSameUriTwice_throwsException() {
+    CacheBitmapLoader cacheBitmapLoader =
+        new CacheBitmapLoader(new DataSourceBitmapLoader(context));
     MockWebServer mockWebServer = new MockWebServer();
     mockWebServer.enqueue(new MockResponse().setResponseCode(404));
     Uri uri = Uri.parse(mockWebServer.url("test_path").toString());
@@ -201,10 +203,25 @@ public class CacheBitmapLoaderTest {
         assertThrows(ExecutionException.class, () -> future1.get(10, SECONDS));
     ExecutionException executionException2 =
         assertThrows(ExecutionException.class, () -> future2.get(10, SECONDS));
-    assertThat(executionException1).hasCauseThat().isInstanceOf(IOException.class);
-    assertThat(executionException2).hasCauseThat().isInstanceOf(IOException.class);
-    assertThat(executionException1).hasMessageThat().contains("Invalid response status");
-    assertThat(executionException2).hasMessageThat().contains("Invalid response status");
+    assertThat(executionException1)
+        .hasCauseThat()
+        .isInstanceOf(HttpDataSource.InvalidResponseCodeException.class);
+    assertThat(executionException2)
+        .hasCauseThat()
+        .isInstanceOf(HttpDataSource.InvalidResponseCodeException.class);
     assertThat(mockWebServer.getRequestCount()).isEqualTo(1);
+  }
+
+  private static Bitmap apply90DegreeExifRotation(Bitmap bitmap) {
+    Matrix rotationMatrix = new Matrix();
+    rotationMatrix.postRotate(/* degrees= */ 90);
+    return Bitmap.createBitmap(
+        bitmap,
+        /* x= */ 0,
+        /* y= */ 0,
+        bitmap.getWidth(),
+        bitmap.getHeight(),
+        rotationMatrix,
+        /* filter= */ false);
   }
 }

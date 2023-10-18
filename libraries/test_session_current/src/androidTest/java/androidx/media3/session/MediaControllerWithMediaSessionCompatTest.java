@@ -71,6 +71,7 @@ import androidx.media3.common.Player.State;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.util.BitmapLoader;
 import androidx.media3.common.util.Util;
+import androidx.media3.datasource.DataSourceBitmapLoader;
 import androidx.media3.test.session.common.HandlerThreadTestRule;
 import androidx.media3.test.session.common.MainLooperTestRule;
 import androidx.media3.test.session.common.MockActivity;
@@ -126,7 +127,7 @@ public class MediaControllerWithMediaSessionCompatTest {
   public void setUp() throws Exception {
     context = ApplicationProvider.getApplicationContext();
     session = new RemoteMediaSessionCompat(DEFAULT_TEST_NAME, context);
-    bitmapLoader = new CacheBitmapLoader(new SimpleBitmapLoader());
+    bitmapLoader = new CacheBitmapLoader(new DataSourceBitmapLoader(context));
   }
 
   @After
@@ -986,8 +987,10 @@ public class MediaControllerWithMediaSessionCompatTest {
 
     MediaMetadata mediaMetadata =
         threadTestRule.getHandler().postAndSync(controller::getMediaMetadata);
-    assertThat(mediaMetadata.title).isEqualTo(testMediaDescriptionCompat.getTitle());
-    assertThat(mediaMetadata.description).isEqualTo(testMediaDescriptionCompat.getDescription());
+    assertThat(mediaMetadata.title.toString())
+        .isEqualTo(testMediaDescriptionCompat.getTitle().toString());
+    assertThat(mediaMetadata.description.toString())
+        .isEqualTo(testMediaDescriptionCompat.getDescription().toString());
   }
 
   @Test
@@ -1653,7 +1656,7 @@ public class MediaControllerWithMediaSessionCompatTest {
         VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE,
         /* maxVolume= */ 100,
         /* currentVolume= */ 45,
-        /* routingSessionId= */ "route");
+        /* routingControllerId= */ "route");
 
     int testLocalStreamType = AudioManager.STREAM_ALARM;
     AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);

@@ -27,11 +27,9 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.util.UnstableApi
-import androidx.media3.datasource.DataSourceBitmapLoader
 import androidx.media3.demo.session.service.R
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.util.EventLogger
-import androidx.media3.session.CacheBitmapLoader
 import androidx.media3.session.MediaLibraryService
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSession.ControllerInfo
@@ -117,14 +115,8 @@ open class DemoPlaybackService : MediaLibraryService() {
         .build()
     player.addAnalyticsListener(EventLogger())
 
-    // MediaLibrarySession.Builder.setCustomLayout
-    // MediaLibrarySession.Builder.setBitmapLoader
-    // CacheBitmapLoader
-    // DataSourceBitmapLoader
-    @OptIn(UnstableApi::class)
     mediaLibrarySession =
       MediaLibrarySession.Builder(this, player, createLibrarySessionCallback())
-        .setBitmapLoader(CacheBitmapLoader(DataSourceBitmapLoader(/* context= */ this)))
         .also { builder -> getSingleTopActivity()?.let { builder.setSessionActivity(it) } }
         .build()
   }

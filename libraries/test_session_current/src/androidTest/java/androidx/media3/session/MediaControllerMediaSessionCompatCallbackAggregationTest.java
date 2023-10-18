@@ -47,6 +47,7 @@ import androidx.media3.common.Timeline;
 import androidx.media3.common.Timeline.Window;
 import androidx.media3.common.util.BitmapLoader;
 import androidx.media3.common.util.Util;
+import androidx.media3.datasource.DataSourceBitmapLoader;
 import androidx.media3.test.session.common.HandlerThreadTestRule;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -84,7 +85,7 @@ public class MediaControllerMediaSessionCompatCallbackAggregationTest {
   public void setUp() throws Exception {
     context = ApplicationProvider.getApplicationContext();
     session = new RemoteMediaSessionCompat(DEFAULT_TEST_NAME, context);
-    bitmapLoader = new CacheBitmapLoader(new SimpleBitmapLoader());
+    bitmapLoader = new CacheBitmapLoader(new DataSourceBitmapLoader(context));
   }
 
   @After

@@ -45,6 +45,7 @@ import org.junit.runner.RunWith;
 import org.robolectric.annotation.GraphicsMode;
 
 /** Tests for {@link SimpleBitmapLoader}. */
+@SuppressWarnings("deprecation") // Testing deprecated class
 @RunWith(AndroidJUnit4.class)
 @GraphicsMode(value = NATIVE)
 public class SimpleBitmapLoaderTest {

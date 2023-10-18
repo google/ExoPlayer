@@ -39,17 +39,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * A simple bitmap loader that delegates all tasks to an executor and supports fetching images from
- * URIs with {@code file}, {@code http} and {@code https} schemes.
- *
- * <p>Loading tasks are delegated to an {@link ExecutorService} (or {@link
- * ListeningExecutorService}) defined during construction. If no executor service is defined, all
- * tasks are delegated to a single-thread executor service that is shared between instances of this
- * class.
- *
- * <p>For HTTP(S) transfers, this class reads a resource only when the endpoint responds with an
- * {@code HTTP 200} after sending the HTTP request.
+ * @deprecated Use {@link androidx.media3.datasource.DataSourceBitmapLoader} instead.
  */
+@Deprecated
 @UnstableApi
 public final class SimpleBitmapLoader implements BitmapLoader {
 

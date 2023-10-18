@@ -39,6 +39,8 @@
         framework session, this has the effect that the `queue` button in the UI
         of Android Auto is not displayed
         (([#339](https://github.com/androidx/media/issues/339)).
+    *   Use `DataSourceBitmapLoader` by default instead of `SimpleBitmapLoader`
+        ([#271](https://github.com/androidx/media/issues/271),[#327](https://github.com/androidx/media/issues/327)).
 *   UI:
 *   Downloads:
 *   OkHttp Extension:

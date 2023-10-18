@@ -41,6 +41,7 @@ dependencies {
     api project(modulePrefix + 'lib-common')
     compileOnly 'com.google.errorprone:error_prone_annotations:' + errorProneVersion
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
+    implementation project(modulePrefix + 'lib-datasource')
     implementation 'androidx.collection:collection:' + androidxCollectionVersion
     implementation 'androidx.media:media:' + androidxMediaVersion
     implementation 'androidx.core:core:' + androidxCoreVersion
