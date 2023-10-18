@@ -1243,9 +1243,8 @@ import java.util.List;
         Av1BitstreamParser parser = new Av1BitstreamParser(parent);
         if (parser.parseSequenceHeader() && parser.colorDescriptionPresentFlag == 1) {
           colorSpace = ColorInfo.isoColorPrimariesToColorSpace(parser.colorPrimaries);
-          colorTransfer = ColorInfo.isoTransferCharacteristicsToColorTransfer(
-              parser.transferCharacteristics
-          );
+          colorTransfer =
+              ColorInfo.isoTransferCharacteristicsToColorTransfer(parser.transferCharacteristics);
           colorRange = (parser.colorRange == 1) ? C.COLOR_RANGE_FULL : C.COLOR_RANGE_LIMITED;
         }
       } else if (childAtomType == Atom.TYPE_clli) {
@@ -2185,7 +2184,7 @@ import java.util.List;
   /**
    * Helper class for parsing syntax elements from AV1 bitstream.
    *
-   * Bitstream specification: https://aomediacodec.github.io/av1-spec/av1-spec.pdf
+   * <p>Bitstream specification: https://aomediacodec.github.io/av1-spec/av1-spec.pdf
    */
   private static final class Av1BitstreamParser {
     private static final String TAG = "Av1BitstreamParser";
@@ -2208,9 +2207,8 @@ import java.util.List;
     /**
      * Parses a fixed-length unsigned number.
      *
-     * See AV1 bitstream spec 4.10.2.
-     * f(n): Unsigned n-bit number appearing directly in the bitstream.
-     * The bits are read from high to low order.
+     * <p>See AV1 bitstream spec 4.10.2. f(n): Unsigned n-bit number appearing directly in the
+     * bitstream. The bits are read from high to low order.
      *
      * @param length The length (in bits) of the number to decode.
      * @return Parsed unsigned number.
@@ -2225,8 +2223,7 @@ import java.util.List;
         int newBitCount = min(length, bitCount);
         bitCount -= newBitCount;
         length -= newBitCount;
-        result = (result << newBitCount) |
-            ((currentByte >> bitCount) & ((1 << newBitCount) - 1));
+        result = (result << newBitCount) | ((currentByte >> bitCount) & ((1 << newBitCount) - 1));
       }
       return result;
     }
@@ -2234,8 +2231,7 @@ import java.util.List;
     /**
      * Parses the AV1 sequence header.
      *
-     * See AV1 bitstream spec 5.5.1.
-     * This method can only be called once.
+     * <p>See AV1 bitstream spec 5.5.1. This method can only be called once.
      */
     public boolean parseSequenceHeader() {
       if (parseSequenceHeaderCalled) {

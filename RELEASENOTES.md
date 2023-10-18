@@ -24,6 +24,8 @@
         video track are available. The default value is `false` which means
         selecting a video track is prioritized.
 *   Extractors:
+    *   Add AV1C parsing to MP4 extractor
+        ([#692](https://github.com/androidx/media/pull/692)).
 *   Audio:
 *   Video:
     *   Add workaround for a device issue on Galaxy Tab S7 FE, Chromecast with
