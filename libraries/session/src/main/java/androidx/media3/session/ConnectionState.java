@@ -98,6 +98,10 @@ import java.util.List;
 
   @Override
   public Bundle toBundle() {
+    return toBundle(Integer.MAX_VALUE);
+  }
+
+  public Bundle toBundle(int controllerInterfaceVersion) {
     Bundle bundle = new Bundle();
     bundle.putInt(FIELD_LIBRARY_VERSION, libraryVersion);
     BundleCompat.putBinder(bundle, FIELD_SESSION_BINDER, sessionBinder.asBinder());
@@ -114,8 +118,10 @@ import java.util.List;
         MediaUtils.intersect(playerCommandsFromSession, playerCommandsFromPlayer);
     bundle.putBundle(
         FIELD_PLAYER_INFO,
-        playerInfo.toBundle(
-            intersectedCommands, /* excludeTimeline= */ false, /* excludeTracks= */ false));
+        playerInfo
+            .filterByAvailableCommands(
+                intersectedCommands, /* excludeTimeline= */ false, /* excludeTracks= */ false)
+            .toBundle(controllerInterfaceVersion));
     bundle.putInt(FIELD_SESSION_INTERFACE_VERSION, sessionInterfaceVersion);
     return bundle;
   }

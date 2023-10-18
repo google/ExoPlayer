@@ -932,7 +932,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           controller,
           (controllerCb, seq) ->
               controllerCb.onPeriodicSessionPositionInfoChanged(
-                  seq, sessionPositionInfo, canAccessCurrentMediaItem, canAccessTimeline));
+                  seq,
+                  sessionPositionInfo,
+                  canAccessCurrentMediaItem,
+                  canAccessTimeline,
+                  controller.getInterfaceVersion()));
     }
     try {
       sessionLegacyStub
@@ -941,7 +945,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               /* seq= */ 0,
               sessionPositionInfo,
               /* canAccessCurrentMediaItem= */ true,
-              /* canAccessTimeline= */ true);
+              /* canAccessTimeline= */ true,
+              ControllerInfo.LEGACY_CONTROLLER_INTERFACE_VERSION);
     } catch (RemoteException e) {
       Log.e(TAG, "Exception in using media1 API", e);
     }

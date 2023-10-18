@@ -85,4 +85,35 @@ public class SessionPositionInfoTest {
                 /* contentDurationMs= */ 400L,
                 /* contentBufferedPositionMs= */ 223L));
   }
+
+  @Test
+  public void roundTripViaBundle_withDefaultValues_yieldsEqualInstance() {
+    SessionPositionInfo roundTripValue =
+        SessionPositionInfo.CREATOR.fromBundle(SessionPositionInfo.DEFAULT.toBundle());
+
+    assertThat(roundTripValue).isEqualTo(SessionPositionInfo.DEFAULT);
+  }
+
+  @Test
+  public void toBundle_withDefaultValues_omitsAllData() {
+    Bundle bundle =
+        SessionPositionInfo.DEFAULT.toBundle(/* controllerInterfaceVersion= */ Integer.MAX_VALUE);
+
+    assertThat(bundle.isEmpty()).isTrue();
+  }
+
+  @Test
+  public void
+      toBundle_withDefaultValuesForControllerInterfaceBefore3_includesPositionInfoAndBufferedValues() {
+    // Controller before version 3 uses invalid default values for indices in PositionInfo and for
+    // the buffered positions. The Bundle should always include these fields to avoid using the
+    // invalid defaults.
+    Bundle bundle = SessionPositionInfo.DEFAULT.toBundle(/* controllerInterfaceVersion= */ 2);
+
+    assertThat(bundle.keySet())
+        .containsAtLeast(
+            SessionPositionInfo.FIELD_BUFFERED_POSITION_MS,
+            SessionPositionInfo.FIELD_CONTENT_BUFFERED_POSITION_MS,
+            SessionPositionInfo.FIELD_POSITION_INFO);
+  }
 }

@@ -1331,7 +1331,8 @@ import org.checkerframework.checker.initialization.qual.Initialized;
         int unusedSeq,
         SessionPositionInfo unusedSessionPositionInfo,
         boolean unusedCanAccessCurrentMediaItem,
-        boolean unusedCanAccessTimeline)
+        boolean unusedCanAccessTimeline,
+        int controllerInterfaceVersion)
         throws RemoteException {
       updateLegacySessionPlaybackState(sessionImpl.getPlayerWrapper());
     }

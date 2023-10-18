@@ -1668,7 +1668,8 @@ public class MediaSession {
         int seq,
         SessionPositionInfo sessionPositionInfo,
         boolean canAccessCurrentMediaItem,
-        boolean canAccessTimeline)
+        boolean canAccessTimeline,
+        int controllerInterfaceVersion)
         throws RemoteException {}
 
     // Mostly matched with MediaController.ControllerCallback

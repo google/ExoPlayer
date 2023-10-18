@@ -71,7 +71,7 @@ public class PlayerInfoTest {
   }
 
   @Test
-  public void toBundleFromBundle_withAllCommands_restoresAllData() {
+  public void toBundleFromBundle_restoresAllData() {
     PlayerInfo playerInfo =
         new PlayerInfo.Builder(PlayerInfo.DEFAULT)
             .setOldPositionInfo(
@@ -151,7 +151,7 @@ public class PlayerInfoTest {
                 new PlaybackException(
                     /* message= */ null, /* cause= */ null, PlaybackException.ERROR_CODE_TIMEOUT))
             .setPlayWhenReady(true)
-            .setPlayWhenReadyChangeReason(Player.PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST)
+            .setPlayWhenReadyChangeReason(Player.PLAY_WHEN_READY_CHANGE_REASON_AUDIO_FOCUS_LOSS)
             .setRepeatMode(Player.REPEAT_MODE_ONE)
             .setSeekBackIncrement(7000)
             .setSeekForwardIncrement(6000)
@@ -163,12 +163,7 @@ public class PlayerInfoTest {
             .setVideoSize(new VideoSize(/* width= */ 1024, /* height= */ 768))
             .build();
 
-    PlayerInfo infoAfterBundling =
-        PlayerInfo.CREATOR.fromBundle(
-            playerInfo.toBundle(
-                new Player.Commands.Builder().addAllCommands().build(),
-                /* excludeTimeline= */ false,
-                /* excludeTracks= */ false));
+    PlayerInfo infoAfterBundling = PlayerInfo.CREATOR.fromBundle(playerInfo.toBundle());
 
     assertThat(infoAfterBundling.oldPositionInfo.mediaItemIndex).isEqualTo(5);
     assertThat(infoAfterBundling.oldPositionInfo.periodIndex).isEqualTo(4);
@@ -205,8 +200,8 @@ public class PlayerInfoTest {
     assertThat(infoAfterBundling.timeline.getWindowCount()).isEqualTo(10);
     assertThat(infoAfterBundling.timelineChangeReason)
         .isEqualTo(Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE);
-    assertThat(infoAfterBundling.mediaMetadata.title).isEqualTo("title");
-    assertThat(infoAfterBundling.playlistMetadata.artist).isEqualTo("artist");
+    assertThat(infoAfterBundling.mediaMetadata.title.toString()).isEqualTo("title");
+    assertThat(infoAfterBundling.playlistMetadata.artist.toString()).isEqualTo("artist");
     assertThat(infoAfterBundling.volume).isEqualTo(0.5f);
     assertThat(infoAfterBundling.deviceVolume).isEqualTo(10);
     assertThat(infoAfterBundling.deviceMuted).isTrue();
@@ -229,7 +224,7 @@ public class PlayerInfoTest {
         .isEqualTo(PlaybackException.ERROR_CODE_TIMEOUT);
     assertThat(infoAfterBundling.playWhenReady).isTrue();
     assertThat(infoAfterBundling.playWhenReadyChangeReason)
-        .isEqualTo(Player.PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST);
+        .isEqualTo(Player.PLAY_WHEN_READY_CHANGE_REASON_AUDIO_FOCUS_LOSS);
     assertThat(infoAfterBundling.repeatMode).isEqualTo(Player.REPEAT_MODE_ONE);
     assertThat(infoAfterBundling.seekBackIncrementMs).isEqualTo(7000);
     assertThat(infoAfterBundling.seekForwardIncrementMs).isEqualTo(6000);
@@ -289,13 +284,15 @@ public class PlayerInfoTest {
 
     PlayerInfo infoAfterBundling =
         PlayerInfo.CREATOR.fromBundle(
-            playerInfo.toBundle(
-                new Player.Commands.Builder()
-                    .addAllCommands()
-                    .remove(Player.COMMAND_GET_CURRENT_MEDIA_ITEM)
-                    .build(),
-                /* excludeTimeline= */ false,
-                /* excludeTracks= */ false));
+            playerInfo
+                .filterByAvailableCommands(
+                    new Player.Commands.Builder()
+                        .addAllCommands()
+                        .remove(Player.COMMAND_GET_CURRENT_MEDIA_ITEM)
+                        .build(),
+                    /* excludeTimeline= */ false,
+                    /* excludeTracks= */ false)
+                .toBundle());
 
     assertThat(infoAfterBundling.oldPositionInfo.mediaItemIndex).isEqualTo(5);
     assertThat(infoAfterBundling.oldPositionInfo.periodIndex).isEqualTo(4);
@@ -408,13 +405,15 @@ public class PlayerInfoTest {
 
     PlayerInfo infoAfterBundling =
         PlayerInfo.CREATOR.fromBundle(
-            playerInfo.toBundle(
-                new Player.Commands.Builder()
-                    .addAllCommands()
-                    .remove(Player.COMMAND_GET_TIMELINE)
-                    .build(),
-                /* excludeTimeline= */ true,
-                /* excludeTracks= */ false));
+            playerInfo
+                .filterByAvailableCommands(
+                    new Player.Commands.Builder()
+                        .addAllCommands()
+                        .remove(Player.COMMAND_GET_TIMELINE)
+                        .build(),
+                    /* excludeTimeline= */ true,
+                    /* excludeTracks= */ false)
+                .toBundle());
 
     assertThat(infoAfterBundling.oldPositionInfo.mediaItemIndex).isEqualTo(0);
     assertThat(infoAfterBundling.oldPositionInfo.periodIndex).isEqualTo(0);
@@ -475,13 +474,15 @@ public class PlayerInfoTest {
 
     PlayerInfo infoAfterBundling =
         PlayerInfo.CREATOR.fromBundle(
-            playerInfo.toBundle(
-                new Player.Commands.Builder()
-                    .addAllCommands()
-                    .remove(Player.COMMAND_GET_METADATA)
-                    .build(),
-                /* excludeTimeline= */ false,
-                /* excludeTracks= */ false));
+            playerInfo
+                .filterByAvailableCommands(
+                    new Player.Commands.Builder()
+                        .addAllCommands()
+                        .remove(Player.COMMAND_GET_METADATA)
+                        .build(),
+                    /* excludeTimeline= */ false,
+                    /* excludeTracks= */ false)
+                .toBundle());
 
     assertThat(infoAfterBundling.mediaMetadata).isEqualTo(MediaMetadata.EMPTY);
     assertThat(infoAfterBundling.playlistMetadata).isEqualTo(MediaMetadata.EMPTY);
@@ -493,13 +494,15 @@ public class PlayerInfoTest {
 
     PlayerInfo infoAfterBundling =
         PlayerInfo.CREATOR.fromBundle(
-            playerInfo.toBundle(
-                new Player.Commands.Builder()
-                    .addAllCommands()
-                    .remove(Player.COMMAND_GET_VOLUME)
-                    .build(),
-                /* excludeTimeline= */ false,
-                /* excludeTracks= */ false));
+            playerInfo
+                .filterByAvailableCommands(
+                    new Player.Commands.Builder()
+                        .addAllCommands()
+                        .remove(Player.COMMAND_GET_VOLUME)
+                        .build(),
+                    /* excludeTimeline= */ false,
+                    /* excludeTracks= */ false)
+                .toBundle());
 
     assertThat(infoAfterBundling.volume).isEqualTo(1f);
   }
@@ -511,13 +514,15 @@ public class PlayerInfoTest {
 
     PlayerInfo infoAfterBundling =
         PlayerInfo.CREATOR.fromBundle(
-            playerInfo.toBundle(
-                new Player.Commands.Builder()
-                    .addAllCommands()
-                    .remove(Player.COMMAND_GET_DEVICE_VOLUME)
-                    .build(),
-                /* excludeTimeline= */ false,
-                /* excludeTracks= */ false));
+            playerInfo
+                .filterByAvailableCommands(
+                    new Player.Commands.Builder()
+                        .addAllCommands()
+                        .remove(Player.COMMAND_GET_DEVICE_VOLUME)
+                        .build(),
+                    /* excludeTimeline= */ false,
+                    /* excludeTracks= */ false)
+                .toBundle());
 
     assertThat(infoAfterBundling.deviceVolume).isEqualTo(0);
     assertThat(infoAfterBundling.deviceMuted).isFalse();
@@ -533,13 +538,15 @@ public class PlayerInfoTest {
 
     PlayerInfo infoAfterBundling =
         PlayerInfo.CREATOR.fromBundle(
-            playerInfo.toBundle(
-                new Player.Commands.Builder()
-                    .addAllCommands()
-                    .remove(Player.COMMAND_GET_AUDIO_ATTRIBUTES)
-                    .build(),
-                /* excludeTimeline= */ false,
-                /* excludeTracks= */ false));
+            playerInfo
+                .filterByAvailableCommands(
+                    new Player.Commands.Builder()
+                        .addAllCommands()
+                        .remove(Player.COMMAND_GET_AUDIO_ATTRIBUTES)
+                        .build(),
+                    /* excludeTimeline= */ false,
+                    /* excludeTracks= */ false)
+                .toBundle());
 
     assertThat(infoAfterBundling.audioAttributes).isEqualTo(AudioAttributes.DEFAULT);
   }
@@ -553,13 +560,15 @@ public class PlayerInfoTest {
 
     PlayerInfo infoAfterBundling =
         PlayerInfo.CREATOR.fromBundle(
-            playerInfo.toBundle(
-                new Player.Commands.Builder()
-                    .addAllCommands()
-                    .remove(Player.COMMAND_GET_TEXT)
-                    .build(),
-                /* excludeTimeline= */ false,
-                /* excludeTracks= */ false));
+            playerInfo
+                .filterByAvailableCommands(
+                    new Player.Commands.Builder()
+                        .addAllCommands()
+                        .remove(Player.COMMAND_GET_TEXT)
+                        .build(),
+                    /* excludeTimeline= */ false,
+                    /* excludeTracks= */ false)
+                .toBundle());
 
     assertThat(infoAfterBundling.cueGroup).isEqualTo(CueGroup.EMPTY_TIME_ZERO);
   }
@@ -581,14 +590,84 @@ public class PlayerInfoTest {
 
     PlayerInfo infoAfterBundling =
         PlayerInfo.CREATOR.fromBundle(
-            playerInfo.toBundle(
-                new Player.Commands.Builder()
-                    .addAllCommands()
-                    .remove(Player.COMMAND_GET_TRACKS)
-                    .build(),
-                /* excludeTimeline= */ false,
-                /* excludeTracks= */ true));
+            playerInfo
+                .filterByAvailableCommands(
+                    new Player.Commands.Builder()
+                        .addAllCommands()
+                        .remove(Player.COMMAND_GET_TRACKS)
+                        .build(),
+                    /* excludeTimeline= */ false,
+                    /* excludeTracks= */ true)
+                .toBundle());
 
     assertThat(infoAfterBundling.currentTracks).isEqualTo(Tracks.EMPTY);
+  }
+
+  @Test
+  public void toBundleFromBundle_withDefaultValues_restoresAllData() {
+    PlayerInfo roundTripValue = PlayerInfo.CREATOR.fromBundle(PlayerInfo.DEFAULT.toBundle());
+
+    assertThat(roundTripValue.oldPositionInfo).isEqualTo(PlayerInfo.DEFAULT.oldPositionInfo);
+    assertThat(roundTripValue.newPositionInfo).isEqualTo(PlayerInfo.DEFAULT.newPositionInfo);
+    assertThat(roundTripValue.sessionPositionInfo)
+        .isEqualTo(PlayerInfo.DEFAULT.sessionPositionInfo);
+    assertThat(roundTripValue.timeline).isEqualTo(PlayerInfo.DEFAULT.timeline);
+    assertThat(roundTripValue.timelineChangeReason)
+        .isEqualTo(PlayerInfo.DEFAULT.timelineChangeReason);
+    assertThat(roundTripValue.mediaMetadata).isEqualTo(PlayerInfo.DEFAULT.mediaMetadata);
+    assertThat(roundTripValue.playlistMetadata).isEqualTo(PlayerInfo.DEFAULT.playlistMetadata);
+    assertThat(roundTripValue.volume).isEqualTo(PlayerInfo.DEFAULT.volume);
+    assertThat(roundTripValue.deviceVolume).isEqualTo(PlayerInfo.DEFAULT.deviceVolume);
+    assertThat(roundTripValue.deviceMuted).isEqualTo(PlayerInfo.DEFAULT.deviceMuted);
+    assertThat(roundTripValue.audioAttributes).isEqualTo(PlayerInfo.DEFAULT.audioAttributes);
+    assertThat(roundTripValue.cueGroup).isEqualTo(PlayerInfo.DEFAULT.cueGroup);
+    assertThat(roundTripValue.currentTracks).isEqualTo(PlayerInfo.DEFAULT.currentTracks);
+    assertThat(roundTripValue.deviceInfo).isEqualTo(PlayerInfo.DEFAULT.deviceInfo);
+    assertThat(roundTripValue.discontinuityReason)
+        .isEqualTo(PlayerInfo.DEFAULT.discontinuityReason);
+    assertThat(roundTripValue.isLoading).isEqualTo(PlayerInfo.DEFAULT.isLoading);
+    assertThat(roundTripValue.isPlaying).isEqualTo(PlayerInfo.DEFAULT.isPlaying);
+    assertThat(roundTripValue.maxSeekToPreviousPositionMs)
+        .isEqualTo(PlayerInfo.DEFAULT.maxSeekToPreviousPositionMs);
+    assertThat(roundTripValue.mediaItemTransitionReason)
+        .isEqualTo(PlayerInfo.DEFAULT.mediaItemTransitionReason);
+    assertThat(roundTripValue.playbackParameters).isEqualTo(PlayerInfo.DEFAULT.playbackParameters);
+    assertThat(roundTripValue.playbackState).isEqualTo(PlayerInfo.DEFAULT.playbackState);
+    assertThat(roundTripValue.playbackSuppressionReason)
+        .isEqualTo(PlayerInfo.DEFAULT.playbackSuppressionReason);
+    assertThat(roundTripValue.playerError).isEqualTo(PlayerInfo.DEFAULT.playerError);
+    assertThat(roundTripValue.playWhenReady).isEqualTo(PlayerInfo.DEFAULT.playWhenReady);
+    assertThat(roundTripValue.playWhenReadyChangeReason)
+        .isEqualTo(PlayerInfo.DEFAULT.playWhenReadyChangeReason);
+    assertThat(roundTripValue.repeatMode).isEqualTo(PlayerInfo.DEFAULT.repeatMode);
+    assertThat(roundTripValue.seekBackIncrementMs)
+        .isEqualTo(PlayerInfo.DEFAULT.seekBackIncrementMs);
+    assertThat(roundTripValue.seekForwardIncrementMs)
+        .isEqualTo(PlayerInfo.DEFAULT.seekForwardIncrementMs);
+    assertThat(roundTripValue.shuffleModeEnabled).isEqualTo(PlayerInfo.DEFAULT.shuffleModeEnabled);
+    assertThat(roundTripValue.trackSelectionParameters)
+        .isEqualTo(PlayerInfo.DEFAULT.trackSelectionParameters);
+    assertThat(roundTripValue.videoSize).isEqualTo(PlayerInfo.DEFAULT.videoSize);
+  }
+
+  @Test
+  public void toBundle_withDefaultValues_omitsAllData() {
+    Bundle bundle =
+        PlayerInfo.DEFAULT.toBundle(/* controllerInterfaceVersion= */ Integer.MAX_VALUE);
+
+    assertThat(bundle.isEmpty()).isTrue();
+  }
+
+  @Test
+  public void toBundle_withDefaultValuesForControllerInterfaceBefore3_includesPositionInfos() {
+    // Controller before version 3 uses invalid default values for indices in (Session)PositionInfo.
+    // The Bundle should always include these fields to avoid using the invalid defaults.
+    Bundle bundle = PlayerInfo.DEFAULT.toBundle(/* controllerInterfaceVersion= */ 2);
+
+    assertThat(bundle.keySet())
+        .containsAtLeast(
+            PlayerInfo.FIELD_SESSION_POSITION_INFO,
+            PlayerInfo.FIELD_NEW_POSITION_INFO,
+            PlayerInfo.FIELD_OLD_POSITION_INFO);
   }
 }
