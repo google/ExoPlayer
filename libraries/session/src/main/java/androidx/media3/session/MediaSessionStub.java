@@ -117,12 +117,6 @@ import java.util.concurrent.ExecutionException;
   /** The version of the IMediaSession interface. */
   public static final int VERSION_INT = 2;
 
-  /**
-   * Sequence number used when a controller method is triggered on the sesison side that wasn't
-   * initiated by the controller itself.
-   */
-  public static final int UNKNOWN_SEQUENCE_NUMBER = Integer.MIN_VALUE;
-
   private final WeakReference<MediaSessionImpl> sessionImpl;
   private final MediaSessionManager sessionManager;
   private final ConnectedControllersManager<IBinder> connectedControllersManager;
@@ -291,24 +285,17 @@ import java.util.concurrent.ExecutionException;
       int sequenceNumber,
       @Player.Command int command,
       SessionTask<ListenableFuture<Void>, K> task) {
-    ControllerInfo controllerInfo = connectedControllersManager.getController(caller.asBinder());
-    if (controllerInfo != null) {
-      queueSessionTaskWithPlayerCommandForControllerInfo(
-          controllerInfo, sequenceNumber, command, task);
-    }
-  }
-
-  private <K extends MediaSessionImpl> void queueSessionTaskWithPlayerCommandForControllerInfo(
-      ControllerInfo controller,
-      int sequenceNumber,
-      @Player.Command int command,
-      SessionTask<ListenableFuture<Void>, K> task) {
     long token = Binder.clearCallingIdentity();
     try {
       @SuppressWarnings({"unchecked", "cast.unsafe"})
       @Nullable
       K sessionImpl = (K) this.sessionImpl.get();
       if (sessionImpl == null || sessionImpl.isReleased()) {
+        return;
+      }
+      @Nullable
+      ControllerInfo controller = connectedControllersManager.getController(caller.asBinder());
+      if (controller == null) {
         return;
       }
       postOrRun(
@@ -537,10 +524,7 @@ import java.util.concurrent.ExecutionException;
             }
             try {
               caller.onConnected(
-                  sequencedFutureManager.obtainNextSequenceNumber(),
-                  caller instanceof MediaControllerStub
-                      ? state.toBundleInProcess()
-                      : state.toBundle());
+                  sequencedFutureManager.obtainNextSequenceNumber(), state.toBundle());
               connected = true;
             } catch (RemoteException e) {
               // Controller may be died prematurely.
@@ -634,19 +618,8 @@ import java.util.concurrent.ExecutionException;
     if (caller == null) {
       return;
     }
-    @Nullable
-    ControllerInfo controllerInfo = connectedControllersManager.getController(caller.asBinder());
-    if (controllerInfo != null) {
-      stopForControllerInfo(controllerInfo, sequenceNumber);
-    }
-  }
-
-  public void stopForControllerInfo(ControllerInfo controllerInfo, int sequenceNumber) {
-    queueSessionTaskWithPlayerCommandForControllerInfo(
-        controllerInfo,
-        sequenceNumber,
-        COMMAND_STOP,
-        sendSessionResultSuccess(PlayerWrapper::stop));
+    queueSessionTaskWithPlayerCommand(
+        caller, sequenceNumber, COMMAND_STOP, sendSessionResultSuccess(player -> player.stop()));
   }
 
   @Override
@@ -701,30 +674,27 @@ import java.util.concurrent.ExecutionException;
     if (caller == null) {
       return;
     }
-    @Nullable
     ControllerInfo controller = connectedControllersManager.getController(caller.asBinder());
-    if (controller != null) {
-      playForControllerInfo(controller, sequenceNumber);
+    if (controller == null) {
+      return;
     }
-  }
-
-  public void playForControllerInfo(ControllerInfo controller, int sequenceNumber) {
-    queueSessionTaskWithPlayerCommandForControllerInfo(
-        controller,
+    queueSessionTaskWithPlayerCommand(
+        caller,
         sequenceNumber,
         COMMAND_PLAY_PAUSE,
         sendSessionResultSuccess(
             player -> {
-              @Nullable MediaSessionImpl impl = sessionImpl.get();
-              if (impl == null || impl.isReleased()) {
+              @Nullable MediaSessionImpl sessionImpl = this.sessionImpl.get();
+              if (sessionImpl == null || sessionImpl.isReleased()) {
                 return;
               }
-              if (impl.onPlayRequested()) {
+              if (sessionImpl.onPlayRequested()) {
                 if (player.getMediaItemCount() == 0) {
                   // The player is in IDLE or ENDED state and has no media items in the playlist
-                  // yet. Handle the play command as a playback resumption command to try resume
+                  // yet.
+                  // Handle the play command as a playback resumption command to try resume
                   // playback.
-                  impl.prepareAndPlayForPlaybackResumption(controller, player);
+                  sessionImpl.prepareAndPlayForPlaybackResumption(controller, player);
                 } else {
                   Util.handlePlayButtonAction(player);
                 }
@@ -737,16 +707,8 @@ import java.util.concurrent.ExecutionException;
     if (caller == null) {
       return;
     }
-    @Nullable
-    ControllerInfo controllerInfo = connectedControllersManager.getController(caller.asBinder());
-    if (controllerInfo != null) {
-      pauseForControllerInfo(controllerInfo, sequenceNumber);
-    }
-  }
-
-  public void pauseForControllerInfo(ControllerInfo controller, int sequenceNumber) {
-    queueSessionTaskWithPlayerCommandForControllerInfo(
-        controller, sequenceNumber, COMMAND_PLAY_PAUSE, sendSessionResultSuccess(Player::pause));
+    queueSessionTaskWithPlayerCommand(
+        caller, sequenceNumber, COMMAND_PLAY_PAUSE, sendSessionResultSuccess(Player::pause));
   }
 
   @Override
@@ -822,19 +784,8 @@ import java.util.concurrent.ExecutionException;
     if (caller == null) {
       return;
     }
-    @Nullable
-    ControllerInfo controllerInfo = connectedControllersManager.getController(caller.asBinder());
-    if (controllerInfo != null) {
-      seekBackForControllerInfo(controllerInfo, sequenceNumber);
-    }
-  }
-
-  public void seekBackForControllerInfo(ControllerInfo controllerInfo, int sequenceNumber) {
-    queueSessionTaskWithPlayerCommandForControllerInfo(
-        controllerInfo,
-        sequenceNumber,
-        COMMAND_SEEK_BACK,
-        sendSessionResultSuccess(Player::seekBack));
+    queueSessionTaskWithPlayerCommand(
+        caller, sequenceNumber, COMMAND_SEEK_BACK, sendSessionResultSuccess(Player::seekBack));
   }
 
   @Override
@@ -842,16 +793,8 @@ import java.util.concurrent.ExecutionException;
     if (caller == null) {
       return;
     }
-    @Nullable
-    ControllerInfo controllerInfo = connectedControllersManager.getController(caller.asBinder());
-    if (controllerInfo != null) {
-      seekForwardForControllerInfo(controllerInfo, sequenceNumber);
-    }
-  }
-
-  public void seekForwardForControllerInfo(ControllerInfo controllerInfo, int sequenceNumber) {
-    queueSessionTaskWithPlayerCommandForControllerInfo(
-        controllerInfo,
+    queueSessionTaskWithPlayerCommand(
+        caller,
         sequenceNumber,
         COMMAND_SEEK_FORWARD,
         sendSessionResultSuccess(Player::seekForward));
@@ -1419,16 +1362,8 @@ import java.util.concurrent.ExecutionException;
     if (caller == null) {
       return;
     }
-    @Nullable
-    ControllerInfo controllerInfo = connectedControllersManager.getController(caller.asBinder());
-    if (controllerInfo != null) {
-      seekToPreviousForControllerInfo(controllerInfo, sequenceNumber);
-    }
-  }
-
-  public void seekToPreviousForControllerInfo(ControllerInfo controllerInfo, int sequenceNumber) {
-    queueSessionTaskWithPlayerCommandForControllerInfo(
-        controllerInfo,
+    queueSessionTaskWithPlayerCommand(
+        caller,
         sequenceNumber,
         COMMAND_SEEK_TO_PREVIOUS,
         sendSessionResultSuccess(Player::seekToPrevious));
@@ -1439,19 +1374,8 @@ import java.util.concurrent.ExecutionException;
     if (caller == null) {
       return;
     }
-    @Nullable
-    ControllerInfo controllerInfo = connectedControllersManager.getController(caller.asBinder());
-    if (controllerInfo != null) {
-      seekToNextForControllerInfo(controllerInfo, sequenceNumber);
-    }
-  }
-
-  public void seekToNextForControllerInfo(ControllerInfo controllerInfo, int sequenceNumber) {
-    queueSessionTaskWithPlayerCommandForControllerInfo(
-        controllerInfo,
-        sequenceNumber,
-        COMMAND_SEEK_TO_NEXT,
-        sendSessionResultSuccess(Player::seekToNext));
+    queueSessionTaskWithPlayerCommand(
+        caller, sequenceNumber, COMMAND_SEEK_TO_NEXT, sendSessionResultSuccess(Player::seekToNext));
   }
 
   @Override
@@ -1989,24 +1913,17 @@ import java.util.concurrent.ExecutionException;
       boolean bundlingExclusionsTracks =
           excludeTracks || !availableCommands.contains(Player.COMMAND_GET_TRACKS);
       if (controllerInterfaceVersion >= 2) {
-        PlayerInfo filteredPlayerInfo =
-            playerInfo.filterByAvailableCommands(availableCommands, excludeTimeline, excludeTracks);
-        Bundle playerInfoBundle =
-            iController instanceof MediaControllerStub
-                ? filteredPlayerInfo.toBundleInProcess()
-                : filteredPlayerInfo.toBundle();
         iController.onPlayerInfoChangedWithExclusions(
             sequenceNumber,
-            playerInfoBundle,
+            playerInfo.toBundle(availableCommands, excludeTimeline, excludeTracks),
             new PlayerInfo.BundlingExclusions(bundlingExclusionsTimeline, bundlingExclusionsTracks)
                 .toBundle());
       } else {
-        PlayerInfo filteredPlayerInfo =
-            playerInfo.filterByAvailableCommands(
-                availableCommands, excludeTimeline, /* excludeTracks= */ true);
         //noinspection deprecation
         iController.onPlayerInfoChanged(
-            sequenceNumber, filteredPlayerInfo.toBundle(), bundlingExclusionsTimeline);
+            sequenceNumber,
+            playerInfo.toBundle(availableCommands, excludeTimeline, /* excludeTracks= */ true),
+            bundlingExclusionsTimeline);
       }
     }
 
@@ -2075,9 +1992,7 @@ import java.util.concurrent.ExecutionException;
         throws RemoteException {
       iController.onPeriodicSessionPositionInfoChanged(
           sequenceNumber,
-          sessionPositionInfo
-              .filterByAvailableCommands(canAccessCurrentMediaItem, canAccessTimeline)
-              .toBundle());
+          sessionPositionInfo.toBundle(canAccessCurrentMediaItem, canAccessTimeline));
     }
 
     @Override

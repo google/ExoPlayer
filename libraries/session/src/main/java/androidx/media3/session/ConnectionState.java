@@ -114,10 +114,8 @@ import java.util.List;
         MediaUtils.intersect(playerCommandsFromSession, playerCommandsFromPlayer);
     bundle.putBundle(
         FIELD_PLAYER_INFO,
-        playerInfo
-            .filterByAvailableCommands(
-                intersectedCommands, /* excludeTimeline= */ false, /* excludeTracks= */ false)
-            .toBundle());
+        playerInfo.toBundle(
+            intersectedCommands, /* excludeTimeline= */ false, /* excludeTracks= */ false));
     bundle.putInt(FIELD_SESSION_INTERFACE_VERSION, sessionInterfaceVersion);
     return bundle;
   }
