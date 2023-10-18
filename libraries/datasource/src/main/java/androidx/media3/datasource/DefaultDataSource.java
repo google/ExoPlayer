@@ -34,24 +34,24 @@ import java.util.Map;
  * A {@link DataSource} that supports multiple URI schemes. The supported schemes are:
  *
  * <ul>
- *   <li>{@code file}: For fetching data from a local file (e.g. {@code
+ *   <li><b>{@code file}</b>: For fetching data from a local file (e.g. {@code
  *       file:///path/to/media/media.mp4}, or just {@code /path/to/media/media.mp4} because the
  *       implementation assumes that a URI without a scheme is a local file URI).
- *   <li>{@code asset}: For fetching data from an asset in the application's APK (e.g. {@code
+ *   <li><b>{@code asset}</b>: For fetching data from an asset in the application's APK (e.g. {@code
  *       asset:///media.mp4}).
- *   <li>{@code rawresource}: For fetching data from a raw resource in the application's APK (e.g.
- *       {@code rawresource:///resourceId}, where {@code rawResourceId} is the integer identifier of
- *       the raw resource).
- *   <li>{@code android.resource}: For fetching data in the application's APK (e.g. {@code
+ *   <li><b>{@code rawresource}</b>: For fetching data from a raw resource in the application's APK
+ *       (e.g. {@code rawresource:///resourceId}, where {@code rawResourceId} is the integer
+ *       identifier of the raw resource).
+ *   <li><b>{@code android.resource}</b>: For fetching data in the application's APK (e.g. {@code
  *       android.resource:///resourceId} or {@code android.resource://resourceType/resourceName}).
  *       See {@link RawResourceDataSource} for more information about the URI form.
- *   <li>{@code content}: For fetching data from a content URI (e.g. {@code
+ *   <li><b>{@code content}</b>: For fetching data from a content URI (e.g. {@code
  *       content://authority/path/123}).
- *   <li>{@code rtmp}: For fetching data over RTMP. Only supported if the project using ExoPlayer
- *       has an explicit dependency on ExoPlayer's RTMP extension.
- *   <li>{@code data}: For parsing data inlined in the URI as defined in RFC 2397.
- *   <li>{@code udp}: For fetching data over UDP (e.g. {@code udp://something.com/media}).
- *   <li>{@code http(s)}: For fetching data over HTTP and HTTPS (e.g. {@code
+ *   <li><b>{@code rtmp}</b>: For fetching data over RTMP. Only supported if the project using
+ *       ExoPlayer has an explicit dependency on ExoPlayer's RTMP extension.
+ *   <li><b>{@code data}</b>: For parsing data inlined in the URI as defined in RFC 2397.
+ *   <li><b>{@code udp}</b>: For fetching data over UDP (e.g. {@code udp://something.com/media}).
+ *   <li><b>{@code http(s)}</b>: For fetching data over HTTP and HTTPS (e.g. {@code
  *       https://www.something.com/media.mp4}), if constructed using {@link
  *       #DefaultDataSource(Context, String, boolean)}, or any other schemes supported by a base
  *       data source if constructed using {@link #DefaultDataSource(Context, DataSource)}.
