@@ -17,6 +17,12 @@ android {
     namespace 'androidx.media3.decoder.midi'
 
     sourceSets.test.assets.srcDir '../test_data/src/test/assets/'
+
+    publishing {
+        singleVariant('release') {
+            withSourcesJar()
+        }
+    }
 }
 
 dependencies {
