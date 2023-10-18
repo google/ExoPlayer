@@ -2285,7 +2285,10 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     // Process any batched data.
     checkState(!outputStreamEnded);
     if (bypassBatchBuffer.hasSamples()) {
-      boolean isDecodeOnly = bypassBatchBuffer.getLastSampleTimeUs() < getLastResetPositionUs();
+      boolean isDecodeOnly =
+          bypassBatchBuffer.getLastSampleTimeUs() < getLastResetPositionUs()
+              && (outputFormat == null
+                  || !Objects.equals(outputFormat.sampleMimeType, MimeTypes.AUDIO_OPUS));
       if (processOutputBuffer(
           positionUs,
           elapsedRealtimeUs,
