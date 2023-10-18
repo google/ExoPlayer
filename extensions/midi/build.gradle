@@ -15,6 +15,12 @@
 
 android {
     namespace 'com.google.android.exoplayer2.ext.midi'
+
+    publishing {
+        singleVariant('release') {
+            withSourcesJar()
+        }
+    }
 }
 
 dependencies {
