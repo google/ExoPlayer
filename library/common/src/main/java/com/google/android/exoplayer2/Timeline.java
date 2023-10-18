@@ -1436,35 +1436,28 @@ public abstract class Timeline implements Bundleable {
   }
 
   /**
-   * Returns a {@link Bundle} containing just the specified {@link Window}.
+   * Returns a copy of this timeline containing just the single specified {@link Window}.
    *
-   * <p>The {@link #getWindow(int, Window)} windows} and {@link #getPeriod(int, Period) periods} of
-   * an instance restored by {@link #CREATOR} may have missing fields as described in {@link
-   * Window#toBundle()} and {@link Period#toBundle()}.
+   * <p>The method returns the same instance if there is only one window.
    *
-   * @param windowIndex The index of the {@link Window} to include in the {@link Bundle}.
+   * @param windowIndex The index of the {@link Window} to include in the copy.
+   * @return A {@link Timeline} with just the single specified {@link Window}.
    */
-  public final Bundle toBundleWithOneWindowOnly(int windowIndex) {
-    Window window = getWindow(windowIndex, new Window(), /* defaultPositionProjectionUs= */ 0);
-
-    List<Bundle> periodBundles = new ArrayList<>();
-    Period period = new Period();
-    for (int i = window.firstPeriodIndex; i <= window.lastPeriodIndex; i++) {
-      getPeriod(i, period, /* setIds= */ false);
-      period.windowIndex = 0;
-      periodBundles.add(period.toBundle());
+  public final Timeline copyWithSingleWindow(int windowIndex) {
+    if (getWindowCount() == 1) {
+      return this;
     }
-
+    Window window = getWindow(windowIndex, new Window(), /* defaultPositionProjectionUs= */ 0);
+    ImmutableList.Builder<Period> periods = ImmutableList.builder();
+    for (int i = window.firstPeriodIndex; i <= window.lastPeriodIndex; i++) {
+      Period period = getPeriod(i, new Period(), /* setIds= */ true);
+      period.windowIndex = 0;
+      periods.add(period);
+    }
     window.lastPeriodIndex = window.lastPeriodIndex - window.firstPeriodIndex;
     window.firstPeriodIndex = 0;
-    Bundle windowBundle = window.toBundle();
-
-    Bundle bundle = new Bundle();
-    BundleUtil.putBinder(
-        bundle, FIELD_WINDOWS, new BundleListRetriever(ImmutableList.of(windowBundle)));
-    BundleUtil.putBinder(bundle, FIELD_PERIODS, new BundleListRetriever(periodBundles));
-    bundle.putIntArray(FIELD_SHUFFLED_WINDOW_INDICES, new int[] {0});
-    return bundle;
+    return new RemotableTimeline(
+        ImmutableList.of(window), periods.build(), /* shuffledWindowIndices= */ new int[] {0});
   }
 
   /**

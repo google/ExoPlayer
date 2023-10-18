@@ -31,6 +31,7 @@ import androidx.annotation.FloatRange;
 import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.text.Cue;
@@ -357,15 +358,9 @@ public interface Player {
         return false;
       }
       PositionInfo that = (PositionInfo) o;
-      return mediaItemIndex == that.mediaItemIndex
-          && periodIndex == that.periodIndex
-          && positionMs == that.positionMs
-          && contentPositionMs == that.contentPositionMs
-          && adGroupIndex == that.adGroupIndex
-          && adIndexInAdGroup == that.adIndexInAdGroup
+      return equalsForBundling(that)
           && Objects.equal(windowUid, that.windowUid)
-          && Objects.equal(periodUid, that.periodUid)
-          && Objects.equal(mediaItem, that.mediaItem);
+          && Objects.equal(periodUid, that.periodUid);
     }
 
     @Override
@@ -382,15 +377,93 @@ public interface Player {
           adIndexInAdGroup);
     }
 
+    /**
+     * Returns whether this position info and the other position info would result in the same
+     * {@link #toBundle() Bundle}.
+     */
+    public boolean equalsForBundling(PositionInfo other) {
+      return mediaItemIndex == other.mediaItemIndex
+          && periodIndex == other.periodIndex
+          && positionMs == other.positionMs
+          && contentPositionMs == other.contentPositionMs
+          && adGroupIndex == other.adGroupIndex
+          && adIndexInAdGroup == other.adIndexInAdGroup
+          && Objects.equal(mediaItem, other.mediaItem);
+    }
+
     // Bundleable implementation.
 
-    private static final String FIELD_MEDIA_ITEM_INDEX = Util.intToStringMaxRadix(0);
+    @VisibleForTesting static final String FIELD_MEDIA_ITEM_INDEX = Util.intToStringMaxRadix(0);
     private static final String FIELD_MEDIA_ITEM = Util.intToStringMaxRadix(1);
-    private static final String FIELD_PERIOD_INDEX = Util.intToStringMaxRadix(2);
-    private static final String FIELD_POSITION_MS = Util.intToStringMaxRadix(3);
-    private static final String FIELD_CONTENT_POSITION_MS = Util.intToStringMaxRadix(4);
+    @VisibleForTesting static final String FIELD_PERIOD_INDEX = Util.intToStringMaxRadix(2);
+    @VisibleForTesting static final String FIELD_POSITION_MS = Util.intToStringMaxRadix(3);
+    @VisibleForTesting static final String FIELD_CONTENT_POSITION_MS = Util.intToStringMaxRadix(4);
     private static final String FIELD_AD_GROUP_INDEX = Util.intToStringMaxRadix(5);
     private static final String FIELD_AD_INDEX_IN_AD_GROUP = Util.intToStringMaxRadix(6);
+
+    /**
+     * Returns a copy of this position info, filtered by the specified available commands.
+     *
+     * <p>The filtered fields are reset to their default values.
+     *
+     * <p>The return value may be the same object if nothing is filtered.
+     *
+     * @param canAccessCurrentMediaItem Whether {@link Player#COMMAND_GET_CURRENT_MEDIA_ITEM} is
+     *     available.
+     * @param canAccessTimeline Whether {@link Player#COMMAND_GET_TIMELINE} is available.
+     * @return The filtered position info.
+     */
+    public PositionInfo filterByAvailableCommands(
+        boolean canAccessCurrentMediaItem, boolean canAccessTimeline) {
+      if (canAccessCurrentMediaItem && canAccessTimeline) {
+        return this;
+      }
+      return new PositionInfo(
+          windowUid,
+          canAccessTimeline ? mediaItemIndex : 0,
+          canAccessCurrentMediaItem ? mediaItem : null,
+          periodUid,
+          canAccessTimeline ? periodIndex : 0,
+          canAccessCurrentMediaItem ? positionMs : 0,
+          canAccessCurrentMediaItem ? contentPositionMs : 0,
+          canAccessCurrentMediaItem ? adGroupIndex : C.INDEX_UNSET,
+          canAccessCurrentMediaItem ? adIndexInAdGroup : C.INDEX_UNSET);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>It omits the {@link #windowUid} and {@link #periodUid} fields. The {@link #windowUid} and
+     * {@link #periodUid} of an instance restored by {@link #CREATOR} will always be {@code null}.
+     *
+     * @param controllerInterfaceVersion The interface version of the media controller this Bundle
+     *     will be sent to.
+     */
+    public Bundle toBundle(int controllerInterfaceVersion) {
+      Bundle bundle = new Bundle();
+      if (controllerInterfaceVersion < 3 || mediaItemIndex != 0) {
+        bundle.putInt(FIELD_MEDIA_ITEM_INDEX, mediaItemIndex);
+      }
+      if (mediaItem != null) {
+        bundle.putBundle(FIELD_MEDIA_ITEM, mediaItem.toBundle());
+      }
+      if (controllerInterfaceVersion < 3 || periodIndex != 0) {
+        bundle.putInt(FIELD_PERIOD_INDEX, periodIndex);
+      }
+      if (controllerInterfaceVersion < 3 || positionMs != 0) {
+        bundle.putLong(FIELD_POSITION_MS, positionMs);
+      }
+      if (controllerInterfaceVersion < 3 || contentPositionMs != 0) {
+        bundle.putLong(FIELD_CONTENT_POSITION_MS, contentPositionMs);
+      }
+      if (adGroupIndex != C.INDEX_UNSET) {
+        bundle.putInt(FIELD_AD_GROUP_INDEX, adGroupIndex);
+      }
+      if (adIndexInAdGroup != C.INDEX_UNSET) {
+        bundle.putInt(FIELD_AD_INDEX_IN_AD_GROUP, adIndexInAdGroup);
+      }
+      return bundle;
+    }
 
     /**
      * {@inheritDoc}
@@ -400,31 +473,7 @@ public interface Player {
      */
     @Override
     public Bundle toBundle() {
-      return toBundle(/* canAccessCurrentMediaItem= */ true, /* canAccessTimeline= */ true);
-    }
-
-    /**
-     * Returns a {@link Bundle} representing the information stored in this object, filtered by
-     * available commands.
-     *
-     * @param canAccessCurrentMediaItem Whether the {@link Bundle} should contain information
-     *     accessbile with {@link #COMMAND_GET_CURRENT_MEDIA_ITEM}.
-     * @param canAccessTimeline Whether the {@link Bundle} should contain information accessbile
-     *     with {@link #COMMAND_GET_TIMELINE}.
-     */
-    public Bundle toBundle(boolean canAccessCurrentMediaItem, boolean canAccessTimeline) {
-      Bundle bundle = new Bundle();
-      bundle.putInt(FIELD_MEDIA_ITEM_INDEX, canAccessTimeline ? mediaItemIndex : 0);
-      if (mediaItem != null && canAccessCurrentMediaItem) {
-        bundle.putBundle(FIELD_MEDIA_ITEM, mediaItem.toBundle());
-      }
-      bundle.putInt(FIELD_PERIOD_INDEX, canAccessTimeline ? periodIndex : 0);
-      bundle.putLong(FIELD_POSITION_MS, canAccessCurrentMediaItem ? positionMs : 0);
-      bundle.putLong(FIELD_CONTENT_POSITION_MS, canAccessCurrentMediaItem ? contentPositionMs : 0);
-      bundle.putInt(FIELD_AD_GROUP_INDEX, canAccessCurrentMediaItem ? adGroupIndex : C.INDEX_UNSET);
-      bundle.putInt(
-          FIELD_AD_INDEX_IN_AD_GROUP, canAccessCurrentMediaItem ? adIndexInAdGroup : C.INDEX_UNSET);
-      return bundle;
+      return toBundle(Integer.MAX_VALUE);
     }
 
     /** Object that can restore {@link PositionInfo} from a {@link Bundle}. */
@@ -3299,7 +3348,7 @@ public interface Player {
    * remote device is returned.
    *
    * <p>Note that this method returns the volume of the device. To check the current stream volume,
-   * use {@link getVolume()}.
+   * use {@link #getVolume()}.
    *
    * <p>This method must only be called if {@link #COMMAND_GET_DEVICE_VOLUME} is {@linkplain
    * #getAvailableCommands() available}.
