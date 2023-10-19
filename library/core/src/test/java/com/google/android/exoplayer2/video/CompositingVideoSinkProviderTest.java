@@ -129,13 +129,11 @@ public final class CompositingVideoSinkProviderTest {
   }
 
   private static CompositingVideoSinkProvider createCompositingVideoSinkProvider() {
-    VideoFrameReleaseControl releaseControl =
-        new VideoFrameReleaseControl(
-            ApplicationProvider.getApplicationContext(), /* allowedJoiningTimeMs= */ 0);
+    VideoSink.RenderControl renderControl = new TestRenderControl();
     return new CompositingVideoSinkProvider(
         ApplicationProvider.getApplicationContext(),
         new TestPreviewingVideoGraphFactory(),
-        releaseControl);
+        renderControl);
   }
 
   private static class TestPreviewingVideoGraphFactory implements PreviewingVideoGraph.Factory {
@@ -159,5 +157,23 @@ public final class CompositingVideoSinkProviderTest {
       when(videoFrameProcessor.registerInputFrame()).thenReturn(true);
       return previewingVideoGraph;
     }
+  }
+
+  private static class TestRenderControl implements VideoSink.RenderControl {
+
+    @Override
+    public long getFrameRenderTimeNs(
+        long presentationTimeUs, long positionUs, long elapsedRealtimeUs, float playbackSpeed) {
+      return presentationTimeUs;
+    }
+
+    @Override
+    public void onNextFrame(long presentationTimeUs) {}
+
+    @Override
+    public void onFrameRendered() {}
+
+    @Override
+    public void onFrameDropped() {}
   }
 }

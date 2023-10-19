@@ -95,7 +95,6 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
     this.index = index;
     this.playerId = playerId;
     this.clock = clock;
-    onInit();
   }
 
   @Override
@@ -266,11 +265,6 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   }
 
   // Methods to be overridden by subclasses.
-
-  /** Called when the renderer is initialized. */
-  protected void onInit() {
-    // Do nothing
-  }
 
   /**
    * Called when the renderer is enabled.

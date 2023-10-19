@@ -60,14 +60,54 @@ import java.util.concurrent.Executor;
     /** Called when the sink renderers the first frame. */
     void onFirstFrameRendered(VideoSink videoSink);
 
-    /** Called when the sink dropped a frame. */
-    void onFrameDropped(VideoSink videoSink);
-
     /** Called when the output video size changed. */
     void onVideoSizeChanged(VideoSink videoSink, VideoSize videoSize);
 
     /** Called when the {@link VideoSink} encountered an error. */
     void onError(VideoSink videoSink, VideoSinkException videoSinkException);
+  }
+
+  /** Controls the rendering of video frames. */
+  interface RenderControl {
+    /** Signals a frame must be rendered immediately. */
+    long RENDER_TIME_IMMEDIATELY = -1;
+
+    /** Signals a frame must be dropped. */
+    long RENDER_TIME_DROP = -2;
+
+    /** Signals that a frame should not be rendered yet. */
+    long RENDER_TIME_TRY_AGAIN_LATER = -3;
+
+    /**
+     * Returns the render timestamp, in nanoseconds, associated with this video frames or one of the
+     * {@code RENDER_TIME_} constants if the frame must be rendered immediately, dropped or not
+     * rendered yet.
+     *
+     * @param presentationTimeUs The presentation time of the video frame, in microseconds.
+     * @param positionUs The current playback position, in microseconds.
+     * @param elapsedRealtimeUs {@link android.os.SystemClock#elapsedRealtime()} in microseconds,
+     *     taken approximately at the time the playback position was {@code positionUs}.
+     * @param playbackSpeed The current playback speed.
+     * @return The render timestamp, in nanoseconds, associated with this frame, or one of the
+     *     {@code RENDER_TIME_} constants if the frame must be rendered immediately, dropped or not
+     *     rendered yet.
+     */
+    long getFrameRenderTimeNs(
+        long presentationTimeUs, long positionUs, long elapsedRealtimeUs, float playbackSpeed);
+
+    /**
+     * Informs the rendering control that a video frame will be rendered. Call this method before
+     * rendering a frame.
+     *
+     * @param presentationTimeUs The frame's presentation time, in microseconds.
+     */
+    void onNextFrame(long presentationTimeUs);
+
+    /** Informs the rendering control that a video frame was rendered. */
+    void onFrameRendered();
+
+    /** Informs the rendering control that a video frame was dropped. */
+    void onFrameDropped();
   }
 
   /**
