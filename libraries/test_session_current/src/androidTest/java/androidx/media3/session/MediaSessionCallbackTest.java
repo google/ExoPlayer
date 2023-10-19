@@ -1073,8 +1073,7 @@ public class MediaSessionCallbackTest {
   }
 
   @Test
-  public void onPlay_withEmptyTimelinePlaybackResumptionOn_callsOnGetPlaybackResumptionPlaylist()
-      throws Exception {
+  public void onPlay_withEmptyTimeline_callsOnGetPlaybackResumptionPlaylist() throws Exception {
     List<MediaItem> mediaItems = MediaTestUtils.createMediaItems(/* size= */ 3);
     MediaSession.Callback callback =
         new MediaSession.Callback() {
@@ -1093,8 +1092,8 @@ public class MediaSessionCallbackTest {
         remoteControllerTestRule.createRemoteController(session.getToken());
 
     controller.play();
-
     player.awaitMethodCalled(MockPlayer.METHOD_PLAY, TIMEOUT_MS);
+
     assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_PREPARE)).isTrue();
     assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS_WITH_START_INDEX))
         .isTrue();
@@ -1104,18 +1103,110 @@ public class MediaSessionCallbackTest {
   }
 
   @Test
-  public void onPlay_withEmptyTimelineCallbackFailure_callsHandlePlayButtonAction()
-      throws Exception {
-    player.startMediaItemIndex = 7;
-    player.startPositionMs = 321L;
+  public void
+      onPlay_withEmptyTimelineWithoutCommandGetCurrentMediaItem_doesNotTriggerPlaybackResumption()
+          throws Exception {
+    player.commands =
+        new Player.Commands.Builder()
+            .addAllCommands()
+            .remove(Player.COMMAND_GET_CURRENT_MEDIA_ITEM)
+            .build();
     MediaSession session =
         sessionTestRule.ensureReleaseAfterTest(new MediaSession.Builder(context, player).build());
     RemoteMediaController controller =
         remoteControllerTestRule.createRemoteController(session.getToken());
 
     controller.play();
-
     player.awaitMethodCalled(MockPlayer.METHOD_PLAY, TIMEOUT_MS);
+
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_PREPARE)).isTrue();
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS_WITH_START_INDEX))
+        .isFalse();
+    assertThat(player.mediaItems).isEmpty();
+  }
+
+  @Test
+  public void
+      onPlay_withEmptyTimelineWithoutCommandSetOrChangeMediaItems_doesNotTriggerPlaybackResumption()
+          throws Exception {
+    player.commands =
+        new Player.Commands.Builder()
+            .addAllCommands()
+            .removeAll(Player.COMMAND_SET_MEDIA_ITEM, Player.COMMAND_CHANGE_MEDIA_ITEMS)
+            .build();
+    MediaSession session =
+        sessionTestRule.ensureReleaseAfterTest(new MediaSession.Builder(context, player).build());
+    RemoteMediaController controller =
+        remoteControllerTestRule.createRemoteController(session.getToken());
+
+    controller.play();
+    player.awaitMethodCalled(MockPlayer.METHOD_PLAY, TIMEOUT_MS);
+
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_PREPARE)).isTrue();
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS_WITH_START_INDEX))
+        .isFalse();
+    assertThat(player.mediaItems).isEmpty();
+  }
+
+  @Test
+  public void onPlay_withEmptyTimelineWithoutCommandChangeMediaItems_setsSingleItem()
+      throws Exception {
+    player.commands =
+        new Player.Commands.Builder()
+            .addAllCommands()
+            .remove(Player.COMMAND_CHANGE_MEDIA_ITEMS)
+            .build();
+    List<MediaItem> mediaItems = MediaTestUtils.createMediaItems(/* size= */ 3);
+    MediaSession.Callback callback =
+        new MediaSession.Callback() {
+          @Override
+          public ListenableFuture<MediaSession.MediaItemsWithStartPosition> onPlaybackResumption(
+              MediaSession mediaSession, ControllerInfo controller) {
+            return Futures.immediateFuture(
+                new MediaSession.MediaItemsWithStartPosition(
+                    mediaItems, /* startIndex= */ 1, /* startPositionMs= */ 123L));
+          }
+        };
+    MediaSession session =
+        sessionTestRule.ensureReleaseAfterTest(
+            new MediaSession.Builder(context, player).setCallback(callback).build());
+    RemoteMediaController controller =
+        remoteControllerTestRule.createRemoteController(session.getToken());
+
+    controller.play();
+    player.awaitMethodCalled(MockPlayer.METHOD_PLAY, TIMEOUT_MS);
+
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_PREPARE)).isTrue();
+    assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_SET_MEDIA_ITEM_WITH_START_POSITION))
+        .isTrue();
+    assertThat(player.startMediaItemIndex).isEqualTo(0);
+    assertThat(player.startPositionMs).isEqualTo(123L);
+    assertThat(player.mediaItems).containsExactly(mediaItems.get(0));
+  }
+
+  @Test
+  public void
+      onPlay_withEmptyTimelinePlaybackResumptionCallbackFailure_callsHandlePlayButtonAction()
+          throws Exception {
+    player.startMediaItemIndex = 7;
+    player.startPositionMs = 321L;
+    MediaSession.Callback callback =
+        new MediaSession.Callback() {
+          @Override
+          public ListenableFuture<MediaSession.MediaItemsWithStartPosition> onPlaybackResumption(
+              MediaSession mediaSession, ControllerInfo controller) {
+            return Futures.immediateFailedFuture(new UnsupportedOperationException());
+          }
+        };
+    MediaSession session =
+        sessionTestRule.ensureReleaseAfterTest(
+            new MediaSession.Builder(context, player).setCallback(callback).build());
+    RemoteMediaController controller =
+        remoteControllerTestRule.createRemoteController(session.getToken());
+
+    controller.play();
+    player.awaitMethodCalled(MockPlayer.METHOD_PLAY, TIMEOUT_MS);
+
     assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_PREPARE)).isTrue();
     assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS_WITH_START_INDEX))
         .isFalse();
@@ -1150,8 +1241,8 @@ public class MediaSessionCallbackTest {
         remoteControllerTestRule.createRemoteController(session.getToken());
 
     controller.play();
-
     player.awaitMethodCalled(MockPlayer.METHOD_PLAY, TIMEOUT_MS);
+
     assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_PREPARE)).isTrue();
     assertThat(player.hasMethodBeenCalled(MockPlayer.METHOD_SET_MEDIA_ITEMS_WITH_START_INDEX))
         .isFalse();
@@ -1188,6 +1279,7 @@ public class MediaSessionCallbackTest {
 
     remoteControllerTestRule.createRemoteController(
         session.getToken(), /* waitForConnection= */ false, testConnectionHints);
+
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(TestUtils.equals(testConnectionHints, connectionHints.get())).isTrue();
   }
@@ -1213,7 +1305,9 @@ public class MediaSessionCallbackTest {
                 .build());
     RemoteMediaController controller =
         remoteControllerTestRule.createRemoteController(session.getToken());
+
     controller.release();
+
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
   }
 

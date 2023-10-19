@@ -25,6 +25,8 @@ import static android.view.KeyEvent.KEYCODE_MEDIA_REWIND;
 import static android.view.KeyEvent.KEYCODE_MEDIA_SKIP_BACKWARD;
 import static android.view.KeyEvent.KEYCODE_MEDIA_SKIP_FORWARD;
 import static android.view.KeyEvent.KEYCODE_MEDIA_STOP;
+import static androidx.media3.common.Player.COMMAND_CHANGE_MEDIA_ITEMS;
+import static androidx.media3.common.Player.COMMAND_SET_MEDIA_ITEM;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static androidx.media3.common.util.Util.SDK_INT;
@@ -33,7 +35,6 @@ import static androidx.media3.session.MediaSessionStub.UNKNOWN_SEQUENCE_NUMBER;
 import static androidx.media3.session.SessionResult.RESULT_ERROR_SESSION_DISCONNECTED;
 import static androidx.media3.session.SessionResult.RESULT_ERROR_UNKNOWN;
 import static androidx.media3.session.SessionResult.RESULT_INFO_SKIPPED;
-import static java.lang.Math.min;
 
 import android.app.PendingIntent;
 import android.content.ComponentName;
@@ -55,10 +56,8 @@ import androidx.annotation.CheckResult;
 import androidx.annotation.FloatRange;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
-import androidx.core.os.ExecutorCompat;
 import androidx.media.MediaBrowserServiceCompat;
 import androidx.media3.common.AudioAttributes;
-import androidx.media3.common.C;
 import androidx.media3.common.DeviceInfo;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MediaLibraryInfo;
@@ -87,14 +86,12 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.SettableFuture;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executor;
 import org.checkerframework.checker.initialization.qual.Initialized;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
@@ -815,67 +812,72 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   /**
-   * Attempts to prepare and play for playback resumption.
+   * Handles a play request from a media controller.
    *
-   * <p>If playlist data for playback resumption can be successfully obtained, the media items are
-   * set and the player is prepared. {@link Player#play()} is called regardless of success or
-   * failure of playback resumption.
+   * <p>Attempts to prepare and play for playback resumption if the playlist is empty. {@link
+   * Player#play()} is called regardless of success or failure of playback resumption.
    *
-   * @param controller The controller requesting playback resumption.
-   * @param player The player to setup for playback resumption.
+   * @param controller The controller requesting to play.
    */
-  /* package */ void prepareAndPlayForPlaybackResumption(ControllerInfo controller, Player player) {
-    verifyApplicationThread();
-    @Nullable
-    ListenableFuture<MediaItemsWithStartPosition> future =
-        checkNotNull(
-            callback.onPlaybackResumption(instance, resolveControllerInfoForCallback(controller)),
-            "Callback.onPlaybackResumption must return a non-null future");
-    // Use a direct executor when an immediate future is returned to execute the player setup in the
-    // caller's looper event on the application thread.
-    Executor executor =
-        future.isDone()
-            ? MoreExecutors.directExecutor()
-            : ExecutorCompat.create(getApplicationHandler());
-    Futures.addCallback(
-        future,
-        new FutureCallback<MediaItemsWithStartPosition>() {
-          @Override
-          public void onSuccess(MediaItemsWithStartPosition mediaItemsWithStartPosition) {
-            ImmutableList<MediaItem> mediaItems = mediaItemsWithStartPosition.mediaItems;
-            player.setMediaItems(
-                mediaItems,
-                mediaItemsWithStartPosition.startIndex != C.INDEX_UNSET
-                    ? min(mediaItems.size() - 1, mediaItemsWithStartPosition.startIndex)
-                    : 0,
-                mediaItemsWithStartPosition.startPositionMs);
-            if (player.getPlaybackState() == Player.STATE_IDLE) {
-              player.prepare();
+  /* package */ void handleMediaControllerPlayRequest(ControllerInfo controller) {
+    if (!onPlayRequested()) {
+      // Request denied, e.g. due to missing foreground service abilities.
+      return;
+    }
+    boolean hasCurrentMediaItem =
+        playerWrapper.isCommandAvailable(Player.COMMAND_GET_CURRENT_MEDIA_ITEM)
+            && playerWrapper.getCurrentMediaItem() != null;
+    boolean canAddMediaItems =
+        playerWrapper.isCommandAvailable(COMMAND_SET_MEDIA_ITEM)
+            || playerWrapper.isCommandAvailable(COMMAND_CHANGE_MEDIA_ITEMS);
+    if (hasCurrentMediaItem || !canAddMediaItems) {
+      // No playback resumption needed or possible.
+      if (!hasCurrentMediaItem) {
+        Log.w(
+            TAG,
+            "Play requested without current MediaItem, but playback resumption prevented by"
+                + " missing available commands");
+      }
+      Util.handlePlayButtonAction(playerWrapper);
+    } else {
+      @Nullable
+      ListenableFuture<MediaItemsWithStartPosition> future =
+          checkNotNull(
+              callback.onPlaybackResumption(instance, resolveControllerInfoForCallback(controller)),
+              "Callback.onPlaybackResumption must return a non-null future");
+      Futures.addCallback(
+          future,
+          new FutureCallback<MediaItemsWithStartPosition>() {
+            @Override
+            public void onSuccess(MediaItemsWithStartPosition mediaItemsWithStartPosition) {
+              MediaUtils.setMediaItemsWithStartIndexAndPosition(
+                  playerWrapper, mediaItemsWithStartPosition);
+              Util.handlePlayButtonAction(playerWrapper);
             }
-            player.play();
-          }
 
-          @Override
-          public void onFailure(Throwable t) {
-            if (t instanceof UnsupportedOperationException) {
-              Log.w(
-                  TAG,
-                  "UnsupportedOperationException: Make sure to implement"
-                      + " MediaSession.Callback.onPlaybackResumption() if you add a"
-                      + " media button receiver to your manifest or if you implement the recent"
-                      + " media item contract with your MediaLibraryService.",
-                  t);
-            } else {
-              Log.e(
-                  TAG,
-                  "Failure calling MediaSession.Callback.onPlaybackResumption(): " + t.getMessage(),
-                  t);
+            @Override
+            public void onFailure(Throwable t) {
+              if (t instanceof UnsupportedOperationException) {
+                Log.w(
+                    TAG,
+                    "UnsupportedOperationException: Make sure to implement"
+                        + " MediaSession.Callback.onPlaybackResumption() if you add a"
+                        + " media button receiver to your manifest or if you implement the recent"
+                        + " media item contract with your MediaLibraryService.",
+                    t);
+              } else {
+                Log.e(
+                    TAG,
+                    "Failure calling MediaSession.Callback.onPlaybackResumption(): "
+                        + t.getMessage(),
+                    t);
+              }
+              // Play as requested even if playback resumption fails.
+              Util.handlePlayButtonAction(playerWrapper);
             }
-            // Play as requested either way.
-            Util.handlePlayButtonAction(player);
-          }
-        },
-        executor);
+          },
+          this::postOrRunOnApplicationHandler);
+    }
   }
 
   private void setAvailableFrameworkControllerCommands(
@@ -1145,6 +1147,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           sessionStub.getConnectedControllersManager().flushCommandQueue(controllerInfo);
         });
     return true;
+  }
+
+  private void postOrRunOnApplicationHandler(Runnable runnable) {
+    Util.postOrRun(getApplicationHandler(), runnable);
   }
 
   /* @FunctionalInterface */

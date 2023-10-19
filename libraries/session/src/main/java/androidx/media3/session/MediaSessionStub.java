@@ -719,16 +719,7 @@ import java.util.concurrent.ExecutionException;
               if (impl == null || impl.isReleased()) {
                 return;
               }
-              if (impl.onPlayRequested()) {
-                if (player.getMediaItemCount() == 0) {
-                  // The player is in IDLE or ENDED state and has no media items in the playlist
-                  // yet. Handle the play command as a playback resumption command to try resume
-                  // playback.
-                  impl.prepareAndPlayForPlaybackResumption(controller, player);
-                } else {
-                  Util.handlePlayButtonAction(player);
-                }
-              }
+              impl.handleMediaControllerPlayRequest(controller);
             }));
   }
 

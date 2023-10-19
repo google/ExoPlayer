@@ -1423,11 +1423,19 @@ public class MediaSession {
     }
 
     /**
-     * Returns the last recent playlist of the player with which the player should be prepared when
-     * playback resumption from a media button receiver or the System UI notification is requested.
+     * Returns the playlist with which the player should be prepared when a controller requests to
+     * play without a current {@link MediaItem}.
+     *
+     * <p>This happens, for example, if <a
+     * href="https://developer.android.com/guide/topics/media/session/mediasession#resumption">playback
+     * resumption</a> is requested from a media button receiver or the System UI notification.
+     *
+     * <p>The method will only be called if the {@link Player} has {@link
+     * Player#COMMAND_GET_CURRENT_MEDIA_ITEM} and either {@link Player#COMMAND_SET_MEDIA_ITEM} or
+     * {@link Player#COMMAND_CHANGE_MEDIA_ITEMS} available.
      *
      * @param mediaSession The media session for which playback resumption is requested.
-     * @param controller The controller that requests the playback resumption. This is a short
+     * @param controller The controller that requests the playback resumption. This may be a short
      *     living controller created only for issuing a play command for resuming playback.
      * @return The {@linkplain MediaItemsWithStartPosition playlist} to resume playback with.
      */

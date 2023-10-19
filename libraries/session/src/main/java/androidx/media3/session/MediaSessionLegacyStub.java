@@ -411,18 +411,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
   public void onPlay() {
     dispatchSessionTaskWithPlayerCommand(
         COMMAND_PLAY_PAUSE,
-        controller -> {
-          if (sessionImpl.onPlayRequested()) {
-            PlayerWrapper playerWrapper = sessionImpl.getPlayerWrapper();
-            if (playerWrapper.getMediaItemCount() == 0) {
-              // The player is in IDLE or ENDED state and has no media items in the playlist yet.
-              // Handle the play command as a playback resumption command to try resume playback.
-              sessionImpl.prepareAndPlayForPlaybackResumption(controller, playerWrapper);
-            } else {
-              Util.handlePlayButtonAction(playerWrapper);
-            }
-          }
-        },
+        sessionImpl::handleMediaControllerPlayRequest,
         sessionCompat.getCurrentControllerInfo());
   }
 
