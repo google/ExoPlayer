@@ -39,6 +39,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
@@ -411,6 +412,9 @@ public class MediaSessionServiceTest {
     serviceController.startCommand(/* flags= */ 0, /* startId= */ 0);
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(service.callers).hasSize(1);
+    assertThat(service.session.isMediaNotificationController(service.callers.get(0))).isTrue();
+    controller.release();
     serviceController.destroy();
   }
 
@@ -501,21 +505,35 @@ public class MediaSessionServiceTest {
 
   private static final class TestServiceWithPlaybackResumption extends MediaSessionService {
 
-    private List<MediaItem> mediaItems = ImmutableList.of();
+    private final List<MediaSession.ControllerInfo> callers;
 
-    public void setMediaItems(List<MediaItem> mediaItems) {
-      this.mediaItems = mediaItems;
+    private ImmutableList<MediaItem> mediaItems;
+    @Nullable private MediaSession session;
+
+    public TestServiceWithPlaybackResumption() {
+      callers = new ArrayList<>();
+      mediaItems = ImmutableList.of();
     }
 
-    @Nullable private MediaSession session;
+    public void setMediaItems(List<MediaItem> mediaItems) {
+      this.mediaItems = ImmutableList.copyOf(mediaItems);
+    }
 
     @Override
     public void onCreate() {
       super.onCreate();
       Context context = ApplicationProvider.getApplicationContext();
       ExoPlayer player = new TestExoPlayerBuilder(context).build();
+      ForwardingPlayer forwardingPlayer =
+          new ForwardingPlayer(player) {
+            @Override
+            public void play() {
+              callers.add(session.getControllerForCurrentRequest());
+              super.play();
+            }
+          };
       session =
-          new MediaSession.Builder(context, player)
+          new MediaSession.Builder(context, forwardingPlayer)
               .setCallback(
                   new MediaSession.Callback() {
                     @Override
@@ -546,11 +564,14 @@ public class MediaSessionServiceTest {
 
     @Override
     public void onDestroy() {
-      session.getPlayer().stop();
-      session.getPlayer().clearMediaItems();
-      session.getPlayer().release();
-      session.release();
-      session = null;
+      if (session != null) {
+        session.getPlayer().stop();
+        session.getPlayer().clearMediaItems();
+        session.getPlayer().release();
+        session.release();
+        callers.clear();
+        session = null;
+      }
       super.onDestroy();
     }
   }

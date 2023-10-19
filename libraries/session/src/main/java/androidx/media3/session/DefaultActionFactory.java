@@ -56,6 +56,19 @@ import androidx.media3.common.util.Util;
   public static final String EXTRAS_KEY_ACTION_CUSTOM_EXTRAS =
       "androidx.media3.session.EXTRAS_KEY_CUSTOM_NOTIFICATION_ACTION_EXTRAS";
 
+  /**
+   * Returns the {@link KeyEvent} that was included in the media action, or {@code null} if no
+   * {@link KeyEvent} is found in the {@code intent}.
+   */
+  @Nullable
+  public static KeyEvent getKeyEvent(Intent intent) {
+    @Nullable Bundle extras = intent.getExtras();
+    if (extras != null && extras.containsKey(Intent.EXTRA_KEY_EVENT)) {
+      return extras.getParcelable(Intent.EXTRA_KEY_EVENT);
+    }
+    return null;
+  }
+
   private final Service service;
 
   private int customActionPendingIntentRequestCode = 0;
@@ -97,6 +110,7 @@ import androidx.media3.common.util.Util;
             mediaSession, customCommand.customAction, customCommand.customExtras));
   }
 
+  @SuppressWarnings("PendingIntentMutability") // We can't use SaferPendingIntent
   @Override
   public PendingIntent createMediaActionPendingIntent(
       MediaSession mediaSession, @Player.Command long command) {
@@ -136,6 +150,7 @@ import androidx.media3.common.util.Util;
     return KEYCODE_UNKNOWN;
   }
 
+  @SuppressWarnings("PendingIntentMutability") // We can't use SaferPendingIntent
   private PendingIntent createCustomActionPendingIntent(
       MediaSession mediaSession, String action, Bundle extras) {
     Intent intent = new Intent(ACTION_CUSTOM);
@@ -160,19 +175,6 @@ import androidx.media3.common.util.Util;
   /** Returns whether {@code intent} was part of a {@link #createCustomAction custom action }. */
   public boolean isCustomAction(Intent intent) {
     return ACTION_CUSTOM.equals(intent.getAction());
-  }
-
-  /**
-   * Returns the {@link KeyEvent} that was included in the media action, or {@code null} if no
-   * {@link KeyEvent} is found in the {@code intent}.
-   */
-  @Nullable
-  public KeyEvent getKeyEvent(Intent intent) {
-    @Nullable Bundle extras = intent.getExtras();
-    if (extras != null && extras.containsKey(Intent.EXTRA_KEY_EVENT)) {
-      return extras.getParcelable(Intent.EXTRA_KEY_EVENT);
-    }
-    return null;
   }
 
   /**
@@ -201,6 +203,7 @@ import androidx.media3.common.util.Util;
   private static final class Api26 {
     private Api26() {}
 
+    @SuppressWarnings("PendingIntentMutability") // We can't use SaferPendingIntent
     public static PendingIntent createForegroundServicePendingIntent(
         Service service, int keyCode, Intent intent) {
       return PendingIntent.getForegroundService(
