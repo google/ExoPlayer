@@ -30,12 +30,16 @@ import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_WITH_INCREAS
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING;
 import static androidx.media3.transformer.AndroidTestUtil.recordTestSkipped;
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assume.assumeFalse;
 
 import android.content.Context;
 import android.net.Uri;
 import androidx.media3.common.Effect;
+import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
+import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.Util;
+import androidx.media3.effect.Presentation;
 import androidx.media3.effect.ScaleAndRotateTransformation;
 import androidx.media3.transformer.AndroidTestUtil;
 import androidx.media3.transformer.AndroidTestUtil.ForceEncodeEncoderFactory;
@@ -48,6 +52,7 @@ import androidx.media3.transformer.TransformerAndroidTestRunner;
 import androidx.media3.transformer.VideoEncoderSettings;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.common.base.Ascii;
 import com.google.common.collect.ImmutableList;
 import org.junit.AssumptionViolatedException;
 import org.junit.Test;
@@ -159,6 +164,14 @@ public class ExportTest {
   @Test
   public void export8K24() throws Exception {
     String testId = TAG + "_export8K24";
+
+    // Reference: b/244711282#comment5
+    assumeFalse(
+        "Some devices are capable of instantiating only either one 8K decoder or one 8K encoder",
+        Ascii.equalsIgnoreCase(Util.MODEL, "tb-q706")
+            || Ascii.equalsIgnoreCase(Util.MODEL, "sm-f916u1")
+            || Ascii.equalsIgnoreCase(Util.MODEL, "sm-g981u1"));
+
     Context context = ApplicationProvider.getApplicationContext();
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context, testId, /* inputFormat= */ MP4_ASSET_8K24_FORMAT, /* outputFormat= */ null)) {
@@ -177,6 +190,43 @@ public class ExportTest {
         .setTimeoutSeconds(120)
         .build()
         .run(testId, mediaItem);
+  }
+
+  @Test
+  public void export8K24_withDownscaling() throws Exception {
+    // This test is to cover devices that are able to either decode or encode 8K, but not transcode.
+    String testId = TAG + "_export8K24_withDownscaling";
+    int downscaledWidth = 320;
+    int downscaledHeight = 240;
+
+    Context context = ApplicationProvider.getApplicationContext();
+    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
+        context,
+        testId,
+        /* inputFormat= */ MP4_ASSET_8K24_FORMAT,
+        /* outputFormat= */ new Format.Builder()
+            .setSampleMimeType(MimeTypes.VIDEO_H264)
+            .setWidth(downscaledWidth)
+            .setHeight(downscaledHeight)
+            .build())) {
+      return;
+    }
+
+    new TransformerAndroidTestRunner.Builder(context, new Transformer.Builder(context).build())
+        .setTimeoutSeconds(120)
+        .build()
+        .run(
+            testId,
+            new EditedMediaItem.Builder(MediaItem.fromUri(Uri.parse(MP4_ASSET_8K24_URI_STRING)))
+                .setEffects(
+                    new Effects(
+                        /* audioProcessors= */ ImmutableList.of(),
+                        /* videoEffects= */ ImmutableList.of(
+                            Presentation.createForWidthAndHeight(
+                                downscaledWidth,
+                                downscaledHeight,
+                                Presentation.LAYOUT_SCALE_TO_FIT))))
+                .build());
   }
 
   @Test
