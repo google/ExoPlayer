@@ -145,7 +145,7 @@ import androidx.media3.common.util.UnstableApi;
       statusByte = firstByte;
 
       int currentByte;
-      do { // eat SysEx Message
+      do { // Consume SysEx message.
         currentByte = parsableTrackEventBytes.readUnsignedByte();
       } while (currentByte != SYSEX_END_STATUS);
     } else {
