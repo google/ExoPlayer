@@ -64,11 +64,5 @@
         android:label="@string/app_name"
         android:exported="true"
         android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar"/>
-    <activity android:name=".CompositionPreviewActivity"
-      android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"
-      android:launchMode="singleTop"
-      android:label="@string/app_name"
-      android:exported="true"
-      android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar"/>
   </application>
 </manifest>
