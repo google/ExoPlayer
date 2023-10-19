@@ -115,44 +115,42 @@ import androidx.media3.common.util.UnstableApi;
       }
 
       statusByte = firstByte;
-    } else {
-      if (firstByte == META_EVENT_STATUS) { // This is a Meta event.
-        int metaEventMessageType = parsableTrackEventBytes.readUnsignedByte();
-        int eventLength = readVariableLengthInt(parsableTrackEventBytes);
+    } else if (firstByte == META_EVENT_STATUS) { // This is a Meta event.
+      int metaEventMessageType = parsableTrackEventBytes.readUnsignedByte();
+      int eventLength = readVariableLengthInt(parsableTrackEventBytes);
 
-        statusByte = firstByte;
+      statusByte = firstByte;
 
-        switch (metaEventMessageType) {
-          case META_TEMPO_CHANGE:
-            usPerQuarterNote = parsableTrackEventBytes.readUnsignedInt24();
+      switch (metaEventMessageType) {
+        case META_TEMPO_CHANGE:
+          usPerQuarterNote = parsableTrackEventBytes.readUnsignedInt24();
 
-            if (usPerQuarterNote <= 0) {
-              throw ParserException.createForUnsupportedContainerFeature(
-                  "Tempo event data value must be a non-zero positive value. Parsed value: "
-                      + usPerQuarterNote);
-            }
+          if (usPerQuarterNote <= 0) {
+            throw ParserException.createForUnsupportedContainerFeature(
+                "Tempo event data value must be a non-zero positive value. Parsed value: "
+                    + usPerQuarterNote);
+          }
 
-            parsableTrackEventBytes.skipBytes(eventLength - /* tempoDataLength */ 3);
-            break;
-          case META_END_OF_TRACK:
-            parsableTrackEventBytes.setPosition(startingPosition);
-            reset();
-            return false;
-          default: // Ignore all other Meta events.
-            parsableTrackEventBytes.skipBytes(eventLength);
-        }
-      } else if (firstByte == SYSEX_BEGIN_STATUS) {
-        // TODO(b/228838584): Handle this gracefully.
-        statusByte = firstByte;
-
-        int currentByte;
-        do { // eat SysEx Message
-          currentByte = parsableTrackEventBytes.readUnsignedByte();
-        } while (currentByte != SYSEX_END_STATUS);
-      } else {
-        throw ParserException.createForUnsupportedContainerFeature(
-            "Unknown track events.");
+          parsableTrackEventBytes.skipBytes(eventLength - /* tempoDataLength */ 3);
+          break;
+        case META_END_OF_TRACK:
+          parsableTrackEventBytes.setPosition(startingPosition);
+          reset();
+          return false;
+        default: // Ignore all other Meta events.
+          parsableTrackEventBytes.skipBytes(eventLength);
       }
+    } else if (firstByte == SYSEX_BEGIN_STATUS) {
+      // TODO(b/228838584): Handle this gracefully.
+      statusByte = firstByte;
+
+      int currentByte;
+      do { // eat SysEx Message
+        currentByte = parsableTrackEventBytes.readUnsignedByte();
+      } while (currentByte != SYSEX_END_STATUS);
+    } else {
+      throw ParserException.createForUnsupportedContainerFeature(
+          "Unknown track event: " + firstByte);
     }
 
     eventFileSizeBytes = parsableTrackEventBytes.getPosition() - startingPosition;
