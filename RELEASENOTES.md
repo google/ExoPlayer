@@ -22,6 +22,9 @@
 *   Audio:
     *   Fix DTS Express audio buffer underflow issue
         ([#650](https://github.com/androidx/media/pull/650)).
+    *   Fix bug where the capabilities check for E-AC3-JOC throws an
+        `IllegalArgumentException`
+        ([#677](https://github.com/androidx/media/issues/677)).
 *   Video:
 *   Text:
     *   Remove `ExoplayerCuesDecoder`. Text tracks with `sampleMimeType =
