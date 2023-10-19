@@ -599,7 +599,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         checkNotNull(
             callback.onConnect(instance, controller),
             "Callback.onConnect must return non-null future");
-    if (isMediaNotificationController(controller)) {
+    if (isMediaNotificationController(controller) && connectionResult.isAccepted) {
       isMediaNotificationControllerConnected = true;
       playerWrapper.setCustomLayout(
           connectionResult.customLayout != null
