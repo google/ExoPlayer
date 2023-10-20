@@ -29,7 +29,6 @@ import static androidx.media3.common.Player.COMMAND_CHANGE_MEDIA_ITEMS;
 import static androidx.media3.common.Player.COMMAND_SET_MEDIA_ITEM;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
-import static androidx.media3.common.util.Util.SDK_INT;
 import static androidx.media3.common.util.Util.postOrRun;
 import static androidx.media3.session.MediaSessionStub.UNKNOWN_SEQUENCE_NUMBER;
 import static androidx.media3.session.SessionResult.RESULT_ERROR_SESSION_DISCONNECTED;
@@ -52,6 +51,7 @@ import android.os.RemoteException;
 import android.os.SystemClock;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.view.KeyEvent;
+import android.view.ViewConfiguration;
 import androidx.annotation.CheckResult;
 import androidx.annotation.FloatRange;
 import androidx.annotation.GuardedBy;
@@ -116,6 +116,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   private final Uri sessionUri;
   private final PlayerInfoChangedHandler onPlayerInfoChangedHandler;
+  private final MediaPlayPauseKeyHandler mediaPlayPauseKeyHandler;
   private final MediaSession.Callback callback;
   private final Context context;
   private final MediaSessionStub sessionStub;
@@ -161,28 +162,30 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       BitmapLoader bitmapLoader,
       boolean playIfSuppressed,
       boolean isPeriodicPositionUpdateEnabled) {
-    this.context = context;
     this.instance = instance;
+    this.context = context;
+    sessionId = id;
+    this.sessionActivity = sessionActivity;
+    this.customLayout = customLayout;
+    this.callback = callback;
+    this.bitmapLoader = bitmapLoader;
+    this.playIfSuppressed = playIfSuppressed;
+    this.isPeriodicPositionUpdateEnabled = isPeriodicPositionUpdateEnabled;
 
     @SuppressWarnings("nullness:assignment")
     @Initialized
     MediaSessionImpl thisRef = this;
 
     sessionStub = new MediaSessionStub(thisRef);
-    this.sessionActivity = sessionActivity;
-    this.customLayout = customLayout;
 
     mainHandler = new Handler(Looper.getMainLooper());
-    applicationHandler = new Handler(player.getApplicationLooper());
-    this.callback = callback;
-    this.bitmapLoader = bitmapLoader;
-    this.playIfSuppressed = playIfSuppressed;
-    this.isPeriodicPositionUpdateEnabled = isPeriodicPositionUpdateEnabled;
+    Looper applicationLooper = player.getApplicationLooper();
+    applicationHandler = new Handler(applicationLooper);
 
     playerInfo = PlayerInfo.DEFAULT;
-    onPlayerInfoChangedHandler = new PlayerInfoChangedHandler(player.getApplicationLooper());
+    onPlayerInfoChangedHandler = new PlayerInfoChangedHandler(applicationLooper);
+    mediaPlayPauseKeyHandler = new MediaPlayPauseKeyHandler(applicationLooper);
 
-    sessionId = id;
     // Build Uri that differentiate sessions across the creation/destruction in PendingIntent.
     // Here's the reason why Session ID / SessionToken aren't suitable here.
     //   - Session ID
@@ -280,6 +283,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       }
       closed = true;
     }
+    mediaPlayPauseKeyHandler.clearPendingPlayPauseTask();
     applicationHandler.removeCallbacksAndMessages(null);
     try {
       postOrRun(
@@ -1080,7 +1084,16 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         (callback, seq) -> callback.onDeviceInfoChanged(seq, playerInfo.deviceInfo));
   }
 
-  /* package */ boolean onMediaButtonEvent(Intent intent) {
+  /**
+   * Returns true if the media button event was handled, false otherwise.
+   *
+   * <p>Must be called on the application thread of the session.
+   *
+   * @param callerInfo The calling {@link ControllerInfo}.
+   * @param intent The media button intent.
+   * @return True if the event was handled, false otherwise.
+   */
+  /* package */ boolean onMediaButtonEvent(ControllerInfo callerInfo, Intent intent) {
     KeyEvent keyEvent = DefaultActionFactory.getKeyEvent(intent);
     ComponentName intentComponent = intent.getComponent();
     if (!Objects.equals(intent.getAction(), Intent.ACTION_MEDIA_BUTTON)
@@ -1090,18 +1103,66 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         || keyEvent.getAction() != KeyEvent.ACTION_DOWN) {
       return false;
     }
-    ControllerInfo controllerInfo = getMediaNotificationControllerInfo();
-    if (controllerInfo == null) {
-      if (intentComponent != null) {
-        // Fallback to legacy if this is a media button event sent to one of our components.
-        return getSessionCompat().getController().dispatchMediaButtonEvent(keyEvent)
-            || SDK_INT < 21;
-      }
-      return false;
+
+    verifyApplicationThread();
+    if (callback.onMediaButtonEvent(instance, callerInfo, intent)) {
+      // Event handled by app callback.
+      return true;
+    }
+    // Double tap detection.
+    int keyCode = keyEvent.getKeyCode();
+    boolean doubleTapCompleted = false;
+    switch (keyCode) {
+      case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
+      case KeyEvent.KEYCODE_HEADSETHOOK:
+        if (callerInfo.getControllerVersion() != ControllerInfo.LEGACY_CONTROLLER_VERSION
+            || keyEvent.getRepeatCount() != 0) {
+          // Double tap detection is only for media button events from external sources
+          // (for instance Bluetooth) and excluding long press (repeatCount > 0).
+          mediaPlayPauseKeyHandler.flush();
+        } else if (mediaPlayPauseKeyHandler.hasPendingPlayPauseTask()) {
+          // A double tap arrived. Clear the pending playPause task.
+          mediaPlayPauseKeyHandler.clearPendingPlayPauseTask();
+          doubleTapCompleted = true;
+        } else {
+          // Handle event with a delayed callback that's run if no double tap arrives in time.
+          mediaPlayPauseKeyHandler.setPendingPlayPauseTask(callerInfo, keyEvent);
+          return true;
+        }
+        break;
+      default:
+        // If another key is pressed within double tap timeout, make play/pause as a single tap to
+        // handle media keys in order.
+        mediaPlayPauseKeyHandler.flush();
+        break;
     }
 
+    if (!isMediaNotificationControllerConnected()) {
+      if (keyCode == KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE && doubleTapCompleted) {
+        // Double tap completion for legacy when media notification controller is disabled.
+        sessionLegacyStub.onSkipToNext();
+        return true;
+      } else if (callerInfo.getControllerVersion() != ControllerInfo.LEGACY_CONTROLLER_VERSION) {
+        sessionLegacyStub.getSessionCompat().getController().dispatchMediaButtonEvent(keyEvent);
+        return true;
+      }
+      // This is an unhandled framework event. Return false to let the framework resolve by calling
+      // `MediaSessionCompat.Callback.onXyz()`.
+      return false;
+    }
+    // Send from media notification controller.
+    return applyMediaButtonKeyEvent(keyEvent, doubleTapCompleted);
+  }
+
+  private boolean applyMediaButtonKeyEvent(KeyEvent keyEvent, boolean doubleTapCompleted) {
+    ControllerInfo controllerInfo = checkNotNull(instance.getMediaNotificationControllerInfo());
     Runnable command;
-    switch (keyEvent.getKeyCode()) {
+    int keyCode = keyEvent.getKeyCode();
+    if ((keyCode == KEYCODE_MEDIA_PLAY_PAUSE || keyCode == KEYCODE_MEDIA_PLAY)
+        && doubleTapCompleted) {
+      keyCode = KEYCODE_MEDIA_NEXT;
+    }
+    switch (keyCode) {
       case KEYCODE_MEDIA_PLAY_PAUSE:
         command =
             getPlayerWrapper().getPlayWhenReady()
@@ -1650,6 +1711,56 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     @Nullable
     private MediaSessionImpl getSession() {
       return this.session.get();
+    }
+  }
+
+  /**
+   * A handler for double click detection.
+   *
+   * <p>All methods must be called on the application thread.
+   */
+  private class MediaPlayPauseKeyHandler extends Handler {
+
+    @Nullable private Runnable playPauseTask;
+
+    public MediaPlayPauseKeyHandler(Looper applicationLooper) {
+      super(applicationLooper);
+    }
+
+    public void setPendingPlayPauseTask(ControllerInfo controllerInfo, KeyEvent keyEvent) {
+      playPauseTask =
+          () -> {
+            if (isMediaNotificationController(controllerInfo)) {
+              applyMediaButtonKeyEvent(keyEvent, /* doubleTapCompleted= */ false);
+            } else {
+              sessionLegacyStub.handleMediaPlayPauseOnHandler(
+                  checkNotNull(controllerInfo.getRemoteUserInfo()));
+            }
+            playPauseTask = null;
+          };
+      postDelayed(playPauseTask, ViewConfiguration.getDoubleTapTimeout());
+    }
+
+    @Nullable
+    public Runnable clearPendingPlayPauseTask() {
+      if (playPauseTask != null) {
+        removeCallbacks(playPauseTask);
+        Runnable task = playPauseTask;
+        playPauseTask = null;
+        return task;
+      }
+      return null;
+    }
+
+    public boolean hasPendingPlayPauseTask() {
+      return playPauseTask != null;
+    }
+
+    public void flush() {
+      @Nullable Runnable task = clearPendingPlayPauseTask();
+      if (task != null) {
+        postOrRun(this, task);
+      }
     }
   }
 

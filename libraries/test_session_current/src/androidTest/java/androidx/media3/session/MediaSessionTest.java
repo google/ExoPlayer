@@ -19,6 +19,7 @@ import static android.view.KeyEvent.KEYCODE_MEDIA_FAST_FORWARD;
 import static android.view.KeyEvent.KEYCODE_MEDIA_NEXT;
 import static android.view.KeyEvent.KEYCODE_MEDIA_PAUSE;
 import static android.view.KeyEvent.KEYCODE_MEDIA_PLAY;
+import static android.view.KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE;
 import static android.view.KeyEvent.KEYCODE_MEDIA_PREVIOUS;
 import static android.view.KeyEvent.KEYCODE_MEDIA_REWIND;
 import static android.view.KeyEvent.KEYCODE_MEDIA_STOP;
@@ -513,7 +514,7 @@ public class MediaSessionTest {
     session.set(
         sessionTestRule.ensureReleaseAfterTest(
             new MediaSession.Builder(context, callerCollectorPlayer)
-                .setId("getSessionCompatToken_returnsCompatibleWithMediaControllerCompat")
+                .setId("onMediaButtonEvent")
                 .setCallback(
                     new MediaSession.Callback() {
                       @Override
@@ -535,14 +536,41 @@ public class MediaSessionTest {
         .buildAsync()
         .get();
 
-    MediaSessionImpl impl = session.get().getImpl();
-    assertThat(impl.onMediaButtonEvent(getMediaButtonIntent(KEYCODE_MEDIA_PLAY))).isTrue();
-    assertThat(impl.onMediaButtonEvent(getMediaButtonIntent(KEYCODE_MEDIA_PAUSE))).isTrue();
-    assertThat(impl.onMediaButtonEvent(getMediaButtonIntent(KEYCODE_MEDIA_FAST_FORWARD))).isTrue();
-    assertThat(impl.onMediaButtonEvent(getMediaButtonIntent(KEYCODE_MEDIA_REWIND))).isTrue();
-    assertThat(impl.onMediaButtonEvent(getMediaButtonIntent(KEYCODE_MEDIA_NEXT))).isTrue();
-    assertThat(impl.onMediaButtonEvent(getMediaButtonIntent(KEYCODE_MEDIA_PREVIOUS))).isTrue();
-    assertThat(impl.onMediaButtonEvent(getMediaButtonIntent(KEYCODE_MEDIA_STOP))).isTrue();
+    threadTestRule
+        .getHandler()
+        .postAndSync(
+            () -> {
+              MediaSessionImpl impl = session.get().getImpl();
+              ControllerInfo controllerInfo = createMediaButtonCaller();
+              assertThat(
+                      impl.onMediaButtonEvent(
+                          controllerInfo, getMediaButtonIntent(KEYCODE_MEDIA_PLAY)))
+                  .isTrue();
+              assertThat(
+                      impl.onMediaButtonEvent(
+                          controllerInfo, getMediaButtonIntent(KEYCODE_MEDIA_PAUSE)))
+                  .isTrue();
+              assertThat(
+                      impl.onMediaButtonEvent(
+                          controllerInfo, getMediaButtonIntent(KEYCODE_MEDIA_FAST_FORWARD)))
+                  .isTrue();
+              assertThat(
+                      impl.onMediaButtonEvent(
+                          controllerInfo, getMediaButtonIntent(KEYCODE_MEDIA_REWIND)))
+                  .isTrue();
+              assertThat(
+                      impl.onMediaButtonEvent(
+                          controllerInfo, getMediaButtonIntent(KEYCODE_MEDIA_NEXT)))
+                  .isTrue();
+              assertThat(
+                      impl.onMediaButtonEvent(
+                          controllerInfo, getMediaButtonIntent(KEYCODE_MEDIA_PREVIOUS)))
+                  .isTrue();
+              assertThat(
+                      impl.onMediaButtonEvent(
+                          controllerInfo, getMediaButtonIntent(KEYCODE_MEDIA_STOP)))
+                  .isTrue();
+            });
 
     player.awaitMethodCalled(MockPlayer.METHOD_PLAY, TIMEOUT_MS);
     player.awaitMethodCalled(MockPlayer.METHOD_PAUSE, TIMEOUT_MS);
@@ -566,7 +594,7 @@ public class MediaSessionTest {
     session.set(
         sessionTestRule.ensureReleaseAfterTest(
             new MediaSession.Builder(context, callerCollectorPlayer)
-                .setId("getSessionCompatToken_returnsCompatibleWithMediaControllerCompat")
+                .setId("onMediaButtonEvent")
                 .setCallback(
                     new MediaSession.Callback() {
                       @Override
@@ -583,19 +611,46 @@ public class MediaSessionTest {
                 .build()));
     MediaSessionImpl impl = session.get().getImpl();
 
-    assertThat(impl.onMediaButtonEvent(getMediaButtonIntent(KEYCODE_MEDIA_PLAY))).isTrue();
-    assertThat(impl.onMediaButtonEvent(getMediaButtonIntent(KEYCODE_MEDIA_PAUSE))).isTrue();
-    assertThat(impl.onMediaButtonEvent(getMediaButtonIntent(KEYCODE_MEDIA_FAST_FORWARD))).isTrue();
-    assertThat(impl.onMediaButtonEvent(getMediaButtonIntent(KEYCODE_MEDIA_REWIND))).isTrue();
-    assertThat(impl.onMediaButtonEvent(getMediaButtonIntent(KEYCODE_MEDIA_NEXT))).isTrue();
-    assertThat(impl.onMediaButtonEvent(getMediaButtonIntent(KEYCODE_MEDIA_PREVIOUS))).isTrue();
-    assertThat(impl.onMediaButtonEvent(getMediaButtonIntent(KEYCODE_MEDIA_STOP))).isTrue();
+    threadTestRule
+        .getHandler()
+        .postAndSync(
+            () -> {
+              ControllerInfo controllerInfo = createMediaButtonCaller();
+              assertThat(
+                      impl.onMediaButtonEvent(
+                          controllerInfo, getMediaButtonIntent(KEYCODE_MEDIA_PLAY)))
+                  .isTrue();
+              assertThat(
+                      impl.onMediaButtonEvent(
+                          controllerInfo, getMediaButtonIntent(KEYCODE_MEDIA_PAUSE)))
+                  .isTrue();
+              assertThat(
+                      impl.onMediaButtonEvent(
+                          controllerInfo, getMediaButtonIntent(KEYCODE_MEDIA_FAST_FORWARD)))
+                  .isTrue();
+              assertThat(
+                      impl.onMediaButtonEvent(
+                          controllerInfo, getMediaButtonIntent(KEYCODE_MEDIA_REWIND)))
+                  .isTrue();
+              assertThat(
+                      impl.onMediaButtonEvent(
+                          controllerInfo, getMediaButtonIntent(KEYCODE_MEDIA_NEXT)))
+                  .isTrue();
+              assertThat(
+                      impl.onMediaButtonEvent(
+                          controllerInfo, getMediaButtonIntent(KEYCODE_MEDIA_PREVIOUS)))
+                  .isTrue();
+              assertThat(
+                      impl.onMediaButtonEvent(
+                          controllerInfo, getMediaButtonIntent(KEYCODE_MEDIA_STOP)))
+                  .isTrue();
+            });
 
-    // Fallback code path through platform session when MediaSessionImpl doesn't handle the event.
+    // Fallback through the framework session when media notification controller in disabled.
     player.awaitMethodCalled(MockPlayer.METHOD_PLAY, TIMEOUT_MS);
     player.awaitMethodCalled(MockPlayer.METHOD_PAUSE, TIMEOUT_MS);
     player.awaitMethodCalled(MockPlayer.METHOD_SEEK_FORWARD, TIMEOUT_MS);
-    player.awaitMethodCalled(MockPlayer.METHOD_SEEK_FORWARD, TIMEOUT_MS);
+    player.awaitMethodCalled(MockPlayer.METHOD_SEEK_BACK, TIMEOUT_MS);
     player.awaitMethodCalled(MockPlayer.METHOD_SEEK_TO_NEXT, TIMEOUT_MS);
     player.awaitMethodCalled(MockPlayer.METHOD_SEEK_TO_PREVIOUS, TIMEOUT_MS);
     player.awaitMethodCalled(MockPlayer.METHOD_STOP, TIMEOUT_MS);
@@ -610,11 +665,112 @@ public class MediaSessionTest {
   }
 
   @Test
+  public void
+      onMediaButtonEvent_appOverridesCallback_notificationControllerNotConnected_callsWhatAppCalls()
+          throws Exception {
+    List<ControllerInfo> controllers = new ArrayList<>();
+    CountDownLatch latch = new CountDownLatch(1);
+    MediaSession session =
+        sessionTestRule.ensureReleaseAfterTest(
+            new MediaSession.Builder(context, player)
+                .setId("onMediaButtonEvent")
+                .setCallback(
+                    new MediaSession.Callback() {
+                      @Override
+                      public MediaSession.ConnectionResult onConnect(
+                          MediaSession session, ControllerInfo controller) {
+                        if (TextUtils.equals(
+                            getControllerCallerPackageName(controller),
+                            controller.getPackageName())) {
+                          return MediaSession.Callback.super.onConnect(session, controller);
+                        }
+                        return MediaSession.ConnectionResult.reject();
+                      }
+
+                      @Override
+                      public boolean onMediaButtonEvent(
+                          MediaSession session, ControllerInfo controllerInfo, Intent intent) {
+                        session.getPlayer().seekToNext();
+                        controllers.add(controllerInfo);
+                        latch.countDown();
+                        return true;
+                      }
+                    })
+                .build());
+    MediaSessionImpl impl = session.getImpl();
+
+    ControllerInfo controllerInfo = createMediaButtonCaller();
+    threadTestRule
+        .getHandler()
+        .postAndSync(
+            () -> {
+              Intent intent = getMediaButtonIntent(KEYCODE_MEDIA_PLAY_PAUSE);
+              assertThat(impl.onMediaButtonEvent(controllerInfo, intent)).isTrue();
+            });
+
+    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    player.awaitMethodCalled(MockPlayer.METHOD_SEEK_TO_NEXT, TIMEOUT_MS);
+    assertThat(controllers).hasSize(1);
+    assertThat(session.isMediaNotificationController(controllers.get(0))).isFalse();
+  }
+
+  @Test
+  public void
+      onMediaButtonEvent_appOverridesCallback_notificationControllerConnected_callsWhatAppCalls()
+          throws Exception {
+    List<ControllerInfo> controllers = new ArrayList<>();
+    MediaSession session =
+        sessionTestRule.ensureReleaseAfterTest(
+            new MediaSession.Builder(context, player)
+                .setId("onMediaButtonEvent")
+                .setCallback(
+                    new MediaSession.Callback() {
+                      @Override
+                      public boolean onMediaButtonEvent(
+                          MediaSession session, ControllerInfo controllerInfo, Intent intent) {
+                        if (DefaultActionFactory.getKeyEvent(intent).getKeyCode()
+                            == KEYCODE_MEDIA_PLAY) {
+                          player.seekForward();
+                          controllers.add(controllerInfo);
+                          return true;
+                        }
+                        return MediaSession.Callback.super.onMediaButtonEvent(
+                            session, controllerInfo, intent);
+                      }
+                    })
+                .build());
+    Bundle connectionHints = new Bundle();
+    connectionHints.putBoolean(MediaNotificationManager.KEY_MEDIA_NOTIFICATION_MANAGER, true);
+    new MediaController.Builder(ApplicationProvider.getApplicationContext(), session.getToken())
+        .setConnectionHints(connectionHints)
+        .buildAsync()
+        .get();
+
+    boolean isEventHandled =
+        threadTestRule
+            .getHandler()
+            .postAndSync(
+                () ->
+                    session
+                        .getImpl()
+                        .onMediaButtonEvent(
+                            session.getMediaNotificationControllerInfo(),
+                            getMediaButtonIntent(KEYCODE_MEDIA_PLAY)));
+
+    assertThat(isEventHandled).isTrue();
+    // App changed default behaviour
+    player.awaitMethodCalled(MockPlayer.METHOD_SEEK_FORWARD, TIMEOUT_MS);
+    assertThat(controllers).hasSize(1);
+    assertThat(session.isMediaNotificationController(controllers.get(0))).isTrue();
+  }
+
+  @Test
   public void onMediaButtonEvent_noKeyEvent_returnsFalse() {
     Intent intent = getMediaButtonIntent(KEYCODE_MEDIA_PLAY);
     intent.removeExtra(Intent.EXTRA_KEY_EVENT);
 
-    boolean isEventHandled = session.getImpl().onMediaButtonEvent(intent);
+    boolean isEventHandled =
+        session.getImpl().onMediaButtonEvent(createMediaButtonCaller(), intent);
 
     assertThat(isEventHandled).isFalse();
   }
@@ -631,7 +787,8 @@ public class MediaSessionTest {
     Intent intent = getMediaButtonIntent(KEYCODE_MEDIA_PLAY);
     intent.removeExtra(Intent.EXTRA_KEY_EVENT);
 
-    boolean isEventHandled = session.getImpl().onMediaButtonEvent(intent);
+    boolean isEventHandled =
+        session.getImpl().onMediaButtonEvent(createMediaButtonCaller(), intent);
 
     assertThat(isEventHandled).isFalse();
   }
@@ -642,7 +799,8 @@ public class MediaSessionTest {
     intent.removeExtra(Intent.EXTRA_KEY_EVENT);
     intent.putExtra(Intent.EXTRA_KEY_EVENT, new KeyEvent(KeyEvent.ACTION_UP, KEYCODE_MEDIA_PAUSE));
 
-    boolean isEventHandled = session.getImpl().onMediaButtonEvent(intent);
+    boolean isEventHandled =
+        session.getImpl().onMediaButtonEvent(createMediaButtonCaller(), intent);
 
     assertThat(isEventHandled).isFalse();
   }
@@ -660,7 +818,8 @@ public class MediaSessionTest {
     intent.removeExtra(Intent.EXTRA_KEY_EVENT);
     intent.putExtra(Intent.EXTRA_KEY_EVENT, new KeyEvent(KeyEvent.ACTION_UP, KEYCODE_MEDIA_PAUSE));
 
-    boolean isEventHandled = session.getImpl().onMediaButtonEvent(intent);
+    boolean isEventHandled =
+        session.getImpl().onMediaButtonEvent(createMediaButtonCaller(), intent);
 
     assertThat(isEventHandled).isFalse();
   }
@@ -670,7 +829,8 @@ public class MediaSessionTest {
     Intent intent = getMediaButtonIntent(KEYCODE_MEDIA_PLAY);
     intent.setAction("notAMediaButtonAction");
 
-    boolean isEventHandled = session.getImpl().onMediaButtonEvent(intent);
+    boolean isEventHandled =
+        session.getImpl().onMediaButtonEvent(createMediaButtonCaller(), intent);
 
     assertThat(isEventHandled).isFalse();
   }
@@ -687,7 +847,8 @@ public class MediaSessionTest {
     Intent intent = getMediaButtonIntent(KEYCODE_MEDIA_PLAY);
     intent.setAction("notAMediaButtonAction");
 
-    boolean isEventHandled = session.getImpl().onMediaButtonEvent(intent);
+    boolean isEventHandled =
+        session.getImpl().onMediaButtonEvent(createMediaButtonCaller(), intent);
 
     assertThat(isEventHandled).isFalse();
   }
@@ -697,7 +858,8 @@ public class MediaSessionTest {
     Intent intent = getMediaButtonIntent(KEYCODE_MEDIA_PLAY);
     intent.setComponent(new ComponentName("a.package", "a.class"));
 
-    boolean isEventHandled = session.getImpl().onMediaButtonEvent(intent);
+    boolean isEventHandled =
+        session.getImpl().onMediaButtonEvent(createMediaButtonCaller(), intent);
 
     assertThat(isEventHandled).isFalse();
   }
@@ -715,7 +877,8 @@ public class MediaSessionTest {
     Intent intent = getMediaButtonIntent(KEYCODE_MEDIA_PLAY);
     intent.setComponent(new ComponentName("a.package", "a.class"));
 
-    boolean isEventHandled = session.getImpl().onMediaButtonEvent(intent);
+    boolean isEventHandled =
+        session.getImpl().onMediaButtonEvent(createMediaButtonCaller(), intent);
 
     assertThat(isEventHandled).isFalse();
   }
@@ -748,6 +911,19 @@ public class MediaSessionTest {
             || controllerInfo.getControllerVersion() != ControllerInfo.LEGACY_CONTROLLER_VERSION)
         ? ApplicationProvider.getApplicationContext().getPackageName()
         : MediaSessionManager.RemoteUserInfo.LEGACY_CONTROLLER;
+  }
+
+  private static ControllerInfo createMediaButtonCaller() {
+    return new ControllerInfo(
+        new MediaSessionManager.RemoteUserInfo(
+            "RANDOM_MEDIA_BUTTON_CALLER_PACKAGE",
+            MediaSessionManager.RemoteUserInfo.UNKNOWN_PID,
+            MediaSessionManager.RemoteUserInfo.UNKNOWN_UID),
+        MediaLibraryInfo.VERSION_INT,
+        MediaControllerStub.VERSION_INT,
+        /* trusted= */ false,
+        /* cb= */ null,
+        /* connectionHints= */ Bundle.EMPTY);
   }
 
   private static class CallerCollectorPlayer extends ForwardingPlayer {

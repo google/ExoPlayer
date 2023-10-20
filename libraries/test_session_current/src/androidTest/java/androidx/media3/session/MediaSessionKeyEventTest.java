@@ -16,6 +16,8 @@
 package androidx.media3.session;
 
 import static androidx.media.MediaSessionManager.RemoteUserInfo.LEGACY_CONTROLLER;
+import static androidx.media3.common.Player.STATE_ENDED;
+import static androidx.media3.session.MediaSession.ControllerInfo.LEGACY_CONTROLLER_VERSION;
 import static androidx.media3.test.session.common.CommonConstants.SUPPORT_APP_PACKAGE_NAME;
 import static androidx.media3.test.session.common.TestUtils.LONG_TIMEOUT_MS;
 import static androidx.media3.test.session.common.TestUtils.TIMEOUT_MS;
@@ -26,7 +28,9 @@ import static org.junit.Assume.assumeTrue;
 import android.content.Context;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.os.Bundle;
 import android.view.KeyEvent;
+import androidx.media3.common.ForwardingPlayer;
 import androidx.media3.common.Player;
 import androidx.media3.common.util.Util;
 import androidx.media3.session.MediaSession.ControllerInfo;
@@ -37,6 +41,8 @@ import androidx.media3.test.session.common.TestHandler;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import org.junit.After;
 import org.junit.Assume;
@@ -69,6 +75,7 @@ public class MediaSessionKeyEventTest {
   private MediaSession session;
   private MockPlayer player;
   private TestSessionCallback sessionCallback;
+  private CallerCollectorPlayer callerCollectorPlayer;
 
   @Before
   public void setUp() throws Exception {
@@ -78,10 +85,14 @@ public class MediaSessionKeyEventTest {
     Context context = ApplicationProvider.getApplicationContext();
     audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
     handler = threadTestRule.getHandler();
-    player = new MockPlayer.Builder().setApplicationLooper(handler.getLooper()).build();
-
+    player =
+        new MockPlayer.Builder().setMediaItems(1).setApplicationLooper(handler.getLooper()).build();
     sessionCallback = new TestSessionCallback();
-    session = new MediaSession.Builder(context, player).setCallback(sessionCallback).build();
+    callerCollectorPlayer = new CallerCollectorPlayer(player);
+    session =
+        new MediaSession.Builder(context, callerCollectorPlayer)
+            .setCallback(sessionCallback)
+            .build();
 
     // Here's the requirement for an app to receive media key events via MediaSession.
     // - SDK < 26: Player should be playing for receiving key events
@@ -161,6 +172,92 @@ public class MediaSessionKeyEventTest {
   }
 
   @Test
+  public void
+      fastForwardKeyEvent_mediaNotificationControllerConnected_callFromNotificationController()
+          throws Exception {
+    Assume.assumeTrue(Util.SDK_INT >= 21); // TODO: b/199064299 - Lower minSdk to 19.
+    MediaController controller = connectMediaNotificationController();
+    dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_FAST_FORWARD, /* doubleTap= */ false);
+
+    player.awaitMethodCalled(MockPlayer.METHOD_SEEK_FORWARD, TIMEOUT_MS);
+    assertThat(callerCollectorPlayer.callers).hasSize(1);
+    assertThat(callerCollectorPlayer.callers.get(0).getControllerVersion())
+        .isNotEqualTo(LEGACY_CONTROLLER_VERSION);
+    assertThat(callerCollectorPlayer.callers.get(0).getPackageName())
+        .isEqualTo("androidx.media3.test.session");
+    assertThat(callerCollectorPlayer.callers.get(0).getConnectionHints().size()).isEqualTo(1);
+    assertThat(
+            callerCollectorPlayer
+                .callers
+                .get(0)
+                .getConnectionHints()
+                .getBoolean(
+                    MediaNotificationManager.KEY_MEDIA_NOTIFICATION_MANAGER,
+                    /* defaultValue= */ false))
+        .isTrue();
+    threadTestRule.getHandler().postAndSync(controller::release);
+  }
+
+  @Test
+  public void
+      fastForwardKeyEvent_mediaNotificationControllerNotConnected_callFromLegacyFallbackController()
+          throws Exception {
+    Assume.assumeTrue(Util.SDK_INT >= 21); // TODO: b/199064299 - Lower minSdk to 19.
+
+    dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_FAST_FORWARD, false);
+
+    player.awaitMethodCalled(MockPlayer.METHOD_SEEK_FORWARD, TIMEOUT_MS);
+    List<ControllerInfo> controllers = callerCollectorPlayer.callers;
+    assertThat(controllers).hasSize(1);
+    assertThat(controllers.get(0).getControllerVersion()).isEqualTo(LEGACY_CONTROLLER_VERSION);
+    assertThat(controllers.get(0).getConnectionHints().size()).isEqualTo(0);
+    assertThat(controllers.get(0).getPackageName())
+        .isEqualTo(getExpectedControllerPackageName(controllers.get(0)));
+  }
+
+  @Test
+  public void rewindKeyEvent_mediaNotificationControllerConnected_callFromNotificationController()
+      throws Exception {
+    Assume.assumeTrue(Util.SDK_INT >= 21); // TODO: b/199064299 - Lower minSdk to 19.
+    MediaController controller = connectMediaNotificationController();
+
+    dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_REWIND, false);
+
+    player.awaitMethodCalled(MockPlayer.METHOD_SEEK_BACK, TIMEOUT_MS);
+    List<ControllerInfo> controllers = callerCollectorPlayer.callers;
+    assertThat(controllers).hasSize(1);
+    assertThat(controllers.get(0).getPackageName()).isEqualTo("androidx.media3.test.session");
+    assertThat(controllers.get(0).getControllerVersion()).isNotEqualTo(LEGACY_CONTROLLER_VERSION);
+    assertThat(controllers.get(0).getConnectionHints().size()).isEqualTo(1);
+    assertThat(
+            controllers
+                .get(0)
+                .getConnectionHints()
+                .getBoolean(
+                    MediaNotificationManager.KEY_MEDIA_NOTIFICATION_MANAGER,
+                    /* defaultValue= */ false))
+        .isTrue();
+    threadTestRule.getHandler().postAndSync(controller::release);
+  }
+
+  @Test
+  public void
+      rewindKeyEvent_mediaNotificationControllerNotConnected_callFromLegacyFallbackController()
+          throws Exception {
+    Assume.assumeTrue(Util.SDK_INT >= 21); // TODO: b/199064299 - Lower minSdk to 19.
+
+    dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_REWIND, false);
+
+    player.awaitMethodCalled(MockPlayer.METHOD_SEEK_BACK, TIMEOUT_MS);
+    List<ControllerInfo> controllers = callerCollectorPlayer.callers;
+    assertThat(controllers).hasSize(1);
+    assertThat(controllers.get(0).getControllerVersion()).isEqualTo(LEGACY_CONTROLLER_VERSION);
+    assertThat(controllers.get(0).getConnectionHints().size()).isEqualTo(0);
+    assertThat(controllers.get(0).getPackageName())
+        .isEqualTo(getExpectedControllerPackageName(controllers.get(0)));
+  }
+
+  @Test
   public void stopKeyEvent() throws Exception {
     Assume.assumeTrue(Util.SDK_INT >= 21); // TODO: b/199064299 - Lower minSdk to 19.
     dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_STOP, false);
@@ -210,7 +307,7 @@ public class MediaSessionKeyEventTest {
     handler.postAndSync(
         () -> {
           player.playWhenReady = true;
-          player.playbackState = Player.STATE_ENDED;
+          player.playbackState = STATE_ENDED;
         });
 
     dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE, false);
@@ -233,6 +330,36 @@ public class MediaSessionKeyEventTest {
     player.awaitMethodCalled(MockPlayer.METHOD_PAUSE, TIMEOUT_MS);
   }
 
+  @Test
+  public void playPauseKeyEvent_doubleTapOnPlayPause_seekNext() throws Exception {
+    Assume.assumeTrue(Util.SDK_INT >= 21); // TODO: b/199064299 - Lower minSdk to 19.
+    handler.postAndSync(
+        () -> {
+          player.playWhenReady = true;
+          player.playbackState = Player.STATE_READY;
+        });
+
+    dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE, /* doubleTap= */ true);
+
+    player.awaitMethodCalled(MockPlayer.METHOD_SEEK_TO_NEXT, TIMEOUT_MS);
+  }
+
+  private MediaController connectMediaNotificationController() throws Exception {
+    return threadTestRule
+        .getHandler()
+        .postAndSync(
+            () -> {
+              Bundle connectionHints = new Bundle();
+              connectionHints.putBoolean(
+                  MediaNotificationManager.KEY_MEDIA_NOTIFICATION_MANAGER, /* value= */ true);
+              return new MediaController.Builder(
+                      ApplicationProvider.getApplicationContext(), session.getToken())
+                  .setConnectionHints(connectionHints)
+                  .buildAsync()
+                  .get();
+            });
+  }
+
   private void dispatchMediaKeyEvent(int keyCode, boolean doubleTap) {
     audioManager.dispatchMediaKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, keyCode));
     audioManager.dispatchMediaKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, keyCode));
@@ -242,30 +369,56 @@ public class MediaSessionKeyEventTest {
     }
   }
 
-  private static class TestSessionCallback implements MediaSession.Callback {
+  private static String getExpectedControllerPackageName(ControllerInfo controllerInfo) {
+    if (controllerInfo.getControllerVersion() != ControllerInfo.LEGACY_CONTROLLER_VERSION) {
+      return SUPPORT_APP_PACKAGE_NAME;
+    }
+    // Legacy controllers
+    if (Util.SDK_INT < 21 || Util.SDK_INT >= 28) {
+      // Above API 28: package of the app using AudioManager.
+      // Below 21: package of the owner of the session. Note: This is specific to this test setup
+      // where `ApplicationProvider.getContext().packageName == SUPPORT_APP_PACKAGE_NAME`.
+      return SUPPORT_APP_PACKAGE_NAME;
+    } else if (Util.SDK_INT >= 24) {
+      // API 24 - 27: KeyEvent from system service has the package name "android".
+      return "android";
+    } else {
+      // API 21 - 23: Fallback set by MediaSessionCompat#getCurrentControllerInfo
+      return LEGACY_CONTROLLER;
+    }
+  }
 
-    private static final String EXPECTED_CONTROLLER_PACKAGE_NAME =
-        getExpectedControllerPackageName();
+  private static class TestSessionCallback implements MediaSession.Callback {
 
     @Override
     public MediaSession.ConnectionResult onConnect(
         MediaSession session, ControllerInfo controller) {
-      if (EXPECTED_CONTROLLER_PACKAGE_NAME.equals(controller.getPackageName())) {
+      if (session.isMediaNotificationController(controller)
+          || getExpectedControllerPackageName(controller).equals(controller.getPackageName())) {
         return MediaSession.Callback.super.onConnect(session, controller);
       }
       return MediaSession.ConnectionResult.reject();
     }
+  }
 
-    private static String getExpectedControllerPackageName() {
-      if (Util.SDK_INT >= 28 || Util.SDK_INT < 21) {
-        return SUPPORT_APP_PACKAGE_NAME;
-      } else if (Util.SDK_INT >= 24) {
-        // KeyEvent from system service has the package name "android".
-        return "android";
-      } else {
-        // In API 21+, MediaSessionCompat#getCurrentControllerInfo always returns fake info.
-        return LEGACY_CONTROLLER;
-      }
+  private class CallerCollectorPlayer extends ForwardingPlayer {
+    private final List<ControllerInfo> callers;
+
+    public CallerCollectorPlayer(Player player) {
+      super(player);
+      callers = new ArrayList<>();
+    }
+
+    @Override
+    public void seekForward() {
+      callers.add(session.getControllerForCurrentRequest());
+      super.seekForward();
+    }
+
+    @Override
+    public void seekBack() {
+      callers.add(session.getControllerForCurrentRequest());
+      super.seekBack();
     }
   }
 }

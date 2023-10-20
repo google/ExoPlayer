@@ -44,6 +44,8 @@
         (([#339](https://github.com/androidx/media/issues/339)).
     *   Use `DataSourceBitmapLoader` by default instead of `SimpleBitmapLoader`
         ([#271](https://github.com/androidx/media/issues/271),[#327](https://github.com/androidx/media/issues/327)).
+    *   Add `MediaSession.Callback.onMediaButtonEvent(Intent)` that allows apps
+        to override the default media button event handling.
 *   UI:
 *   Downloads:
 *   OkHttp Extension:

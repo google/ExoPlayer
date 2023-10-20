@@ -65,7 +65,6 @@ import android.support.v4.media.session.MediaSessionCompat.QueueItem;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.text.TextUtils;
 import android.view.KeyEvent;
-import android.view.ViewConfiguration;
 import androidx.annotation.DoNotInline;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -126,9 +125,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
   private final MediaSessionManager sessionManager;
   private final ControllerLegacyCbForBroadcast controllerLegacyCbForBroadcast;
   private final ConnectionTimeoutHandler connectionTimeoutHandler;
-  private final MediaPlayPauseKeyHandler mediaPlayPauseKeyHandler;
   private final MediaSessionCompat sessionCompat;
-  private final String appPackageName;
   @Nullable private final MediaButtonReceiver runtimeBroadcastReceiver;
   @Nullable private final ComponentName broadcastReceiverComponentName;
   @Nullable private VolumeProviderCompat volumeProviderCompat;
@@ -141,11 +138,8 @@ import org.checkerframework.checker.initialization.qual.Initialized;
   public MediaSessionLegacyStub(MediaSessionImpl session, Uri sessionUri, Handler handler) {
     sessionImpl = session;
     Context context = sessionImpl.getContext();
-    appPackageName = context.getPackageName();
     sessionManager = MediaSessionManager.getSessionManager(context);
     controllerLegacyCbForBroadcast = new ControllerLegacyCbForBroadcast();
-    mediaPlayPauseKeyHandler =
-        new MediaPlayPauseKeyHandler(session.getApplicationHandler().getLooper());
     connectedControllersManager = new ConnectedControllersManager<>(session);
     connectionTimeoutMs = DEFAULT_CONNECTION_TIMEOUT_MS;
     connectionTimeoutHandler =
@@ -318,41 +312,16 @@ import org.checkerframework.checker.initialization.qual.Initialized;
   }
 
   @Override
-  public boolean onMediaButtonEvent(Intent mediaButtonEvent) {
-    @Nullable KeyEvent keyEvent = mediaButtonEvent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
-    if (keyEvent == null || keyEvent.getAction() != KeyEvent.ACTION_DOWN) {
-      return false;
-    }
-    RemoteUserInfo remoteUserInfo = sessionCompat.getCurrentControllerInfo();
-    int keyCode = keyEvent.getKeyCode();
-    switch (keyCode) {
-      case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
-      case KeyEvent.KEYCODE_HEADSETHOOK:
-        // Double tap detection only for media button events from external sources (for instance
-        // Bluetooth). Media button events from the app package are coming from the notification
-        // below targetApiLevel 33.
-        if (!appPackageName.equals(remoteUserInfo.getPackageName())
-            && keyEvent.getRepeatCount() == 0) {
-          if (mediaPlayPauseKeyHandler.hasPendingMediaPlayPauseKey()) {
-            mediaPlayPauseKeyHandler.clearPendingMediaPlayPauseKey();
-            onSkipToNext();
-          } else {
-            mediaPlayPauseKeyHandler.addPendingMediaPlayPauseKey(remoteUserInfo);
-          }
-        } else {
-          // Consider long-press as a single tap. Handle immediately.
-          handleMediaPlayPauseOnHandler(remoteUserInfo);
-        }
-        return true;
-      default:
-        // If another key is pressed within double tap timeout, consider the pending
-        // pending play/pause as a single tap to handle media keys in order.
-        if (mediaPlayPauseKeyHandler.hasPendingMediaPlayPauseKey()) {
-          handleMediaPlayPauseOnHandler(remoteUserInfo);
-        }
-        break;
-    }
-    return false;
+  public boolean onMediaButtonEvent(Intent intent) {
+    return sessionImpl.onMediaButtonEvent(
+        new ControllerInfo(
+            sessionCompat.getCurrentControllerInfo(),
+            ControllerInfo.LEGACY_CONTROLLER_VERSION,
+            ControllerInfo.LEGACY_CONTROLLER_INTERFACE_VERSION,
+            /* trusted= */ false,
+            /* cb= */ null,
+            /* connectionHints= */ Bundle.EMPTY),
+        intent);
   }
 
   private void maybeUpdateFlags(PlayerWrapper playerWrapper) {
@@ -366,8 +335,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
     }
   }
 
-  private void handleMediaPlayPauseOnHandler(RemoteUserInfo remoteUserInfo) {
-    mediaPlayPauseKeyHandler.clearPendingMediaPlayPauseKey();
+  /* package */ void handleMediaPlayPauseOnHandler(RemoteUserInfo remoteUserInfo) {
     dispatchSessionTaskWithPlayerCommand(
         COMMAND_PLAY_PAUSE,
         controller ->
@@ -1432,34 +1400,6 @@ import org.checkerframework.checker.initialization.qual.Initialized;
       removeMessages(MSG_CONNECTION_TIMED_OUT, controller);
       Message msg = obtainMessage(MSG_CONNECTION_TIMED_OUT, controller);
       sendMessageDelayed(msg, disconnectTimeoutMs);
-    }
-  }
-
-  private class MediaPlayPauseKeyHandler extends Handler {
-
-    private static final int MSG_DOUBLE_TAP_TIMED_OUT = 1002;
-
-    public MediaPlayPauseKeyHandler(Looper looper) {
-      super(looper);
-    }
-
-    @Override
-    public void handleMessage(Message msg) {
-      RemoteUserInfo remoteUserInfo = (RemoteUserInfo) msg.obj;
-      handleMediaPlayPauseOnHandler(remoteUserInfo);
-    }
-
-    public void addPendingMediaPlayPauseKey(RemoteUserInfo remoteUserInfo) {
-      Message msg = obtainMessage(MSG_DOUBLE_TAP_TIMED_OUT, remoteUserInfo);
-      sendMessageDelayed(msg, ViewConfiguration.getDoubleTapTimeout());
-    }
-
-    public void clearPendingMediaPlayPauseKey() {
-      removeMessages(MSG_DOUBLE_TAP_TIMED_OUT);
-    }
-
-    public boolean hasPendingMediaPlayPauseKey() {
-      return hasMessages(MSG_DOUBLE_TAP_TIMED_OUT);
     }
   }
 

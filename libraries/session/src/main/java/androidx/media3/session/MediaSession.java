@@ -24,6 +24,7 @@ import static androidx.media3.session.SessionResult.RESULT_SUCCESS;
 
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -1443,6 +1444,32 @@ public class MediaSession {
     default ListenableFuture<MediaItemsWithStartPosition> onPlaybackResumption(
         MediaSession mediaSession, ControllerInfo controller) {
       return Futures.immediateFailedFuture(new UnsupportedOperationException());
+    }
+
+    /**
+     * Called when a media button event has been received by the session.
+     *
+     * <p>Media3 handles media button events internally. An app can override the default behaviour
+     * by overriding this method.
+     *
+     * <p>Return true to stop propagating the event any further. When false is returned, Media3
+     * handles the event and calls {@linkplain MediaSession#getPlayer() the session player}
+     * accordingly.
+     *
+     * <p>Apps normally don't need to override this method. When overriding this method, an app
+     * can/needs to handle all API-level specifics on its own. The intent passed to this method can
+     * come directly from the system that routed a media key event (for instance sent by Bluetooth)
+     * to your session.
+     *
+     * @param session The session that received the media button event.
+     * @param controllerInfo The controller to which the media button event is attributed to.
+     * @param intent The media button intent.
+     * @return True if the event was handled, false otherwise.
+     */
+    @UnstableApi
+    default boolean onMediaButtonEvent(
+        MediaSession session, ControllerInfo controllerInfo, Intent intent) {
+      return false;
     }
   }
 

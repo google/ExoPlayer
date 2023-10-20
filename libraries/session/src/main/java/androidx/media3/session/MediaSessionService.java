@@ -22,6 +22,7 @@ import static androidx.media3.common.util.Util.postOrRun;
 
 import android.app.ForegroundServiceStartNotAllowedException;
 import android.app.Service;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -39,6 +40,7 @@ import androidx.annotation.RequiresApi;
 import androidx.collection.ArrayMap;
 import androidx.media.MediaBrowserServiceCompat;
 import androidx.media.MediaSessionManager;
+import androidx.media3.common.MediaLibraryInfo;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
@@ -425,9 +427,19 @@ public abstract class MediaSessionService extends Service {
         }
         addSession(session);
       }
-      if (!session.getImpl().onMediaButtonEvent(intent)) {
-        Log.w(TAG, "Ignoring unrecognized media button intent.");
-      }
+      MediaSessionImpl sessionImpl = session.getImpl();
+      sessionImpl
+          .getApplicationHandler()
+          .post(
+              () -> {
+                ControllerInfo callerInfo = sessionImpl.getMediaNotificationControllerInfo();
+                if (callerInfo == null) {
+                  callerInfo = createFallbackMediaButtonCaller(intent);
+                }
+                if (!sessionImpl.onMediaButtonEvent(callerInfo, intent)) {
+                  Log.d(TAG, "Ignored unrecognized media button intent.");
+                }
+              });
     } else if (session != null && actionFactory.isCustomAction(intent)) {
       @Nullable String customAction = actionFactory.getCustomAction(intent);
       if (customAction == null) {
@@ -437,6 +449,24 @@ public abstract class MediaSessionService extends Service {
       getMediaNotificationManager().onCustomAction(session, customAction, customExtras);
     }
     return START_STICKY;
+  }
+
+  private static ControllerInfo createFallbackMediaButtonCaller(Intent mediaButtonIntent) {
+    @Nullable ComponentName componentName = mediaButtonIntent.getComponent();
+    String packageName =
+        componentName != null
+            ? componentName.getPackageName()
+            : "androidx.media3.session.MediaSessionService";
+    return new ControllerInfo(
+        new MediaSessionManager.RemoteUserInfo(
+            packageName,
+            MediaSessionManager.RemoteUserInfo.UNKNOWN_PID,
+            MediaSessionManager.RemoteUserInfo.UNKNOWN_UID),
+        MediaLibraryInfo.VERSION_INT,
+        MediaControllerStub.VERSION_INT,
+        /* trusted= */ false,
+        /* cb= */ null,
+        /* connectionHints= */ Bundle.EMPTY);
   }
 
   /**
