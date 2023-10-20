@@ -84,9 +84,40 @@ import androidx.media3.common.util.UnstableApi;
     int firstByte = parsableTrackEventBytes.readUnsignedByte();
     eventDecoderSizeBytes = 1;
 
-    if ((firstByte & 0xF0) != 0xF0) {
-      // Most significant nibble is not 0xF, this is a MIDI channel event.
+    if (firstByte == SYSEX_BEGIN_STATUS) {
+      // TODO(b/228838584): Handle this gracefully.
+      statusByte = firstByte;
 
+      int currentByte;
+      do { // Consume SysEx message.
+        currentByte = parsableTrackEventBytes.readUnsignedByte();
+      } while (currentByte != SYSEX_END_STATUS);
+    } else if (firstByte == META_EVENT_STATUS) { // This is a Meta event.
+      int metaEventMessageType = parsableTrackEventBytes.readUnsignedByte();
+      int eventLength = readVariableLengthInt(parsableTrackEventBytes);
+
+      statusByte = firstByte;
+
+      switch (metaEventMessageType) {
+        case META_TEMPO_CHANGE:
+          usPerQuarterNote = parsableTrackEventBytes.readUnsignedInt24();
+
+          if (usPerQuarterNote <= 0) {
+            throw ParserException.createForUnsupportedContainerFeature(
+                    "Tempo event data value must be a non-zero positive value. Parsed value: "
+                            + usPerQuarterNote);
+          }
+
+          parsableTrackEventBytes.skipBytes(eventLength - /* tempoDataLength */ 3);
+          break;
+        case META_END_OF_TRACK:
+          parsableTrackEventBytes.setPosition(startingPosition);
+          reset();
+          return false;
+        default: // Ignore all other Meta events.
+          parsableTrackEventBytes.skipBytes(eventLength);
+      }
+    } else { // This is a MIDI channel event.
       // Check for running status, an occurrence where the statusByte has been omitted from the
       // bytes of this event. The standard expects us to assume that this command has the same
       // statusByte as the last command.
@@ -115,42 +146,6 @@ import androidx.media3.common.util.UnstableApi;
       }
 
       statusByte = firstByte;
-    } else if (firstByte == META_EVENT_STATUS) { // This is a Meta event.
-      int metaEventMessageType = parsableTrackEventBytes.readUnsignedByte();
-      int eventLength = readVariableLengthInt(parsableTrackEventBytes);
-
-      statusByte = firstByte;
-
-      switch (metaEventMessageType) {
-        case META_TEMPO_CHANGE:
-          usPerQuarterNote = parsableTrackEventBytes.readUnsignedInt24();
-
-          if (usPerQuarterNote <= 0) {
-            throw ParserException.createForUnsupportedContainerFeature(
-                "Tempo event data value must be a non-zero positive value. Parsed value: "
-                    + usPerQuarterNote);
-          }
-
-          parsableTrackEventBytes.skipBytes(eventLength - /* tempoDataLength */ 3);
-          break;
-        case META_END_OF_TRACK:
-          parsableTrackEventBytes.setPosition(startingPosition);
-          reset();
-          return false;
-        default: // Ignore all other Meta events.
-          parsableTrackEventBytes.skipBytes(eventLength);
-      }
-    } else if (firstByte == SYSEX_BEGIN_STATUS) {
-      // TODO(b/228838584): Handle this gracefully.
-      statusByte = firstByte;
-
-      int currentByte;
-      do { // Consume SysEx message.
-        currentByte = parsableTrackEventBytes.readUnsignedByte();
-      } while (currentByte != SYSEX_END_STATUS);
-    } else {
-      throw ParserException.createForUnsupportedContainerFeature(
-          "Unknown track event: " + firstByte);
     }
 
     eventFileSizeBytes = parsableTrackEventBytes.getPosition() - startingPosition;
@@ -161,7 +156,6 @@ import androidx.media3.common.util.UnstableApi;
   }
 
   public boolean isMidiEvent() {
-    // TODO(b/228838584): Update with SysEx event check when implemented.
     return statusByte != META_EVENT_STATUS && statusByte != SYSEX_BEGIN_STATUS;
   }
 

@@ -38,6 +38,8 @@
 *   Smooth Streaming Extension:
 *   RTSP Extension:
 *   Decoder Extensions (FFmpeg, VP9, AV1, MIDI, etc.):
+    *   MIDI decoder: Ignore SysEx event messages
+        ([#710](https://github.com/androidx/media/pull/710)).
 *   Leanback extension:
 *   Cast Extension:
 *   Test Utilities:
