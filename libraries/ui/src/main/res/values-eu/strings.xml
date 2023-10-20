@@ -39,7 +39,7 @@
     <item>Normala</item>
     <item>1,25×</item>
     <item>1,5×</item>
-    <item>2x</item>
+    <item>2×</item>
   </string-array>
   <string name="exo_track_selection_title_video">Bideoa</string>
   <string name="exo_track_selection_title_audio">Audioa</string>
