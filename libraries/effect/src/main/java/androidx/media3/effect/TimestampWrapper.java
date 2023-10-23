@@ -39,8 +39,10 @@ public final class TimestampWrapper implements GlEffect {
    *
    * @param glEffect The {@link GlEffect} to apply, from {@code startTimeUs} to {@code endTimeUs}.
    *     This instance must not change the output dimensions.
-   * @param startTimeUs The time to begin applying {@code glEffect} on. Must be non-negative.
-   * @param endTimeUs The time to stop applying {code glEffect} on. Must be non-negative.
+   * @param startTimeUs The time to begin applying {@code glEffect} on, in microseconds. Must be
+   *     non-negative.
+   * @param endTimeUs The time to stop applying {code glEffect} on, in microseconds. Must be
+   *     non-negative.
    */
   public TimestampWrapper(
       GlEffect glEffect, @IntRange(from = 0) long startTimeUs, @IntRange(from = 0) long endTimeUs) {
