@@ -4,8 +4,6 @@
 
 *   Common Library:
 *   ExoPlayer:
-    *   Add luma and chroma bitdepth to `ColorInfo`
-        [#491](https://github.com/androidx/media/pull/491).
     *   Add `PreloadMediaSource` and `PreloadMediaPeriod` that allows apps to
         preload the media source at a specific start position before playback,
         where the efforts include preparing the source for a `Timeline`,
@@ -15,17 +13,55 @@
 *   Transformer:
     *   Add support for flattening H.265/HEVC SEF slow motion videos.
 *   Track Selection:
+*   Extractors:
+*   Audio:
+*   Video:
+*   Text:
+*   Metadata:
+*   DRM:
+*   Effect:
+*   Muxers:
+*   IMA extension:
+*   Session:
+*   UI:
+*   Downloads:
+*   OkHttp Extension:
+*   Cronet Extension:
+*   HttpEngine Extension:
+*   RTMP Extension:
+*   HLS Extension:
+*   DASH Extension:
+*   Smooth Streaming Extension:
+*   RTSP Extension:
+*   Decoder Extensions (FFmpeg, VP9, AV1, MIDI, etc.):
+*   Leanback extension:
+*   Cast Extension:
+*   Test Utilities:
+*   Remove deprecated symbols:
+*   Demo app:
+    *   Add a shortform demo module to demo the usage of `PreloadMediaSource`
+        with the short-form content use case.
+
+## 1.2
+
+### 1.2.0-rc01 (2023-11-01)
+
+This release includes the following changes since the
+[1.2.0-beta01 release](#120-beta01-2023-10-18)):
+
+*   ExoPlayer:
+    *   Add luma and chroma bitdepth to `ColorInfo`
+        [#491](https://github.com/androidx/media/pull/491).
+*   Track Selection:
     *   Add `DefaultTrackSelector.Parameters.allowAudioNonSeamlessAdaptiveness`
         to explicitly allow or disallow non-seamless adaptation. The default
         stays at its current behavior of `true`.
-*   Extractors:
 *   Audio:
     *   Fix DTS Express audio buffer underflow issue
         ([#650](https://github.com/androidx/media/pull/650)).
     *   Fix bug where the capabilities check for E-AC3-JOC throws an
         `IllegalArgumentException`
         ([#677](https://github.com/androidx/media/issues/677)).
-*   Video:
     *   Add workaround for a device issue on Galaxy Tab S7 FE, Chromecast with
         Google TV, and Lenovo M10 FHD Plus that causes 60fps AVC streams to be
         marked as unsupported
@@ -34,11 +70,6 @@
     *   Remove `ExoplayerCuesDecoder`. Text tracks with `sampleMimeType =
         application/x-media3-cues` are now directly handled by `TextRenderer`
         without needing a `SubtitleDecoder` instance.
-*   Metadata:
-*   DRM:
-*   Effect:
-*   Muxers:
-*   IMA extension:
 *   Session:
     *   Do not set the queue of the framework session when
         `COMMAND_GET_TIMELINE` is not available for the media notification
@@ -50,15 +81,10 @@
         ([#271](https://github.com/androidx/media/issues/271),[#327](https://github.com/androidx/media/issues/327)).
     *   Add `MediaSession.Callback.onMediaButtonEvent(Intent)` that allows apps
         to override the default media button event handling.
-*   UI:
-*   Downloads:
-*   OkHttp Extension:
-*   Cronet Extension:
 *   HttpEngine Extension:
     *   Implement `HttpEngineDataSource`, an `HttpDataSource` using the
         [HttpEngine](https://developer.android.com/reference/android/net/http/HttpEngine)
         API.
-*   RTMP Extension:
 *   HLS Extension:
     *   Refresh the HLS live playlist with an interval calculated from the last
         load start time rather than the last load completed time
@@ -70,24 +96,14 @@
         can enable this using
         `DashMediaSource.Factory.experimentalParseSubtitlesDuringExtraction()`
         ([#288](https://github.com/androidx/media/issues/288)).
-*   Smooth Streaming Extension:
-*   RTSP Extension:
 *   Decoder Extensions (FFmpeg, VP9, AV1, MIDI, etc.):
     *   Fix bug publishing MIDI decoder artifact to Maven repository. The
         artifact is renamed to `media3-exoplayer-midi`
         ([#734](https://github.com/androidx/media/issues/734)).
-*   Leanback extension:
-*   Cast Extension:
-*   Test Utilities:
 *   Remove deprecated symbols:
     *   Remove deprecated `DownloadNotificationHelper.buildProgressNotification`
         method, use a non deprecated method that takes a `notMetRequirements`
         parameter instead.
-*   Demo app:
-    *   Add a shortform demo module to demo the usage of `PreloadMediaSource`
-        with the short-form content use case.
-
-## 1.2
 
 ### 1.2.0-beta01 (2023-10-18)
 
@@ -106,7 +122,6 @@ This release includes the following changes since the
         Android Auto.
 *   DASH Extension:
     *   Allow multiple of the same DASH identifier in segment template url.
-*   Smooth Streaming Extension:
 *   RTSP Extension:
     *   Use RTSP Setup Response timeout value in time interval of sending
         keep-alive RTSP Options requests
