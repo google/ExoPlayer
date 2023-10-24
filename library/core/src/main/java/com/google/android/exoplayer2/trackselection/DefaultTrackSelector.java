@@ -532,6 +532,16 @@ public class DefaultTrackSelector extends MappingTrackSelector
       return this;
     }
 
+    // Image
+
+    @CanIgnoreReturnValue
+    @Override
+    public ParametersBuilder setPrioritizeImageOverVideoEnabled(
+        boolean isPrioritizeImageOverVideoEnabled) {
+      delegate.setPrioritizeImageOverVideoEnabled(isPrioritizeImageOverVideoEnabled);
+      return this;
+    }
+
     // General
 
     @CanIgnoreReturnValue

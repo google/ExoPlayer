@@ -111,6 +111,8 @@ public class TrackSelectionParameters implements Bundleable {
     private @C.RoleFlags int preferredTextRoleFlags;
     private @C.SelectionFlags int ignoredTextSelectionFlags;
     private boolean selectUndeterminedTextLanguage;
+    // Image
+    private boolean isPrioritizeImageOverVideoEnabled;
     // General
     private boolean forceLowestBitrate;
     private boolean forceHighestSupportedBitrate;
@@ -145,6 +147,8 @@ public class TrackSelectionParameters implements Bundleable {
       preferredTextRoleFlags = 0;
       ignoredTextSelectionFlags = 0;
       selectUndeterminedTextLanguage = false;
+      // Image
+      isPrioritizeImageOverVideoEnabled = false;
       // General
       forceLowestBitrate = false;
       forceHighestSupportedBitrate = false;
@@ -229,6 +233,11 @@ public class TrackSelectionParameters implements Bundleable {
           bundle.getBoolean(
               FIELD_SELECT_UNDETERMINED_TEXT_LANGUAGE,
               DEFAULT_WITHOUT_CONTEXT.selectUndeterminedTextLanguage);
+      // Image
+      isPrioritizeImageOverVideoEnabled =
+          bundle.getBoolean(
+              FIELD_IS_PREFER_IMAGE_OVER_VIDEO_ENABLED,
+              DEFAULT_WITHOUT_CONTEXT.isPrioritizeImageOverVideoEnabled);
 
       // General
       forceLowestBitrate =
@@ -313,6 +322,8 @@ public class TrackSelectionParameters implements Bundleable {
       preferredTextRoleFlags = parameters.preferredTextRoleFlags;
       ignoredTextSelectionFlags = parameters.ignoredTextSelectionFlags;
       selectUndeterminedTextLanguage = parameters.selectUndeterminedTextLanguage;
+      // Image
+      isPrioritizeImageOverVideoEnabled = parameters.isPrioritizeImageOverVideoEnabled;
       // General
       forceLowestBitrate = parameters.forceLowestBitrate;
       forceHighestSupportedBitrate = parameters.forceHighestSupportedBitrate;
@@ -692,6 +703,21 @@ public class TrackSelectionParameters implements Bundleable {
     @CanIgnoreReturnValue
     public Builder setSelectUndeterminedTextLanguage(boolean selectUndeterminedTextLanguage) {
       this.selectUndeterminedTextLanguage = selectUndeterminedTextLanguage;
+      return this;
+    }
+
+    // Image
+
+    /**
+     * Sets whether an image track would be selected over a video track if both are available.
+     *
+     * @param isPrioritizeImageOverVideoEnabled Whether an image track would be selected over a
+     *     video track if both are available.
+     * @return This builder.
+     */
+    @CanIgnoreReturnValue
+    public Builder setPrioritizeImageOverVideoEnabled(boolean isPrioritizeImageOverVideoEnabled) {
+      this.isPrioritizeImageOverVideoEnabled = isPrioritizeImageOverVideoEnabled;
       return this;
     }
 
@@ -1204,6 +1230,13 @@ public class TrackSelectionParameters implements Bundleable {
    */
   public final boolean selectUndeterminedTextLanguage;
 
+  // Image
+  /**
+   * Whether an image track will be selected over a video track if both are available. The default
+   * value is {@code false}.
+   */
+  public final boolean isPrioritizeImageOverVideoEnabled;
+
   // General
   /**
    * Whether to force selection of the single lowest bitrate audio and video tracks that comply with
@@ -1254,6 +1287,8 @@ public class TrackSelectionParameters implements Bundleable {
     this.preferredTextRoleFlags = builder.preferredTextRoleFlags;
     this.ignoredTextSelectionFlags = builder.ignoredTextSelectionFlags;
     this.selectUndeterminedTextLanguage = builder.selectUndeterminedTextLanguage;
+    // Image
+    this.isPrioritizeImageOverVideoEnabled = builder.isPrioritizeImageOverVideoEnabled;
     // General
     this.forceLowestBitrate = builder.forceLowestBitrate;
     this.forceHighestSupportedBitrate = builder.forceHighestSupportedBitrate;
@@ -1302,6 +1337,8 @@ public class TrackSelectionParameters implements Bundleable {
         && preferredTextRoleFlags == other.preferredTextRoleFlags
         && ignoredTextSelectionFlags == other.ignoredTextSelectionFlags
         && selectUndeterminedTextLanguage == other.selectUndeterminedTextLanguage
+        // Image
+        && isPrioritizeImageOverVideoEnabled == other.isPrioritizeImageOverVideoEnabled
         // General
         && forceLowestBitrate == other.forceLowestBitrate
         && forceHighestSupportedBitrate == other.forceHighestSupportedBitrate
@@ -1338,6 +1375,8 @@ public class TrackSelectionParameters implements Bundleable {
     result = 31 * result + preferredTextRoleFlags;
     result = 31 * result + ignoredTextSelectionFlags;
     result = 31 * result + (selectUndeterminedTextLanguage ? 1 : 0);
+    // Image
+    result = 31 * result + (isPrioritizeImageOverVideoEnabled ? 1 : 0);
     // General
     result = 31 * result + (forceLowestBitrate ? 1 : 0);
     result = 31 * result + (forceHighestSupportedBitrate ? 1 : 0);
@@ -1378,6 +1417,8 @@ public class TrackSelectionParameters implements Bundleable {
   private static final String FIELD_IS_GAPLESS_SUPPORT_REQUIRED = Util.intToStringMaxRadix(28);
   private static final String FIELD_IS_SPEED_CHANGE_SUPPORT_REQUIRED = Util.intToStringMaxRadix(29);
   private static final String FIELD_AUDIO_OFFLOAD_PREFERENCES = Util.intToStringMaxRadix(30);
+  private static final String FIELD_IS_PREFER_IMAGE_OVER_VIDEO_ENABLED =
+      Util.intToStringMaxRadix(31);
 
   /**
    * Defines a minimum field ID value for subclasses to use when implementing {@link #toBundle()}
@@ -1429,6 +1470,8 @@ public class TrackSelectionParameters implements Bundleable {
         FIELD_IS_SPEED_CHANGE_SUPPORT_REQUIRED,
         audioOffloadPreferences.isSpeedChangeSupportRequired);
     bundle.putBundle(FIELD_AUDIO_OFFLOAD_PREFERENCES, audioOffloadPreferences.toBundle());
+    // Image
+    bundle.putBoolean(FIELD_IS_PREFER_IMAGE_OVER_VIDEO_ENABLED, isPrioritizeImageOverVideoEnabled);
     // General
     bundle.putBoolean(FIELD_FORCE_LOWEST_BITRATE, forceLowestBitrate);
     bundle.putBoolean(FIELD_FORCE_HIGHEST_SUPPORTED_BITRATE, forceHighestSupportedBitrate);
