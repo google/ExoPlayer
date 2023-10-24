@@ -29,6 +29,7 @@ def addMissingAarTypeToXml(xml) {
         "com.squareup.okhttp3:mockwebserver",
         "org.mockito:mockito-core",
         "org.robolectric:robolectric",
+        "com.github.philburk:jsyn",
     ]
     // Dependencies that have AAR files.
     def aar_dependencies = [
