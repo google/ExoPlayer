@@ -41,6 +41,8 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
   public static final int DATA_FIELD_UNSET = Integer.MIN_VALUE;
 
   private static final int TICKS_UNSET = -1;
+  private static final int SYSEX_BEGIN_STATUS = 0xF0;
+  private static final int SYSEX_END_STATUS = 0xF7;
   private static final int META_EVENT_STATUS = 0xFF;
   private static final int META_END_OF_TRACK = 0x2F;
   private static final int META_TEMPO_CHANGE = 0x51;
@@ -86,9 +88,40 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
     int firstByte = parsableTrackEventBytes.readUnsignedByte();
     eventDecoderSizeBytes = 1;
 
-    if ((firstByte & 0xF0) != 0xF0) {
-      // Most significant nibble is not 0xF, this is a MIDI channel event.
+    if (firstByte == SYSEX_BEGIN_STATUS) {
+      // TODO(b/228838584): Handle this gracefully.
+      statusByte = firstByte;
 
+      int currentByte;
+      do { // Consume SysEx message.
+        currentByte = parsableTrackEventBytes.readUnsignedByte();
+      } while (currentByte != SYSEX_END_STATUS);
+    } else if (firstByte == META_EVENT_STATUS) { // This is a Meta event.
+      int metaEventMessageType = parsableTrackEventBytes.readUnsignedByte();
+      int eventLength = readVariableLengthInt(parsableTrackEventBytes);
+
+      statusByte = firstByte;
+
+      switch (metaEventMessageType) {
+        case META_TEMPO_CHANGE:
+          usPerQuarterNote = parsableTrackEventBytes.readUnsignedInt24();
+
+          if (usPerQuarterNote <= 0) {
+            throw ParserException.createForUnsupportedContainerFeature(
+                "Tempo event data value must be a non-zero positive value. Parsed value: "
+                    + usPerQuarterNote);
+          }
+
+          parsableTrackEventBytes.skipBytes(eventLength - /* tempoDataLength */ 3);
+          break;
+        case META_END_OF_TRACK:
+          parsableTrackEventBytes.setPosition(startingPosition);
+          reset();
+          return false;
+        default: // Ignore all other Meta events.
+          parsableTrackEventBytes.skipBytes(eventLength);
+      }
+    } else { // This is a MIDI channel event.
       // Check for running status, an occurrence where the statusByte has been omitted from the
       // bytes of this event. The standard expects us to assume that this command has the same
       // statusByte as the last command.
@@ -117,37 +150,6 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
       }
 
       statusByte = firstByte;
-    } else {
-      if (firstByte == META_EVENT_STATUS) { // This is a Meta event.
-        int metaEventMessageType = parsableTrackEventBytes.readUnsignedByte();
-        int eventLength = readVariableLengthInt(parsableTrackEventBytes);
-
-        statusByte = firstByte;
-
-        switch (metaEventMessageType) {
-          case META_TEMPO_CHANGE:
-            usPerQuarterNote = parsableTrackEventBytes.readUnsignedInt24();
-
-            if (usPerQuarterNote <= 0) {
-              throw ParserException.createForUnsupportedContainerFeature(
-                  "Tempo event data value must be a non-zero positive value. Parsed value: "
-                      + usPerQuarterNote);
-            }
-
-            parsableTrackEventBytes.skipBytes(eventLength - /* tempoDataLength */ 3);
-            break;
-          case META_END_OF_TRACK:
-            parsableTrackEventBytes.setPosition(startingPosition);
-            reset();
-            return false;
-          default: // Ignore all other Meta events.
-            parsableTrackEventBytes.skipBytes(eventLength);
-        }
-      } else {
-        // TODO(b/228838584): Handle this gracefully.
-        throw ParserException.createForUnsupportedContainerFeature(
-            "SysEx track events are not yet supported.");
-      }
     }
 
     eventFileSizeBytes = parsableTrackEventBytes.getPosition() - startingPosition;
@@ -158,8 +160,7 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
   }
 
   public boolean isMidiEvent() {
-    // TODO(b/228838584): Update with SysEx event check when implemented.
-    return statusByte != META_EVENT_STATUS;
+    return statusByte != META_EVENT_STATUS && statusByte != SYSEX_BEGIN_STATUS;
   }
 
   public boolean isNoteChannelEvent() {
