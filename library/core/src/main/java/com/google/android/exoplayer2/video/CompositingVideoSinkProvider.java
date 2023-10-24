@@ -217,6 +217,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     // TODO b/292111083 - Remove the field and trigger the callback on every video size change.
     private boolean onVideoSizeChangedCalled;
+    private boolean hasRegisteredFirstInputStream;
+    private boolean inputStreamRegistrationPending;
+    private long lastFramePresentationTimeUs;
 
     /** Creates a new instance. */
     public VideoSinkImpl(
@@ -285,6 +288,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           Util.SDK_INT < 21 && sourceFormat.rotationDegrees != 0
               ? ScaleAndRotateAccessor.createRotationEffect(sourceFormat.rotationDegrees)
               : null;
+      lastFramePresentationTimeUs = C.TIME_UNSET;
     }
 
     // VideoSink impl
@@ -296,6 +300,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       streamOffsets.clear();
       handler.removeCallbacksAndMessages(/* token= */ null);
       renderedFirstFrame = false;
+      lastFramePresentationTimeUs = C.TIME_UNSET;
+      hasRegisteredFirstInputStream = false;
       if (registeredLastFrame) {
         registeredLastFrame = false;
         processedLastFrame = false;
@@ -319,7 +325,17 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         throw new UnsupportedOperationException("Unsupported input type " + inputType);
       }
       this.inputFormat = format;
-      maybeRegisterInputStream();
+
+      if (!hasRegisteredFirstInputStream) {
+        maybeRegisterInputStream();
+        hasRegisteredFirstInputStream = true;
+        // If an input stream registration is pending and seek to another MediaItem, execution
+        // reaches here before registerInputFrame(), resetting inputStreamRegistrationPending to
+        // avoid registering the same input stream again in registerInputFrame().
+        inputStreamRegistrationPending = false;
+      } else {
+        inputStreamRegistrationPending = true;
+      }
 
       if (registeredLastFrame) {
         registeredLastFrame = false;
@@ -351,6 +367,20 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     @Override
     public long registerInputFrame(long framePresentationTimeUs, boolean isLastFrame) {
       checkState(videoFrameProcessorMaxPendingFrameCount != C.LENGTH_UNSET);
+
+      // An input stream is fully decoded, wait until all of its frames are released before queueing
+      // input frame from the next input stream.
+      if (inputStreamRegistrationPending) {
+        if (lastFramePresentationTimeUs == C.TIME_UNSET) {
+          // A seek took place after signaling a new input stream, but the input stream is yet to be
+          // registered.
+          maybeRegisterInputStream();
+          inputStreamRegistrationPending = false;
+        } else {
+          return C.TIME_UNSET;
+        }
+      }
+
       if (videoFrameProcessor.getPendingInputFrameCount()
           >= videoFrameProcessorMaxPendingFrameCount) {
         return C.TIME_UNSET;
@@ -358,6 +388,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       if (!videoFrameProcessor.registerInputFrame()) {
         return C.TIME_UNSET;
       }
+      lastFramePresentationTimeUs = framePresentationTimeUs;
       // The sink takes in frames with monotonically increasing, non-offset frame
       // timestamps. That is, with two ten-second long videos, the first frame of the second video
       // should bear a timestamp of 10s seen from VideoFrameProcessor; while in ExoPlayer, the
@@ -417,6 +448,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                 ? VideoFrameProcessor.RENDER_OUTPUT_FRAME_IMMEDIATELY
                 : frameRenderTimeNs,
             isLastFrame);
+
+        if (framePresentationTimeUs == lastFramePresentationTimeUs
+            && inputStreamRegistrationPending) {
+          maybeRegisterInputStream();
+          inputStreamRegistrationPending = false;
+        }
 
         maybeNotifyVideoSizeChanged(bufferPresentationTimeUs);
       }
