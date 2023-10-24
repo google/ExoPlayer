@@ -57,6 +57,8 @@ include modulePrefix + 'lib-datasource'
 project(modulePrefix + 'lib-datasource').projectDir = new File(rootDir, 'libraries/datasource')
 include modulePrefix + 'lib-datasource-cronet'
 project(modulePrefix + 'lib-datasource-cronet').projectDir = new File(rootDir, 'libraries/datasource_cronet')
+include modulePrefix + 'lib-datasource-httpengine'
+project(modulePrefix + 'lib-datasource-httpengine').projectDir = new File(rootDir, 'libraries/datasource_httpengine')
 include modulePrefix + 'lib-datasource-rtmp'
 project(modulePrefix + 'lib-datasource-rtmp').projectDir = new File(rootDir, 'libraries/datasource_rtmp')
 include modulePrefix + 'lib-datasource-okhttp'
