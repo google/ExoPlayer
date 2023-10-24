@@ -175,9 +175,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    *
    * <p>The input buffer is cleared if it should be dropped.
    */
-  protected boolean shouldDropInputBuffer(DecoderInputBuffer inputBuffer) {
-    return false;
-  }
+  protected abstract boolean shouldDropInputBuffer(DecoderInputBuffer inputBuffer);
 
   /** Called before a {@link DecoderInputBuffer} is queued to the decoder. */
   protected void onDecoderInputReady(DecoderInputBuffer inputBuffer) {}
