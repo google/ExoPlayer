@@ -82,6 +82,8 @@ public interface GlShaderProgram {
      *
      * <p>The implementation shall not assume the {@link GlShaderProgram} is {@linkplain
      * #onReadyToAcceptInputFrame ready to accept another input frame} when this method is called.
+     * If the implementation manages a limited input capacity, it must clear all prior {@linkplain
+     * #onReadyToAcceptInputFrame input frame capacity}.
      */
     default void onFlush() {}
   }
