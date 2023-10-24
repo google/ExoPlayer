@@ -41,6 +41,7 @@ import java.util.concurrent.atomic.AtomicLong;
   private static final int MAX_INPUT_BUFFER_COUNT = 10;
 
   private final Format format;
+  private final long initialTimestampOffsetUs;
   private final AtomicLong nextMediaItemOffsetUs;
   private final Queue<DecoderInputBuffer> availableInputBuffers;
   private final Queue<DecoderInputBuffer> pendingInputBuffers;
@@ -53,9 +54,11 @@ import java.util.concurrent.atomic.AtomicLong;
       Format format,
       TransformationRequest transformationRequest,
       MuxerWrapper muxerWrapper,
-      FallbackListener fallbackListener) {
+      FallbackListener fallbackListener,
+      long initialTimestampOffsetUs) {
     super(format, muxerWrapper);
     this.format = format;
+    this.initialTimestampOffsetUs = initialTimestampOffsetUs;
     nextMediaItemOffsetUs = new AtomicLong();
     availableInputBuffers = new ConcurrentLinkedDeque<>();
     ByteBuffer emptyBuffer = ByteBuffer.allocateDirect(0).order(ByteOrder.nativeOrder());
@@ -90,7 +93,7 @@ import java.util.concurrent.atomic.AtomicLong;
     if (inputBuffer.isEndOfStream()) {
       inputEnded = true;
     } else {
-      inputBuffer.timeUs += mediaItemOffsetUs;
+      inputBuffer.timeUs += mediaItemOffsetUs + initialTimestampOffsetUs;
       pendingInputBuffers.add(inputBuffer);
     }
     return true;

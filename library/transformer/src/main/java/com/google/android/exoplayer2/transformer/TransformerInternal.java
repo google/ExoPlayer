@@ -618,7 +618,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               assetLoaderInputTracker.getAssetLoaderInputFormat(sequenceIndex, trackType),
               transformationRequest,
               muxerWrapper,
-              fallbackListener));
+              fallbackListener,
+              videoSampleTimestampOffsetUs));
     }
 
     /**
