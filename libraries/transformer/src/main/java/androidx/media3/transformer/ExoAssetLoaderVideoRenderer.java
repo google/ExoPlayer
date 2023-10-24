@@ -115,6 +115,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
     if (decoder == null) {
       inputBuffer.timeUs -= streamStartPositionUs;
+      if (inputBuffer.timeUs < 0) {
+        inputBuffer.clear();
+        return true;
+      }
     }
     return false;
   }
