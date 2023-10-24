@@ -1,0 +1,146 @@
+seekMap:
+  isSeekable = true
+  duration = 1000000
+  getPosition(0) = [[timeUs=0, position=48]]
+  getPosition(1) = [[timeUs=0, position=48]]
+  getPosition(500000) = [[timeUs=0, position=48]]
+  getPosition(1000000) = [[timeUs=0, position=48]]
+numberOfTracks = 1
+track 0:
+  total output bytes = 942
+  sample count = 30
+  format 0:
+    id = 1
+    sampleMimeType = video/av01
+    maxInputSize = 188
+    width = 720
+    height = 1280
+    frameRate = 30.0
+    colorInfo:
+      colorSpace = 6
+      colorRange = 2
+      colorTransfer = 7
+      lumaBitdepth = 10
+      chromaBitdepth = 10
+    metadata = entries=[TSSE: description=null: values=[Lavf60.3.100], Mp4Timestamp: creation time=0, modification time=0, timescale=1000]
+  sample 0:
+    time = 0
+    flags = 1
+    data = length 84, hash 9C46A819
+  sample 1:
+    time = 33333
+    flags = 0
+    data = length 158, hash 43A1B544
+  sample 2:
+    time = 66666
+    flags = 0
+    data = length 3, hash D600
+  sample 3:
+    time = 100000
+    flags = 0
+    data = length 28, hash 27890E81
+  sample 4:
+    time = 133333
+    flags = 0
+    data = length 3, hash D5F0
+  sample 5:
+    time = 166666
+    flags = 0
+    data = length 55, hash 9FC5012E
+  sample 6:
+    time = 200000
+    flags = 0
+    data = length 3, hash D600
+  sample 7:
+    time = 233333
+    flags = 0
+    data = length 27, hash 70CFAC05
+  sample 8:
+    time = 266666
+    flags = 0
+    data = length 3, hash D5D0
+  sample 9:
+    time = 300000
+    flags = 0
+    data = length 82, hash 944218D6
+  sample 10:
+    time = 333333
+    flags = 0
+    data = length 3, hash D600
+  sample 11:
+    time = 366666
+    flags = 0
+    data = length 27, hash BA4D4A06
+  sample 12:
+    time = 400000
+    flags = 0
+    data = length 3, hash D5F0
+  sample 13:
+    time = 433333
+    flags = 0
+    data = length 54, hash A98584CA
+  sample 14:
+    time = 466666
+    flags = 0
+    data = length 3, hash D600
+  sample 15:
+    time = 500000
+    flags = 0
+    data = length 27, hash 45D733B8
+  sample 16:
+    time = 533333
+    flags = 0
+    data = length 3, hash D5A0
+  sample 17:
+    time = 566666
+    flags = 0
+    data = length 112, hash B80B26FD
+  sample 18:
+    time = 600000
+    flags = 0
+    data = length 3, hash D5F0
+  sample 19:
+    time = 633333
+    flags = 0
+    data = length 27, hash 37DD29D9
+  sample 20:
+    time = 666666
+    flags = 0
+    data = length 3, hash D5E0
+  sample 21:
+    time = 700000
+    flags = 0
+    data = length 54, hash 1C15581C
+  sample 22:
+    time = 733333
+    flags = 0
+    data = length 3, hash D5F0
+  sample 23:
+    time = 766666
+    flags = 0
+    data = length 27, hash 49EC3531
+  sample 24:
+    time = 800000
+    flags = 0
+    data = length 3, hash D5B0
+  sample 25:
+    time = 833333
+    flags = 0
+    data = length 84, hash 2025C9F5
+  sample 26:
+    time = 866666
+    flags = 0
+    data = length 3, hash D5D0
+  sample 27:
+    time = 900000
+    flags = 0
+    data = length 27, hash B927669C
+  sample 28:
+    time = 933333
+    flags = 0
+    data = length 3, hash D5C0
+  sample 29:
+    time = 966666
+    flags = 536870912
+    data = length 27, hash 706C58AD
+tracksEnded = true
