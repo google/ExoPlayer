@@ -554,10 +554,13 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
     }
     try {
       videoFrameProcessingTaskExecutor.flush();
+
+      // Flush from the end of the GlShaderProgram pipeline up to the start.
       CountDownLatch latch = new CountDownLatch(1);
       inputSwitcher.activeTextureManager().setOnFlushCompleteListener(latch::countDown);
       videoFrameProcessingTaskExecutor.submit(finalShaderProgramWrapper::flush);
       latch.await();
+
       inputSwitcher.activeTextureManager().setOnFlushCompleteListener(null);
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
