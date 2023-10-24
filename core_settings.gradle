@@ -61,6 +61,8 @@ include modulePrefix + 'library-datasource'
 project(modulePrefix + 'library-datasource').projectDir = new File(rootDir, 'library/datasource')
 include modulePrefix + 'extension-cronet'
 project(modulePrefix + 'extension-cronet').projectDir = new File(rootDir, 'extensions/cronet')
+include modulePrefix + 'lib-datasource-httpengine'
+project(modulePrefix + 'lib-datasource-httpengine').projectDir = new File(rootDir, 'libraries/datasource_httpengine')
 include modulePrefix + 'extension-rtmp'
 project(modulePrefix + 'extension-rtmp').projectDir = new File(rootDir, 'extensions/rtmp')
 include modulePrefix + 'extension-okhttp'
