@@ -17,6 +17,7 @@ package androidx.media3.transformer;
 
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkState;
+import static androidx.media3.common.util.Util.msToUs;
 
 import androidx.annotation.IntRange;
 import androidx.media3.common.C;
@@ -135,13 +136,15 @@ public final class EditedMediaItem {
     /**
      * Sets the duration of the output video in microseconds.
      *
-     * <p>This should be set for inputs that don't have an implicit duration (e.g. images). It will
-     * be ignored for inputs that do have an implicit duration (e.g. video).
+     * <p>For an input that doesn't have an intrinsic duration (e.g. images), this should be the
+     * desired presentation duration. Otherwise, this should be the duration of the full content
+     * that the {@linkplain MediaItem.LocalConfiguration#uri media URI} resolves to, before {@link
+     * MediaItem#clippingConfiguration} is applied.
      *
      * <p>No duration is set by default.
      */
     @CanIgnoreReturnValue
-    public Builder setDurationUs(long durationUs) {
+    public Builder setDurationUs(@IntRange(from = 1) long durationUs) {
       checkArgument(durationUs > 0);
       this.durationUs = durationUs;
       return this;
@@ -233,7 +236,10 @@ public final class EditedMediaItem {
    */
   public final boolean flattenForSlowMotion;
 
-  /** The duration of the image in the output video, in microseconds. */
+  /**
+   * The duration of the image in the output video for image {@link MediaItem}, or the media
+   * duration for other types of {@link MediaItem}, in microseconds.
+   */
   public final long durationUs;
 
   /** The frame rate of the image in the output video, in frames per second. */
@@ -242,6 +248,9 @@ public final class EditedMediaItem {
 
   /** The {@link Effects} to apply to the {@link #mediaItem}. */
   public final Effects effects;
+
+  /** The duration for which this {@code EditedMediaItem} should be presented, in microseconds. */
+  public final long presentationDurationUs;
 
   private EditedMediaItem(
       MediaItem mediaItem,
@@ -259,6 +268,22 @@ public final class EditedMediaItem {
     this.durationUs = durationUs;
     this.frameRate = frameRate;
     this.effects = effects;
+
+    if (mediaItem.clippingConfiguration.equals(MediaItem.ClippingConfiguration.UNSET)
+        || durationUs == C.TIME_UNSET) {
+      // TODO - b/290734981: Use presentationDurationUs for image presentation
+      presentationDurationUs = durationUs;
+    } else {
+      MediaItem.ClippingConfiguration clippingConfiguration = mediaItem.clippingConfiguration;
+      checkArgument(!clippingConfiguration.relativeToDefaultPosition);
+      if (clippingConfiguration.endPositionMs == C.TIME_END_OF_SOURCE) {
+        presentationDurationUs = durationUs - msToUs(clippingConfiguration.startPositionMs);
+      } else {
+        checkArgument(clippingConfiguration.endPositionMs <= durationUs);
+        presentationDurationUs =
+            msToUs(clippingConfiguration.endPositionMs - clippingConfiguration.startPositionMs);
+      }
+    }
   }
 
   /** Returns a {@link Builder} initialized with the values of this instance. */

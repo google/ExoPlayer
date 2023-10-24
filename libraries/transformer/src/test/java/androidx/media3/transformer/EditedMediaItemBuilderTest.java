@@ -15,6 +15,7 @@
  */
 package androidx.media3.transformer;
 
+import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
 import androidx.media3.common.MediaItem;
@@ -52,5 +53,71 @@ public final class EditedMediaItemBuilderTest {
     assertThrows(
         IllegalArgumentException.class,
         () -> new EditedMediaItem.Builder(mediaItem).setFlattenForSlowMotion(true).build());
+  }
+
+  @Test
+  public void duration_withoutClippingConfiguration() {
+    MediaItem mediaItem = MediaItem.fromUri("Uri");
+
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem.Builder(mediaItem).setDurationUs(1_000).build();
+
+    assertThat(editedMediaItem.presentationDurationUs).isEqualTo(1_000);
+  }
+
+  @Test
+  public void duration_withClippingConfigurationAndEndPosition() {
+    MediaItem.ClippingConfiguration clippingConfiguration =
+        new MediaItem.ClippingConfiguration.Builder().setEndPositionMs(500).build();
+    MediaItem mediaItem =
+        new MediaItem.Builder()
+            .setUri("Uri")
+            .setClippingConfiguration(clippingConfiguration)
+            .build();
+
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem.Builder(mediaItem).setDurationUs(1_000_000).build();
+
+    assertThat(editedMediaItem.presentationDurationUs).isEqualTo(500_000);
+  }
+
+  @Test
+  public void duration_withClippingConfigurationAndStartEndPosition() {
+    MediaItem.ClippingConfiguration clippingConfiguration =
+        new MediaItem.ClippingConfiguration.Builder()
+            // 300_000us
+            .setStartPositionMs(300)
+            // 500_000us
+            .setEndPositionMs(500)
+            .build();
+    MediaItem mediaItem =
+        new MediaItem.Builder()
+            .setUri("Uri")
+            .setClippingConfiguration(clippingConfiguration)
+            .build();
+
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem.Builder(mediaItem).setDurationUs(1_000_000).build();
+
+    assertThat(editedMediaItem.presentationDurationUs).isEqualTo(200_000);
+  }
+
+  @Test
+  public void duration_withClippingConfigurationAndStartPosition() {
+    MediaItem.ClippingConfiguration clippingConfiguration =
+        new MediaItem.ClippingConfiguration.Builder()
+            // 300_000us
+            .setStartPositionMs(300)
+            .build();
+    MediaItem mediaItem =
+        new MediaItem.Builder()
+            .setUri("Uri")
+            .setClippingConfiguration(clippingConfiguration)
+            .build();
+
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem.Builder(mediaItem).setDurationUs(1_000_000).build();
+
+    assertThat(editedMediaItem.presentationDurationUs).isEqualTo(700_000);
   }
 }
