@@ -70,6 +70,8 @@ public final class TrackSelectionParametersTest {
     assertThat(parameters.preferredTextRoleFlags).isEqualTo(0);
     assertThat(parameters.ignoredTextSelectionFlags).isEqualTo(0);
     assertThat(parameters.selectUndeterminedTextLanguage).isFalse();
+    // Image
+    assertThat(parameters.isPrioritizeImageOverVideoEnabled).isFalse();
     // General
     assertThat(parameters.forceLowestBitrate).isFalse();
     assertThat(parameters.forceHighestSupportedBitrate).isFalse();
@@ -118,6 +120,8 @@ public final class TrackSelectionParametersTest {
             .setPreferredTextRoleFlags(C.ROLE_FLAG_CAPTION)
             .setIgnoredTextSelectionFlags(C.SELECTION_FLAG_AUTOSELECT)
             .setSelectUndeterminedTextLanguage(true)
+            // Image
+            .setPrioritizeImageOverVideoEnabled(true)
             // General
             .setForceLowestBitrate(false)
             .setForceHighestSupportedBitrate(true)
@@ -166,6 +170,8 @@ public final class TrackSelectionParametersTest {
     assertThat(parameters.preferredTextRoleFlags).isEqualTo(C.ROLE_FLAG_CAPTION);
     assertThat(parameters.ignoredTextSelectionFlags).isEqualTo(C.SELECTION_FLAG_AUTOSELECT);
     assertThat(parameters.selectUndeterminedTextLanguage).isTrue();
+    // Image
+    assertThat(parameters.isPrioritizeImageOverVideoEnabled).isTrue();
     // General
     assertThat(parameters.forceLowestBitrate).isFalse();
     assertThat(parameters.forceHighestSupportedBitrate).isTrue();
