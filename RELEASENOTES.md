@@ -32,6 +32,9 @@
 *   OkHttp Extension:
 *   Cronet Extension:
 *   HttpEngine Extension:
+    *   Implement `HttpEngineDataSource`, an `HttpDataSource` using the
+        [HttpEngine](https://developer.android.com/reference/android/net/http/HttpEngine)
+        API.
 *   RTMP Extension:
 *   HLS Extension:
 *   DASH Extension:
@@ -83,10 +86,6 @@ This release includes the following changes since the
         ([#271](https://github.com/androidx/media/issues/271),[#327](https://github.com/androidx/media/issues/327)).
     *   Add `MediaSession.Callback.onMediaButtonEvent(Intent)` that allows apps
         to override the default media button event handling.
-*   HttpEngine Extension:
-    *   Implement `HttpEngineDataSource`, an `HttpDataSource` using the
-        [HttpEngine](https://developer.android.com/reference/android/net/http/HttpEngine)
-        API.
 *   HLS Extension:
     *   Refresh the HLS live playlist with an interval calculated from the last
         load start time rather than the last load completed time
