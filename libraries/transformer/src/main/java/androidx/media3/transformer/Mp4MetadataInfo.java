@@ -38,48 +38,47 @@ import java.util.HashMap;
 import java.util.Map;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-/** A wrapper around an {@link Mp4Extractor} providing methods to extract MP4 metadata. */
-/* package */ final class Mp4ExtractorWrapper {
-  private final Context context;
-  private final String filePath;
-  private final Mp4Extractor mp4Extractor;
-  private final ExtractorOutputImpl extractorOutput;
-  private boolean initialized;
+/** Provides MP4 metadata like duration, last sync sample timestamp etc. */
+/* package */ final class Mp4MetadataInfo {
+  /**
+   * The duration (in microseconds) of the MP4 file or {@link C#TIME_UNSET} if the duration is
+   * unknown.
+   */
+  public final long durationUs;
 
   /**
-   * Creates an instance.
-   *
-   * @param context A {@link Context}.
-   * @param filePath The file path of a valid MP4.
+   * The presentation timestamp (in microseconds) of the last sync sample or {@link C#TIME_UNSET} if
+   * there is no video track.
    */
-  public Mp4ExtractorWrapper(Context context, String filePath) {
-    this.context = context;
-    this.filePath = filePath;
-    mp4Extractor = new Mp4Extractor();
-    extractorOutput = new ExtractorOutputImpl();
+  public final long lastSyncSampleTimestampUs;
+
+  private Mp4MetadataInfo(long durationUs, long lastSyncSampleTimestampUs) {
+    this.durationUs = durationUs;
+    this.lastSyncSampleTimestampUs = lastSyncSampleTimestampUs;
   }
 
   /**
-   * Initializes the {@link Mp4ExtractorWrapper}.
+   * Extracts the MP4 metadata synchronously and returns {@link Mp4MetadataInfo}.
    *
-   * <p>This method must be called only once and it should be called before calling any other
-   * method.
+   * @param context A {@link Context}.
+   * @param filePath The file path of a valid MP4.
+   * @throws IOException If an error occurs during metadata extraction.
    */
-  public void init() throws IOException {
-    checkState(!initialized);
-
+  public static Mp4MetadataInfo create(Context context, String filePath) throws IOException {
+    Mp4Extractor mp4Extractor = new Mp4Extractor();
+    ExtractorOutputImpl extractorOutput = new ExtractorOutputImpl();
     DefaultDataSource dataSource =
         new DefaultDataSource(context, /* allowCrossProtocolRedirects= */ false);
     DataSpec dataSpec = new DataSpec.Builder().setUri(filePath).build();
-    long length = dataSource.open(dataSpec);
-    checkState(length != 0);
-    DefaultExtractorInput extractorInput =
-        new DefaultExtractorInput(dataSource, /* position= */ 0, length);
-    checkState(mp4Extractor.sniff(extractorInput), "The MP4 file is invalid");
-
-    mp4Extractor.init(extractorOutput);
-    PositionHolder positionHolder = new PositionHolder();
     try {
+      long length = dataSource.open(dataSpec);
+      checkState(length != 0);
+      DefaultExtractorInput extractorInput =
+          new DefaultExtractorInput(dataSource, /* position= */ 0, length);
+      checkState(mp4Extractor.sniff(extractorInput), "The MP4 file is invalid");
+
+      mp4Extractor.init(extractorOutput);
+      PositionHolder positionHolder = new PositionHolder();
       while (!extractorOutput.seekMapInitialized) {
         @Extractor.ReadResult int result = mp4Extractor.read(extractorInput, positionHolder);
         if (result == Extractor.RESULT_SEEK) {
@@ -98,27 +97,22 @@ import org.checkerframework.checker.nullness.qual.Nullable;
           throw new IllegalStateException("The MP4 file is invalid");
         }
       }
-      initialized = true;
+
+      long durationUs = mp4Extractor.getDurationUs();
+      long lastSyncSampleTimestampUs = C.TIME_UNSET;
+
+      // Fetch last sync sample timestamp.
+      if (extractorOutput.videoTrackId != C.INDEX_UNSET) {
+        checkState(durationUs != C.TIME_UNSET);
+        SeekMap.SeekPoints seekPoints =
+            mp4Extractor.getSeekPoints(durationUs, extractorOutput.videoTrackId);
+        lastSyncSampleTimestampUs = seekPoints.first.timeUs;
+      }
+      return new Mp4MetadataInfo(durationUs, lastSyncSampleTimestampUs);
     } finally {
       DataSourceUtil.closeQuietly(dataSource);
+      mp4Extractor.release();
     }
-  }
-
-  /**
-   * Returns the presentation timestamp (in microseconds) of the last sync sample or {@link
-   * C#TIME_UNSET} if there is no video track.
-   */
-  public long getLastSyncSampleTimestampUs() {
-    checkState(initialized);
-
-    if (extractorOutput.videoTrackId == C.INDEX_UNSET) {
-      return C.TIME_UNSET;
-    }
-    long durationUs = mp4Extractor.getDurationUs();
-    checkState(durationUs != C.TIME_UNSET);
-    SeekMap.SeekPoints seekPoints =
-        mp4Extractor.getSeekPoints(durationUs, extractorOutput.videoTrackId);
-    return seekPoints.first.timeUs;
   }
 
   private static final class ExtractorOutputImpl implements ExtractorOutput {
@@ -127,7 +121,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
     private final Map<Integer, TrackOutput> trackTypeToTrackOutput;
 
-    ExtractorOutputImpl() {
+    public ExtractorOutputImpl() {
       videoTrackId = C.INDEX_UNSET;
       trackTypeToTrackOutput = new HashMap<>();
     }
@@ -159,7 +153,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
       private final byte[] byteArray;
 
-      private TrackOutputImpl() {
+      public TrackOutputImpl() {
         byteArray = new byte[FIXED_BYTE_ARRAY_SIZE];
       }
 
