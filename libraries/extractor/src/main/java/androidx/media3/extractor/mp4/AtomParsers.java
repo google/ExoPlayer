@@ -1328,8 +1328,8 @@ import java.util.List;
         // established by the bitstream. The absence of color descriptors ('colorSpace' and
         // 'colorTransfer') does not necessarily mean that 'colorRange' has default values, hence it
         // is not being verified here.
-        // If 'Atom.TYPE_avcC', 'Atom.TYPE_hvcC' or 'Atom.TYPE_vpcC' is available, they will take
-        // precedence and overwrite any existing values.
+        // If 'Atom.TYPE_avcC', 'Atom.TYPE_hvcC', 'Atom.TYPE_vpcC' or 'Atom.TYPE_av1c' is available,
+        // they will take precedence and overwrite any existing values.
         if (colorSpace == Format.NO_VALUE && colorTransfer == Format.NO_VALUE) {
           int colorType = parent.readInt();
           if (colorType == TYPE_nclx || colorType == TYPE_nclc) {
