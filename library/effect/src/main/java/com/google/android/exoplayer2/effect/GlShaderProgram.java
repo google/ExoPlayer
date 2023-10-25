@@ -192,6 +192,9 @@ public interface GlShaderProgram {
    * <p>The {@code GlShaderProgram} should reclaim the ownership of its allocated textures,
    * {@linkplain InputListener#onFlush notify} its {@link InputListener} about the flush event, and
    * {@linkplain InputListener#onReadyToAcceptInputFrame report its availability} if necessary.
+   *
+   * <p>The implementation must not {@linkplain OutputListener#onOutputFrameAvailable output frames}
+   * until after this method returns.
    */
   void flush();
 
