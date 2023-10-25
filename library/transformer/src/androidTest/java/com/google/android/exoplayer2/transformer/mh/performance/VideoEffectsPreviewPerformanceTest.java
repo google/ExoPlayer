@@ -21,26 +21,20 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.app.Instrumentation;
 import android.graphics.SurfaceTexture;
-import android.os.ConditionVariable;
 import android.os.SystemClock;
 import android.view.Surface;
-import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.PlaybackException;
-import com.google.android.exoplayer2.Player;
-import com.google.android.exoplayer2.analytics.AnalyticsListener;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.util.EventLogger;
-import com.google.android.exoplayer2.util.NullableType;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicReference;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.junit.After;
 import org.junit.Test;
@@ -72,7 +66,7 @@ public class VideoEffectsPreviewPerformanceTest {
    */
   @Test
   public void exoplayerEffectsPreviewTest() throws PlaybackException, TimeoutException {
-    TestListener listener = new TestListener();
+    PerformanceTestListener listener = new PerformanceTestListener(TEST_TIMEOUT_MS);
     instrumentation.runOnMainSync(
         () -> {
           player = new ExoPlayer.Builder(ApplicationProvider.getApplicationContext()).build();
@@ -106,7 +100,7 @@ public class VideoEffectsPreviewPerformanceTest {
 
     // Playback realtime should take 2 seconds, plus/minus error margin.
     assertThat(playbackDurationMs).isIn(Range.closed(1950L, 2050L));
-    DecoderCounters decoderCounters = checkNotNull(listener.decoderCounters);
+    DecoderCounters decoderCounters = checkNotNull(listener.getDecoderCounters());
     assertThat(decoderCounters.droppedBufferCount).isEqualTo(0);
     assertThat(decoderCounters.skippedInputBufferCount).isEqualTo(0);
     assertThat(decoderCounters.skippedOutputBufferCount).isEqualTo(0);
@@ -120,64 +114,5 @@ public class VideoEffectsPreviewPerformanceTest {
                 .setEndPositionMs(MEDIA_ITEM_CLIP_DURATION_MS)
                 .build())
         .build();
-  }
-
-  private static class TestListener implements Player.Listener, AnalyticsListener {
-    private final ConditionVariable playerReady;
-    private final ConditionVariable playerEnded;
-    private final AtomicReference<@NullableType PlaybackException> playbackException;
-    private @MonotonicNonNull DecoderCounters decoderCounters;
-
-    public TestListener() {
-      playerReady = new ConditionVariable();
-      playerEnded = new ConditionVariable();
-      playbackException = new AtomicReference<>();
-    }
-
-    public void waitUntilPlayerReady() throws TimeoutException, PlaybackException {
-      waitOrThrow(playerReady);
-    }
-
-    public void waitUntilPlayerEnded() throws PlaybackException, TimeoutException {
-      waitOrThrow(playerEnded);
-    }
-
-    // Player.Listener methods
-
-    @Override
-    public void onPlaybackStateChanged(int playbackState) {
-      if (playbackState == Player.STATE_READY) {
-        playerReady.open();
-      } else if (playbackState == Player.STATE_ENDED) {
-        playerEnded.open();
-      }
-    }
-
-    @Override
-    public void onPlayerError(PlaybackException error) {
-      playbackException.set(error);
-      playerReady.open();
-      playerEnded.open();
-    }
-
-    // AnalyticsListener methods
-
-    @Override
-    public void onVideoEnabled(EventTime eventTime, DecoderCounters decoderCounters) {
-      this.decoderCounters = decoderCounters;
-    }
-
-    // Internal methods
-
-    private void waitOrThrow(ConditionVariable conditionVariable)
-        throws TimeoutException, PlaybackException {
-      if (!conditionVariable.block(TEST_TIMEOUT_MS)) {
-        throw new TimeoutException();
-      }
-      @Nullable PlaybackException playbackException = this.playbackException.get();
-      if (playbackException != null) {
-        throw playbackException;
-      }
-    }
   }
 }
