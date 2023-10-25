@@ -1238,7 +1238,8 @@ import java.util.List;
           bitdepthLuma = highBitdepth ? 10 : 8;
         }
         bitdepthChroma = bitdepthLuma;
-        // See av1C atom syntax: https://aomediacodec.github.io/av1-isobmff/#av1codecconfigurationbox-syntax
+        // See av1C atom syntax:
+        // https://aomediacodec.github.io/av1-isobmff/#av1codecconfigurationbox-syntax
         parent.skipBytes(4); // skip to configOBUs[]
         Av1BitstreamParser parser = new Av1BitstreamParser(parent);
         if (parser.parseSequenceHeader() && parser.colorDescriptionPresentFlag == 1) {
