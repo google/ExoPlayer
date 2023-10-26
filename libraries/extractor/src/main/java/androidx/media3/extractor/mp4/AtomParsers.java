@@ -1,28 +1,3 @@
-/***************************************************************************
- 
-Fraunhofer hereby grants to Google free of charge a worldwide, perpetual,
-irrevocable, non-exclusive copyright license with the right to sublicense
-through multiple tiers to use, copy, distribute, modify and create
-derivative works of the Software Patches for Exoplayer in source code form
-and/or object code versions of the software. For the avoidance of doubt,
-this license does not include any license to any Fraunhofer patents or any
-third-party patents. Since the license is granted without any charge,
-Fraunhofer provides the Software Patches for Exoplayer, in accordance with
-the laws of the Federal Republic of Germany, on an “as is” basis, WITHOUT
-WARRANTIES or conditions of any kind, either express or implied, including,
-without limitation, any warranties or conditions of title, non-infringement,
-merchantability, or fitness for a particular purpose.
- 
-For the purpose of clarity, the provision of the Software Patches for
-Exoplayer by Fraunhofer and the use of the same by Google shall be subject
-solely to the license stated above.
- 
-This file was originally licensed under the Apache 2.0 license (see license
-note below). Fraunhofer has modified this files and provides its copyright
-in the modifications to Google under the above terms, which shall not be
-considered a contribution under the Apache 2.0 license.
- 
-***************************************************************************/
 /*
  * Copyright (C) 2016 The Android Open Source Project
  *
@@ -1623,9 +1598,6 @@ import java.util.List;
     int sampleRateMlp = 0;
     @C.PcmEncoding int pcmEncoding = Format.NO_VALUE;
     @Nullable String codecs = null;
-    @C.MpeghProfileLevelIndication int mpeghProfileLevelIndication = Format.NO_VALUE;
-    int mpeghReferenceChannelLayout = Format.NO_VALUE;
-    @Nullable @C.MpeghProfileLevelIndication int[] mpeghCompatibleProfileLevelSet = null;
     @Nullable EsdsData esdsData = null;
 
     if (quickTimeSoundDescriptionVersion == 0 || quickTimeSoundDescriptionVersion == 1) {
@@ -1754,27 +1726,40 @@ import java.util.List;
         int mhacHeaderSize = 13;
         parent.setPosition(childPosition + Atom.HEADER_SIZE);
         int configurationVersion = parent.readUnsignedByte();
-        mpeghProfileLevelIndication = parent.readUnsignedByte();
-        mpeghReferenceChannelLayout = parent.readUnsignedByte();
+        int mpeghProfileLevelIndication = parent.readUnsignedByte();
+        int mpeghReferenceChannelLayout = parent.readUnsignedByte();
         if (mimeType.equals(MimeTypes.AUDIO_MPEGH_MHM1)) {
-          codecs = String.format("mhm1.0x%02X", mpeghProfileLevelIndication);
+          codecs = String.format("mhm1.%02X", mpeghProfileLevelIndication);
         } else {
-          codecs = String.format("mha1.0x%02X", mpeghProfileLevelIndication);
+          codecs = String.format("mha1.%02X", mpeghProfileLevelIndication);
         }
         int mpegh3daConfigLength = parent.readUnsignedShort();
         byte[] initializationDataBytes = new byte[mpegh3daConfigLength];
         parent.readBytes(initializationDataBytes, 0, mpegh3daConfigLength);
-        initializationData = ImmutableList.of(initializationDataBytes);
+        // The mpegh3daConfig should always be the first entry in initializationData.
+        if (initializationData == null) {
+          initializationData = ImmutableList.of(initializationDataBytes);
+        } else {
+          // We assume that the mhaP box has been parsed before and add the compatible profile level
+          // sets as the second entry.
+          initializationData = ImmutableList.of(initializationDataBytes, initializationData.get(0));
+        }
       } else if (childAtomType == Atom.TYPE_mhaP) {
         // See ISO_IEC_23008-3;2022 MHAProfileAndLevelCompatibilitySetBox
         // The header consists of: size (4), boxtype 'mhaP' (4), numCompatibleSets (1).
         int mhapHeaderSize = 9;
         parent.setPosition(childPosition + Atom.HEADER_SIZE);
-        int numCompatibleSets  = parent.readUnsignedByte();
+        int numCompatibleSets = parent.readUnsignedByte();
         if (numCompatibleSets > 0) {
-          mpeghCompatibleProfileLevelSet = new int[numCompatibleSets];
-          for (int i = 0; i < numCompatibleSets; i++) {
-            mpeghCompatibleProfileLevelSet[i] = parent.readUnsignedByte();
+          byte[] mpeghCompatibleProfileLevelSet = new byte[numCompatibleSets];
+          parent.readBytes(mpeghCompatibleProfileLevelSet, 0, numCompatibleSets);
+          if (initializationData == null) {
+            initializationData = ImmutableList.of(mpeghCompatibleProfileLevelSet);
+          } else {
+            // We assume that the mhaC box has been parsed before and add the compatible profile
+            // level sets as the second entry.
+            initializationData =
+                ImmutableList.of(initializationData.get(0), mpeghCompatibleProfileLevelSet);
           }
         }
       } else if (childAtomType == Atom.TYPE_esds
@@ -1883,9 +1868,6 @@ import java.util.List;
               .setPcmEncoding(pcmEncoding)
               .setInitializationData(initializationData)
               .setDrmInitData(drmInitData)
-              .setMpeghProfileLevelIndication(mpeghProfileLevelIndication)
-              .setMpeghReferenceChannelLayout(mpeghReferenceChannelLayout)
-              .setMpeghCompatibleProfileLevelSet(mpeghCompatibleProfileLevelSet)
               .setLanguage(language);
 
       if (esdsData != null) {

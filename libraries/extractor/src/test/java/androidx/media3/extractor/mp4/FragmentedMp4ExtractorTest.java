@@ -131,6 +131,38 @@ public final class FragmentedMp4ExtractorTest {
         simulationConfig);
   }
 
+  @Test
+  public void sampleWithMhm1BlCicp1Track() throws Exception {
+    ExtractorAsserts.assertBehavior(
+        getExtractorFactory(ImmutableList.of()),
+        "media/mp4/sample_mhm1_bl_cicp1_fragmented.mp4",
+        simulationConfig);
+  }
+
+  @Test
+  public void sampleWithMhm1LcblCicp1Track() throws Exception {
+    ExtractorAsserts.assertBehavior(
+        getExtractorFactory(ImmutableList.of()),
+        "media/mp4/sample_mhm1_lcbl_cicp1_fragmented.mp4",
+        simulationConfig);
+  }
+
+  @Test
+  public void sampleWithMhm1BlConfigChangeTrack() throws Exception {
+    ExtractorAsserts.assertBehavior(
+        getExtractorFactory(ImmutableList.of()),
+        "media/mp4/sample_mhm1_bl_configchange_fragmented.mp4",
+        simulationConfig);
+  }
+
+  @Test
+  public void sampleWithMhm1LcblConfigChangeTrack() throws Exception {
+    ExtractorAsserts.assertBehavior(
+        getExtractorFactory(ImmutableList.of()),
+        "media/mp4/sample_mhm1_lcbl_configchange_fragmented.mp4",
+        simulationConfig);
+  }
+
   private static ExtractorFactory getExtractorFactory(final List<Format> closedCaptionFormats) {
     return () ->
         new FragmentedMp4Extractor(

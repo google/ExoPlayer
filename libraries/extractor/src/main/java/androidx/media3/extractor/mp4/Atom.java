@@ -1,28 +1,3 @@
-/***************************************************************************
- 
-Fraunhofer hereby grants to Google free of charge a worldwide, perpetual,
-irrevocable, non-exclusive copyright license with the right to sublicense
-through multiple tiers to use, copy, distribute, modify and create
-derivative works of the Software Patches for Exoplayer in source code form
-and/or object code versions of the software. For the avoidance of doubt,
-this license does not include any license to any Fraunhofer patents or any
-third-party patents. Since the license is granted without any charge,
-Fraunhofer provides the Software Patches for Exoplayer, in accordance with
-the laws of the Federal Republic of Germany, on an “as is” basis, WITHOUT
-WARRANTIES or conditions of any kind, either express or implied, including,
-without limitation, any warranties or conditions of title, non-infringement,
-merchantability, or fitness for a particular purpose.
- 
-For the purpose of clarity, the provision of the Software Patches for
-Exoplayer by Fraunhofer and the use of the same by Google shall be subject
-solely to the license stated above.
- 
-This file was originally licensed under the Apache 2.0 license (see license
-note below). Fraunhofer has modified this files and provides its copyright
-in the modifications to Google under the above terms, which shall not be
-considered a contribution under the Apache 2.0 license.
- 
-***************************************************************************/
 /*
  * Copyright (C) 2016 The Android Open Source Project
  *

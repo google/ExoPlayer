@@ -1,28 +1,3 @@
-/***************************************************************************
- 
-Fraunhofer hereby grants to Google free of charge a worldwide, perpetual,
-irrevocable, non-exclusive copyright license with the right to sublicense
-through multiple tiers to use, copy, distribute, modify and create
-derivative works of the Software Patches for Exoplayer in source code form
-and/or object code versions of the software. For the avoidance of doubt,
-this license does not include any license to any Fraunhofer patents or any
-third-party patents. Since the license is granted without any charge,
-Fraunhofer provides the Software Patches for Exoplayer, in accordance with
-the laws of the Federal Republic of Germany, on an “as is” basis, WITHOUT
-WARRANTIES or conditions of any kind, either express or implied, including,
-without limitation, any warranties or conditions of title, non-infringement,
-merchantability, or fitness for a particular purpose.
- 
-For the purpose of clarity, the provision of the Software Patches for
-Exoplayer by Fraunhofer and the use of the same by Google shall be subject
-solely to the license stated above.
- 
-This file was originally licensed under the Apache 2.0 license (see license
-note below). Fraunhofer has modified this files and provides its copyright
-in the modifications to Google under the above terms, which shall not be
-considered a contribution under the Apache 2.0 license.
- 
-***************************************************************************/
 /*
  * Copyright (C) 2016 The Android Open Source Project
  *
@@ -201,10 +176,6 @@ public final class Format implements Bundleable {
     private int encoderDelay;
     private int encoderPadding;
 
-    @C.MpeghProfileLevelIndication private int mpeghProfileLevelIndication;
-    private int mpeghReferenceChannelLayout;
-    @Nullable @C.MpeghProfileLevelIndication private int[] mpeghCompatibleProfileLevelSet;
-
     // Text specific.
 
     private int accessibilityChannel;
@@ -236,8 +207,6 @@ public final class Format implements Bundleable {
       channelCount = NO_VALUE;
       sampleRate = NO_VALUE;
       pcmEncoding = NO_VALUE;
-      mpeghProfileLevelIndication = NO_VALUE;
-      mpeghReferenceChannelLayout = NO_VALUE;
       // Text specific.
       accessibilityChannel = NO_VALUE;
       cueReplacementBehavior = CUE_REPLACEMENT_BEHAVIOR_MERGE;
@@ -286,9 +255,6 @@ public final class Format implements Bundleable {
       this.pcmEncoding = format.pcmEncoding;
       this.encoderDelay = format.encoderDelay;
       this.encoderPadding = format.encoderPadding;
-      this.mpeghReferenceChannelLayout = format.mpeghReferenceChannelLayout;
-      this.mpeghProfileLevelIndication = format.mpeghProfileLevelIndication;
-      this.mpeghCompatibleProfileLevelSet = format.mpeghCompatibleProfileLevelSet;
       // Text specific.
       this.accessibilityChannel = format.accessibilityChannel;
       this.cueReplacementBehavior = format.cueReplacementBehavior;
@@ -656,19 +622,6 @@ public final class Format implements Bundleable {
       return this;
     }
 
-    public Builder setMpeghProfileLevelIndication(@C.MpeghProfileLevelIndication int mpeghProfileLevelIndication) {
-      this.mpeghProfileLevelIndication = mpeghProfileLevelIndication;
-      return this;
-    }
-    public Builder setMpeghReferenceChannelLayout(int mpeghReferenceChannelLayout) {
-      this.mpeghReferenceChannelLayout = mpeghReferenceChannelLayout;
-      return this;
-    }
-    public Builder setMpeghCompatibleProfileLevelSet(@Nullable @C.MpeghProfileLevelIndication int[] mpeghCompatibleProfileLevelSet) {
-      this.mpeghCompatibleProfileLevelSet = mpeghCompatibleProfileLevelSet;
-      return this;
-    }
-
     // Text specific.
 
     /**
@@ -942,10 +895,6 @@ public final class Format implements Bundleable {
    */
   @UnstableApi public final int encoderPadding;
 
-  @C.MpeghProfileLevelIndication public final int mpeghProfileLevelIndication;
-  public final int mpeghReferenceChannelLayout;
-  @Nullable @C.MpeghProfileLevelIndication public final int[] mpeghCompatibleProfileLevelSet;
-
   // Text specific.
 
   /** The Accessibility channel, or {@link #NO_VALUE} if not known or applicable. */
@@ -1016,9 +965,6 @@ public final class Format implements Bundleable {
     pcmEncoding = builder.pcmEncoding;
     encoderDelay = builder.encoderDelay == NO_VALUE ? 0 : builder.encoderDelay;
     encoderPadding = builder.encoderPadding == NO_VALUE ? 0 : builder.encoderPadding;
-    mpeghProfileLevelIndication = builder.mpeghProfileLevelIndication;
-    mpeghReferenceChannelLayout = builder.mpeghReferenceChannelLayout;
-    mpeghCompatibleProfileLevelSet = builder.mpeghCompatibleProfileLevelSet;
     // Text specific.
     accessibilityChannel = builder.accessibilityChannel;
     cueReplacementBehavior = builder.cueReplacementBehavior;
@@ -1192,9 +1138,6 @@ public final class Format implements Bundleable {
       result = 31 * result + pcmEncoding;
       result = 31 * result + encoderDelay;
       result = 31 * result + encoderPadding;
-      result = 31 * result + mpeghProfileLevelIndication;
-      result = 31 * result + mpeghReferenceChannelLayout;
-      // [Omitted] mpeghCompatibleProfileLevelSet.
       // Text specific.
       result = 31 * result + accessibilityChannel;
       // Image specific.
@@ -1235,9 +1178,6 @@ public final class Format implements Bundleable {
         && pcmEncoding == other.pcmEncoding
         && encoderDelay == other.encoderDelay
         && encoderPadding == other.encoderPadding
-        && mpeghReferenceChannelLayout == other.mpeghReferenceChannelLayout
-        && mpeghProfileLevelIndication == other.mpeghProfileLevelIndication
-        && Util.areEqual(mpeghCompatibleProfileLevelSet, other.mpeghCompatibleProfileLevelSet)
         && accessibilityChannel == other.accessibilityChannel
         && tileCountHorizontal == other.tileCountHorizontal
         && tileCountVertical == other.tileCountVertical
@@ -1442,9 +1382,6 @@ public final class Format implements Bundleable {
   private static final String FIELD_CRYPTO_TYPE = Util.intToStringMaxRadix(29);
   private static final String FIELD_TILE_COUNT_HORIZONTAL = Util.intToStringMaxRadix(30);
   private static final String FIELD_TILE_COUNT_VERTICAL = Util.intToStringMaxRadix(31);
-  private static final String FIELD_MPEGH_PROFILE_LEVEL_INDICATION = Util.intToStringMaxRadix(32);
-  private static final String FIELD_MPEGH_REFERENCE_CHANNEL_LAYOUT = Util.intToStringMaxRadix(33);
-  private static final String FIELD_MPEGH_COMPATIBLE_PROFILE_LEVEL_SET = Util.intToStringMaxRadix(34);
 
   @UnstableApi
   @Override
@@ -1500,9 +1437,6 @@ public final class Format implements Bundleable {
     bundle.putInt(FIELD_PCM_ENCODING, pcmEncoding);
     bundle.putInt(FIELD_ENCODER_DELAY, encoderDelay);
     bundle.putInt(FIELD_ENCODER_PADDING, encoderPadding);
-    bundle.putInt(FIELD_MPEGH_PROFILE_LEVEL_INDICATION, mpeghProfileLevelIndication);
-    bundle.putInt(FIELD_MPEGH_REFERENCE_CHANNEL_LAYOUT, mpeghReferenceChannelLayout);
-    bundle.putIntArray(FIELD_MPEGH_COMPATIBLE_PROFILE_LEVEL_SET, mpeghCompatibleProfileLevelSet);
     // Text specific.
     bundle.putInt(FIELD_ACCESSIBILITY_CHANNEL, accessibilityChannel);
     // Image specific.
@@ -1578,12 +1512,6 @@ public final class Format implements Bundleable {
         .setPcmEncoding(bundle.getInt(FIELD_PCM_ENCODING, DEFAULT.pcmEncoding))
         .setEncoderDelay(bundle.getInt(FIELD_ENCODER_DELAY, DEFAULT.encoderDelay))
         .setEncoderPadding(bundle.getInt(FIELD_ENCODER_PADDING, DEFAULT.encoderPadding))
-        .setMpeghProfileLevelIndication(
-            bundle.getInt(FIELD_MPEGH_PROFILE_LEVEL_INDICATION, DEFAULT.mpeghProfileLevelIndication))
-        .setMpeghReferenceChannelLayout(
-            bundle.getInt(FIELD_MPEGH_REFERENCE_CHANNEL_LAYOUT, DEFAULT.mpeghReferenceChannelLayout))
-        .setMpeghCompatibleProfileLevelSet(
-            bundle.getIntArray(FIELD_MPEGH_COMPATIBLE_PROFILE_LEVEL_SET))
         // Text specific.
         .setAccessibilityChannel(
             bundle.getInt(FIELD_ACCESSIBILITY_CHANNEL, DEFAULT.accessibilityChannel))
