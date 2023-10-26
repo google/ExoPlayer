@@ -547,6 +547,16 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
     inputSwitcher.signalEndOfInputStream();
   }
 
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The downstream frame consumer must be flushed before this instance is flushed, and stop
+   * accepting input until this DefaultVideoFrameProcessor instance finishes flushing.
+   *
+   * <p>After this method is called, any object consuming {@linkplain
+   * Factory.Builder#setTextureOutput texture output} must not access any output textures that were
+   * {@link GlTextureProducer.Listener#onTextureRendered rendered} before calling this method.
+   */
   @Override
   public void flush() {
     if (!inputSwitcher.hasActiveInput()) {
