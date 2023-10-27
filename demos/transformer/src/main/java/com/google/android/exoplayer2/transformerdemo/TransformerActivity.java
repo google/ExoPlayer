@@ -86,6 +86,7 @@ import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
 import com.google.android.exoplayer2.ui.StyledPlayerView;
 import com.google.android.exoplayer2.upstream.DataSourceBitmapLoader;
 import com.google.android.exoplayer2.util.BitmapLoader;
+import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.DebugTextViewHelper;
 import com.google.android.exoplayer2.util.DebugViewProvider;
 import com.google.android.exoplayer2.util.Effect;
@@ -228,7 +229,8 @@ public final class TransformerActivity extends AppCompatActivity {
     Intent intent = getIntent();
     Uri inputUri = checkNotNull(intent.getData());
     try {
-      externalCacheFile = createExternalCacheFile("transformer-output.mp4");
+      externalCacheFile =
+          createExternalCacheFile("transformer-output-" + Clock.DEFAULT.elapsedRealtime() + ".mp4");
     } catch (IOException e) {
       throw new IllegalStateException(e);
     }

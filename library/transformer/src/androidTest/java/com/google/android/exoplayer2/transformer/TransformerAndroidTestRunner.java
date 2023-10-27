@@ -31,6 +31,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.effect.DebugTraceUtil;
 import com.google.android.exoplayer2.testutil.SsimHelper;
+import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.NullableType;
 import com.google.android.exoplayer2.util.SystemClock;
@@ -339,7 +340,9 @@ public class TransformerAndroidTestRunner {
             .build();
 
     File outputVideoFile =
-        AndroidTestUtil.createExternalCacheFile(context, /* fileName= */ testId + "-output.mp4");
+        AndroidTestUtil.createExternalCacheFile(
+            context,
+            /* fileName= */ testId + "-" + Clock.DEFAULT.elapsedRealtime() + "-output.mp4");
     InstrumentationRegistry.getInstrumentation()
         .runOnMainSync(
             () -> {
