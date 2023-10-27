@@ -57,7 +57,7 @@ project.ext {
     androidxTestServicesStorageVersion = '1.4.2'
     androidxTestTruthVersion = '1.5.0'
     truthVersion = '1.1.3'
-    okhttpVersion = '4.11.0'
+    okhttpVersion = '4.12.0'
     modulePrefix = ':'
     if (gradle.ext.has('androidxMediaModulePrefix')) {
         modulePrefix += gradle.ext.androidxMediaModulePrefix
