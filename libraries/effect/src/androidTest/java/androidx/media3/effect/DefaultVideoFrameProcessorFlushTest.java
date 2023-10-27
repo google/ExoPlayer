@@ -18,6 +18,7 @@ package androidx.media3.effect;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.test.utils.BitmapPixelTestUtil.readBitmapUnpremultipliedAlpha;
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertThrows;
 
 import android.graphics.Bitmap;
 import androidx.media3.common.C;
@@ -60,20 +61,10 @@ public class DefaultVideoFrameProcessorFlushTest {
 
   @Test
   @RequiresNonNull({"testId"})
-  public void imageInput_flushBeforeInput_outputsAllFrames() throws Exception {
+  public void imageInput_flushBeforeInput_throwsException() throws Exception {
     videoFrameProcessorTestRunner = createDefaultVideoFrameProcessorTestRunner(testId);
-    Bitmap bitmap = readBitmapUnpremultipliedAlpha(ORIGINAL_PNG_ASSET_PATH);
-    int inputFrameCount = 3;
 
-    videoFrameProcessorTestRunner.flush();
-    videoFrameProcessorTestRunner.queueInputBitmap(
-        bitmap,
-        /* durationUs= */ inputFrameCount * C.MICROS_PER_SECOND,
-        /* offsetToAddUs= */ 0L,
-        /* frameRate= */ 1);
-    videoFrameProcessorTestRunner.endFrameProcessing();
-
-    assertThat(outputFrameCount).isEqualTo(inputFrameCount);
+    assertThrows(IllegalStateException.class, videoFrameProcessorTestRunner::flush);
   }
 
   // This tests a condition that is difficult to synchronize, and is subject to a race condition. It
