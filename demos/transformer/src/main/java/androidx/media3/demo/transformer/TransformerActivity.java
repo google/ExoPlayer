@@ -56,6 +56,7 @@ import androidx.media3.common.audio.ChannelMixingAudioProcessor;
 import androidx.media3.common.audio.ChannelMixingMatrix;
 import androidx.media3.common.audio.SonicAudioProcessor;
 import androidx.media3.common.util.BitmapLoader;
+import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.Log;
 import androidx.media3.datasource.DataSourceBitmapLoader;
 import androidx.media3.effect.BitmapOverlay;
@@ -220,7 +221,8 @@ public final class TransformerActivity extends AppCompatActivity {
     Intent intent = getIntent();
     Uri inputUri = checkNotNull(intent.getData());
     try {
-      externalCacheFile = createExternalCacheFile("transformer-output.mp4");
+      externalCacheFile =
+          createExternalCacheFile("transformer-output-" + Clock.DEFAULT.elapsedRealtime() + ".mp4");
     } catch (IOException e) {
       throw new IllegalStateException(e);
     }

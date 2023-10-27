@@ -28,6 +28,7 @@ import android.net.Uri;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
+import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.NullableType;
 import androidx.media3.common.util.SystemClock;
@@ -339,7 +340,9 @@ public class TransformerAndroidTestRunner {
             .build();
 
     File outputVideoFile =
-        AndroidTestUtil.createExternalCacheFile(context, /* fileName= */ testId + "-output.mp4");
+        AndroidTestUtil.createExternalCacheFile(
+            context,
+            /* fileName= */ testId + "-" + Clock.DEFAULT.elapsedRealtime() + "-output.mp4");
     InstrumentationRegistry.getInstrumentation()
         .runOnMainSync(
             () -> {
