@@ -37,6 +37,7 @@ import androidx.media3.extractor.SeekMap;
 import androidx.media3.extractor.TrackOutput;
 import androidx.media3.extractor.mkv.MatroskaExtractor;
 import androidx.media3.extractor.mp4.FragmentedMp4Extractor;
+import androidx.media3.extractor.text.SubtitleExtractor;
 import androidx.media3.extractor.text.SubtitleParser;
 import androidx.media3.extractor.text.SubtitleTranscodingExtractor;
 import java.io.IOException;
@@ -86,8 +87,14 @@ public final class BundledChunkExtractor implements ExtractorOutput, ChunkExtrac
       @Nullable String containerMimeType = representationFormat.containerMimeType;
       Extractor extractor;
       if (MimeTypes.isText(containerMimeType)) {
-        // Text types do not need an extractor.
-        return null;
+        if (subtitleParserFactory == null) {
+          // Subtitles will be parsed after decoding
+          return null;
+        } else {
+          extractor =
+              new SubtitleExtractor(
+                  subtitleParserFactory.create(representationFormat), representationFormat);
+        }
       } else if (MimeTypes.isMatroska(containerMimeType)) {
         extractor = new MatroskaExtractor(MatroskaExtractor.FLAG_DISABLE_SEEK_FOR_CUES);
       } else {
@@ -103,7 +110,7 @@ public final class BundledChunkExtractor implements ExtractorOutput, ChunkExtrac
                 closedCaptionFormats,
                 playerEmsgTrackOutput);
       }
-      if (subtitleParserFactory != null) {
+      if (subtitleParserFactory != null && !MimeTypes.isText(containerMimeType)) {
         extractor = new SubtitleTranscodingExtractor(extractor, subtitleParserFactory);
       }
       return new BundledChunkExtractor(extractor, primaryTrackType, representationFormat);
