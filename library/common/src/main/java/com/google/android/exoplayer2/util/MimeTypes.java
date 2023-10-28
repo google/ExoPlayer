@@ -23,6 +23,7 @@ import com.google.common.base.Ascii;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.checkerframework.dataflow.qual.Pure;
 
 /**
  * Defines common MIME types and helper methods.
@@ -214,6 +215,7 @@ public final class MimeTypes {
    * Returns whether the given string is a text MIME type, including known text types that use
    * &quot;application&quot; as their base type.
    */
+  @Pure
   public static boolean isText(@Nullable String mimeType) {
     return BASE_TYPE_TEXT.equals(getTopLevelType(mimeType))
         || APPLICATION_MEDIA3_CUES.equals(mimeType)
