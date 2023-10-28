@@ -39,7 +39,7 @@
 *   HLS Extension:
 *   DASH Extension:
     *   Extend experimental support for parsing subtitles during extraction to
-        work with standalone TTML files (previously it only worked with
+        work with standalone text files (previously it only worked with
         subtitles muxed into MP4 segments).
 *   Smooth Streaming Extension:
 *   RTSP Extension:
