@@ -37,6 +37,8 @@
         API.
 *   RTMP Extension:
 *   HLS Extension:
+    *   Reduce `HlsMediaPeriod` to package-private visibility. This type
+        shouldn't be directly depended on from outside the HLS package.
 *   DASH Extension:
     *   Extend experimental support for parsing subtitles during extraction to
         work with standalone text files (previously it only worked with
