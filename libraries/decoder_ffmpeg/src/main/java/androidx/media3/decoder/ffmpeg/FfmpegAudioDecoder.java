@@ -32,9 +32,8 @@ import java.util.List;
 /* package */ final class FfmpegAudioDecoder
     extends SimpleDecoder<DecoderInputBuffer, SimpleDecoderOutputBuffer, FfmpegDecoderException> {
 
-  // Output buffer sizes when decoding PCM mu-law streams, which is the maximum FFmpeg outputs.
-  private static final int OUTPUT_BUFFER_SIZE_16BIT = 65536;
-  private static final int OUTPUT_BUFFER_SIZE_32BIT = OUTPUT_BUFFER_SIZE_16BIT * 2;
+  private static final int INITIAL_OUTPUT_BUFFER_SIZE_16BIT = 65535;
+  private static final int INITIAL_OUTPUT_BUFFER_SIZE_32BIT = INITIAL_OUTPUT_BUFFER_SIZE_16BIT * 2;
 
   private static final int AUDIO_DECODER_ERROR_INVALID_DATA = -1;
   private static final int AUDIO_DECODER_ERROR_OTHER = -2;
@@ -42,7 +41,7 @@ import java.util.List;
   private final String codecName;
   @Nullable private final byte[] extraData;
   private final @C.PcmEncoding int encoding;
-  private final int outputBufferSize;
+  private int outputBufferSize;
 
   private long nativeContext; // May be reassigned on resetting the codec.
   private boolean hasOutputFormat;
@@ -64,7 +63,7 @@ import java.util.List;
     codecName = Assertions.checkNotNull(FfmpegLibrary.getCodecName(format.sampleMimeType));
     extraData = getExtraData(format.sampleMimeType, format.initializationData);
     encoding = outputFloat ? C.ENCODING_PCM_FLOAT : C.ENCODING_PCM_16BIT;
-    outputBufferSize = outputFloat ? OUTPUT_BUFFER_SIZE_32BIT : OUTPUT_BUFFER_SIZE_16BIT;
+    outputBufferSize = outputFloat ? INITIAL_OUTPUT_BUFFER_SIZE_32BIT : INITIAL_OUTPUT_BUFFER_SIZE_16BIT;
     nativeContext =
         ffmpegInitialize(codecName, extraData, outputFloat, format.sampleRate, format.channelCount);
     if (nativeContext == 0) {
@@ -107,8 +106,9 @@ import java.util.List;
     }
     ByteBuffer inputData = Util.castNonNull(inputBuffer.data);
     int inputSize = inputData.limit();
-    ByteBuffer outputData = outputBuffer.init(inputBuffer.timeUs, outputBufferSize);
-    int result = ffmpegDecode(nativeContext, inputData, inputSize, outputData, outputBufferSize);
+    outputBuffer.init(inputBuffer.timeUs, outputBufferSize);
+
+    int result = ffmpegDecode(nativeContext, inputData, inputSize, outputBuffer, outputBuffer.data, outputBufferSize);
     if (result == AUDIO_DECODER_ERROR_OTHER) {
       return new FfmpegDecoderException("Error decoding (see logcat).");
     } else if (result == AUDIO_DECODER_ERROR_INVALID_DATA) {
@@ -135,9 +135,17 @@ import java.util.List;
       }
       hasOutputFormat = true;
     }
-    outputData.position(0);
-    outputData.limit(result);
+    outputBuffer.data.position(0);
+    outputBuffer.data.limit(result);
     return null;
+  }
+
+  // Called from native code
+  /** @noinspection unused*/
+  private ByteBuffer growOutputBuffer(SimpleDecoderOutputBuffer outputBuffer, int requiredSize) {
+    // Use it for new buffer so that hopefully we won't need to reallocate again
+    outputBufferSize = requiredSize;
+    return outputBuffer.grow(requiredSize);
   }
 
   @Override
@@ -221,7 +229,7 @@ import java.util.List;
       int rawChannelCount);
 
   private native int ffmpegDecode(
-      long context, ByteBuffer inputData, int inputSize, ByteBuffer outputData, int outputSize);
+      long context, ByteBuffer inputData, int inputSize, SimpleDecoderOutputBuffer decoderOutputBuffer, ByteBuffer outputData, int outputSize);
 
   private native int ffmpegGetChannelCount(long context);
 

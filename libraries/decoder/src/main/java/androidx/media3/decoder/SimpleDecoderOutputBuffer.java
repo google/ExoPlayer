@@ -16,6 +16,7 @@
 package androidx.media3.decoder;
 
 import androidx.annotation.Nullable;
+import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.UnstableApi;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -47,6 +48,25 @@ public class SimpleDecoderOutputBuffer extends DecoderOutputBuffer {
     data.position(0);
     data.limit(size);
     return data;
+  }
+
+  /**
+   * Reallocates the buffer with new size
+   * Existing data between beginning of the buffer and {@link ByteBuffer#limit} is copied to the new buffer,
+   * and {@link ByteBuffer#position} is preserved. {@link ByteBuffer#limit} is set to the new size.
+   * @param newSize New size of buffer.
+   * @return The {@link #data} buffer, for convenience.
+   */
+  public ByteBuffer grow(int newSize) {
+    Assertions.checkNotNull(data);
+    final ByteBuffer newData = ByteBuffer.allocateDirect(newSize).order(ByteOrder.nativeOrder());
+    final int restorePosition = data.position();
+    data.position(0);
+    newData.put(data);
+    newData.position(restorePosition);
+    newData.limit(newSize);
+    data = newData;
+    return newData;
   }
 
   @Override
