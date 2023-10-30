@@ -18,8 +18,10 @@ package androidx.media3.datasource;
 import static androidx.media3.common.util.Util.castNonNull;
 import static java.lang.Math.min;
 
+import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.Resources;
 import android.net.Uri;
@@ -36,19 +38,25 @@ import java.io.InputStream;
 import java.nio.channels.FileChannel;
 
 /**
- * A {@link DataSource} for reading a raw resource inside the APK.
+ * A {@link DataSource} for reading a raw resource.
  *
  * <p>URIs supported by this source are of one of the forms:
  *
  * <ul>
- *   <li>{@code rawresource:///id}, where {@code id} is the integer identifier of a raw resource.
+ *   <li>{@code rawresource:///id}, where {@code id} is the integer identifier of a raw resource in
+ *       this application.
  *   <li>{@code android.resource:///id}, where {@code id} is the integer identifier of a raw
- *       resource.
+ *       resource in this application.
  *   <li>{@code android.resource://[package]/[type/]name}, where {@code package} is the name of the
  *       package in which the resource is located, {@code type} is the resource type and {@code
  *       name} is the resource name. The package and the type are optional. Their default value is
  *       the package of this application and "raw", respectively. Using the two other forms is more
  *       efficient.
+ *       <ul>
+ *         <li>If {@code package} is specified, it must be <a
+ *             href="https://developer.android.com/training/package-visibility">visible</a> to the
+ *             current application.
+ *       </ul>
  * </ul>
  *
  * <p>URIs of the form {@code android.resource://package/id} are also supported, although the
@@ -101,8 +109,7 @@ public final class RawResourceDataSource extends BaseDataSource {
   /** The scheme part of a raw resource URI. */
   public static final String RAW_RESOURCE_SCHEME = "rawresource";
 
-  private final Resources resources;
-  private final String packageName;
+  private final Context applicationContext;
 
   @Nullable private Uri uri;
   @Nullable private AssetFileDescriptor assetFileDescriptor;
@@ -115,8 +122,7 @@ public final class RawResourceDataSource extends BaseDataSource {
    */
   public RawResourceDataSource(Context context) {
     super(/* isNetwork= */ false);
-    this.resources = context.getResources();
-    this.packageName = context.getPackageName();
+    this.applicationContext = context.getApplicationContext();
   }
 
   @Override
@@ -124,11 +130,13 @@ public final class RawResourceDataSource extends BaseDataSource {
     Uri uri = dataSpec.uri.normalizeScheme();
     this.uri = uri;
 
+    Resources resources;
     int resourceId;
     if (TextUtils.equals(RAW_RESOURCE_SCHEME, uri.getScheme())
         || (TextUtils.equals(ContentResolver.SCHEME_ANDROID_RESOURCE, uri.getScheme())
             && uri.getPathSegments().size() == 1
             && Assertions.checkNotNull(uri.getLastPathSegment()).matches("\\d+"))) {
+      resources = applicationContext.getResources();
       try {
         resourceId = Integer.parseInt(Assertions.checkNotNull(uri.getLastPathSegment()));
       } catch (NumberFormatException e) {
@@ -142,12 +150,31 @@ public final class RawResourceDataSource extends BaseDataSource {
       if (path.startsWith("/")) {
         path = path.substring(1);
       }
-      @Nullable String host = uri.getHost();
-      String resourceName = (TextUtils.isEmpty(host) ? "" : (host + ":")) + path;
-      resourceId =
+      String packageName =
+          TextUtils.isEmpty(uri.getHost()) ? applicationContext.getPackageName() : uri.getHost();
+      if (packageName.equals(applicationContext.getPackageName())) {
+        resources = applicationContext.getResources();
+      } else {
+        try {
+          resources =
+              applicationContext.getPackageManager().getResourcesForApplication(packageName);
+        } catch (PackageManager.NameNotFoundException e) {
+          throw new RawResourceDataSourceException(
+              "Package in "
+                  + ContentResolver.SCHEME_ANDROID_RESOURCE
+                  + ":// URI not found. Check http://g.co/dev/packagevisibility.",
+              e,
+              PlaybackException.ERROR_CODE_IO_FILE_NOT_FOUND);
+        }
+      }
+      // The javadoc of this class already discourages the URI form that requires this API call.
+      @SuppressLint("DiscouragedApi")
+      int resourceIdFromName =
           resources.getIdentifier(
-              resourceName, /* defType= */ "raw", /* defPackage= */ packageName);
-      if (resourceId == 0) {
+              packageName + ":" + path, /* defType= */ "raw", /* defPackage= */ null);
+      if (resourceIdFromName != 0) {
+        resourceId = resourceIdFromName;
+      } else {
         throw new RawResourceDataSourceException(
             "Resource not found.",
             /* cause= */ null,

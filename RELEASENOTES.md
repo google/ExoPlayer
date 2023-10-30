@@ -3,6 +3,10 @@
 ### Unreleased changes
 
 *   Common Library:
+    *   Implement support for `android.resource://package/[type/]name` raw
+        resource URIs where `package` is different to the package of the current
+        application. This has always been documented to work, but wasn't
+        correctly implemented until now.
 *   ExoPlayer:
     *   Add `PreloadMediaSource` and `PreloadMediaPeriod` that allows apps to
         preload the media source at a specific start position before playback,
