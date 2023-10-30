@@ -59,7 +59,7 @@
 ### 1.2.0-rc01 (2023-11-01)
 
 This release includes the following changes since the
-[1.2.0-beta01 release](#120-beta01-2023-10-18)):
+[1.2.0-beta01 release](#120-beta01-2023-10-18):
 
 *   ExoPlayer:
     *   Add luma and chroma bitdepth to `ColorInfo`
@@ -112,7 +112,7 @@ This release includes the following changes since the
 ### 1.2.0-beta01 (2023-10-18)
 
 This release includes the following changes since the
-[1.2.0-alpha02 release](#120-alpha02-2023-09-29)):
+[1.2.0-alpha02 release](#120-alpha02-2023-09-29):
 
 *   Audio:
     *   Add `onAudioTrackInitialized` and `onAudioTrackReleased` callbacks to
@@ -142,7 +142,7 @@ This release includes the following changes since the
 ### 1.2.0-alpha02 (2023-09-29)
 
 This release includes the following changes since the
-[1.2.0-alpha01 release](#120-alpha01-2023-08-17)):
+[1.2.0-alpha01 release](#120-alpha01-2023-08-17):
 
 *   Common Library:
     *   Upgrade `androidx.annotation:annotation-experimental` to `1.3.1`. This
@@ -238,7 +238,7 @@ This release includes the following changes since the
 ### 1.2.0-alpha01 (2023-08-17)
 
 This release includes the following changes since the
-[1.1.1 release](#111-2023-08-14)):
+[1.1.1 release](#111-2023-08-14):
 
 *   Common Library:
     *   Add a `@Nullable Throwable` parameter to the methods in the `Log.Logger`
