@@ -51,14 +51,16 @@ public class SimpleDecoderOutputBuffer extends DecoderOutputBuffer {
   }
 
   /**
-   * Reallocates the buffer with new size
-   * Existing data between beginning of the buffer and {@link ByteBuffer#limit} is copied to the new buffer,
-   * and {@link ByteBuffer#position} is preserved. {@link ByteBuffer#limit} is set to the new size.
-   * @param newSize New size of buffer.
+   * Grows the buffer with to a new size.
+   *
+   * <p>Existing data is copied to the new buffer, and {@link ByteBuffer#position} is preserved.
+   *
+   * @param newSize New size of the buffer.
    * @return The {@link #data} buffer, for convenience.
    */
   public ByteBuffer grow(int newSize) {
     Assertions.checkNotNull(data);
+    Assertions.checkArgument(newSize >= data.limit());
     final ByteBuffer newData = ByteBuffer.allocateDirect(newSize).order(ByteOrder.nativeOrder());
     final int restorePosition = data.position();
     data.position(0);
