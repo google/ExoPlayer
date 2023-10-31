@@ -59,15 +59,15 @@ public class SimpleDecoderOutputBuffer extends DecoderOutputBuffer {
    * @return The {@link #data} buffer, for convenience.
    */
   public ByteBuffer grow(int newSize) {
-    Assertions.checkNotNull(data);
-    Assertions.checkArgument(newSize >= data.limit());
-    final ByteBuffer newData = ByteBuffer.allocateDirect(newSize).order(ByteOrder.nativeOrder());
-    final int restorePosition = data.position();
-    data.position(0);
-    newData.put(data);
+    ByteBuffer oldData = Assertions.checkNotNull(this.data);
+    Assertions.checkArgument(newSize >= oldData.limit());
+    ByteBuffer newData = ByteBuffer.allocateDirect(newSize).order(ByteOrder.nativeOrder());
+    int restorePosition = oldData.position();
+    oldData.position(0);
+    newData.put(oldData);
     newData.position(restorePosition);
     newData.limit(newSize);
-    data = newData;
+    this.data = newData;
     return newData;
   }
 
