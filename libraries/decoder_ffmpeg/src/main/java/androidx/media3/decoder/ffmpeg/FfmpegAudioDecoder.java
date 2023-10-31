@@ -143,9 +143,7 @@ import java.util.List;
   }
 
   // Called from native code
-  /**
-   * @noinspection unused
-   */
+  @SuppressWarnings("unused")
   private ByteBuffer growOutputBuffer(SimpleDecoderOutputBuffer outputBuffer, int requiredSize) {
     // Use it for new buffer so that hopefully we won't need to reallocate again
     outputBufferSize = requiredSize;
