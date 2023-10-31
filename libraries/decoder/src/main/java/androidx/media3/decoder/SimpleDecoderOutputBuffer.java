@@ -51,7 +51,7 @@ public class SimpleDecoderOutputBuffer extends DecoderOutputBuffer {
   }
 
   /**
-   * Grows the buffer with to a new size.
+   * Grows the buffer to a new size.
    *
    * <p>Existing data is copied to the new buffer, and {@link ByteBuffer#position} is preserved.
    *
