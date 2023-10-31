@@ -253,37 +253,7 @@ public final class ColorInfo implements Bundleable {
   // Lazily initialized hashcode.
   private int hashCode;
 
-  /**
-   * Constructs the ColorInfo.
-   *
-   * @param colorSpace The color space of the video.
-   * @param colorRange The color range of the video.
-   * @param colorTransfer The color transfer characteristics of the video.
-   * @param hdrStaticInfo HdrStaticInfo as defined in CTA-861.3, or null if none specified.
-   * @deprecated Use {@link Builder}.
-   */
-  @Deprecated
-  public ColorInfo(
-      @C.ColorSpace int colorSpace,
-      @C.ColorRange int colorRange,
-      @C.ColorTransfer int colorTransfer,
-      @Nullable byte[] hdrStaticInfo) {
-    this(colorSpace, colorRange, colorTransfer, hdrStaticInfo, Format.NO_VALUE, Format.NO_VALUE);
-  }
-
-  /**
-   * Constructs the ColorInfo.
-   *
-   * @param colorSpace The color space of the video.
-   * @param colorRange The color range of the video.
-   * @param colorTransfer The color transfer characteristics of the video.
-   * @param hdrStaticInfo HdrStaticInfo as defined in CTA-861.3, or null if none specified.
-   * @param lumaBitdepth The bit depth of the luma samples of the video.
-   * @param chromaBitdepth The bit depth of the chroma samples of the video.
-   * @deprecated Use {@link Builder}.
-   */
-  @Deprecated
-  public ColorInfo(
+  private ColorInfo(
       @C.ColorSpace int colorSpace,
       @C.ColorRange int colorRange,
       @C.ColorTransfer int colorTransfer,
