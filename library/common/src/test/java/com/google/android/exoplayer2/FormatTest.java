@@ -78,13 +78,14 @@ public final class FormatTest {
     Metadata metadata = new Metadata(new FakeMetadataEntry("id1"), new FakeMetadataEntry("id2"));
 
     ColorInfo colorInfo =
-        new ColorInfo(
-            C.COLOR_SPACE_BT709,
-            C.COLOR_RANGE_LIMITED,
-            C.COLOR_TRANSFER_SDR,
-            new byte[] {1, 2, 3, 4, 5, 6, 7},
-            /* lumaBitdepth */ 9,
-            /* chromaBitdepth */ 11);
+        new ColorInfo.Builder()
+            .setColorSpace(C.COLOR_SPACE_BT709)
+            .setColorRange(C.COLOR_RANGE_LIMITED)
+            .setColorTransfer(C.COLOR_TRANSFER_SDR)
+            .setHdrStaticInfo(new byte[] {1, 2, 3, 4, 5, 6, 7})
+            .setLumaBitdepth(9)
+            .setChromaBitdepth(11)
+            .build();
 
     return new Format.Builder()
         .setId("id")
