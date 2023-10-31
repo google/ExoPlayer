@@ -24,7 +24,9 @@
         video track are available. The default value is `false` which means
         selecting a video track is prioritized.
 *   Extractors:
-    *   Add AV1C parsing to MP4 extractor
+    *   Add additional AV1C parsing to MP4 extractor to retrieve
+        `ColorInfo.colorSpace`, `ColorInfo.colorTransfer`, and
+        `ColorInfo.colorRange` values
         ([#692](https://github.com/androidx/media/pull/692)).
 *   Audio:
 *   Video:
