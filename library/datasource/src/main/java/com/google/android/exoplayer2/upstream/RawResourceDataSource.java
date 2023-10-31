@@ -115,7 +115,7 @@ public final class RawResourceDataSource extends BaseDataSource {
 
   private final Context applicationContext;
 
-  @Nullable private Uri uri;
+  @Nullable private DataSpec dataSpec;
   @Nullable private AssetFileDescriptor assetFileDescriptor;
   @Nullable private InputStream inputStream;
   private long bytesRemaining;
@@ -131,89 +131,9 @@ public final class RawResourceDataSource extends BaseDataSource {
 
   @Override
   public long open(DataSpec dataSpec) throws RawResourceDataSourceException {
-    Uri uri = dataSpec.uri.normalizeScheme();
-    this.uri = uri;
-
-    Resources resources;
-    int resourceId;
-    if (TextUtils.equals(RAW_RESOURCE_SCHEME, uri.getScheme())
-        || (TextUtils.equals(ContentResolver.SCHEME_ANDROID_RESOURCE, uri.getScheme())
-            && uri.getPathSegments().size() == 1
-            && Assertions.checkNotNull(uri.getLastPathSegment()).matches("\\d+"))) {
-      resources = applicationContext.getResources();
-      try {
-        resourceId = Integer.parseInt(Assertions.checkNotNull(uri.getLastPathSegment()));
-      } catch (NumberFormatException e) {
-        throw new RawResourceDataSourceException(
-            "Resource identifier must be an integer.",
-            /* cause= */ null,
-            PlaybackException.ERROR_CODE_FAILED_RUNTIME_CHECK);
-      }
-    } else if (TextUtils.equals(ContentResolver.SCHEME_ANDROID_RESOURCE, uri.getScheme())) {
-      String path = Assertions.checkNotNull(uri.getPath());
-      if (path.startsWith("/")) {
-        path = path.substring(1);
-      }
-      String packageName =
-          TextUtils.isEmpty(uri.getHost()) ? applicationContext.getPackageName() : uri.getHost();
-      if (packageName.equals(applicationContext.getPackageName())) {
-        resources = applicationContext.getResources();
-      } else {
-        try {
-          resources =
-              applicationContext.getPackageManager().getResourcesForApplication(packageName);
-        } catch (PackageManager.NameNotFoundException e) {
-          throw new RawResourceDataSourceException(
-              "Package in "
-                  + ContentResolver.SCHEME_ANDROID_RESOURCE
-                  + ":// URI not found. Check http://g.co/dev/packagevisibility.",
-              e,
-              PlaybackException.ERROR_CODE_IO_FILE_NOT_FOUND);
-        }
-      }
-      // The javadoc of this class already discourages the URI form that requires this API call.
-      @SuppressLint("DiscouragedApi")
-      int resourceIdFromName =
-          resources.getIdentifier(
-              packageName + ":" + path, /* defType= */ "raw", /* defPackage= */ null);
-      if (resourceIdFromName != 0) {
-        resourceId = resourceIdFromName;
-      } else {
-        throw new RawResourceDataSourceException(
-            "Resource not found.",
-            /* cause= */ null,
-            PlaybackException.ERROR_CODE_IO_FILE_NOT_FOUND);
-      }
-    } else {
-      throw new RawResourceDataSourceException(
-          "Unsupported URI scheme ("
-              + uri.getScheme()
-              + "). Only "
-              + RAW_RESOURCE_SCHEME
-              + " and "
-              + ContentResolver.SCHEME_ANDROID_RESOURCE
-              + " are supported.",
-          /* cause= */ null,
-          PlaybackException.ERROR_CODE_FAILED_RUNTIME_CHECK);
-    }
-
+    this.dataSpec = dataSpec;
     transferInitializing(dataSpec);
-
-    AssetFileDescriptor assetFileDescriptor;
-    try {
-      assetFileDescriptor = resources.openRawResourceFd(resourceId);
-    } catch (Resources.NotFoundException e) {
-      throw new RawResourceDataSourceException(
-          /* message= */ null, e, PlaybackException.ERROR_CODE_IO_FILE_NOT_FOUND);
-    }
-
-    this.assetFileDescriptor = assetFileDescriptor;
-    if (assetFileDescriptor == null) {
-      throw new RawResourceDataSourceException(
-          "Resource is compressed: " + uri,
-          /* cause= */ null,
-          PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
-    }
+    assetFileDescriptor = openAssetFileDescriptor(applicationContext, dataSpec);
 
     long assetFileDescriptorLength = assetFileDescriptor.getLength();
     FileInputStream inputStream = new FileInputStream(assetFileDescriptor.getFileDescriptor());
@@ -283,6 +203,93 @@ public final class RawResourceDataSource extends BaseDataSource {
     return dataSpec.length != C.LENGTH_UNSET ? dataSpec.length : bytesRemaining;
   }
 
+  /** Resolves {@code dataSpec.uri} to an {@link AssetFileDescriptor}. */
+  private static AssetFileDescriptor openAssetFileDescriptor(
+      Context applicationContext, DataSpec dataSpec) throws RawResourceDataSourceException {
+    Uri normalizedUri = dataSpec.uri.normalizeScheme();
+    Resources resources;
+    int resourceId;
+    if (TextUtils.equals(RAW_RESOURCE_SCHEME, normalizedUri.getScheme())
+        || (TextUtils.equals(ContentResolver.SCHEME_ANDROID_RESOURCE, normalizedUri.getScheme())
+            && normalizedUri.getPathSegments().size() == 1
+            && Assertions.checkNotNull(normalizedUri.getLastPathSegment()).matches("\\d+"))) {
+      resources = applicationContext.getResources();
+      try {
+        resourceId = Integer.parseInt(Assertions.checkNotNull(normalizedUri.getLastPathSegment()));
+      } catch (NumberFormatException e) {
+        throw new RawResourceDataSourceException(
+            "Resource identifier must be an integer.",
+            /* cause= */ null,
+            PlaybackException.ERROR_CODE_FAILED_RUNTIME_CHECK);
+      }
+    } else if (TextUtils.equals(
+        ContentResolver.SCHEME_ANDROID_RESOURCE, normalizedUri.getScheme())) {
+      String path = Assertions.checkNotNull(normalizedUri.getPath());
+      if (path.startsWith("/")) {
+        path = path.substring(1);
+      }
+      String packageName =
+          TextUtils.isEmpty(normalizedUri.getHost())
+              ? applicationContext.getPackageName()
+              : normalizedUri.getHost();
+      if (packageName.equals(applicationContext.getPackageName())) {
+        resources = applicationContext.getResources();
+      } else {
+        try {
+          resources =
+              applicationContext.getPackageManager().getResourcesForApplication(packageName);
+        } catch (PackageManager.NameNotFoundException e) {
+          throw new RawResourceDataSourceException(
+              "Package in "
+                  + ContentResolver.SCHEME_ANDROID_RESOURCE
+                  + ":// URI not found. Check http://g.co/dev/packagevisibility.",
+              e,
+              PlaybackException.ERROR_CODE_IO_FILE_NOT_FOUND);
+        }
+      }
+      // The javadoc of this class already discourages the URI form that requires this API call.
+      @SuppressLint("DiscouragedApi")
+      int resourceIdFromName =
+          resources.getIdentifier(
+              packageName + ":" + path, /* defType= */ "raw", /* defPackage= */ null);
+      if (resourceIdFromName != 0) {
+        resourceId = resourceIdFromName;
+      } else {
+        throw new RawResourceDataSourceException(
+            "Resource not found.",
+            /* cause= */ null,
+            PlaybackException.ERROR_CODE_IO_FILE_NOT_FOUND);
+      }
+    } else {
+      throw new RawResourceDataSourceException(
+          "Unsupported URI scheme ("
+              + normalizedUri.getScheme()
+              + "). Only "
+              + RAW_RESOURCE_SCHEME
+              + " and "
+              + ContentResolver.SCHEME_ANDROID_RESOURCE
+              + " are supported.",
+          /* cause= */ null,
+          PlaybackException.ERROR_CODE_FAILED_RUNTIME_CHECK);
+    }
+
+    AssetFileDescriptor assetFileDescriptor;
+    try {
+      assetFileDescriptor = resources.openRawResourceFd(resourceId);
+    } catch (Resources.NotFoundException e) {
+      throw new RawResourceDataSourceException(
+          /* message= */ null, e, PlaybackException.ERROR_CODE_IO_FILE_NOT_FOUND);
+    }
+
+    if (assetFileDescriptor == null) {
+      throw new RawResourceDataSourceException(
+          "Resource is compressed: " + normalizedUri,
+          /* cause= */ null,
+          PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
+    }
+    return assetFileDescriptor;
+  }
+
   @Override
   public int read(byte[] buffer, int offset, int length) throws RawResourceDataSourceException {
     if (length == 0) {
@@ -321,13 +328,13 @@ public final class RawResourceDataSource extends BaseDataSource {
   @Override
   @Nullable
   public Uri getUri() {
-    return uri;
+    return dataSpec != null ? dataSpec.uri : null;
   }
 
   @SuppressWarnings("Finally")
   @Override
   public void close() throws RawResourceDataSourceException {
-    uri = null;
+    dataSpec = null;
     try {
       if (inputStream != null) {
         inputStream.close();
