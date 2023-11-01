@@ -593,6 +593,11 @@ public class DashManifestParser extends DefaultHandler
             }
             data = PsshAtomUtil.buildPsshAtom(C.COMMON_PSSH_UUID, defaultKids, null);
             uuid = C.COMMON_PSSH_UUID;
+          } else {
+            Log.w(
+                TAG,
+                "Ignoring <ContentProtection> with schemeIdUri=\"urn:mpeg:dash:mp4protection:2011\""
+                    + " (ClearKey) due to missing required default_KID attribute.");
           }
           break;
         case "urn:uuid:9a04f079-9840-4286-ab92-e65be0885f95":
