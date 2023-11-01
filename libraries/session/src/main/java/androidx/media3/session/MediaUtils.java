@@ -99,6 +99,7 @@ import androidx.media3.common.util.Util;
 import androidx.media3.session.MediaLibraryService.LibraryParams;
 import androidx.media3.session.PlayerInfo.BundlingExclusions;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -118,6 +119,41 @@ import java.util.concurrent.TimeoutException;
   // Stub BrowserRoot for accepting any connection here.
   public static final BrowserRoot defaultBrowserRoot =
       new BrowserRoot(MediaLibraryService.SERVICE_INTERFACE, null);
+
+  public static final ImmutableSet<String> KNOWN_METADATA_COMPAT_KEYS =
+      ImmutableSet.of(
+          MediaMetadataCompat.METADATA_KEY_TITLE,
+          MediaMetadataCompat.METADATA_KEY_ARTIST,
+          MediaMetadataCompat.METADATA_KEY_DURATION,
+          MediaMetadataCompat.METADATA_KEY_ALBUM,
+          MediaMetadataCompat.METADATA_KEY_AUTHOR,
+          MediaMetadataCompat.METADATA_KEY_WRITER,
+          MediaMetadataCompat.METADATA_KEY_COMPOSER,
+          MediaMetadataCompat.METADATA_KEY_COMPILATION,
+          MediaMetadataCompat.METADATA_KEY_DATE,
+          MediaMetadataCompat.METADATA_KEY_YEAR,
+          MediaMetadataCompat.METADATA_KEY_GENRE,
+          MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER,
+          MediaMetadataCompat.METADATA_KEY_NUM_TRACKS,
+          MediaMetadataCompat.METADATA_KEY_DISC_NUMBER,
+          MediaMetadataCompat.METADATA_KEY_ALBUM_ARTIST,
+          MediaMetadataCompat.METADATA_KEY_ART,
+          MediaMetadataCompat.METADATA_KEY_ART_URI,
+          MediaMetadataCompat.METADATA_KEY_ALBUM_ART,
+          MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI,
+          MediaMetadataCompat.METADATA_KEY_USER_RATING,
+          MediaMetadataCompat.METADATA_KEY_RATING,
+          MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE,
+          MediaMetadataCompat.METADATA_KEY_DISPLAY_SUBTITLE,
+          MediaMetadataCompat.METADATA_KEY_DISPLAY_DESCRIPTION,
+          MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON,
+          MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON_URI,
+          MediaMetadataCompat.METADATA_KEY_MEDIA_ID,
+          MediaMetadataCompat.METADATA_KEY_MEDIA_URI,
+          MediaMetadataCompat.METADATA_KEY_BT_FOLDER_TYPE,
+          MediaMetadataCompat.METADATA_KEY_ADVERTISEMENT,
+          MediaMetadataCompat.METADATA_KEY_DOWNLOAD_STATUS,
+          MediaConstants.EXTRAS_KEY_MEDIA_TYPE_COMPAT);
 
   /** Returns whether two {@link PlaybackStateCompat} have equal error. */
   public static boolean areEqualError(
@@ -509,6 +545,14 @@ import java.util.concurrent.TimeoutException;
     }
 
     builder.setIsPlayable(true);
+
+    Bundle extras = metadataCompat.getBundle();
+    for (String key : KNOWN_METADATA_COMPAT_KEYS) {
+      extras.remove(key);
+    }
+    if (!extras.isEmpty()) {
+      builder.setExtras(extras);
+    }
 
     return builder.build();
   }

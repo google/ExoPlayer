@@ -31,6 +31,9 @@
 *   Muxers:
 *   IMA extension:
 *   Session:
+    *   Put the custom keys and values in `MediaMetadataCompat` to
+        `MediaMetadata.extras`
+        ([#756](https://github.com/androidx/media/issues/756)).
 *   UI:
 *   Downloads:
 *   OkHttp Extension:

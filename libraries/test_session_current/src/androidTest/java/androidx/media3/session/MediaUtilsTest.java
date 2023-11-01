@@ -22,6 +22,7 @@ import static androidx.media.utils.MediaConstants.BROWSER_ROOT_HINTS_KEY_ROOT_CH
 import static androidx.media3.common.MimeTypes.AUDIO_AAC;
 import static androidx.media3.common.MimeTypes.VIDEO_H264;
 import static androidx.media3.common.MimeTypes.VIDEO_H265;
+import static androidx.media3.session.MediaConstants.EXTRAS_KEY_MEDIA_TYPE_COMPAT;
 import static androidx.media3.session.MediaConstants.EXTRA_KEY_ROOT_CHILDREN_BROWSABLE_ONLY;
 import static androidx.media3.test.session.common.TestUtils.getCommandsAsList;
 import static com.google.common.truth.Truth.assertThat;
@@ -164,10 +165,7 @@ public final class MediaUtilsTest {
     assertThat(descriptionCompat.getMediaId()).isEqualTo(mediaId);
     assertThat(descriptionCompat.getTitle().toString()).isEqualTo(title);
     assertThat(descriptionCompat.getDescription().toString()).isEqualTo(description);
-    assertThat(
-            descriptionCompat
-                .getExtras()
-                .getLong(androidx.media3.session.MediaConstants.EXTRAS_KEY_MEDIA_TYPE_COMPAT))
+    assertThat(descriptionCompat.getExtras().getLong(EXTRAS_KEY_MEDIA_TYPE_COMPAT))
         .isEqualTo(MediaMetadata.MEDIA_TYPE_MUSIC);
   }
 
@@ -206,6 +204,25 @@ public final class MediaUtilsTest {
   public void convertToMediaMetadata_withTitle() {
     String title = "title";
     assertThat(MediaUtils.convertToMediaMetadata(title).title.toString()).isEqualTo(title);
+  }
+
+  @Test
+  public void convertToMediaMetadata_withCustomKey() {
+    MediaMetadataCompat.Builder builder = new MediaMetadataCompat.Builder();
+    builder.putString(MediaMetadataCompat.METADATA_KEY_TITLE, "title");
+    builder.putLong(EXTRAS_KEY_MEDIA_TYPE_COMPAT, (long) MediaMetadata.MEDIA_TYPE_MUSIC);
+    builder.putString("custom_key", "value");
+    MediaMetadataCompat testMediaMetadataCompat = builder.build();
+
+    MediaMetadata mediaMetadata =
+        MediaUtils.convertToMediaMetadata(testMediaMetadataCompat, RatingCompat.RATING_NONE);
+
+    assertThat(mediaMetadata.title.toString()).isEqualTo("title");
+    assertThat(mediaMetadata.mediaType).isEqualTo(MediaMetadata.MEDIA_TYPE_MUSIC);
+    assertThat(mediaMetadata.extras).isNotNull();
+    assertThat(mediaMetadata.extras.getString("custom_key")).isEqualTo("value");
+    assertThat(mediaMetadata.extras.containsKey(MediaMetadataCompat.METADATA_KEY_TITLE)).isFalse();
+    assertThat(mediaMetadata.extras.containsKey(EXTRAS_KEY_MEDIA_TYPE_COMPAT)).isFalse();
   }
 
   @Test
@@ -272,9 +289,7 @@ public final class MediaUtilsTest {
             /* durationMs= */ C.TIME_UNSET,
             /* artworkBitmap= */ null);
 
-    assertThat(
-            mediaMetadataCompat.getLong(
-                androidx.media3.session.MediaConstants.EXTRAS_KEY_MEDIA_TYPE_COMPAT))
+    assertThat(mediaMetadataCompat.getLong(EXTRAS_KEY_MEDIA_TYPE_COMPAT))
         .isEqualTo(MediaMetadata.MEDIA_TYPE_MUSIC);
   }
 
