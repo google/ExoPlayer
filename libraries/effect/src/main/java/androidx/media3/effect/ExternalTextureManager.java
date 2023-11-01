@@ -41,7 +41,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Forwards externally produced frames that become available via a {@link SurfaceTexture} to an
  * {@link ExternalShaderProgram} for consumption.
  */
-/* package */ final class ExternalTextureManager implements TextureManager {
+/* package */ final class ExternalTextureManager extends TextureManager {
 
   private static final String TAG = "ExtTexMgr";
   private static final String TIMER_THREAD_NAME = "ExtTexMgr:Timer";
@@ -62,7 +62,6 @@ import java.util.concurrent.atomic.AtomicInteger;
           : 500;
 
   private final GlObjectsProvider glObjectsProvider;
-  private final VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor;
   private final ExternalShaderProgram externalShaderProgram;
   private final int externalTexId;
   private final Surface surface;
@@ -87,8 +86,6 @@ import java.util.concurrent.atomic.AtomicInteger;
   // Set to null on any thread. Read and set to non-null on the GL thread only.
   @Nullable private volatile FrameInfo currentFrame;
 
-  // TODO(b/238302341) Remove the use of after flush task, block the calling thread instead.
-  @Nullable private volatile VideoFrameProcessingTaskExecutor.Task onFlushCompleteTask;
   @Nullable private Future<?> forceSignalEndOfStreamFuture;
 
   // Whether to reject frames from the SurfaceTexture. Accessed only on GL thread.
@@ -110,9 +107,9 @@ import java.util.concurrent.atomic.AtomicInteger;
       ExternalShaderProgram externalShaderProgram,
       VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor)
       throws VideoFrameProcessingException {
+    super(videoFrameProcessingTaskExecutor);
     this.glObjectsProvider = glObjectsProvider;
     this.externalShaderProgram = externalShaderProgram;
-    this.videoFrameProcessingTaskExecutor = videoFrameProcessingTaskExecutor;
     try {
       externalTexId = GlUtil.createExternalTexture();
     } catch (GlUtil.GlException e) {
@@ -187,16 +184,6 @@ import java.util.concurrent.atomic.AtomicInteger;
         });
   }
 
-  @Override
-  public void setOnFlushCompleteListener(@Nullable VideoFrameProcessingTaskExecutor.Task task) {
-    onFlushCompleteTask = task;
-  }
-
-  @Override
-  public void onFlush() {
-    videoFrameProcessingTaskExecutor.submit(this::flush);
-  }
-
   /**
    * Notifies the {@code ExternalTextureManager} that a frame with the given {@link FrameInfo} will
    * become available via the {@link SurfaceTexture} eventually.
@@ -245,10 +232,10 @@ import java.util.concurrent.atomic.AtomicInteger;
   }
 
   private void maybeExecuteAfterFlushTask() {
-    if (onFlushCompleteTask == null || numberOfFramesToDropOnBecomingAvailable > 0) {
+    if (numberOfFramesToDropOnBecomingAvailable > 0) {
       return;
     }
-    videoFrameProcessingTaskExecutor.submitWithHighPriority(onFlushCompleteTask);
+    super.flush();
   }
 
   // Methods that must be called on the GL thread.
@@ -290,7 +277,8 @@ import java.util.concurrent.atomic.AtomicInteger;
     signalEndOfCurrentInputStream();
   }
 
-  private void flush() {
+  @Override
+  protected void flush() {
     // A frame that is registered before flush may arrive after flush.
     numberOfFramesToDropOnBecomingAvailable = pendingFrames.size() - availableFrameCount;
     removeAllSurfaceTextureFrames();

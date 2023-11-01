@@ -22,7 +22,6 @@ import static androidx.media3.common.util.Assertions.checkState;
 import android.graphics.Bitmap;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
-import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.FrameInfo;
 import androidx.media3.common.GlObjectsProvider;
@@ -43,7 +42,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * <p>Public methods in this class can be called from any thread.
  */
 @UnstableApi
-/* package */ final class BitmapTextureManager implements TextureManager {
+/* package */ final class BitmapTextureManager extends TextureManager {
 
   private static final String UNSUPPORTED_IMAGE_CONFIGURATION =
       "Unsupported Image Configuration: No more than 8 bits of precision should be used for each"
@@ -51,7 +50,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   private final GlObjectsProvider glObjectsProvider;
   private final GlShaderProgram shaderProgram;
-  private final VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor;
   // The queue holds all bitmaps with one or more frames pending to be sent downstream.
   private final Queue<BitmapFrameSequenceInfo> pendingBitmaps;
 
@@ -60,8 +58,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private boolean useHdr;
   private boolean currentInputStreamEnded;
   private boolean isNextFrameInTexture;
-
-  @Nullable private volatile VideoFrameProcessingTaskExecutor.Task onFlushCompleteTask;
 
   /**
    * Creates a new instance.
@@ -76,9 +72,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       GlObjectsProvider glObjectsProvider,
       GlShaderProgram shaderProgram,
       VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor) {
+    super(videoFrameProcessingTaskExecutor);
     this.glObjectsProvider = glObjectsProvider;
     this.shaderProgram = shaderProgram;
-    this.videoFrameProcessingTaskExecutor = videoFrameProcessingTaskExecutor;
     pendingBitmaps = new LinkedBlockingQueue<>();
   }
 
@@ -89,11 +85,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           downstreamShaderProgramCapacity++;
           maybeQueueToShaderProgram();
         });
-  }
-
-  @Override
-  public void onFlush() {
-    videoFrameProcessingTaskExecutor.submit(this::flush);
   }
 
   @Override
@@ -127,11 +118,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             currentInputStreamEnded = true;
           }
         });
-  }
-
-  @Override
-  public void setOnFlushCompleteListener(@Nullable VideoFrameProcessingTaskExecutor.Task task) {
-    onFlushCompleteTask = task;
   }
 
   @Override
@@ -199,11 +185,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
   }
 
-  private void flush() {
+  @Override
+  protected void flush() {
     pendingBitmaps.clear();
-    if (onFlushCompleteTask != null) {
-      videoFrameProcessingTaskExecutor.submitWithHighPriority(onFlushCompleteTask);
-    }
+    super.flush();
   }
 
   /** Information needed to generate all the frames associated with a specific {@link Bitmap}. */

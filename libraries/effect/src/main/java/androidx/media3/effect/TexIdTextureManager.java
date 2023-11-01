@@ -18,13 +18,11 @@ package androidx.media3.effect;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 
 import android.opengl.GLES10;
-import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.FrameInfo;
 import androidx.media3.common.GlObjectsProvider;
 import androidx.media3.common.GlTextureInfo;
 import androidx.media3.common.OnInputFrameProcessedListener;
-import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.util.GlUtil;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
@@ -34,8 +32,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  *
  * <p>Public methods in this class can be called from any thread.
  */
-/* package */ final class TexIdTextureManager implements TextureManager {
-  private final VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor;
+/* package */ final class TexIdTextureManager extends TextureManager {
   private final FrameConsumptionManager frameConsumptionManager;
 
   private @MonotonicNonNull OnInputFrameProcessedListener frameProcessedListener;
@@ -53,7 +50,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       GlObjectsProvider glObjectsProvider,
       GlShaderProgram shaderProgram,
       VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor) {
-    this.videoFrameProcessingTaskExecutor = videoFrameProcessingTaskExecutor;
+    super(videoFrameProcessingTaskExecutor);
     frameConsumptionManager =
         new FrameConsumptionManager(
             glObjectsProvider, shaderProgram, videoFrameProcessingTaskExecutor);
@@ -70,11 +67,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         () ->
             checkNotNull(frameProcessedListener)
                 .onInputFrameProcessed(inputTexture.texId, GlUtil.createGlSyncFence()));
-  }
-
-  @Override
-  public void onFlush() {
-    videoFrameProcessingTaskExecutor.submit(frameConsumptionManager::onFlush);
   }
 
   @Override
@@ -124,12 +116,15 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   @Override
-  public void setOnFlushCompleteListener(@Nullable VideoFrameProcessingTaskExecutor.Task task) {
+  public void release() {
     // Do nothing.
   }
 
+  // Methods that must be called on the GL thread.
+
   @Override
-  public void release() throws VideoFrameProcessingException {
-    // Do nothing.
+  protected synchronized void flush() {
+    frameConsumptionManager.onFlush();
+    super.flush();
   }
 }
