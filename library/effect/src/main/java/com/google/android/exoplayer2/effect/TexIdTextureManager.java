@@ -18,14 +18,12 @@ package com.google.android.exoplayer2.effect;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 
 import android.opengl.GLES10;
-import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.FrameInfo;
 import com.google.android.exoplayer2.util.GlObjectsProvider;
 import com.google.android.exoplayer2.util.GlTextureInfo;
 import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.OnInputFrameProcessedListener;
-import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
@@ -40,8 +38,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  *     migration guide</a> for more details, including a script to help with the migration.
  */
 @Deprecated
-/* package */ final class TexIdTextureManager implements TextureManager {
-  private final VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor;
+/* package */ final class TexIdTextureManager extends TextureManager {
   private final FrameConsumptionManager frameConsumptionManager;
 
   private @MonotonicNonNull OnInputFrameProcessedListener frameProcessedListener;
@@ -59,7 +56,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       GlObjectsProvider glObjectsProvider,
       GlShaderProgram shaderProgram,
       VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor) {
-    this.videoFrameProcessingTaskExecutor = videoFrameProcessingTaskExecutor;
+    super(videoFrameProcessingTaskExecutor);
     frameConsumptionManager =
         new FrameConsumptionManager(
             glObjectsProvider, shaderProgram, videoFrameProcessingTaskExecutor);
@@ -76,11 +73,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         () ->
             checkNotNull(frameProcessedListener)
                 .onInputFrameProcessed(inputTexture.texId, GlUtil.createGlSyncFence()));
-  }
-
-  @Override
-  public void onFlush() {
-    videoFrameProcessingTaskExecutor.submit(frameConsumptionManager::onFlush);
   }
 
   @Override
@@ -130,12 +122,15 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   @Override
-  public void setOnFlushCompleteListener(@Nullable VideoFrameProcessingTaskExecutor.Task task) {
+  public void release() {
     // Do nothing.
   }
 
+  // Methods that must be called on the GL thread.
+
   @Override
-  public void release() throws VideoFrameProcessingException {
-    // Do nothing.
+  protected synchronized void flush() {
+    frameConsumptionManager.onFlush();
+    super.flush();
   }
 }
