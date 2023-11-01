@@ -98,10 +98,10 @@ import java.util.List;
 
   @Override
   public Bundle toBundle() {
-    return toBundle(Integer.MAX_VALUE);
+    return toBundleForRemoteProcess(Integer.MAX_VALUE);
   }
 
-  public Bundle toBundle(int controllerInterfaceVersion) {
+  public Bundle toBundleForRemoteProcess(int controllerInterfaceVersion) {
     Bundle bundle = new Bundle();
     bundle.putInt(FIELD_LIBRARY_VERSION, libraryVersion);
     BundleCompat.putBinder(bundle, FIELD_SESSION_BINDER, sessionBinder.asBinder());
@@ -121,7 +121,7 @@ import java.util.List;
         playerInfo
             .filterByAvailableCommands(
                 intersectedCommands, /* excludeTimeline= */ false, /* excludeTracks= */ false)
-            .toBundle(controllerInterfaceVersion));
+            .toBundleForRemoteProcess(controllerInterfaceVersion));
     bundle.putInt(FIELD_SESSION_INTERFACE_VERSION, sessionInterfaceVersion);
     return bundle;
   }

@@ -540,7 +540,7 @@ import java.util.concurrent.ExecutionException;
                   sequencedFutureManager.obtainNextSequenceNumber(),
                   caller instanceof MediaControllerStub
                       ? state.toBundleInProcess()
-                      : state.toBundle(controllerInfo.getInterfaceVersion()));
+                      : state.toBundleForRemoteProcess(controllerInfo.getInterfaceVersion()));
               connected = true;
             } catch (RemoteException e) {
               // Controller may be died prematurely.
@@ -1985,7 +1985,7 @@ import java.util.concurrent.ExecutionException;
         Bundle playerInfoBundle =
             iController instanceof MediaControllerStub
                 ? filteredPlayerInfo.toBundleInProcess()
-                : filteredPlayerInfo.toBundle(controllerInterfaceVersion);
+                : filteredPlayerInfo.toBundleForRemoteProcess(controllerInterfaceVersion);
         iController.onPlayerInfoChangedWithExclusions(
             sequenceNumber,
             playerInfoBundle,
@@ -1998,7 +1998,7 @@ import java.util.concurrent.ExecutionException;
         //noinspection deprecation
         iController.onPlayerInfoChanged(
             sequenceNumber,
-            filteredPlayerInfo.toBundle(controllerInterfaceVersion),
+            filteredPlayerInfo.toBundleForRemoteProcess(controllerInterfaceVersion),
             bundlingExclusionsTimeline);
       }
     }

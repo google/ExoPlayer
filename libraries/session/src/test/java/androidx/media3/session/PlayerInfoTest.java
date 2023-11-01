@@ -651,18 +651,21 @@ public class PlayerInfoTest {
   }
 
   @Test
-  public void toBundle_withDefaultValues_omitsAllData() {
+  public void toBundleForRemoteProcess_withDefaultValues_omitsAllData() {
     Bundle bundle =
-        PlayerInfo.DEFAULT.toBundle(/* controllerInterfaceVersion= */ Integer.MAX_VALUE);
+        PlayerInfo.DEFAULT.toBundleForRemoteProcess(
+            /* controllerInterfaceVersion= */ Integer.MAX_VALUE);
 
     assertThat(bundle.isEmpty()).isTrue();
   }
 
   @Test
-  public void toBundle_withDefaultValuesForControllerInterfaceBefore3_includesPositionInfos() {
+  public void
+      toBundleForRemoteProcess_withDefaultValuesForControllerInterfaceBefore3_includesPositionInfos() {
     // Controller before version 3 uses invalid default values for indices in (Session)PositionInfo.
     // The Bundle should always include these fields to avoid using the invalid defaults.
-    Bundle bundle = PlayerInfo.DEFAULT.toBundle(/* controllerInterfaceVersion= */ 2);
+    Bundle bundle =
+        PlayerInfo.DEFAULT.toBundleForRemoteProcess(/* controllerInterfaceVersion= */ 2);
 
     assertThat(bundle.keySet())
         .containsAtLeast(

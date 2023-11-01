@@ -899,10 +899,10 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
   @Override
   public Bundle toBundle() {
-    return toBundle(Integer.MAX_VALUE);
+    return toBundleForRemoteProcess(Integer.MAX_VALUE);
   }
 
-  public Bundle toBundle(int controllerInterfaceVersion) {
+  public Bundle toBundleForRemoteProcess(int controllerInterfaceVersion) {
     Bundle bundle = new Bundle();
     if (playerError != null) {
       bundle.putBundle(FIELD_PLAYBACK_ERROR, playerError.toBundle());
