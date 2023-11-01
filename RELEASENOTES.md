@@ -46,6 +46,9 @@
 *   HLS Extension:
     *   Reduce `HlsMediaPeriod` to package-private visibility. This type
         shouldn't be directly depended on from outside the HLS package.
+    *   Add experimental support for parsing subtitles during extraction. You
+        can enable this using
+        `HlsMediaSource.Factory.experimentalParseSubtitlesDuringExtraction()`.
 *   DASH Extension:
     *   Extend experimental support for parsing subtitles during extraction to
         work with standalone text files (previously it only worked with

@@ -21,7 +21,9 @@ import android.graphics.SurfaceTexture;
 import android.view.Surface;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.Player;
+import androidx.media3.datasource.DefaultDataSource;
 import androidx.media3.exoplayer.ExoPlayer;
+import androidx.media3.exoplayer.hls.HlsMediaSource;
 import androidx.media3.test.utils.CapturingRenderersFactory;
 import androidx.media3.test.utils.DumpFileAsserts;
 import androidx.media3.test.utils.FakeClock;
@@ -30,7 +32,6 @@ import androidx.media3.test.utils.robolectric.ShadowMediaCodecConfig;
 import androidx.media3.test.utils.robolectric.TestPlayerRunHelper;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,14 +45,15 @@ public final class HlsPlaybackTest {
       ShadowMediaCodecConfig.forAllSupportedMimeTypes();
 
   @Test
-  @Ignore(
-      "Disabled until subtitles are reliably asserted in robolectric tests [internal b/174661563].")
   public void webvttSubtitles() throws Exception {
     Context applicationContext = ApplicationProvider.getApplicationContext();
     CapturingRenderersFactory capturingRenderersFactory =
         new CapturingRenderersFactory(applicationContext);
     ExoPlayer player =
         new ExoPlayer.Builder(applicationContext, capturingRenderersFactory)
+            .setMediaSourceFactory(
+                new HlsMediaSource.Factory(new DefaultDataSource.Factory(applicationContext))
+                    .experimentalParseSubtitlesDuringExtraction(true))
             .setClock(new FakeClock(/* isAutoAdvancing= */ true))
             .build();
     player.setVideoSurface(new Surface(new SurfaceTexture(/* texName= */ 1)));

@@ -97,7 +97,8 @@ public final class HlsMediaPeriodTest {
               HlsMediaSource.METADATA_TYPE_ID3,
               /* useSessionKeys= */ false,
               PlayerId.UNSET,
-              /* timestampAdjusterInitializationTimeoutMs= */ 0);
+              /* timestampAdjusterInitializationTimeoutMs= */ 0,
+              /* subtitleParserFactory= */ null);
         };
 
     MediaPeriodAsserts.assertGetStreamKeysAndManifestFilterIntegration(

@@ -51,6 +51,7 @@ import androidx.media3.exoplayer.upstream.Allocator;
 import androidx.media3.exoplayer.upstream.CmcdConfiguration;
 import androidx.media3.exoplayer.upstream.LoadErrorHandlingPolicy;
 import androidx.media3.extractor.Extractor;
+import androidx.media3.extractor.text.SubtitleParser;
 import com.google.common.primitives.Ints;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -85,6 +86,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final PlayerId playerId;
   private final HlsSampleStreamWrapper.Callback sampleStreamWrapperCallback;
   private final long timestampAdjusterInitializationTimeoutMs;
+  @Nullable private final SubtitleParser.Factory subtitleParserFactory;
 
   @Nullable private MediaPeriod.Callback mediaPeriodCallback;
   private int pendingPrepareCount;
@@ -139,7 +141,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       @HlsMediaSource.MetadataType int metadataType,
       boolean useSessionKeys,
       PlayerId playerId,
-      long timestampAdjusterInitializationTimeoutMs) {
+      long timestampAdjusterInitializationTimeoutMs,
+      @Nullable SubtitleParser.Factory subtitleParserFactory) {
     this.extractorFactory = extractorFactory;
     this.playlistTracker = playlistTracker;
     this.dataSourceFactory = dataSourceFactory;
@@ -164,6 +167,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     sampleStreamWrappers = new HlsSampleStreamWrapper[0];
     enabledSampleStreamWrappers = new HlsSampleStreamWrapper[0];
     manifestUrlIndicesPerWrapper = new int[0][];
+    this.subtitleParserFactory = subtitleParserFactory;
   }
 
   public void release() {
@@ -517,21 +521,43 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     for (int i = 0; i < subtitleRenditions.size(); i++) {
       Rendition subtitleRendition = subtitleRenditions.get(i);
       String sampleStreamWrapperUid = "subtitle:" + i + ":" + subtitleRendition.name;
+      // Format for HlsChunkSource to createExtractor with
+      Format originalSubtitleFormat = subtitleRendition.format;
       HlsSampleStreamWrapper sampleStreamWrapper =
           buildSampleStreamWrapper(
               sampleStreamWrapperUid,
               C.TRACK_TYPE_TEXT,
               new Uri[] {subtitleRendition.url},
-              new Format[] {subtitleRendition.format},
+              new Format[] {originalSubtitleFormat},
               null,
               Collections.emptyList(),
               overridingDrmInitData,
               positionUs);
       manifestUrlIndicesPerWrapper.add(new int[] {i});
       sampleStreamWrappers.add(sampleStreamWrapper);
-      sampleStreamWrapper.prepareWithMultivariantPlaylistInfo(
-          new TrackGroup[] {new TrackGroup(sampleStreamWrapperUid, subtitleRendition.format)},
-          /* primaryTrackGroupIndex= */ 0);
+      if (subtitleParserFactory != null
+          && subtitleParserFactory.supportsFormat(originalSubtitleFormat)) {
+        Format updatedSubtitleFormat =
+            originalSubtitleFormat
+                .buildUpon()
+                .setSampleMimeType(MimeTypes.APPLICATION_MEDIA3_CUES)
+                .setCueReplacementBehavior(
+                    subtitleParserFactory.getCueReplacementBehavior(originalSubtitleFormat))
+                .setCodecs(
+                    originalSubtitleFormat.sampleMimeType
+                        + (originalSubtitleFormat.codecs != null
+                            ? " " + originalSubtitleFormat.codecs
+                            : ""))
+                .setSubsampleOffsetUs(Format.OFFSET_SAMPLE_RELATIVE)
+                .build();
+        sampleStreamWrapper.prepareWithMultivariantPlaylistInfo(
+            new TrackGroup[] {new TrackGroup(sampleStreamWrapperUid, updatedSubtitleFormat)},
+            /* primaryTrackGroupIndex= */ 0);
+      } else {
+        sampleStreamWrapper.prepareWithMultivariantPlaylistInfo(
+            new TrackGroup[] {new TrackGroup(sampleStreamWrapperUid, originalSubtitleFormat)},
+            /* primaryTrackGroupIndex= */ 0);
+      }
     }
 
     this.sampleStreamWrappers = sampleStreamWrappers.toArray(new HlsSampleStreamWrapper[0]);
