@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.text;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Format.CueReplacementBehavior;
+import com.google.android.exoplayer2.text.cea.Cea608Parser;
 import com.google.android.exoplayer2.text.dvb.DvbParser;
 import com.google.android.exoplayer2.text.pgs.PgsParser;
 import com.google.android.exoplayer2.text.ssa.SsaParser;
@@ -43,6 +44,7 @@ import java.util.Objects;
  *   <li>PGS ({@link PgsParser})
  *   <li>DVB ({@link DvbParser})
  *   <li>TTML ({@link TtmlParser})
+ *   <li>CEA-608 ({@link Cea608Parser})
  * </ul>
  *
  * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
@@ -63,7 +65,9 @@ public final class DefaultSubtitleParserFactory implements SubtitleParser.Factor
         || Objects.equals(mimeType, MimeTypes.APPLICATION_TX3G)
         || Objects.equals(mimeType, MimeTypes.APPLICATION_PGS)
         || Objects.equals(mimeType, MimeTypes.APPLICATION_DVBSUBS)
-        || Objects.equals(mimeType, MimeTypes.APPLICATION_TTML);
+        || Objects.equals(mimeType, MimeTypes.APPLICATION_TTML)
+        || Objects.equals(mimeType, MimeTypes.APPLICATION_MP4CEA608)
+        || Objects.equals(mimeType, MimeTypes.APPLICATION_CEA608);
   }
 
   @Override
@@ -87,6 +91,9 @@ public final class DefaultSubtitleParserFactory implements SubtitleParser.Factor
           return DvbParser.CUE_REPLACEMENT_BEHAVIOR;
         case MimeTypes.APPLICATION_TTML:
           return TtmlParser.CUE_REPLACEMENT_BEHAVIOR;
+        case MimeTypes.APPLICATION_MP4CEA608:
+        case MimeTypes.APPLICATION_CEA608:
+          return Cea608Parser.CUE_REPLACEMENT_BEHAVIOR;
         default:
           break;
       }
@@ -115,6 +122,15 @@ public final class DefaultSubtitleParserFactory implements SubtitleParser.Factor
           return new DvbParser(format.initializationData);
         case MimeTypes.APPLICATION_TTML:
           return new TtmlParser();
+        case MimeTypes.APPLICATION_MP4CEA608:
+        case MimeTypes.APPLICATION_CEA608:
+          // Deliberately pass a timeout longer than Cea608Parser.MIN_DATA_CHANNEL_TIMEOUT_MS
+          // because Cea608Parser erases 'stuck' cues starting from their start time, rather than
+          // the last piece of CEA data received.
+          return new Cea608Parser(
+              mimeType,
+              format.accessibilityChannel,
+              /* validDataChannelTimeoutMs= */ 2 * Cea608Parser.MIN_DATA_CHANNEL_TIMEOUT_MS);
         default:
           break;
       }
