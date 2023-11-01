@@ -1808,6 +1808,7 @@ package androidx.media3.session {
     ctor public SessionCommands.Builder();
     method public androidx.media3.session.SessionCommands.Builder add(androidx.media3.session.SessionCommand);
     method public androidx.media3.session.SessionCommands.Builder add(@androidx.media3.session.SessionCommand.CommandCode int);
+    method public androidx.media3.session.SessionCommands.Builder addSessionCommands(java.util.Collection<androidx.media3.session.SessionCommand>);
     method public androidx.media3.session.SessionCommands build();
     method public androidx.media3.session.SessionCommands.Builder remove(androidx.media3.session.SessionCommand);
     method public androidx.media3.session.SessionCommands.Builder remove(@androidx.media3.session.SessionCommand.CommandCode int);

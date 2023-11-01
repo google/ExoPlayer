@@ -82,6 +82,18 @@ public final class SessionCommands implements Bundleable {
     }
 
     /**
+     * Adds all of the commands in the specified collection.
+     *
+     * @param commands collection containing elements to be added to this set
+     * @return This builder for chaining.
+     */
+    @CanIgnoreReturnValue
+    public Builder addSessionCommands(Collection<SessionCommand> commands) {
+      this.commands.addAll(commands);
+      return this;
+    }
+
+    /**
      * Removes a command which matches a given {@link SessionCommand command}.
      *
      * @param command A command to find.
