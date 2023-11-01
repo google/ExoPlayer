@@ -50,6 +50,8 @@ import com.google.android.exoplayer2.source.hls.playlist.FilteringHlsPlaylistPar
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist;
 import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistParserFactory;
 import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker;
+import com.google.android.exoplayer2.text.DefaultSubtitleParserFactory;
+import com.google.android.exoplayer2.text.SubtitleParser;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.CmcdConfiguration;
 import com.google.android.exoplayer2.upstream.DataSource;
@@ -117,6 +119,7 @@ public final class HlsMediaSource extends BaseMediaSource
     @Nullable private CmcdConfiguration.Factory cmcdConfigurationFactory;
     private DrmSessionManagerProvider drmSessionManagerProvider;
     private LoadErrorHandlingPolicy loadErrorHandlingPolicy;
+    @Nullable private SubtitleParser.Factory subtitleParserFactory;
     private boolean allowChunklessPreparation;
     private @MetadataType int metadataType;
     private boolean useSessionKeys;
@@ -199,6 +202,40 @@ public final class HlsMediaSource extends BaseMediaSource
               "MediaSource.Factory#setLoadErrorHandlingPolicy no longer handles null by"
                   + " instantiating a new DefaultLoadErrorHandlingPolicy. Explicitly construct and"
                   + " pass an instance in order to retain the old behavior.");
+      return this;
+    }
+
+    /**
+     * Sets whether subtitles should be parsed as part of extraction (before the sample queue) or as
+     * part of rendering (after the sample queue). Defaults to false (i.e. subtitles will be parsed
+     * as part of rendering).
+     *
+     * <p>This method is experimental. Its default value may change, or it may be renamed or removed
+     * in a future release.
+     *
+     * <p>This method may only be used with {@link DefaultHlsExtractorFactory}.
+     *
+     * @param parseSubtitlesDuringExtraction Whether to parse subtitles during extraction or
+     *     rendering.
+     * @return This factory, for convenience.
+     */
+    // TODO: b/289916598 - Flip the default of this to true (probably wired up to a single method on
+    //  DefaultMediaSourceFactory via the MediaSource.Factory interface).
+    public Factory experimentalParseSubtitlesDuringExtraction(
+        boolean parseSubtitlesDuringExtraction) {
+      if (parseSubtitlesDuringExtraction) {
+        if (subtitleParserFactory == null) {
+          this.subtitleParserFactory = new DefaultSubtitleParserFactory();
+        }
+      } else {
+        this.subtitleParserFactory = null;
+      }
+      if (extractorFactory instanceof DefaultHlsExtractorFactory) {
+        ((DefaultHlsExtractorFactory) extractorFactory)
+            .experimentalSetSubtitleParserFactory(subtitleParserFactory);
+      } else {
+        throw new IllegalStateException();
+      }
       return this;
     }
 
@@ -387,6 +424,7 @@ public final class HlsMediaSource extends BaseMediaSource
           mediaItem,
           hlsDataSourceFactory,
           extractorFactory,
+          subtitleParserFactory,
           compositeSequenceableLoaderFactory,
           cmcdConfiguration,
           drmSessionManagerProvider.get(mediaItem),
@@ -418,6 +456,7 @@ public final class HlsMediaSource extends BaseMediaSource
   private final HlsPlaylistTracker playlistTracker;
   private final long elapsedRealTimeOffsetMs;
   private final long timestampAdjusterInitializationTimeoutMs;
+  @Nullable private final SubtitleParser.Factory subtitleParserFactory;
 
   private MediaItem.LiveConfiguration liveConfiguration;
   @Nullable private TransferListener mediaTransferListener;
@@ -429,6 +468,7 @@ public final class HlsMediaSource extends BaseMediaSource
       MediaItem mediaItem,
       HlsDataSourceFactory dataSourceFactory,
       HlsExtractorFactory extractorFactory,
+      @Nullable SubtitleParser.Factory subtitleParserFactory,
       CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory,
       @Nullable CmcdConfiguration cmcdConfiguration,
       DrmSessionManager drmSessionManager,
@@ -443,6 +483,7 @@ public final class HlsMediaSource extends BaseMediaSource
     this.liveConfiguration = mediaItem.liveConfiguration;
     this.dataSourceFactory = dataSourceFactory;
     this.extractorFactory = extractorFactory;
+    this.subtitleParserFactory = subtitleParserFactory;
     this.compositeSequenceableLoaderFactory = compositeSequenceableLoaderFactory;
     this.cmcdConfiguration = cmcdConfiguration;
     this.drmSessionManager = drmSessionManager;
@@ -517,7 +558,8 @@ public final class HlsMediaSource extends BaseMediaSource
         metadataType,
         useSessionKeys,
         getPlayerId(),
-        timestampAdjusterInitializationTimeoutMs);
+        timestampAdjusterInitializationTimeoutMs,
+        subtitleParserFactory);
   }
 
   @Override

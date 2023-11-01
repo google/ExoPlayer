@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.source.hls;
 
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.Extractor;
@@ -29,6 +30,8 @@ import com.google.android.exoplayer2.extractor.ts.Ac3Extractor;
 import com.google.android.exoplayer2.extractor.ts.Ac4Extractor;
 import com.google.android.exoplayer2.extractor.ts.AdtsExtractor;
 import com.google.android.exoplayer2.extractor.ts.TsExtractor;
+import com.google.android.exoplayer2.text.SubtitleParser;
+import com.google.android.exoplayer2.text.SubtitleTranscodingExtractor;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
 import java.io.IOException;
 
@@ -49,6 +52,7 @@ public final class BundledHlsMediaChunkExtractor implements HlsMediaChunkExtract
   @VisibleForTesting /* package */ final Extractor extractor;
   private final Format multivariantPlaylistFormat;
   private final TimestampAdjuster timestampAdjuster;
+  @Nullable private final SubtitleParser.Factory subtitleParserFactory;
 
   /**
    * Creates a new instance.
@@ -59,9 +63,35 @@ public final class BundledHlsMediaChunkExtractor implements HlsMediaChunkExtract
    */
   public BundledHlsMediaChunkExtractor(
       Extractor extractor, Format multivariantPlaylistFormat, TimestampAdjuster timestampAdjuster) {
+    this(
+        extractor,
+        multivariantPlaylistFormat,
+        timestampAdjuster,
+        /* subtitleParserFactory= */ null);
+  }
+
+  /**
+   * Creates a new instance.
+   *
+   * @param extractor The underlying {@link Extractor}.
+   * @param multivariantPlaylistFormat The {@link Format} obtained from the multivariant playlist.
+   * @param timestampAdjuster A {@link TimestampAdjuster} to adjust sample timestamps.
+   * @param subtitleParserFactory A {@link SubtitleParser.Factory} to be used with WebVTT subtitles.
+   *     If the value is null, subtitles will be parsed during decoding, otherwise - during
+   *     extraction. Decoding will only work if this subtitleParserFactory supports the provided
+   *     multivariantPlaylistFormat.
+   */
+  // TODO(b/289983417): Once the subtitle-parsing-during-extraction is the only available flow, make
+  // this constructor public and remove @Nullable from subtitleParserFactory
+  /* package */ BundledHlsMediaChunkExtractor(
+      Extractor extractor,
+      Format multivariantPlaylistFormat,
+      TimestampAdjuster timestampAdjuster,
+      @Nullable SubtitleParser.Factory subtitleParserFactory) {
     this.extractor = extractor;
     this.multivariantPlaylistFormat = multivariantPlaylistFormat;
     this.timestampAdjuster = timestampAdjuster;
+    this.subtitleParserFactory = subtitleParserFactory;
   }
 
   @Override
@@ -101,6 +131,11 @@ public final class BundledHlsMediaChunkExtractor implements HlsMediaChunkExtract
     if (extractor instanceof WebvttExtractor) {
       newExtractorInstance =
           new WebvttExtractor(multivariantPlaylistFormat.language, timestampAdjuster);
+      if (subtitleParserFactory != null
+          && subtitleParserFactory.supportsFormat(multivariantPlaylistFormat)) {
+        newExtractorInstance =
+            new SubtitleTranscodingExtractor(newExtractorInstance, subtitleParserFactory);
+      }
     } else if (extractor instanceof AdtsExtractor) {
       newExtractorInstance = new AdtsExtractor();
     } else if (extractor instanceof Ac3Extractor) {
@@ -114,7 +149,7 @@ public final class BundledHlsMediaChunkExtractor implements HlsMediaChunkExtract
           "Unexpected extractor type for recreation: " + extractor.getClass().getSimpleName());
     }
     return new BundledHlsMediaChunkExtractor(
-        newExtractorInstance, multivariantPlaylistFormat, timestampAdjuster);
+        newExtractorInstance, multivariantPlaylistFormat, timestampAdjuster, subtitleParserFactory);
   }
 
   @Override
