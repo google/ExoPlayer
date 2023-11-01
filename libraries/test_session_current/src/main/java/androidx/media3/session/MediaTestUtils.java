@@ -241,8 +241,9 @@ public final class MediaTestUtils {
     List<MediaSessionCompat.QueueItem> list = new ArrayList<>();
     for (int i = 0; i < mediaItems.size(); i++) {
       MediaItem item = mediaItems.get(i);
-      MediaDescriptionCompat description = MediaUtils.convertToMediaDescriptionCompat(item, null);
-      long id = MediaUtils.convertToQueueItemId(i);
+      MediaDescriptionCompat description =
+          LegacyConversions.convertToMediaDescriptionCompat(item, null);
+      long id = LegacyConversions.convertToQueueItemId(i);
       list.add(new MediaSessionCompat.QueueItem(description, id));
     }
     return list;

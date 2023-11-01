@@ -1477,7 +1477,7 @@ public class MediaControllerCompatPlaybackStateCompatActionsWithMediaSessionTest
     connectMediaNotificationController(mediaSession);
     MediaControllerCompat controllerCompat = createMediaControllerCompat(mediaSession);
 
-    assertThat(MediaUtils.convertToCustomLayout(controllerCompat.getPlaybackState()))
+    assertThat(LegacyConversions.convertToCustomLayout(controllerCompat.getPlaybackState()))
         .containsExactly(customLayout.get(0).copyWithIsEnabled(true));
     mediaSession.release();
     releasePlayer(player);
@@ -1520,14 +1520,14 @@ public class MediaControllerCompatPlaybackStateCompatActionsWithMediaSessionTest
     connectMediaNotificationController(mediaSession);
     MediaControllerCompat controllerCompat = createMediaControllerCompat(mediaSession);
     ImmutableList<CommandButton> initialCustomLayout =
-        MediaUtils.convertToCustomLayout(controllerCompat.getPlaybackState());
+        LegacyConversions.convertToCustomLayout(controllerCompat.getPlaybackState());
     AtomicReference<List<CommandButton>> reportedCustomLayout = new AtomicReference<>();
     CountDownLatch latch = new CountDownLatch(1);
     controllerCompat.registerCallback(
         new MediaControllerCompat.Callback() {
           @Override
           public void onPlaybackStateChanged(PlaybackStateCompat state) {
-            reportedCustomLayout.set(MediaUtils.convertToCustomLayout(state));
+            reportedCustomLayout.set(LegacyConversions.convertToCustomLayout(state));
             latch.countDown();
           }
         },
@@ -1581,14 +1581,14 @@ public class MediaControllerCompatPlaybackStateCompatActionsWithMediaSessionTest
     connectMediaNotificationController(mediaSession);
     MediaControllerCompat controllerCompat = createMediaControllerCompat(mediaSession);
     ImmutableList<CommandButton> initialCustomLayout =
-        MediaUtils.convertToCustomLayout(controllerCompat.getPlaybackState());
+        LegacyConversions.convertToCustomLayout(controllerCompat.getPlaybackState());
     AtomicReference<List<CommandButton>> reportedCustomLayout = new AtomicReference<>();
     CountDownLatch latch = new CountDownLatch(1);
     controllerCompat.registerCallback(
         new MediaControllerCompat.Callback() {
           @Override
           public void onPlaybackStateChanged(PlaybackStateCompat state) {
-            reportedCustomLayout.set(MediaUtils.convertToCustomLayout(state));
+            reportedCustomLayout.set(LegacyConversions.convertToCustomLayout(state));
             latch.countDown();
           }
         },

@@ -61,7 +61,7 @@ import java.util.List;
     ImmutableList.Builder<QueuedMediaItem> queuedMediaItemsBuilder = new ImmutableList.Builder<>();
     for (int i = 0; i < queue.size(); i++) {
       QueueItem queueItem = queue.get(i);
-      MediaItem mediaItem = MediaUtils.convertToMediaItem(queueItem);
+      MediaItem mediaItem = LegacyConversions.convertToMediaItem(queueItem);
       queuedMediaItemsBuilder.add(
           new QueuedMediaItem(mediaItem, queueItem.getQueueId(), /* durationMs= */ C.TIME_UNSET));
     }

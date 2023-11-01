@@ -102,7 +102,7 @@ public class MediaControllerMediaSessionCompatCallbackAggregationTest {
     MediaMetadataCompat testMediaMetadataCompat = createMediaMetadataCompat();
     @RatingCompat.Style int testRatingType = RatingCompat.RATING_HEART;
     MediaMetadata testMediaMetadata =
-        MediaUtils.convertToMediaMetadata(testMediaMetadataCompat, testRatingType);
+        LegacyConversions.convertToMediaMetadata(testMediaMetadataCompat, testRatingType);
     MediaItem testCurrentMediaItem =
         new MediaItem.Builder()
             .setMediaId(testMediaItems.get(testMediaItemIndex).mediaId)
@@ -234,7 +234,7 @@ public class MediaControllerMediaSessionCompatCallbackAggregationTest {
     MediaMetadataCompat testMediaMetadataCompat = createMediaMetadataCompat();
     @RatingCompat.Style int testRatingType = RatingCompat.RATING_HEART;
     MediaMetadata testMediaMetadata =
-        MediaUtils.convertToMediaMetadata(testMediaMetadataCompat, testRatingType);
+        LegacyConversions.convertToMediaMetadata(testMediaMetadataCompat, testRatingType);
     Events testEvents =
         new Events(
             new FlagSet.Builder()
@@ -245,7 +245,8 @@ public class MediaControllerMediaSessionCompatCallbackAggregationTest {
                     EVENT_TIMELINE_CHANGED)
                 .build());
     int testMediaItemIndex = testSize; // Index of fake item.
-    testMediaItems.add(MediaUtils.convertToMediaItem(testMediaMetadataCompat, testRatingType));
+    testMediaItems.add(
+        LegacyConversions.convertToMediaItem(testMediaMetadataCompat, testRatingType));
 
     MediaController controller = controllerTestRule.createController(session.getSessionToken());
     CountDownLatch latch = new CountDownLatch(5);
@@ -427,7 +428,7 @@ public class MediaControllerMediaSessionCompatCallbackAggregationTest {
     MediaMetadataCompat testMediaMetadataCompat = createMediaMetadataCompat();
     @RatingCompat.Style int testRatingType = RatingCompat.RATING_HEART;
     MediaMetadata testMediaMetadata =
-        MediaUtils.convertToMediaMetadata(testMediaMetadataCompat, testRatingType);
+        LegacyConversions.convertToMediaMetadata(testMediaMetadataCompat, testRatingType);
     Events testEvents =
         new Events(
             new FlagSet.Builder()
@@ -439,7 +440,8 @@ public class MediaControllerMediaSessionCompatCallbackAggregationTest {
                 .build());
     int testMediaItemIndex = 0;
     List<MediaItem> testMediaItems = new ArrayList<>();
-    testMediaItems.add(MediaUtils.convertToMediaItem(testMediaMetadataCompat, testRatingType));
+    testMediaItems.add(
+        LegacyConversions.convertToMediaItem(testMediaMetadataCompat, testRatingType));
 
     MediaController controller = controllerTestRule.createController(session.getSessionToken());
     CountDownLatch latch = new CountDownLatch(5);
@@ -547,8 +549,9 @@ public class MediaControllerMediaSessionCompatCallbackAggregationTest {
       MediaItem item = mediaItems.get(i);
       @Nullable
       Bitmap bitmap = bitmapLoader.decodeBitmap(item.mediaMetadata.artworkData).get(10, SECONDS);
-      MediaDescriptionCompat description = MediaUtils.convertToMediaDescriptionCompat(item, bitmap);
-      long id = MediaUtils.convertToQueueItemId(i);
+      MediaDescriptionCompat description =
+          LegacyConversions.convertToMediaDescriptionCompat(item, bitmap);
+      long id = LegacyConversions.convertToQueueItemId(i);
       list.add(new MediaSessionCompat.QueueItem(description, id));
     }
     return list;

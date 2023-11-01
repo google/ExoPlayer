@@ -156,7 +156,7 @@ public class MediaControllerCompatCallbackWithMediaSessionTest {
 
     assertThat(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue();
     assertThat(
-            MediaUtils.convertToPlaybackState(
+            LegacyConversions.convertToPlaybackState(
                 controller.getPlaybackState(),
                 controller.getMetadata(),
                 /* timeDiffMs= */ C.TIME_UNSET))
@@ -398,7 +398,7 @@ public class MediaControllerCompatCallbackWithMediaSessionTest {
     assertThat(metadataRef.get().getLong(METADATA_KEY_DURATION)).isEqualTo(testDurationMs);
     @PlaybackStateCompat.State
     int playbackStateFromControllerCompat =
-        MediaUtils.convertToPlaybackState(
+        LegacyConversions.convertToPlaybackState(
             playbackStateRef.get(), metadataRef.get(), /* timeDiffMs= */ C.TIME_UNSET);
     assertThat(playbackStateFromControllerCompat).isEqualTo(testState);
     assertThat(metadataRef.get().getRating(METADATA_KEY_USER_RATING).hasHeart()).isTrue();
@@ -463,7 +463,7 @@ public class MediaControllerCompatCallbackWithMediaSessionTest {
     int legacyStream = AudioManager.STREAM_RING;
     AudioAttributesCompat attrsCompat =
         new AudioAttributesCompat.Builder().setLegacyStreamType(legacyStream).build();
-    AudioAttributes attrs = MediaUtils.convertToAudioAttributes(attrsCompat);
+    AudioAttributes attrs = LegacyConversions.convertToAudioAttributes(attrsCompat);
     CountDownLatch playbackInfoNotified = new CountDownLatch(1);
     MediaControllerCompat.Callback callback =
         new MediaControllerCompat.Callback() {
@@ -509,7 +509,7 @@ public class MediaControllerCompatCallbackWithMediaSessionTest {
     int legacyStream = AudioManager.STREAM_RING;
     AudioAttributesCompat attrsCompat =
         new AudioAttributesCompat.Builder().setLegacyStreamType(legacyStream).build();
-    AudioAttributes attrs = MediaUtils.convertToAudioAttributes(attrsCompat);
+    AudioAttributes attrs = LegacyConversions.convertToAudioAttributes(attrsCompat);
     CountDownLatch playbackInfoNotified = new CountDownLatch(1);
     MediaControllerCompat.Callback callback =
         new MediaControllerCompat.Callback() {
@@ -967,7 +967,7 @@ public class MediaControllerCompatCallbackWithMediaSessionTest {
         new MediaControllerCompat.Callback() {
           @Override
           public void onPlaybackStateChanged(PlaybackStateCompat state) {
-            reportedCustomLayouts.add(MediaUtils.convertToCustomLayout(state));
+            reportedCustomLayouts.add(LegacyConversions.convertToCustomLayout(state));
             latch1.countDown();
           }
         };
@@ -1129,9 +1129,9 @@ public class MediaControllerCompatCallbackWithMediaSessionTest {
     assertThat(playbackStateRef.get().getPosition()).isEqualTo(testPosition);
     assertThat(controllerCompat.getPlaybackState().getPosition()).isEqualTo(testPosition);
     assertThat(playbackStateRef.get().getActiveQueueItemId())
-        .isEqualTo(MediaUtils.convertToQueueItemId(testItemIndex));
+        .isEqualTo(LegacyConversions.convertToQueueItemId(testItemIndex));
     assertThat(controllerCompat.getPlaybackState().getActiveQueueItemId())
-        .isEqualTo(MediaUtils.convertToQueueItemId(testItemIndex));
+        .isEqualTo(LegacyConversions.convertToQueueItemId(testItemIndex));
     assertThat(callbackOrder)
         .containsExactly("onMetadataChanged", "onPlaybackStateChanged")
         .inOrder();

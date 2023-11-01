@@ -322,7 +322,7 @@ public class MediaControllerListenerTest {
     Timeline testTimeline = MediaTestUtils.createTimeline(/* windowCount= */ 3);
     MediaMetadata testPlaylistMetadata = new MediaMetadata.Builder().setTitle("title").build();
     AudioAttributes testAudioAttributes =
-        MediaUtils.convertToAudioAttributes(
+        LegacyConversions.convertToAudioAttributes(
             new AudioAttributesCompat.Builder()
                 .setLegacyStreamType(AudioManager.STREAM_RING)
                 .build());

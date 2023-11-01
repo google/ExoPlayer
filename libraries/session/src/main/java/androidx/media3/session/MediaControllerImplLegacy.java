@@ -503,14 +503,18 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
     String currentMediaItemMediaId =
         legacyPlayerInfo.mediaMetadataCompat.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID);
     if (mediaId.equals(currentMediaItemMediaId)) {
-      controllerCompat.getTransportControls().setRating(MediaUtils.convertToRatingCompat(rating));
+      controllerCompat
+          .getTransportControls()
+          .setRating(LegacyConversions.convertToRatingCompat(rating));
     }
     return Futures.immediateFuture(new SessionResult(SessionResult.RESULT_SUCCESS));
   }
 
   @Override
   public ListenableFuture<SessionResult> setRating(Rating rating) {
-    controllerCompat.getTransportControls().setRating(MediaUtils.convertToRatingCompat(rating));
+    controllerCompat
+        .getTransportControls()
+        .setRating(LegacyConversions.convertToRatingCompat(rating));
     return Futures.immediateFuture(new SessionResult(SessionResult.RESULT_SUCCESS));
   }
 
@@ -936,7 +940,7 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
 
     controllerCompat
         .getTransportControls()
-        .setRepeatMode(MediaUtils.convertToPlaybackStateCompatRepeatMode(repeatMode));
+        .setRepeatMode(LegacyConversions.convertToPlaybackStateCompatRepeatMode(repeatMode));
   }
 
   @Override
@@ -962,7 +966,8 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
 
     controllerCompat
         .getTransportControls()
-        .setShuffleMode(MediaUtils.convertToPlaybackStateCompatShuffleMode(shuffleModeEnabled));
+        .setShuffleMode(
+            LegacyConversions.convertToPlaybackStateCompatShuffleMode(shuffleModeEnabled));
   }
 
   @Override
@@ -1469,7 +1474,7 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
         }
       }
       controllerCompat.addQueueItem(
-          MediaUtils.convertToMediaDescriptionCompat(mediaItems.get(i), bitmap),
+          LegacyConversions.convertToMediaDescriptionCompat(mediaItems.get(i), bitmap),
           /* index= */ startIndex + i);
     }
   }
@@ -1584,7 +1589,7 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
     if (!MediaUtils.areEqualError(
         oldLegacyPlayerInfo.playbackStateCompat, newLegacyPlayerInfo.playbackStateCompat)) {
       PlaybackException error =
-          MediaUtils.convertToPlaybackException(newLegacyPlayerInfo.playbackStateCompat);
+          LegacyConversions.convertToPlaybackException(newLegacyPlayerInfo.playbackStateCompat);
       listeners.queueEvent(
           Player.EVENT_PLAYER_ERROR, (listener) -> listener.onPlayerErrorChanged(error));
       if (error != null) {
@@ -1899,18 +1904,20 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
     long oldActiveQueueId = getActiveQueueId(oldLegacyPlayerInfo.playbackStateCompat);
     long newActiveQueueId = getActiveQueueId(newLegacyPlayerInfo.playbackStateCompat);
     boolean isCurrentActiveQueueIdChanged = (oldActiveQueueId != newActiveQueueId) || initialUpdate;
-    long durationMs = MediaUtils.convertToDurationMs(newLegacyPlayerInfo.mediaMetadataCompat);
+    long durationMs =
+        LegacyConversions.convertToDurationMs(newLegacyPlayerInfo.mediaMetadataCompat);
     if (isMetadataCompatChanged || isCurrentActiveQueueIdChanged || isQueueChanged) {
       currentMediaItemIndex = findQueueItemIndex(newLegacyPlayerInfo.queue, newActiveQueueId);
       boolean hasMediaMetadataCompat = newLegacyPlayerInfo.mediaMetadataCompat != null;
       if (hasMediaMetadataCompat && isMetadataCompatChanged) {
         mediaMetadata =
-            MediaUtils.convertToMediaMetadata(newLegacyPlayerInfo.mediaMetadataCompat, ratingType);
+            LegacyConversions.convertToMediaMetadata(
+                newLegacyPlayerInfo.mediaMetadataCompat, ratingType);
       } else if (!hasMediaMetadataCompat && isCurrentActiveQueueIdChanged) {
         mediaMetadata =
             (currentMediaItemIndex == C.INDEX_UNSET)
                 ? MediaMetadata.EMPTY
-                : MediaUtils.convertToMediaMetadata(
+                : LegacyConversions.convertToMediaMetadata(
                     newLegacyPlayerInfo.queue.get(currentMediaItemIndex).getDescription(),
                     ratingType);
       } else {
@@ -1924,7 +1931,8 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
                   + " the active queue id and current Timeline should have currently playing"
                   + " MediaItem.");
           MediaItem fakeMediaItem =
-              MediaUtils.convertToMediaItem(newLegacyPlayerInfo.mediaMetadataCompat, ratingType);
+              LegacyConversions.convertToMediaItem(
+                  newLegacyPlayerInfo.mediaMetadataCompat, ratingType);
           currentTimeline = currentTimeline.copyWithFakeMediaItem(fakeMediaItem, durationMs);
           currentMediaItemIndex = currentTimeline.getWindowCount() - 1;
         } else {
@@ -1938,7 +1946,7 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
         currentTimeline = currentTimeline.copyWithClearedFakeMediaItem();
         if (hasMediaMetadataCompat) {
           MediaItem mediaItem =
-              MediaUtils.convertToMediaItem(
+              LegacyConversions.convertToMediaItem(
                   checkNotNull(currentTimeline.getMediaItemAt(currentMediaItemIndex)).mediaId,
                   newLegacyPlayerInfo.mediaMetadataCompat,
                   ratingType);
@@ -1960,14 +1968,16 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
     playlistMetadata =
         oldLegacyPlayerInfo.queueTitle == newLegacyPlayerInfo.queueTitle
             ? oldControllerInfo.playerInfo.playlistMetadata
-            : MediaUtils.convertToMediaMetadata(newLegacyPlayerInfo.queueTitle);
-    repeatMode = MediaUtils.convertToRepeatMode(newLegacyPlayerInfo.repeatMode);
-    shuffleModeEnabled = MediaUtils.convertToShuffleModeEnabled(newLegacyPlayerInfo.shuffleMode);
+            : LegacyConversions.convertToMediaMetadata(newLegacyPlayerInfo.queueTitle);
+    repeatMode = LegacyConversions.convertToRepeatMode(newLegacyPlayerInfo.repeatMode);
+    shuffleModeEnabled =
+        LegacyConversions.convertToShuffleModeEnabled(newLegacyPlayerInfo.shuffleMode);
     if (oldLegacyPlayerInfo.playbackStateCompat != newLegacyPlayerInfo.playbackStateCompat) {
       availableSessionCommands =
-          MediaUtils.convertToSessionCommands(
+          LegacyConversions.convertToSessionCommands(
               newLegacyPlayerInfo.playbackStateCompat, isSessionReady);
-      customLayout = MediaUtils.convertToCustomLayout(newLegacyPlayerInfo.playbackStateCompat);
+      customLayout =
+          LegacyConversions.convertToCustomLayout(newLegacyPlayerInfo.playbackStateCompat);
     } else {
       availableSessionCommands = oldControllerInfo.availableSessionCommands;
       customLayout = oldControllerInfo.customLayout;
@@ -1980,53 +1990,58 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
             ? newLegacyPlayerInfo.playbackInfoCompat.getVolumeControl()
             : VolumeProviderCompat.VOLUME_CONTROL_FIXED;
     availablePlayerCommands =
-        MediaUtils.convertToPlayerCommands(
+        LegacyConversions.convertToPlayerCommands(
             newLegacyPlayerInfo.playbackStateCompat,
             volumeControlType,
             sessionFlags,
             isSessionReady);
 
     PlaybackException playerError =
-        MediaUtils.convertToPlaybackException(newLegacyPlayerInfo.playbackStateCompat);
+        LegacyConversions.convertToPlaybackException(newLegacyPlayerInfo.playbackStateCompat);
 
     long currentPositionMs =
-        MediaUtils.convertToCurrentPositionMs(
+        LegacyConversions.convertToCurrentPositionMs(
             newLegacyPlayerInfo.playbackStateCompat,
             newLegacyPlayerInfo.mediaMetadataCompat,
             timeDiffMs);
     long bufferedPositionMs =
-        MediaUtils.convertToBufferedPositionMs(
+        LegacyConversions.convertToBufferedPositionMs(
             newLegacyPlayerInfo.playbackStateCompat,
             newLegacyPlayerInfo.mediaMetadataCompat,
             timeDiffMs);
     int bufferedPercentage =
-        MediaUtils.convertToBufferedPercentage(
+        LegacyConversions.convertToBufferedPercentage(
             newLegacyPlayerInfo.playbackStateCompat,
             newLegacyPlayerInfo.mediaMetadataCompat,
             timeDiffMs);
     long totalBufferedDurationMs =
-        MediaUtils.convertToTotalBufferedDurationMs(
+        LegacyConversions.convertToTotalBufferedDurationMs(
             newLegacyPlayerInfo.playbackStateCompat,
             newLegacyPlayerInfo.mediaMetadataCompat,
             timeDiffMs);
-    boolean isPlayingAd = MediaUtils.convertToIsPlayingAd(newLegacyPlayerInfo.mediaMetadataCompat);
+    boolean isPlayingAd =
+        LegacyConversions.convertToIsPlayingAd(newLegacyPlayerInfo.mediaMetadataCompat);
     PlaybackParameters playbackParameters =
-        MediaUtils.convertToPlaybackParameters(newLegacyPlayerInfo.playbackStateCompat);
+        LegacyConversions.convertToPlaybackParameters(newLegacyPlayerInfo.playbackStateCompat);
     AudioAttributes audioAttributes =
-        MediaUtils.convertToAudioAttributes(newLegacyPlayerInfo.playbackInfoCompat);
+        LegacyConversions.convertToAudioAttributes(newLegacyPlayerInfo.playbackInfoCompat);
     boolean playWhenReady =
-        MediaUtils.convertToPlayWhenReady(newLegacyPlayerInfo.playbackStateCompat);
+        LegacyConversions.convertToPlayWhenReady(newLegacyPlayerInfo.playbackStateCompat);
     @Player.State
     int playbackState =
-        MediaUtils.convertToPlaybackState(
+        LegacyConversions.convertToPlaybackState(
             newLegacyPlayerInfo.playbackStateCompat,
             newLegacyPlayerInfo.mediaMetadataCompat,
             timeDiffMs);
-    boolean isPlaying = MediaUtils.convertToIsPlaying(newLegacyPlayerInfo.playbackStateCompat);
+    boolean isPlaying =
+        LegacyConversions.convertToIsPlaying(newLegacyPlayerInfo.playbackStateCompat);
     DeviceInfo deviceInfo =
-        MediaUtils.convertToDeviceInfo(newLegacyPlayerInfo.playbackInfoCompat, routingControllerId);
-    int deviceVolume = MediaUtils.convertToDeviceVolume(newLegacyPlayerInfo.playbackInfoCompat);
-    boolean deviceMuted = MediaUtils.convertToIsDeviceMuted(newLegacyPlayerInfo.playbackInfoCompat);
+        LegacyConversions.convertToDeviceInfo(
+            newLegacyPlayerInfo.playbackInfoCompat, routingControllerId);
+    int deviceVolume =
+        LegacyConversions.convertToDeviceVolume(newLegacyPlayerInfo.playbackInfoCompat);
+    boolean deviceMuted =
+        LegacyConversions.convertToIsDeviceMuted(newLegacyPlayerInfo.playbackInfoCompat);
     long seekBackIncrementMs = oldControllerInfo.playerInfo.seekBackIncrementMs;
     long seekForwardIncrementMs = oldControllerInfo.playerInfo.seekForwardIncrementMs;
 
@@ -2100,12 +2115,12 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
       } else if (oldCurrentMediaItem.equals(newControllerInfo.playerInfo.getCurrentMediaItem())) {
         // Current item is the same.
         long oldCurrentPosition =
-            MediaUtils.convertToCurrentPositionMs(
+            LegacyConversions.convertToCurrentPositionMs(
                 oldLegacyPlayerInfo.playbackStateCompat,
                 oldLegacyPlayerInfo.mediaMetadataCompat,
                 timeDiffMs);
         long newCurrentPosition =
-            MediaUtils.convertToCurrentPositionMs(
+            LegacyConversions.convertToCurrentPositionMs(
                 newLegacyPlayerInfo.playbackStateCompat,
                 newLegacyPlayerInfo.mediaMetadataCompat,
                 timeDiffMs);

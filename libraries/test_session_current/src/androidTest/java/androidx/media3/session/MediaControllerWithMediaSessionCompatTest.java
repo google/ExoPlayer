@@ -451,7 +451,7 @@ public class MediaControllerWithMediaSessionCompatTest {
     Timeline testTimeline = MediaTestUtils.createTimeline(/* windowCount= */ 2);
     List<QueueItem> testQueue =
         MediaTestUtils.convertToQueueItemsWithoutBitmap(
-            MediaUtils.convertToMediaItemList(testTimeline));
+            LegacyConversions.convertToMediaItemList(testTimeline));
     session.setQueue(testQueue);
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
@@ -465,7 +465,7 @@ public class MediaControllerWithMediaSessionCompatTest {
     Timeline timeline = MediaTestUtils.createTimeline(/* windowCount= */ 2);
     List<QueueItem> queue =
         MediaTestUtils.convertToQueueItemsWithoutBitmap(
-            MediaUtils.convertToMediaItemList(timeline));
+            LegacyConversions.convertToMediaItemList(timeline));
     session.setQueue(queue);
 
     CountDownLatch latch = new CountDownLatch(1);
@@ -515,7 +515,7 @@ public class MediaControllerWithMediaSessionCompatTest {
             ImmutableList.copyOf(Iterables.concat(mediaItems, mediaItems)));
     List<QueueItem> testQueue =
         MediaTestUtils.convertToQueueItemsWithoutBitmap(
-            MediaUtils.convertToMediaItemList(testTimeline));
+            LegacyConversions.convertToMediaItemList(testTimeline));
     session.setQueue(testQueue);
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
@@ -823,7 +823,7 @@ public class MediaControllerWithMediaSessionCompatTest {
     List<QueueItem> testQueue = MediaTestUtils.convertToQueueItemsWithoutBitmap(testList);
     MediaItem testRemoveMediaItem = MediaTestUtils.createMediaItem("removed");
     MediaMetadataCompat testMetadataCompat =
-        MediaUtils.convertToMediaMetadataCompat(
+        LegacyConversions.convertToMediaMetadataCompat(
             testRemoveMediaItem.mediaMetadata,
             "mediaId",
             Uri.parse("http://example.com"),
@@ -845,7 +845,7 @@ public class MediaControllerWithMediaSessionCompatTest {
     List<QueueItem> testQueue = MediaTestUtils.convertToQueueItemsWithoutBitmap(testList);
     MediaItem testRemoveMediaItem = MediaTestUtils.createMediaItem("removed");
     MediaMetadataCompat testMetadataCompat =
-        MediaUtils.convertToMediaMetadataCompat(
+        LegacyConversions.convertToMediaMetadataCompat(
             testRemoveMediaItem.mediaMetadata,
             "mediaId",
             Uri.parse("http://example.com"),
@@ -884,7 +884,7 @@ public class MediaControllerWithMediaSessionCompatTest {
     List<QueueItem> testQueue = MediaTestUtils.convertToQueueItemsWithoutBitmap(testList);
     MediaItem testRemoveMediaItem = MediaTestUtils.createMediaItem("removed");
     MediaMetadataCompat testMetadataCompat =
-        MediaUtils.convertToMediaMetadataCompat(
+        LegacyConversions.convertToMediaMetadataCompat(
             testRemoveMediaItem.mediaMetadata,
             "mediaId",
             Uri.parse("http://example.com"),
@@ -906,7 +906,7 @@ public class MediaControllerWithMediaSessionCompatTest {
     MediaItem testMediaItem = MediaTestUtils.createMediaItem("test");
     MediaMetadata testMediaMetadata = testMediaItem.mediaMetadata;
     MediaMetadataCompat testMediaMetadataCompat =
-        MediaUtils.convertToMediaMetadataCompat(
+        LegacyConversions.convertToMediaMetadataCompat(
             testMediaMetadata,
             "mediaId",
             Uri.parse("http://example.com"),
@@ -928,7 +928,7 @@ public class MediaControllerWithMediaSessionCompatTest {
     MediaMetadata testMediaMetadata = testMediaItem.mediaMetadata;
     @Nullable Bitmap artworkBitmap = getBitmapFromMetadata(testMediaMetadata);
     MediaMetadataCompat testMediaMetadataCompat =
-        MediaUtils.convertToMediaMetadataCompat(
+        LegacyConversions.convertToMediaMetadataCompat(
             testMediaMetadata,
             "mediaId",
             Uri.parse("http://example.com"),
@@ -1275,7 +1275,7 @@ public class MediaControllerWithMediaSessionCompatTest {
     List<MediaItem> testPlaylist = MediaTestUtils.createMediaItems(/* size= */ 1);
     MediaItem firstMediaItemInPlaylist = testPlaylist.get(0);
     MediaMetadataCompat metadata =
-        MediaUtils.convertToMediaMetadataCompat(
+        LegacyConversions.convertToMediaMetadataCompat(
             firstMediaItemInPlaylist.mediaMetadata,
             "mediaId",
             Uri.parse("http://example.com"),
@@ -1325,7 +1325,7 @@ public class MediaControllerWithMediaSessionCompatTest {
     List<MediaItem> testPlaylist = MediaTestUtils.createMediaItems(1);
     MediaItem firstMediaItemInPlaylist = testPlaylist.get(0);
     MediaMetadataCompat metadata =
-        MediaUtils.convertToMediaMetadataCompat(
+        LegacyConversions.convertToMediaMetadataCompat(
             firstMediaItemInPlaylist.mediaMetadata,
             "mediaId",
             Uri.parse("http://example.com"),

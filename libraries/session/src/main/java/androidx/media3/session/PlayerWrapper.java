@@ -998,7 +998,8 @@ import java.util.List;
           .build();
     }
     @Nullable PlaybackException playerError = getPlayerError();
-    int state = MediaUtils.convertToPlaybackStateCompatState(/* player= */ this, playIfSuppressed);
+    int state =
+        LegacyConversions.convertToPlaybackStateCompatState(/* player= */ this, playIfSuppressed);
     // Always advertise ACTION_SET_RATING.
     long actions = PlaybackStateCompat.ACTION_SET_RATING;
     Commands availableCommands = intersect(availablePlayerCommands, getAvailableCommands());
@@ -1007,7 +1008,7 @@ import java.util.List;
     }
     long queueItemId =
         isCommandAvailable(COMMAND_GET_TIMELINE)
-            ? MediaUtils.convertToQueueItemId(getCurrentMediaItemIndex())
+            ? LegacyConversions.convertToQueueItemId(getCurrentMediaItemIndex())
             : MediaSessionCompat.QueueItem.UNKNOWN_ID;
     float playbackSpeed = getPlaybackParameters().speed;
     float sessionPlaybackSpeed = isPlaying() ? playbackSpeed : 0f;

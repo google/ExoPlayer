@@ -1147,7 +1147,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
         () -> {
           // Set stream of the session.
           AudioAttributes attrs =
-              MediaUtils.convertToAudioAttributes(
+              LegacyConversions.convertToAudioAttributes(
                   new AudioAttributesCompat.Builder().setLegacyStreamType(stream).build());
           player.audioAttributes = attrs;
           player.notifyAudioAttributesChanged(attrs);
@@ -1195,7 +1195,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
         () -> {
           // Set stream of the session.
           AudioAttributes attrs =
-              MediaUtils.convertToAudioAttributes(
+              LegacyConversions.convertToAudioAttributes(
                   new AudioAttributesCompat.Builder().setLegacyStreamType(stream).build());
           player.audioAttributes = attrs;
           player.notifyAudioAttributesChanged(attrs);
@@ -1764,7 +1764,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
               String mediaIdOut,
               Rating ratingOut) {
             assertThat(mediaIdOut).isEqualTo(mediaId);
-            assertThat(ratingOut).isEqualTo(MediaUtils.convertToRating(rating));
+            assertThat(ratingOut).isEqualTo(LegacyConversions.convertToRating(rating));
             latch.countDown();
             return Futures.immediateFuture(new SessionResult(RESULT_SUCCESS));
           }
