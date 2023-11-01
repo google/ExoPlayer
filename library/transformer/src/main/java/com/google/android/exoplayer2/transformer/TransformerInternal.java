@@ -20,14 +20,13 @@ import static com.google.android.exoplayer2.C.TRACK_TYPE_AUDIO;
 import static com.google.android.exoplayer2.C.TRACK_TYPE_VIDEO;
 import static com.google.android.exoplayer2.transformer.AssetLoader.SUPPORTED_OUTPUT_TYPE_DECODED;
 import static com.google.android.exoplayer2.transformer.AssetLoader.SUPPORTED_OUTPUT_TYPE_ENCODED;
-import static com.google.android.exoplayer2.transformer.Composition.HDR_MODE_KEEP_HDR;
 import static com.google.android.exoplayer2.transformer.ExportException.ERROR_CODE_FAILED_RUNTIME_CHECK;
 import static com.google.android.exoplayer2.transformer.ExportException.ERROR_CODE_MUXING_FAILED;
 import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STATE_AVAILABLE;
 import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STATE_NOT_STARTED;
-import static com.google.android.exoplayer2.transformer.TransformerUtil.areVideoEffectsAllNoOp;
-import static com.google.android.exoplayer2.transformer.TransformerUtil.containsSlowMotionData;
 import static com.google.android.exoplayer2.transformer.TransformerUtil.getProcessedTrackType;
+import static com.google.android.exoplayer2.transformer.TransformerUtil.shouldTranscodeAudio;
+import static com.google.android.exoplayer2.transformer.TransformerUtil.shouldTranscodeVideo;
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Util.contains;
@@ -45,11 +44,9 @@ import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.effect.ScaleAndRotateTransformation;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.ConditionVariable;
 import com.google.android.exoplayer2.util.DebugViewProvider;
-import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.HandlerWrapper;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.VideoFrameProcessor;
@@ -446,7 +443,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final class SequenceAssetLoaderListener implements AssetLoader.Listener {
 
     private final int sequenceIndex;
-    private final ImmutableList<EditedMediaItem> editedMediaItems;
+    private final EditedMediaItem firstEditedMediaItem;
     private final Composition composition;
     private final TransformationRequest transformationRequest;
     private final AudioMixer.Factory audioMixerFactory;
@@ -464,7 +461,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         FallbackListener fallbackListener,
         DebugViewProvider debugViewProvider) {
       this.sequenceIndex = sequenceIndex;
-      this.editedMediaItems = composition.sequences.get(sequenceIndex).editedMediaItems;
+      this.firstEditedMediaItem = composition.sequences.get(sequenceIndex).editedMediaItems.get(0);
       this.composition = composition;
       this.transformationRequest = transformationRequest;
       this.audioMixerFactory = audioMixerFactory;
@@ -536,7 +533,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         }
 
         GraphInput sampleExporterInput =
-            sampleExporter.getInput(editedMediaItems.get(0), assetLoaderOutputFormat);
+            sampleExporter.getInput(firstEditedMediaItem, assetLoaderOutputFormat);
         OnMediaItemChangedListener onMediaItemChangedListener =
             (editedMediaItem, durationUs, trackFormat, isLast) -> {
               onMediaItemChanged(trackType, durationUs, isLast);
@@ -582,7 +579,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                 firstAssetLoaderInputFormat,
                 /* firstInputFormat= */ assetLoaderOutputFormat,
                 transformationRequest,
-                editedMediaItems.get(0),
+                firstEditedMediaItem,
                 audioMixerFactory,
                 encoderFactory,
                 muxerWrapper,
@@ -681,94 +678,28 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       if (!assetLoaderCanOutputEncoded) {
         shouldTranscode = true;
       } else if (trackType == TRACK_TYPE_AUDIO) {
-        shouldTranscode = shouldTranscodeAudio(inputFormat);
+        shouldTranscode =
+            shouldTranscodeAudio(
+                inputFormat,
+                composition,
+                sequenceIndex,
+                transformationRequest,
+                encoderFactory,
+                muxerWrapper);
       } else if (trackType == C.TRACK_TYPE_VIDEO) {
-        shouldTranscode = shouldTranscodeVideo(inputFormat);
+        shouldTranscode =
+            shouldTranscodeVideo(
+                inputFormat,
+                composition,
+                sequenceIndex,
+                transformationRequest,
+                encoderFactory,
+                muxerWrapper);
       }
 
       checkState(!shouldTranscode || assetLoaderCanOutputDecoded);
 
       return shouldTranscode;
-    }
-
-    private boolean shouldTranscodeAudio(Format inputFormat) {
-      if (composition.sequences.size() > 1 || editedMediaItems.size() > 1) {
-        return !composition.transmuxAudio;
-      }
-      if (encoderFactory.audioNeedsEncoding()) {
-        return true;
-      }
-      if (transformationRequest.audioMimeType != null
-          && !transformationRequest.audioMimeType.equals(inputFormat.sampleMimeType)) {
-        return true;
-      }
-      if (transformationRequest.audioMimeType == null
-          && !muxerWrapper.supportsSampleMimeType(inputFormat.sampleMimeType)) {
-        return true;
-      }
-      EditedMediaItem firstEditedMediaItem = editedMediaItems.get(0);
-      if (firstEditedMediaItem.flattenForSlowMotion && containsSlowMotionData(inputFormat)) {
-        return true;
-      }
-      if (!firstEditedMediaItem.effects.audioProcessors.isEmpty()) {
-        return true;
-      }
-      return false;
-    }
-
-    private boolean shouldTranscodeVideo(Format inputFormat) {
-      if (composition.sequences.size() > 1 || editedMediaItems.size() > 1) {
-        return !composition.transmuxVideo;
-      }
-      EditedMediaItem firstEditedMediaItem = editedMediaItems.get(0);
-      if (firstEditedMediaItem.mediaItem.clippingConfiguration.startPositionMs > 0
-          && !firstEditedMediaItem.mediaItem.clippingConfiguration.startsAtKeyFrame) {
-        return true;
-      }
-      if (encoderFactory.videoNeedsEncoding()) {
-        return true;
-      }
-      if (transformationRequest.hdrMode != HDR_MODE_KEEP_HDR) {
-        return true;
-      }
-      if (transformationRequest.videoMimeType != null
-          && !transformationRequest.videoMimeType.equals(inputFormat.sampleMimeType)) {
-        return true;
-      }
-      if (transformationRequest.videoMimeType == null
-          && !muxerWrapper.supportsSampleMimeType(inputFormat.sampleMimeType)) {
-        return true;
-      }
-      if (inputFormat.pixelWidthHeightRatio != 1f) {
-        return true;
-      }
-      ImmutableList<Effect> videoEffects = firstEditedMediaItem.effects.videoEffects;
-      return !videoEffects.isEmpty()
-          && !areVideoEffectsAllNoOp(videoEffects, inputFormat)
-          && !hasOnlyRegularRotationEffect(videoEffects);
-    }
-
-    private boolean hasOnlyRegularRotationEffect(ImmutableList<Effect> videoEffects) {
-      if (videoEffects.size() != 1) {
-        return false;
-      }
-      Effect videoEffect = videoEffects.get(0);
-      if (!(videoEffect instanceof ScaleAndRotateTransformation)) {
-        return false;
-      }
-      ScaleAndRotateTransformation scaleAndRotateTransformation =
-          (ScaleAndRotateTransformation) videoEffect;
-      if (scaleAndRotateTransformation.scaleX != 1f || scaleAndRotateTransformation.scaleY != 1f) {
-        return false;
-      }
-      float rotationDegrees = scaleAndRotateTransformation.rotationDegrees;
-      if (rotationDegrees == 90f || rotationDegrees == 180f || rotationDegrees == 270f) {
-        // The MuxerWrapper rotation is clockwise while the ScaleAndRotateTransformation rotation
-        // is counterclockwise.
-        muxerWrapper.setAdditionalRotationDegrees(360 - Math.round(rotationDegrees));
-        return true;
-      }
-      return false;
     }
   }
 
