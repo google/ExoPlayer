@@ -134,4 +134,10 @@ public final class Mp4ExtractorTest {
         "media/mp4/sample_with_original_quicktime_specification.mov",
         simulationConfig);
   }
+
+  @Test
+  public void mp4SampleWithAv1c() throws Exception {
+    ExtractorAsserts.assertBehavior(
+        Mp4Extractor::new, "media/mp4/sample_with_av1c.mp4", simulationConfig);
+  }
 }
