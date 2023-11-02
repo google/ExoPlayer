@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.util;
 import static java.lang.Math.min;
 
 import com.google.common.base.Charsets;
+import com.google.errorprone.annotations.CheckReturnValue;
 import java.nio.charset.Charset;
 
 /**
@@ -28,6 +29,7 @@ import java.nio.charset.Charset;
  *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
  *     migration guide</a> for more details, including a script to help with the migration.
  */
+@CheckReturnValue
 @Deprecated
 public final class ParsableBitArray {
 
