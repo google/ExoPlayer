@@ -17,7 +17,6 @@ package androidx.media3.transformer;
 
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkState;
-import static androidx.media3.common.util.Util.msToUs;
 
 import androidx.annotation.IntRange;
 import androidx.media3.common.C;
@@ -276,12 +275,12 @@ public final class EditedMediaItem {
     } else {
       MediaItem.ClippingConfiguration clippingConfiguration = mediaItem.clippingConfiguration;
       checkArgument(!clippingConfiguration.relativeToDefaultPosition);
-      if (clippingConfiguration.endPositionMs == C.TIME_END_OF_SOURCE) {
-        presentationDurationUs = durationUs - msToUs(clippingConfiguration.startPositionMs);
+      if (clippingConfiguration.endPositionUs == C.TIME_END_OF_SOURCE) {
+        presentationDurationUs = durationUs - clippingConfiguration.startPositionUs;
       } else {
-        checkArgument(clippingConfiguration.endPositionMs <= durationUs);
+        checkArgument(clippingConfiguration.endPositionUs <= durationUs);
         presentationDurationUs =
-            msToUs(clippingConfiguration.endPositionMs - clippingConfiguration.startPositionMs);
+            clippingConfiguration.endPositionUs - clippingConfiguration.startPositionUs;
       }
     }
   }
