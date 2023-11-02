@@ -15,9 +15,6 @@
  */
 package androidx.media3.exoplayer.text;
 
-import static androidx.annotation.VisibleForTesting.PACKAGE_PRIVATE;
-
-import androidx.annotation.VisibleForTesting;
 import androidx.media3.extractor.text.SimpleSubtitleDecoder;
 import androidx.media3.extractor.text.Subtitle;
 import androidx.media3.extractor.text.SubtitleParser;
@@ -46,10 +43,7 @@ import androidx.media3.extractor.text.SubtitleParser;
 // TODO(b/289983417): this will only be used in the old decoding flow (Decoder after SampleQueue)
 // while we maintain dual architecture. Once we fully migrate to the pre-SampleQueue flow, it can be
 // deprecated and later deleted.
-// TODO: remove VisibleForTesting annotation once SubtitleExtractor uses SubtitleParser (rather than
-// SubtitleDecoder) and SubtitleExtractorTest is refactored
-@VisibleForTesting(otherwise = PACKAGE_PRIVATE)
-public final class DelegatingSubtitleDecoder extends SimpleSubtitleDecoder {
+/* package */ final class DelegatingSubtitleDecoder extends SimpleSubtitleDecoder {
 
   private final SubtitleParser subtitleParser;
 
