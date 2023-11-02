@@ -25,8 +25,8 @@ import androidx.annotation.Nullable;
 import androidx.core.app.BundleCompat;
 import androidx.media3.common.Bundleable;
 import androidx.media3.common.Player;
+import androidx.media3.common.util.BundleCollectionUtil;
 import androidx.media3.common.util.BundleUtil;
-import androidx.media3.common.util.BundleableUtil;
 import androidx.media3.common.util.Util;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
@@ -108,7 +108,8 @@ import java.util.List;
     bundle.putParcelable(FIELD_SESSION_ACTIVITY, sessionActivity);
     if (!customLayout.isEmpty()) {
       bundle.putParcelableArrayList(
-          FIELD_CUSTOM_LAYOUT, BundleableUtil.toBundleArrayList(customLayout));
+          FIELD_CUSTOM_LAYOUT,
+          BundleCollectionUtil.toBundleArrayList(customLayout, CommandButton::toBundle));
     }
     bundle.putBundle(FIELD_SESSION_COMMANDS, sessionCommands.toBundle());
     bundle.putBundle(FIELD_PLAYER_COMMANDS_FROM_SESSION, playerCommandsFromSession.toBundle());
@@ -153,7 +154,7 @@ import java.util.List;
     List<Bundle> commandButtonArrayList = bundle.getParcelableArrayList(FIELD_CUSTOM_LAYOUT);
     ImmutableList<CommandButton> customLayout =
         commandButtonArrayList != null
-            ? BundleableUtil.fromBundleList(CommandButton.CREATOR, commandButtonArrayList)
+            ? BundleCollectionUtil.fromBundleList(CommandButton::fromBundle, commandButtonArrayList)
             : ImmutableList.of();
     @Nullable Bundle sessionCommandsBundle = bundle.getBundle(FIELD_SESSION_COMMANDS);
     SessionCommands sessionCommands =

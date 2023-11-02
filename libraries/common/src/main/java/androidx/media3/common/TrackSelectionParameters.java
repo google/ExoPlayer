@@ -16,7 +16,7 @@
 package androidx.media3.common;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
-import static androidx.media3.common.util.BundleableUtil.toBundleArrayList;
+import static androidx.media3.common.util.BundleCollectionUtil.toBundleArrayList;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.lang.annotation.ElementType.TYPE_USE;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
@@ -29,7 +29,7 @@ import android.view.accessibility.CaptioningManager;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.media3.common.util.BundleableUtil;
+import androidx.media3.common.util.BundleCollectionUtil;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import com.google.common.collect.ImmutableList;
@@ -245,7 +245,8 @@ public class TrackSelectionParameters implements Bundleable {
       List<TrackSelectionOverride> overrideList =
           overrideBundleList == null
               ? ImmutableList.of()
-              : BundleableUtil.fromBundleList(TrackSelectionOverride.CREATOR, overrideBundleList);
+              : BundleCollectionUtil.fromBundleList(
+                  TrackSelectionOverride::fromBundle, overrideBundleList);
       overrides = new HashMap<>();
       for (int i = 0; i < overrideList.size(); i++) {
         TrackSelectionOverride override = overrideList.get(i);
@@ -1424,7 +1425,7 @@ public class TrackSelectionParameters implements Bundleable {
 
   /**
    * Defines a minimum field ID value for subclasses to use when implementing {@link #toBundle()}
-   * and {@link Bundleable.Creator}.
+   * and delegating to {@link Builder#Builder(Bundle)}.
    *
    * <p>Subclasses should obtain keys for their {@link Bundle} representation by applying a
    * non-negative offset on this constant and passing the result to {@link
@@ -1477,7 +1478,9 @@ public class TrackSelectionParameters implements Bundleable {
     // General
     bundle.putBoolean(FIELD_FORCE_LOWEST_BITRATE, forceLowestBitrate);
     bundle.putBoolean(FIELD_FORCE_HIGHEST_SUPPORTED_BITRATE, forceHighestSupportedBitrate);
-    bundle.putParcelableArrayList(FIELD_SELECTION_OVERRIDES, toBundleArrayList(overrides.values()));
+    bundle.putParcelableArrayList(
+        FIELD_SELECTION_OVERRIDES,
+        toBundleArrayList(overrides.values(), TrackSelectionOverride::toBundle));
     bundle.putIntArray(FIELD_DISABLED_TRACK_TYPE, Ints.toArray(disabledTrackTypes));
 
     return bundle;

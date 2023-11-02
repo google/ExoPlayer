@@ -19,7 +19,7 @@ import android.os.Bundle;
 import android.os.Parcel;
 import androidx.media3.common.text.Cue;
 import androidx.media3.common.util.Assertions;
-import androidx.media3.common.util.BundleableUtil;
+import androidx.media3.common.util.BundleCollectionUtil;
 import androidx.media3.common.util.UnstableApi;
 import java.util.ArrayList;
 import java.util.List;
@@ -65,7 +65,7 @@ public final class CueDecoder {
     ArrayList<Bundle> bundledCues =
         Assertions.checkNotNull(bundle.getParcelableArrayList(BUNDLE_FIELD_CUES));
     return new CuesWithTiming(
-        BundleableUtil.fromBundleList(Cue.CREATOR, bundledCues),
+        BundleCollectionUtil.fromBundleList(Cue::fromBundle, bundledCues),
         startTimeUs,
         bundle.getLong(BUNDLE_FIELD_DURATION_US));
   }

@@ -28,14 +28,17 @@ import android.os.SystemClock;
 import android.util.Pair;
 import androidx.annotation.Nullable;
 import androidx.media3.common.util.Assertions;
+import androidx.media3.common.util.BundleCollectionUtil;
 import androidx.media3.common.util.BundleUtil;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
+import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.errorprone.annotations.InlineMe;
 import java.util.ArrayList;
 import java.util.List;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 // TODO: b/288080357 - Replace developer.android.com fully-qualified SVG URLs below with relative
 // URLs once we stop publishing exoplayer2 javadoc.
@@ -1479,9 +1482,9 @@ public abstract class Timeline implements Bundleable {
 
   private static Timeline fromBundle(Bundle bundle) {
     ImmutableList<Window> windows =
-        fromBundleListRetriever(Window.CREATOR, BundleUtil.getBinder(bundle, FIELD_WINDOWS));
+        fromBundleListRetriever(Window::fromBundle, BundleUtil.getBinder(bundle, FIELD_WINDOWS));
     ImmutableList<Period> periods =
-        fromBundleListRetriever(Period.CREATOR, BundleUtil.getBinder(bundle, FIELD_PERIODS));
+        fromBundleListRetriever(Period::fromBundle, BundleUtil.getBinder(bundle, FIELD_PERIODS));
     @Nullable int[] shuffledWindowIndices = bundle.getIntArray(FIELD_SHUFFLED_WINDOW_INDICES);
     return new RemotableTimeline(
         windows,
@@ -1491,17 +1494,12 @@ public abstract class Timeline implements Bundleable {
             : shuffledWindowIndices);
   }
 
-  private static <T extends Bundleable> ImmutableList<T> fromBundleListRetriever(
-      Creator<T> creator, @Nullable IBinder binder) {
+  private static <T extends @NonNull Object> ImmutableList<T> fromBundleListRetriever(
+      Function<Bundle, T> fromBundleFunc, @Nullable IBinder binder) {
     if (binder == null) {
       return ImmutableList.of();
     }
-    ImmutableList.Builder<T> builder = new ImmutableList.Builder<>();
-    List<Bundle> bundleList = BundleListRetriever.getList(binder);
-    for (int i = 0; i < bundleList.size(); i++) {
-      builder.add(creator.fromBundle(bundleList.get(i)));
-    }
-    return builder.build();
+    return BundleCollectionUtil.fromBundleList(fromBundleFunc, BundleListRetriever.getList(binder));
   }
 
   private static int[] generateUnshuffledIndices(int n) {

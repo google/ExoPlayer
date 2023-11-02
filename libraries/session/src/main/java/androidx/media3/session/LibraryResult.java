@@ -32,7 +32,7 @@ import androidx.media3.common.BundleListRetriever;
 import androidx.media3.common.Bundleable;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MediaMetadata;
-import androidx.media3.common.util.BundleableUtil;
+import androidx.media3.common.util.BundleCollectionUtil;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import androidx.media3.session.MediaLibraryService.LibraryParams;
@@ -292,7 +292,9 @@ public final class LibraryResult<V> implements Bundleable {
         BundleCompat.putBinder(
             bundle,
             FIELD_VALUE,
-            new BundleListRetriever(BundleableUtil.toBundleList((ImmutableList<MediaItem>) value)));
+            new BundleListRetriever(
+                BundleCollectionUtil.toBundleList(
+                    (ImmutableList<MediaItem>) value, MediaItem::toBundle)));
         break;
       case VALUE_TYPE_VOID:
       case VALUE_TYPE_ERROR:
@@ -376,8 +378,8 @@ public final class LibraryResult<V> implements Bundleable {
         value =
             valueRetriever == null
                 ? null
-                : BundleableUtil.fromBundleList(
-                    MediaItem.CREATOR, BundleListRetriever.getList(valueRetriever));
+                : BundleCollectionUtil.fromBundleList(
+                    MediaItem::fromBundle, BundleListRetriever.getList(valueRetriever));
         break;
       case VALUE_TYPE_VOID:
       case VALUE_TYPE_ERROR:

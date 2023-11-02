@@ -34,7 +34,7 @@ public final class TrackGroupTest {
 
     TrackGroup trackGroupToBundle = new TrackGroup(id, format1, format2);
 
-    TrackGroup trackGroupFromBundle = TrackGroup.CREATOR.fromBundle(trackGroupToBundle.toBundle());
+    TrackGroup trackGroupFromBundle = TrackGroup.fromBundle(trackGroupToBundle.toBundle());
 
     assertThat(trackGroupFromBundle).isEqualTo(trackGroupToBundle);
   }

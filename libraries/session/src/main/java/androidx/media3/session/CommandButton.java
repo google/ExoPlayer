@@ -294,10 +294,12 @@ public final class CommandButton implements Bundleable {
     return bundle;
   }
 
-  /** Object that can restore {@link CommandButton} from a {@link Bundle}. */
+  /** Object that can restore {@code CommandButton} from a {@link Bundle}. */
   @UnstableApi public static final Creator<CommandButton> CREATOR = CommandButton::fromBundle;
 
-  private static CommandButton fromBundle(Bundle bundle) {
+  /** Restores a {@code CommandButton} from a {@link Bundle}. */
+  @UnstableApi
+  public static CommandButton fromBundle(Bundle bundle) {
     @Nullable Bundle sessionCommandBundle = bundle.getBundle(FIELD_SESSION_COMMAND);
     @Nullable
     SessionCommand sessionCommand =

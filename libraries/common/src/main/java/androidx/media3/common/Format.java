@@ -20,7 +20,7 @@ import static java.lang.annotation.ElementType.TYPE_USE;
 import android.os.Bundle;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
-import androidx.media3.common.util.BundleableUtil;
+import androidx.media3.common.util.BundleCollectionUtil;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import com.google.common.base.Joiner;
@@ -1450,9 +1450,11 @@ public final class Format implements Bundleable {
   /** Object that can restore {@code Format} from a {@link Bundle}. */
   @UnstableApi public static final Creator<Format> CREATOR = Format::fromBundle;
 
-  private static Format fromBundle(Bundle bundle) {
+  /** Restores a {@code Format} from a {@link Bundle}. */
+  @UnstableApi
+  public static Format fromBundle(Bundle bundle) {
     Builder builder = new Builder();
-    BundleableUtil.ensureClassLoader(bundle);
+    BundleCollectionUtil.ensureClassLoader(bundle);
     builder
         .setId(defaultIfNull(bundle.getString(FIELD_ID), DEFAULT.id))
         .setLabel(defaultIfNull(bundle.getString(FIELD_LABEL), DEFAULT.label))

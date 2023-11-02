@@ -25,7 +25,7 @@ import android.os.RemoteException;
 import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import androidx.media3.common.Player.Commands;
-import androidx.media3.common.util.BundleableUtil;
+import androidx.media3.common.util.BundleCollectionUtil;
 import androidx.media3.common.util.Log;
 import androidx.media3.session.MediaLibraryService.LibraryParams;
 import androidx.media3.session.PlayerInfo.BundlingExclusions;
@@ -100,7 +100,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   public void onSetCustomLayout(int seq, List<Bundle> commandButtonBundleList) {
     List<CommandButton> layout;
     try {
-      layout = BundleableUtil.fromBundleList(CommandButton.CREATOR, commandButtonBundleList);
+      layout =
+          BundleCollectionUtil.fromBundleList(CommandButton::fromBundle, commandButtonBundleList);
     } catch (RuntimeException e) {
       Log.w(TAG, "Ignoring malformed Bundle for CommandButton", e);
       return;

@@ -24,7 +24,7 @@ import android.os.Bundle;
 import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
 import androidx.media3.common.util.Assertions;
-import androidx.media3.common.util.BundleableUtil;
+import androidx.media3.common.util.BundleCollectionUtil;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import com.google.common.collect.ImmutableList;
@@ -929,15 +929,16 @@ public final class MediaItem implements Bundleable {
       UUID scheme = UUID.fromString(checkNotNull(bundle.getString(FIELD_SCHEME)));
       @Nullable Uri licenseUri = bundle.getParcelable(FIELD_LICENSE_URI);
       Bundle licenseMapAsBundle =
-          BundleableUtil.getBundleWithDefault(bundle, FIELD_LICENSE_REQUEST_HEADERS, Bundle.EMPTY);
+          BundleCollectionUtil.getBundleWithDefault(
+              bundle, FIELD_LICENSE_REQUEST_HEADERS, Bundle.EMPTY);
       ImmutableMap<String, String> licenseRequestHeaders =
-          BundleableUtil.bundleToStringImmutableMap(licenseMapAsBundle);
+          BundleCollectionUtil.bundleToStringImmutableMap(licenseMapAsBundle);
       boolean multiSession = bundle.getBoolean(FIELD_MULTI_SESSION, false);
       boolean playClearContentWithoutKey =
           bundle.getBoolean(FIELD_PLAY_CLEAR_CONTENT_WITHOUT_KEY, false);
       boolean forceDefaultLicenseUri = bundle.getBoolean(FIELD_FORCE_DEFAULT_LICENSE_URI, false);
       ArrayList<@C.TrackType Integer> forcedSessionTrackTypesArray =
-          BundleableUtil.getIntegerArrayListWithDefault(
+          BundleCollectionUtil.getIntegerArrayListWithDefault(
               bundle, FIELD_FORCED_SESSION_TRACK_TYPES, new ArrayList<>());
       ImmutableList<@C.TrackType Integer> forcedSessionTrackTypes =
           ImmutableList.copyOf(forcedSessionTrackTypesArray);
@@ -965,7 +966,8 @@ public final class MediaItem implements Bundleable {
       }
       if (!licenseRequestHeaders.isEmpty()) {
         bundle.putBundle(
-            FIELD_LICENSE_REQUEST_HEADERS, BundleableUtil.stringMapToBundle(licenseRequestHeaders));
+            FIELD_LICENSE_REQUEST_HEADERS,
+            BundleCollectionUtil.stringMapToBundle(licenseRequestHeaders));
       }
       if (multiSession) {
         bundle.putBoolean(FIELD_MULTI_SESSION, multiSession);
@@ -1246,14 +1248,17 @@ public final class MediaItem implements Bundleable {
       }
       if (!streamKeys.isEmpty()) {
         bundle.putParcelableArrayList(
-            FIELD_STREAM_KEYS, BundleableUtil.toBundleArrayList(streamKeys));
+            FIELD_STREAM_KEYS,
+            BundleCollectionUtil.toBundleArrayList(streamKeys, StreamKey::toBundle));
       }
       if (customCacheKey != null) {
         bundle.putString(FIELD_CUSTOM_CACHE_KEY, customCacheKey);
       }
       if (!subtitleConfigurations.isEmpty()) {
         bundle.putParcelableArrayList(
-            FIELD_SUBTITLE_CONFIGURATION, BundleableUtil.toBundleArrayList(subtitleConfigurations));
+            FIELD_SUBTITLE_CONFIGURATION,
+            BundleCollectionUtil.toBundleArrayList(
+                subtitleConfigurations, SubtitleConfiguration::toBundle));
       }
       if (imageDurationMs != C.TIME_UNSET) {
         bundle.putLong(FIELD_IMAGE_DURATION_MS, imageDurationMs);
@@ -1277,13 +1282,14 @@ public final class MediaItem implements Bundleable {
       List<StreamKey> streamKeys =
           streamKeysBundles == null
               ? ImmutableList.of()
-              : BundleableUtil.fromBundleList(StreamKey::fromBundle, streamKeysBundles);
+              : BundleCollectionUtil.fromBundleList(StreamKey::fromBundle, streamKeysBundles);
       @Nullable
       List<Bundle> subtitleBundles = bundle.getParcelableArrayList(FIELD_SUBTITLE_CONFIGURATION);
       ImmutableList<SubtitleConfiguration> subtitleConfiguration =
           subtitleBundles == null
               ? ImmutableList.of()
-              : BundleableUtil.fromBundleList(SubtitleConfiguration.CREATOR, subtitleBundles);
+              : BundleCollectionUtil.fromBundleList(
+                  SubtitleConfiguration::fromBundle, subtitleBundles);
       long imageDurationMs = bundle.getLong(FIELD_IMAGE_DURATION_MS, C.TIME_UNSET);
 
       return new LocalConfiguration(
@@ -2337,14 +2343,20 @@ public final class MediaItem implements Bundleable {
   }
 
   /**
-   * An object that can restore {@link MediaItem} from a {@link Bundle}.
+   * An object that can restore {@code MediaItem} from a {@link Bundle}.
    *
    * <p>The {@link #localConfiguration} of a restored instance will always be {@code null}.
    */
   @UnstableApi public static final Creator<MediaItem> CREATOR = MediaItem::fromBundle;
 
+  /**
+   * Restores a {@code MediaItem} from a {@link Bundle}.
+   *
+   * <p>The {@link #localConfiguration} of a restored instance will always be {@code null}.
+   */
+  @UnstableApi
   @SuppressWarnings("deprecation") // Unbundling to ClippingProperties while it still exists.
-  private static MediaItem fromBundle(Bundle bundle) {
+  public static MediaItem fromBundle(Bundle bundle) {
     String mediaId = checkNotNull(bundle.getString(FIELD_MEDIA_ID, DEFAULT_MEDIA_ID));
     @Nullable Bundle liveConfigurationBundle = bundle.getBundle(FIELD_LIVE_CONFIGURATION);
     LiveConfiguration liveConfiguration;

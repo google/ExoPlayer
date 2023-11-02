@@ -20,7 +20,7 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.media3.common.Bundleable;
 import androidx.media3.common.Timeline;
-import androidx.media3.common.util.BundleableUtil;
+import androidx.media3.common.util.BundleCollectionUtil;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import com.google.common.collect.ImmutableList;
@@ -69,7 +69,8 @@ public final class CueGroup implements Bundleable {
   public Bundle toBundle() {
     Bundle bundle = new Bundle();
     bundle.putParcelableArrayList(
-        FIELD_CUES, BundleableUtil.toBundleArrayList(filterOutBitmapCues(cues)));
+        FIELD_CUES,
+        BundleCollectionUtil.toBundleArrayList(filterOutBitmapCues(cues), Cue::toBundle));
     bundle.putLong(FIELD_PRESENTATION_TIME_US, presentationTimeUs);
     return bundle;
   }
@@ -81,7 +82,7 @@ public final class CueGroup implements Bundleable {
     List<Cue> cues =
         cueBundles == null
             ? ImmutableList.of()
-            : BundleableUtil.fromBundleList(Cue.CREATOR, cueBundles);
+            : BundleCollectionUtil.fromBundleList(Cue::fromBundle, cueBundles);
     long presentationTimeUs = bundle.getLong(FIELD_PRESENTATION_TIME_US);
     return new CueGroup(cues, presentationTimeUs);
   }

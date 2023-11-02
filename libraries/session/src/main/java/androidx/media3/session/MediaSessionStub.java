@@ -80,7 +80,7 @@ import androidx.media3.common.TrackSelectionOverride;
 import androidx.media3.common.TrackSelectionParameters;
 import androidx.media3.common.Tracks;
 import androidx.media3.common.util.Assertions;
-import androidx.media3.common.util.BundleableUtil;
+import androidx.media3.common.util.BundleCollectionUtil;
 import androidx.media3.common.util.Consumer;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.Util;
@@ -1045,8 +1045,8 @@ import java.util.concurrent.ExecutionException;
     List<MediaItem> mediaItemList;
     try {
       mediaItemList =
-          BundleableUtil.fromBundleList(
-              MediaItem.CREATOR, BundleListRetriever.getList(mediaItemsRetriever));
+          BundleCollectionUtil.fromBundleList(
+              MediaItem::fromBundle, BundleListRetriever.getList(mediaItemsRetriever));
     } catch (RuntimeException e) {
       Log.w(TAG, "Ignoring malformed Bundle for MediaItem", e);
       return;
@@ -1083,8 +1083,8 @@ import java.util.concurrent.ExecutionException;
     List<MediaItem> mediaItemList;
     try {
       mediaItemList =
-          BundleableUtil.fromBundleList(
-              MediaItem.CREATOR, BundleListRetriever.getList(mediaItemsRetriever));
+          BundleCollectionUtil.fromBundleList(
+              MediaItem::fromBundle, BundleListRetriever.getList(mediaItemsRetriever));
     } catch (RuntimeException e) {
       Log.w(TAG, "Ignoring malformed Bundle for MediaItem", e);
       return;
@@ -1192,8 +1192,8 @@ import java.util.concurrent.ExecutionException;
     List<MediaItem> mediaItems;
     try {
       mediaItems =
-          BundleableUtil.fromBundleList(
-              MediaItem.CREATOR, BundleListRetriever.getList(mediaItemsRetriever));
+          BundleCollectionUtil.fromBundleList(
+              MediaItem::fromBundle, BundleListRetriever.getList(mediaItemsRetriever));
     } catch (RuntimeException e) {
       Log.w(TAG, "Ignoring malformed Bundle for MediaItem", e);
       return;
@@ -1221,8 +1221,8 @@ import java.util.concurrent.ExecutionException;
     List<MediaItem> mediaItems;
     try {
       mediaItems =
-          BundleableUtil.fromBundleList(
-              MediaItem.CREATOR, BundleListRetriever.getList(mediaItemsRetriever));
+          BundleCollectionUtil.fromBundleList(
+              MediaItem::fromBundle, BundleListRetriever.getList(mediaItemsRetriever));
     } catch (RuntimeException e) {
       Log.w(TAG, "Ignoring malformed Bundle for MediaItem", e);
       return;
@@ -1360,8 +1360,8 @@ import java.util.concurrent.ExecutionException;
     ImmutableList<MediaItem> mediaItems;
     try {
       mediaItems =
-          BundleableUtil.fromBundleList(
-              MediaItem.CREATOR, BundleListRetriever.getList(mediaItemsRetriever));
+          BundleCollectionUtil.fromBundleList(
+              MediaItem::fromBundle, BundleListRetriever.getList(mediaItemsRetriever));
     } catch (RuntimeException e) {
       Log.w(TAG, "Ignoring malformed Bundle for MediaItem", e);
       return;
@@ -2006,7 +2006,8 @@ import java.util.concurrent.ExecutionException;
     @Override
     public void setCustomLayout(int sequenceNumber, List<CommandButton> layout)
         throws RemoteException {
-      iController.onSetCustomLayout(sequenceNumber, BundleableUtil.toBundleList(layout));
+      iController.onSetCustomLayout(
+          sequenceNumber, BundleCollectionUtil.toBundleList(layout, CommandButton::toBundle));
     }
 
     @Override

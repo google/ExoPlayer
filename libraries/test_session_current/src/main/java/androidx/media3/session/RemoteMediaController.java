@@ -39,7 +39,7 @@ import androidx.media3.common.Player;
 import androidx.media3.common.Player.RepeatMode;
 import androidx.media3.common.Rating;
 import androidx.media3.common.TrackSelectionParameters;
-import androidx.media3.common.util.BundleableUtil;
+import androidx.media3.common.util.BundleCollectionUtil;
 import androidx.media3.common.util.Log;
 import androidx.media3.test.session.common.IRemoteMediaController;
 import androidx.media3.test.session.common.TestUtils;
@@ -162,26 +162,33 @@ public class RemoteMediaController {
   }
 
   public void setMediaItems(List<MediaItem> mediaItems) throws RemoteException {
-    binder.setMediaItems(controllerId, BundleableUtil.toBundleList(mediaItems));
+    binder.setMediaItems(
+        controllerId, BundleCollectionUtil.toBundleList(mediaItems, MediaItem::toBundle));
   }
 
   public void setMediaItemsIncludeLocalConfiguration(List<MediaItem> mediaItems)
       throws RemoteException {
     binder.setMediaItems(
         controllerId,
-        BundleableUtil.toBundleList(mediaItems, MediaItem::toBundleIncludeLocalConfiguration));
+        BundleCollectionUtil.toBundleList(
+            mediaItems, MediaItem::toBundleIncludeLocalConfiguration));
   }
 
   public void setMediaItems(List<MediaItem> mediaItems, boolean resetPosition)
       throws RemoteException {
     binder.setMediaItemsWithResetPosition(
-        controllerId, BundleableUtil.toBundleList(mediaItems), resetPosition);
+        controllerId,
+        BundleCollectionUtil.toBundleList(mediaItems, MediaItem::toBundle),
+        resetPosition);
   }
 
   public void setMediaItems(List<MediaItem> mediaItems, int startIndex, long startPositionMs)
       throws RemoteException {
     binder.setMediaItemsWithStartIndex(
-        controllerId, BundleableUtil.toBundleList(mediaItems), startIndex, startPositionMs);
+        controllerId,
+        BundleCollectionUtil.toBundleList(mediaItems, MediaItem::toBundle),
+        startIndex,
+        startPositionMs);
   }
 
   /**
@@ -211,18 +218,21 @@ public class RemoteMediaController {
   }
 
   public void addMediaItems(List<MediaItem> mediaItems) throws RemoteException {
-    binder.addMediaItems(controllerId, BundleableUtil.toBundleList(mediaItems));
+    binder.addMediaItems(
+        controllerId, BundleCollectionUtil.toBundleList(mediaItems, MediaItem::toBundle));
   }
 
   public void addMediaItemsIncludeLocalConfiguration(List<MediaItem> mediaItems)
       throws RemoteException {
     binder.addMediaItems(
         controllerId,
-        BundleableUtil.toBundleList(mediaItems, MediaItem::toBundleIncludeLocalConfiguration));
+        BundleCollectionUtil.toBundleList(
+            mediaItems, MediaItem::toBundleIncludeLocalConfiguration));
   }
 
   public void addMediaItems(int index, List<MediaItem> mediaItems) throws RemoteException {
-    binder.addMediaItemsWithIndex(controllerId, index, BundleableUtil.toBundleList(mediaItems));
+    binder.addMediaItemsWithIndex(
+        controllerId, index, BundleCollectionUtil.toBundleList(mediaItems, MediaItem::toBundle));
   }
 
   public void removeMediaItem(int index) throws RemoteException {
@@ -252,7 +262,10 @@ public class RemoteMediaController {
   public void replaceMediaItems(int fromIndex, int toIndex, List<MediaItem> mediaItems)
       throws RemoteException {
     binder.replaceMediaItems(
-        controllerId, fromIndex, toIndex, BundleableUtil.toBundleList(mediaItems));
+        controllerId,
+        fromIndex,
+        toIndex,
+        BundleCollectionUtil.toBundleList(mediaItems, MediaItem::toBundle));
   }
 
   public void seekToPreviousMediaItem() throws RemoteException {
@@ -354,8 +367,8 @@ public class RemoteMediaController {
       throws RemoteException {
     binder.setMediaItemsPreparePlayAddItemsSeek(
         controllerId,
-        BundleableUtil.toBundleList(initialMediaItems),
-        BundleableUtil.toBundleList(addedMediaItems),
+        BundleCollectionUtil.toBundleList(initialMediaItems, MediaItem::toBundle),
+        BundleCollectionUtil.toBundleList(addedMediaItems, MediaItem::toBundle),
         seekIndex);
   }
 
