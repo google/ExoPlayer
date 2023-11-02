@@ -15,9 +15,6 @@
  */
 package com.google.android.exoplayer2.text;
 
-import static androidx.annotation.VisibleForTesting.PACKAGE_PRIVATE;
-
-import androidx.annotation.VisibleForTesting;
 
 /**
  * Wrapper around a {@link SubtitleParser} that can be used instead of any current {@link
@@ -48,11 +45,8 @@ import androidx.annotation.VisibleForTesting;
 // TODO(b/289983417): this will only be used in the old decoding flow (Decoder after SampleQueue)
 // while we maintain dual architecture. Once we fully migrate to the pre-SampleQueue flow, it can be
 // deprecated and later deleted.
-// TODO: remove VisibleForTesting annotation once SubtitleExtractor uses SubtitleParser (rather than
-// SubtitleDecoder) and SubtitleExtractorTest is refactored
-@VisibleForTesting(otherwise = PACKAGE_PRIVATE)
 @Deprecated
-public final class DelegatingSubtitleDecoder extends SimpleSubtitleDecoder {
+/* package */ final class DelegatingSubtitleDecoder extends SimpleSubtitleDecoder {
 
   private final SubtitleParser subtitleParser;
 
