@@ -15,13 +15,14 @@
  */
 package com.google.android.exoplayer2.ext.ffmpeg;
 
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.decoder.SimpleDecoder;
 import com.google.android.exoplayer2.decoder.SimpleDecoderOutputBuffer;
-import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
@@ -67,8 +68,8 @@ import java.util.List;
     if (!FfmpegLibrary.isAvailable()) {
       throw new FfmpegDecoderException("Failed to load decoder native libraries.");
     }
-    Assertions.checkNotNull(format.sampleMimeType);
-    codecName = Assertions.checkNotNull(FfmpegLibrary.getCodecName(format.sampleMimeType));
+    checkNotNull(format.sampleMimeType);
+    codecName = checkNotNull(FfmpegLibrary.getCodecName(format.sampleMimeType));
     extraData = getExtraData(format.sampleMimeType, format.initializationData);
     encoding = outputFloat ? C.ENCODING_PCM_FLOAT : C.ENCODING_PCM_16BIT;
     outputBufferSize =
@@ -136,7 +137,7 @@ import java.util.List;
       channelCount = ffmpegGetChannelCount(nativeContext);
       sampleRate = ffmpegGetSampleRate(nativeContext);
       if (sampleRate == 0 && "alac".equals(codecName)) {
-        Assertions.checkNotNull(extraData);
+        checkNotNull(extraData);
         // ALAC decoder did not set the sample rate in earlier versions of FFmpeg. See
         // https://trac.ffmpeg.org/ticket/6096.
         ParsableByteArray parsableExtraData = new ParsableByteArray(extraData);
@@ -145,6 +146,9 @@ import java.util.List;
       }
       hasOutputFormat = true;
     }
+    // Get a new reference to the output ByteBuffer in case the native decode method reallocated the
+    // buffer to grow its size.
+    outputData = checkNotNull(outputBuffer.data);
     outputData.position(0);
     outputData.limit(result);
     return null;
