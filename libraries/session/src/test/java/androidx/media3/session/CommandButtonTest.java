@@ -19,6 +19,7 @@ import static androidx.media3.session.CommandButton.CREATOR;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
+import android.net.Uri;
 import android.os.Bundle;
 import androidx.media3.common.Player;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -115,17 +116,45 @@ public class CommandButtonTest {
   }
 
   @Test
+  public void getIconUri_returnsUri() {
+    Uri uri = Uri.parse("content://test");
+    CommandButton button =
+        new CommandButton.Builder()
+            .setDisplayName("button1")
+            .setIconResId(R.drawable.media3_notification_small_icon)
+            .setIconUri(uri)
+            .setPlayerCommand(Player.COMMAND_SEEK_TO_PREVIOUS)
+            .build();
+
+    assertThat(button.iconUri).isEqualTo(uri);
+  }
+
+  @Test
+  public void getIconUri_returnsNullIfUnset() {
+    CommandButton button =
+        new CommandButton.Builder()
+            .setDisplayName("button1")
+            .setIconResId(R.drawable.media3_notification_small_icon)
+            .setPlayerCommand(Player.COMMAND_SEEK_TO_PREVIOUS)
+            .build();
+
+    assertThat(button.iconUri).isNull();
+  }
+
+  @Test
   public void equals() {
     assertThat(
             new CommandButton.Builder()
                 .setDisplayName("button")
                 .setIconResId(R.drawable.media3_notification_small_icon)
+                .setIconUri(Uri.parse("content://test"))
                 .setPlayerCommand(Player.COMMAND_SEEK_TO_NEXT)
                 .build())
         .isEqualTo(
             new CommandButton.Builder()
                 .setDisplayName("button")
                 .setIconResId(R.drawable.media3_notification_small_icon)
+                .setIconUri(Uri.parse("content://test"))
                 .setPlayerCommand(Player.COMMAND_SEEK_TO_NEXT)
                 .build());
   }
@@ -175,6 +204,14 @@ public class CommandButtonTest {
                 .setSessionCommand(new SessionCommand(Player.COMMAND_PLAY_PAUSE))
                 .setDisplayName("button")
                 .setIconResId(R.drawable.media3_notification_small_icon)
+                .build());
+    assertThat(button)
+        .isNotEqualTo(
+            new CommandButton.Builder()
+                .setDisplayName("button")
+                .setIconResId(R.drawable.media3_notification_small_icon)
+                .setIconUri(Uri.parse("content://test"))
+                .setPlayerCommand(Player.COMMAND_SEEK_TO_NEXT)
                 .build());
   }
 

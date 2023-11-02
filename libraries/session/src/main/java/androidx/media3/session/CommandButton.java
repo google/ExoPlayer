@@ -19,6 +19,7 @@ import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import androidx.annotation.DrawableRes;
@@ -48,6 +49,7 @@ public final class CommandButton implements Bundleable {
     @Nullable private SessionCommand sessionCommand;
     private @Player.Command int playerCommand;
     @DrawableRes private int iconResId;
+    @Nullable private Uri iconUri;
     private CharSequence displayName;
     private Bundle extras;
     private boolean enabled;
@@ -112,6 +114,19 @@ public final class CommandButton implements Bundleable {
     }
 
     /**
+     * Sets a {@link Uri} for the icon of this button.
+     *
+     * @param uri The uri to an icon.
+     * @return This builder for chaining.
+     */
+    @UnstableApi
+    @CanIgnoreReturnValue
+    public Builder setIconUri(Uri uri) {
+      this.iconUri = uri;
+      return this;
+    }
+
+    /**
      * Sets a display name of this button.
      *
      * @param displayName The display name.
@@ -153,7 +168,7 @@ public final class CommandButton implements Bundleable {
           (sessionCommand == null) != (playerCommand == Player.COMMAND_INVALID),
           "Exactly one of sessionCommand and playerCommand should be set");
       return new CommandButton(
-          sessionCommand, playerCommand, iconResId, displayName, extras, enabled);
+          sessionCommand, playerCommand, iconResId, iconUri, displayName, extras, enabled);
     }
   }
 
@@ -171,6 +186,9 @@ public final class CommandButton implements Bundleable {
    * icon isn't needed.
    */
   @DrawableRes public final int iconResId;
+
+  /** The {@link Uri} for the icon of the button. Can be {@code null}. */
+  @UnstableApi @Nullable public final Uri iconUri;
 
   /**
    * The display name of the button. Can be empty if the command is predefined and a custom name
@@ -191,12 +209,14 @@ public final class CommandButton implements Bundleable {
       @Nullable SessionCommand sessionCommand,
       @Player.Command int playerCommand,
       @DrawableRes int iconResId,
+      @Nullable Uri iconUri,
       CharSequence displayName,
       Bundle extras,
       boolean enabled) {
     this.sessionCommand = sessionCommand;
     this.playerCommand = playerCommand;
     this.iconResId = iconResId;
+    this.iconUri = iconUri;
     this.displayName = displayName;
     this.extras = new Bundle(extras);
     this.isEnabled = enabled;
@@ -212,7 +232,13 @@ public final class CommandButton implements Bundleable {
       return this;
     }
     return new CommandButton(
-        sessionCommand, playerCommand, iconResId, displayName, new Bundle(extras), isEnabled);
+        sessionCommand,
+        playerCommand,
+        iconResId,
+        iconUri,
+        displayName,
+        new Bundle(extras),
+        isEnabled);
   }
 
   /** Checks the given command button for equality while ignoring {@link #extras}. */
@@ -228,13 +254,15 @@ public final class CommandButton implements Bundleable {
     return Objects.equal(sessionCommand, button.sessionCommand)
         && playerCommand == button.playerCommand
         && iconResId == button.iconResId
+        && Objects.equal(iconUri, button.iconUri)
         && TextUtils.equals(displayName, button.displayName)
         && isEnabled == button.isEnabled;
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(sessionCommand, playerCommand, iconResId, displayName, isEnabled);
+    return Objects.hashCode(
+        sessionCommand, playerCommand, iconResId, displayName, isEnabled, iconUri);
   }
 
   /**
