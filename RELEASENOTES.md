@@ -17,6 +17,12 @@
 *   Transformer:
     *   Add support for flattening H.265/HEVC SEF slow motion videos.
 *   Track Selection:
+    *   Add `DefaultTrackSelector.selectImageTrack` to enable image track
+        selection.
+    *   Add `TrackSelectionParameters.isPrioritizeImageOverVideoEnabled` to
+        determine whether to select an image track if both an image track and a
+        video track are available. The default value is `false` which means
+        selecting a video track is prioritized.
 *   Extractors:
 *   Audio:
 *   Video:

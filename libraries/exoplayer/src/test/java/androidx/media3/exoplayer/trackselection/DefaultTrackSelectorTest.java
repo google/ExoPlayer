@@ -103,11 +103,16 @@ public final class DefaultTrackSelectorTest {
   private static final RendererCapabilities ALL_AUDIO_FORMAT_EXCEEDED_RENDERER_CAPABILITIES =
       new FakeRendererCapabilities(
           C.TRACK_TYPE_AUDIO, RendererCapabilities.create(FORMAT_EXCEEDS_CAPABILITIES));
+  private static final RendererCapabilities ALL_VIDEO_FORMAT_EXCEEDED_RENDERER_CAPABILITIES =
+      new FakeRendererCapabilities(
+          C.TRACK_TYPE_VIDEO, RendererCapabilities.create(FORMAT_EXCEEDS_CAPABILITIES));
 
   private static final RendererCapabilities VIDEO_CAPABILITIES =
       new FakeRendererCapabilities(C.TRACK_TYPE_VIDEO);
   private static final RendererCapabilities AUDIO_CAPABILITIES =
       new FakeRendererCapabilities(C.TRACK_TYPE_AUDIO);
+  private static final RendererCapabilities IMAGE_CAPABILITIES =
+      new FakeRendererCapabilities(C.TRACK_TYPE_IMAGE);
   private static final RendererCapabilities NO_SAMPLE_CAPABILITIES =
       new FakeRendererCapabilities(C.TRACK_TYPE_NONE);
   private static final RendererCapabilities[] RENDERER_CAPABILITIES =
@@ -131,6 +136,8 @@ public final class DefaultTrackSelectorTest {
           .build();
   private static final Format TEXT_FORMAT =
       new Format.Builder().setSampleMimeType(MimeTypes.TEXT_VTT).build();
+  private static final Format IMAGE_FORMAT =
+      new Format.Builder().setSampleMimeType(MimeTypes.IMAGE_PNG).build();
 
   private static final TrackGroup VIDEO_TRACK_GROUP = new TrackGroup(VIDEO_FORMAT);
   private static final TrackGroup AUDIO_TRACK_GROUP = new TrackGroup(AUDIO_FORMAT);
@@ -2904,6 +2911,105 @@ public final class DefaultTrackSelectorTest {
     trackSelector.onRendererCapabilitiesChanged(renderer);
 
     verify(invalidationListener).onRendererCapabilitiesChanged(renderer);
+  }
+
+  @Test
+  public void
+      selectTracks_withImageAndVideoAndPrioritizeImageOverVideoEnabled_selectsOnlyImageTrack()
+          throws Exception {
+    TrackGroupArray trackGroups =
+        new TrackGroupArray(new TrackGroup(IMAGE_FORMAT), new TrackGroup(VIDEO_FORMAT));
+    trackSelector.setParameters(
+        defaultParameters.buildUpon().setPrioritizeImageOverVideoEnabled(true).build());
+
+    TrackSelectorResult result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {VIDEO_CAPABILITIES, IMAGE_CAPABILITIES},
+            trackGroups,
+            periodId,
+            TIMELINE);
+
+    assertThat(result.length).isEqualTo(2);
+    assertThat(result.selections[ /* video renderer index */0]).isNull();
+    assertFixedSelection(
+        result.selections[ /* image renderer index */1], trackGroups, IMAGE_FORMAT);
+  }
+
+  @Test
+  public void selectTracks_withImageAndVideoTracksBothSupported_selectsOnlyVideoTrack()
+      throws Exception {
+    TrackGroupArray trackGroups =
+        new TrackGroupArray(new TrackGroup(IMAGE_FORMAT), new TrackGroup(VIDEO_FORMAT));
+
+    TrackSelectorResult result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {VIDEO_CAPABILITIES, IMAGE_CAPABILITIES},
+            trackGroups,
+            periodId,
+            TIMELINE);
+
+    assertThat(result.length).isEqualTo(2);
+    assertFixedSelection(
+        result.selections[ /* video renderer index */0], trackGroups, VIDEO_FORMAT);
+    assertThat(result.selections[ /* image renderer index */1]).isNull();
+  }
+
+  @Test
+  public void selectTracks_withVideoAndImageAndOnlyImageSupported_selectsImageTrack()
+      throws Exception {
+    TrackGroupArray trackGroups =
+        new TrackGroupArray(new TrackGroup(IMAGE_FORMAT), new TrackGroup(VIDEO_FORMAT));
+    trackSelector.setParameters(
+        defaultParameters.buildUpon().setExceedRendererCapabilitiesIfNecessary(false));
+
+    TrackSelectorResult result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {
+              ALL_VIDEO_FORMAT_EXCEEDED_RENDERER_CAPABILITIES, IMAGE_CAPABILITIES
+            },
+            trackGroups,
+            periodId,
+            TIMELINE);
+
+    assertThat(result.length).isEqualTo(2);
+    assertThat(result.selections[ /* video renderer index */0]).isNull();
+    assertFixedSelection(
+        result.selections[ /* image renderer index */1], trackGroups, IMAGE_FORMAT);
+  }
+
+  @Test
+  public void selectTracks_withVideoTrackOnlyAndPrioritizeImageOverVideoEnabled_selectsVideoTrack()
+      throws Exception {
+    TrackGroupArray trackGroups = new TrackGroupArray(new TrackGroup(VIDEO_FORMAT));
+    trackSelector.setParameters(
+        defaultParameters.buildUpon().setPrioritizeImageOverVideoEnabled(true).build());
+
+    TrackSelectorResult result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {VIDEO_CAPABILITIES, IMAGE_CAPABILITIES},
+            trackGroups,
+            periodId,
+            TIMELINE);
+
+    assertThat(result.length).isEqualTo(2);
+    assertFixedSelection(
+        result.selections[ /* video renderer index */0], trackGroups, VIDEO_FORMAT);
+    assertThat(result.selections[ /* image renderer index */1]).isNull();
+  }
+
+  @Test
+  public void selectTracks_withMultipleImageTracks_selectsHighestResolutionTrack()
+      throws Exception {
+    Format image1 = IMAGE_FORMAT.buildUpon().setWidth(320).setHeight(320).build();
+    Format image2 = IMAGE_FORMAT.buildUpon().setWidth(480).setHeight(480).build();
+    TrackGroupArray trackGroups = new TrackGroupArray(new TrackGroup(image1, image2));
+
+    TrackSelectorResult result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {IMAGE_CAPABILITIES}, trackGroups, periodId, TIMELINE);
+
+    assertThat(result.length).isEqualTo(1);
+    assertFixedSelection(result.selections[0], trackGroups, image2);
   }
 
   private static void assertSelections(TrackSelectorResult result, TrackSelection[] expected) {

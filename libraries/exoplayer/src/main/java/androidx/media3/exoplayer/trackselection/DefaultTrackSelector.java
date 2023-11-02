@@ -2615,7 +2615,16 @@ public class DefaultTrackSelector extends MappingTrackSelector
             rendererFormatSupports,
             rendererMixedMimeTypeAdaptationSupports,
             params);
-    if (selectedVideo != null) {
+
+    @Nullable
+    Pair<ExoTrackSelection.Definition, Integer> selectedImage =
+        params.isPrioritizeImageOverVideoEnabled || selectedVideo == null
+            ? selectImageTrack(mappedTrackInfo, rendererFormatSupports, params)
+            : null;
+
+    if (selectedImage != null) {
+      definitions[selectedImage.second] = selectedImage.first;
+    } else if (selectedVideo != null) {
       definitions[selectedVideo.second] = selectedVideo.first;
     }
 
@@ -2646,7 +2655,8 @@ public class DefaultTrackSelector extends MappingTrackSelector
       int trackType = mappedTrackInfo.getRendererType(i);
       if (trackType != C.TRACK_TYPE_VIDEO
           && trackType != C.TRACK_TYPE_AUDIO
-          && trackType != C.TRACK_TYPE_TEXT) {
+          && trackType != C.TRACK_TYPE_TEXT
+          && trackType != C.TRACK_TYPE_IMAGE) {
         definitions[i] =
             selectOtherTrack(
                 trackType, mappedTrackInfo.getTrackGroups(i), rendererFormatSupports[i], params);
@@ -2808,6 +2818,38 @@ public class DefaultTrackSelector extends MappingTrackSelector
             TextTrackInfo.createForTrackGroup(
                 rendererIndex, group, params, support, selectedAudioLanguage),
         TextTrackInfo::compareSelections);
+  }
+
+  // Image track selection implementation.
+
+  /**
+   * Called by {@link #selectAllTracks(MappedTrackInfo, int[][][], int[], Parameters)} to create a
+   * {@link ExoTrackSelection.Definition} for an image track selection.
+   *
+   * @param mappedTrackInfo Mapped track information.
+   * @param rendererFormatSupports The {@link Capabilities} for each mapped track, indexed by
+   *     renderer, track group and track (in that order).
+   * @param params The selector's current constraint parameters.
+   * @return A pair of the selected {@link ExoTrackSelection.Definition} and the corresponding
+   *     renderer index, or null if no selection was made.
+   * @throws ExoPlaybackException If an error occurs while selecting the tracks.
+   */
+  @Nullable
+  protected Pair<ExoTrackSelection.Definition, Integer> selectImageTrack(
+      MappedTrackInfo mappedTrackInfo,
+      @Capabilities int[][][] rendererFormatSupports,
+      Parameters params)
+      throws ExoPlaybackException {
+    if (params.audioOffloadPreferences.audioOffloadMode == AUDIO_OFFLOAD_MODE_REQUIRED) {
+      return null;
+    }
+    return selectTracksForType(
+        C.TRACK_TYPE_IMAGE,
+        mappedTrackInfo,
+        rendererFormatSupports,
+        (int rendererIndex, TrackGroup group, @Capabilities int[] support) ->
+            ImageTrackInfo.createForTrackGroup(rendererIndex, group, params, support),
+        ImageTrackInfo::compareSelections);
   }
 
   // Generic track selection methods.
@@ -3971,6 +4013,60 @@ public class DefaultTrackSelector extends MappingTrackSelector
     }
 
     public static int compareSelections(List<TextTrackInfo> infos1, List<TextTrackInfo> infos2) {
+      return infos1.get(0).compareTo(infos2.get(0));
+    }
+  }
+
+  private static final class ImageTrackInfo extends TrackInfo<ImageTrackInfo>
+      implements Comparable<ImageTrackInfo> {
+
+    public static ImmutableList<ImageTrackInfo> createForTrackGroup(
+        int rendererIndex,
+        TrackGroup trackGroup,
+        Parameters params,
+        @Capabilities int[] formatSupport) {
+      ImmutableList.Builder<ImageTrackInfo> imageTracks = ImmutableList.builder();
+      for (int i = 0; i < trackGroup.length; i++) {
+        imageTracks.add(
+            new ImageTrackInfo(
+                rendererIndex, trackGroup, /* trackIndex= */ i, params, formatSupport[i]));
+      }
+      return imageTracks.build();
+    }
+
+    private final @SelectionEligibility int selectionEligibility;
+    private final int pixelCount;
+
+    public ImageTrackInfo(
+        int rendererIndex,
+        TrackGroup trackGroup,
+        int trackIndex,
+        Parameters parameters,
+        @Capabilities int trackFormatSupport) {
+      super(rendererIndex, trackGroup, trackIndex);
+      selectionEligibility =
+          isSupported(trackFormatSupport, parameters.exceedRendererCapabilitiesIfNecessary)
+              ? SELECTION_ELIGIBILITY_FIXED
+              : SELECTION_ELIGIBILITY_NO;
+      pixelCount = format.getPixelCount();
+    }
+
+    @Override
+    public @SelectionEligibility int getSelectionEligibility() {
+      return selectionEligibility;
+    }
+
+    @Override
+    public boolean isCompatibleForAdaptationWith(ImageTrackInfo otherTrack) {
+      return false;
+    }
+
+    @Override
+    public int compareTo(ImageTrackInfo other) {
+      return Integer.compare(this.pixelCount, other.pixelCount);
+    }
+
+    public static int compareSelections(List<ImageTrackInfo> infos1, List<ImageTrackInfo> infos2) {
       return infos1.get(0).compareTo(infos2.get(0));
     }
   }
