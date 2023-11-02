@@ -16,7 +16,7 @@
 package com.google.android.exoplayer2.trackselection;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
-import static com.google.android.exoplayer2.util.BundleableUtil.toBundleArrayList;
+import static com.google.android.exoplayer2.util.BundleCollectionUtil.toBundleArrayList;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.lang.annotation.ElementType.TYPE_USE;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
@@ -33,7 +33,7 @@ import com.google.android.exoplayer2.Bundleable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.source.TrackGroup;
-import com.google.android.exoplayer2.util.BundleableUtil;
+import com.google.android.exoplayer2.util.BundleCollectionUtil;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -251,7 +251,8 @@ public class TrackSelectionParameters implements Bundleable {
       List<TrackSelectionOverride> overrideList =
           overrideBundleList == null
               ? ImmutableList.of()
-              : BundleableUtil.fromBundleList(TrackSelectionOverride.CREATOR, overrideBundleList);
+              : BundleCollectionUtil.fromBundleList(
+                  TrackSelectionOverride::fromBundle, overrideBundleList);
       overrides = new HashMap<>();
       for (int i = 0; i < overrideList.size(); i++) {
         TrackSelectionOverride override = overrideList.get(i);
@@ -1422,7 +1423,7 @@ public class TrackSelectionParameters implements Bundleable {
 
   /**
    * Defines a minimum field ID value for subclasses to use when implementing {@link #toBundle()}
-   * and {@link Bundleable.Creator}.
+   * and delegating to {@link Builder#Builder(Bundle)}.
    *
    * <p>Subclasses should obtain keys for their {@link Bundle} representation by applying a
    * non-negative offset on this constant and passing the result to {@link
@@ -1475,7 +1476,9 @@ public class TrackSelectionParameters implements Bundleable {
     // General
     bundle.putBoolean(FIELD_FORCE_LOWEST_BITRATE, forceLowestBitrate);
     bundle.putBoolean(FIELD_FORCE_HIGHEST_SUPPORTED_BITRATE, forceHighestSupportedBitrate);
-    bundle.putParcelableArrayList(FIELD_SELECTION_OVERRIDES, toBundleArrayList(overrides.values()));
+    bundle.putParcelableArrayList(
+        FIELD_SELECTION_OVERRIDES,
+        toBundleArrayList(overrides.values(), TrackSelectionOverride::toBundle));
     bundle.putIntArray(FIELD_DISABLED_TRACK_TYPE, Ints.toArray(disabledTrackTypes));
 
     return bundle;

@@ -460,7 +460,7 @@ public class PlaybackException extends Exception implements Bundleable {
 
   /**
    * Defines a minimum field ID value for subclasses to use when implementing {@link #toBundle()}
-   * and {@link Bundleable.Creator}.
+   * and delegating to {@link #PlaybackException(Bundle)}.
    *
    * <p>Subclasses should obtain their {@link Bundle Bundle's} field keys by applying a non-negative
    * offset on this constant and passing the result to {@link Util#intToStringMaxRadix(int)}.

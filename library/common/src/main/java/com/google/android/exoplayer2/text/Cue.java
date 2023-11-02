@@ -873,7 +873,8 @@ public final class Cue implements Bundleable {
 
   public static final Creator<Cue> CREATOR = Cue::fromBundle;
 
-  private static final Cue fromBundle(Bundle bundle) {
+  /** Restores a cue from a {@link Bundle}. */
+  public static Cue fromBundle(Bundle bundle) {
     Builder builder = new Builder();
     @Nullable CharSequence text = bundle.getCharSequence(FIELD_TEXT);
     if (text != null) {

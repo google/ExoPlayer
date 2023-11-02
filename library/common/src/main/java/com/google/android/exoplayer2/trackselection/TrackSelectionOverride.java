@@ -122,11 +122,13 @@ public final class TrackSelectionOverride implements Bundleable {
   }
 
   /** Object that can restore {@code TrackSelectionOverride} from a {@link Bundle}. */
-  public static final Creator<TrackSelectionOverride> CREATOR =
-      bundle -> {
-        Bundle trackGroupBundle = checkNotNull(bundle.getBundle(FIELD_TRACK_GROUP));
-        TrackGroup mediaTrackGroup = TrackGroup.CREATOR.fromBundle(trackGroupBundle);
-        int[] tracks = checkNotNull(bundle.getIntArray(FIELD_TRACKS));
-        return new TrackSelectionOverride(mediaTrackGroup, Ints.asList(tracks));
-      };
+  public static final Creator<TrackSelectionOverride> CREATOR = TrackSelectionOverride::fromBundle;
+
+  /** Restores a {@code TrackSelectionOverride} from a {@link Bundle}. */
+  public static TrackSelectionOverride fromBundle(Bundle bundle) {
+    Bundle trackGroupBundle = checkNotNull(bundle.getBundle(FIELD_TRACK_GROUP));
+    TrackGroup mediaTrackGroup = TrackGroup.fromBundle(trackGroupBundle);
+    int[] tracks = checkNotNull(bundle.getIntArray(FIELD_TRACKS));
+    return new TrackSelectionOverride(mediaTrackGroup, Ints.asList(tracks));
+  }
 }

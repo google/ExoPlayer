@@ -25,9 +25,9 @@ import java.util.Map;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-/** Unit tests for {@link BundleableUtil}. */
+/** Unit tests for {@link BundleCollectionUtil}. */
 @RunWith(AndroidJUnit4.class)
-public class BundleableUtilTest {
+public class BundleCollectionUtilTest {
 
   @Test
   public void testStringMapToBundle() {
@@ -37,8 +37,8 @@ public class BundleableUtilTest {
     originalMap.put("thirdKey", "repeatedValue");
     originalMap.put("", "valueOfEmptyKey");
 
-    Bundle mapAsBundle = BundleableUtil.stringMapToBundle(originalMap);
-    Map<String, String> restoredMap = BundleableUtil.bundleToStringHashMap(mapAsBundle);
+    Bundle mapAsBundle = BundleCollectionUtil.stringMapToBundle(originalMap);
+    Map<String, String> restoredMap = BundleCollectionUtil.bundleToStringHashMap(mapAsBundle);
 
     assertThat(restoredMap).isEqualTo(originalMap);
   }
@@ -57,11 +57,11 @@ public class BundleableUtilTest {
     outerBundle.putBundle("2", null);
 
     Bundle restoredInnerBundle =
-        BundleableUtil.getBundleWithDefault(outerBundle, "0", defaultBundle);
+        BundleCollectionUtil.getBundleWithDefault(outerBundle, "0", defaultBundle);
     Bundle restoredEmptyBundle =
-        BundleableUtil.getBundleWithDefault(outerBundle, "1", defaultBundle);
+        BundleCollectionUtil.getBundleWithDefault(outerBundle, "1", defaultBundle);
     Bundle restoredNullBundle =
-        BundleableUtil.getBundleWithDefault(outerBundle, "2", defaultBundle);
+        BundleCollectionUtil.getBundleWithDefault(outerBundle, "2", defaultBundle);
 
     assertThat(restoredInnerBundle).isEqualTo(fullInnerBundle);
     assertThat(restoredEmptyBundle).isEqualTo(Bundle.EMPTY);
@@ -83,11 +83,11 @@ public class BundleableUtilTest {
     bundle.putIntegerArrayList("2", null);
 
     ArrayList<Integer> restoredIntegerArray =
-        BundleableUtil.getIntegerArrayListWithDefault(bundle, "0", defaultIntegerArray);
+        BundleCollectionUtil.getIntegerArrayListWithDefault(bundle, "0", defaultIntegerArray);
     ArrayList<Integer> restoredEmptyIntegerArray =
-        BundleableUtil.getIntegerArrayListWithDefault(bundle, "1", defaultIntegerArray);
+        BundleCollectionUtil.getIntegerArrayListWithDefault(bundle, "1", defaultIntegerArray);
     ArrayList<Integer> restoredNullIntegerArray =
-        BundleableUtil.getIntegerArrayListWithDefault(bundle, "2", defaultIntegerArray);
+        BundleCollectionUtil.getIntegerArrayListWithDefault(bundle, "2", defaultIntegerArray);
 
     assertThat(restoredIntegerArray).isEqualTo(normalArray);
     assertThat(restoredEmptyIntegerArray).isEqualTo(emptyArray);

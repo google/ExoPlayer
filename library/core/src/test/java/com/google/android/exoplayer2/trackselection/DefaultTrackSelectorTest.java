@@ -47,7 +47,6 @@ import android.content.Context;
 import android.media.Spatializer;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import com.google.android.exoplayer2.Bundleable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
@@ -179,7 +178,7 @@ public final class DefaultTrackSelectorTest {
     assertThat(parameters.buildUpon().build()).isEqualTo(parameters);
   }
 
-  /** Tests {@link Parameters} {@link Bundleable} implementation. */
+  /** Tests {@link Parameters} bundle implementation. */
   @Test
   public void roundTripViaBundle_ofParameters_yieldsEqualInstance() {
     Parameters parametersToBundle = buildParametersForEqualsTest();
@@ -2839,15 +2838,14 @@ public final class DefaultTrackSelectorTest {
     assertThat(trackGroups.get(0).getTrackSupport(0)).isEqualTo(FORMAT_HANDLED);
   }
 
-  /** Tests {@link SelectionOverride}'s {@link Bundleable} implementation. */
+  /** Tests {@link SelectionOverride}'s bundle implementation. */
   @Test
   public void roundTripViaBundle_ofSelectionOverride_yieldsEqualInstance() {
     SelectionOverride selectionOverrideToBundle =
         new SelectionOverride(/* groupIndex= */ 1, /* tracks...= */ 2, 3);
 
     SelectionOverride selectionOverrideFromBundle =
-        DefaultTrackSelector.SelectionOverride.CREATOR.fromBundle(
-            selectionOverrideToBundle.toBundle());
+        DefaultTrackSelector.SelectionOverride.fromBundle(selectionOverrideToBundle.toBundle());
 
     assertThat(selectionOverrideFromBundle).isEqualTo(selectionOverrideToBundle);
   }

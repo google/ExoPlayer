@@ -17,12 +17,12 @@ package com.google.android.exoplayer2;
 
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
-import static com.google.android.exoplayer2.util.BundleableUtil.toBundleArrayList;
+import static com.google.android.exoplayer2.util.BundleCollectionUtil.toBundleArrayList;
 
 import android.os.Bundle;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.source.TrackGroup;
-import com.google.android.exoplayer2.util.BundleableUtil;
+import com.google.android.exoplayer2.util.BundleCollectionUtil;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableList;
@@ -250,20 +250,22 @@ public final class Tracks implements Bundleable {
     }
 
     /** Object that can restore a group of tracks from a {@link Bundle}. */
-    public static final Creator<Group> CREATOR =
-        bundle -> {
-          // Can't create a Tracks.Group without a TrackGroup
-          TrackGroup trackGroup =
-              TrackGroup.CREATOR.fromBundle(checkNotNull(bundle.getBundle(FIELD_TRACK_GROUP)));
-          final @C.FormatSupport int[] trackSupport =
-              MoreObjects.firstNonNull(
-                  bundle.getIntArray(FIELD_TRACK_SUPPORT), new int[trackGroup.length]);
-          boolean[] selected =
-              MoreObjects.firstNonNull(
-                  bundle.getBooleanArray(FIELD_TRACK_SELECTED), new boolean[trackGroup.length]);
-          boolean adaptiveSupported = bundle.getBoolean(FIELD_ADAPTIVE_SUPPORTED, false);
-          return new Group(trackGroup, adaptiveSupported, trackSupport, selected);
-        };
+    public static final Creator<Group> CREATOR = Group::fromBundle;
+
+    /** Restores a group of tracks from a {@link Bundle}. */
+    public static Group fromBundle(Bundle bundle) {
+      // Can't create a Tracks.Group without a TrackGroup
+      TrackGroup trackGroup =
+          TrackGroup.fromBundle(checkNotNull(bundle.getBundle(FIELD_TRACK_GROUP)));
+      final @C.FormatSupport int[] trackSupport =
+          MoreObjects.firstNonNull(
+              bundle.getIntArray(FIELD_TRACK_SUPPORT), new int[trackGroup.length]);
+      boolean[] selected =
+          MoreObjects.firstNonNull(
+              bundle.getBooleanArray(FIELD_TRACK_SELECTED), new boolean[trackGroup.length]);
+      boolean adaptiveSupported = bundle.getBoolean(FIELD_ADAPTIVE_SUPPORTED, false);
+      return new Group(trackGroup, adaptiveSupported, trackSupport, selected);
+    }
   }
 
   /** Empty tracks. */
@@ -383,7 +385,7 @@ public final class Tracks implements Bundleable {
   @Override
   public Bundle toBundle() {
     Bundle bundle = new Bundle();
-    bundle.putParcelableArrayList(FIELD_TRACK_GROUPS, toBundleArrayList(groups));
+    bundle.putParcelableArrayList(FIELD_TRACK_GROUPS, toBundleArrayList(groups, Group::toBundle));
     return bundle;
   }
 
@@ -394,7 +396,7 @@ public final class Tracks implements Bundleable {
         List<Group> groups =
             groupBundles == null
                 ? ImmutableList.of()
-                : BundleableUtil.fromBundleList(Group.CREATOR, groupBundles);
+                : BundleCollectionUtil.fromBundleList(Group::fromBundle, groupBundles);
         return new Tracks(groups);
       };
 }

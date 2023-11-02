@@ -61,7 +61,7 @@ import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionParameters.AudioOffloadPreferences;
 import com.google.android.exoplayer2.util.Assertions;
-import com.google.android.exoplayer2.util.BundleableUtil;
+import com.google.android.exoplayer2.util.BundleCollectionUtil;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.NullableType;
@@ -1648,15 +1648,16 @@ public class DefaultTrackSelector extends MappingTrackSelector
         List<TrackGroupArray> trackGroupArrays =
             trackGroupArrayBundles == null
                 ? ImmutableList.of()
-                : BundleableUtil.fromBundleList(TrackGroupArray.CREATOR, trackGroupArrayBundles);
+                : BundleCollectionUtil.fromBundleList(
+                    TrackGroupArray::fromBundle, trackGroupArrayBundles);
         @Nullable
         SparseArray<Bundle> selectionOverrideBundles =
             bundle.getSparseParcelableArray(Parameters.FIELD_SELECTION_OVERRIDES);
         SparseArray<SelectionOverride> selectionOverrides =
             selectionOverrideBundles == null
                 ? new SparseArray<>()
-                : BundleableUtil.fromBundleSparseArray(
-                    SelectionOverride.CREATOR, selectionOverrideBundles);
+                : BundleCollectionUtil.fromBundleSparseArray(
+                    SelectionOverride::fromBundle, selectionOverrideBundles);
 
         if (rendererIndices == null || rendererIndices.length != trackGroupArrays.size()) {
           return; // Incorrect format, ignore all overrides.
@@ -2093,9 +2094,10 @@ public class DefaultTrackSelector extends MappingTrackSelector
             FIELD_SELECTION_OVERRIDES_RENDERER_INDICES, Ints.toArray(rendererIndices));
         bundle.putParcelableArrayList(
             FIELD_SELECTION_OVERRIDES_TRACK_GROUP_ARRAYS,
-            BundleableUtil.toBundleArrayList(trackGroupArrays));
+            BundleCollectionUtil.toBundleArrayList(trackGroupArrays, TrackGroupArray::toBundle));
         bundle.putSparseParcelableArray(
-            FIELD_SELECTION_OVERRIDES, BundleableUtil.toBundleSparseArray(selections));
+            FIELD_SELECTION_OVERRIDES,
+            BundleCollectionUtil.toBundleSparseArray(selections, SelectionOverride::toBundle));
       }
     }
 
@@ -2237,15 +2239,17 @@ public class DefaultTrackSelector extends MappingTrackSelector
     }
 
     /** Object that can restore {@code SelectionOverride} from a {@link Bundle}. */
-    public static final Creator<SelectionOverride> CREATOR =
-        bundle -> {
-          int groupIndex = bundle.getInt(FIELD_GROUP_INDEX, -1);
-          @Nullable int[] tracks = bundle.getIntArray(FIELD_TRACKS);
-          int trackType = bundle.getInt(FIELD_TRACK_TYPE, -1);
-          Assertions.checkArgument(groupIndex >= 0 && trackType >= 0);
-          Assertions.checkNotNull(tracks);
-          return new SelectionOverride(groupIndex, tracks, trackType);
-        };
+    public static final Creator<SelectionOverride> CREATOR = SelectionOverride::fromBundle;
+
+    /** Restores a {@code SelectionOverride} from a {@link Bundle}. */
+    public static SelectionOverride fromBundle(Bundle bundle) {
+      int groupIndex = bundle.getInt(FIELD_GROUP_INDEX, -1);
+      @Nullable int[] tracks = bundle.getIntArray(FIELD_TRACKS);
+      int trackType = bundle.getInt(FIELD_TRACK_TYPE, -1);
+      Assertions.checkArgument(groupIndex >= 0 && trackType >= 0);
+      Assertions.checkNotNull(tracks);
+      return new SelectionOverride(groupIndex, tracks, trackType);
+    }
   }
 
   /**

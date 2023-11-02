@@ -21,7 +21,6 @@ import static com.google.android.exoplayer2.util.Util.castNonNull;
 import android.os.Bundle;
 import android.util.SparseArray;
 import androidx.annotation.Nullable;
-import com.google.android.exoplayer2.Bundleable;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -30,9 +29,10 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 /**
- * Utilities for {@link Bundleable}.
+ * Utilities for converting collections to and from {@link Bundle} instances.
  *
  * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
  *     contains the same ExoPlayer code). See <a
@@ -40,78 +40,93 @@ import java.util.Map;
  *     migration guide</a> for more details, including a script to help with the migration.
  */
 @Deprecated
-public final class BundleableUtil {
-
-  /** Converts a list of {@link Bundleable} to a list {@link Bundle}. */
-  public static <T extends Bundleable> ImmutableList<Bundle> toBundleList(List<T> bundleableList) {
-    return toBundleList(bundleableList, Bundleable::toBundle);
-  }
+public final class BundleCollectionUtil {
 
   /**
-   * Converts a list of {@link Bundleable} to a list {@link Bundle}
+   * Bundles a list of objects to a list of {@link Bundle} instances.
    *
-   * @param bundleableList list of Bundleable items to be converted
-   * @param customToBundleFunc function that specifies how to bundle up each {@link Bundleable}
+   * @param list List of items to be bundled.
+   * @param toBundleFunc Function that specifies how to bundle each item.
+   * @return The {@link ImmutableList} of bundled items.
    */
-  public static <T extends Bundleable> ImmutableList<Bundle> toBundleList(
-      List<T> bundleableList, Function<T, Bundle> customToBundleFunc) {
+  public static <T extends @NonNull Object> ImmutableList<Bundle> toBundleList(
+      List<T> list, Function<T, Bundle> toBundleFunc) {
     ImmutableList.Builder<Bundle> builder = ImmutableList.builder();
-    for (int i = 0; i < bundleableList.size(); i++) {
-      T bundleable = bundleableList.get(i);
-      builder.add(customToBundleFunc.apply(bundleable));
+    for (int i = 0; i < list.size(); i++) {
+      T item = list.get(i);
+      builder.add(toBundleFunc.apply(item));
     }
     return builder.build();
   }
 
-  /** Converts a list of {@link Bundle} to a list of {@link Bundleable}. */
-  public static <T extends Bundleable> ImmutableList<T> fromBundleList(
-      Bundleable.Creator<T> creator, List<Bundle> bundleList) {
+  /**
+   * Unbundles a list of {@link Bundle} instances to a list of objects.
+   *
+   * @param fromBundleFunc Function that specified how to unbundle each item.
+   * @param bundleList List of {@link Bundle} instances to be unbundled.
+   * @return The {@link ImmutableList} of unbundled items.
+   */
+  public static <T extends @NonNull Object> ImmutableList<T> fromBundleList(
+      Function<Bundle, T> fromBundleFunc, List<Bundle> bundleList) {
     ImmutableList.Builder<T> builder = ImmutableList.builder();
     for (int i = 0; i < bundleList.size(); i++) {
       Bundle bundle = checkNotNull(bundleList.get(i)); // Fail fast during parsing.
-      T bundleable = creator.fromBundle(bundle);
-      builder.add(bundleable);
+      T item = fromBundleFunc.apply(bundle);
+      builder.add(item);
     }
     return builder.build();
   }
 
   /**
-   * Converts a collection of {@link Bundleable} to an {@link ArrayList} of {@link Bundle} so that
-   * the returned list can be put to {@link Bundle} using {@link Bundle#putParcelableArrayList}
+   * Bundles a collection of objects to an {@link ArrayList} of {@link Bundle} instances so that the
+   * returned list can be put to {@link Bundle} using {@link Bundle#putParcelableArrayList}
    * conveniently.
+   *
+   * @param items Collection of items to be bundled.
+   * @param toBundleFunc Function that specifies how to bundle each item.
+   * @return The {@link ArrayList} of bundled items.
    */
-  public static <T extends Bundleable> ArrayList<Bundle> toBundleArrayList(
-      Collection<T> bundleables) {
-    ArrayList<Bundle> arrayList = new ArrayList<>(bundleables.size());
-    for (T element : bundleables) {
-      arrayList.add(element.toBundle());
+  @SuppressWarnings("NonApiType") // Intentionally using ArrayList for putParcelableArrayList.
+  public static <T extends @NonNull Object> ArrayList<Bundle> toBundleArrayList(
+      Collection<T> items, Function<T, Bundle> toBundleFunc) {
+    ArrayList<Bundle> arrayList = new ArrayList<>(items.size());
+    for (T item : items) {
+      arrayList.add(toBundleFunc.apply(item));
     }
     return arrayList;
   }
 
   /**
-   * Converts a {@link SparseArray} of {@link Bundle} to a {@link SparseArray} of {@link
-   * Bundleable}.
+   * Unbundles a {@link SparseArray} of {@link Bundle} instances to a {@link SparseArray} of
+   * objects.
+   *
+   * @param fromBundleFunc Function that specified how to unbundle each item.
+   * @param bundleSparseArray {@link SparseArray} of {@link Bundle} instances to be unbundled.
+   * @return The {@link SparseArray} of unbundled items.
    */
-  public static <T extends Bundleable> SparseArray<T> fromBundleSparseArray(
-      Bundleable.Creator<T> creator, SparseArray<Bundle> bundleSparseArray) {
+  public static <T extends @NonNull Object> SparseArray<T> fromBundleSparseArray(
+      Function<Bundle, T> fromBundleFunc, SparseArray<Bundle> bundleSparseArray) {
     SparseArray<T> result = new SparseArray<>(bundleSparseArray.size());
     for (int i = 0; i < bundleSparseArray.size(); i++) {
-      result.put(bundleSparseArray.keyAt(i), creator.fromBundle(bundleSparseArray.valueAt(i)));
+      result.put(bundleSparseArray.keyAt(i), fromBundleFunc.apply(bundleSparseArray.valueAt(i)));
     }
     return result;
   }
 
   /**
-   * Converts a {@link SparseArray} of {@link Bundleable} to an {@link SparseArray} of {@link
-   * Bundle} so that the returned {@link SparseArray} can be put to {@link Bundle} using {@link
+   * Bundles a {@link SparseArray} of objects to a {@link SparseArray} of {@link Bundle} instances
+   * so that the returned {@link SparseArray} can be put to {@link Bundle} using {@link
    * Bundle#putSparseParcelableArray} conveniently.
+   *
+   * @param items Collection of items to be bundled.
+   * @param toBundleFunc Function that specifies how to bundle each item.
+   * @return The {@link SparseArray} of bundled items.
    */
-  public static <T extends Bundleable> SparseArray<Bundle> toBundleSparseArray(
-      SparseArray<T> bundleableSparseArray) {
-    SparseArray<Bundle> sparseArray = new SparseArray<>(bundleableSparseArray.size());
-    for (int i = 0; i < bundleableSparseArray.size(); i++) {
-      sparseArray.put(bundleableSparseArray.keyAt(i), bundleableSparseArray.valueAt(i).toBundle());
+  public static <T extends @NonNull Object> SparseArray<Bundle> toBundleSparseArray(
+      SparseArray<T> items, Function<T, Bundle> toBundleFunc) {
+    SparseArray<Bundle> sparseArray = new SparseArray<>(items.size());
+    for (int i = 0; i < items.size(); i++) {
+      sparseArray.put(items.keyAt(i), toBundleFunc.apply(items.valueAt(i)));
     }
     return sparseArray;
   }
@@ -161,13 +176,13 @@ public final class BundleableUtil {
    * Sets the application class loader to the given {@link Bundle} if no class loader is present.
    *
    * <p>This assumes that all classes unparceled from {@code bundle} are sharing the class loader of
-   * {@code BundleableUtils}.
+   * {@code BundleCollectionUtil}.
    */
   public static void ensureClassLoader(@Nullable Bundle bundle) {
     if (bundle != null) {
-      bundle.setClassLoader(castNonNull(BundleableUtil.class.getClassLoader()));
+      bundle.setClassLoader(castNonNull(BundleCollectionUtil.class.getClassLoader()));
     }
   }
 
-  private BundleableUtil() {}
+  private BundleCollectionUtil() {}
 }

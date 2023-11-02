@@ -24,7 +24,7 @@ import com.google.android.exoplayer2.Bundleable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Tracks;
-import com.google.android.exoplayer2.util.BundleableUtil;
+import com.google.android.exoplayer2.util.BundleCollectionUtil;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
@@ -183,16 +183,18 @@ public final class TrackGroup implements Bundleable {
   }
 
   /** Object that can restore {@code TrackGroup} from a {@link Bundle}. */
-  public static final Creator<TrackGroup> CREATOR =
-      bundle -> {
-        @Nullable List<Bundle> formatBundles = bundle.getParcelableArrayList(FIELD_FORMATS);
-        List<Format> formats =
-            formatBundles == null
-                ? ImmutableList.of()
-                : BundleableUtil.fromBundleList(Format.CREATOR, formatBundles);
-        String id = bundle.getString(FIELD_ID, /* defaultValue= */ "");
-        return new TrackGroup(id, formats.toArray(new Format[0]));
-      };
+  public static final Creator<TrackGroup> CREATOR = TrackGroup::fromBundle;
+
+  /** Restores a {@code TrackGroup} from a {@link Bundle}. */
+  public static TrackGroup fromBundle(Bundle bundle) {
+    @Nullable List<Bundle> formatBundles = bundle.getParcelableArrayList(FIELD_FORMATS);
+    List<Format> formats =
+        formatBundles == null
+            ? ImmutableList.of()
+            : BundleCollectionUtil.fromBundleList(Format::fromBundle, formatBundles);
+    String id = bundle.getString(FIELD_ID, /* defaultValue= */ "");
+    return new TrackGroup(id, formats.toArray(new Format[0]));
+  }
 
   private void verifyCorrectness() {
     // TrackGroups should only contain tracks with exactly the same content (but in different
