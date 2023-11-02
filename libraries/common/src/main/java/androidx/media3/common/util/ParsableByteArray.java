@@ -20,6 +20,7 @@ import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.primitives.Chars;
 import com.google.common.primitives.UnsignedBytes;
+import com.google.errorprone.annotations.CheckReturnValue;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Arrays;
@@ -29,6 +30,7 @@ import java.util.Arrays;
  * parsed with the assumption that their constituent bytes are in big endian order.
  */
 @UnstableApi
+@CheckReturnValue
 public final class ParsableByteArray {
 
   private static final char[] CR_AND_LF = {'\r', '\n'};
@@ -549,7 +551,7 @@ public final class ParsableByteArray {
       return null;
     }
     if (!charset.equals(Charsets.US_ASCII)) {
-      readUtfCharsetFromBom(); // Skip BOM if present
+      Charset unused = readUtfCharsetFromBom(); // Skip BOM if present
     }
     int lineLimit = findNextLineTerminator(charset);
     String line = readString(lineLimit - position, charset);
@@ -652,7 +654,7 @@ public final class ParsableByteArray {
 
   private void skipLineTerminator(Charset charset) {
     if (readCharacterIfInList(charset, CR_AND_LF) == '\r') {
-      readCharacterIfInList(charset, LF);
+      char unused = readCharacterIfInList(charset, LF);
     }
   }
 
