@@ -19,6 +19,7 @@ import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
+import static com.google.android.exoplayer2.util.Util.usToMs;
 
 import android.content.Context;
 import android.net.Uri;
@@ -158,16 +159,17 @@ public final class ConcatenatingMediaSource2 extends CompositeMediaSource<Intege
     @CanIgnoreReturnValue
     public Builder add(MediaItem mediaItem, long initialPlaceholderDurationMs) {
       checkNotNull(mediaItem);
-      checkStateNotNull(
-          mediaSourceFactory,
-          "Must use useDefaultMediaSourceFactory or setMediaSourceFactory first.");
       if (initialPlaceholderDurationMs == C.TIME_UNSET
           && mediaItem.clippingConfiguration.endPositionMs != C.TIME_END_OF_SOURCE) {
         // If the item is going to be clipped, we can provide a placeholder duration automatically.
         initialPlaceholderDurationMs =
-            mediaItem.clippingConfiguration.endPositionMs
-                - mediaItem.clippingConfiguration.startPositionMs;
+            usToMs(
+                mediaItem.clippingConfiguration.endPositionUs
+                    - mediaItem.clippingConfiguration.startPositionUs);
       }
+      checkStateNotNull(
+          mediaSourceFactory,
+          "Must use useDefaultMediaSourceFactory or setMediaSourceFactory first.");
       return add(mediaSourceFactory.createMediaSource(mediaItem), initialPlaceholderDurationMs);
     }
 
@@ -368,7 +370,7 @@ public final class ConcatenatingMediaSource2 extends CompositeMediaSource<Intege
     if (timeOffsetUs == null) {
       return mediaTimeMs;
     }
-    return mediaTimeMs + Util.usToMs(timeOffsetUs);
+    return mediaTimeMs + usToMs(timeOffsetUs);
   }
 
   private boolean handleMessage(Message msg) {

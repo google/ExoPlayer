@@ -18,6 +18,8 @@ package com.google.android.exoplayer2;
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
+import static com.google.android.exoplayer2.util.Util.msToUs;
+import static com.google.android.exoplayer2.util.Util.usToMs;
 
 import android.net.Uri;
 import android.os.Bundle;
@@ -1798,20 +1800,20 @@ public final class MediaItem implements Bundleable {
 
     /** Builder for {@link ClippingConfiguration} instances. */
     public static final class Builder {
-      private long startPositionMs;
-      private long endPositionMs;
+      private long startPositionUs;
+      private long endPositionUs;
       private boolean relativeToLiveWindow;
       private boolean relativeToDefaultPosition;
       private boolean startsAtKeyFrame;
 
       /** Creates a new instance with default values. */
       public Builder() {
-        endPositionMs = C.TIME_END_OF_SOURCE;
+        endPositionUs = C.TIME_END_OF_SOURCE;
       }
 
       private Builder(ClippingConfiguration clippingConfiguration) {
-        startPositionMs = clippingConfiguration.startPositionMs;
-        endPositionMs = clippingConfiguration.endPositionMs;
+        startPositionUs = clippingConfiguration.startPositionUs;
+        endPositionUs = clippingConfiguration.endPositionUs;
         relativeToLiveWindow = clippingConfiguration.relativeToLiveWindow;
         relativeToDefaultPosition = clippingConfiguration.relativeToDefaultPosition;
         startsAtKeyFrame = clippingConfiguration.startsAtKeyFrame;
@@ -1823,8 +1825,17 @@ public final class MediaItem implements Bundleable {
        */
       @CanIgnoreReturnValue
       public Builder setStartPositionMs(@IntRange(from = 0) long startPositionMs) {
-        Assertions.checkArgument(startPositionMs >= 0);
-        this.startPositionMs = startPositionMs;
+        return setStartPositionUs(msToUs(startPositionMs));
+      }
+
+      /**
+       * Sets the optional start position in microseconds which must be a value larger than or equal
+       * to zero (Default: 0).
+       */
+      @CanIgnoreReturnValue
+      public Builder setStartPositionUs(@IntRange(from = 0) long startPositionUs) {
+        Assertions.checkArgument(startPositionUs >= 0);
+        this.startPositionUs = startPositionUs;
         return this;
       }
 
@@ -1835,8 +1846,18 @@ public final class MediaItem implements Bundleable {
        */
       @CanIgnoreReturnValue
       public Builder setEndPositionMs(long endPositionMs) {
-        Assertions.checkArgument(endPositionMs == C.TIME_END_OF_SOURCE || endPositionMs >= 0);
-        this.endPositionMs = endPositionMs;
+        return setEndPositionUs(msToUs(endPositionMs));
+      }
+
+      /**
+       * Sets the optional end position in milliseconds which must be a value larger than or equal
+       * to zero, or {@link C#TIME_END_OF_SOURCE} to end when playback reaches the end of media
+       * (Default: {@link C#TIME_END_OF_SOURCE}).
+       */
+      @CanIgnoreReturnValue
+      public Builder setEndPositionUs(long endPositionUs) {
+        Assertions.checkArgument(endPositionUs == C.TIME_END_OF_SOURCE || endPositionUs >= 0);
+        this.endPositionUs = endPositionUs;
         return this;
       }
 
@@ -1892,11 +1913,21 @@ public final class MediaItem implements Bundleable {
     @IntRange(from = 0)
     public final long startPositionMs;
 
+    /** The start position in microseconds. This is a value larger than or equal to zero. */
+    @IntRange(from = 0)
+    public final long startPositionUs;
+
     /**
      * The end position in milliseconds. This is a value larger than or equal to zero or {@link
      * C#TIME_END_OF_SOURCE} to play to the end of the stream.
      */
     public final long endPositionMs;
+
+    /**
+     * The end position in microseconds. This is a value larger than or equal to zero or {@link
+     * C#TIME_END_OF_SOURCE} to play to the end of the stream.
+     */
+    public final long endPositionUs;
 
     /**
      * Whether the clipping of active media periods moves with a live window. If {@code false},
@@ -1914,8 +1945,10 @@ public final class MediaItem implements Bundleable {
     public final boolean startsAtKeyFrame;
 
     private ClippingConfiguration(Builder builder) {
-      this.startPositionMs = builder.startPositionMs;
-      this.endPositionMs = builder.endPositionMs;
+      this.startPositionMs = usToMs(builder.startPositionUs);
+      this.endPositionMs = usToMs(builder.endPositionUs);
+      this.startPositionUs = builder.startPositionUs;
+      this.endPositionUs = builder.endPositionUs;
       this.relativeToLiveWindow = builder.relativeToLiveWindow;
       this.relativeToDefaultPosition = builder.relativeToDefaultPosition;
       this.startsAtKeyFrame = builder.startsAtKeyFrame;
@@ -1937,8 +1970,8 @@ public final class MediaItem implements Bundleable {
 
       ClippingConfiguration other = (ClippingConfiguration) obj;
 
-      return startPositionMs == other.startPositionMs
-          && endPositionMs == other.endPositionMs
+      return startPositionUs == other.startPositionUs
+          && endPositionUs == other.endPositionUs
           && relativeToLiveWindow == other.relativeToLiveWindow
           && relativeToDefaultPosition == other.relativeToDefaultPosition
           && startsAtKeyFrame == other.startsAtKeyFrame;
@@ -1946,8 +1979,8 @@ public final class MediaItem implements Bundleable {
 
     @Override
     public int hashCode() {
-      int result = (int) (startPositionMs ^ (startPositionMs >>> 32));
-      result = 31 * result + (int) (endPositionMs ^ (endPositionMs >>> 32));
+      int result = (int) (startPositionUs ^ (startPositionUs >>> 32));
+      result = 31 * result + (int) (endPositionUs ^ (endPositionUs >>> 32));
       result = 31 * result + (relativeToLiveWindow ? 1 : 0);
       result = 31 * result + (relativeToDefaultPosition ? 1 : 0);
       result = 31 * result + (startsAtKeyFrame ? 1 : 0);
@@ -1961,6 +1994,8 @@ public final class MediaItem implements Bundleable {
     private static final String FIELD_RELATIVE_TO_LIVE_WINDOW = Util.intToStringMaxRadix(2);
     private static final String FIELD_RELATIVE_TO_DEFAULT_POSITION = Util.intToStringMaxRadix(3);
     private static final String FIELD_STARTS_AT_KEY_FRAME = Util.intToStringMaxRadix(4);
+    static final String FIELD_START_POSITION_US = Util.intToStringMaxRadix(5);
+    static final String FIELD_END_POSITION_US = Util.intToStringMaxRadix(6);
 
     @Override
     public Bundle toBundle() {
@@ -1970,6 +2005,12 @@ public final class MediaItem implements Bundleable {
       }
       if (endPositionMs != UNSET.endPositionMs) {
         bundle.putLong(FIELD_END_POSITION_MS, endPositionMs);
+      }
+      if (startPositionUs != UNSET.startPositionUs) {
+        bundle.putLong(FIELD_START_POSITION_US, startPositionUs);
+      }
+      if (endPositionUs != UNSET.endPositionUs) {
+        bundle.putLong(FIELD_END_POSITION_US, endPositionUs);
       }
       if (relativeToLiveWindow != UNSET.relativeToLiveWindow) {
         bundle.putBoolean(FIELD_RELATIVE_TO_LIVE_WINDOW, relativeToLiveWindow);
@@ -1985,25 +2026,38 @@ public final class MediaItem implements Bundleable {
 
     /** An object that can restore {@link ClippingConfiguration} from a {@link Bundle}. */
     public static final Creator<ClippingProperties> CREATOR =
-        bundle ->
-            new ClippingConfiguration.Builder()
-                .setStartPositionMs(
-                    bundle.getLong(
-                        FIELD_START_POSITION_MS, /* defaultValue= */ UNSET.startPositionMs))
-                .setEndPositionMs(
-                    bundle.getLong(FIELD_END_POSITION_MS, /* defaultValue= */ UNSET.endPositionMs))
-                .setRelativeToLiveWindow(
-                    bundle.getBoolean(
-                        FIELD_RELATIVE_TO_LIVE_WINDOW,
-                        /* defaultValue= */ UNSET.relativeToLiveWindow))
-                .setRelativeToDefaultPosition(
-                    bundle.getBoolean(
-                        FIELD_RELATIVE_TO_DEFAULT_POSITION,
-                        /* defaultValue= */ UNSET.relativeToDefaultPosition))
-                .setStartsAtKeyFrame(
-                    bundle.getBoolean(
-                        FIELD_STARTS_AT_KEY_FRAME, /* defaultValue= */ UNSET.startsAtKeyFrame))
-                .buildClippingProperties();
+        bundle -> {
+          ClippingConfiguration.Builder clippingConfiguration =
+              new ClippingConfiguration.Builder()
+                  .setStartPositionMs(
+                      bundle.getLong(
+                          FIELD_START_POSITION_MS, /* defaultValue= */ UNSET.startPositionMs))
+                  .setEndPositionMs(
+                      bundle.getLong(
+                          FIELD_END_POSITION_MS, /* defaultValue= */ UNSET.endPositionMs))
+                  .setRelativeToLiveWindow(
+                      bundle.getBoolean(
+                          FIELD_RELATIVE_TO_LIVE_WINDOW,
+                          /* defaultValue= */ UNSET.relativeToLiveWindow))
+                  .setRelativeToDefaultPosition(
+                      bundle.getBoolean(
+                          FIELD_RELATIVE_TO_DEFAULT_POSITION,
+                          /* defaultValue= */ UNSET.relativeToDefaultPosition))
+                  .setStartsAtKeyFrame(
+                      bundle.getBoolean(
+                          FIELD_STARTS_AT_KEY_FRAME, /* defaultValue= */ UNSET.startsAtKeyFrame));
+          long startPositionUs =
+              bundle.getLong(FIELD_START_POSITION_US, /* defaultValue= */ UNSET.startPositionUs);
+          if (startPositionUs != UNSET.startPositionUs) {
+            clippingConfiguration.setStartPositionUs(startPositionUs);
+          }
+          long endPositionUs =
+              bundle.getLong(FIELD_END_POSITION_US, /* defaultValue= */ UNSET.endPositionUs);
+          if (endPositionUs != UNSET.endPositionUs) {
+            clippingConfiguration.setEndPositionUs(endPositionUs);
+          }
+          return clippingConfiguration.buildClippingProperties();
+        };
   }
 
   /**

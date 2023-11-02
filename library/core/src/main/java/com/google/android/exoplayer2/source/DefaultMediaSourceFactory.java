@@ -540,15 +540,15 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
   // internal methods
 
   private static MediaSource maybeClipMediaSource(MediaItem mediaItem, MediaSource mediaSource) {
-    if (mediaItem.clippingConfiguration.startPositionMs == 0
-        && mediaItem.clippingConfiguration.endPositionMs == C.TIME_END_OF_SOURCE
+    if (mediaItem.clippingConfiguration.startPositionUs == 0
+        && mediaItem.clippingConfiguration.endPositionUs == C.TIME_END_OF_SOURCE
         && !mediaItem.clippingConfiguration.relativeToDefaultPosition) {
       return mediaSource;
     }
     return new ClippingMediaSource(
         mediaSource,
-        msToUs(mediaItem.clippingConfiguration.startPositionMs),
-        msToUs(mediaItem.clippingConfiguration.endPositionMs),
+        mediaItem.clippingConfiguration.startPositionUs,
+        mediaItem.clippingConfiguration.endPositionUs,
         /* enableInitialDiscontinuity= */ !mediaItem.clippingConfiguration.startsAtKeyFrame,
         /* allowDynamicClippingUpdates= */ mediaItem.clippingConfiguration.relativeToLiveWindow,
         mediaItem.clippingConfiguration.relativeToDefaultPosition);

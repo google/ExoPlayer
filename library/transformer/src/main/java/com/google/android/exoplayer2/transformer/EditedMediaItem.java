@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.transformer;
 
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
-import static com.google.android.exoplayer2.util.Util.msToUs;
 
 import androidx.annotation.IntRange;
 import com.google.android.exoplayer2.C;
@@ -282,12 +281,12 @@ public final class EditedMediaItem {
     } else {
       MediaItem.ClippingConfiguration clippingConfiguration = mediaItem.clippingConfiguration;
       checkArgument(!clippingConfiguration.relativeToDefaultPosition);
-      if (clippingConfiguration.endPositionMs == C.TIME_END_OF_SOURCE) {
-        presentationDurationUs = durationUs - msToUs(clippingConfiguration.startPositionMs);
+      if (clippingConfiguration.endPositionUs == C.TIME_END_OF_SOURCE) {
+        presentationDurationUs = durationUs - clippingConfiguration.startPositionUs;
       } else {
-        checkArgument(clippingConfiguration.endPositionMs <= durationUs);
+        checkArgument(clippingConfiguration.endPositionUs <= durationUs);
         presentationDurationUs =
-            msToUs(clippingConfiguration.endPositionMs - clippingConfiguration.startPositionMs);
+            clippingConfiguration.endPositionUs - clippingConfiguration.startPositionUs;
       }
     }
   }

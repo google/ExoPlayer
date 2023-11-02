@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2;
 
+import static com.google.android.exoplayer2.MediaItem.ClippingConfiguration.FIELD_END_POSITION_US;
+import static com.google.android.exoplayer2.MediaItem.ClippingConfiguration.FIELD_START_POSITION_US;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
@@ -440,7 +442,9 @@ public class MediaItemTest {
     // Please refrain from altering default values since doing so would cause issues with backwards
     // compatibility.
     assertThat(clippingConfiguration.startPositionMs).isEqualTo(0L);
+    assertThat(clippingConfiguration.startPositionUs).isEqualTo(0L);
     assertThat(clippingConfiguration.endPositionMs).isEqualTo(C.TIME_END_OF_SOURCE);
+    assertThat(clippingConfiguration.endPositionUs).isEqualTo(C.TIME_END_OF_SOURCE);
     assertThat(clippingConfiguration.relativeToLiveWindow).isFalse();
     assertThat(clippingConfiguration.relativeToDefaultPosition).isFalse();
     assertThat(clippingConfiguration.startsAtKeyFrame).isFalse();
@@ -470,6 +474,7 @@ public class MediaItemTest {
     MediaItem.ClippingConfiguration clippingConfiguration =
         new MediaItem.ClippingConfiguration.Builder()
             .setStartPositionMs(1000L)
+            .setEndPositionUs(2000_031L)
             .setStartsAtKeyFrame(true)
             .build();
 
@@ -477,6 +482,51 @@ public class MediaItemTest {
         MediaItem.ClippingConfiguration.CREATOR.fromBundle(clippingConfiguration.toBundle());
 
     assertThat(clippingConfigurationFromBundle).isEqualTo(clippingConfiguration);
+  }
+
+  @Test
+  public void createClippingConfigurationInstance_viaBundleWithOnlyMs_yieldsEqualInstance() {
+    // Creates instance by setting some non-default values
+    MediaItem.ClippingConfiguration clippingConfiguration =
+        new MediaItem.ClippingConfiguration.Builder()
+            .setStartPositionMs(1000L)
+            .setEndPositionMs(2000L)
+            .setStartsAtKeyFrame(true)
+            .build();
+    Bundle clippingConfigurationBundle = clippingConfiguration.toBundle();
+    clippingConfigurationBundle.remove(FIELD_START_POSITION_US);
+    clippingConfigurationBundle.remove(FIELD_END_POSITION_US);
+
+    MediaItem.ClippingConfiguration clippingConfigurationFromBundle =
+        MediaItem.ClippingConfiguration.CREATOR.fromBundle(clippingConfigurationBundle);
+
+    assertThat(clippingConfigurationFromBundle).isEqualTo(clippingConfiguration);
+  }
+
+  @Test
+  public void createClippingConfigurationInstance_setsStartPositionInMsAndUs_fieldsAreConsistent() {
+    // Creates instance by setting some non-default values
+    MediaItem.ClippingConfiguration clippingConfiguration =
+        new MediaItem.ClippingConfiguration.Builder()
+            .setStartPositionMs(1000L)
+            .setStartPositionUs(200_203L)
+            .build();
+
+    assertThat(clippingConfiguration.startPositionMs).isEqualTo(200L);
+    assertThat(clippingConfiguration.startPositionUs).isEqualTo(200_203L);
+  }
+
+  @Test
+  public void createClippingConfigurationInstance_setsEndPositionInMsAndUs_fieldsAreConsistent() {
+    // Creates instance by setting some non-default values
+    MediaItem.ClippingConfiguration clippingConfiguration =
+        new MediaItem.ClippingConfiguration.Builder()
+            .setEndPositionUs(1000L)
+            .setEndPositionMs(C.TIME_END_OF_SOURCE)
+            .build();
+
+    assertThat(clippingConfiguration.endPositionMs).isEqualTo(C.TIME_END_OF_SOURCE);
+    assertThat(clippingConfiguration.endPositionMs).isEqualTo(C.TIME_END_OF_SOURCE);
   }
 
   @Test
