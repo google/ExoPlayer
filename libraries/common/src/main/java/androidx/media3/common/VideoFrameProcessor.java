@@ -333,6 +333,8 @@ public interface VideoFrameProcessor {
    *
    * @throws UnsupportedOperationException If the {@code VideoFrameProcessor} does not accept
    *     {@linkplain #INPUT_TYPE_SURFACE surface input}.
+   * @throws IllegalStateException If {@link #registerInputStream} is not called before calling this
+   *     method.
    */
   void flush();
 
