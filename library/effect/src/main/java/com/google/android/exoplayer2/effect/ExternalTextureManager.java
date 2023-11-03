@@ -76,25 +76,25 @@ import java.util.concurrent.atomic.AtomicInteger;
   private final Queue<FrameInfo> pendingFrames;
   private final ScheduledExecutorService forceEndOfStreamExecutorService;
 
-  // Incremented on any thread, decremented on the GL thread only.
+  // Created on any thread. Otherwise, read and written on the GL thread only.
   private final AtomicInteger externalShaderProgramInputCapacity;
   // Counts the frames that are registered before flush but are made available after flush.
-  // Read and written only on GL thread.
+  // Read and written on the GL thread only.
   private int numberOfFramesToDropOnBecomingAvailable;
 
-  // Read and written only on GL thread.
+  // Read and written on the GL thread only.
   private int availableFrameCount;
 
   // Read and written on the GL thread only.
   private boolean currentInputStreamEnded;
 
   // The frame that is sent downstream and is not done processing yet.
-  // Set to null on any thread. Read and set to non-null on the GL thread only.
-  @Nullable private volatile FrameInfo currentFrame;
+  // Read and written on the GL thread only.
+  @Nullable private FrameInfo currentFrame;
 
   @Nullable private Future<?> forceSignalEndOfStreamFuture;
 
-  // Whether to reject frames from the SurfaceTexture. Accessed only on GL thread.
+  // Whether to reject frames from the SurfaceTexture. Accessed on the GL thread only.
   private boolean shouldRejectIncomingFrames;
 
   /**
@@ -237,14 +237,25 @@ import java.util.concurrent.atomic.AtomicInteger;
     forceEndOfStreamExecutorService.shutdownNow();
   }
 
+  // Methods that must be called on the GL thread.
+
+  @Override
+  protected void flush() {
+    // A frame that is registered before flush may arrive after flush.
+    numberOfFramesToDropOnBecomingAvailable = pendingFrames.size() - availableFrameCount;
+    removeAllSurfaceTextureFrames();
+    externalShaderProgramInputCapacity.set(0);
+    currentFrame = null;
+    pendingFrames.clear();
+    maybeExecuteAfterFlushTask();
+  }
+
   private void maybeExecuteAfterFlushTask() {
     if (numberOfFramesToDropOnBecomingAvailable > 0) {
       return;
     }
     super.flush();
   }
-
-  // Methods that must be called on the GL thread.
 
   private void restartForceSignalEndOfStreamTimer() {
     cancelForceSignalEndOfStreamTimer();
@@ -283,17 +294,6 @@ import java.util.concurrent.atomic.AtomicInteger;
     signalEndOfCurrentInputStream();
   }
 
-  @Override
-  protected void flush() {
-    // A frame that is registered before flush may arrive after flush.
-    numberOfFramesToDropOnBecomingAvailable = pendingFrames.size() - availableFrameCount;
-    removeAllSurfaceTextureFrames();
-    externalShaderProgramInputCapacity.set(0);
-    currentFrame = null;
-    pendingFrames.clear();
-    maybeExecuteAfterFlushTask();
-  }
-
   private void removeAllSurfaceTextureFrames() {
     while (availableFrameCount > 0) {
       availableFrameCount--;
@@ -318,7 +318,7 @@ import java.util.concurrent.atomic.AtomicInteger;
     externalShaderProgram.setTextureTransformMatrix(textureTransformMatrix);
     long frameTimeNs = surfaceTexture.getTimestamp();
     long offsetToAddUs = currentFrame.offsetToAddUs;
-    // Correct the presentation time so that GlShaderPrograms don't see the stream offset.
+    // Correct presentationTimeUs so that GlShaderPrograms don't see the stream offset.
     long presentationTimeUs = (frameTimeNs / 1000) + offsetToAddUs;
     externalShaderProgram.queueInputFrame(
         glObjectsProvider,
