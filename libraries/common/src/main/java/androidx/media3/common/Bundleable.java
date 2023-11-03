@@ -19,26 +19,19 @@ import android.os.Bundle;
 import androidx.media3.common.util.UnstableApi;
 
 /**
- * Interface for classes whose instance can be stored in a {@link Bundle} by {@link #toBundle()} and
- * can be restored from the {@link Bundle} by using the static {@code CREATOR} field that implements
- * {@link Bundleable.Creator}.
- *
- * <p>For example, a {@link Bundleable} class {@code Foo} supports the following:
- *
- * <pre>{@code
- * Foo foo = ...;
- * Bundle fooBundle = foo.toBundle();
- * Foo restoredFoo = Foo.CREATOR.fromBundle(fooBundle);
- * assertThat(restoredFoo).isEqualTo(foo);
- * }</pre>
+ * @deprecated Interface not needed, call {@code toBundle()} on the target object directly.
  */
+@Deprecated
 @UnstableApi
 public interface Bundleable {
 
   /** Returns a {@link Bundle} representing the information stored in this object. */
   Bundle toBundle();
 
-  /** Interface for the static {@code CREATOR} field of {@link Bundleable} classes. */
+  /**
+   * @deprecated Interface not needed, call {@code fromBundle()} on the target type directly.
+   */
+  @Deprecated
   interface Creator<T extends Bundleable> {
 
     /**

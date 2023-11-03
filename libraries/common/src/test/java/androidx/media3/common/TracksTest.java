@@ -31,7 +31,7 @@ public class TracksTest {
   @Test
   public void roundTripViaBundle_ofEmptyTracks_yieldsEqualInstance() {
     Tracks before = Tracks.EMPTY;
-    Tracks after = Tracks.CREATOR.fromBundle(before.toBundle());
+    Tracks after = Tracks.fromBundle(before.toBundle());
     assertThat(after).isEqualTo(before);
   }
 
@@ -52,7 +52,7 @@ public class TracksTest {
                     /* adaptiveSupported= */ true,
                     new int[] {C.FORMAT_UNSUPPORTED_DRM, C.FORMAT_UNSUPPORTED_TYPE},
                     /* trackSelected= */ new boolean[] {false, true})));
-    Tracks after = Tracks.CREATOR.fromBundle(before.toBundle());
+    Tracks after = Tracks.fromBundle(before.toBundle());
     assertThat(after).isEqualTo(before);
   }
 

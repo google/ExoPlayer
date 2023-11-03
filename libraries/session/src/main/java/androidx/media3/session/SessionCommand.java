@@ -187,19 +187,27 @@ public final class SessionCommand implements Bundleable {
     return bundle;
   }
 
-  /** Object that can restore a {@link SessionCommand} from a {@link Bundle}. */
+  /**
+   * Object that can restore a {@link SessionCommand} from a {@link Bundle}.
+   *
+   * @deprecated Use {@link #fromBundle} instead.
+   */
   @UnstableApi
-  public static final Creator<SessionCommand> CREATOR =
-      bundle -> {
-        int commandCode =
-            bundle.getInt(FIELD_COMMAND_CODE, /* defaultValue= */ COMMAND_CODE_CUSTOM);
-        if (commandCode != COMMAND_CODE_CUSTOM) {
-          return new SessionCommand(commandCode);
-        } else {
-          String customAction = checkNotNull(bundle.getString(FIELD_CUSTOM_ACTION));
-          @Nullable Bundle customExtras = bundle.getBundle(FIELD_CUSTOM_EXTRAS);
-          return new SessionCommand(
-              customAction, customExtras == null ? Bundle.EMPTY : customExtras);
-        }
-      };
+  @Deprecated
+  @SuppressWarnings("deprecation") // Deprecated instance of deprecated class
+  public static final Creator<SessionCommand> CREATOR = SessionCommand::fromBundle;
+
+  /** Restores a {@code SessionCommand} from a {@link Bundle}. */
+  @UnstableApi
+  public static SessionCommand fromBundle(Bundle bundle) {
+    int commandCode = bundle.getInt(FIELD_COMMAND_CODE, /* defaultValue= */ COMMAND_CODE_CUSTOM);
+    if (commandCode != COMMAND_CODE_CUSTOM) {
+      return new SessionCommand(commandCode);
+    } else {
+      String customAction = checkNotNull(bundle.getString(FIELD_CUSTOM_ACTION));
+      @Nullable Bundle customExtras = bundle.getBundle(FIELD_CUSTOM_EXTRAS);
+      return new SessionCommand(customAction, customExtras == null ? Bundle.EMPTY : customExtras);
+    }
+  }
+  ;
 }

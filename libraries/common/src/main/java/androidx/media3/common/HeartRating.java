@@ -89,10 +89,19 @@ public final class HeartRating extends Rating {
     return bundle;
   }
 
-  /** Object that can restore a {@link HeartRating} from a {@link Bundle}. */
-  @UnstableApi public static final Creator<HeartRating> CREATOR = HeartRating::fromBundle;
+  /**
+   * Object that can restore a {@link HeartRating} from a {@link Bundle}.
+   *
+   * @deprecated Use {@link #fromBundle} instead.
+   */
+  @UnstableApi
+  @Deprecated
+  @SuppressWarnings("deprecation") // Deprecated instance of deprecated class
+  public static final Creator<HeartRating> CREATOR = HeartRating::fromBundle;
 
-  private static HeartRating fromBundle(Bundle bundle) {
+  /** Restores a {@code HeartRating} from a {@link Bundle}. */
+  @UnstableApi
+  public static HeartRating fromBundle(Bundle bundle) {
     checkArgument(bundle.getInt(FIELD_RATING_TYPE, /* defaultValue= */ RATING_TYPE_UNSET) == TYPE);
     boolean isRated = bundle.getBoolean(FIELD_RATED, /* defaultValue= */ false);
     return isRated

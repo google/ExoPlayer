@@ -68,6 +68,6 @@ public class ImaServerSideAdInsertionMediaSourceTest {
                 .put("adsId3", thirdAdPlaybackState)
                 .buildOrThrow());
 
-    assertThat(State.CREATOR.fromBundle(state.toBundle())).isEqualTo(state);
+    assertThat(State.fromBundle(state.toBundle())).isEqualTo(state);
   }
 }

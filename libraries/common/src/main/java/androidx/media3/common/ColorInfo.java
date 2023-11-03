@@ -450,13 +450,21 @@ public final class ColorInfo implements Bundleable {
     return bundle;
   }
 
-  public static final Creator<ColorInfo> CREATOR =
-      bundle ->
-          new ColorInfo(
-              bundle.getInt(FIELD_COLOR_SPACE, Format.NO_VALUE),
-              bundle.getInt(FIELD_COLOR_RANGE, Format.NO_VALUE),
-              bundle.getInt(FIELD_COLOR_TRANSFER, Format.NO_VALUE),
-              bundle.getByteArray(FIELD_HDR_STATIC_INFO),
-              bundle.getInt(FIELD_LUMA_BITDEPTH, Format.NO_VALUE),
-              bundle.getInt(FIELD_CHROMA_BITDEPTH, Format.NO_VALUE));
+  /**
+   * @deprecated Use {@link #fromBundle} instead.
+   */
+  @Deprecated
+  @SuppressWarnings("deprecation") // Deprecated instance of deprecated class
+  public static final Creator<ColorInfo> CREATOR = ColorInfo::fromBundle;
+
+  /** Restores a {@code ColorInfo} from a {@link Bundle}. */
+  public static ColorInfo fromBundle(Bundle bundle) {
+    return new ColorInfo(
+        bundle.getInt(FIELD_COLOR_SPACE, Format.NO_VALUE),
+        bundle.getInt(FIELD_COLOR_RANGE, Format.NO_VALUE),
+        bundle.getInt(FIELD_COLOR_TRANSFER, Format.NO_VALUE),
+        bundle.getByteArray(FIELD_HDR_STATIC_INFO),
+        bundle.getInt(FIELD_LUMA_BITDEPTH, Format.NO_VALUE),
+        bundle.getInt(FIELD_CHROMA_BITDEPTH, Format.NO_VALUE));
+  }
 }

@@ -158,9 +158,9 @@ public final class SessionToken implements Bundleable {
     @SessionTokenImplType int implType = bundle.getInt(FIELD_IMPL_TYPE);
     Bundle implBundle = checkNotNull(bundle.getBundle(FIELD_IMPL));
     if (implType == IMPL_TYPE_BASE) {
-      impl = SessionTokenImplBase.CREATOR.fromBundle(implBundle);
+      impl = SessionTokenImplBase.fromBundle(implBundle);
     } else {
-      impl = SessionTokenImplLegacy.CREATOR.fromBundle(implBundle);
+      impl = SessionTokenImplLegacy.fromBundle(implBundle);
     }
   }
 
@@ -350,7 +350,7 @@ public final class SessionToken implements Bundleable {
             // Remove timeout callback.
             handler.removeCallbacksAndMessages(null);
             try {
-              future.set(SessionToken.CREATOR.fromBundle(resultData));
+              future.set(SessionToken.fromBundle(resultData));
             } catch (RuntimeException e) {
               // Fallback to a legacy token if we receive an unexpected result, e.g. a legacy
               // session acknowledging commands by a success callback.
@@ -508,10 +508,19 @@ public final class SessionToken implements Bundleable {
     return bundle;
   }
 
-  /** Object that can restore {@link SessionToken} from a {@link Bundle}. */
-  @UnstableApi public static final Creator<SessionToken> CREATOR = SessionToken::fromBundle;
+  /**
+   * Object that can restore {@link SessionToken} from a {@link Bundle}.
+   *
+   * @deprecated Use {@link #fromBundle} instead.
+   */
+  @UnstableApi
+  @Deprecated
+  @SuppressWarnings("deprecation") // Deprecated instance of deprecated class
+  public static final Creator<SessionToken> CREATOR = SessionToken::fromBundle;
 
-  private static SessionToken fromBundle(Bundle bundle) {
+  /** Restores a {@code SessionToken} from a {@link Bundle}. */
+  @UnstableApi
+  public static SessionToken fromBundle(Bundle bundle) {
     return new SessionToken(bundle);
   }
 }

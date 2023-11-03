@@ -33,7 +33,7 @@ public class ExoPlaybackExceptionTest {
   @Test
   public void roundTripViaBundle_ofExoPlaybackExceptionTypeRemote_yieldsEqualInstance() {
     ExoPlaybackException before = ExoPlaybackException.createForRemote(/* message= */ "test");
-    ExoPlaybackException after = ExoPlaybackException.CREATOR.fromBundle(before.toBundle());
+    ExoPlaybackException after = ExoPlaybackException.fromBundle(before.toBundle());
     assertThat(areExoPlaybackExceptionsEqual(before, after)).isTrue();
   }
 
@@ -49,7 +49,7 @@ public class ExoPlaybackExceptionTest {
             /* isRecoverable= */ true,
             /* errorCode= */ PlaybackException.ERROR_CODE_DECODER_INIT_FAILED);
 
-    ExoPlaybackException after = ExoPlaybackException.CREATOR.fromBundle(before.toBundle());
+    ExoPlaybackException after = ExoPlaybackException.fromBundle(before.toBundle());
     assertThat(areExoPlaybackExceptionsEqual(before, after)).isTrue();
   }
 
@@ -61,7 +61,7 @@ public class ExoPlaybackExceptionTest {
             new RuntimeException(
                 /* message= */ "anonymous exception that class loader cannot know") {},
             PlaybackException.ERROR_CODE_TIMEOUT);
-    ExoPlaybackException after = ExoPlaybackException.CREATOR.fromBundle(before.toBundle());
+    ExoPlaybackException after = ExoPlaybackException.fromBundle(before.toBundle());
 
     assertThat(after.getCause()).isInstanceOf(RemoteException.class);
     assertThat(after.getCause()).hasMessageThat().isEqualTo(before.getCause().getMessage());

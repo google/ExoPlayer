@@ -462,8 +462,21 @@ public class PlaybackException extends Exception implements Bundleable {
    */
   @UnstableApi protected static final int FIELD_CUSTOM_ID_BASE = 1000;
 
-  /** Object that can create a {@link PlaybackException} from a {@link Bundle}. */
-  @UnstableApi public static final Creator<PlaybackException> CREATOR = PlaybackException::new;
+  /**
+   * Object that can create a {@link PlaybackException} from a {@link Bundle}.
+   *
+   * @deprecated Use {@link #fromBundle} instead.
+   */
+  @UnstableApi
+  @Deprecated
+  @SuppressWarnings("deprecation") // Deprecated instance of deprecated class
+  public static final Creator<PlaybackException> CREATOR = PlaybackException::new;
+
+  /** Restores a {@code PlaybackException} from a {@link Bundle}. */
+  @UnstableApi
+  public static PlaybackException fromBundle(Bundle bundle) {
+    return new PlaybackException(bundle);
+  }
 
   @UnstableApi
   @CallSuper

@@ -2061,9 +2061,19 @@ public class DefaultTrackSelector extends MappingTrackSelector
       return bundle;
     }
 
-    /** Object that can restore {@code Parameters} from a {@link Bundle}. */
-    public static final Creator<Parameters> CREATOR =
-        bundle -> new Parameters.Builder(bundle).build();
+    /**
+     * Object that can restore {@code Parameters} from a {@link Bundle}.
+     *
+     * @deprecated Use {@link #fromBundle} instead.
+     */
+    @Deprecated
+    @SuppressWarnings("deprecation") // Deprecated instance of deprecated class
+    public static final Creator<Parameters> CREATOR = Parameters::fromBundle;
+
+    /** Restores a {@code Parameters} from a {@link Bundle}. */
+    public static Parameters fromBundle(Bundle bundle) {
+      return new Parameters.Builder(bundle).build();
+    }
 
     /**
      * Bundles selection overrides in 3 arrays of equal length. Each triplet of matching indices is:
@@ -2238,8 +2248,14 @@ public class DefaultTrackSelector extends MappingTrackSelector
       return bundle;
     }
 
-    /** Object that can restore {@code SelectionOverride} from a {@link Bundle}. */
+    /**
+     * Object that can restore {@code SelectionOverride} from a {@link Bundle}.
+     *
+     * @deprecated Use {@link #fromBundle} instead.
+     */
     @UnstableApi
+    @Deprecated
+    @SuppressWarnings("deprecation") // Deprecated instance of deprecated class
     public static final Creator<SelectionOverride> CREATOR = SelectionOverride::fromBundle;
 
     /** Restores a {@code SelectionOverride} from a {@link Bundle}. */

@@ -137,10 +137,15 @@ import java.util.List;
     return bundle;
   }
 
-  /** Object that can restore a {@link ConnectionState} from a {@link Bundle}. */
+  /**
+   * @deprecated Use {@link #fromBundle} instead.
+   */
+  @Deprecated
+  @SuppressWarnings("deprecation") // Deprecated instance of deprecated class
   public static final Creator<ConnectionState> CREATOR = ConnectionState::fromBundle;
 
-  private static ConnectionState fromBundle(Bundle bundle) {
+  /** Restores a {@code ConnectionState} from a {@link Bundle}. */
+  public static ConnectionState fromBundle(Bundle bundle) {
     @Nullable IBinder inProcessBinder = BundleUtil.getBinder(bundle, FIELD_IN_PROCESS_BINDER);
     if (inProcessBinder instanceof InProcessBinder) {
       return ((InProcessBinder) inProcessBinder).getConnectionState();
@@ -160,25 +165,23 @@ import java.util.List;
     SessionCommands sessionCommands =
         sessionCommandsBundle == null
             ? SessionCommands.EMPTY
-            : SessionCommands.CREATOR.fromBundle(sessionCommandsBundle);
+            : SessionCommands.fromBundle(sessionCommandsBundle);
     @Nullable
     Bundle playerCommandsFromPlayerBundle = bundle.getBundle(FIELD_PLAYER_COMMANDS_FROM_PLAYER);
     Player.Commands playerCommandsFromPlayer =
         playerCommandsFromPlayerBundle == null
             ? Player.Commands.EMPTY
-            : Player.Commands.CREATOR.fromBundle(playerCommandsFromPlayerBundle);
+            : Player.Commands.fromBundle(playerCommandsFromPlayerBundle);
     @Nullable
     Bundle playerCommandsFromSessionBundle = bundle.getBundle(FIELD_PLAYER_COMMANDS_FROM_SESSION);
     Player.Commands playerCommandsFromSession =
         playerCommandsFromSessionBundle == null
             ? Player.Commands.EMPTY
-            : Player.Commands.CREATOR.fromBundle(playerCommandsFromSessionBundle);
+            : Player.Commands.fromBundle(playerCommandsFromSessionBundle);
     @Nullable Bundle tokenExtras = bundle.getBundle(FIELD_TOKEN_EXTRAS);
     @Nullable Bundle playerInfoBundle = bundle.getBundle(FIELD_PLAYER_INFO);
     PlayerInfo playerInfo =
-        playerInfoBundle == null
-            ? PlayerInfo.DEFAULT
-            : PlayerInfo.CREATOR.fromBundle(playerInfoBundle);
+        playerInfoBundle == null ? PlayerInfo.DEFAULT : PlayerInfo.fromBundle(playerInfoBundle);
     return new ConnectionState(
         libraryVersion,
         sessionInterfaceVersion,

@@ -322,8 +322,15 @@ public final class CommandButton implements Bundleable {
     return bundle;
   }
 
-  /** Object that can restore {@code CommandButton} from a {@link Bundle}. */
-  @UnstableApi public static final Creator<CommandButton> CREATOR = CommandButton::fromBundle;
+  /**
+   * Object that can restore {@code CommandButton} from a {@link Bundle}.
+   *
+   * @deprecated Use {@link #fromBundle} instead.
+   */
+  @UnstableApi
+  @Deprecated
+  @SuppressWarnings("deprecation") // Deprecated instance of deprecated class
+  public static final Creator<CommandButton> CREATOR = CommandButton::fromBundle;
 
   /** Restores a {@code CommandButton} from a {@link Bundle}. */
   @UnstableApi
@@ -331,9 +338,7 @@ public final class CommandButton implements Bundleable {
     @Nullable Bundle sessionCommandBundle = bundle.getBundle(FIELD_SESSION_COMMAND);
     @Nullable
     SessionCommand sessionCommand =
-        sessionCommandBundle == null
-            ? null
-            : SessionCommand.CREATOR.fromBundle(sessionCommandBundle);
+        sessionCommandBundle == null ? null : SessionCommand.fromBundle(sessionCommandBundle);
     @Player.Command
     int playerCommand =
         bundle.getInt(FIELD_PLAYER_COMMAND, /* defaultValue= */ Player.COMMAND_INVALID);

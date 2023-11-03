@@ -34,6 +34,6 @@ public class DeviceInfoTest {
             .setRoutingControllerId("route")
             .build();
 
-    assertThat(DeviceInfo.CREATOR.fromBundle(deviceInfo.toBundle())).isEqualTo(deviceInfo);
+    assertThat(DeviceInfo.fromBundle(deviceInfo.toBundle())).isEqualTo(deviceInfo);
   }
 }

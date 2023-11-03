@@ -94,6 +94,6 @@ public class RatingTest {
   }
 
   private static Rating roundTripViaBundle(Rating rating) {
-    return Rating.CREATOR.fromBundle(rating.toBundle());
+    return Rating.fromBundle(rating.toBundle());
   }
 }

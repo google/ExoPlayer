@@ -220,28 +220,38 @@ public final class AudioAttributes implements Bundleable {
     return bundle;
   }
 
-  /** Object that can restore {@link AudioAttributes} from a {@link Bundle}. */
+  /**
+   * Object that can restore {@link AudioAttributes} from a {@link Bundle}.
+   *
+   * @deprecated Use {@link #fromBundle} instead.
+   */
   @UnstableApi
-  public static final Creator<AudioAttributes> CREATOR =
-      bundle -> {
-        Builder builder = new Builder();
-        if (bundle.containsKey(FIELD_CONTENT_TYPE)) {
-          builder.setContentType(bundle.getInt(FIELD_CONTENT_TYPE));
-        }
-        if (bundle.containsKey(FIELD_FLAGS)) {
-          builder.setFlags(bundle.getInt(FIELD_FLAGS));
-        }
-        if (bundle.containsKey(FIELD_USAGE)) {
-          builder.setUsage(bundle.getInt(FIELD_USAGE));
-        }
-        if (bundle.containsKey(FIELD_ALLOWED_CAPTURE_POLICY)) {
-          builder.setAllowedCapturePolicy(bundle.getInt(FIELD_ALLOWED_CAPTURE_POLICY));
-        }
-        if (bundle.containsKey(FIELD_SPATIALIZATION_BEHAVIOR)) {
-          builder.setSpatializationBehavior(bundle.getInt(FIELD_SPATIALIZATION_BEHAVIOR));
-        }
-        return builder.build();
-      };
+  @Deprecated
+  @SuppressWarnings("deprecation") // Deprecated instance of deprecated class
+  public static final Creator<AudioAttributes> CREATOR = AudioAttributes::fromBundle;
+
+  /** Restores a {@code AudioAttributes} from a {@link Bundle}. */
+  @UnstableApi
+  public static AudioAttributes fromBundle(Bundle bundle) {
+    Builder builder = new Builder();
+    if (bundle.containsKey(FIELD_CONTENT_TYPE)) {
+      builder.setContentType(bundle.getInt(FIELD_CONTENT_TYPE));
+    }
+    if (bundle.containsKey(FIELD_FLAGS)) {
+      builder.setFlags(bundle.getInt(FIELD_FLAGS));
+    }
+    if (bundle.containsKey(FIELD_USAGE)) {
+      builder.setUsage(bundle.getInt(FIELD_USAGE));
+    }
+    if (bundle.containsKey(FIELD_ALLOWED_CAPTURE_POLICY)) {
+      builder.setAllowedCapturePolicy(bundle.getInt(FIELD_ALLOWED_CAPTURE_POLICY));
+    }
+    if (bundle.containsKey(FIELD_SPATIALIZATION_BEHAVIOR)) {
+      builder.setSpatializationBehavior(bundle.getInt(FIELD_SPATIALIZATION_BEHAVIOR));
+    }
+    return builder.build();
+  }
+  ;
 
   @RequiresApi(29)
   private static final class Api29 {

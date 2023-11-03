@@ -922,12 +922,19 @@ public final class MediaItem implements Bundleable {
     private static final String FIELD_FORCED_SESSION_TRACK_TYPES = Util.intToStringMaxRadix(6);
     private static final String FIELD_KEY_SET_ID = Util.intToStringMaxRadix(7);
 
-    /** An object that can restore {@link DrmConfiguration} from a {@link Bundle}. */
+    /**
+     * An object that can restore {@link DrmConfiguration} from a {@link Bundle}.
+     *
+     * @deprecated Use {@link #fromBundle} instead.
+     */
     @UnstableApi
+    @Deprecated
+    @SuppressWarnings("deprecation") // Deprecated instance of deprecated class
     public static final Creator<DrmConfiguration> CREATOR = DrmConfiguration::fromBundle;
 
+    /** Restores a {@code DrmConfiguration} from a {@link Bundle}. */
     @UnstableApi
-    private static DrmConfiguration fromBundle(Bundle bundle) {
+    public static DrmConfiguration fromBundle(Bundle bundle) {
       UUID scheme = UUID.fromString(checkNotNull(bundle.getString(FIELD_SCHEME)));
       @Nullable Uri licenseUri = bundle.getParcelable(FIELD_LICENSE_URI);
       Bundle licenseMapAsBundle =
@@ -1085,12 +1092,17 @@ public final class MediaItem implements Bundleable {
      * An object that can restore {@link AdsConfiguration} from a {@link Bundle}.
      *
      * <p>The {@link #adsId} of a restored instance will always be {@code null}.
+     *
+     * @deprecated Use {@link #fromBundle} instead.
      */
     @UnstableApi
+    @Deprecated
+    @SuppressWarnings("deprecation") // Deprecated instance of deprecated class
     public static final Creator<AdsConfiguration> CREATOR = AdsConfiguration::fromBundle;
 
+    /** Restores a {@code AdsConfiguration} from a {@link Bundle}. */
     @UnstableApi
-    private static AdsConfiguration fromBundle(Bundle bundle) {
+    public static AdsConfiguration fromBundle(Bundle bundle) {
       @Nullable Uri adTagUri = bundle.getParcelable(FIELD_AD_TAG_URI);
       checkNotNull(adTagUri);
       return new AdsConfiguration.Builder(adTagUri).build();
@@ -1268,18 +1280,25 @@ public final class MediaItem implements Bundleable {
       return bundle;
     }
 
-    /** Object that can restore {@link LocalConfiguration} from a {@link Bundle}. */
+    /**
+     * Object that can restore {@link LocalConfiguration} from a {@link Bundle}.
+     *
+     * @deprecated Use {@link #fromBundle} instead.
+     */
     @UnstableApi
+    @Deprecated
+    @SuppressWarnings("deprecation") // Deprecated instance of deprecated class
     public static final Creator<LocalConfiguration> CREATOR = LocalConfiguration::fromBundle;
 
+    /** Restores a {@code LocalConfiguration} from a {@link Bundle}. */
     @UnstableApi
-    private static LocalConfiguration fromBundle(Bundle bundle) {
+    public static LocalConfiguration fromBundle(Bundle bundle) {
       @Nullable Bundle drmBundle = bundle.getBundle(FIELD_DRM_CONFIGURATION);
       DrmConfiguration drmConfiguration =
-          drmBundle == null ? null : DrmConfiguration.CREATOR.fromBundle(drmBundle);
+          drmBundle == null ? null : DrmConfiguration.fromBundle(drmBundle);
       @Nullable Bundle adsBundle = bundle.getBundle(FIELD_ADS_CONFIGURATION);
       AdsConfiguration adsConfiguration =
-          adsBundle == null ? null : AdsConfiguration.CREATOR.fromBundle(adsBundle);
+          adsBundle == null ? null : AdsConfiguration.fromBundle(adsBundle);
       @Nullable List<Bundle> streamKeysBundles = bundle.getParcelableArrayList(FIELD_STREAM_KEYS);
       List<StreamKey> streamKeys =
           streamKeysBundles == null
@@ -1528,18 +1547,26 @@ public final class MediaItem implements Bundleable {
       return bundle;
     }
 
-    /** An object that can restore {@link LiveConfiguration} from a {@link Bundle}. */
+    /**
+     * An object that can restore {@link LiveConfiguration} from a {@link Bundle}.
+     *
+     * @deprecated Use {@link #fromBundle} instead.
+     */
     @UnstableApi
-    public static final Creator<LiveConfiguration> CREATOR =
-        bundle ->
-            new LiveConfiguration(
-                bundle.getLong(FIELD_TARGET_OFFSET_MS, /* defaultValue= */ UNSET.targetOffsetMs),
-                bundle.getLong(FIELD_MIN_OFFSET_MS, /* defaultValue= */ UNSET.minOffsetMs),
-                bundle.getLong(FIELD_MAX_OFFSET_MS, /* defaultValue= */ UNSET.maxOffsetMs),
-                bundle.getFloat(
-                    FIELD_MIN_PLAYBACK_SPEED, /* defaultValue= */ UNSET.minPlaybackSpeed),
-                bundle.getFloat(
-                    FIELD_MAX_PLAYBACK_SPEED, /* defaultValue= */ UNSET.maxPlaybackSpeed));
+    @Deprecated
+    @SuppressWarnings("deprecation") // Deprecated instance of deprecated class
+    public static final Creator<LiveConfiguration> CREATOR = LiveConfiguration::fromBundle;
+
+    /** Restores a {@code LiveConfiguration} from a {@link Bundle}. */
+    @UnstableApi
+    public static LiveConfiguration fromBundle(Bundle bundle) {
+      return new LiveConfiguration(
+          bundle.getLong(FIELD_TARGET_OFFSET_MS, /* defaultValue= */ UNSET.targetOffsetMs),
+          bundle.getLong(FIELD_MIN_OFFSET_MS, /* defaultValue= */ UNSET.minOffsetMs),
+          bundle.getLong(FIELD_MAX_OFFSET_MS, /* defaultValue= */ UNSET.maxOffsetMs),
+          bundle.getFloat(FIELD_MIN_PLAYBACK_SPEED, /* defaultValue= */ UNSET.minPlaybackSpeed),
+          bundle.getFloat(FIELD_MAX_PLAYBACK_SPEED, /* defaultValue= */ UNSET.maxPlaybackSpeed));
+    }
   }
 
   /** Properties for a text track. */
@@ -1732,12 +1759,19 @@ public final class MediaItem implements Bundleable {
     private static final String FIELD_LABEL = Util.intToStringMaxRadix(5);
     private static final String FIELD_ID = Util.intToStringMaxRadix(6);
 
-    /** An object that can restore {@link SubtitleConfiguration} from a {@link Bundle}. */
+    /**
+     * An object that can restore {@link SubtitleConfiguration} from a {@link Bundle}.
+     *
+     * @deprecated Use {@link #fromBundle} instead.
+     */
     @UnstableApi
+    @Deprecated
+    @SuppressWarnings("deprecation") // Deprecated instance of deprecated class
     public static final Creator<SubtitleConfiguration> CREATOR = SubtitleConfiguration::fromBundle;
 
+    /** Restores a {@code SubtitleConfiguration} from a {@link Bundle}. */
     @UnstableApi
-    private static SubtitleConfiguration fromBundle(Bundle bundle) {
+    public static SubtitleConfiguration fromBundle(Bundle bundle) {
       Uri uri = checkNotNull(bundle.getParcelable(FIELD_URI));
       @Nullable String mimeType = bundle.getString(FIELD_MIME_TYPE);
       @Nullable String language = bundle.getString(FIELD_LANGUAGE);
@@ -2068,41 +2102,49 @@ public final class MediaItem implements Bundleable {
       return bundle;
     }
 
-    /** An object that can restore {@link ClippingConfiguration} from a {@link Bundle}. */
+    /**
+     * An object that can restore {@link ClippingConfiguration} from a {@link Bundle}.
+     *
+     * @deprecated Use {@link #fromBundle} instead.
+     */
     @UnstableApi
-    public static final Creator<ClippingProperties> CREATOR =
-        bundle -> {
-          ClippingConfiguration.Builder clippingConfiguration =
-              new ClippingConfiguration.Builder()
-                  .setStartPositionMs(
-                      bundle.getLong(
-                          FIELD_START_POSITION_MS, /* defaultValue= */ UNSET.startPositionMs))
-                  .setEndPositionMs(
-                      bundle.getLong(
-                          FIELD_END_POSITION_MS, /* defaultValue= */ UNSET.endPositionMs))
-                  .setRelativeToLiveWindow(
-                      bundle.getBoolean(
-                          FIELD_RELATIVE_TO_LIVE_WINDOW,
-                          /* defaultValue= */ UNSET.relativeToLiveWindow))
-                  .setRelativeToDefaultPosition(
-                      bundle.getBoolean(
-                          FIELD_RELATIVE_TO_DEFAULT_POSITION,
-                          /* defaultValue= */ UNSET.relativeToDefaultPosition))
-                  .setStartsAtKeyFrame(
-                      bundle.getBoolean(
-                          FIELD_STARTS_AT_KEY_FRAME, /* defaultValue= */ UNSET.startsAtKeyFrame));
-          long startPositionUs =
-              bundle.getLong(FIELD_START_POSITION_US, /* defaultValue= */ UNSET.startPositionUs);
-          if (startPositionUs != UNSET.startPositionUs) {
-            clippingConfiguration.setStartPositionUs(startPositionUs);
-          }
-          long endPositionUs =
-              bundle.getLong(FIELD_END_POSITION_US, /* defaultValue= */ UNSET.endPositionUs);
-          if (endPositionUs != UNSET.endPositionUs) {
-            clippingConfiguration.setEndPositionUs(endPositionUs);
-          }
-          return clippingConfiguration.buildClippingProperties();
-        };
+    @Deprecated
+    @SuppressWarnings("deprecation") // Deprecated instance of deprecated class
+    public static final Creator<ClippingProperties> CREATOR = ClippingConfiguration::fromBundle;
+
+    /** Restores a {@code ClippingProperties} from a {@link Bundle}. */
+    @UnstableApi
+    public static ClippingProperties fromBundle(Bundle bundle) {
+      ClippingConfiguration.Builder clippingConfiguration =
+          new ClippingConfiguration.Builder()
+              .setStartPositionMs(
+                  bundle.getLong(
+                      FIELD_START_POSITION_MS, /* defaultValue= */ UNSET.startPositionMs))
+              .setEndPositionMs(
+                  bundle.getLong(FIELD_END_POSITION_MS, /* defaultValue= */ UNSET.endPositionMs))
+              .setRelativeToLiveWindow(
+                  bundle.getBoolean(
+                      FIELD_RELATIVE_TO_LIVE_WINDOW,
+                      /* defaultValue= */ UNSET.relativeToLiveWindow))
+              .setRelativeToDefaultPosition(
+                  bundle.getBoolean(
+                      FIELD_RELATIVE_TO_DEFAULT_POSITION,
+                      /* defaultValue= */ UNSET.relativeToDefaultPosition))
+              .setStartsAtKeyFrame(
+                  bundle.getBoolean(
+                      FIELD_STARTS_AT_KEY_FRAME, /* defaultValue= */ UNSET.startsAtKeyFrame));
+      long startPositionUs =
+          bundle.getLong(FIELD_START_POSITION_US, /* defaultValue= */ UNSET.startPositionUs);
+      if (startPositionUs != UNSET.startPositionUs) {
+        clippingConfiguration.setStartPositionUs(startPositionUs);
+      }
+      long endPositionUs =
+          bundle.getLong(FIELD_END_POSITION_US, /* defaultValue= */ UNSET.endPositionUs);
+      if (endPositionUs != UNSET.endPositionUs) {
+        clippingConfiguration.setEndPositionUs(endPositionUs);
+      }
+      return clippingConfiguration.buildClippingProperties();
+    }
   }
 
   /**
@@ -2241,15 +2283,25 @@ public final class MediaItem implements Bundleable {
       return bundle;
     }
 
-    /** An object that can restore {@link RequestMetadata} from a {@link Bundle}. */
+    /**
+     * An object that can restore {@link RequestMetadata} from a {@link Bundle}.
+     *
+     * @deprecated Use {@link #fromBundle} instead.
+     */
     @UnstableApi
-    public static final Creator<RequestMetadata> CREATOR =
-        bundle ->
-            new RequestMetadata.Builder()
-                .setMediaUri(bundle.getParcelable(FIELD_MEDIA_URI))
-                .setSearchQuery(bundle.getString(FIELD_SEARCH_QUERY))
-                .setExtras(bundle.getBundle(FIELD_EXTRAS))
-                .build();
+    @Deprecated
+    @SuppressWarnings("deprecation") // Deprecated instance of deprecated class
+    public static final Creator<RequestMetadata> CREATOR = RequestMetadata::fromBundle;
+
+    /** Restores a {@code RequestMetadata} from a {@link Bundle}. */
+    @UnstableApi
+    public static RequestMetadata fromBundle(Bundle bundle) {
+      return new RequestMetadata.Builder()
+          .setMediaUri(bundle.getParcelable(FIELD_MEDIA_URI))
+          .setSearchQuery(bundle.getString(FIELD_SEARCH_QUERY))
+          .setExtras(bundle.getBundle(FIELD_EXTRAS))
+          .build();
+    }
   }
 
   /**
@@ -2403,8 +2455,13 @@ public final class MediaItem implements Bundleable {
    * An object that can restore {@code MediaItem} from a {@link Bundle}.
    *
    * <p>The {@link #localConfiguration} of a restored instance will always be {@code null}.
+   *
+   * @deprecated Use {@link #fromBundle} instead.
    */
-  @UnstableApi public static final Creator<MediaItem> CREATOR = MediaItem::fromBundle;
+  @UnstableApi
+  @Deprecated
+  @SuppressWarnings("deprecation") // Deprecated instance of deprecated class
+  public static final Creator<MediaItem> CREATOR = MediaItem::fromBundle;
 
   /**
    * Restores a {@code MediaItem} from a {@link Bundle}.
@@ -2420,35 +2477,35 @@ public final class MediaItem implements Bundleable {
     if (liveConfigurationBundle == null) {
       liveConfiguration = LiveConfiguration.UNSET;
     } else {
-      liveConfiguration = LiveConfiguration.CREATOR.fromBundle(liveConfigurationBundle);
+      liveConfiguration = LiveConfiguration.fromBundle(liveConfigurationBundle);
     }
     @Nullable Bundle mediaMetadataBundle = bundle.getBundle(FIELD_MEDIA_METADATA);
     MediaMetadata mediaMetadata;
     if (mediaMetadataBundle == null) {
       mediaMetadata = MediaMetadata.EMPTY;
     } else {
-      mediaMetadata = MediaMetadata.CREATOR.fromBundle(mediaMetadataBundle);
+      mediaMetadata = MediaMetadata.fromBundle(mediaMetadataBundle);
     }
     @Nullable Bundle clippingConfigurationBundle = bundle.getBundle(FIELD_CLIPPING_PROPERTIES);
     ClippingProperties clippingConfiguration;
     if (clippingConfigurationBundle == null) {
       clippingConfiguration = ClippingProperties.UNSET;
     } else {
-      clippingConfiguration = ClippingConfiguration.CREATOR.fromBundle(clippingConfigurationBundle);
+      clippingConfiguration = ClippingConfiguration.fromBundle(clippingConfigurationBundle);
     }
     @Nullable Bundle requestMetadataBundle = bundle.getBundle(FIELD_REQUEST_METADATA);
     RequestMetadata requestMetadata;
     if (requestMetadataBundle == null) {
       requestMetadata = RequestMetadata.EMPTY;
     } else {
-      requestMetadata = RequestMetadata.CREATOR.fromBundle(requestMetadataBundle);
+      requestMetadata = RequestMetadata.fromBundle(requestMetadataBundle);
     }
     @Nullable Bundle localConfigurationBundle = bundle.getBundle(FIELD_LOCAL_CONFIGURATION);
     LocalConfiguration localConfiguration;
     if (localConfigurationBundle == null) {
       localConfiguration = null;
     } else {
-      localConfiguration = LocalConfiguration.CREATOR.fromBundle(localConfigurationBundle);
+      localConfiguration = LocalConfiguration.fromBundle(localConfigurationBundle);
     }
     return new MediaItem(
         mediaId,

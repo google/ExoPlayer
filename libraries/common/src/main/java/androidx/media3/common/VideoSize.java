@@ -143,15 +143,24 @@ public final class VideoSize implements Bundleable {
     return bundle;
   }
 
+  /**
+   * @deprecated Use {@link #fromBundle} instead.
+   */
   @UnstableApi
-  public static final Creator<VideoSize> CREATOR =
-      bundle -> {
-        int width = bundle.getInt(FIELD_WIDTH, DEFAULT_WIDTH);
-        int height = bundle.getInt(FIELD_HEIGHT, DEFAULT_HEIGHT);
-        int unappliedRotationDegrees =
-            bundle.getInt(FIELD_UNAPPLIED_ROTATION_DEGREES, DEFAULT_UNAPPLIED_ROTATION_DEGREES);
-        float pixelWidthHeightRatio =
-            bundle.getFloat(FIELD_PIXEL_WIDTH_HEIGHT_RATIO, DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO);
-        return new VideoSize(width, height, unappliedRotationDegrees, pixelWidthHeightRatio);
-      };
+  @Deprecated
+  @SuppressWarnings("deprecation") // Deprecated instance of deprecated class
+  public static final Creator<VideoSize> CREATOR = VideoSize::fromBundle;
+
+  /** Restores a {@code VideoSize} from a {@link Bundle}. */
+  @UnstableApi
+  public static VideoSize fromBundle(Bundle bundle) {
+    int width = bundle.getInt(FIELD_WIDTH, DEFAULT_WIDTH);
+    int height = bundle.getInt(FIELD_HEIGHT, DEFAULT_HEIGHT);
+    int unappliedRotationDegrees =
+        bundle.getInt(FIELD_UNAPPLIED_ROTATION_DEGREES, DEFAULT_UNAPPLIED_ROTATION_DEGREES);
+    float pixelWidthHeightRatio =
+        bundle.getFloat(FIELD_PIXEL_WIDTH_HEIGHT_RATIO, DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO);
+    return new VideoSize(width, height, unappliedRotationDegrees, pixelWidthHeightRatio);
+  }
+  ;
 }

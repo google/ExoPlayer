@@ -263,7 +263,7 @@ public class MediaItemTest {
             .build();
 
     MediaItem.DrmConfiguration drmConfigurationFromBundle =
-        MediaItem.DrmConfiguration.CREATOR.fromBundle(drmConfiguration.toBundle());
+        MediaItem.DrmConfiguration.fromBundle(drmConfiguration.toBundle());
 
     assertThat(drmConfigurationFromBundle).isEqualTo(drmConfiguration);
   }
@@ -352,7 +352,7 @@ public class MediaItemTest {
     assertThat(subtitleConfigurationBundle.keySet()).containsExactly("0");
 
     MediaItem.SubtitleConfiguration subtitleConfigurationFromBundle =
-        MediaItem.SubtitleConfiguration.CREATOR.fromBundle(subtitleConfigurationBundle);
+        MediaItem.SubtitleConfiguration.fromBundle(subtitleConfigurationBundle);
 
     assertThat(subtitleConfigurationFromBundle).isEqualTo(subtitleConfiguration);
   }
@@ -371,7 +371,7 @@ public class MediaItemTest {
             .build();
 
     MediaItem.SubtitleConfiguration subtitleConfigurationFromBundle =
-        MediaItem.SubtitleConfiguration.CREATOR.fromBundle(subtitleConfiguration.toBundle());
+        MediaItem.SubtitleConfiguration.fromBundle(subtitleConfiguration.toBundle());
 
     assertThat(subtitleConfigurationFromBundle).isEqualTo(subtitleConfiguration);
   }
@@ -461,7 +461,7 @@ public class MediaItemTest {
     assertThat(clippingConfigurationBundle.keySet()).isEmpty();
 
     MediaItem.ClippingConfiguration clippingConfigurationFromBundle =
-        MediaItem.ClippingConfiguration.CREATOR.fromBundle(clippingConfigurationBundle);
+        MediaItem.ClippingConfiguration.fromBundle(clippingConfigurationBundle);
 
     assertThat(clippingConfigurationFromBundle).isEqualTo(clippingConfiguration);
   }
@@ -477,7 +477,7 @@ public class MediaItemTest {
             .build();
 
     MediaItem.ClippingConfiguration clippingConfigurationFromBundle =
-        MediaItem.ClippingConfiguration.CREATOR.fromBundle(clippingConfiguration.toBundle());
+        MediaItem.ClippingConfiguration.fromBundle(clippingConfiguration.toBundle());
 
     assertThat(clippingConfigurationFromBundle).isEqualTo(clippingConfiguration);
   }
@@ -668,7 +668,7 @@ public class MediaItemTest {
             .build();
 
     MediaItem.AdsConfiguration adsConfigurationFromBundle =
-        MediaItem.AdsConfiguration.CREATOR.fromBundle(adsConfiguration.toBundle());
+        MediaItem.AdsConfiguration.fromBundle(adsConfiguration.toBundle());
 
     assertThat(adsConfigurationFromBundle.adTagUri).isEqualTo(adsConfiguration.adTagUri);
     assertThat(adsConfigurationFromBundle.adsId).isNull();
@@ -711,7 +711,7 @@ public class MediaItemTest {
     assertThat(liveConfigurationBundle.keySet()).isEmpty();
 
     MediaItem.LiveConfiguration liveConfigurationFromBundle =
-        MediaItem.LiveConfiguration.CREATOR.fromBundle(liveConfigurationBundle);
+        MediaItem.LiveConfiguration.fromBundle(liveConfigurationBundle);
 
     assertThat(liveConfigurationFromBundle).isEqualTo(liveConfiguration);
   }
@@ -726,7 +726,7 @@ public class MediaItemTest {
             .build();
 
     MediaItem.LiveConfiguration liveConfigurationFromBundle =
-        MediaItem.LiveConfiguration.CREATOR.fromBundle(liveConfiguration.toBundle());
+        MediaItem.LiveConfiguration.fromBundle(liveConfiguration.toBundle());
 
     assertThat(liveConfigurationFromBundle).isEqualTo(liveConfiguration);
   }
@@ -742,7 +742,7 @@ public class MediaItemTest {
     assertThat(localConfigurationBundle.keySet()).containsExactly("0");
 
     MediaItem.LocalConfiguration restoredLocalConfiguration =
-        MediaItem.LocalConfiguration.CREATOR.fromBundle(localConfigurationBundle);
+        MediaItem.LocalConfiguration.fromBundle(localConfigurationBundle);
 
     assertThat(restoredLocalConfiguration).isEqualTo(mediaItem.localConfiguration);
     assertThat(restoredLocalConfiguration.streamKeys).isEmpty();
@@ -784,10 +784,9 @@ public class MediaItemTest {
 
     MediaItem.LocalConfiguration localConfiguration = mediaItem.localConfiguration;
     MediaItem.LocalConfiguration localConfigurationFromBundle =
-        MediaItem.LocalConfiguration.CREATOR.fromBundle(localConfiguration.toBundle());
+        MediaItem.LocalConfiguration.fromBundle(localConfiguration.toBundle());
     MediaItem.LocalConfiguration localConfigurationFromMediaItemBundle =
-        MediaItem.CREATOR.fromBundle(mediaItem.toBundleIncludeLocalConfiguration())
-            .localConfiguration;
+        MediaItem.fromBundle(mediaItem.toBundleIncludeLocalConfiguration()).localConfiguration;
 
     assertThat(localConfigurationFromBundle).isEqualTo(localConfiguration);
     assertThat(localConfigurationFromMediaItemBundle).isEqualTo(localConfiguration);
@@ -1016,7 +1015,7 @@ public class MediaItemTest {
             .build();
 
     assertThat(mediaItem.localConfiguration).isNull();
-    assertThat(MediaItem.CREATOR.fromBundle(mediaItem.toBundle())).isEqualTo(mediaItem);
+    assertThat(MediaItem.fromBundle(mediaItem.toBundle())).isEqualTo(mediaItem);
   }
 
   @Test
@@ -1025,7 +1024,7 @@ public class MediaItemTest {
     MediaItem mediaItem = new MediaItem.Builder().setUri(URI_STRING).build();
 
     assertThat(mediaItem.localConfiguration).isNotNull();
-    assertThat(MediaItem.CREATOR.fromBundle(mediaItem.toBundle()).localConfiguration).isNull();
+    assertThat(MediaItem.fromBundle(mediaItem.toBundle()).localConfiguration).isNull();
   }
 
   @Test
@@ -1033,7 +1032,7 @@ public class MediaItemTest {
       roundTripViaBundleIncludeLocalConfiguration_mediaItemContainsLocalConfiguration_restoresLocalConfiguration() {
     MediaItem mediaItem = new MediaItem.Builder().setUri(URI_STRING).build();
     MediaItem restoredMediaItem =
-        MediaItem.CREATOR.fromBundle(mediaItem.toBundleIncludeLocalConfiguration());
+        MediaItem.fromBundle(mediaItem.toBundleIncludeLocalConfiguration());
 
     assertThat(mediaItem.localConfiguration).isNotNull();
     assertThat(restoredMediaItem.localConfiguration).isEqualTo(mediaItem.localConfiguration);
@@ -1062,7 +1061,7 @@ public class MediaItemTest {
     // Check that default values are skipped when bundling.
     assertThat(mediaItemBundle.keySet()).isEmpty();
 
-    MediaItem mediaItemFromBundle = MediaItem.CREATOR.fromBundle(mediaItem.toBundle());
+    MediaItem mediaItemFromBundle = MediaItem.fromBundle(mediaItem.toBundle());
 
     assertThat(mediaItemFromBundle).isEqualTo(mediaItem);
   }
@@ -1090,7 +1089,7 @@ public class MediaItemTest {
                     .build())
             .build();
 
-    MediaItem mediaItemFromBundle = MediaItem.CREATOR.fromBundle(mediaItem.toBundle());
+    MediaItem mediaItemFromBundle = MediaItem.fromBundle(mediaItem.toBundle());
 
     assertThat(mediaItemFromBundle).isEqualTo(mediaItem);
     assertThat(mediaItemFromBundle.requestMetadata.extras)

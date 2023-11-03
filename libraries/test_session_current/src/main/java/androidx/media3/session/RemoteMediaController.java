@@ -94,7 +94,7 @@ public class RemoteMediaController {
   @Nullable
   public SessionToken getConnectedSessionToken() throws RemoteException {
     @Nullable Bundle sessionTokenBundle = binder.getConnectedSessionToken(controllerId);
-    return sessionTokenBundle == null ? null : SessionToken.CREATOR.fromBundle(sessionTokenBundle);
+    return sessionTokenBundle == null ? null : SessionToken.fromBundle(sessionTokenBundle);
   }
 
   public void play() throws RemoteException {
@@ -336,17 +336,17 @@ public class RemoteMediaController {
   public SessionResult sendCustomCommand(SessionCommand command, Bundle args)
       throws RemoteException {
     Bundle result = binder.sendCustomCommand(controllerId, command.toBundle(), args);
-    return SessionResult.CREATOR.fromBundle(result);
+    return SessionResult.fromBundle(result);
   }
 
   public SessionResult setRating(String mediaId, Rating rating) throws RemoteException {
     Bundle result = binder.setRatingWithMediaId(controllerId, mediaId, rating.toBundle());
-    return SessionResult.CREATOR.fromBundle(result);
+    return SessionResult.fromBundle(result);
   }
 
   public SessionResult setRating(Rating rating) throws RemoteException {
     Bundle result = binder.setRating(controllerId, rating.toBundle());
-    return SessionResult.CREATOR.fromBundle(result);
+    return SessionResult.fromBundle(result);
   }
 
   public void release() throws RemoteException {
@@ -377,14 +377,14 @@ public class RemoteMediaController {
     ArrayList<Bundle> list = customLayoutBundle.getParcelableArrayList(KEY_COMMAND_BUTTON_LIST);
     ImmutableList.Builder<CommandButton> customLayout = new ImmutableList.Builder<>();
     for (Bundle bundle : list) {
-      customLayout.add(CommandButton.CREATOR.fromBundle(bundle));
+      customLayout.add(CommandButton.fromBundle(bundle));
     }
     return customLayout.build();
   }
 
   public Player.Commands getAvailableCommands() throws RemoteException {
     Bundle commandsBundle = binder.getAvailableCommands(controllerId);
-    return Player.Commands.CREATOR.fromBundle(commandsBundle);
+    return Player.Commands.fromBundle(commandsBundle);
   }
 
   ////////////////////////////////////////////////////////////////////////////////

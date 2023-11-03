@@ -42,7 +42,7 @@ public final class FormatTest {
   @Test
   public void roundTripViaBundle_ofParameters_yieldsEqualInstance() {
     Format formatToBundle = createTestFormat();
-    Format formatFromBundle = Format.CREATOR.fromBundle(formatToBundle.toBundle());
+    Format formatFromBundle = Format.fromBundle(formatToBundle.toBundle());
 
     assertThat(formatFromBundle).isEqualTo(formatToBundle);
   }
@@ -53,7 +53,7 @@ public final class FormatTest {
 
     Bundle bundleWithMetadataExcluded = format.toBundle(/* excludeMetadata= */ true);
 
-    Format formatWithMetadataExcluded = Format.CREATOR.fromBundle(bundleWithMetadataExcluded);
+    Format formatWithMetadataExcluded = Format.fromBundle(bundleWithMetadataExcluded);
     assertThat(formatWithMetadataExcluded).isEqualTo(format.buildUpon().setMetadata(null).build());
   }
 

@@ -98,11 +98,19 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
       return bundle;
     }
 
-    public static final Creator<BundlingExclusions> CREATOR =
-        bundle ->
-            new BundlingExclusions(
-                bundle.getBoolean(FIELD_IS_TIMELINE_EXCLUDED, /* defaultValue= */ false),
-                bundle.getBoolean(FIELD_ARE_CURRENT_TRACKS_EXCLUDED, /* defaultValue= */ false));
+    /**
+     * @deprecated Use {@link #fromBundle} instead.
+     */
+    @Deprecated
+    @SuppressWarnings("deprecation") // Deprecated instance of deprecated class
+    public static final Creator<BundlingExclusions> CREATOR = BundlingExclusions::fromBundle;
+
+    /** Restores a {@code BundlingExclusions} from a {@link Bundle}. */
+    public static BundlingExclusions fromBundle(Bundle bundle) {
+      return new BundlingExclusions(
+          bundle.getBoolean(FIELD_IS_TIMELINE_EXCLUDED, /* defaultValue= */ false),
+          bundle.getBoolean(FIELD_ARE_CURRENT_TRACKS_EXCLUDED, /* defaultValue= */ false));
+    }
 
     @Override
     public boolean equals(@Nullable Object o) {
@@ -1006,10 +1014,17 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
     return bundle;
   }
 
-  /** Object that can restore {@link PlayerInfo} from a {@link Bundle}. */
+  /**
+   * Object that can restore {@link PlayerInfo} from a {@link Bundle}.
+   *
+   * @deprecated Use {@link #fromBundle} instead.
+   */
+  @Deprecated
+  @SuppressWarnings("deprecation") // Deprecated instance of deprecated class
   public static final Creator<PlayerInfo> CREATOR = PlayerInfo::fromBundle;
 
-  private static PlayerInfo fromBundle(Bundle bundle) {
+  /** Restores a {@code PlayerInfo} from a {@link Bundle}. */
+  public static PlayerInfo fromBundle(Bundle bundle) {
     @Nullable IBinder inProcessBinder = BundleUtil.getBinder(bundle, FIELD_IN_PROCESS_BINDER);
     if (inProcessBinder instanceof InProcessBinder) {
       return ((InProcessBinder) inProcessBinder).getPlayerInfo();
@@ -1017,65 +1032,61 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
     @Nullable Bundle playerErrorBundle = bundle.getBundle(FIELD_PLAYBACK_ERROR);
     @Nullable
     PlaybackException playerError =
-        playerErrorBundle == null ? null : PlaybackException.CREATOR.fromBundle(playerErrorBundle);
+        playerErrorBundle == null ? null : PlaybackException.fromBundle(playerErrorBundle);
     int mediaItemTransitionReason =
         bundle.getInt(FIELD_MEDIA_ITEM_TRANSITION_REASON, MEDIA_ITEM_TRANSITION_REASON_DEFAULT);
     @Nullable Bundle sessionPositionInfoBundle = bundle.getBundle(FIELD_SESSION_POSITION_INFO);
     SessionPositionInfo sessionPositionInfo =
         sessionPositionInfoBundle == null
             ? SessionPositionInfo.DEFAULT
-            : SessionPositionInfo.CREATOR.fromBundle(sessionPositionInfoBundle);
+            : SessionPositionInfo.fromBundle(sessionPositionInfoBundle);
     @Nullable Bundle oldPositionInfoBundle = bundle.getBundle(FIELD_OLD_POSITION_INFO);
     PositionInfo oldPositionInfo =
         oldPositionInfoBundle == null
             ? SessionPositionInfo.DEFAULT_POSITION_INFO
-            : PositionInfo.CREATOR.fromBundle(oldPositionInfoBundle);
+            : PositionInfo.fromBundle(oldPositionInfoBundle);
     @Nullable Bundle newPositionInfoBundle = bundle.getBundle(FIELD_NEW_POSITION_INFO);
     PositionInfo newPositionInfo =
         newPositionInfoBundle == null
             ? SessionPositionInfo.DEFAULT_POSITION_INFO
-            : PositionInfo.CREATOR.fromBundle(newPositionInfoBundle);
+            : PositionInfo.fromBundle(newPositionInfoBundle);
     int discontinuityReason =
         bundle.getInt(FIELD_DISCONTINUITY_REASON, DISCONTINUITY_REASON_DEFAULT);
     @Nullable Bundle playbackParametersBundle = bundle.getBundle(FIELD_PLAYBACK_PARAMETERS);
     PlaybackParameters playbackParameters =
         playbackParametersBundle == null
             ? PlaybackParameters.DEFAULT
-            : PlaybackParameters.CREATOR.fromBundle(playbackParametersBundle);
+            : PlaybackParameters.fromBundle(playbackParametersBundle);
     @Player.RepeatMode
     int repeatMode = bundle.getInt(FIELD_REPEAT_MODE, /* defaultValue= */ Player.REPEAT_MODE_OFF);
     boolean shuffleModeEnabled =
         bundle.getBoolean(FIELD_SHUFFLE_MODE_ENABLED, /* defaultValue= */ false);
     @Nullable Bundle timelineBundle = bundle.getBundle(FIELD_TIMELINE);
     Timeline timeline =
-        timelineBundle == null ? Timeline.EMPTY : Timeline.CREATOR.fromBundle(timelineBundle);
+        timelineBundle == null ? Timeline.EMPTY : Timeline.fromBundle(timelineBundle);
     int timelineChangeReason =
         bundle.getInt(
             FIELD_TIMELINE_CHANGE_REASON, /* defaultValue= */ TIMELINE_CHANGE_REASON_DEFAULT);
     @Nullable Bundle videoSizeBundle = bundle.getBundle(FIELD_VIDEO_SIZE);
     VideoSize videoSize =
-        videoSizeBundle == null ? VideoSize.UNKNOWN : VideoSize.CREATOR.fromBundle(videoSizeBundle);
+        videoSizeBundle == null ? VideoSize.UNKNOWN : VideoSize.fromBundle(videoSizeBundle);
     @Nullable Bundle playlistMetadataBundle = bundle.getBundle(FIELD_PLAYLIST_METADATA);
     MediaMetadata playlistMetadata =
         playlistMetadataBundle == null
             ? MediaMetadata.EMPTY
-            : MediaMetadata.CREATOR.fromBundle(playlistMetadataBundle);
+            : MediaMetadata.fromBundle(playlistMetadataBundle);
     float volume = bundle.getFloat(FIELD_VOLUME, /* defaultValue= */ 1);
     @Nullable Bundle audioAttributesBundle = bundle.getBundle(FIELD_AUDIO_ATTRIBUTES);
     AudioAttributes audioAttributes =
         audioAttributesBundle == null
             ? AudioAttributes.DEFAULT
-            : AudioAttributes.CREATOR.fromBundle(audioAttributesBundle);
+            : AudioAttributes.fromBundle(audioAttributesBundle);
     @Nullable Bundle cueGroupBundle = bundle.getBundle(FIELD_CUE_GROUP);
     CueGroup cueGroup =
-        cueGroupBundle == null
-            ? CueGroup.EMPTY_TIME_ZERO
-            : CueGroup.CREATOR.fromBundle(cueGroupBundle);
+        cueGroupBundle == null ? CueGroup.EMPTY_TIME_ZERO : CueGroup.fromBundle(cueGroupBundle);
     @Nullable Bundle deviceInfoBundle = bundle.getBundle(FIELD_DEVICE_INFO);
     DeviceInfo deviceInfo =
-        deviceInfoBundle == null
-            ? DeviceInfo.UNKNOWN
-            : DeviceInfo.CREATOR.fromBundle(deviceInfoBundle);
+        deviceInfoBundle == null ? DeviceInfo.UNKNOWN : DeviceInfo.fromBundle(deviceInfoBundle);
     int deviceVolume = bundle.getInt(FIELD_DEVICE_VOLUME, /* defaultValue= */ 0);
     boolean deviceMuted = bundle.getBoolean(FIELD_DEVICE_MUTED, /* defaultValue= */ false);
     boolean playWhenReady = bundle.getBoolean(FIELD_PLAY_WHEN_READY, /* defaultValue= */ false);
@@ -1096,7 +1107,7 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
     MediaMetadata mediaMetadata =
         mediaMetadataBundle == null
             ? MediaMetadata.EMPTY
-            : MediaMetadata.CREATOR.fromBundle(mediaMetadataBundle);
+            : MediaMetadata.fromBundle(mediaMetadataBundle);
     long seekBackIncrementMs = bundle.getLong(FIELD_SEEK_BACK_INCREMENT_MS, /* defaultValue= */ 0);
     long seekForwardIncrementMs =
         bundle.getLong(FIELD_SEEK_FORWARD_INCREMENT_MS, /* defaultValue= */ 0);
@@ -1104,7 +1115,7 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
         bundle.getLong(FIELD_MAX_SEEK_TO_PREVIOUS_POSITION_MS, /* defaultValue= */ 0);
     Bundle currentTracksBundle = bundle.getBundle(FIELD_CURRENT_TRACKS);
     Tracks currentTracks =
-        currentTracksBundle == null ? Tracks.EMPTY : Tracks.CREATOR.fromBundle(currentTracksBundle);
+        currentTracksBundle == null ? Tracks.EMPTY : Tracks.fromBundle(currentTracksBundle);
     @Nullable
     Bundle trackSelectionParametersBundle = bundle.getBundle(FIELD_TRACK_SELECTION_PARAMETERS);
     TrackSelectionParameters trackSelectionParameters =

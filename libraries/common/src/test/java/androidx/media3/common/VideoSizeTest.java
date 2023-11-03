@@ -44,10 +44,10 @@ public final class VideoSizeTest {
 
   @Test
   public void fromBundle_ofEmptyBundle_yieldsVideoSizeUnknown() {
-    assertThat(VideoSize.CREATOR.fromBundle(new Bundle())).isEqualTo(VideoSize.UNKNOWN);
+    assertThat(VideoSize.fromBundle(new Bundle())).isEqualTo(VideoSize.UNKNOWN);
   }
 
   private static VideoSize roundTripViaBundle(VideoSize videoSize) {
-    return VideoSize.CREATOR.fromBundle(videoSize.toBundle());
+    return VideoSize.fromBundle(videoSize.toBundle());
   }
 }

@@ -121,7 +121,7 @@ public class MediaControllerProviderService extends Service {
         Bundle connectionHints,
         boolean waitForConnection)
         throws RemoteException {
-      SessionToken token = SessionToken.CREATOR.fromBundle(tokenBundle);
+      SessionToken token = SessionToken.fromBundle(tokenBundle);
       ListenableFuture<? extends MediaController> controllerFuture =
           runOnHandler(
               () -> {
@@ -272,7 +272,7 @@ public class MediaControllerProviderService extends Service {
     public void setPlaybackParameters(String controllerId, Bundle playbackParametersBundle)
         throws RemoteException {
       PlaybackParameters playbackParameters =
-          PlaybackParameters.CREATOR.fromBundle(playbackParametersBundle);
+          PlaybackParameters.fromBundle(playbackParametersBundle);
       runOnHandler(
           () -> {
             MediaController controller = mediaControllerMap.get(controllerId);
@@ -294,7 +294,7 @@ public class MediaControllerProviderService extends Service {
       runOnHandler(
           () -> {
             MediaController controller = mediaControllerMap.get(controllerId);
-            controller.setMediaItem(MediaItem.CREATOR.fromBundle(mediaItemBundle));
+            controller.setMediaItem(MediaItem.fromBundle(mediaItemBundle));
           });
     }
 
@@ -304,7 +304,7 @@ public class MediaControllerProviderService extends Service {
       runOnHandler(
           () -> {
             MediaController controller = mediaControllerMap.get(controllerId);
-            controller.setMediaItem(MediaItem.CREATOR.fromBundle(mediaItemBundle), startPositionMs);
+            controller.setMediaItem(MediaItem.fromBundle(mediaItemBundle), startPositionMs);
           });
     }
 
@@ -314,7 +314,7 @@ public class MediaControllerProviderService extends Service {
       runOnHandler(
           () -> {
             MediaController controller = mediaControllerMap.get(controllerId);
-            controller.setMediaItem(MediaItem.CREATOR.fromBundle(mediaItemBundle), resetPosition);
+            controller.setMediaItem(MediaItem.fromBundle(mediaItemBundle), resetPosition);
           });
     }
 
@@ -377,8 +377,7 @@ public class MediaControllerProviderService extends Service {
       runOnHandler(
           () -> {
             MediaController controller = mediaControllerMap.get(controllerId);
-            controller.setPlaylistMetadata(
-                MediaMetadata.CREATOR.fromBundle(playlistMetadataBundle));
+            controller.setPlaylistMetadata(MediaMetadata.fromBundle(playlistMetadataBundle));
           });
     }
 
@@ -387,7 +386,7 @@ public class MediaControllerProviderService extends Service {
       runOnHandler(
           () -> {
             MediaController controller = mediaControllerMap.get(controllerId);
-            controller.addMediaItem(MediaItem.CREATOR.fromBundle(mediaItemBundle));
+            controller.addMediaItem(MediaItem.fromBundle(mediaItemBundle));
           });
     }
 
@@ -397,7 +396,7 @@ public class MediaControllerProviderService extends Service {
       runOnHandler(
           () -> {
             MediaController controller = mediaControllerMap.get(controllerId);
-            controller.addMediaItem(index, MediaItem.CREATOR.fromBundle(mediaItemBundle));
+            controller.addMediaItem(index, MediaItem.fromBundle(mediaItemBundle));
           });
     }
 
@@ -478,7 +477,7 @@ public class MediaControllerProviderService extends Service {
       runOnHandler(
           () -> {
             MediaController controller = mediaControllerMap.get(controllerId);
-            controller.replaceMediaItem(index, MediaItem.CREATOR.fromBundle(mediaItem));
+            controller.replaceMediaItem(index, MediaItem.fromBundle(mediaItem));
           });
     }
 
@@ -593,7 +592,7 @@ public class MediaControllerProviderService extends Service {
       MediaController controller = mediaControllerMap.get(controllerId);
       Future<SessionResult> future =
           runOnHandler(
-              () -> controller.sendCustomCommand(SessionCommand.CREATOR.fromBundle(command), args));
+              () -> controller.sendCustomCommand(SessionCommand.fromBundle(command), args));
       SessionResult result = getFutureResult(future);
       return result.toBundle();
     }
@@ -603,7 +602,7 @@ public class MediaControllerProviderService extends Service {
         throws RemoteException {
       MediaController controller = mediaControllerMap.get(controllerId);
       Future<SessionResult> future =
-          runOnHandler(() -> controller.setRating(mediaId, Rating.CREATOR.fromBundle(rating)));
+          runOnHandler(() -> controller.setRating(mediaId, Rating.fromBundle(rating)));
       SessionResult result = getFutureResult(future);
       return result.toBundle();
     }
@@ -612,7 +611,7 @@ public class MediaControllerProviderService extends Service {
     public Bundle setRating(String controllerId, Bundle rating) throws RemoteException {
       MediaController controller = mediaControllerMap.get(controllerId);
       Future<SessionResult> future =
-          runOnHandler(() -> controller.setRating(Rating.CREATOR.fromBundle(rating)));
+          runOnHandler(() -> controller.setRating(Rating.fromBundle(rating)));
       SessionResult result = getFutureResult(future);
       return result.toBundle();
     }
@@ -710,7 +709,7 @@ public class MediaControllerProviderService extends Service {
           () -> {
             MediaController controller = mediaControllerMap.get(controllerId);
             controller.setAudioAttributes(
-                AudioAttributes.CREATOR.fromBundle(audioAttributes), handleAudioFocus);
+                AudioAttributes.fromBundle(audioAttributes), handleAudioFocus);
           });
     }
 
@@ -779,7 +778,7 @@ public class MediaControllerProviderService extends Service {
                   browser.getLibraryRoot(
                       libraryParams == null
                           ? null
-                          : MediaLibraryService.LibraryParams.CREATOR.fromBundle(libraryParams)));
+                          : MediaLibraryService.LibraryParams.fromBundle(libraryParams)));
       LibraryResult<MediaItem> result = getFutureResult(future);
       return result.toBundle();
     }
@@ -795,7 +794,7 @@ public class MediaControllerProviderService extends Service {
                       parentId,
                       libraryParams == null
                           ? null
-                          : MediaLibraryService.LibraryParams.CREATOR.fromBundle(libraryParams)));
+                          : MediaLibraryService.LibraryParams.fromBundle(libraryParams)));
       LibraryResult<Void> result = getFutureResult(future);
       return result.toBundle();
     }
@@ -822,7 +821,7 @@ public class MediaControllerProviderService extends Service {
                       pageSize,
                       libraryParams == null
                           ? null
-                          : MediaLibraryService.LibraryParams.CREATOR.fromBundle(libraryParams)));
+                          : MediaLibraryService.LibraryParams.fromBundle(libraryParams)));
       LibraryResult<ImmutableList<MediaItem>> result = getFutureResult(future);
       return result.toBundle();
     }
@@ -865,7 +864,7 @@ public class MediaControllerProviderService extends Service {
                       query,
                       libraryParams == null
                           ? null
-                          : MediaLibraryService.LibraryParams.CREATOR.fromBundle(libraryParams)));
+                          : MediaLibraryService.LibraryParams.fromBundle(libraryParams)));
       LibraryResult<Void> result = getFutureResult(future);
       return result.toBundle();
     }
@@ -884,7 +883,7 @@ public class MediaControllerProviderService extends Service {
                       pageSize,
                       libraryParams == null
                           ? null
-                          : MediaLibraryService.LibraryParams.CREATOR.fromBundle(libraryParams)));
+                          : MediaLibraryService.LibraryParams.fromBundle(libraryParams)));
       LibraryResult<ImmutableList<MediaItem>> result = getFutureResult(future);
       return result.toBundle();
     }

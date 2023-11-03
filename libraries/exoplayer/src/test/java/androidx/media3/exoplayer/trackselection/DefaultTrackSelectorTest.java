@@ -192,7 +192,7 @@ public final class DefaultTrackSelectorTest {
   public void roundTripViaBundle_ofParameters_yieldsEqualInstance() {
     Parameters parametersToBundle = buildParametersForEqualsTest();
 
-    Parameters parametersFromBundle = Parameters.CREATOR.fromBundle(parametersToBundle.toBundle());
+    Parameters parametersFromBundle = Parameters.fromBundle(parametersToBundle.toBundle());
 
     assertThat(parametersFromBundle).isEqualTo(parametersToBundle);
   }

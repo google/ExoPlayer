@@ -98,9 +98,7 @@ public class MediaStyleNotificationHelper {
         return null;
       }
       Bundle sessionTokenBundle = extras.getBundle(EXTRA_MEDIA3_SESSION);
-      return sessionTokenBundle == null
-          ? null
-          : SessionToken.CREATOR.fromBundle(sessionTokenBundle);
+      return sessionTokenBundle == null ? null : SessionToken.fromBundle(sessionTokenBundle);
     }
 
     private static final int MAX_MEDIA_BUTTONS_IN_COMPACT = 3;

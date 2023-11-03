@@ -75,9 +75,17 @@ public final class CueGroup implements Bundleable {
     return bundle;
   }
 
-  @UnstableApi public static final Creator<CueGroup> CREATOR = CueGroup::fromBundle;
+  /**
+   * @deprecated Use {@link #fromBundle} instead.
+   */
+  @UnstableApi
+  @Deprecated
+  @SuppressWarnings("deprecation") // Deprecated instance of deprecated class
+  public static final Creator<CueGroup> CREATOR = CueGroup::fromBundle;
 
-  private static final CueGroup fromBundle(Bundle bundle) {
+  /** Restores a {@code final CueGroup} from a {@link Bundle}. */
+  @UnstableApi
+  public static CueGroup fromBundle(Bundle bundle) {
     @Nullable ArrayList<Bundle> cueBundles = bundle.getParcelableArrayList(FIELD_CUES);
     List<Cue> cues =
         cueBundles == null

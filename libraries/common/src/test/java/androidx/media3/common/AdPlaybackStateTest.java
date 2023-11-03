@@ -425,7 +425,7 @@ public class AdPlaybackStateTest {
     assertThat(adPlaybackStateWithNoAdsBundle.keySet()).isEmpty();
 
     AdPlaybackState adPlaybackStateWithNoAdsFromBundle =
-        AdPlaybackState.CREATOR.fromBundle(adPlaybackStateWithNoAdsBundle);
+        AdPlaybackState.fromBundle(adPlaybackStateWithNoAdsBundle);
 
     assertThat(adPlaybackStateWithNoAdsFromBundle.adsId).isEqualTo(adPlaybackStateWithNoAds.adsId);
     assertThat(adPlaybackStateWithNoAdsFromBundle.adGroupCount)
@@ -460,7 +460,7 @@ public class AdPlaybackStateTest {
             .withAdResumePositionUs(123)
             .withContentDurationUs(456);
 
-    AdPlaybackState restoredState = AdPlaybackState.CREATOR.fromBundle(originalState.toBundle());
+    AdPlaybackState restoredState = AdPlaybackState.fromBundle(originalState.toBundle());
 
     assertThat(restoredState.adsId).isNull();
     assertThat(restoredState.adGroupCount).isEqualTo(originalState.adGroupCount);
@@ -484,7 +484,7 @@ public class AdPlaybackStateTest {
             .withContentResumeOffsetUs(4444)
             .withIsServerSideInserted(true);
 
-    assertThat(AdPlaybackState.AdGroup.CREATOR.fromBundle(adGroup.toBundle())).isEqualTo(adGroup);
+    assertThat(AdPlaybackState.AdGroup.fromBundle(adGroup.toBundle())).isEqualTo(adGroup);
   }
 
   @Test

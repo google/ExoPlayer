@@ -190,10 +190,19 @@ public final class SessionResult implements Bundleable {
     return bundle;
   }
 
-  /** Object that can restore a {@link SessionResult} from a {@link Bundle}. */
-  @UnstableApi public static final Creator<SessionResult> CREATOR = SessionResult::fromBundle;
+  /**
+   * Object that can restore a {@link SessionResult} from a {@link Bundle}.
+   *
+   * @deprecated Use {@link #fromBundle} instead.
+   */
+  @UnstableApi
+  @Deprecated
+  @SuppressWarnings("deprecation") // Deprecated instance of deprecated class
+  public static final Creator<SessionResult> CREATOR = SessionResult::fromBundle;
 
-  private static SessionResult fromBundle(Bundle bundle) {
+  /** Restores a {@code SessionResult} from a {@link Bundle}. */
+  @UnstableApi
+  public static SessionResult fromBundle(Bundle bundle) {
     int resultCode = bundle.getInt(FIELD_RESULT_CODE, /* defaultValue= */ RESULT_ERROR_UNKNOWN);
     @Nullable Bundle extras = bundle.getBundle(FIELD_EXTRAS);
     long completionTimeMs =

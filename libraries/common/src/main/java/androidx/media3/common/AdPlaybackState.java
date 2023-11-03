@@ -496,12 +496,19 @@ public final class AdPlaybackState implements Bundleable {
       return bundle;
     }
 
-    /** Object that can restore {@link AdGroup} from a {@link Bundle}. */
+    /**
+     * Object that can restore {@link AdGroup} from a {@link Bundle}.
+     *
+     * @deprecated Use {@link #fromBundle} instead.
+     */
+    @Deprecated
+    @SuppressWarnings("deprecation") // Deprecated instance of deprecated class
     public static final Creator<AdGroup> CREATOR = AdGroup::fromBundle;
 
+    /** Restores a {@code AdGroup} from a {@link Bundle}. */
     // getParcelableArrayList may have null elements.
     @SuppressWarnings("nullness:type.argument")
-    private static AdGroup fromBundle(Bundle bundle) {
+    public static AdGroup fromBundle(Bundle bundle) {
       long timeUs = bundle.getLong(FIELD_TIME_US);
       int count = bundle.getInt(FIELD_COUNT);
       int originalCount = bundle.getInt(FIELD_ORIGINAL_COUNT);
@@ -1202,10 +1209,15 @@ public final class AdPlaybackState implements Bundleable {
    * Object that can restore {@link AdPlaybackState} from a {@link Bundle}.
    *
    * <p>The {@link #adsId} of restored instances will always be {@code null}.
+   *
+   * @deprecated Use {@link #fromBundle} instead.
    */
+  @Deprecated
+  @SuppressWarnings("deprecation") // Deprecated instance of deprecated class
   public static final Bundleable.Creator<AdPlaybackState> CREATOR = AdPlaybackState::fromBundle;
 
-  private static AdPlaybackState fromBundle(Bundle bundle) {
+  /** Restores a {@code AdPlaybackState} from a {@link Bundle}. */
+  public static AdPlaybackState fromBundle(Bundle bundle) {
     @Nullable ArrayList<Bundle> adGroupBundleList = bundle.getParcelableArrayList(FIELD_AD_GROUPS);
     @Nullable AdGroup[] adGroups;
     if (adGroupBundleList == null) {
@@ -1213,7 +1225,7 @@ public final class AdPlaybackState implements Bundleable {
     } else {
       adGroups = new AdGroup[adGroupBundleList.size()];
       for (int i = 0; i < adGroupBundleList.size(); i++) {
-        adGroups[i] = AdGroup.CREATOR.fromBundle(adGroupBundleList.get(i));
+        adGroups[i] = AdGroup.fromBundle(adGroupBundleList.get(i));
       }
     }
     long adResumePositionUs =

@@ -664,7 +664,7 @@ public abstract class MediaSessionService extends Service {
       }
       ConnectionRequest request;
       try {
-        request = ConnectionRequest.CREATOR.fromBundle(connectionRequestBundle);
+        request = ConnectionRequest.fromBundle(connectionRequestBundle);
       } catch (RuntimeException e) {
         // Malformed call from potentially malicious controller.
         // No need to notify that we're ignoring call.

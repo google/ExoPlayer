@@ -15,7 +15,6 @@
  */
 package androidx.media3.session;
 
-import static androidx.media3.session.CommandButton.CREATOR;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
@@ -168,7 +167,7 @@ public class CommandButtonTest {
             .setPlayerCommand(Player.COMMAND_SEEK_TO_NEXT)
             .build();
 
-    assertThat(button).isEqualTo(CREATOR.fromBundle(button.toBundle()));
+    assertThat(button).isEqualTo(CommandButton.fromBundle(button.toBundle()));
     assertThat(button)
         .isNotEqualTo(
             new CommandButton.Builder()

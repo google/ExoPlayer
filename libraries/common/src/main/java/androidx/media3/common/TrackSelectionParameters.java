@@ -1494,7 +1494,9 @@ public class TrackSelectionParameters implements Bundleable {
   /**
    * @deprecated Use {@link #fromBundle(Bundle)} instead.
    */
-  @UnstableApi @Deprecated
+  @UnstableApi
+  @Deprecated
+  @SuppressWarnings("deprecation") // Deprecated instance of deprecated class
   public static final Creator<TrackSelectionParameters> CREATOR =
       TrackSelectionParameters::fromBundle;
 }

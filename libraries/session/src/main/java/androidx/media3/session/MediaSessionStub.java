@@ -600,7 +600,7 @@ import java.util.concurrent.ExecutionException;
     }
     ConnectionRequest request;
     try {
-      request = ConnectionRequest.CREATOR.fromBundle(connectionRequestBundle);
+      request = ConnectionRequest.fromBundle(connectionRequestBundle);
     } catch (RuntimeException e) {
       Log.w(TAG, "Ignoring malformed Bundle for ConnectionRequest", e);
       return;
@@ -677,7 +677,7 @@ import java.util.concurrent.ExecutionException;
     }
     SessionResult result;
     try {
-      result = SessionResult.CREATOR.fromBundle(sessionResultBundle);
+      result = SessionResult.fromBundle(sessionResultBundle);
     } catch (RuntimeException e) {
       Log.w(TAG, "Ignoring malformed Bundle for SessionResult", e);
       return;
@@ -859,7 +859,7 @@ import java.util.concurrent.ExecutionException;
     }
     SessionCommand command;
     try {
-      command = SessionCommand.CREATOR.fromBundle(commandBundle);
+      command = SessionCommand.fromBundle(commandBundle);
     } catch (RuntimeException e) {
       Log.w(TAG, "Ignoring malformed Bundle for SessionCommand", e);
       return;
@@ -888,7 +888,7 @@ import java.util.concurrent.ExecutionException;
     }
     Rating rating;
     try {
-      rating = Rating.CREATOR.fromBundle(ratingBundle);
+      rating = Rating.fromBundle(ratingBundle);
     } catch (RuntimeException e) {
       Log.w(TAG, "Ignoring malformed Bundle for Rating", e);
       return;
@@ -910,7 +910,7 @@ import java.util.concurrent.ExecutionException;
     }
     Rating rating;
     try {
-      rating = Rating.CREATOR.fromBundle(ratingBundle);
+      rating = Rating.fromBundle(ratingBundle);
     } catch (RuntimeException e) {
       Log.w(TAG, "Ignoring malformed Bundle for Rating", e);
       return;
@@ -942,8 +942,7 @@ import java.util.concurrent.ExecutionException;
     if (caller == null || playbackParametersBundle == null) {
       return;
     }
-    PlaybackParameters playbackParameters =
-        PlaybackParameters.CREATOR.fromBundle(playbackParametersBundle);
+    PlaybackParameters playbackParameters = PlaybackParameters.fromBundle(playbackParametersBundle);
     queueSessionTaskWithPlayerCommand(
         caller,
         sequenceNumber,
@@ -969,7 +968,7 @@ import java.util.concurrent.ExecutionException;
     }
     MediaItem mediaItem;
     try {
-      mediaItem = MediaItem.CREATOR.fromBundle(mediaItemBundle);
+      mediaItem = MediaItem.fromBundle(mediaItemBundle);
     } catch (RuntimeException e) {
       Log.w(TAG, "Ignoring malformed Bundle for MediaItem", e);
       return;
@@ -1000,7 +999,7 @@ import java.util.concurrent.ExecutionException;
     }
     MediaItem mediaItem;
     try {
-      mediaItem = MediaItem.CREATOR.fromBundle(mediaItemBundle);
+      mediaItem = MediaItem.fromBundle(mediaItemBundle);
     } catch (RuntimeException e) {
       Log.w(TAG, "Ignoring malformed Bundle for MediaItem", e);
       return;
@@ -1118,7 +1117,7 @@ import java.util.concurrent.ExecutionException;
     }
     MediaMetadata playlistMetadata;
     try {
-      playlistMetadata = MediaMetadata.CREATOR.fromBundle(playlistMetadataBundle);
+      playlistMetadata = MediaMetadata.fromBundle(playlistMetadataBundle);
     } catch (RuntimeException e) {
       Log.w(TAG, "Ignoring malformed Bundle for MediaMetadata", e);
       return;
@@ -1138,7 +1137,7 @@ import java.util.concurrent.ExecutionException;
     }
     MediaItem mediaItem;
     try {
-      mediaItem = MediaItem.CREATOR.fromBundle(mediaItemBundle);
+      mediaItem = MediaItem.fromBundle(mediaItemBundle);
     } catch (RuntimeException e) {
       Log.w(TAG, "Ignoring malformed Bundle for MediaItem", e);
       return;
@@ -1163,7 +1162,7 @@ import java.util.concurrent.ExecutionException;
     }
     MediaItem mediaItem;
     try {
-      mediaItem = MediaItem.CREATOR.fromBundle(mediaItemBundle);
+      mediaItem = MediaItem.fromBundle(mediaItemBundle);
     } catch (RuntimeException e) {
       Log.w(TAG, "Ignoring malformed Bundle for MediaItem", e);
       return;
@@ -1321,7 +1320,7 @@ import java.util.concurrent.ExecutionException;
     }
     MediaItem mediaItem;
     try {
-      mediaItem = MediaItem.CREATOR.fromBundle(mediaItemBundle);
+      mediaItem = MediaItem.fromBundle(mediaItemBundle);
     } catch (RuntimeException e) {
       Log.w(TAG, "Ignoring malformed Bundle for MediaItem", e);
       return;
@@ -1616,7 +1615,7 @@ import java.util.concurrent.ExecutionException;
         sendSessionResultSuccess(
             player ->
                 player.setAudioAttributes(
-                    AudioAttributes.CREATOR.fromBundle(audioAttributes), handleAudioFocus)));
+                    AudioAttributes.fromBundle(audioAttributes), handleAudioFocus)));
   }
 
   @Override
@@ -1694,7 +1693,7 @@ import java.util.concurrent.ExecutionException;
     }
     @Nullable
     LibraryParams libraryParams =
-        libraryParamsBundle == null ? null : LibraryParams.CREATOR.fromBundle(libraryParamsBundle);
+        libraryParamsBundle == null ? null : LibraryParams.fromBundle(libraryParamsBundle);
     dispatchSessionTaskWithSessionCommand(
         caller,
         sequenceNumber,
@@ -1750,7 +1749,7 @@ import java.util.concurrent.ExecutionException;
     }
     @Nullable
     LibraryParams libraryParams =
-        libraryParamsBundle == null ? null : LibraryParams.CREATOR.fromBundle(libraryParamsBundle);
+        libraryParamsBundle == null ? null : LibraryParams.fromBundle(libraryParamsBundle);
     dispatchSessionTaskWithSessionCommand(
         caller,
         sequenceNumber,
@@ -1776,7 +1775,7 @@ import java.util.concurrent.ExecutionException;
     }
     @Nullable
     LibraryParams libraryParams =
-        libraryParamsBundle == null ? null : LibraryParams.CREATOR.fromBundle(libraryParamsBundle);
+        libraryParamsBundle == null ? null : LibraryParams.fromBundle(libraryParamsBundle);
     dispatchSessionTaskWithSessionCommand(
         caller,
         sequenceNumber,
@@ -1811,7 +1810,7 @@ import java.util.concurrent.ExecutionException;
     }
     @Nullable
     LibraryParams libraryParams =
-        libraryParamsBundle == null ? null : LibraryParams.CREATOR.fromBundle(libraryParamsBundle);
+        libraryParamsBundle == null ? null : LibraryParams.fromBundle(libraryParamsBundle);
     dispatchSessionTaskWithSessionCommand(
         caller,
         sequenceNumber,
@@ -1837,7 +1836,7 @@ import java.util.concurrent.ExecutionException;
     }
     @Nullable
     LibraryParams libraryParams =
-        libraryParamsBundle == null ? null : LibraryParams.CREATOR.fromBundle(libraryParamsBundle);
+        libraryParamsBundle == null ? null : LibraryParams.fromBundle(libraryParamsBundle);
     dispatchSessionTaskWithSessionCommand(
         caller,
         sequenceNumber,

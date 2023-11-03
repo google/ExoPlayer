@@ -813,10 +813,19 @@ public abstract class MediaLibraryService extends MediaSessionService {
       return bundle;
     }
 
-    /** Object that can restore {@link LibraryParams} from a {@link Bundle}. */
-    @UnstableApi public static final Creator<LibraryParams> CREATOR = LibraryParams::fromBundle;
+    /**
+     * Object that can restore {@link LibraryParams} from a {@link Bundle}.
+     *
+     * @deprecated Use {@link #fromBundle} instead.
+     */
+    @UnstableApi
+    @Deprecated
+    @SuppressWarnings("deprecation") // Deprecated instance of deprecated class
+    public static final Creator<LibraryParams> CREATOR = LibraryParams::fromBundle;
 
-    private static LibraryParams fromBundle(Bundle bundle) {
+    /** Restores a {@code LibraryParams} from a {@link Bundle}. */
+    @UnstableApi
+    public static LibraryParams fromBundle(Bundle bundle) {
       @Nullable Bundle extras = bundle.getBundle(FIELD_EXTRAS);
       boolean recent = bundle.getBoolean(FIELD_RECENT, /* defaultValue= */ false);
       boolean offline = bundle.getBoolean(FIELD_OFFLINE, /* defaultValue= */ false);

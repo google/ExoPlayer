@@ -151,7 +151,7 @@ public class RemoteMediaSession {
    */
   @Nullable
   public SessionToken getToken() throws RemoteException {
-    return SessionToken.CREATOR.fromBundle(binder.getToken(sessionId));
+    return SessionToken.fromBundle(binder.getToken(sessionId));
   }
 
   /**

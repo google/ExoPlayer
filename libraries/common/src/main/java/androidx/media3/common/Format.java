@@ -1447,8 +1447,15 @@ public final class Format implements Bundleable {
     return bundle;
   }
 
-  /** Object that can restore {@code Format} from a {@link Bundle}. */
-  @UnstableApi public static final Creator<Format> CREATOR = Format::fromBundle;
+  /**
+   * Object that can restore {@code Format} from a {@link Bundle}.
+   *
+   * @deprecated Use {@link #fromBundle} instead.
+   */
+  @UnstableApi
+  @Deprecated
+  @SuppressWarnings("deprecation") // Deprecated instance of deprecated class
+  public static final Creator<Format> CREATOR = Format::fromBundle;
 
   /** Restores a {@code Format} from a {@link Bundle}. */
   @UnstableApi
@@ -1496,7 +1503,7 @@ public final class Format implements Bundleable {
         .setStereoMode(bundle.getInt(FIELD_STEREO_MODE, DEFAULT.stereoMode));
     Bundle colorInfoBundle = bundle.getBundle(FIELD_COLOR_INFO);
     if (colorInfoBundle != null) {
-      builder.setColorInfo(ColorInfo.CREATOR.fromBundle(colorInfoBundle));
+      builder.setColorInfo(ColorInfo.fromBundle(colorInfoBundle));
     }
     // Audio specific.
     builder

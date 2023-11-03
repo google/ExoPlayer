@@ -472,7 +472,7 @@ public class MockMediaLibraryService extends MediaLibraryService {
           @Nullable Bundle paramsBundle = args.getBundle(CUSTOM_ACTION_ASSERT_PARAMS);
           @Nullable
           LibraryParams params =
-              paramsBundle == null ? null : LibraryParams.CREATOR.fromBundle(paramsBundle);
+              paramsBundle == null ? null : LibraryParams.fromBundle(paramsBundle);
           setAssertLibraryParams(params);
           return Futures.immediateFuture(new SessionResult(SessionResult.RESULT_SUCCESS));
         default: // fall out

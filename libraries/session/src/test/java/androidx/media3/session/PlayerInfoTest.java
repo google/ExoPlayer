@@ -65,7 +65,7 @@ public class PlayerInfoTest {
     Bundle bundle = bundlingExclusions.toBundle();
 
     PlayerInfo.BundlingExclusions resultingBundlingExclusions =
-        PlayerInfo.BundlingExclusions.CREATOR.fromBundle(bundle);
+        PlayerInfo.BundlingExclusions.fromBundle(bundle);
 
     assertThat(resultingBundlingExclusions).isEqualTo(bundlingExclusions);
   }
@@ -163,7 +163,7 @@ public class PlayerInfoTest {
             .setVideoSize(new VideoSize(/* width= */ 1024, /* height= */ 768))
             .build();
 
-    PlayerInfo infoAfterBundling = PlayerInfo.CREATOR.fromBundle(playerInfo.toBundle());
+    PlayerInfo infoAfterBundling = PlayerInfo.fromBundle(playerInfo.toBundle());
 
     assertThat(infoAfterBundling.oldPositionInfo.mediaItemIndex).isEqualTo(5);
     assertThat(infoAfterBundling.oldPositionInfo.periodIndex).isEqualTo(4);
@@ -283,7 +283,7 @@ public class PlayerInfoTest {
             .build();
 
     PlayerInfo infoAfterBundling =
-        PlayerInfo.CREATOR.fromBundle(
+        PlayerInfo.fromBundle(
             playerInfo
                 .filterByAvailableCommands(
                     new Player.Commands.Builder()
@@ -404,7 +404,7 @@ public class PlayerInfoTest {
             .build();
 
     PlayerInfo infoAfterBundling =
-        PlayerInfo.CREATOR.fromBundle(
+        PlayerInfo.fromBundle(
             playerInfo
                 .filterByAvailableCommands(
                     new Player.Commands.Builder()
@@ -473,7 +473,7 @@ public class PlayerInfoTest {
             .build();
 
     PlayerInfo infoAfterBundling =
-        PlayerInfo.CREATOR.fromBundle(
+        PlayerInfo.fromBundle(
             playerInfo
                 .filterByAvailableCommands(
                     new Player.Commands.Builder()
@@ -493,7 +493,7 @@ public class PlayerInfoTest {
     PlayerInfo playerInfo = new PlayerInfo.Builder(PlayerInfo.DEFAULT).setVolume(0.5f).build();
 
     PlayerInfo infoAfterBundling =
-        PlayerInfo.CREATOR.fromBundle(
+        PlayerInfo.fromBundle(
             playerInfo
                 .filterByAvailableCommands(
                     new Player.Commands.Builder()
@@ -513,7 +513,7 @@ public class PlayerInfoTest {
         new PlayerInfo.Builder(PlayerInfo.DEFAULT).setDeviceVolume(10).setDeviceMuted(true).build();
 
     PlayerInfo infoAfterBundling =
-        PlayerInfo.CREATOR.fromBundle(
+        PlayerInfo.fromBundle(
             playerInfo
                 .filterByAvailableCommands(
                     new Player.Commands.Builder()
@@ -537,7 +537,7 @@ public class PlayerInfoTest {
             .build();
 
     PlayerInfo infoAfterBundling =
-        PlayerInfo.CREATOR.fromBundle(
+        PlayerInfo.fromBundle(
             playerInfo
                 .filterByAvailableCommands(
                     new Player.Commands.Builder()
@@ -559,7 +559,7 @@ public class PlayerInfoTest {
             .build();
 
     PlayerInfo infoAfterBundling =
-        PlayerInfo.CREATOR.fromBundle(
+        PlayerInfo.fromBundle(
             playerInfo
                 .filterByAvailableCommands(
                     new Player.Commands.Builder()
@@ -589,7 +589,7 @@ public class PlayerInfoTest {
             .build();
 
     PlayerInfo infoAfterBundling =
-        PlayerInfo.CREATOR.fromBundle(
+        PlayerInfo.fromBundle(
             playerInfo
                 .filterByAvailableCommands(
                     new Player.Commands.Builder()
@@ -605,7 +605,7 @@ public class PlayerInfoTest {
 
   @Test
   public void toBundleFromBundle_withDefaultValues_restoresAllData() {
-    PlayerInfo roundTripValue = PlayerInfo.CREATOR.fromBundle(PlayerInfo.DEFAULT.toBundle());
+    PlayerInfo roundTripValue = PlayerInfo.fromBundle(PlayerInfo.DEFAULT.toBundle());
 
     assertThat(roundTripValue.oldPositionInfo).isEqualTo(PlayerInfo.DEFAULT.oldPositionInfo);
     assertThat(roundTripValue.newPositionInfo).isEqualTo(PlayerInfo.DEFAULT.newPositionInfo);

@@ -16,7 +16,6 @@
 package androidx.media3.session;
 
 import static androidx.media3.session.LibraryResult.RESULT_ERROR_NOT_SUPPORTED;
-import static androidx.media3.session.LibraryResult.UNKNOWN_TYPE_CREATOR;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
@@ -70,11 +69,11 @@ public class LibraryResultTest {
     LibraryResult<MediaItem> libraryResult = LibraryResult.ofItem(mediaItem, params);
     Bundle libraryResultBundle = libraryResult.toBundle();
     LibraryResult<?> libraryResultFromUntyped =
-        UNKNOWN_TYPE_CREATOR.fromBundle(libraryResultBundle);
+        LibraryResult.fromUnknownBundle(libraryResultBundle);
 
     Bundle bundleOfUntyped = libraryResultFromUntyped.toBundle();
 
-    assertThat(UNKNOWN_TYPE_CREATOR.fromBundle(bundleOfUntyped).value).isEqualTo(mediaItem);
+    assertThat(LibraryResult.fromUnknownBundle(bundleOfUntyped).value).isEqualTo(mediaItem);
   }
 
   @Test
@@ -90,11 +89,11 @@ public class LibraryResultTest {
         LibraryResult.ofItemList(ImmutableList.of(mediaItem), params);
     Bundle libraryResultBundle = libraryResult.toBundle();
     LibraryResult<?> mediaItemLibraryResultFromUntyped =
-        UNKNOWN_TYPE_CREATOR.fromBundle(libraryResultBundle);
+        LibraryResult.fromUnknownBundle(libraryResultBundle);
 
     Bundle bundleOfUntyped = mediaItemLibraryResultFromUntyped.toBundle();
 
-    assertThat(UNKNOWN_TYPE_CREATOR.fromBundle(bundleOfUntyped).value)
+    assertThat(LibraryResult.fromUnknownBundle(bundleOfUntyped).value)
         .isEqualTo(ImmutableList.of(mediaItem));
   }
 
@@ -104,12 +103,12 @@ public class LibraryResultTest {
         LibraryResult.ofError(LibraryResult.RESULT_ERROR_NOT_SUPPORTED);
     Bundle errorLibraryResultBundle = libraryResult.toBundle();
     LibraryResult<?> libraryResultFromUntyped =
-        UNKNOWN_TYPE_CREATOR.fromBundle(errorLibraryResultBundle);
+        LibraryResult.fromUnknownBundle(errorLibraryResultBundle);
 
     Bundle bundleOfUntyped = libraryResultFromUntyped.toBundle();
 
-    assertThat(UNKNOWN_TYPE_CREATOR.fromBundle(bundleOfUntyped).value).isNull();
-    assertThat(UNKNOWN_TYPE_CREATOR.fromBundle(bundleOfUntyped).resultCode)
+    assertThat(LibraryResult.fromUnknownBundle(bundleOfUntyped).value).isNull();
+    assertThat(LibraryResult.fromUnknownBundle(bundleOfUntyped).resultCode)
         .isEqualTo(RESULT_ERROR_NOT_SUPPORTED);
   }
 
@@ -119,12 +118,12 @@ public class LibraryResultTest {
         LibraryResult.ofError(LibraryResult.RESULT_ERROR_NOT_SUPPORTED);
     Bundle errorLibraryResultBundle = libraryResult.toBundle();
     LibraryResult<?> libraryResultFromUntyped =
-        UNKNOWN_TYPE_CREATOR.fromBundle(errorLibraryResultBundle);
+        LibraryResult.fromUnknownBundle(errorLibraryResultBundle);
 
     Bundle bundleOfUntyped = libraryResultFromUntyped.toBundle();
 
-    assertThat(UNKNOWN_TYPE_CREATOR.fromBundle(bundleOfUntyped).value).isNull();
-    assertThat(UNKNOWN_TYPE_CREATOR.fromBundle(bundleOfUntyped).resultCode)
+    assertThat(LibraryResult.fromUnknownBundle(bundleOfUntyped).value).isNull();
+    assertThat(LibraryResult.fromUnknownBundle(bundleOfUntyped).resultCode)
         .isEqualTo(RESULT_ERROR_NOT_SUPPORTED);
   }
 }
