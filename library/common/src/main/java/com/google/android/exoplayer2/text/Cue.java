@@ -871,6 +871,11 @@ public final class Cue implements Bundleable {
     return bundle;
   }
 
+  /**
+   * @deprecated Use {@link #fromBundle} instead.
+   */
+  @Deprecated
+  @SuppressWarnings("deprecation") // Deprecated instance of deprecated class
   public static final Creator<Cue> CREATOR = Cue::fromBundle;
 
   /** Restores a cue from a {@link Bundle}. */

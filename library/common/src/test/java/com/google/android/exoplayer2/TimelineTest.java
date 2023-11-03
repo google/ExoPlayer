@@ -289,7 +289,7 @@ public class TimelineTest {
                 ImmutableList.of(AdPlaybackState.NONE),
                 new MediaItem.Builder().setMediaId("mediaId3").build()));
 
-    Timeline restoredTimeline = Timeline.CREATOR.fromBundle(timeline.toBundle());
+    Timeline restoredTimeline = Timeline.fromBundle(timeline.toBundle());
 
     TimelineAsserts.assertEqualsExceptIdsAndManifest(
         /* expectedTimeline= */ timeline, /* actualTimeline= */ restoredTimeline);
@@ -300,7 +300,7 @@ public class TimelineTest {
     int windowCount = 10;
     FakeTimeline timeline = new FakeTimeline(windowCount);
 
-    Timeline restoredTimeline = Timeline.CREATOR.fromBundle(timeline.toBundle());
+    Timeline restoredTimeline = Timeline.fromBundle(timeline.toBundle());
 
     assertThat(restoredTimeline.getLastWindowIndex(/* shuffleModeEnabled= */ false))
         .isEqualTo(timeline.getLastWindowIndex(/* shuffleModeEnabled= */ false));
@@ -338,7 +338,7 @@ public class TimelineTest {
 
   @Test
   public void roundTripViaBundle_ofEmptyTimeline_returnsEmptyTimeline() {
-    TimelineAsserts.assertEmpty(Timeline.CREATOR.fromBundle(Timeline.EMPTY.toBundle()));
+    TimelineAsserts.assertEmpty(Timeline.fromBundle(Timeline.EMPTY.toBundle()));
   }
 
   @Test
@@ -357,7 +357,7 @@ public class TimelineTest {
     // Check that default values are skipped when bundling.
     assertThat(windowBundle.keySet()).isEmpty();
 
-    Timeline.Window restoredWindow = Timeline.Window.CREATOR.fromBundle(windowBundle);
+    Timeline.Window restoredWindow = Timeline.Window.fromBundle(windowBundle);
 
     assertThat(restoredWindow.manifest).isNull();
     TimelineAsserts.assertWindowEqualsExceptUidAndManifest(
@@ -390,7 +390,7 @@ public class TimelineTest {
     window.lastPeriodIndex = 7;
     window.positionInFirstPeriodUs = 888;
 
-    Timeline.Window restoredWindow = Timeline.Window.CREATOR.fromBundle(window.toBundle());
+    Timeline.Window restoredWindow = Timeline.Window.fromBundle(window.toBundle());
 
     assertThat(restoredWindow.manifest).isNull();
     TimelineAsserts.assertWindowEqualsExceptUidAndManifest(
@@ -409,7 +409,7 @@ public class TimelineTest {
     // Check that default values are skipped when bundling.
     assertThat(periodBundle.keySet()).isEmpty();
 
-    Timeline.Period restoredPeriod = Timeline.Period.CREATOR.fromBundle(periodBundle);
+    Timeline.Period restoredPeriod = Timeline.Period.fromBundle(periodBundle);
 
     assertThat(restoredPeriod.id).isNull();
     assertThat(restoredPeriod.uid).isNull();
@@ -427,7 +427,7 @@ public class TimelineTest {
     period.positionInWindowUs = 4_000;
     period.isPlaceholder = true;
 
-    Timeline.Period restoredPeriod = Timeline.Period.CREATOR.fromBundle(period.toBundle());
+    Timeline.Period restoredPeriod = Timeline.Period.fromBundle(period.toBundle());
 
     assertThat(restoredPeriod.id).isNull();
     assertThat(restoredPeriod.uid).isNull();

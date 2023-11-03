@@ -182,7 +182,13 @@ public final class TrackGroup implements Bundleable {
     return bundle;
   }
 
-  /** Object that can restore {@code TrackGroup} from a {@link Bundle}. */
+  /**
+   * Object that can restore {@code TrackGroup} from a {@link Bundle}.
+   *
+   * @deprecated Use {@link #fromBundle} instead.
+   */
+  @Deprecated
+  @SuppressWarnings("deprecation") // Deprecated instance of deprecated class
   public static final Creator<TrackGroup> CREATOR = TrackGroup::fromBundle;
 
   /** Restores a {@code TrackGroup} from a {@link Bundle}. */

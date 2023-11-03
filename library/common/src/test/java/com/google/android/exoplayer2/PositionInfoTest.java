@@ -41,7 +41,7 @@ public class PositionInfoTest {
             /* adGroupIndex= */ 2,
             /* adIndexInAdGroup= */ 444);
 
-    assertThat(PositionInfo.CREATOR.fromBundle(positionInfo.toBundle())).isEqualTo(positionInfo);
+    assertThat(PositionInfo.fromBundle(positionInfo.toBundle())).isEqualTo(positionInfo);
   }
 
   @Test
@@ -58,7 +58,7 @@ public class PositionInfoTest {
             /* adGroupIndex= */ 2,
             /* adIndexInAdGroup= */ 444);
 
-    PositionInfo positionInfoFromBundle = PositionInfo.CREATOR.fromBundle(positionInfo.toBundle());
+    PositionInfo positionInfoFromBundle = PositionInfo.fromBundle(positionInfo.toBundle());
     assertThat(positionInfoFromBundle.windowUid).isNull();
   }
 
@@ -76,7 +76,7 @@ public class PositionInfoTest {
             /* adGroupIndex= */ 2,
             /* adIndexInAdGroup= */ 444);
 
-    PositionInfo positionInfoFromBundle = PositionInfo.CREATOR.fromBundle(positionInfo.toBundle());
+    PositionInfo positionInfoFromBundle = PositionInfo.fromBundle(positionInfo.toBundle());
     assertThat(positionInfoFromBundle.periodUid).isNull();
   }
 
@@ -94,7 +94,7 @@ public class PositionInfoTest {
             /* adGroupIndex= */ C.INDEX_UNSET,
             /* adIndexInAdGroup= */ C.INDEX_UNSET);
 
-    PositionInfo roundTripValue = PositionInfo.CREATOR.fromBundle(defaultPositionInfo.toBundle());
+    PositionInfo roundTripValue = PositionInfo.fromBundle(defaultPositionInfo.toBundle());
 
     assertThat(roundTripValue).isEqualTo(defaultPositionInfo);
   }

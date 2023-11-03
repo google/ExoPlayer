@@ -507,14 +507,19 @@ public abstract class Timeline implements Bundleable {
      *
      * <p>The {@link #uid} of a restored instance will be a fake {@link Object} and the {@link
      * #manifest} of the instance will be {@code null}.
+     *
+     * @deprecated Use {@link #fromBundle} instead.
      */
+    @Deprecated
+    @SuppressWarnings("deprecation") // Deprecated instance of deprecated class
     public static final Creator<Window> CREATOR = Window::fromBundle;
 
-    private static Window fromBundle(Bundle bundle) {
+    /** Restores a {@code Window} from a {@link Bundle}. */
+    public static Window fromBundle(Bundle bundle) {
       @Nullable Bundle mediaItemBundle = bundle.getBundle(FIELD_MEDIA_ITEM);
       @Nullable
       MediaItem mediaItem =
-          mediaItemBundle != null ? MediaItem.CREATOR.fromBundle(mediaItemBundle) : MediaItem.EMPTY;
+          mediaItemBundle != null ? MediaItem.fromBundle(mediaItemBundle) : MediaItem.EMPTY;
       long presentationStartTimeMs =
           bundle.getLong(FIELD_PRESENTATION_START_TIME_MS, /* defaultValue= */ C.TIME_UNSET);
       long windowStartTimeMs =
@@ -527,7 +532,7 @@ public abstract class Timeline implements Bundleable {
       @Nullable
       MediaItem.LiveConfiguration liveConfiguration =
           liveConfigurationBundle != null
-              ? MediaItem.LiveConfiguration.CREATOR.fromBundle(liveConfigurationBundle)
+              ? MediaItem.LiveConfiguration.fromBundle(liveConfigurationBundle)
               : null;
       boolean isPlaceHolder = bundle.getBoolean(FIELD_IS_PLACEHOLDER, /* defaultValue= */ false);
       long defaultPositionUs = bundle.getLong(FIELD_DEFAULT_POSITION_US, /* defaultValue= */ 0);
@@ -952,10 +957,15 @@ public abstract class Timeline implements Bundleable {
      * Object that can restore {@link Period} from a {@link Bundle}.
      *
      * <p>The {@link #id} and {@link #uid} of restored instances will always be {@code null}.
+     *
+     * @deprecated Use {@link #fromBundle} instead.
      */
+    @Deprecated
+    @SuppressWarnings("deprecation") // Deprecated instance of deprecated class
     public static final Creator<Period> CREATOR = Period::fromBundle;
 
-    private static Period fromBundle(Bundle bundle) {
+    /** Restores a {@code Period} from a {@link Bundle}. */
+    public static Period fromBundle(Bundle bundle) {
       int windowIndex = bundle.getInt(FIELD_WINDOW_INDEX, /* defaultValue= */ 0);
       long durationUs = bundle.getLong(FIELD_DURATION_US, /* defaultValue= */ C.TIME_UNSET);
       long positionInWindowUs = bundle.getLong(FIELD_POSITION_IN_WINDOW_US, /* defaultValue= */ 0);
@@ -963,7 +973,7 @@ public abstract class Timeline implements Bundleable {
       @Nullable Bundle adPlaybackStateBundle = bundle.getBundle(FIELD_AD_PLAYBACK_STATE);
       AdPlaybackState adPlaybackState =
           adPlaybackStateBundle != null
-              ? AdPlaybackState.CREATOR.fromBundle(adPlaybackStateBundle)
+              ? AdPlaybackState.fromBundle(adPlaybackStateBundle)
               : AdPlaybackState.NONE;
 
       Period period = new Period();
@@ -1469,10 +1479,15 @@ public abstract class Timeline implements Bundleable {
    * <p>The {@link #getWindow(int, Window)} windows} and {@link #getPeriod(int, Period) periods} of
    * a restored instance may have missing fields as described in {@link Window#CREATOR} and {@link
    * Period#CREATOR}.
+   *
+   * @deprecated Use {@link #fromBundle} instead.
    */
+  @Deprecated
+  @SuppressWarnings("deprecation") // Deprecated instance of deprecated class
   public static final Creator<Timeline> CREATOR = Timeline::fromBundle;
 
-  private static Timeline fromBundle(Bundle bundle) {
+  /** Restores a {@code Timeline} from a {@link Bundle}. */
+  public static Timeline fromBundle(Bundle bundle) {
     ImmutableList<Window> windows =
         fromBundleListRetriever(Window::fromBundle, BundleUtil.getBinder(bundle, FIELD_WINDOWS));
     ImmutableList<Period> periods =

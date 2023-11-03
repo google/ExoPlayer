@@ -406,18 +406,24 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
         return bundle;
       }
 
-      /** Object that can restore {@link AdsLoader.State} from a {@link Bundle}. */
+      /**
+       * Object that can restore {@link AdsLoader.State} from a {@link Bundle}.
+       *
+       * @deprecated Use {@link #fromBundle} instead.
+       */
+      @Deprecated
+      @SuppressWarnings("deprecation") // Deprecated instance of deprecated class
       public static final Bundleable.Creator<State> CREATOR = State::fromBundle;
 
-      private static State fromBundle(Bundle bundle) {
+      /** Restores a {@code State} from a {@link Bundle}. */
+      public static State fromBundle(Bundle bundle) {
         @Nullable
         ImmutableMap.Builder<String, AdPlaybackState> adPlaybackStateMap =
             new ImmutableMap.Builder<>();
         Bundle adPlaybackStateBundle = checkNotNull(bundle.getBundle(FIELD_AD_PLAYBACK_STATES));
         for (String key : adPlaybackStateBundle.keySet()) {
           AdPlaybackState adPlaybackState =
-              AdPlaybackState.CREATOR.fromBundle(
-                  checkNotNull(adPlaybackStateBundle.getBundle(key)));
+              AdPlaybackState.fromBundle(checkNotNull(adPlaybackStateBundle.getBundle(key)));
           adPlaybackStateMap.put(
               key, AdPlaybackState.fromAdPlaybackState(/* adsId= */ key, adPlaybackState));
         }

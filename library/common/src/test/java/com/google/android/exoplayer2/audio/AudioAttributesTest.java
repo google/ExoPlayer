@@ -37,7 +37,6 @@ public class AudioAttributesTest {
             .setSpatializationBehavior(C.SPATIALIZATION_BEHAVIOR_NEVER)
             .build();
 
-    assertThat(AudioAttributes.CREATOR.fromBundle(audioAttributes.toBundle()))
-        .isEqualTo(audioAttributes);
+    assertThat(AudioAttributes.fromBundle(audioAttributes.toBundle())).isEqualTo(audioAttributes);
   }
 }

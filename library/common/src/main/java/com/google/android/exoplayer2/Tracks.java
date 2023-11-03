@@ -249,7 +249,13 @@ public final class Tracks implements Bundleable {
       return bundle;
     }
 
-    /** Object that can restore a group of tracks from a {@link Bundle}. */
+    /**
+     * Object that can restore a group of tracks from a {@link Bundle}.
+     *
+     * @deprecated Use {@link #fromBundle} instead.
+     */
+    @Deprecated
+    @SuppressWarnings("deprecation") // Deprecated instance of deprecated class
     public static final Creator<Group> CREATOR = Group::fromBundle;
 
     /** Restores a group of tracks from a {@link Bundle}. */
@@ -389,14 +395,23 @@ public final class Tracks implements Bundleable {
     return bundle;
   }
 
-  /** Object that can restore tracks from a {@link Bundle}. */
-  public static final Creator<Tracks> CREATOR =
-      bundle -> {
-        @Nullable List<Bundle> groupBundles = bundle.getParcelableArrayList(FIELD_TRACK_GROUPS);
-        List<Group> groups =
-            groupBundles == null
-                ? ImmutableList.of()
-                : BundleCollectionUtil.fromBundleList(Group::fromBundle, groupBundles);
-        return new Tracks(groups);
-      };
+  /**
+   * Object that can restore tracks from a {@link Bundle}.
+   *
+   * @deprecated Use {@link #fromBundle} instead.
+   */
+  @Deprecated
+  @SuppressWarnings("deprecation") // Deprecated instance of deprecated class
+  public static final Creator<Tracks> CREATOR = Tracks::fromBundle;
+
+  /** Restores a {@code Tracks} from a {@link Bundle}. */
+  public static Tracks fromBundle(Bundle bundle) {
+    @Nullable List<Bundle> groupBundles = bundle.getParcelableArrayList(FIELD_TRACK_GROUPS);
+    List<Group> groups =
+        groupBundles == null
+            ? ImmutableList.of()
+            : BundleCollectionUtil.fromBundleList(Group::fromBundle, groupBundles);
+    return new Tracks(groups);
+  }
+  ;
 }

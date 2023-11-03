@@ -146,7 +146,7 @@ public class CueTest {
       parcel.setDataPosition(0);
 
       Bundle bundle = parcel.readBundle();
-      return Cue.CREATOR.fromBundle(bundle);
+      return Cue.fromBundle(bundle);
     } finally {
       parcel.recycle();
     }

@@ -68,21 +68,28 @@ public abstract class Rating implements Bundleable {
 
   /* package */ static final String FIELD_RATING_TYPE = Util.intToStringMaxRadix(0);
 
-  /** Object that can restore a {@link Rating} from a {@link Bundle}. */
+  /**
+   * Object that can restore a {@link Rating} from a {@link Bundle}.
+   *
+   * @deprecated Use {@link #fromBundle} instead.
+   */
+  @Deprecated
+  @SuppressWarnings("deprecation") // Deprecated instance of deprecated class
   public static final Creator<Rating> CREATOR = Rating::fromBundle;
 
-  private static Rating fromBundle(Bundle bundle) {
+  /** Restores a {@code Rating} from a {@link Bundle}. */
+  public static Rating fromBundle(Bundle bundle) {
     @RatingType
     int ratingType = bundle.getInt(FIELD_RATING_TYPE, /* defaultValue= */ RATING_TYPE_UNSET);
     switch (ratingType) {
       case RATING_TYPE_HEART:
-        return HeartRating.CREATOR.fromBundle(bundle);
+        return HeartRating.fromBundle(bundle);
       case RATING_TYPE_PERCENTAGE:
-        return PercentageRating.CREATOR.fromBundle(bundle);
+        return PercentageRating.fromBundle(bundle);
       case RATING_TYPE_STAR:
-        return StarRating.CREATOR.fromBundle(bundle);
+        return StarRating.fromBundle(bundle);
       case RATING_TYPE_THUMB:
-        return ThumbRating.CREATOR.fromBundle(bundle);
+        return ThumbRating.fromBundle(bundle);
       case RATING_TYPE_UNSET:
       default:
         throw new IllegalArgumentException("Unknown RatingType: " + ratingType);

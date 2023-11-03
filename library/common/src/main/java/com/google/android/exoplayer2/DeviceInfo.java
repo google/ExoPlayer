@@ -222,18 +222,26 @@ public final class DeviceInfo implements Bundleable {
     return bundle;
   }
 
-  /** Object that can restore {@link DeviceInfo} from a {@link Bundle}. */
-  public static final Creator<DeviceInfo> CREATOR =
-      bundle -> {
-        int playbackType =
-            bundle.getInt(FIELD_PLAYBACK_TYPE, /* defaultValue= */ PLAYBACK_TYPE_LOCAL);
-        int minVolume = bundle.getInt(FIELD_MIN_VOLUME, /* defaultValue= */ 0);
-        int maxVolume = bundle.getInt(FIELD_MAX_VOLUME, /* defaultValue= */ 0);
-        @Nullable String routingControllerId = bundle.getString(FIELD_ROUTING_CONTROLLER_ID);
-        return new DeviceInfo.Builder(playbackType)
-            .setMinVolume(minVolume)
-            .setMaxVolume(maxVolume)
-            .setRoutingControllerId(routingControllerId)
-            .build();
-      };
+  /**
+   * Object that can restore {@link DeviceInfo} from a {@link Bundle}.
+   *
+   * @deprecated Use {@link #fromBundle} instead.
+   */
+  @Deprecated
+  @SuppressWarnings("deprecation") // Deprecated instance of deprecated class
+  public static final Creator<DeviceInfo> CREATOR = DeviceInfo::fromBundle;
+
+  /** Restores a {@code DeviceInfo} from a {@link Bundle}. */
+  public static DeviceInfo fromBundle(Bundle bundle) {
+    int playbackType = bundle.getInt(FIELD_PLAYBACK_TYPE, /* defaultValue= */ PLAYBACK_TYPE_LOCAL);
+    int minVolume = bundle.getInt(FIELD_MIN_VOLUME, /* defaultValue= */ 0);
+    int maxVolume = bundle.getInt(FIELD_MAX_VOLUME, /* defaultValue= */ 0);
+    @Nullable String routingControllerId = bundle.getString(FIELD_ROUTING_CONTROLLER_ID);
+    return new DeviceInfo.Builder(playbackType)
+        .setMinVolume(minVolume)
+        .setMaxVolume(maxVolume)
+        .setRoutingControllerId(routingControllerId)
+        .build();
+  }
+  ;
 }

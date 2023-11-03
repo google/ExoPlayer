@@ -30,7 +30,7 @@ public class PlaybackParametersTest {
     PlaybackParameters playbackParameters =
         new PlaybackParameters(/* speed= */ 2.9f, /* pitch= */ 1.2f);
 
-    assertThat(PlaybackParameters.CREATOR.fromBundle(playbackParameters.toBundle()))
+    assertThat(PlaybackParameters.fromBundle(playbackParameters.toBundle()))
         .isEqualTo(playbackParameters);
   }
 }

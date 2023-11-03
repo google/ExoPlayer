@@ -121,7 +121,13 @@ public final class TrackSelectionOverride implements Bundleable {
     return bundle;
   }
 
-  /** Object that can restore {@code TrackSelectionOverride} from a {@link Bundle}. */
+  /**
+   * Object that can restore {@code TrackSelectionOverride} from a {@link Bundle}.
+   *
+   * @deprecated Use {@link #fromBundle} instead.
+   */
+  @Deprecated
+  @SuppressWarnings("deprecation") // Deprecated instance of deprecated class
   public static final Creator<TrackSelectionOverride> CREATOR = TrackSelectionOverride::fromBundle;
 
   /** Restores a {@code TrackSelectionOverride} from a {@link Bundle}. */

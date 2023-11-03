@@ -476,15 +476,21 @@ public interface Player {
       return toBundle(Integer.MAX_VALUE);
     }
 
-    /** Object that can restore {@link PositionInfo} from a {@link Bundle}. */
+    /**
+     * Object that can restore {@link PositionInfo} from a {@link Bundle}.
+     *
+     * @deprecated Use {@link #fromBundle} instead.
+     */
+    @Deprecated
+    @SuppressWarnings("deprecation") // Deprecated instance of deprecated class
     public static final Creator<PositionInfo> CREATOR = PositionInfo::fromBundle;
 
-    private static PositionInfo fromBundle(Bundle bundle) {
+    /** Restores a {@code PositionInfo} from a {@link Bundle}. */
+    public static PositionInfo fromBundle(Bundle bundle) {
       int mediaItemIndex = bundle.getInt(FIELD_MEDIA_ITEM_INDEX, /* defaultValue= */ 0);
       @Nullable Bundle mediaItemBundle = bundle.getBundle(FIELD_MEDIA_ITEM);
       @Nullable
-      MediaItem mediaItem =
-          mediaItemBundle == null ? null : MediaItem.CREATOR.fromBundle(mediaItemBundle);
+      MediaItem mediaItem = mediaItemBundle == null ? null : MediaItem.fromBundle(mediaItemBundle);
       int periodIndex = bundle.getInt(FIELD_PERIOD_INDEX, /* defaultValue= */ 0);
       long positionMs = bundle.getLong(FIELD_POSITION_MS, /* defaultValue= */ 0);
       long contentPositionMs = bundle.getLong(FIELD_CONTENT_POSITION_MS, /* defaultValue= */ 0);
@@ -751,10 +757,17 @@ public interface Player {
       return bundle;
     }
 
-    /** Object that can restore {@link Commands} from a {@link Bundle}. */
+    /**
+     * Object that can restore {@link Commands} from a {@link Bundle}.
+     *
+     * @deprecated Use {@link #fromBundle} instead.
+     */
+    @Deprecated
+    @SuppressWarnings("deprecation") // Deprecated instance of deprecated class
     public static final Creator<Commands> CREATOR = Commands::fromBundle;
 
-    private static Commands fromBundle(Bundle bundle) {
+    /** Restores a {@code Commands} from a {@link Bundle}. */
+    public static Commands fromBundle(Bundle bundle) {
       @Nullable ArrayList<Integer> commands = bundle.getIntegerArrayList(FIELD_COMMANDS);
       if (commands == null) {
         return Commands.EMPTY;

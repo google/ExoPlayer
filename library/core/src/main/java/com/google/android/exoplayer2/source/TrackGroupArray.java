@@ -126,7 +126,13 @@ public final class TrackGroupArray implements Bundleable {
     return bundle;
   }
 
-  /** Object that can restores a TrackGroupArray from a {@link Bundle}. */
+  /**
+   * Object that can restores a TrackGroupArray from a {@link Bundle}.
+   *
+   * @deprecated Use {@link #fromBundle} instead.
+   */
+  @Deprecated
+  @SuppressWarnings("deprecation") // Deprecated instance of deprecated class
   public static final Creator<TrackGroupArray> CREATOR = TrackGroupArray::fromBundle;
 
   /** Restores a {@code TrackGroupArray} from a {@link Bundle}. */
