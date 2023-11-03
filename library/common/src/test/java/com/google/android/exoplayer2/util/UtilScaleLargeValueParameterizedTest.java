@@ -272,8 +272,6 @@ public class UtilScaleLargeValueParameterizedTest {
    * floating-point branch (which will cause this test to fail because passing
    * RoundingMode.UNNECESSARY won't be allowed).
    */
-  // TODO(b/290045069): Remove this suppression when we depend on Guava 32+.
-  @SuppressWarnings("UnstableApiUsage")
   @Test
   public void cancelsRatherThanFallThroughToFloatingPoint() {
     long value = 24960;
@@ -288,8 +286,6 @@ public class UtilScaleLargeValueParameterizedTest {
     assertThat(result).isEqualTo(520000);
   }
 
-  // TODO(b/290045069): Remove this suppression when we depend on Guava 32+.
-  @SuppressWarnings("UnstableApiUsage")
   @Test
   public void numeratorOverflowsAndCantBeCancelled() {
     // Use three Mersenne primes so nothing can cancel, and the numerator will (just) overflow 64

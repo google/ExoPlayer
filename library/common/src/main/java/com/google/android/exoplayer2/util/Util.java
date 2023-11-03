@@ -1624,8 +1624,6 @@ public final class Util {
   // LongMath.saturatedMultiply is @Beta in the version of Guava we currently depend on (31.1)
   // but it is no longer @Beta from 32.0.0. This suppression is therefore safe because there's
   // no version of Guava after 31.1 that doesn't contain this symbol.
-  // TODO(b/290045069): Remove this suppression when we depend on Guava 32+.
-  @SuppressWarnings("UnstableApiUsage")
   public static long scaleLargeValue(
       long value, long multiplier, long divisor, RoundingMode roundingMode) {
     if (value == 0 || multiplier == 0) {
@@ -1660,8 +1658,6 @@ public final class Util {
   // LongMath.saturatedMultiply is @Beta in the version of Guava we currently depend on (31.1)
   // but it is no longer @Beta from 32.0.0. This suppression is therefore safe because there's
   // no version of Guava after 31.1 that doesn't contain this symbol.
-  // TODO(b/290045069): Remove this suppression when we depend on Guava 32+.
-  @SuppressWarnings("UnstableApiUsage")
   public static long[] scaleLargeValues(
       List<Long> values, long multiplier, long divisor, RoundingMode roundingMode) {
     long[] result = new long[values.size()];
@@ -1762,8 +1758,6 @@ public final class Util {
   // LongMath.saturatedMultiply is @Beta in the version of Guava we currently depend on (31.1)
   // but it is no longer @Beta from 32.0.0. This suppression is therefore safe because there's
   // no version of Guava after 31.1 that doesn't contain this symbol.
-  // TODO(b/290045069): Remove this suppression when we depend on Guava 32+.
-  @SuppressWarnings("UnstableApiUsage")
   private static long scaleLargeValueFallback(
       long value, long multiplier, long divisor, RoundingMode roundingMode) {
     long numerator = LongMath.saturatedMultiply(value, multiplier);
