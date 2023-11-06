@@ -34,6 +34,7 @@ import java.io.IOException;
 
   private final GlProgram glProgram;
   private final ThumbnailStripEffect thumbnailStripEffect;
+  private boolean clearedGlBuffer;
 
   public ThumbnailStripShaderProgram(
       Context context, boolean useHdr, ThumbnailStripEffect thumbnailStripEffect)
@@ -68,6 +69,16 @@ import java.io.IOException;
   @Override
   public void drawFrame(int inputTexId, long presentationTimeUs)
       throws VideoFrameProcessingException {
+
+    if (!clearedGlBuffer) {
+      try {
+        GlUtil.clearFocusedBuffers();
+      } catch (GlUtil.GlException e) {
+        throw new VideoFrameProcessingException(e, presentationTimeUs);
+      }
+      clearedGlBuffer = true;
+    }
+
     long targetPresentationTimeUs = Util.msToUs(thumbnailStripEffect.getNextTimestampMs());
     // Ignore the frame if there are no more thumbnails to draw or if it's earlier than the target.
     if (thumbnailStripEffect.isDone() || presentationTimeUs < targetPresentationTimeUs) {

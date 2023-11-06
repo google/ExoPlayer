@@ -121,8 +121,13 @@ public abstract class BaseGlShaderProgram implements GlShaderProgram {
   /**
    * Returns {@code true} if the texture buffer should be cleared before calling {@link #drawFrame}
    * or {@code false} if it should retain the content of the last drawn frame.
+   *
+   * <p>When returning {@code false}, the shader program must clear the texture before first drawing
+   * to it, because textures are not zero-initialized when created. This can be done by calling
+   * {@link GlUtil#clearFocusedBuffers()}.
    */
   public boolean shouldClearTextureBuffer() {
+    // TODO - b/309428083: Clear the texture before first use.
     return true;
   }
 

@@ -30,8 +30,6 @@ import android.media.Image;
 import android.media.MediaFormat;
 import android.opengl.EGLContext;
 import android.opengl.EGLDisplay;
-import android.opengl.GLES20;
-import android.opengl.GLUtils;
 import android.os.Build;
 import android.util.Pair;
 import androidx.annotation.Nullable;
@@ -589,13 +587,7 @@ public final class AndroidTestUtil {
    * <p>Must have a GL context set up.
    */
   public static int generateTextureFromBitmap(Bitmap bitmap) throws GlUtil.GlException {
-    int texId =
-        GlUtil.createTexture(
-            bitmap.getWidth(), bitmap.getHeight(), /* useHighPrecisionColorComponents= */ false);
-    GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, texId);
-    GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, /* level= */ 0, bitmap, /* border= */ 0);
-    GlUtil.checkGlError();
-    return texId;
+    return GlUtil.createTexture(bitmap);
   }
 
   /**

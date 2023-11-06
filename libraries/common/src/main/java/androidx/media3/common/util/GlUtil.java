@@ -23,6 +23,7 @@ import static androidx.media3.common.util.Assertions.checkState;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.opengl.EGL14;
 import android.opengl.EGLConfig;
 import android.opengl.EGLContext;
@@ -31,6 +32,7 @@ import android.opengl.EGLSurface;
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 import android.opengl.GLES30;
+import android.opengl.GLUtils;
 import android.opengl.Matrix;
 import androidx.annotation.DoNotInline;
 import androidx.annotation.IntRange;
@@ -575,8 +577,8 @@ public final class GlUtil {
    * @param height The height of the new texture in pixels.
    * @param useHighPrecisionColorComponents If {@code false}, uses colors with 8-bit unsigned bytes.
    *     If {@code true}, use 16-bit (half-precision) floating-point.
-   * @throws GlException If the texture allocation fails.
    * @return The texture identifier for the newly-allocated texture.
+   * @throws GlException If the texture allocation fails.
    */
   public static int createTexture(int width, int height, boolean useHighPrecisionColorComponents)
       throws GlException {
@@ -589,7 +591,29 @@ public final class GlUtil {
   }
 
   /**
+   * Allocates a new texture, initialized with the {@link Bitmap bitmap} data.
+   *
+   * <p>The created texture will have the same size as the specified {@link Bitmap}.
+   *
+   * @param bitmap The {@link Bitmap} for which the texture is created.
+   * @return The texture identifier for the newly-allocated texture.
+   * @throws GlException If the texture allocation fails.
+   */
+  public static int createTexture(Bitmap bitmap) throws GlException {
+    assertValidTextureSize(bitmap.getWidth(), bitmap.getHeight());
+    int texId = generateTexture();
+    bindTexture(GLES20.GL_TEXTURE_2D, texId);
+    GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, /* level= */ 0, bitmap, /* border= */ 0);
+    checkGlError();
+    return texId;
+  }
+
+  /**
    * Allocates a new RGBA texture with the specified dimensions and color component precision.
+   *
+   * <p>The created texture is not zero-initialized. To clear the texture, {@linkplain
+   * #focusFramebuffer(EGLDisplay, EGLContext, EGLSurface, int, int, int) focus} on the texture and
+   * {@linkplain #clearFocusedBuffers() clear} its content.
    *
    * @param width The width of the new texture in pixels.
    * @param height The height of the new texture in pixels.
@@ -603,7 +627,6 @@ public final class GlUtil {
     assertValidTextureSize(width, height);
     int texId = generateTexture();
     bindTexture(GLES20.GL_TEXTURE_2D, texId);
-    ByteBuffer byteBuffer = ByteBuffer.allocateDirect(width * height * 4);
     GLES20.glTexImage2D(
         GLES20.GL_TEXTURE_2D,
         /* level= */ 0,
@@ -613,7 +636,7 @@ public final class GlUtil {
         /* border= */ 0,
         GLES20.GL_RGBA,
         type,
-        byteBuffer);
+        /* buffer= */ null);
     checkGlError();
     return texId;
   }
