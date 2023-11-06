@@ -188,12 +188,28 @@ public class TransformerAndroidTestRunner {
    * @throws Exception The cause of the export not completing.
    */
   public ExportTestResult run(String testId, Composition composition) throws Exception {
+    return run(testId, composition, /* oldFilePath= */ null);
+  }
+
+  /**
+   * Exports the {@link Composition}, saving a summary of the export to the application cache.
+   * Resumes exporting if the {@code oldFilePath} is specified.
+   *
+   * @param testId A unique identifier for the transformer test run.
+   * @param composition The {@link Composition} to export.
+   * @param oldFilePath The old output file path to resume the export from. Passing {@code null}
+   *     will restart the export from the beginning.
+   * @return The {@link ExportTestResult}.
+   * @throws Exception The cause of the export not completing.
+   */
+  public ExportTestResult run(String testId, Composition composition, @Nullable String oldFilePath)
+      throws Exception {
     JSONObject resultJson = new JSONObject();
     if (inputValues != null) {
       resultJson.put("inputValues", JSONObject.wrap(inputValues));
     }
     try {
-      ExportTestResult exportTestResult = runInternal(testId, composition);
+      ExportTestResult exportTestResult = runInternal(testId, composition, oldFilePath);
       resultJson.put("exportResult", exportTestResult.asJsonObject());
       if (exportTestResult.exportResult.exportException != null) {
         throw exportTestResult.exportResult.exportException;
@@ -250,6 +266,8 @@ public class TransformerAndroidTestRunner {
    *
    * @param testId An identifier for the test.
    * @param composition The {@link Composition} to export.
+   * @param oldFilePath The old output file path to resume the export from. Passing {@code null}
+   *     will restart the export from the beginning.
    * @return The {@link ExportTestResult}.
    * @throws IllegalStateException See {@link Transformer#start(Composition, String)}.
    * @throws InterruptedException If the thread is interrupted whilst waiting for transformer to
@@ -258,7 +276,8 @@ public class TransformerAndroidTestRunner {
    * @throws TimeoutException If the export has not completed after {@linkplain
    *     Builder#setTimeoutSeconds(int) the given timeout}.
    */
-  private ExportTestResult runInternal(String testId, Composition composition)
+  private ExportTestResult runInternal(
+      String testId, Composition composition, @Nullable String oldFilePath)
       throws InterruptedException, IOException, TimeoutException {
     if (requestCalculateSsim) {
       checkArgument(
@@ -347,7 +366,12 @@ public class TransformerAndroidTestRunner {
         .runOnMainSync(
             () -> {
               try {
-                testTransformer.start(composition, outputVideoFile.getAbsolutePath());
+                if (oldFilePath == null) {
+                  testTransformer.start(composition, outputVideoFile.getAbsolutePath());
+                } else {
+                  testTransformer.resume(
+                      composition, outputVideoFile.getAbsolutePath(), oldFilePath);
+                }
                 // Catch all exceptions to report. Exceptions thrown here and not caught will NOT
                 // propagate.
               } catch (Exception e) {
