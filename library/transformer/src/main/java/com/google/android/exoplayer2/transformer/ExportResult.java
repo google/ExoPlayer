@@ -23,6 +23,7 @@ import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import java.util.List;
 import java.util.Objects;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
@@ -38,7 +39,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 public final class ExportResult {
   /** A builder for {@link ExportResult} instances. */
   public static final class Builder {
-    private ImmutableList<ProcessedInput> processedInputs;
+    private ImmutableList.Builder<ProcessedInput> processedInputsBuilder;
     private long durationMs;
     private long fileSizeBytes;
     private int averageAudioBitrate;
@@ -54,22 +55,15 @@ public final class ExportResult {
     @Nullable private ExportException exportException;
 
     /** Creates a builder. */
+    @SuppressWarnings({"initialization.fields.uninitialized", "nullness:method.invocation"})
     public Builder() {
-      processedInputs = ImmutableList.of();
-      durationMs = C.TIME_UNSET;
-      fileSizeBytes = C.LENGTH_UNSET;
-      averageAudioBitrate = C.RATE_UNSET_INT;
-      channelCount = C.LENGTH_UNSET;
-      sampleRate = C.RATE_UNSET_INT;
-      averageVideoBitrate = C.RATE_UNSET_INT;
-      height = C.LENGTH_UNSET;
-      width = C.LENGTH_UNSET;
+      reset();
     }
 
-    /** Sets the {@linkplain ProcessedInput processed inputs}. */
+    /** Adds {@linkplain ProcessedInput processed inputs} to the {@link ProcessedInput} list. */
     @CanIgnoreReturnValue
-    public Builder setProcessedInputs(ImmutableList<ProcessedInput> processedInputs) {
-      this.processedInputs = processedInputs;
+    public Builder addProcessedInputs(List<ProcessedInput> processedInputs) {
+      this.processedInputsBuilder.addAll(processedInputs);
       return this;
     }
 
@@ -214,7 +208,7 @@ public final class ExportResult {
     /** Builds an {@link ExportResult} instance. */
     public ExportResult build() {
       return new ExportResult(
-          processedInputs,
+          processedInputsBuilder.build(),
           durationMs,
           fileSizeBytes,
           averageAudioBitrate,
@@ -228,6 +222,24 @@ public final class ExportResult {
           videoFrameCount,
           videoEncoderName,
           exportException);
+    }
+
+    /** Resets all the fields to their default values. */
+    public void reset() {
+      processedInputsBuilder = new ImmutableList.Builder<>();
+      durationMs = C.TIME_UNSET;
+      fileSizeBytes = C.LENGTH_UNSET;
+      averageAudioBitrate = C.RATE_UNSET_INT;
+      channelCount = C.LENGTH_UNSET;
+      sampleRate = C.RATE_UNSET_INT;
+      audioEncoderName = null;
+      averageVideoBitrate = C.RATE_UNSET_INT;
+      colorInfo = null;
+      height = C.LENGTH_UNSET;
+      width = C.LENGTH_UNSET;
+      videoFrameCount = 0;
+      videoEncoderName = null;
+      exportException = null;
     }
   }
 
@@ -339,7 +351,7 @@ public final class ExportResult {
 
   public Builder buildUpon() {
     return new Builder()
-        .setProcessedInputs(processedInputs)
+        .addProcessedInputs(processedInputs)
         .setDurationMs(durationMs)
         .setFileSizeBytes(fileSizeBytes)
         .setAverageAudioBitrate(averageAudioBitrate)

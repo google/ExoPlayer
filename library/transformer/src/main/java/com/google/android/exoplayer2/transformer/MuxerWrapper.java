@@ -244,12 +244,12 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       // Ensure that video formats are the same. Some fields like codecs, averageBitrate, framerate,
       // etc, don't match exactly in the Extractor output format and the Encoder output
       // format but these fields can be ignored.
+      // TODO: b/308180225 - Compare Format.colorInfo as well.
       Format existingFormat = videoTrackInfo.format;
       checkArgument(Util.areEqual(existingFormat.sampleMimeType, format.sampleMimeType));
       checkArgument(existingFormat.width == format.width);
       checkArgument(existingFormat.height == format.height);
       checkArgument(existingFormat.initializationDataEquals(format));
-      checkArgument(Util.areEqual(existingFormat.colorInfo, format.colorInfo));
 
       checkNotNull(muxer);
       resetAbortTimer();

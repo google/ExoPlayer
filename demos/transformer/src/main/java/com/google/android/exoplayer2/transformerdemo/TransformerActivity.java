@@ -141,7 +141,8 @@ public final class TransformerActivity extends AppCompatActivity {
   @Nullable private ExoPlayer inputPlayer;
   @Nullable private ExoPlayer outputPlayer;
   @Nullable private Transformer transformer;
-  @Nullable private File externalCacheFile;
+  @Nullable private File outputFile;
+  @Nullable private File oldOutputFile;
 
   @Override
   protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -161,7 +162,7 @@ public final class TransformerActivity extends AppCompatActivity {
     cancelButton = findViewById(R.id.cancel_button);
     cancelButton.setOnClickListener(this::cancelExport);
     resumeButton = findViewById(R.id.resume_button);
-    resumeButton.setOnClickListener(this::resumeExport);
+    resumeButton.setOnClickListener(view -> startExport());
     debugFrame = findViewById(R.id.debug_aspect_ratio_frame_layout);
     displayInputButton = findViewById(R.id.display_input_button);
     displayInputButton.setOnClickListener(this::toggleInputVideoDisplay);
@@ -203,8 +204,12 @@ public final class TransformerActivity extends AppCompatActivity {
     checkNotNull(outputPlayerView).onPause();
     releasePlayer();
 
-    checkNotNull(externalCacheFile).delete();
-    externalCacheFile = null;
+    checkNotNull(outputFile).delete();
+    outputFile = null;
+    if (oldOutputFile != null) {
+      oldOutputFile.delete();
+      oldOutputFile = null;
+    }
   }
 
   private void startExport() {
@@ -229,18 +234,23 @@ public final class TransformerActivity extends AppCompatActivity {
     Intent intent = getIntent();
     Uri inputUri = checkNotNull(intent.getData());
     try {
-      externalCacheFile =
+      outputFile =
           createExternalCacheFile("transformer-output-" + Clock.DEFAULT.elapsedRealtime() + ".mp4");
     } catch (IOException e) {
       throw new IllegalStateException(e);
     }
-    String filePath = externalCacheFile.getAbsolutePath();
+    String outputFilePath = outputFile.getAbsolutePath();
     @Nullable Bundle bundle = intent.getExtras();
     MediaItem mediaItem = createMediaItem(bundle, inputUri);
-    Transformer transformer = createTransformer(bundle, inputUri, filePath);
+    Transformer transformer = createTransformer(bundle, inputUri, outputFilePath);
     Composition composition = createComposition(mediaItem, bundle);
+    exportStopwatch.reset();
     exportStopwatch.start();
-    transformer.start(composition, filePath);
+    if (oldOutputFile == null) {
+      transformer.start(composition, outputFilePath);
+    } else {
+      transformer.resume(composition, outputFilePath, oldOutputFile.getAbsolutePath());
+    }
     this.transformer = transformer;
     displayInputButton.setVisibility(View.GONE);
     inputCardView.setVisibility(View.GONE);
@@ -251,6 +261,7 @@ public final class TransformerActivity extends AppCompatActivity {
     progressViewGroup.setVisibility(View.VISIBLE);
     cancelButton.setVisibility(View.VISIBLE);
     resumeButton.setVisibility(View.GONE);
+    progressIndicator.setProgress(0);
     Handler mainHandler = new Handler(getMainLooper());
     ProgressHolder progressHolder = new ProgressHolder();
     mainHandler.post(
@@ -843,12 +854,10 @@ public final class TransformerActivity extends AppCompatActivity {
     exportStopwatch.stop();
     cancelButton.setVisibility(View.GONE);
     resumeButton.setVisibility(View.VISIBLE);
-  }
-
-  @RequiresNonNull({"exportStopwatch"})
-  private void resumeExport(View view) {
-    exportStopwatch.reset();
-    startExport();
+    if (oldOutputFile != null) {
+      oldOutputFile.delete();
+    }
+    oldOutputFile = outputFile;
   }
 
   private final class DemoDebugViewProvider implements DebugViewProvider {
