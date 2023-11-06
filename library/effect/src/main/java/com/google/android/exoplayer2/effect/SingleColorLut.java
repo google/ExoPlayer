@@ -21,8 +21,6 @@ import static com.google.android.exoplayer2.util.Assertions.checkState;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.opengl.GLES20;
-import android.opengl.GLUtils;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.Util;
@@ -160,20 +158,11 @@ public final class SingleColorLut implements ColorLut {
     checkState(!useHdr, "HDR is currently not supported.");
 
     try {
-      lutTextureId = storeLutAsTexture(lut);
+      lutTextureId = GlUtil.createTexture(lut);
     } catch (GlUtil.GlException e) {
       throw new VideoFrameProcessingException("Could not store the LUT as a texture.", e);
     }
 
     return new ColorLutShaderProgram(context, /* colorLut= */ this, useHdr);
-  }
-
-  private static int storeLutAsTexture(Bitmap bitmap) throws GlUtil.GlException {
-    int lutTextureId =
-        GlUtil.createTexture(
-            bitmap.getWidth(), bitmap.getHeight(), /* useHighPrecisionColorComponents= */ false);
-    GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, /* level= */ 0, bitmap, /* border= */ 0);
-    GlUtil.checkGlError();
-    return lutTextureId;
   }
 }

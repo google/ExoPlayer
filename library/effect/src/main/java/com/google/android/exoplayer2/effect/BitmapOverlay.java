@@ -20,8 +20,6 @@ import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.opengl.GLES20;
-import android.opengl.GLUtils;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSourceBitmapLoader;
 import com.google.android.exoplayer2.util.BitmapLoader;
@@ -82,17 +80,7 @@ public abstract class BitmapOverlay extends TextureOverlay {
           GlUtil.deleteTexture(lastTextureId);
         }
         lastTextureId =
-            GlUtil.createTexture(
-                bitmap.getWidth(),
-                bitmap.getHeight(),
-                /* useHighPrecisionColorComponents= */ false);
-        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, lastTextureId);
-        GLUtils.texImage2D(
-            GLES20.GL_TEXTURE_2D,
-            /* level= */ 0,
-            BitmapUtil.flipBitmapVertically(checkNotNull(lastBitmap)),
-            /* border= */ 0);
-        GlUtil.checkGlError();
+            GlUtil.createTexture(BitmapUtil.flipBitmapVertically(checkNotNull(lastBitmap)));
       } catch (GlUtil.GlException e) {
         throw new VideoFrameProcessingException(e);
       }

@@ -33,7 +33,6 @@ import android.graphics.PixelFormat;
 import android.media.Image;
 import android.opengl.GLES20;
 import android.opengl.GLES30;
-import android.opengl.GLUtils;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.util.GlUtil;
@@ -498,15 +497,9 @@ public class BitmapPixelTestUtil {
    */
   @RequiresApi(17) // #flipBitmapVertically.
   public static int createGlTextureFromBitmap(Bitmap bitmap) throws GlUtil.GlException {
-    int texId =
-        GlUtil.createTexture(
-            bitmap.getWidth(), bitmap.getHeight(), /* useHighPrecisionColorComponents= */ false);
     // Put the flipped bitmap in the OpenGL texture as the bitmap's positive y-axis points down
     // while OpenGL's positive y-axis points up.
-    GLUtils.texImage2D(
-        GLES20.GL_TEXTURE_2D, /* level= */ 0, flipBitmapVertically(bitmap), /* border= */ 0);
-    GlUtil.checkGlError();
-    return texId;
+    return GlUtil.createTexture(flipBitmapVertically(bitmap));
   }
 
   @RequiresApi(17) // Bitmap#isPremultiplied.

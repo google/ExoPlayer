@@ -20,8 +20,6 @@ import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 
 import android.graphics.Bitmap;
-import android.opengl.GLES20;
-import android.opengl.GLUtils;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.FrameInfo;
 import com.google.android.exoplayer2.util.GlObjectsProvider;
@@ -59,6 +57,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   private @MonotonicNonNull GlTextureInfo currentGlTextureInfo;
   private int downstreamShaderProgramCapacity;
+  // TODO - b/262693274: Support HDR. Currently this variable is not used and will trigger error
+  //  prone warning.
   private boolean useHdr;
   private boolean currentInputStreamEnded;
   private boolean isNextFrameInTexture;
@@ -216,12 +216,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       if (currentGlTextureInfo != null) {
         currentGlTextureInfo.release();
       }
-      currentTexId =
-          GlUtil.createTexture(
-              frameInfo.width, frameInfo.height, /* useHighPrecisionColorComponents= */ useHdr);
-      GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, currentTexId);
-      GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, /* level= */ 0, bitmap, /* border= */ 0);
-      GlUtil.checkGlError();
+      currentTexId = GlUtil.createTexture(bitmap);
     } catch (GlUtil.GlException e) {
       throw VideoFrameProcessingException.from(e);
     }
