@@ -196,6 +196,7 @@ public class FrameDropTest {
                       @Override
                       public void onError(VideoFrameProcessingException exception) {
                         videoFrameProcessingExceptionReference.set(exception);
+                        videoFrameProcessorReadyCountDownLatch.countDown();
                         videoFrameProcessingEndedCountDownLatch.countDown();
                       }
 
@@ -242,14 +243,22 @@ public class FrameDropTest {
                 frameDropEffect),
             new FrameInfo.Builder(BLANK_FRAME_WIDTH, BLANK_FRAME_HEIGHT).build());
     videoFrameProcessorReadyCountDownLatch.await();
+    checkNoVideoFrameProcessingExceptionIsThrown(videoFrameProcessingExceptionReference);
     blankFrameProducer.produceBlankFrames(inputPresentationTimesUs);
     defaultVideoFrameProcessor.signalEndOfInput();
     videoFrameProcessingEndedCountDownLatch.await();
+    checkNoVideoFrameProcessingExceptionIsThrown(videoFrameProcessingExceptionReference);
+    return actualPresentationTimesUs.build();
+  }
+
+  private static void checkNoVideoFrameProcessingExceptionIsThrown(
+      AtomicReference<@NullableType VideoFrameProcessingException>
+          videoFrameProcessingExceptionReference)
+      throws Exception {
     @Nullable
     Exception videoFrameProcessingException = videoFrameProcessingExceptionReference.get();
     if (videoFrameProcessingException != null) {
       throw videoFrameProcessingException;
     }
-    return actualPresentationTimesUs.build();
   }
 }
