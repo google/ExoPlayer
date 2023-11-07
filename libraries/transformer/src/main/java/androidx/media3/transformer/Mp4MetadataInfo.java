@@ -15,6 +15,7 @@
  */
 package androidx.media3.transformer;
 
+import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
 import static java.lang.Math.min;
 
@@ -36,6 +37,7 @@ import androidx.media3.extractor.mp4.Mp4Extractor;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /** Provides MP4 metadata like duration, last sync sample timestamp etc. */
@@ -52,9 +54,25 @@ import org.checkerframework.checker.nullness.qual.Nullable;
    */
   public final long lastSyncSampleTimestampUs;
 
-  private Mp4MetadataInfo(long durationUs, long lastSyncSampleTimestampUs) {
+  /**
+   * The presentation timestamp (in microseconds) of the first sync sample at or after {@code
+   * timeUs}. Set to {@link C#TIME_UNSET} if there is no video track or if {@code timeUs} is {@link
+   * C#TIME_UNSET}.
+   */
+  public final long firstSyncSampleTimestampUsAfterTimeUs;
+
+  /** The video {@link Format} or {@code null} if there is no video track. */
+  public final @Nullable Format videoFormat;
+
+  private Mp4MetadataInfo(
+      long durationUs,
+      long lastSyncSampleTimestampUs,
+      long firstSyncSampleTimestampUsAfterTimeUs,
+      @Nullable Format videoFormat) {
     this.durationUs = durationUs;
     this.lastSyncSampleTimestampUs = lastSyncSampleTimestampUs;
+    this.firstSyncSampleTimestampUsAfterTimeUs = firstSyncSampleTimestampUsAfterTimeUs;
+    this.videoFormat = videoFormat;
   }
 
   /**
@@ -65,6 +83,20 @@ import org.checkerframework.checker.nullness.qual.Nullable;
    * @throws IOException If an error occurs during metadata extraction.
    */
   public static Mp4MetadataInfo create(Context context, String filePath) throws IOException {
+    return create(context, filePath, C.TIME_UNSET);
+  }
+
+  /**
+   * Extracts the MP4 metadata synchronously and returns {@link Mp4MetadataInfo}.
+   *
+   * @param context A {@link Context}.
+   * @param filePath The file path of a valid MP4.
+   * @param timeUs The time (in microseconds) used to calculate the {@link
+   *     #firstSyncSampleTimestampUsAfterTimeUs}. {@link C#TIME_UNSET} if not needed.
+   * @throws IOException If an error occurs during metadata extraction.
+   */
+  public static Mp4MetadataInfo create(Context context, String filePath, long timeUs)
+      throws IOException {
     Mp4Extractor mp4Extractor = new Mp4Extractor();
     ExtractorOutputImpl extractorOutput = new ExtractorOutputImpl();
     DefaultDataSource dataSource =
@@ -97,18 +129,37 @@ import org.checkerframework.checker.nullness.qual.Nullable;
           throw new IllegalStateException("The MP4 file is invalid");
         }
       }
-
       long durationUs = mp4Extractor.getDurationUs();
       long lastSyncSampleTimestampUs = C.TIME_UNSET;
+      long firstSyncSampleTimestampUsAfterTimeUs = C.TIME_UNSET;
+      @Nullable Format videoFormat = null;
 
-      // Fetch last sync sample timestamp.
       if (extractorOutput.videoTrackId != C.INDEX_UNSET) {
+        ExtractorOutputImpl.TrackOutputImpl videoTrackOutput =
+            checkNotNull(extractorOutput.trackTypeToTrackOutput.get(C.TRACK_TYPE_VIDEO));
+        videoFormat = checkNotNull(videoTrackOutput.format);
+
         checkState(durationUs != C.TIME_UNSET);
-        SeekMap.SeekPoints seekPoints =
+        SeekMap.SeekPoints lastSyncSampleSeekPoints =
             mp4Extractor.getSeekPoints(durationUs, extractorOutput.videoTrackId);
-        lastSyncSampleTimestampUs = seekPoints.first.timeUs;
+        lastSyncSampleTimestampUs = lastSyncSampleSeekPoints.first.timeUs;
+
+        if (timeUs != C.TIME_UNSET) {
+          if (timeUs < durationUs) {
+            SeekMap.SeekPoints firstSyncSampleSeekPoints =
+                mp4Extractor.getSeekPoints(timeUs, extractorOutput.videoTrackId);
+            firstSyncSampleTimestampUsAfterTimeUs =
+                firstSyncSampleSeekPoints.first.timeUs == timeUs
+                    ? timeUs
+                    : firstSyncSampleSeekPoints.second.timeUs;
+          }
+        }
       }
-      return new Mp4MetadataInfo(durationUs, lastSyncSampleTimestampUs);
+      return new Mp4MetadataInfo(
+          durationUs,
+          lastSyncSampleTimestampUs,
+          firstSyncSampleTimestampUsAfterTimeUs,
+          videoFormat);
     } finally {
       DataSourceUtil.closeQuietly(dataSource);
       mp4Extractor.release();
@@ -119,7 +170,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
     public int videoTrackId;
     public boolean seekMapInitialized;
 
-    private final Map<Integer, TrackOutput> trackTypeToTrackOutput;
+    final Map<Integer, TrackOutputImpl> trackTypeToTrackOutput;
 
     public ExtractorOutputImpl() {
       videoTrackId = C.INDEX_UNSET;
@@ -132,7 +183,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
         videoTrackId = id;
       }
 
-      @Nullable TrackOutput trackOutput = trackTypeToTrackOutput.get(type);
+      @Nullable TrackOutputImpl trackOutput = trackTypeToTrackOutput.get(type);
       if (trackOutput == null) {
         trackOutput = new TrackOutputImpl();
         trackTypeToTrackOutput.put(type, trackOutput);
@@ -151,6 +202,8 @@ import org.checkerframework.checker.nullness.qual.Nullable;
     private static final class TrackOutputImpl implements TrackOutput {
       private static final int FIXED_BYTE_ARRAY_SIZE = 16_000;
 
+      public @MonotonicNonNull Format format;
+
       private final byte[] byteArray;
 
       public TrackOutputImpl() {
@@ -158,7 +211,9 @@ import org.checkerframework.checker.nullness.qual.Nullable;
       }
 
       @Override
-      public void format(Format format) {}
+      public void format(Format format) {
+        this.format = format;
+      }
 
       @Override
       public int sampleData(
