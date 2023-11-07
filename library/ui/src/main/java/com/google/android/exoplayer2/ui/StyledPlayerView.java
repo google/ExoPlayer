@@ -143,8 +143,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  *       values are {@code surface_view}, {@code texture_view}, {@code spherical_gl_surface_view},
  *       {@code video_decoder_gl_surface_view} and {@code none}. Using {@code none} is recommended
  *       for audio only applications, since creating the surface can be expensive. Using {@code
- *       surface_view} is recommended for video applications. Note, TextureView can only be used in
- *       a hardware accelerated window. When rendered in software, TextureView will draw nothing.
+ *       surface_view} is recommended for video applications. See <a
+ *       href="https://developer.android.com/guide/topics/media/ui/playerview#surfacetype">Choosing
+ *       a surface type</a> for more information.
  *       <ul>
  *         <li>Corresponding method: None
  *         <li>Default: {@code surface_view}
