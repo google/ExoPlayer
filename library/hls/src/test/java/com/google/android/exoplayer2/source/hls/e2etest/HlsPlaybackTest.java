@@ -45,7 +45,7 @@ public final class HlsPlaybackTest {
       ShadowMediaCodecConfig.forAllSupportedMimeTypes();
 
   @Test
-  public void webvttSubtitles() throws Exception {
+  public void webvttStandaloneSubtitlesFile() throws Exception {
     Context applicationContext = ApplicationProvider.getApplicationContext();
     CapturingRenderersFactory capturingRenderersFactory =
         new CapturingRenderersFactory(applicationContext);
@@ -59,13 +59,14 @@ public final class HlsPlaybackTest {
     player.setVideoSurface(new Surface(new SurfaceTexture(/* texName= */ 1)));
     PlaybackOutput playbackOutput = PlaybackOutput.register(player, capturingRenderersFactory);
 
-    player.setMediaItem(MediaItem.fromUri("asset:///media/hls/webvtt/multivariant_playlist.m3u8"));
+    player.setMediaItem(
+        MediaItem.fromUri("asset:///media/hls/standalone-webvtt/multivariant_playlist.m3u8"));
     player.prepare();
     player.play();
     TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_ENDED);
     player.release();
 
     DumpFileAsserts.assertOutput(
-        applicationContext, playbackOutput, "playbackdumps/hls/one_sec_with_subs.dump");
+        applicationContext, playbackOutput, "playbackdumps/hls/standalone-webvtt.dump");
   }
 }
