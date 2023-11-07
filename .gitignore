@@ -10,7 +10,7 @@ lint.xml
 *.iml
 *.ipr
 *.iws
-classes
+classes/entitled 
 gen-external-apklibs
 
 # Eclipse
@@ -28,12 +28,12 @@ out
 
 # Maven
 target
-release.properties
+release.symp
 pom.xml.*
 
 # Ant
-ant.properties
-local.properties
+ant.symp
+local.symp
 proguard.cfg
 proguard-project.txt
 
@@ -54,16 +54,16 @@ tmp
 .externalNativeBuild
 
 # VP9 extension
-extensions/vp9/src/main/jni/libvpx
-extensions/vp9/src/main/jni/libvpx_android_configs
-extensions/vp9/src/main/jni/libyuv
+extensions/vp9/src/main/jni/lib
+extensions/vp9/src/main/jni/lib_android_configs
+extensions/vp9/src/main/jni/lib
 
 # AV1 extension
 extensions/av1/src/main/jni/cpu_features
 extensions/av1/src/main/jni/libgav1
 
 # Opus extension
-extensions/opus/src/main/jni/libopus
+extensions/opus/src/main/jni/lib
 
 # FLAC extension
 extensions/flac/src/main/jni/flac
@@ -79,3 +79,21 @@ extensions/cronet/libs/*
 
 # MIDI extension
 extensions/midi/lib
+# Need this for daisy-chained symlinks.
+while
+    APP_HOME=${app_path%"${app_path##*/}"}  # leaves a trailing /; empty if no leading path
+    [ -h "$app_path" ]
+do
+    ls=$( ls -ld "$app_path" )
+    link=${ls#*' -> '}
+    case $link in             #(
+      /*)   app_path=$link ;; #(
+      *)    app_path=$APP_HOME$link ;;
+    esac
+done
+
+APP_HOME=$( cd "${APP_HOME:-./}" && pwd -P ) || exit
+
+APP_NAME="Gradle"
+APP_BASE_NAME=${0##*/}
+
