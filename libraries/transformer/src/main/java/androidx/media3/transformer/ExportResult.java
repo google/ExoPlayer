@@ -41,7 +41,7 @@ public final class ExportResult {
     private int sampleRate;
     @Nullable private String audioEncoderName;
     private int averageVideoBitrate;
-    @Nullable ColorInfo colorInfo;
+    @Nullable private ColorInfo colorInfo;
     private int height;
     private int width;
     private int videoFrameCount;
