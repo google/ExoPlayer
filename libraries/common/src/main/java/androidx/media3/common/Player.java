@@ -59,7 +59,7 @@ import java.util.List;
  *       thread} unless indicated otherwise. Callbacks in registered listeners are called on the
  *       same thread.
  *   <li>The available functionality can be limited. Player instances provide a set of {@link
- *       #getAvailableCommands() availabe commands} to signal feature support and users of the
+ *       #getAvailableCommands() available commands} to signal feature support and users of the
  *       interface must only call methods if the corresponding {@link Command} is available.
  *   <li>Users can register {@link Player.Listener} callbacks that get informed about state changes.
  *   <li>Player instances need to update the visible state immediately after each method call, even
