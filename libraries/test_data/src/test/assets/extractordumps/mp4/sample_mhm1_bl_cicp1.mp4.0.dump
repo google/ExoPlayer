@@ -17,7 +17,7 @@ track 0:
     channelCount = 0
     sampleRate = 48000
     language = und
-    metadata = entries=[Creation time: 1697189787000]
+    metadata = entries=[Mp4Timestamp: creation time=3780982024, modification time=3780982024, timescale=600]
     initializationData:
       data = length 60, hash C05CBBFC
   sample 0:

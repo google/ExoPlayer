@@ -1723,12 +1723,11 @@ import java.util.List;
         // See ISO_IEC_23008-3;2022 MHADecoderConfigurationRecord
         // The header consists of: size (4), boxtype 'mhaC' (4), configurationVersion (1),
         // mpegh3daProfileLevelIndication (1), referenceChannelLayout (1), mpegh3daConfigLength (2).
-        int mhacHeaderSize = 13;
         parent.setPosition(childPosition + Atom.HEADER_SIZE);
-        int configurationVersion = parent.readUnsignedByte();
+        parent.skipBytes(1); // configurationVersion
         int mpeghProfileLevelIndication = parent.readUnsignedByte();
-        int mpeghReferenceChannelLayout = parent.readUnsignedByte();
-        if (mimeType.equals(MimeTypes.AUDIO_MPEGH_MHM1)) {
+        parent.skipBytes(1); // mpeghReferenceChannelLayout
+        if (MimeTypes.AUDIO_MPEGH_MHM1.equals(mimeType)) {
           codecs = String.format("mhm1.%02X", mpeghProfileLevelIndication);
         } else {
           codecs = String.format("mha1.%02X", mpeghProfileLevelIndication);
@@ -1747,7 +1746,6 @@ import java.util.List;
       } else if (childAtomType == Atom.TYPE_mhaP) {
         // See ISO_IEC_23008-3;2022 MHAProfileAndLevelCompatibilitySetBox
         // The header consists of: size (4), boxtype 'mhaP' (4), numCompatibleSets (1).
-        int mhapHeaderSize = 9;
         parent.setPosition(childPosition + Atom.HEADER_SIZE);
         int numCompatibleSets = parent.readUnsignedByte();
         if (numCompatibleSets > 0) {
