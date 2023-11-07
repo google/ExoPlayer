@@ -1206,7 +1206,8 @@ public final class Transformer {
             applicationHandler,
             debugViewProvider,
             clock,
-            initialTimestampOffsetUs);
+            initialTimestampOffsetUs,
+            /* matchInitializationData= */ false);
     transformerInternal.start();
   }
 
