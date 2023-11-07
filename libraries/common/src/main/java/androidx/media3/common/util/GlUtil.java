@@ -573,6 +573,10 @@ public final class GlUtil {
   /**
    * Allocates a new RGBA texture with the specified dimensions and color component precision.
    *
+   * <p>The created texture is not zero-initialized. To clear the texture, {@linkplain
+   * #focusFramebuffer(EGLDisplay, EGLContext, EGLSurface, int, int, int) focus} on the texture and
+   * {@linkplain #clearFocusedBuffers() clear} its content.
+   *
    * @param width The width of the new texture in pixels.
    * @param height The height of the new texture in pixels.
    * @param useHighPrecisionColorComponents If {@code false}, uses colors with 8-bit unsigned bytes.
@@ -583,11 +587,12 @@ public final class GlUtil {
   public static int createTexture(int width, int height, boolean useHighPrecisionColorComponents)
       throws GlException {
     // TODO(b/227624622): Implement a pixel test that confirms 16f has less posterization.
+    // TODO - b/309459038: Consider renaming the method, as the created textures are uninitialized.
     if (useHighPrecisionColorComponents) {
       checkState(Util.SDK_INT >= 18, "GLES30 extensions are not supported below API 18.");
-      return createTexture(width, height, GLES30.GL_RGBA16F, GLES30.GL_HALF_FLOAT);
+      return createTextureUninitialized(width, height, GLES30.GL_RGBA16F, GLES30.GL_HALF_FLOAT);
     }
-    return createTexture(width, height, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE);
+    return createTextureUninitialized(width, height, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE);
   }
 
   /**
@@ -611,10 +616,6 @@ public final class GlUtil {
   /**
    * Allocates a new RGBA texture with the specified dimensions and color component precision.
    *
-   * <p>The created texture is not zero-initialized. To clear the texture, {@linkplain
-   * #focusFramebuffer(EGLDisplay, EGLContext, EGLSurface, int, int, int) focus} on the texture and
-   * {@linkplain #clearFocusedBuffers() clear} its content.
-   *
    * @param width The width of the new texture in pixels.
    * @param height The height of the new texture in pixels.
    * @param internalFormat The number of color components in the texture, as well as their format.
@@ -622,7 +623,7 @@ public final class GlUtil {
    * @throws GlException If the texture allocation fails.
    * @return The texture identifier for the newly-allocated texture.
    */
-  private static int createTexture(int width, int height, int internalFormat, int type)
+  private static int createTextureUninitialized(int width, int height, int internalFormat, int type)
       throws GlException {
     assertValidTextureSize(width, height);
     int texId = generateTexture();
