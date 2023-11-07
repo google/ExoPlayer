@@ -3326,6 +3326,12 @@ public interface Player {
    * Sets the {@link TextureView} onto which video will be rendered. The player will track the
    * lifecycle of the surface automatically.
    *
+   * <p>Consider using {@link SurfaceView} via {@link #setVideoSurfaceView} instead of {@link
+   * TextureView}. {@link SurfaceView} generally causes lower battery consumption, and has better
+   * handling for HDR and secure content. See <a
+   * href="https://developer.android.com/guide/topics/media/ui/playerview#surfacetype">Choosing a
+   * surface type</a> for more information.
+   *
    * <p>The thread that calls the {@link TextureView.SurfaceTextureListener} methods must be the
    * thread associated with {@link #getApplicationLooper()}.
    *
