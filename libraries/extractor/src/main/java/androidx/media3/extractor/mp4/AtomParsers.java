@@ -1727,11 +1727,10 @@ import java.util.List;
         parent.skipBytes(1); // configurationVersion
         int mpeghProfileLevelIndication = parent.readUnsignedByte();
         parent.skipBytes(1); // mpeghReferenceChannelLayout
-        if (MimeTypes.AUDIO_MPEGH_MHM1.equals(mimeType)) {
-          codecs = String.format("mhm1.%02X", mpeghProfileLevelIndication);
-        } else {
-          codecs = String.format("mha1.%02X", mpeghProfileLevelIndication);
-        }
+        codecs =
+            MimeTypes.AUDIO_MPEGH_MHM1.equals(mimeType)
+                ? String.format("mhm1.%02X", mpeghProfileLevelIndication)
+                : String.format("mha1.%02X", mpeghProfileLevelIndication);
         int mpegh3daConfigLength = parent.readUnsignedShort();
         byte[] initializationDataBytes = new byte[mpegh3daConfigLength];
         parent.readBytes(initializationDataBytes, 0, mpegh3daConfigLength);
@@ -1739,7 +1738,8 @@ import java.util.List;
         if (initializationData == null) {
           initializationData = ImmutableList.of(initializationDataBytes);
         } else {
-          // We assume that the mhaP box has been parsed before and add the compatible profile level
+          // We assume that the mhaP box has been parsed before and so add the compatible profile
+          // level
           // sets as the second entry.
           initializationData = ImmutableList.of(initializationDataBytes, initializationData.get(0));
         }
@@ -1754,7 +1754,7 @@ import java.util.List;
           if (initializationData == null) {
             initializationData = ImmutableList.of(mpeghCompatibleProfileLevelSet);
           } else {
-            // We assume that the mhaC box has been parsed before and add the compatible profile
+            // We assume that the mhaC box has been parsed before and so add the compatible profile
             // level sets as the second entry.
             initializationData =
                 ImmutableList.of(initializationData.get(0), mpeghCompatibleProfileLevelSet);
