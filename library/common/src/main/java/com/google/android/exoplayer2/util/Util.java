@@ -88,6 +88,7 @@ import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.Commands;
+import com.google.android.exoplayer2.audio.AudioProcessor;
 import com.google.common.base.Ascii;
 import com.google.common.base.Charsets;
 import com.google.common.math.DoubleMath;
@@ -2047,6 +2048,11 @@ public final class Util {
         .setSampleRate(sampleRate)
         .setPcmEncoding(pcmEncoding)
         .build();
+  }
+
+  /** Gets a PCM {@link Format} based on the {@link AudioProcessor.AudioFormat}. */
+  public static Format getPcmFormat(AudioProcessor.AudioFormat audioFormat) {
+    return getPcmFormat(audioFormat.encoding, audioFormat.channelCount, audioFormat.sampleRate);
   }
 
   /**

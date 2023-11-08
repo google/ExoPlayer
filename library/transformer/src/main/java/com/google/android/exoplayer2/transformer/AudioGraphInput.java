@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.transformer;
 
 import static com.google.android.exoplayer2.audio.AudioProcessor.EMPTY_BUFFER;
 import static com.google.android.exoplayer2.decoder.DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DIRECT;
+import static com.google.android.exoplayer2.transformer.AudioGraph.isInputAudioFormatValid;
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
@@ -371,22 +372,6 @@ import java.util.concurrent.atomic.AtomicReference;
     }
 
     return audioProcessingPipeline;
-  }
-
-  private static boolean isInputAudioFormatValid(AudioFormat format) {
-    if (format.encoding == Format.NO_VALUE) {
-      return false;
-    }
-    if (format.sampleRate == Format.NO_VALUE) {
-      return false;
-    }
-    if (format.channelCount == Format.NO_VALUE) {
-      return false;
-    }
-    if (format.bytesPerFrame == Format.NO_VALUE) {
-      return false;
-    }
-    return true;
   }
 
   private static final class MediaItemChange {
