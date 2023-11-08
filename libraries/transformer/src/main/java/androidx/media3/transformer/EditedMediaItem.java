@@ -239,6 +239,7 @@ public final class EditedMediaItem {
    * The duration of the image in the output video for image {@link MediaItem}, or the media
    * duration for other types of {@link MediaItem}, in microseconds.
    */
+  // TODO - b/309767764: Consider merging with presentationDurationUs.
   public final long durationUs;
 
   /** The frame rate of the image in the output video, in frames per second. */
