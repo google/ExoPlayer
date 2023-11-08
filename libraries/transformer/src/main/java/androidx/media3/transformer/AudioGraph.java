@@ -43,6 +43,20 @@ import java.nio.ByteBuffer;
     outputAudioFormat = AudioFormat.NOT_SET;
   }
 
+  /** Returns whether an {@link AudioFormat} is valid as an input format. */
+  public static boolean isInputAudioFormatValid(AudioFormat format) {
+    if (format.encoding == Format.NO_VALUE) {
+      return false;
+    }
+    if (format.sampleRate == Format.NO_VALUE) {
+      return false;
+    }
+    if (format.channelCount == Format.NO_VALUE) {
+      return false;
+    }
+    return true;
+  }
+
   /** Returns a new {@link AudioGraphInput} instance. */
   public AudioGraphInput registerInput(EditedMediaItem item, Format format) throws ExportException {
     checkArgument(format.pcmEncoding != Format.NO_VALUE);

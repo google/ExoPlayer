@@ -1,5 +1,5 @@
 AudioSink:
-  buffer count = 15
+  buffer count = 10
   config:
     pcmEncoding = 2
     channelCount = 1
@@ -34,18 +34,3 @@ AudioSink:
   buffer #9:
     time = 1000000900000
     data = 1472467506
-  buffer #10:
-    time = 1000001000000
-    data = 1785344804
-  buffer #11:
-    time = 1000001100000
-    data = 458152960
-  buffer #12:
-    time = 1000001200000
-    data = -2129352270
-  buffer #13:
-    time = 1000001300000
-    data = 1572219123
-  buffer #14:
-    time = 1000001348616
-    data = -2263

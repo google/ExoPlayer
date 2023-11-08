@@ -22,6 +22,7 @@ import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static androidx.media3.decoder.DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DIRECT;
+import static androidx.media3.transformer.AudioGraph.isInputAudioFormatValid;
 
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
@@ -365,22 +366,6 @@ import java.util.concurrent.atomic.AtomicReference;
     }
 
     return audioProcessingPipeline;
-  }
-
-  private static boolean isInputAudioFormatValid(AudioFormat format) {
-    if (format.encoding == Format.NO_VALUE) {
-      return false;
-    }
-    if (format.sampleRate == Format.NO_VALUE) {
-      return false;
-    }
-    if (format.channelCount == Format.NO_VALUE) {
-      return false;
-    }
-    if (format.bytesPerFrame == Format.NO_VALUE) {
-      return false;
-    }
-    return true;
   }
 
   private static final class MediaItemChange {
