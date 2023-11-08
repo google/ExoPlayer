@@ -57,9 +57,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   private @MonotonicNonNull GlTextureInfo currentGlTextureInfo;
   private int downstreamShaderProgramCapacity;
-  // TODO - b/262693274: Support HDR. Currently this variable is not used and will trigger error
-  //  prone warning.
+
+  // TODO - b/262693274: Support HDR.
+  @SuppressWarnings({"UnusedVariable", "FieldCanBeLocal"})
   private boolean useHdr;
+
   private boolean currentInputStreamEnded;
   private boolean isNextFrameInTexture;
 
@@ -131,6 +133,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           if (currentGlTextureInfo != null) {
             currentGlTextureInfo.release();
           }
+          pendingBitmaps.clear();
         });
   }
 
@@ -178,7 +181,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     if (!currentBitmapInfo.inStreamOffsetsUs.hasNext()) {
       isNextFrameInTexture = false;
-      pendingBitmaps.remove();
+      BitmapFrameSequenceInfo finishedBitmapInfo = pendingBitmaps.remove();
+      finishedBitmapInfo.bitmap.recycle();
       if (pendingBitmaps.isEmpty() && currentInputStreamEnded) {
         // Only signal end of stream after all pending bitmaps are processed.
         shaderProgram.signalEndOfCurrentInputStream();

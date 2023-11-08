@@ -229,6 +229,8 @@ public final class DefaultVideoFrameProcessorPixelTest {
             .setEffects(NO_OP_EFFECT)
             .build();
     Bitmap originalBitmap = readBitmap(IMAGE_JPG_ASSET_PATH);
+    // VideoFrameProcessor recycles the original bitmap so it cannot be used for comparison.
+    Bitmap expectedBitmap = originalBitmap.copy(Bitmap.Config.ARGB_8888, /* isMutable= */ false);
 
     videoFrameProcessorTestRunner.queueInputBitmap(
         originalBitmap, C.MICROS_PER_SECOND, /* offsetToAddUs= */ 0L, /* frameRate= */ 1);
@@ -237,7 +239,7 @@ public final class DefaultVideoFrameProcessorPixelTest {
 
     // TODO(b/207848601): Switch to using proper tooling for testing against golden data.
     float averagePixelAbsoluteDifference =
-        getBitmapAveragePixelAbsoluteDifferenceArgb8888(originalBitmap, actualBitmap, testId);
+        getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
     assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
   }
 
