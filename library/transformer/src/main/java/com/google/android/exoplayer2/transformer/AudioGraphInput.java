@@ -73,7 +73,7 @@ import java.util.concurrent.atomic.AtomicReference;
   private boolean receivedEndOfStreamFromInput;
   private boolean queueEndOfStreamAfterSilence;
 
-  public AudioGraphInput(EditedMediaItem item, Format inputFormat)
+  public AudioGraphInput(EditedMediaItem editedMediaItem, Format inputFormat)
       throws UnhandledAudioFormatException {
     AudioFormat inputAudioFormat = new AudioFormat(inputFormat);
     checkArgument(isInputAudioFormatValid(inputAudioFormat), /* errorMessage= */ inputAudioFormat);
@@ -90,9 +90,9 @@ import java.util.concurrent.atomic.AtomicReference;
     silentAudioGenerator = new SilentAudioGenerator(inputAudioFormat);
     audioProcessingPipeline =
         configureProcessing(
-            /* editedMediaItem= */ item,
-            /* inputFormat= */ inputFormat,
-            /* inputAudioFormat= */ inputAudioFormat,
+            editedMediaItem,
+            inputFormat,
+            inputAudioFormat,
             /* requiredOutputAudioFormat= */ AudioFormat.NOT_SET);
     // APP configuration not active until flush called. getOutputAudioFormat based on active config.
     audioProcessingPipeline.flush();
@@ -317,9 +317,9 @@ import java.util.concurrent.atomic.AtomicReference;
       // APP is configured in constructor for first media item.
       audioProcessingPipeline =
           configureProcessing(
-              /* editedMediaItem= */ pendingChange.editedMediaItem,
-              /* inputFormat= */ pendingChange.format,
-              /* inputAudioFormat= */ pendingAudioFormat,
+              pendingChange.editedMediaItem,
+              pendingChange.format,
+              pendingAudioFormat,
               /* requiredOutputAudioFormat= */ outputAudioFormat);
     }
     audioProcessingPipeline.flush();
