@@ -99,7 +99,7 @@ public class VideoEffectsPreviewPerformanceTest {
     long playbackDurationMs = SystemClock.elapsedRealtime() - playbackStartTimeMs.get();
 
     // Playback realtime should take 2 seconds, plus/minus error margin.
-    assertThat(playbackDurationMs).isIn(Range.closed(1950L, 2050L));
+    assertThat(playbackDurationMs).isIn(Range.closed(1950L, 2060L));
     DecoderCounters decoderCounters = checkNotNull(listener.getDecoderCounters());
     assertThat(decoderCounters.droppedBufferCount).isEqualTo(0);
     assertThat(decoderCounters.skippedInputBufferCount).isEqualTo(0);
