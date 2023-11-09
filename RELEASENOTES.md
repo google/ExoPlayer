@@ -78,95 +78,29 @@
 
 ## 1.2
 
-### 1.2.0-rc01 (2023-11-01)
+### 1.2.0 (2023-11-15)
 
 This release includes the following changes since the
-[1.2.0-beta01 release](#120-beta01-2023-10-18):
-
-*   ExoPlayer:
-    *   Add luma and chroma bitdepth to `ColorInfo`
-        [#491](https://github.com/androidx/media/pull/491).
-*   Track Selection:
-    *   Add `DefaultTrackSelector.Parameters.allowAudioNonSeamlessAdaptiveness`
-        to explicitly allow or disallow non-seamless adaptation. The default
-        stays at its current behavior of `true`.
-*   Audio:
-    *   Fix DTS Express audio buffer underflow issue
-        ([#650](https://github.com/androidx/media/pull/650)).
-    *   Fix bug where the capabilities check for E-AC3-JOC throws an
-        `IllegalArgumentException`
-        ([#677](https://github.com/androidx/media/issues/677)).
-*   Text:
-    *   Remove `ExoplayerCuesDecoder`. Text tracks with `sampleMimeType =
-        application/x-media3-cues` are now directly handled by `TextRenderer`
-        without needing a `SubtitleDecoder` instance.
-*   Session:
-    *   Do not set the queue of the framework session when
-        `COMMAND_GET_TIMELINE` is not available for the media notification
-        controller. With Android Auto as the client controller reading from the
-        framework session, this has the effect that the `queue` button in the UI
-        of Android Auto is not displayed
-        (([#339](https://github.com/androidx/media/issues/339)).
-    *   Use `DataSourceBitmapLoader` by default instead of `SimpleBitmapLoader`
-        ([#271](https://github.com/androidx/media/issues/271),[#327](https://github.com/androidx/media/issues/327)).
-    *   Add `MediaSession.Callback.onMediaButtonEvent(Intent)` that allows apps
-        to override the default media button event handling.
-*   HLS Extension:
-    *   Refresh the HLS live playlist with an interval calculated from the last
-        load start time rather than the last load completed time
-        ([#663](https://github.com/androidx/media/issues/663)).
-*   DASH Extension:
-    *   Add experimental support for parsing subtitles during extraction. This
-        has better support for merging overlapping subtitles, including
-        resolving flickering when transitioning between subtitle segments. You
-        can enable this using
-        `DashMediaSource.Factory.experimentalParseSubtitlesDuringExtraction()`
-        ([#288](https://github.com/androidx/media/issues/288)).
-*   Decoder Extensions (FFmpeg, VP9, AV1, MIDI, etc.):
-    *   Fix bug publishing MIDI decoder artifact to Maven repository. The
-        artifact is renamed to `media3-exoplayer-midi`
-        ([#734](https://github.com/androidx/media/issues/734)).
-*   Remove deprecated symbols:
-    *   Remove deprecated `DownloadNotificationHelper.buildProgressNotification`
-        method, use a non deprecated method that takes a `notMetRequirements`
-        parameter instead.
-
-### 1.2.0-beta01 (2023-10-18)
-
-This release includes the following changes since the
-[1.2.0-alpha02 release](#120-alpha02-2023-09-29):
-
-*   Audio:
-    *   Add `onAudioTrackInitialized` and `onAudioTrackReleased` callbacks to
-        `AnalyticsListener`, `AudioRendererEventListener` and
-        `AudioSink.Listener`.
-*   Metadata:
-    *   `MetadataDecoder.decode` will no longer be called for "decode-only"
-        samples as the implementation must return null anyway.
-*   Session:
-    *   Add session demo module for Automotive OS and enable session demo for
-        Android Auto.
-*   DASH Extension:
-    *   Allow multiple of the same DASH identifier in segment template url.
-*   RTSP Extension:
-    *   Use RTSP Setup Response timeout value in time interval of sending
-        keep-alive RTSP Options requests
-        ([#662](https://github.com/androidx/media/issues/662)).
-*   Decoder Extensions (FFmpeg, VP9, AV1, MIDI, etc.):
-    *   Add `DecoderOutputBuffer.shouldBeSkipped` to directly mark output
-        buffers that don't need to be presented. This is preferred over
-        `C.BUFFER_FLAG_DECODE_ONLY` that will be deprecated.
-    *   Add `Decoder.setOutputStartTimeUs` and
-        `SimpleDecoder.isAtLeastOutputStartTimeUs` to allow decoders to drop
-        decode-only samples before the start time. This should be preferred to
-        `Buffer.isDecodeOnly` that will be deprecated.
-
-### 1.2.0-alpha02 (2023-09-29)
-
-This release includes the following changes since the
-[1.2.0-alpha01 release](#120-alpha01-2023-08-17):
+[1.1.1 release](#111-2023-08-14):
 
 *   Common Library:
+    *   Add a `@Nullable Throwable` parameter to the methods in the `Log.Logger`
+        interface. The `message` parameter to these methods no longer contains
+        any information about the `Throwable` passed to the `Log.{d,i,w,e}()`
+        methods, so implementations will need to manually append this
+        information if desired (possibly using
+        `Logger.appendThrowableString(String, Throwable)`).
+    *   Fix Kotlin compatibility issue where nullable generic type parameters
+        and nullable array element types are not detected as nullable. Examples
+        are `TrackSelectorResult` and `SimpleDecoder` method parameters
+        ([#6792](https://github.com/google/ExoPlayer/issues/6792)).
+    *   Change default UI and notification behavior in
+        `Util.shouldShowPlayButton` to show a "play" button while playback is
+        temporarily suppressed (e.g. due to transient audio focus loss). The
+        legacy behavior can be maintained by using
+        `PlayerView.setShowPlayButtonIfPlaybackIsSuppressed(false)` or
+        `MediaSession.Builder.setShowPlayButtonIfPlaybackIsSuppressed(false)`
+        ([#11213](https://github.com/google/ExoPlayer/issues/11213)).
     *   Upgrade `androidx.annotation:annotation-experimental` to `1.3.1`. This
         also introduces a transitive dependency on the Kotlin standard library
         from `media3-common`. Apps can
@@ -174,6 +108,42 @@ This release includes the following changes since the
         Fixes https://issuetracker.google.com/251172715.
     *   Move `ExoPlayer.setAudioAttributes` to the `Player` interface.
 *   ExoPlayer:
+    *   Fix seeking issues in AC4 streams caused by not identifying decode-only
+        samples correctly
+        ([#11000](https://github.com/google/ExoPlayer/issues/11000)).
+    *   Add suppression of playback on unsuitable audio output devices (e.g. the
+        built-in speaker on Wear OS devices) when this feature is enabled via
+        `ExoPlayer.Builder.setSuppressPlaybackOnUnsuitableOutput`. The playback
+        suppression reason will be updated as
+        `Player.PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_OUTPUT` if playback
+        is attempted when no suitable audio outputs are available, or if all
+        suitable outputs are disconnected during playback. The suppression
+        reason will be removed when a suitable output is connected.
+    *   Add `MediaSource.canUpdateMediaItem` and `MediaSource.updateMediaItem`
+        to accept `MediaItem` updates after creation via
+        `Player.replaceMediaItem(s)`.
+    *   Allow `MediaItem` updates for all `MediaSource` classes provided by the
+        library via `Player.replaceMediaItem(s)`
+        ([#33](https://github.com/androidx/media/issues/33),
+        [#9978](https://github.com/google/ExoPlayer/issues/9978)).
+    *   Rename `MimeTypes.TEXT_EXOPLAYER_CUES` to
+        `MimeTypes.APPLICATION_MEDIA3_CUES`.
+    *   Add `PngExtractor` that sends and reads a whole PNG file into the
+        `TrackOutput` as one sample.
+    *   Enhance `SequenceableLoader.continueLoading(long)` method in the
+        `SequenceableLoader` interface to
+        `SequenceableLoader.continueLoading(LoadingInfo loadingInfo)`.
+        `LoadingInfo` contains additional parameters, including `playbackSpeed`
+        and `lastRebufferRealtimeMs` in addition to the existing
+        `playbackPositionUs`.
+    *   Enhance `ChunkSource.getNextChunk(long, long, List, ChunkHolder)` method
+        in the `ChunkSource` interface to `ChunkSource.getNextChunk(LoadingInfo,
+        long, List, ChunkHolder)`.
+    *   Add additional fields to Common Media Client Data (CMCD) logging: buffer
+        starvation (`bs`), deadline (`dl`), playback rate (`pr`) and startup
+        (`su`) ([#8699](https://github.com/google/ExoPlayer/issues/8699)).
+    *   Add luma and chroma bitdepth to `ColorInfo`
+        ([#491](https://github.com/androidx/media/pull/491)).
     *   Add additional fields to Common Media Client Data (CMCD) logging: next
         object request (`nor`) and next range request (`nrr`)
         ([#8699](https://github.com/google/ExoPlayer/issues/8699)).
@@ -189,9 +159,28 @@ This release includes the following changes since the
     *   Change `BaseRenderer.onStreamChanged()` to also receive a
         `MediaPeriodId` argument.
 *   Transformer:
+    *   Parse EXIF rotation data for image inputs.
+    *   Remove `TransformationRequest.HdrMode` annotation type and its
+        associated constants. Use `Composition.HdrMode` and its associated
+        constants instead.
+    *   Simplify the `OverlaySettings` to fix rotation issues.
     *   Changed `frameRate` and `durationUs` parameters of
         `SampleConsumer.queueInputBitmap` to `TimestampIterator`.
+*   Track Selection:
+    *   Add `DefaultTrackSelector.Parameters.allowAudioNonSeamlessAdaptiveness`
+        to explicitly allow or disallow non-seamless adaptation. The default
+        stays at its current behavior of `true`.
 *   Extractors:
+    *   MPEG-TS: Ensure the last frame is rendered by passing the last access
+        unit of a stream to the sample queue
+        ([#7909](https://github.com/google/ExoPlayer/issues/7909)).
+    *   Fix typo when determining `rotationDegrees`. Changed
+        `projectionPosePitch` to `projectionPoseRoll`
+        ([#461](https://github.com/androidx/media/pull/461)).
+    *   Remove the assumption that `Extractor` instances can be directly
+        inspected with `instanceof`. If you want runtime access to the
+        implementation details of an `Extractor` you must first call
+        `Extractor.getUnderlyingInstance`.
     *   Add `BmpExtractor`.
     *   Add `WebpExtractor`.
     *   Add `HeifExtractor`.
@@ -199,6 +188,33 @@ This release includes the following changes since the
         [QuickTime classic](https://developer.apple.com/standards/qtff-2001.pdf)
         support to `Mp4Extractor`.
 *   Audio:
+    *   Add support for 24/32-bit big-endian PCM in MP4 and Matroska, and parse
+        PCM encoding for `lpcm` in MP4.
+    *   Add support for extracting Vorbis audio in MP4.
+    *   Add `AudioSink.getFormatOffloadSupport(Format)` that retrieves level of
+        offload support the sink can provide for the format through a
+        `DefaultAudioOffloadSupportProvider`. It returns the new
+        `AudioOffloadSupport` that contains `isFormatSupported`,
+        `isGaplessSupported`, and `isSpeedChangeSupported`.
+    *   Add `AudioSink.setOffloadMode()` through which the offload configuration
+        on the audio sink is configured. Default is
+        `AudioSink.OFFLOAD_MODE_DISABLED`.
+    *   Offload can be enabled through `setAudioOffloadPreference` in
+        `TrackSelectionParameters`. If the set preference is to enable, the
+        device supports offload for the format, and the track selection is a
+        single audio track, then audio offload will be enabled.
+    *   If `audioOffloadModePreference` is set to
+        `AUDIO_OFFLOAD_MODE_PREFERENCE_REQUIRED`, then the
+        `DefaultTrackSelector` will only select an audio track and only if that
+        track's format is supported in offload. If no audio track is supported
+        in offload, then no track will be selected.
+    *   Disabling gapless support for offload when pre-API level 33 due to
+        playback position issue after track transition.
+    *   Remove parameter `enableOffload` from
+        `DefaultRenderersFactory.buildAudioSink` method signature.
+    *   Remove method `DefaultAudioSink.Builder.setOffloadMode`.
+    *   Remove intdef value
+        `DefaultAudioSink.OffloadMode.OFFLOAD_MODE_ENABLED_GAPLESS_DISABLED`.
     *   Add support for Opus gapless metadata during offload playback.
     *   Allow renderer recovery by disabling offload if failed at first write
         ([#627](https://github.com/androidx/media/issues/627)).
@@ -210,7 +226,33 @@ This release includes the following changes since the
         `onOffloadedPlayback`.
     *   Move audio offload mode related `TrackSelectionParameters` interfaces
         and definitions to an inner `AudioOffloadPreferences` class.
+    *   Add `onAudioTrackInitialized` and `onAudioTrackReleased` callbacks to
+        `AnalyticsListener`, `AudioRendererEventListener` and
+        `AudioSink.Listener`.
+    *   Fix DTS Express audio buffer underflow issue
+        ([#650](https://github.com/androidx/media/pull/650)).
+    *   Fix bug where the capabilities check for E-AC3-JOC throws an
+        `IllegalArgumentException`
+        ([#677](https://github.com/androidx/media/issues/677)).
+*   Video:
+    *   Allow `MediaCodecVideoRenderer` to use a custom
+        `VideoFrameProcessor.Factory`.
+    *   Fix bug where the first frame couldn't be rendered if the audio stream
+        starts with negative timestamps
+        ([#291](https://github.com/androidx/media/issues/291)).
+*   Text:
+    *   Remove `ExoplayerCuesDecoder`. Text tracks with `sampleMimeType =
+        application/x-media3-cues` are now directly handled by `TextRenderer`
+        without needing a `SubtitleDecoder` instance.
+*   Metadata:
+    *   `MetadataDecoder.decode` will no longer be called for "decode-only"
+        samples as the implementation must return null anyway.
 *   Effect:
+    *   Add `VideoFrameProcessor.queueInputBitmap(Bitmap, Iterator<Long>)`
+        queuing bitmap input by timestamp.
+    *   Change `VideoFrameProcessor.registerInputStream()` to be non-blocking.
+        Apps must implement
+        `VideoFrameProcessor.Listener#onInputStreamRegistered()`.
     *   Changed `frameRate` and `durationUs` parameters of
         `VideoFrameProcessor.queueInputBitmap` to `TimestampIterator`.
 *   IMA extension:
@@ -245,133 +287,19 @@ This release includes the following changes since the
         successful, the subscription is accepted and `notifyChildrenChanged()`
         is called immediately to inform the browser
         ([#561](https://github.com/androidx/media/issues/561)).
-*   RTSP Extension:
-    *   Fix a race condition that could lead to `IndexOutOfBoundsException` when
-        falling back to TCP, or playback hanging in some situations.
-    *   Check state in RTSP setup when returning loading state of
-        `RtspMediaPeriod`
-        ([#577](https://github.com/androidx/media/issues/577)).
-    *   Ignore custom Rtsp request methods in Options response public header
-        ([#613](https://github.com/androidx/media/issues/613)).
-*   Leanback extension:
-    *   Fix bug where disabling a surface can cause an `ArithmeticException` in
-        Leanback code ([#617](https://github.com/androidx/media/issues/617)).
-
-### 1.2.0-alpha01 (2023-08-17)
-
-This release includes the following changes since the
-[1.1.1 release](#111-2023-08-14):
-
-*   Common Library:
-    *   Add a `@Nullable Throwable` parameter to the methods in the `Log.Logger`
-        interface. The `message` parameter to these methods no longer contains
-        any information about the `Throwable` passed to the `Log.{d,i,w,e}()`
-        methods, so implementations will need to manually append this
-        information if desired (possibly using
-        `Logger.appendThrowableString(String, Throwable)`).
-    *   Fix Kotlin compatibility issue where nullable generic type parameters
-        and nullable array element types are not detected as nullable. Examples
-        are `TrackSelectorResult` and `SimpleDecoder` method parameters
-        ([6792](https://github.com/google/ExoPlayer/issues/6792)).
-    *   Change default UI and notification behavior in
-        `Util.shouldShowPlayButton` to show a "play" button while playback is
-        temporarily suppressed (e.g. due to transient audio focus loss). The
-        legacy behavior can be maintained by using
-        `PlayerView.setShowPlayButtonIfPlaybackIsSuppressed(false)` or
-        `MediaSession.Builder.setShowPlayButtonIfPlaybackIsSuppressed(false)`
-        ([#11213](https://github.com/google/ExoPlayer/issues/11213)).
-*   ExoPlayer:
-    *   Fix seeking issues in AC4 streams caused by not identifying decode-only
-        samples correctly
-        ([#11000](https://github.com/google/ExoPlayer/issues/11000)).
-    *   Add suppression of playback on unsuitable audio output devices (e.g. the
-        built-in speaker on Wear OS devices) when this feature is enabled via
-        `ExoPlayer.Builder.setSuppressPlaybackOnUnsuitableOutput`. The playback
-        suppression reason will be updated as
-        `Player.PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_OUTPUT` if playback
-        is attempted when no suitable audio outputs are available, or if all
-        suitable outputs are disconnected during playback. The suppression
-        reason will be removed when a suitable output is connected.
-    *   Add `MediaSource.canUpdateMediaItem` and `MediaSource.updateMediaItem`
-        to accept `MediaItem` updates after creation via
-        `Player.replaceMediaItem(s)`.
-    *   Allow `MediaItem` updates for all `MediaSource` classes provided by the
-        library via `Player.replaceMediaItem(s)`
-        (([#33](https://github.com/androidx/media/issues/33)),([#9978](https://github.com/google/ExoPlayer/issues/9978))).
-    *   Rename `MimeTypes.TEXT_EXOPLAYER_CUES` to
-        `MimeTypes.APPLICATION_MEDIA3_CUES`.
-    *   Add `PngExtractor` that sends and reads a whole PNG file into the
-        `TrackOutput` as one sample.
-    *   Enhance `SequenceableLoader.continueLoading(long)` method in the
-        `SequenceableLoader` interface to
-        `SequenceableLoader.continueLoading(LoadingInfo loadingInfo)`.
-        `LoadingInfo` contains additional parameters, including `playbackSpeed`
-        and `lastRebufferRealtimeMs` in addition to the existing
-        `playbackPositionUs`.
-    *   Enhance `ChunkSource.getNextChunk(long, long, List, ChunkHolder)` method
-        in the `ChunkSource` interface to `ChunkSource.getNextChunk(LoadingInfo,
-        long, List, ChunkHolder)`.
-    *   Add additional fields to Common Media Client Data (CMCD) logging: buffer
-        starvation (`bs`), deadline (`dl`), playback rate (`pr`) and startup
-        (`su`) ([#8699](https://github.com/google/ExoPlayer/issues/8699)).
-*   Transformer:
-    *   Parse EXIF rotation data for image inputs.
-    *   Remove `TransformationRequest.HdrMode` annotation type and its
-        associated constants. Use `Composition.HdrMode` and its associated
-        constants instead.
-    *   Simplify the `OverlaySettings` to fix rotation issues.
-*   Extractors:
-    *   MPEG-TS: Ensure the last frame is rendered by passing the last access
-        unit of a stream to the sample queue
-        ([#7909](https://github.com/google/ExoPlayer/issues/7909)).
-    *   Fix typo when determining `rotationDegrees`. Changed
-        `projectionPosePitch` to `projectionPoseRoll`
-        ([#461](https://github.com/androidx/media/pull/461)).
-    *   Remove the assumption that `Extractor` instances can be directly
-        inspected with `instanceof`. If you want runtime access to the
-        implementation details of an `Extractor` you must first call
-        `Extractor.getUnderlyingInstance`.
-*   Audio:
-    *   Add support for 24/32-bit big-endian PCM in MP4 and Matroska, and parse
-        PCM encoding for `lpcm` in MP4.
-    *   Add support for extracting Vorbis audio in MP4.
-*   Audio Offload:
-    *   Add `AudioSink.getFormatOffloadSupport(Format)` that retrieves level of
-        offload support the sink can provide for the format through a
-        `DefaultAudioOffloadSupportProvider`. It returns the new
-        `AudioOffloadSupport` that contains `isFormatSupported`,
-        `isGaplessSupported`, and `isSpeedChangeSupported`.
-    *   Add `AudioSink.setOffloadMode()` through which the offload configuration
-        on the audio sink is configured. Default is
-        `AudioSink.OFFLOAD_MODE_DISABLED`.
-    *   Offload can be enabled through `setAudioOffloadPreference` in
-        `TrackSelectionParameters`. If the set preference is to enable, the
-        device supports offload for the format, and the track selection is a
-        single audio track, then audio offload will be enabled.
-    *   If `audioOffloadModePreference` is set to
-        `AUDIO_OFFLOAD_MODE_PREFERENCE_REQUIRED`, then the
-        `DefaultTrackSelector` will only select an audio track and only if that
-        track's format is supported in offload. If no audio track is supported
-        in offload, then no track will be selected.
-    *   Disabling gapless support for offload when pre-API level 33 due to
-        playback position issue after track transition.
-    *   Remove parameter `enableOffload` from
-        `DefaultRenderersFactory.buildAudioSink` method signature.
-    *   Remove method `DefaultAudioSink.Builder.setOffloadMode`.
-    *   Remove intdef value
-        `DefaultAudioSink.OffloadMode.OFFLOAD_MODE_ENABLED_GAPLESS_DISABLED`.
-*   Video:
-    *   Allow `MediaCodecVideoRenderer` to use a custom
-        `VideoFrameProcessor.Factory`.
-    *   Fix bug where the first frame couldn't be rendered if the audio stream
-        starts with negative timestamps
-        ([#291](https://github.com/androidx/media/issues/291)).
-*   Effect:
-    *   Add `VideoFrameProcessor.queueInputBitmap(Bitmap, Iterator<Long>)`
-        queuing bitmap input by timestamp.
-    *   Change `VideoFrameProcessor.registerInputStream()` to be non-blocking.
-        Apps must implement
-        `VideoFrameProcessor.Listener#onInputStreamRegistered()`.
+    *   Add session demo module for Automotive OS and enable session demo for
+        Android Auto.
+    *   Do not set the queue of the framework session when
+        `COMMAND_GET_TIMELINE` is not available for the media notification
+        controller. With Android Auto as the client controller reading from the
+        framework session, this has the effect that the `queue` button in the UI
+        of Android Auto is not displayed
+        ([#339](https://github.com/androidx/media/issues/339)).
+    *   Use `DataSourceBitmapLoader` by default instead of `SimpleBitmapLoader`
+        ([#271](https://github.com/androidx/media/issues/271),
+        [#327](https://github.com/androidx/media/issues/327)).
+    *   Add `MediaSession.Callback.onMediaButtonEvent(Intent)` that allows apps
+        to override the default media button event handling.
 *   UI:
     *   Add a `Player.Listener` implementation for Wear OS devices that handles
         playback suppression due to
@@ -386,9 +314,45 @@ This release includes the following changes since the
         add `dataSync` as `foregroundServiceType` in the manifest and add the
         `FOREGROUND_SERVICE_DATA_SYNC` permission
         ([#11239](https://github.com/google/ExoPlayer/issues/11239)).
-*   MIDI extension:
+*   HLS Extension:
+    *   Refresh the HLS live playlist with an interval calculated from the last
+        load start time rather than the last load completed time
+        ([#663](https://github.com/androidx/media/issues/663)).
+*   DASH Extension:
+    *   Allow multiple of the same DASH identifier in segment template url.
+    *   Add experimental support for parsing subtitles during extraction. This
+        has better support for merging overlapping subtitles, including
+        resolving flickering when transitioning between subtitle segments. You
+        can enable this using
+        `DashMediaSource.Factory.experimentalParseSubtitlesDuringExtraction()`
+        ([#288](https://github.com/androidx/media/issues/288)).
+*   RTSP Extension:
+    *   Fix a race condition that could lead to `IndexOutOfBoundsException` when
+        falling back to TCP, or playback hanging in some situations.
+    *   Check state in RTSP setup when returning loading state of
+        `RtspMediaPeriod`
+        ([#577](https://github.com/androidx/media/issues/577)).
+    *   Ignore custom Rtsp request methods in Options response public header
+        ([#613](https://github.com/androidx/media/issues/613)).
+    *   Use RTSP Setup Response timeout value in time interval of sending
+        keep-alive RTSP Options requests
+        ([#662](https://github.com/androidx/media/issues/662)).
+*   Decoder Extensions (FFmpeg, VP9, AV1, MIDI, etc.):
     *   Release the MIDI decoder module, which provides support for playback of
         standard MIDI files using the Jsyn library to synthesize audio.
+    *   Add `DecoderOutputBuffer.shouldBeSkipped` to directly mark output
+        buffers that don't need to be presented. This is preferred over
+        `C.BUFFER_FLAG_DECODE_ONLY` that will be deprecated.
+    *   Add `Decoder.setOutputStartTimeUs` and
+        `SimpleDecoder.isAtLeastOutputStartTimeUs` to allow decoders to drop
+        decode-only samples before the start time. This should be preferred to
+        `Buffer.isDecodeOnly` that will be deprecated.
+    *   Fix bug publishing MIDI decoder artifact to Maven repository. The
+        artifact is renamed to `media3-exoplayer-midi`
+        ([#734](https://github.com/androidx/media/issues/734)).
+*   Leanback extension:
+    *   Fix bug where disabling a surface can cause an `ArithmeticException` in
+        Leanback code ([#617](https://github.com/androidx/media/issues/617)).
 *   Test Utilities:
     *   Make `TestExoPlayerBuilder` and `FakeClock` compatible with Espresso UI
         tests and Compose UI tests. This fixes a bug where playback advances
@@ -400,6 +364,25 @@ This release includes the following changes since the
         `TransformationRequest.Builder.experimental_setEnableHdrEditing(boolean)`.
         Use `Composition.Builder.setHdrMode(int)` and pass the `Composition` to
         `Transformer.start(Composition, String)` instead.
+    *   Remove deprecated `DownloadNotificationHelper.buildProgressNotification`
+        method, use a non deprecated method that takes a `notMetRequirements`
+        parameter instead.
+
+### 1.2.0-rc01 (2023-11-01)
+
+Use the 1.2.0 [stable version](#120-2023-11-15).
+
+### 1.2.0-beta01 (2023-10-18)
+
+Use the 1.2.0 [stable version](#120-2023-11-15).
+
+### 1.2.0-alpha02 (2023-09-29)
+
+Use the 1.2.0 [stable version](#120-2023-11-15).
+
+### 1.2.0-alpha01 (2023-08-17)
+
+Use the 1.2.0 [stable version](#120-2023-11-15).
 
 ## 1.1
 
