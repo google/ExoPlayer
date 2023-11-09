@@ -22,6 +22,7 @@ import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static androidx.media3.session.MediaUtils.calculateBufferedPercentage;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
+import static java.lang.String.format;
 
 import android.app.PendingIntent;
 import android.content.Context;
@@ -73,6 +74,7 @@ import androidx.media3.common.util.Log;
 import androidx.media3.common.util.NullableType;
 import androidx.media3.common.util.Size;
 import androidx.media3.common.util.Util;
+import androidx.media3.session.LegacyConversions.ConversionException;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -1491,6 +1493,7 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
             legacyPlayerInfo,
             controllerInfo,
             newLegacyPlayerInfo,
+            controllerCompat.getPackageName(),
             controllerCompat.getFlags(),
             controllerCompat.isSessionReady(),
             controllerCompat.getRatingType(),
@@ -1877,6 +1880,7 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
       LegacyPlayerInfo oldLegacyPlayerInfo,
       ControllerInfo oldControllerInfo,
       LegacyPlayerInfo newLegacyPlayerInfo,
+      String sessionPackageName,
       long sessionFlags,
       boolean isSessionReady,
       @RatingCompat.Style int ratingType,
@@ -2027,12 +2031,21 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
         LegacyConversions.convertToAudioAttributes(newLegacyPlayerInfo.playbackInfoCompat);
     boolean playWhenReady =
         LegacyConversions.convertToPlayWhenReady(newLegacyPlayerInfo.playbackStateCompat);
-    @Player.State
-    int playbackState =
-        LegacyConversions.convertToPlaybackState(
-            newLegacyPlayerInfo.playbackStateCompat,
-            newLegacyPlayerInfo.mediaMetadataCompat,
-            timeDiffMs);
+    @Player.State int playbackState;
+    try {
+      playbackState =
+          LegacyConversions.convertToPlaybackState(
+              newLegacyPlayerInfo.playbackStateCompat,
+              newLegacyPlayerInfo.mediaMetadataCompat,
+              timeDiffMs);
+    } catch (ConversionException e) {
+      Log.e(
+          TAG,
+          format(
+              "Received invalid playback state %s from package %s. Keeping the previous state.",
+              newLegacyPlayerInfo.playbackStateCompat.getState(), sessionPackageName));
+      playbackState = oldControllerInfo.playerInfo.playbackState;
+    }
     boolean isPlaying =
         LegacyConversions.convertToIsPlaying(newLegacyPlayerInfo.playbackStateCompat);
     DeviceInfo deviceInfo =

@@ -143,6 +143,17 @@ import java.util.concurrent.TimeoutException;
           MediaMetadataCompat.METADATA_KEY_DOWNLOAD_STATUS,
           MediaConstants.EXTRAS_KEY_MEDIA_TYPE_COMPAT);
 
+  /** Exception thrown when the conversion between legacy and Media3 states fails. */
+  public static class ConversionException extends Exception {
+    private ConversionException(String message) {
+      super(message);
+    }
+
+    private ConversionException(String message, Throwable cause) {
+      super(message, cause);
+    }
+  }
+
   /** Converts {@link PlaybackStateCompat} to {@link PlaybackException}. */
   @Nullable
   public static PlaybackException convertToPlaybackException(
@@ -810,11 +821,16 @@ import java.util.concurrent.TimeoutException;
     return false;
   }
 
-  /** Converts a {@link PlaybackStateCompat} to {@link Player.State} */
+  /**
+   * Converts a {@link PlaybackStateCompat} to {@link Player.State}
+   *
+   * @throws ConversionException if the legacy state of the remote session is invalid
+   */
   public static @Player.State int convertToPlaybackState(
       @Nullable PlaybackStateCompat playbackStateCompat,
       @Nullable MediaMetadataCompat currentMediaMetadata,
-      long timeDiffMs) {
+      long timeDiffMs)
+      throws ConversionException {
     if (playbackStateCompat == null) {
       return Player.STATE_IDLE;
     }
@@ -842,8 +858,8 @@ import java.util.concurrent.TimeoutException;
             convertToCurrentPositionMs(playbackStateCompat, currentMediaMetadata, timeDiffMs);
         return (currentPosition < duration) ? Player.STATE_READY : Player.STATE_ENDED;
       default:
-        throw new IllegalStateException(
-            "Unrecognized PlaybackStateCompat: " + playbackStateCompat.getState());
+        throw new ConversionException(
+            "Invalid state of PlaybackStateCompat: " + playbackStateCompat.getState());
     }
   }
 
