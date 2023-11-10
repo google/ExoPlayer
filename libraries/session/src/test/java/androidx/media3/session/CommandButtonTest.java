@@ -141,6 +141,36 @@ public class CommandButtonTest {
   }
 
   @Test
+  public void getIconUri_returnsUriAfterSerialisation() {
+    Uri uri = Uri.parse("content://test");
+    CommandButton button =
+        new CommandButton.Builder()
+            .setDisplayName("button1")
+            .setIconResId(R.drawable.media3_notification_small_icon)
+            .setIconUri(uri)
+            .setPlayerCommand(Player.COMMAND_SEEK_TO_PREVIOUS)
+            .build();
+
+    CommandButton serialisedButton = CommandButton.fromBundle(button.toBundle());
+
+    assertThat(serialisedButton.iconUri).isEqualTo(uri);
+  }
+
+  @Test
+  public void getIconUri_returnsNullIfUnsetAfterSerialisation() {
+    CommandButton button =
+        new CommandButton.Builder()
+            .setDisplayName("button1")
+            .setIconResId(R.drawable.media3_notification_small_icon)
+            .setPlayerCommand(Player.COMMAND_SEEK_TO_PREVIOUS)
+            .build();
+
+    CommandButton serialisedButton = CommandButton.fromBundle(button.toBundle());
+
+    assertThat(serialisedButton.iconUri).isNull();
+  }
+
+  @Test
   public void equals() {
     assertThat(
             new CommandButton.Builder()

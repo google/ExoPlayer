@@ -306,6 +306,7 @@ public final class CommandButton implements Bundleable {
   private static final String FIELD_DISPLAY_NAME = Util.intToStringMaxRadix(3);
   private static final String FIELD_EXTRAS = Util.intToStringMaxRadix(4);
   private static final String FIELD_ENABLED = Util.intToStringMaxRadix(5);
+  private static final String FIELD_ICON_URI = Util.intToStringMaxRadix(6);
 
   @UnstableApi
   @Override
@@ -318,6 +319,7 @@ public final class CommandButton implements Bundleable {
     bundle.putInt(FIELD_ICON_RES_ID, iconResId);
     bundle.putCharSequence(FIELD_DISPLAY_NAME, displayName);
     bundle.putBundle(FIELD_EXTRAS, extras);
+    bundle.putParcelable(FIELD_ICON_URI, iconUri);
     bundle.putBoolean(FIELD_ENABLED, isEnabled);
     return bundle;
   }
@@ -346,12 +348,16 @@ public final class CommandButton implements Bundleable {
     CharSequence displayName = bundle.getCharSequence(FIELD_DISPLAY_NAME, /* defaultValue= */ "");
     @Nullable Bundle extras = bundle.getBundle(FIELD_EXTRAS);
     boolean enabled = bundle.getBoolean(FIELD_ENABLED, /* defaultValue= */ false);
+    @Nullable Uri iconUri = bundle.getParcelable(FIELD_ICON_URI);
     Builder builder = new Builder();
     if (sessionCommand != null) {
       builder.setSessionCommand(sessionCommand);
     }
     if (playerCommand != Player.COMMAND_INVALID) {
       builder.setPlayerCommand(playerCommand);
+    }
+    if (iconUri != null) {
+      builder.setIconUri(iconUri);
     }
     return builder
         .setIconResId(iconResId)
