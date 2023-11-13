@@ -170,7 +170,8 @@ public class ExportTest {
         "Some devices are capable of instantiating only either one 8K decoder or one 8K encoder",
         Ascii.equalsIgnoreCase(Util.MODEL, "tb-q706")
             || Ascii.equalsIgnoreCase(Util.MODEL, "sm-f916u1")
-            || Ascii.equalsIgnoreCase(Util.MODEL, "sm-g981u1"));
+            || Ascii.equalsIgnoreCase(Util.MODEL, "sm-g981u1")
+            || Ascii.equalsIgnoreCase(Util.MODEL, "le2121"));
 
     Context context = ApplicationProvider.getApplicationContext();
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
