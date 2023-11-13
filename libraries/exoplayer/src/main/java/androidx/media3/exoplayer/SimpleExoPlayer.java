@@ -51,6 +51,7 @@ import androidx.media3.common.util.Size;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.exoplayer.analytics.AnalyticsCollector;
 import androidx.media3.exoplayer.analytics.AnalyticsListener;
+import androidx.media3.exoplayer.image.ImageOutput;
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory;
 import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.exoplayer.source.ShuffleOrder;
@@ -1324,6 +1325,12 @@ public class SimpleExoPlayer extends BasePlayer
   public boolean isTunnelingEnabled() {
     blockUntilConstructorFinished();
     return player.isTunnelingEnabled();
+  }
+
+  @Override
+  public void setImageOutput(ImageOutput imageOutput) {
+    blockUntilConstructorFinished();
+    player.setImageOutput(imageOutput);
   }
 
   /* package */ void setThrowsWhenUsingWrongThread(boolean throwsWhenUsingWrongThread) {

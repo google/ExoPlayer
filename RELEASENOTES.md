@@ -14,6 +14,10 @@
         preparing and caching the period, selecting tracks and loading the data
         on the period. Apps are able to control the preload progress by
         implementing `PreloadMediaSource.PreloadControl`.
+    *   Add `ExoPlayer.setImageOutput` that allows apps to set
+        `ImageRenderer.ImageOutput`.
+    *   `DefaultRenderersFactory` now provides an `ImageRenderer` to the player
+        by default with null `ImageOutput` and `ImageDecoder.Factory.DEFAULT`.
 *   Transformer:
     *   Add support for flattening H.265/HEVC SEF slow motion videos.
 *   Track Selection:

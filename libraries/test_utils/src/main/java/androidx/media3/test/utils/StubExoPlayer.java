@@ -34,6 +34,7 @@ import androidx.media3.exoplayer.Renderer;
 import androidx.media3.exoplayer.SeekParameters;
 import androidx.media3.exoplayer.analytics.AnalyticsCollector;
 import androidx.media3.exoplayer.analytics.AnalyticsListener;
+import androidx.media3.exoplayer.image.ImageOutput;
 import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.exoplayer.source.ShuffleOrder;
 import androidx.media3.exoplayer.source.TrackGroupArray;
@@ -404,6 +405,11 @@ public class StubExoPlayer extends StubPlayer implements ExoPlayer {
 
   @Override
   public boolean isTunnelingEnabled() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setImageOutput(ImageOutput imageOutput) {
     throw new UnsupportedOperationException();
   }
 }

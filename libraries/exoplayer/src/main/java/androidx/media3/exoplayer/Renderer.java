@@ -33,6 +33,7 @@ import androidx.media3.common.util.Size;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import androidx.media3.exoplayer.analytics.PlayerId;
+import androidx.media3.exoplayer.image.ImageOutput;
 import androidx.media3.exoplayer.source.MediaPeriod;
 import androidx.media3.exoplayer.source.MediaSource.MediaPeriodId;
 import androidx.media3.exoplayer.source.SampleStream;
@@ -94,9 +95,9 @@ public interface Renderer extends PlayerMessage.Target {
    * #MSG_SET_SCALING_MODE}, {@link #MSG_SET_CHANGE_FRAME_RATE_STRATEGY}, {@link
    * #MSG_SET_AUX_EFFECT_INFO}, {@link #MSG_SET_VIDEO_FRAME_METADATA_LISTENER}, {@link
    * #MSG_SET_CAMERA_MOTION_LISTENER}, {@link #MSG_SET_SKIP_SILENCE_ENABLED}, {@link
-   * #MSG_SET_AUDIO_SESSION_ID}, {@link #MSG_SET_WAKEUP_LISTENER}, {@link #MSG_SET_VIDEO_EFFECTS} or
-   * {@link #MSG_SET_VIDEO_OUTPUT_RESOLUTION}. May also be an app-defined value (see {@link
-   * #MSG_CUSTOM_BASE}).
+   * #MSG_SET_AUDIO_SESSION_ID}, {@link #MSG_SET_WAKEUP_LISTENER}, {@link #MSG_SET_VIDEO_EFFECTS},
+   * {@link #MSG_SET_VIDEO_OUTPUT_RESOLUTION} or {@link #MSG_SET_IMAGE_OUTPUT}. May also be an
+   * app-defined value (see {@link #MSG_CUSTOM_BASE}).
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
@@ -116,7 +117,8 @@ public interface Renderer extends PlayerMessage.Target {
         MSG_SET_AUDIO_SESSION_ID,
         MSG_SET_WAKEUP_LISTENER,
         MSG_SET_VIDEO_EFFECTS,
-        MSG_SET_VIDEO_OUTPUT_RESOLUTION
+        MSG_SET_VIDEO_OUTPUT_RESOLUTION,
+        MSG_SET_IMAGE_OUTPUT
       })
   public @interface MessageType {}
 
@@ -243,6 +245,12 @@ public interface Renderer extends PlayerMessage.Target {
    * height. Use this method only when playing with video {@linkplain Effect effects}.
    */
   int MSG_SET_VIDEO_OUTPUT_RESOLUTION = 14;
+
+  /**
+   * The type of message that can be passed to an image renderer to set a desired image output. The
+   * message payload should be an {@link ImageOutput}.
+   */
+  int MSG_SET_IMAGE_OUTPUT = 15;
 
   /**
    * Applications or extensions may define custom {@code MSG_*} constants that can be passed to
