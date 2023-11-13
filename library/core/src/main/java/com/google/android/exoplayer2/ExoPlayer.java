@@ -41,6 +41,7 @@ import com.google.android.exoplayer2.audio.AudioSink;
 import com.google.android.exoplayer2.audio.AuxEffectInfo;
 import com.google.android.exoplayer2.audio.MediaCodecAudioRenderer;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
+import com.google.android.exoplayer2.ext.image.ImageOutput;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.metadata.MetadataRenderer;
@@ -1730,4 +1731,11 @@ public interface ExoPlayer extends Player {
    * @see Player.Listener#onTracksChanged(Tracks)
    */
   boolean isTunnelingEnabled();
+
+  /**
+   * Sets the {@link ImageOutput} where rendered images will be forwarded.
+   *
+   * @param imageOutput The {@link ImageOutput}.
+   */
+  void setImageOutput(ImageOutput imageOutput);
 }

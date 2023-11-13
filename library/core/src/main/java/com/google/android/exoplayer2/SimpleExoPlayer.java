@@ -33,6 +33,7 @@ import com.google.android.exoplayer2.analytics.AnalyticsListener;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.audio.AuxEffectInfo;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
+import com.google.android.exoplayer2.ext.image.ImageOutput;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.source.MediaSource;
@@ -1313,6 +1314,12 @@ public class SimpleExoPlayer extends BasePlayer
   public boolean isTunnelingEnabled() {
     blockUntilConstructorFinished();
     return player.isTunnelingEnabled();
+  }
+
+  @Override
+  public void setImageOutput(ImageOutput imageOutput) {
+    blockUntilConstructorFinished();
+    player.setImageOutput(imageOutput);
   }
 
   /* package */ void setThrowsWhenUsingWrongThread(boolean throwsWhenUsingWrongThread) {

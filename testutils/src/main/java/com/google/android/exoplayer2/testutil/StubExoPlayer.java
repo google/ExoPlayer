@@ -30,6 +30,7 @@ import com.google.android.exoplayer2.analytics.AnalyticsListener;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.audio.AuxEffectInfo;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
+import com.google.android.exoplayer2.ext.image.ImageOutput;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ShuffleOrder;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -402,6 +403,11 @@ public class StubExoPlayer extends StubPlayer implements ExoPlayer {
 
   @Override
   public boolean isTunnelingEnabled() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setImageOutput(ImageOutput imageOutput) {
     throw new UnsupportedOperationException();
   }
 }

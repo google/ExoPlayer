@@ -17,12 +17,14 @@ package com.google.android.exoplayer2;
 
 import static com.google.android.exoplayer2.C.TRACK_TYPE_AUDIO;
 import static com.google.android.exoplayer2.C.TRACK_TYPE_CAMERA_MOTION;
+import static com.google.android.exoplayer2.C.TRACK_TYPE_IMAGE;
 import static com.google.android.exoplayer2.C.TRACK_TYPE_VIDEO;
 import static com.google.android.exoplayer2.Renderer.MSG_SET_AUDIO_ATTRIBUTES;
 import static com.google.android.exoplayer2.Renderer.MSG_SET_AUDIO_SESSION_ID;
 import static com.google.android.exoplayer2.Renderer.MSG_SET_AUX_EFFECT_INFO;
 import static com.google.android.exoplayer2.Renderer.MSG_SET_CAMERA_MOTION_LISTENER;
 import static com.google.android.exoplayer2.Renderer.MSG_SET_CHANGE_FRAME_RATE_STRATEGY;
+import static com.google.android.exoplayer2.Renderer.MSG_SET_IMAGE_OUTPUT;
 import static com.google.android.exoplayer2.Renderer.MSG_SET_PREFERRED_AUDIO_DEVICE;
 import static com.google.android.exoplayer2.Renderer.MSG_SET_SCALING_MODE;
 import static com.google.android.exoplayer2.Renderer.MSG_SET_SKIP_SILENCE_ENABLED;
@@ -72,6 +74,7 @@ import com.google.android.exoplayer2.audio.AudioSink;
 import com.google.android.exoplayer2.audio.AuxEffectInfo;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.decoder.DecoderReuseEvaluation;
+import com.google.android.exoplayer2.ext.image.ImageOutput;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.MetadataOutput;
 import com.google.android.exoplayer2.source.MaskingMediaSource;
@@ -1828,6 +1831,12 @@ import java.util.concurrent.TimeoutException;
       }
     }
     return false;
+  }
+
+  @Override
+  public void setImageOutput(ImageOutput imageOutput) {
+    verifyApplicationThread();
+    sendRendererMessage(TRACK_TYPE_IMAGE, MSG_SET_IMAGE_OUTPUT, imageOutput);
   }
 
   @SuppressWarnings("deprecation") // Calling deprecated methods.

@@ -90,7 +90,6 @@ public final class ImageRenderer extends BaseRenderer {
   private static final int REINITIALIZATION_STATE_WAIT_END_OF_STREAM = 3;
 
   private final ImageDecoder.Factory decoderFactory;
-  private final ImageOutput imageOutput;
   private final DecoderInputBuffer flagsOnlyBuffer;
   private final LongArrayQueue offsetQueue;
 
@@ -102,6 +101,7 @@ public final class ImageRenderer extends BaseRenderer {
   private @Nullable ImageDecoder decoder;
   private @Nullable DecoderInputBuffer inputBuffer;
   private @Nullable ImageOutputBuffer outputBuffer;
+  private ImageOutput imageOutput;
 
   /**
    * Creates an instance.
@@ -109,12 +109,12 @@ public final class ImageRenderer extends BaseRenderer {
    * @param decoderFactory A {@link ImageDecoder.Factory} that supplies a decoder depending on the
    *     format provided.
    * @param imageOutput The rendering component to send the {@link Bitmap} and rendering commands
-   *     to.
+   *     to, or {@code null} if no bitmap output is required.
    */
-  public ImageRenderer(ImageDecoder.Factory decoderFactory, ImageOutput imageOutput) {
+  public ImageRenderer(ImageDecoder.Factory decoderFactory, @Nullable ImageOutput imageOutput) {
     super(C.TRACK_TYPE_IMAGE);
     this.decoderFactory = decoderFactory;
-    this.imageOutput = imageOutput;
+    this.imageOutput = getImageOutput(imageOutput);
     flagsOnlyBuffer = DecoderInputBuffer.newNoDataInstance();
     offsetQueue = new LongArrayQueue();
     decoderReinitializationState = REINITIALIZATION_STATE_NONE;
@@ -227,6 +227,20 @@ public final class ImageRenderer extends BaseRenderer {
   protected void onRelease() {
     offsetQueue.clear();
     releaseDecoderResources();
+  }
+
+  @Override
+  public void handleMessage(@MessageType int messageType, @Nullable Object message)
+      throws ExoPlaybackException {
+    switch (messageType) {
+      case MSG_SET_IMAGE_OUTPUT:
+        @Nullable ImageOutput imageOutput =
+            message instanceof ImageOutput ? (ImageOutput) message : null;
+        setImageOutput(imageOutput);
+        break;
+      default:
+        super.handleMessage(messageType, message);
+    }
   }
 
   /**
@@ -376,5 +390,13 @@ public final class ImageRenderer extends BaseRenderer {
       decoder.release();
       decoder = null;
     }
+  }
+
+  private void setImageOutput(@Nullable ImageOutput imageOutput) {
+    this.imageOutput = getImageOutput(imageOutput);
+  }
+
+  private static ImageOutput getImageOutput(@Nullable ImageOutput imageOutput) {
+    return imageOutput == null ? ImageOutput.NO_OP : imageOutput;
   }
 }

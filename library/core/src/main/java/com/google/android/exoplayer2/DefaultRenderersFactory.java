@@ -28,6 +28,8 @@ import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.audio.AudioSink;
 import com.google.android.exoplayer2.audio.DefaultAudioSink;
 import com.google.android.exoplayer2.audio.MediaCodecAudioRenderer;
+import com.google.android.exoplayer2.ext.image.ImageDecoder;
+import com.google.android.exoplayer2.ext.image.ImageRenderer;
 import com.google.android.exoplayer2.mediacodec.DefaultMediaCodecAdapterFactory;
 import com.google.android.exoplayer2.mediacodec.MediaCodecAdapter;
 import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
@@ -313,6 +315,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
         extensionRendererMode,
         renderersList);
     buildCameraMotionRenderers(context, extensionRendererMode, renderersList);
+    buildImageRenderers(renderersList);
     buildMiscellaneousRenderers(context, eventHandler, extensionRendererMode, renderersList);
     return renderersList.toArray(new Renderer[0]);
   }
@@ -599,6 +602,18 @@ public class DefaultRenderersFactory implements RenderersFactory {
   protected void buildCameraMotionRenderers(
       Context context, @ExtensionRendererMode int extensionRendererMode, ArrayList<Renderer> out) {
     out.add(new CameraMotionRenderer());
+  }
+
+  /**
+   * Builds image renderers for use by the player.
+   *
+   * <p>The {@link ImageRenderer} is built with {@code ImageOutput} set to null and {@link
+   * ImageDecoder.Factory} set to {@code ImageDecoder.Factory.DEFAULT} by default.
+   *
+   * @param out An array to which the built renderers should be appended.
+   */
+  protected void buildImageRenderers(ArrayList<Renderer> out) {
+    out.add(new ImageRenderer(ImageDecoder.Factory.DEFAULT, /* imageOutput= */ null));
   }
 
   /**

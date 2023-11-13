@@ -29,6 +29,20 @@ import com.google.android.exoplayer2.Timeline;
 @Deprecated
 public interface ImageOutput {
 
+  /** A no-op implementation of ImageOutput. */
+  ImageOutput NO_OP =
+      new ImageOutput() {
+        @Override
+        public void onImageAvailable(long presentationTimeUs, Bitmap bitmap) {
+          // Do nothing.
+        }
+
+        @Override
+        public void onDisabled() {
+          // Do nothing.
+        }
+      };
+
   /**
    * Called when an there is a new image available.
    *
