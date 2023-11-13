@@ -2020,6 +2020,8 @@ public class DashManifestParser extends DefaultHandler
         return 1;
       case "a000":
         return 2;
+      case "f800":
+        return 5;
       case "f801":
         return 6;
       case "fa01":
