@@ -35,13 +35,16 @@ import androidx.media3.extractor.ExtractorOutput;
 import androidx.media3.extractor.PositionHolder;
 import androidx.media3.extractor.SeekMap;
 import androidx.media3.extractor.TrackOutput;
+import androidx.media3.extractor.jpeg.JpegExtractor;
 import androidx.media3.extractor.mkv.MatroskaExtractor;
 import androidx.media3.extractor.mp4.FragmentedMp4Extractor;
+import androidx.media3.extractor.png.PngExtractor;
 import androidx.media3.extractor.text.SubtitleExtractor;
 import androidx.media3.extractor.text.SubtitleParser;
 import androidx.media3.extractor.text.SubtitleTranscodingExtractor;
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
@@ -97,6 +100,10 @@ public final class BundledChunkExtractor implements ExtractorOutput, ChunkExtrac
         }
       } else if (MimeTypes.isMatroska(containerMimeType)) {
         extractor = new MatroskaExtractor(MatroskaExtractor.FLAG_DISABLE_SEEK_FOR_CUES);
+      } else if (Objects.equals(containerMimeType, MimeTypes.IMAGE_JPEG)) {
+        extractor = new JpegExtractor(JpegExtractor.FLAG_READ_IMAGE);
+      } else if (Objects.equals(containerMimeType, MimeTypes.IMAGE_PNG)) {
+        extractor = new PngExtractor();
       } else {
         int flags = 0;
         if (enableEventMessageTrack) {
