@@ -148,6 +148,10 @@ public class ExportTest {
         /* outputFormat= */ null)) {
       return;
     }
+    // Reference: b/262710361
+    assumeFalse(
+        "Skip due to over-reported encoder capabilities",
+        Util.SDK_INT == 29 && Ascii.equalsIgnoreCase(Util.MODEL, "pixel 3"));
 
     Transformer transformer =
         new Transformer.Builder(context)
