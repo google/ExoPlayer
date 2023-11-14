@@ -99,9 +99,6 @@ public class PlayerActivity extends AppCompatActivity
 
   @Nullable private AdsLoader clientSideAdsLoader;
 
-  // TODO: Annotate this and serverSideAdsLoaderState below with @OptIn when it can be applied to
-  // fields (needs http://r.android.com/2004032 to be released into a version of
-  // androidx.annotation:annotation-experimental).
   @Nullable private ImaServerSideAdInsertionMediaSource.AdsLoader serverSideAdsLoader;
 
   private ImaServerSideAdInsertionMediaSource.AdsLoader.@MonotonicNonNull State
