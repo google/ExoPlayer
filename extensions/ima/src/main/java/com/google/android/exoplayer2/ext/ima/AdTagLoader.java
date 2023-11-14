@@ -27,7 +27,6 @@ import static java.lang.Math.max;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.view.ViewGroup;
@@ -55,6 +54,7 @@ import com.google.ads.interactivemedia.v3.api.player.VideoAdPlayer.VideoAdPlayer
 import com.google.ads.interactivemedia.v3.api.player.VideoProgressUpdate;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
@@ -988,9 +988,10 @@ import java.util.Map;
       }
     }
 
-    Uri adUri = Uri.parse(adMediaInfo.getUrl());
+    MediaItem.Builder adMediaItem = new MediaItem.Builder().setUri(adMediaInfo.getUrl());
     adPlaybackState =
-        adPlaybackState.withAvailableAdUri(adInfo.adGroupIndex, adInfo.adIndexInAdGroup, adUri);
+        adPlaybackState.withAvailableAdMediaItem(
+            adInfo.adGroupIndex, adInfo.adIndexInAdGroup, adMediaItem.build());
     updateAdPlaybackState();
   }
 
