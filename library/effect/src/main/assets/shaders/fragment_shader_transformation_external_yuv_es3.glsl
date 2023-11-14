@@ -137,10 +137,64 @@ highp vec3 applyHlgBt2020ToBt709Ootf(highp vec3 linearRgbBt2020) {
 
 // Apply the PQ BT2020 to BT709 OOTF.
 highp vec3 applyPqBt2020ToBt709Ootf(highp vec3 linearRgbBt2020) {
-  float pqPeakLuminance = 10000.0;
-  float sdrPeakLuminance = 500.0;
+  // Reference implementation:
+  // https://cs.android.com/android/platform/superproject/main/+/main:frameworks/native/libs/renderengine/gl/ProgramCache.cpp;l=343-397;drc=1b988a4ee33de9cab9740ddc1ee70b1734c8e622
+  // Constants x0 and y0 from the reference implementation are set to 0 in this
+  // implementation.
+  const float pqMaxLuminance = 10000.0;
+  const float sdrMaxLuminance = 500.0;
 
-  return linearRgbBt2020 * pqPeakLuminance / sdrPeakLuminance;
+  // Default value mastering luminance based on experimentation, and as a common
+  // industry value.
+  // Also happens to match Netflix's minimum HDR mastering guidelines:
+  // https://partnerhelp.netflixstudios.com/hc/en-us/articles/360000599948-Dolby-Vision-HDR-Mastering-Guidelines
+  //
+  // TODO: b/290553698 - Use max_display_mastering_luminance from
+  //  ColorInfo.hdrStaticInfo in the bitstream instead.
+  const float maxMasteringLuminance = 1000.0;
+
+  const float maxInputLuminance = maxMasteringLuminance;
+  const float maxOutputLuminance = sdrMaxLuminance;
+
+  highp vec3 color = linearRgbBt2020 * pqMaxLuminance; // Scale luminance.
+  float nits = color.y;
+
+  nits = clamp(nits, 0.0, maxInputLuminance);
+
+  // Two control points.
+  float x1 = maxOutputLuminance * 0.75;
+  float y1 = x1;
+  float x2 = x1 + (maxInputLuminance - x1) / 2.0;
+  float y2 = y1 + (maxOutputLuminance - y1) * 0.75;
+
+  // Horizontal distances between the last three control points.
+  float h12 = x2 - x1;
+  float h23 = maxInputLuminance - x2;
+  // Tangents at the last three control points.
+  float m1 = (y2 - y1) / h12;
+  float m3 = (maxOutputLuminance - y2) / h23;
+  float m2 = (m1 + m3) / 2.0;
+
+  if (nits < x1) {
+    // Scale [0, x1] to [0, y1] linearly.
+    float slope = y1 / x1;
+    nits = nits * slope;
+  } else if (nits < x2) {
+    // Scale [x1, x2] to [y1, y2] using Hermite interpolation.
+    float t = (nits - x1) / h12;
+    nits = (y1 * (1.0 + 2.0 * t) + h12 * m1 * t) * (1.0 - t) * (1.0 - t)
+      + (y2 * (3.0 - 2.0 * t) + h12 * m2 * (t - 1.0)) * t * t;
+  } else {
+    // Scale [x2, maxInputLuminance] to [y2, maxOutputLuminance] using
+    // Hermite interpolation.
+    float t = (nits - x2) / h23;
+    nits = (y2 * (1.0 + 2.0 * t) + h23 * m2 * t) * (1.0 - t) * (1.0 - t)
+      + (maxOutputLuminance * (3.0 - 2.0 * t) + h23 * m3 * (t - 1.0)) * t * t;
+  }
+
+  // color.y is greater than 0 and is thus non-zero.
+  color = color * (nits / color.y);
+  return color / sdrMaxLuminance; // Normalize luminance.
 }
 
 highp vec3 applyBt2020ToBt709Ootf(highp vec3 linearRgbBt2020) {
