@@ -9,6 +9,8 @@
         correctly implemented until now.
     *   Normalize MIME types set by app code or read from media to be fully
         lower-case.
+    *   Define ads with a full `MediaItem` instead of a single `Uri` in
+        `AdPlaybackState`.
 *   ExoPlayer:
     *   Add `PreloadMediaSource` and `PreloadMediaPeriod` that allows apps to
         preload the media source at a specific start position before playback,

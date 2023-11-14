@@ -89,8 +89,10 @@ public final class AdsMediaSourceTest {
       new AdPlaybackState(/* adsId= */ new Object(), /* adGroupTimesUs...= */ 0)
           .withContentDurationUs(CONTENT_DURATION_US)
           .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 1)
-          .withAvailableAdUri(
-              /* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0, Uri.parse("https://google.com/ad"))
+          .withAvailableAdMediaItem(
+              /* adGroupIndex= */ 0,
+              /* adIndexInAdGroup= */ 0,
+              MediaItem.fromUri("https://google.com/ad"))
           .withPlayedAd(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0)
           .withAdResumePositionUs(/* adResumePositionUs= */ 0);
 
