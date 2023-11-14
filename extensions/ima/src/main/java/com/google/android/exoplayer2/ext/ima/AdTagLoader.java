@@ -191,6 +191,9 @@ import java.util.Map;
   /** Whether IMA has been notified that playback of content has finished. */
   private boolean sentContentComplete;
 
+  /** The MIME type of the ad pod that is next requested via an {@link AdEventType#LOADED} event. */
+  @Nullable private String pendingAdMimeType;
+
   // Fields tracking the player/loader state.
 
   /** Whether the player is playing an ad. */
@@ -783,6 +786,9 @@ import java.util.Map;
         String message = "AdEvent: " + adData;
         Log.i(TAG, message);
         break;
+      case LOADED:
+        pendingAdMimeType = adEvent.getAd().getContentType();
+        break;
       default:
         break;
     }
@@ -989,6 +995,10 @@ import java.util.Map;
     }
 
     MediaItem.Builder adMediaItem = new MediaItem.Builder().setUri(adMediaInfo.getUrl());
+    if (pendingAdMimeType != null) {
+      adMediaItem.setMimeType(pendingAdMimeType);
+      pendingAdMimeType = null;
+    }
     adPlaybackState =
         adPlaybackState.withAvailableAdMediaItem(
             adInfo.adGroupIndex, adInfo.adIndexInAdGroup, adMediaItem.build());
