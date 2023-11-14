@@ -29,8 +29,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 /**
  * Forwards frames made available via {@linkplain GLES10#GL_TEXTURE_2D traditional GLES textures} to
  * a {@link GlShaderProgram} for consumption.
- *
- * <p>Public methods in this class can be called from any thread.
  */
 /* package */ final class TexIdTextureManager extends TextureManager {
   private final FrameConsumptionManager frameConsumptionManager;

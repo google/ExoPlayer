@@ -36,8 +36,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 /**
  * Forwards a video frame produced from a {@link Bitmap} to a {@link GlShaderProgram} for
  * consumption.
- *
- * <p>Public methods in this class can be called from any thread.
  */
 @UnstableApi
 /* package */ final class BitmapTextureManager extends TextureManager {
