@@ -72,17 +72,6 @@ android {
 dependencies {
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
-    // Demonstrate downgrading the annotation-experimental version to avoid
-    // transitively depending on the Kotlin standard library (which was
-    // introduced as a dependency in annotation-experimental:1.3.0). This demo
-    // app still depends on Kotlin via the IMA extension and UI modules, but
-    // this shows how an app can avoid the Kotlin dependency if they don't use
-    // these modules.
-    implementation('androidx.annotation:annotation-experimental') {
-        version {
-            strictly '1.2.0'
-        }
-    }
     implementation 'androidx.appcompat:appcompat:' + androidxAppCompatVersion
     implementation 'androidx.multidex:multidex:' + androidxMultidexVersion
     implementation 'com.google.android.material:material:' + androidxMaterialVersion
