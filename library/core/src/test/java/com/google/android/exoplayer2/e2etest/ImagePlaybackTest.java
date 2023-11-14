@@ -70,8 +70,7 @@ public class ImagePlaybackTest {
   @Test
   public void test() throws Exception {
     Context applicationContext = ApplicationProvider.getApplicationContext();
-    CapturingRenderersFactory renderersFactory =
-        new CapturingRenderersFactory(applicationContext, /* addImageRenderer= */ true);
+    CapturingRenderersFactory renderersFactory = new CapturingRenderersFactory(applicationContext);
     Clock clock = new FakeClock(/* isAutoAdvancing= */ true);
     ExoPlayer player =
         new ExoPlayer.Builder(applicationContext, renderersFactory).setClock(clock).build();
