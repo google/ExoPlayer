@@ -74,6 +74,7 @@ public final class TransformationRequest {
      */
     @CanIgnoreReturnValue
     public Builder setVideoMimeType(@Nullable String videoMimeType) {
+      videoMimeType = MimeTypes.normalizeMimeType(videoMimeType);
       checkArgument(
           videoMimeType == null || MimeTypes.isVideo(videoMimeType),
           "Not a video MIME type: " + videoMimeType);
@@ -100,6 +101,7 @@ public final class TransformationRequest {
      */
     @CanIgnoreReturnValue
     public Builder setAudioMimeType(@Nullable String audioMimeType) {
+      audioMimeType = MimeTypes.normalizeMimeType(audioMimeType);
       checkArgument(
           audioMimeType == null || MimeTypes.isAudio(audioMimeType),
           "Not an audio MIME type: " + audioMimeType);

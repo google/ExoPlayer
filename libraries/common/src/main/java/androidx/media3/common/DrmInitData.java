@@ -296,7 +296,7 @@ public final class DrmInitData implements Comparator<SchemeData>, Parcelable {
         UUID uuid, @Nullable String licenseServerUrl, String mimeType, @Nullable byte[] data) {
       this.uuid = Assertions.checkNotNull(uuid);
       this.licenseServerUrl = licenseServerUrl;
-      this.mimeType = Assertions.checkNotNull(mimeType);
+      this.mimeType = MimeTypes.normalizeMimeType(Assertions.checkNotNull(mimeType));
       this.data = data;
     }
 

@@ -25,6 +25,7 @@ import com.google.common.base.Ascii;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.checkerframework.checker.nullness.qual.PolyNull;
 import org.checkerframework.dataflow.qual.Pure;
 
 /** Defines common MIME types and helper methods. */
@@ -635,18 +636,30 @@ public final class MimeTypes {
   /**
    * Normalizes the MIME type provided so that equivalent MIME types are uniquely represented.
    *
-   * @param mimeType A MIME type to normalize.
+   * @param mimeType A MIME type to normalize, or null.
    * @return The normalized MIME type, or the argument MIME type if its normalized form is unknown.
    */
   @UnstableApi
-  public static String normalizeMimeType(String mimeType) {
+  public static @PolyNull String normalizeMimeType(@PolyNull String mimeType) {
+    if (mimeType == null) {
+      return null;
+    }
+    mimeType = Ascii.toLowerCase(mimeType);
     switch (mimeType) {
+        // Normalize uncommon versions of some audio MIME types to their standard equivalent.
       case BASE_TYPE_AUDIO + "/x-flac":
         return AUDIO_FLAC;
       case BASE_TYPE_AUDIO + "/mp3":
         return AUDIO_MPEG;
       case BASE_TYPE_AUDIO + "/x-wav":
         return AUDIO_WAV;
+        // Normalize MIME types that are often written with upper-case letters to their common form.
+      case "application/x-mpegurl":
+        return APPLICATION_M3U8;
+      case "audio/mpeg-l1":
+        return AUDIO_MPEG_L1;
+      case "audio/mpeg-l2":
+        return AUDIO_MPEG_L2;
       default:
         return mimeType;
     }

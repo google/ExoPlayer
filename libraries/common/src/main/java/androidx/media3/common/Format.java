@@ -396,7 +396,7 @@ public final class Format implements Bundleable {
      */
     @CanIgnoreReturnValue
     public Builder setContainerMimeType(@Nullable String containerMimeType) {
-      this.containerMimeType = containerMimeType;
+      this.containerMimeType = MimeTypes.normalizeMimeType(containerMimeType);
       return this;
     }
 
@@ -410,7 +410,7 @@ public final class Format implements Bundleable {
      */
     @CanIgnoreReturnValue
     public Builder setSampleMimeType(@Nullable String sampleMimeType) {
-      this.sampleMimeType = sampleMimeType;
+      this.sampleMimeType = MimeTypes.normalizeMimeType(sampleMimeType);
       return this;
     }
 

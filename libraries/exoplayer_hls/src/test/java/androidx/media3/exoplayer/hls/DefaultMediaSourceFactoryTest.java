@@ -52,6 +52,18 @@ public class DefaultMediaSourceFactoryTest {
   }
 
   @Test
+  public void createMediaSource_withMimeTypeLowerCaseLetters_hlsSource() {
+    DefaultMediaSourceFactory defaultMediaSourceFactory =
+        new DefaultMediaSourceFactory((Context) ApplicationProvider.getApplicationContext());
+    MediaItem mediaItem =
+        new MediaItem.Builder().setUri(URI_MEDIA).setMimeType("application/x-mpegurl").build();
+
+    MediaSource mediaSource = defaultMediaSourceFactory.createMediaSource(mediaItem);
+
+    assertThat(mediaSource).isInstanceOf(HlsMediaSource.class);
+  }
+
+  @Test
   public void createMediaSource_withTag_tagInSource() {
     Object tag = new Object();
     DefaultMediaSourceFactory defaultMediaSourceFactory =
