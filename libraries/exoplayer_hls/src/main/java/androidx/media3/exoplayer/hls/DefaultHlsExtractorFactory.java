@@ -201,7 +201,11 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
       case FileTypes.MP3:
         return new Mp3Extractor(/* flags= */ 0, /* forcedFirstSampleTimestampUs= */ 0);
       case FileTypes.MP4:
-        return createFragmentedMp4Extractor(timestampAdjuster, format, muxedCaptionFormats);
+        Extractor mp4Extractor =
+            createFragmentedMp4Extractor(timestampAdjuster, format, muxedCaptionFormats);
+        return subtitleParserFactory != null
+            ? new SubtitleTranscodingExtractor(mp4Extractor, subtitleParserFactory)
+            : mp4Extractor;
       case FileTypes.TS:
         return createTsExtractor(
             payloadReaderFactoryFlags,
