@@ -222,22 +222,26 @@ TextOutput:
     presentationTimeUs = 0
     Cues = []
   Subtitle[1]:
+    presentationTimeUs = 20000
+    Cue[0]:
+      text = First Subtitle after 20ms of silence
+  Subtitle[2]:
     presentationTimeUs = 250000
     Cue[0]:
       text = First Subtitle after 20ms of silence
              Second Subtitle overlaps with first
-  Subtitle[2]:
+  Subtitle[3]:
     presentationTimeUs = 400000
     Cue[0]:
       text = First Subtitle after 20ms of silence
-  Subtitle[3]:
+  Subtitle[4]:
     presentationTimeUs = 500000
     Cues = []
-  Subtitle[4]:
+  Subtitle[5]:
     presentationTimeUs = 700000
     Cue[0]:
       text = Last subtitle
              And More
-  Subtitle[5]:
+  Subtitle[6]:
     presentationTimeUs = 950000
     Cues = []

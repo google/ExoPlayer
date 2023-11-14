@@ -32,7 +32,6 @@ import com.google.android.exoplayer2.testutil.CapturingRenderersFactory;
 import com.google.android.exoplayer2.testutil.DumpFileAsserts;
 import com.google.android.exoplayer2.testutil.FakeClock;
 import com.google.android.exoplayer2.upstream.DefaultDataSource;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -72,14 +71,15 @@ public final class HlsPlaybackTest {
   }
 
   @Test
-  @Ignore(
-      "Disabled until subtitles are reliably asserted in robolectric tests [internal b/174661563].")
   public void ttmlInMp4() throws Exception {
     Context applicationContext = ApplicationProvider.getApplicationContext();
     CapturingRenderersFactory capturingRenderersFactory =
         new CapturingRenderersFactory(applicationContext);
     ExoPlayer player =
         new ExoPlayer.Builder(applicationContext, capturingRenderersFactory)
+            .setMediaSourceFactory(
+                new HlsMediaSource.Factory(new DefaultDataSource.Factory(applicationContext))
+                    .experimentalParseSubtitlesDuringExtraction(true))
             .setClock(new FakeClock(/* isAutoAdvancing= */ true))
             .build();
     player.setVideoSurface(new Surface(new SurfaceTexture(/* texName= */ 1)));
