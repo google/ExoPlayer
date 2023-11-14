@@ -284,6 +284,31 @@ public final class ImaAdsLoaderTest {
   }
 
   @Test
+  public void loadAd_withAdContentTypeSet_setsMimeTypeInAdPlaybackState() {
+    // Load the preroll ad with content type set. Intentionally use all lower-case HLS MIME type as
+    // this is what the IMA SDK sets.
+    when(mockPrerollSingleAd.getContentType()).thenReturn("application/x-mpegurl");
+    imaAdsLoader.start(
+        adsMediaSource, TEST_DATA_SPEC, TEST_ADS_ID, adViewProvider, adsLoaderListener);
+
+    adEventListener.onAdEvent(getAdEvent(AdEventType.LOADED, mockPrerollSingleAd));
+    videoAdPlayer.loadAd(TEST_AD_MEDIA_INFO, mockAdPodInfo);
+
+    // Verify that the preroll ad has been marked with the expected MIME type.
+    assertThat(getAdPlaybackState(/* periodIndex= */ 0))
+        .isEqualTo(
+            new AdPlaybackState(TEST_ADS_ID, /* adGroupTimesUs...= */ 0)
+                .withContentDurationUs(CONTENT_PERIOD_DURATION_US)
+                .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 1)
+                .withAvailableAdMediaItem(
+                    /* adGroupIndex= */ 0,
+                    /* adIndexInAdGroup= */ 0,
+                    TEST_MEDIA_ITEM.buildUpon().setMimeType(MimeTypes.APPLICATION_M3U8).build())
+                .withAdDurationsUs(new long[][] {{TEST_AD_DURATION_US}})
+                .withAdResumePositionUs(/* adResumePositionUs= */ 0));
+  }
+
+  @Test
   public void playback_withPrerollAd_marksAdAsPlayed() {
     // Load the preroll ad.
     imaAdsLoader.start(

@@ -48,6 +48,8 @@
 *   Effect:
 *   Muxers:
 *   IMA extension:
+    *   Fix issue where DASH and HLS ads without the appropriate file extension
+        can't be played.
 *   Session:
     *   Put the custom keys and values in `MediaMetadataCompat` to
         `MediaMetadata.extras`
