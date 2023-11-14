@@ -22,6 +22,7 @@ import android.os.Parcelable;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.MediaMetadata;
 import com.google.android.exoplayer2.metadata.Metadata;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.common.base.Charsets;
 import java.util.Arrays;
@@ -165,7 +166,8 @@ public final class PictureFrame implements Metadata.Entry {
   public static PictureFrame fromPictureBlock(ParsableByteArray pictureBlock) {
     int pictureType = pictureBlock.readInt();
     int mimeTypeLength = pictureBlock.readInt();
-    String mimeType = pictureBlock.readString(mimeTypeLength, Charsets.US_ASCII);
+    String mimeType =
+        MimeTypes.normalizeMimeType(pictureBlock.readString(mimeTypeLength, Charsets.US_ASCII));
     int descriptionLength = pictureBlock.readInt();
     String description = pictureBlock.readString(descriptionLength);
     int width = pictureBlock.readInt();

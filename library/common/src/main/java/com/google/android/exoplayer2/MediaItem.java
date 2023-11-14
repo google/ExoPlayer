@@ -1153,7 +1153,7 @@ public final class MediaItem implements Bundleable {
         @Nullable Object tag,
         long imageDurationMs) {
       this.uri = uri;
-      this.mimeType = mimeType;
+      this.mimeType = MimeTypes.normalizeMimeType(mimeType);
       this.drmConfiguration = drmConfiguration;
       this.adsConfiguration = adsConfiguration;
       this.streamKeys = streamKeys;
@@ -1579,7 +1579,7 @@ public final class MediaItem implements Bundleable {
       /** Sets the MIME type. */
       @CanIgnoreReturnValue
       public Builder setMimeType(@Nullable String mimeType) {
-        this.mimeType = mimeType;
+        this.mimeType = MimeTypes.normalizeMimeType(mimeType);
         return this;
       }
 
@@ -1661,7 +1661,7 @@ public final class MediaItem implements Bundleable {
         @Nullable String label,
         @Nullable String id) {
       this.uri = uri;
-      this.mimeType = mimeType;
+      this.mimeType = MimeTypes.normalizeMimeType(mimeType);
       this.language = language;
       this.selectionFlags = selectionFlags;
       this.roleFlags = roleFlags;

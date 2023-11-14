@@ -24,6 +24,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
@@ -66,7 +67,7 @@ public final class DownloadRequest implements Parcelable {
     /** Sets the {@link DownloadRequest#mimeType}. */
     @CanIgnoreReturnValue
     public Builder setMimeType(@Nullable String mimeType) {
-      this.mimeType = mimeType;
+      this.mimeType = MimeTypes.normalizeMimeType(mimeType);
       return this;
     }
 

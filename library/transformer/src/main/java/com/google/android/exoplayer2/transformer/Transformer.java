@@ -178,6 +178,7 @@ public final class Transformer {
      */
     @CanIgnoreReturnValue
     public Builder setAudioMimeType(String audioMimeType) {
+      audioMimeType = MimeTypes.normalizeMimeType(audioMimeType);
       checkArgument(MimeTypes.isAudio(audioMimeType), "Not an audio MIME type: " + audioMimeType);
       this.audioMimeType = audioMimeType;
       return this;
@@ -209,6 +210,7 @@ public final class Transformer {
      */
     @CanIgnoreReturnValue
     public Builder setVideoMimeType(String videoMimeType) {
+      videoMimeType = MimeTypes.normalizeMimeType(videoMimeType);
       checkArgument(MimeTypes.isVideo(videoMimeType), "Not a video MIME type: " + videoMimeType);
       this.videoMimeType = videoMimeType;
       return this;
