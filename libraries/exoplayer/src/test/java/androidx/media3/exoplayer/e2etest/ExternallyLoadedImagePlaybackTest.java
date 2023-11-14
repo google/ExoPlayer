@@ -70,7 +70,7 @@ public final class ExternallyLoadedImagePlaybackTest {
       throws Exception {
     Context applicationContext = ApplicationProvider.getApplicationContext();
     CapturingRenderersFactory renderersFactory =
-        new CapturingRenderersFactory(applicationContext, /* addImageRenderer= */ true)
+        new CapturingRenderersFactory(applicationContext)
             .setImageDecoderFactory(new CustomImageDecoderFactory());
     Clock clock = new FakeClock(/* isAutoAdvancing= */ true);
     AtomicInteger externalLoaderCallCount = new AtomicInteger();
@@ -113,7 +113,7 @@ public final class ExternallyLoadedImagePlaybackTest {
   public void imagePlayback_externalLoaderFutureFails_propagatesFailure() throws Exception {
     Context applicationContext = ApplicationProvider.getApplicationContext();
     CapturingRenderersFactory renderersFactory =
-        new CapturingRenderersFactory(applicationContext, /* addImageRenderer= */ true)
+        new CapturingRenderersFactory(applicationContext)
             .setImageDecoderFactory(new CustomImageDecoderFactory());
     ListeningExecutorService listeningExecutorService =
         MoreExecutors.listeningDecorator(Executors.newSingleThreadExecutor());
@@ -146,7 +146,7 @@ public final class ExternallyLoadedImagePlaybackTest {
   public void imagePlayback_loadingCompletedWhenFutureCompletes() throws Exception {
     Context applicationContext = ApplicationProvider.getApplicationContext();
     CapturingRenderersFactory renderersFactory =
-        new CapturingRenderersFactory(applicationContext, /* addImageRenderer= */ true)
+        new CapturingRenderersFactory(applicationContext)
             .setImageDecoderFactory(new CustomImageDecoderFactory());
     ListeningExecutorService listeningExecutorService =
         MoreExecutors.listeningDecorator(Executors.newSingleThreadExecutor());
