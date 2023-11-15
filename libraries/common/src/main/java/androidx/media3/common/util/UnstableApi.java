@@ -95,8 +95,7 @@ import java.lang.annotation.Target;
  * <?xml version="1.0" encoding="utf-8"?>
  * <lint>
  *   <issue id="UnsafeOptInUsageError">
- *     <ignore
- *         regexp='\(markerClass = androidx\.media3\.common\.util\.UnstableApi\.class\)' />
+ *     <option name="opt-in" value="androidx.media3.common.util.UnstableApi" />
  *   </issue>
  * </lint>
  * }</pre>
