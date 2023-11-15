@@ -280,8 +280,8 @@ sample:
   presentationTimeUs = 998437
 sample:
   trackType = audio
-  dataHashCode = -1577850751
-  size = 4604
+  dataHashCode = 1020903425
+  size = 4608
   isKeyFrame = true
   presentationTimeUs = 1000000
 sample:
@@ -289,7 +289,7 @@ sample:
   dataHashCode = 923521
   size = 4
   isKeyFrame = true
-  presentationTimeUs = 1023979
+  presentationTimeUs = 1024000
 sample:
   trackType = video
   dataHashCode = -770308242
