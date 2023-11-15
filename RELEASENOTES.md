@@ -72,8 +72,6 @@
     *   Add experimental support for parsing subtitles during extraction. You
         can enable this using
         `HlsMediaSource.Factory.experimentalParseSubtitlesDuringExtraction()`.
-        This works for standalone WebVTT subtitles and IMSC1 subtitles muxed
-        into MP4.
 *   DASH Extension:
     *   Extend experimental support for parsing subtitles during extraction to
         work with standalone text files (previously it only worked with

@@ -207,12 +207,16 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
             ? new SubtitleTranscodingExtractor(mp4Extractor, subtitleParserFactory)
             : mp4Extractor;
       case FileTypes.TS:
-        return createTsExtractor(
-            payloadReaderFactoryFlags,
-            exposeCea608WhenMissingDeclarations,
-            format,
-            muxedCaptionFormats,
-            timestampAdjuster);
+        Extractor tsExtractor =
+            createTsExtractor(
+                payloadReaderFactoryFlags,
+                exposeCea608WhenMissingDeclarations,
+                format,
+                muxedCaptionFormats,
+                timestampAdjuster);
+        return subtitleParserFactory != null
+            ? new SubtitleTranscodingExtractor(tsExtractor, subtitleParserFactory)
+            : tsExtractor;
       default:
         return null;
     }
