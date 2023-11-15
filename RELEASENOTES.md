@@ -55,6 +55,9 @@
         `MediaMetadata.extras`
         ([#756](https://github.com/androidx/media/issues/756)).
 *   UI:
+    *   Fix issue where forward and rewind buttons are not visible when used
+        with Material Design in a BottomSheetDialogFragment
+        ([#511](https://github.com/androidx/media/issues/511)).
 *   Downloads:
 *   OkHttp Extension:
 *   Cronet Extension:

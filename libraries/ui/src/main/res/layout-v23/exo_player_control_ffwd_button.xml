@@ -15,6 +15,10 @@
 -->
 <merge xmlns:android="http://schemas.android.com/apk/res/android">
 
+  <!-- Override of singleLine needed to avoid layout bugs with Material Design.
+       See https://github.com/androidx/media/issues/511.
+  -->
   <Button android:id="@+id/exo_ffwd_with_amount"
+      android:singleLine="false"
       style="@style/ExoStyledControls.Button.Center.FfwdWithAmount"/>
 </merge>
