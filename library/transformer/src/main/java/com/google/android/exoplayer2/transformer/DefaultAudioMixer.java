@@ -139,10 +139,7 @@ public final class DefaultAudioMixer implements AudioMixer {
         endTimeUs >= mixerStartTimeUs, "End time must be at least the configured start time.");
 
     endPosition =
-        Util.scaleLargeTimestamp(
-            endTimeUs - mixerStartTimeUs,
-            /* multiplier= */ outputAudioFormat.sampleRate,
-            /* divisor= */ C.MICROS_PER_SECOND);
+        Util.durationUsToSampleCount(endTimeUs - mixerStartTimeUs, outputAudioFormat.sampleRate);
     updateInputFrameLimit();
   }
 
@@ -162,10 +159,8 @@ public final class DefaultAudioMixer implements AudioMixer {
     }
 
     long startFrameOffset =
-        Util.scaleLargeTimestamp(
-            startTimeUs - mixerStartTimeUs,
-            /* multiplier= */ sourceFormat.sampleRate,
-            /* divisor= */ C.MICROS_PER_SECOND);
+        Util.durationUsToSampleCount(startTimeUs - mixerStartTimeUs, sourceFormat.sampleRate);
+
     int sourceId = nextSourceId++;
     sources.append(
         sourceId,
