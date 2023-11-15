@@ -21,6 +21,7 @@ import androidx.media3.common.Format.CueReplacementBehavior;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.extractor.text.cea.Cea608Parser;
+import androidx.media3.extractor.text.cea.Cea708Parser;
 import androidx.media3.extractor.text.dvb.DvbParser;
 import androidx.media3.extractor.text.pgs.PgsParser;
 import androidx.media3.extractor.text.ssa.SsaParser;
@@ -46,6 +47,7 @@ import java.util.Objects;
  *   <li>DVB ({@link DvbParser})
  *   <li>TTML ({@link TtmlParser})
  *   <li>CEA-608 ({@link Cea608Parser})
+ *   <li>CEA-708 ({@link Cea708Parser})
  * </ul>
  */
 @UnstableApi
@@ -63,7 +65,8 @@ public final class DefaultSubtitleParserFactory implements SubtitleParser.Factor
         || Objects.equals(mimeType, MimeTypes.APPLICATION_DVBSUBS)
         || Objects.equals(mimeType, MimeTypes.APPLICATION_TTML)
         || Objects.equals(mimeType, MimeTypes.APPLICATION_MP4CEA608)
-        || Objects.equals(mimeType, MimeTypes.APPLICATION_CEA608);
+        || Objects.equals(mimeType, MimeTypes.APPLICATION_CEA608)
+        || Objects.equals(mimeType, MimeTypes.APPLICATION_CEA708);
   }
 
   @Override
@@ -90,6 +93,8 @@ public final class DefaultSubtitleParserFactory implements SubtitleParser.Factor
         case MimeTypes.APPLICATION_MP4CEA608:
         case MimeTypes.APPLICATION_CEA608:
           return Cea608Parser.CUE_REPLACEMENT_BEHAVIOR;
+        case MimeTypes.APPLICATION_CEA708:
+          return Cea708Parser.CUE_REPLACEMENT_BEHAVIOR;
         default:
           break;
       }
@@ -127,6 +132,8 @@ public final class DefaultSubtitleParserFactory implements SubtitleParser.Factor
               mimeType,
               format.accessibilityChannel,
               /* validDataChannelTimeoutMs= */ 2 * Cea608Parser.MIN_DATA_CHANNEL_TIMEOUT_MS);
+        case MimeTypes.APPLICATION_CEA708:
+          return new Cea708Parser(format.accessibilityChannel, format.initializationData);
         default:
           break;
       }
