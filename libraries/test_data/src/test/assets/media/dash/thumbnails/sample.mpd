@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:mpeg:dash:schema:mpd:2011 DASH-MPD.xsd" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" minBufferTime="PT2S" type="static" mediaPresentationDuration="PT60S">
+  <Period id="0">
+    <AdaptationSet id="0" contentType="image" mimeType="image/jpeg">
+    <SegmentTemplate media="sample.image_$Number$.jpg" timescale="1" duration="60"/>
+      <Representation id="thumbnails_256x144" bandwidth="24000" width="2048" height="1152">
+      	 <EssentialProperty schemeIdUri="http://dashif.org/guidelines/thumbnail_tile" value="8x8"/>
+      </Representation>
+     </AdaptationSet>
+   </Period>
+</MPD>
