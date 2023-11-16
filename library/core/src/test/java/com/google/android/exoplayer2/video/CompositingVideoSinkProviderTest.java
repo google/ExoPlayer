@@ -23,6 +23,7 @@ import static org.mockito.Mockito.when;
 import android.content.Context;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.DebugViewProvider;
 import com.google.android.exoplayer2.util.Effect;
@@ -129,11 +130,39 @@ public final class CompositingVideoSinkProviderTest {
   }
 
   private static CompositingVideoSinkProvider createCompositingVideoSinkProvider() {
-    VideoSink.RenderControl renderControl = new TestRenderControl();
+    VideoFrameReleaseControl.FrameTimingEvaluator frameTimingEvaluator =
+        new VideoFrameReleaseControl.FrameTimingEvaluator() {
+          @Override
+          public boolean shouldForceReleaseFrame(long earlyUs, long elapsedSinceLastReleaseUs) {
+            return false;
+          }
+
+          @Override
+          public boolean shouldDropFrame(
+              long earlyUs, long elapsedRealtimeUs, boolean isLastFrame) {
+            return false;
+          }
+
+          @Override
+          public boolean shouldIgnoreFrame(
+              long earlyUs,
+              long positionUs,
+              long elapsedRealtimeUs,
+              boolean isLastFrame,
+              boolean treatDroppedBuffersAsSkipped)
+              throws ExoPlaybackException {
+            return false;
+          }
+        };
+    VideoFrameReleaseControl releaseControl =
+        new VideoFrameReleaseControl(
+            ApplicationProvider.getApplicationContext(),
+            frameTimingEvaluator,
+            /* allowedJoiningTimeMs= */ 0);
     return new CompositingVideoSinkProvider(
         ApplicationProvider.getApplicationContext(),
         new TestPreviewingVideoGraphFactory(),
-        renderControl);
+        releaseControl);
   }
 
   private static class TestPreviewingVideoGraphFactory implements PreviewingVideoGraph.Factory {
@@ -157,23 +186,5 @@ public final class CompositingVideoSinkProviderTest {
       when(videoFrameProcessor.registerInputFrame()).thenReturn(true);
       return previewingVideoGraph;
     }
-  }
-
-  private static class TestRenderControl implements VideoSink.RenderControl {
-
-    @Override
-    public long getFrameRenderTimeNs(
-        long presentationTimeUs, long positionUs, long elapsedRealtimeUs, float playbackSpeed) {
-      return presentationTimeUs;
-    }
-
-    @Override
-    public void onNextFrame(long presentationTimeUs) {}
-
-    @Override
-    public void onFrameRendered() {}
-
-    @Override
-    public void onFrameDropped() {}
   }
 }
