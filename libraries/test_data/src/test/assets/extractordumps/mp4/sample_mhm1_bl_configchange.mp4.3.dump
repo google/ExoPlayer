@@ -1,107 +1,75 @@
 seekMap:
   isSeekable = true
-  duration = 3000000
-  getPosition(0) = [[timeUs=0, position=1286]]
-  getPosition(1) = [[timeUs=1, position=1286]]
-  getPosition(1500000) = [[timeUs=1500000, position=13281]]
-  getPosition(3000000) = [[timeUs=3000000, position=118721]]
+  duration = 1800000
+  getPosition(0) = [[timeUs=0, position=1054]]
+  getPosition(1) = [[timeUs=1, position=1054]]
+  getPosition(900000) = [[timeUs=900000, position=6234]]
+  getPosition(1800000) = [[timeUs=1800000, position=33120]]
 numberOfTracks = 1
 track 0:
-  total output bytes = 10844
-  sample count = 21
+  total output bytes = 6712
+  sample count = 13
   format 0:
     id = 1
     sampleMimeType = audio/mhm1
     codecs = mhm1.10
-    maxInputSize = 2078
+    maxInputSize = 1476
     channelCount = 0
     sampleRate = 48000
     language = und
-    metadata = entries=[Mp4Timestamp: creation time=3780982001, modification time=3780982001, timescale=600]
+    metadata = entries=[Mp4Timestamp: creation time=3782733089, modification time=3782733089, timescale=600]
     initializationData:
       data = length 64, hash DB1F936C
   sample 0:
-    time = 2560000
+    time = 1536000
     flags = 1
-    data = length 814, hash 34823CE2
+    data = length 814, hash 39B338CB
   sample 1:
-    time = 2581333
+    time = 1557333
     flags = 0
-    data = length 299, hash 90B9202B
+    data = length 299, hash 90B92026
   sample 2:
-    time = 2602666
+    time = 1578666
     flags = 0
-    data = length 423, hash 390144D7
+    data = length 423, hash 390144EE
   sample 3:
-    time = 2624000
+    time = 1600000
     flags = 0
-    data = length 512, hash 4C287858
+    data = length 512, hash 4C28784A
   sample 4:
-    time = 2645333
-    flags = 0
-    data = length 512, hash 71422ABF
-  sample 5:
-    time = 2666666
-    flags = 0
-    data = length 512, hash 12E1C05A
-  sample 6:
-    time = 2688000
-    flags = 0
-    data = length 512, hash 4C287822
-  sample 7:
-    time = 2709333
+    time = 1621333
     flags = 0
     data = length 512, hash 71422ABB
+  sample 5:
+    time = 1642666
+    flags = 0
+    data = length 512, hash 12E1C07F
+  sample 6:
+    time = 1664000
+    flags = 0
+    data = length 512, hash 4C287884
+  sample 7:
+    time = 1685333
+    flags = 0
+    data = length 512, hash 71422ABD
   sample 8:
-    time = 2730666
+    time = 1706666
     flags = 0
-    data = length 512, hash 12E1C097
+    data = length 512, hash 12E1C069
   sample 9:
-    time = 2752000
+    time = 1728000
     flags = 0
-    data = length 512, hash 4C28783B
+    data = length 512, hash 4C287890
   sample 10:
-    time = 2773333
+    time = 1749333
     flags = 0
-    data = length 512, hash 71422ABC
+    data = length 512, hash 71422AC0
   sample 11:
-    time = 2794666
+    time = 1770666
     flags = 0
-    data = length 512, hash 12E1C088
+    data = length 581, hash 64B79723
   sample 12:
-    time = 2816000
-    flags = 0
-    data = length 512, hash 4C28786A
-  sample 13:
-    time = 2837333
-    flags = 0
-    data = length 512, hash 71422ABA
-  sample 14:
-    time = 2858666
-    flags = 0
-    data = length 512, hash 12E1C05D
-  sample 15:
-    time = 2880000
-    flags = 0
-    data = length 512, hash 4C287851
-  sample 16:
-    time = 2901333
-    flags = 0
-    data = length 512, hash 71422ABF
-  sample 17:
-    time = 2922666
-    flags = 0
-    data = length 512, hash 12E1C09A
-  sample 18:
-    time = 2944000
-    flags = 0
-    data = length 512, hash 4C28782A
-  sample 19:
-    time = 2965333
-    flags = 0
-    data = length 604, hash 5CC9EA3F
-  sample 20:
-    time = 2986666
+    time = 1792000
     flags = 536870912
-    data = length 512, hash C97A4FD2
+    data = length 499, hash 9C5AEB9A
 tracksEnded = true

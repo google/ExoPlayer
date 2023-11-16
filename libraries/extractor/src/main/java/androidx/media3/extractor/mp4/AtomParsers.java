@@ -56,6 +56,7 @@ import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 /** Utility methods for parsing MP4 format atom payloads according to ISO/IEC 14496-12. */
 @SuppressWarnings("ConstantField")
@@ -1728,7 +1729,7 @@ import java.util.List;
         int mpeghProfileLevelIndication = parent.readUnsignedByte();
         parent.skipBytes(1); // mpeghReferenceChannelLayout
         codecs =
-            MimeTypes.AUDIO_MPEGH_MHM1.equals(mimeType)
+            Objects.equals(mimeType, MimeTypes.AUDIO_MPEGH_MHM1)
                 ? String.format("mhm1.%02X", mpeghProfileLevelIndication)
                 : String.format("mha1.%02X", mpeghProfileLevelIndication);
         int mpegh3daConfigLength = parent.readUnsignedShort();
@@ -1739,8 +1740,7 @@ import java.util.List;
           initializationData = ImmutableList.of(initializationDataBytes);
         } else {
           // We assume that the mhaP box has been parsed before and so add the compatible profile
-          // level
-          // sets as the second entry.
+          // level sets as the second entry.
           initializationData = ImmutableList.of(initializationDataBytes, initializationData.get(0));
         }
       } else if (childAtomType == Atom.TYPE_mhaP) {
