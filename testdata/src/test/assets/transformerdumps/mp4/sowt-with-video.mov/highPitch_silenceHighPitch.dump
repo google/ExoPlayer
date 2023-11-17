@@ -932,16 +932,16 @@ sample:
   presentationTimeUs = 3145020
 sample:
   trackType = audio
-  dataHashCode = -738966527
-  size = 8160
+  dataHashCode = 202646529
+  size = 4320
   isKeyFrame = true
   presentationTimeUs = 3165020
 sample:
   trackType = audio
-  dataHashCode = 202646529
-  size = 4320
+  dataHashCode = -738966527
+  size = 8160
   isKeyFrame = true
-  presentationTimeUs = 3207520
+  presentationTimeUs = 3187520
 sample:
   trackType = audio
   dataHashCode = -1017110527
@@ -986,10 +986,16 @@ sample:
   presentationTimeUs = 3357520
 sample:
   trackType = audio
-  dataHashCode = -738966527
-  size = 8160
+  dataHashCode = 202646529
+  size = 4320
   isKeyFrame = true
   presentationTimeUs = 3377520
+sample:
+  trackType = audio
+  dataHashCode = -1017110527
+  size = 3840
+  isKeyFrame = true
+  presentationTimeUs = 3400020
 sample:
   trackType = audio
   dataHashCode = 202646529
@@ -1028,10 +1034,16 @@ sample:
   presentationTimeUs = 3527520
 sample:
   trackType = audio
-  dataHashCode = -738966527
-  size = 8160
+  dataHashCode = -1017110527
+  size = 3840
   isKeyFrame = true
   presentationTimeUs = 3550020
+sample:
+  trackType = audio
+  dataHashCode = 202646529
+  size = 4320
+  isKeyFrame = true
+  presentationTimeUs = 3570020
 sample:
   trackType = audio
   dataHashCode = -1017110527
@@ -1058,16 +1070,10 @@ sample:
   presentationTimeUs = 3655020
 sample:
   trackType = audio
-  dataHashCode = -1017110527
-  size = 3840
+  dataHashCode = -738966527
+  size = 8160
   isKeyFrame = true
   presentationTimeUs = 3677520
-sample:
-  trackType = audio
-  dataHashCode = 202646529
-  size = 4320
-  isKeyFrame = true
-  presentationTimeUs = 3697520
 sample:
   trackType = audio
   dataHashCode = -1017110527
@@ -1088,10 +1094,16 @@ sample:
   presentationTimeUs = 3762520
 sample:
   trackType = audio
-  dataHashCode = -738966527
-  size = 8160
+  dataHashCode = -1017110527
+  size = 3840
   isKeyFrame = true
   presentationTimeUs = 3785020
+sample:
+  trackType = audio
+  dataHashCode = 202646529
+  size = 4320
+  isKeyFrame = true
+  presentationTimeUs = 3805020
 sample:
   trackType = audio
   dataHashCode = -1017110527
@@ -1130,10 +1142,16 @@ sample:
   presentationTimeUs = 3932520
 sample:
   trackType = audio
-  dataHashCode = -422154111
-  size = 8636
+  dataHashCode = 304617473
+  size = 2880
   isKeyFrame = true
   presentationTimeUs = 3955020
+sample:
+  trackType = audio
+  dataHashCode = -933078911
+  size = 5756
+  isKeyFrame = true
+  presentationTimeUs = 3970020
 sample:
   trackType = audio
   dataHashCode = -1807454463
