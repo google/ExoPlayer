@@ -53,8 +53,10 @@
         can't be played.
 *   Session:
     *   Put the custom keys and values in `MediaMetadataCompat` to
-        `MediaMetadata.extras`
-        ([#756](https://github.com/androidx/media/issues/756)).
+        `MediaMetadata.extras` and `MediaMetadata.extras` to
+        `MediaMetadataCompat`
+        ([#756](https://github.com/androidx/media/issues/756),
+        [#802](https://github.com/androidx/media/issues/802)).
 *   UI:
     *   Fix issue where forward and rewind buttons are not visible when used
         with Material Design in a BottomSheetDialogFragment

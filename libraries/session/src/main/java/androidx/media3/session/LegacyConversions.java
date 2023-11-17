@@ -559,7 +559,9 @@ import java.util.concurrent.TimeoutException;
    *     duration should be included.
    * @return An instance of the legacy {@link MediaMetadataCompat}.
    */
-  @SuppressWarnings("deprecation") // Converting deprecated fields.
+  // Converting deprecated fields and suppressing nullness.
+  // TODO: b/311689564 - Add @Nullable annotations to setters of MediaMetadataCompat.Builder
+  @SuppressWarnings({"deprecation", "nullness:argument"})
   public static MediaMetadataCompat convertToMediaMetadataCompat(
       MediaMetadata metadata,
       String mediaId,
@@ -637,6 +639,20 @@ import java.util.concurrent.TimeoutException;
 
     if (metadata.mediaType != null) {
       builder.putLong(MediaConstants.EXTRAS_KEY_MEDIA_TYPE_COMPAT, metadata.mediaType);
+    }
+
+    if (metadata.extras != null) {
+      for (@Nullable String customKey : metadata.extras.keySet()) {
+        @Nullable Object customValue = metadata.extras.get(customKey);
+        if (customValue == null || customValue instanceof CharSequence) {
+          builder.putText(customKey, (CharSequence) customValue);
+        } else if (customValue instanceof Byte
+            || customValue instanceof Short
+            || customValue instanceof Integer
+            || customValue instanceof Long) {
+          builder.putLong(customKey, ((Number) customValue).longValue());
+        }
+      }
     }
 
     return builder.build();

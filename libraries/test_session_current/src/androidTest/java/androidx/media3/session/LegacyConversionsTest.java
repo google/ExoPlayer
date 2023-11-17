@@ -37,6 +37,7 @@ import android.support.v4.media.RatingCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
+import android.text.SpannedString;
 import androidx.annotation.Nullable;
 import androidx.media.AudioAttributesCompat;
 import androidx.media.VolumeProviderCompat;
@@ -261,6 +262,42 @@ public final class LegacyConversionsTest {
 
     assertThat(mediaMetadataCompat.getLong(EXTRAS_KEY_MEDIA_TYPE_COMPAT))
         .isEqualTo(MediaMetadata.MEDIA_TYPE_MUSIC);
+  }
+
+  @Test
+  public void convertToMediaMetadataCompat_populatesExtrasFromMediaMetadata() {
+    Bundle extras = new Bundle();
+    extras.putString("customNullValueKey", null);
+    extras.putString(null, "customNullKeyValue");
+    extras.putString("customStringKey", "customStringValue");
+    extras.putCharSequence("customCharSequenceKey", new SpannedString("customCharSequenceValue"));
+    extras.putByte("customByteKey", (byte) 1);
+    extras.putShort("customShortKey", (short) 5);
+    extras.putInt("customIntegerKey", 10);
+    extras.putLong("customLongKey", 20L);
+    MediaItem mediaItem =
+        new MediaItem.Builder()
+            .setMediaMetadata(new MediaMetadata.Builder().setExtras(extras).build())
+            .build();
+
+    MediaMetadataCompat mediaMetadataCompat =
+        LegacyConversions.convertToMediaMetadataCompat(
+            mediaItem.mediaMetadata,
+            "mediadId",
+            Uri.parse("http://www.test.com"),
+            /* durationMs= */ C.TIME_UNSET,
+            /* artworkBitmap= */ null);
+
+    assertThat(mediaMetadataCompat.getString("customNullValueKey")).isNull();
+    assertThat(mediaMetadataCompat.getString(null)).isEqualTo("customNullKeyValue");
+    assertThat(mediaMetadataCompat.getString("customStringKey")).isEqualTo("customStringValue");
+    CharSequence customCharSequence = mediaMetadataCompat.getText("customCharSequenceKey");
+    assertThat(customCharSequence).isInstanceOf(SpannedString.class);
+    assertThat(customCharSequence.toString()).isEqualTo("customCharSequenceValue");
+    assertThat(mediaMetadataCompat.getLong("customByteKey")).isEqualTo(1);
+    assertThat(mediaMetadataCompat.getLong("customShortKey")).isEqualTo(5);
+    assertThat(mediaMetadataCompat.getLong("customIntegerKey")).isEqualTo(10);
+    assertThat(mediaMetadataCompat.getLong("customLongKey")).isEqualTo(20);
   }
 
   @Test
