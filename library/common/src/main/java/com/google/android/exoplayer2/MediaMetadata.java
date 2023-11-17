@@ -1147,6 +1147,7 @@ public final class MediaMetadata implements Bundleable {
     return new Builder(/* mediaMetadata= */ this);
   }
 
+  /** Note: Equality checking does not consider {@link #extras}. */
   @SuppressWarnings("deprecation") // Comparing deprecated fields.
   @Override
   public boolean equals(@Nullable Object obj) {
