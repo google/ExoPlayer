@@ -60,8 +60,12 @@ public final class Composition {
      *
      * @see Builder#Builder(List)
      */
-    public Builder(EditedMediaItemSequence... sequences) {
-      this(ImmutableList.copyOf(sequences));
+    public Builder(EditedMediaItemSequence sequence, EditedMediaItemSequence... sequences) {
+      this(
+          new ImmutableList.Builder<EditedMediaItemSequence>()
+              .add(sequence)
+              .add(sequences)
+              .build());
     }
 
     /**
