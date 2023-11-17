@@ -223,9 +223,11 @@ public final class TransformerSequenceEffectTest {
   }
 
   private static Composition createComposition(
-      @Nullable Presentation presentation, EditedMediaItem... editedMediaItems) {
+      @Nullable Presentation presentation,
+      EditedMediaItem editedMediaItem,
+      EditedMediaItem... editedMediaItems) {
     Composition.Builder builder =
-        new Composition.Builder(new EditedMediaItemSequence(editedMediaItems));
+        new Composition.Builder(new EditedMediaItemSequence(editedMediaItem, editedMediaItems));
     if (presentation != null) {
       builder.setEffects(
           new Effects(/* audioProcessors= */ ImmutableList.of(), ImmutableList.of(presentation)));
