@@ -24,6 +24,7 @@
         by default with null `ImageOutput` and `ImageDecoder.Factory.DEFAULT`.
 *   Transformer:
     *   Add support for flattening H.265/HEVC SEF slow motion videos.
+    *   Increase transmuxing speed, especially for 'remove video' edits.
 *   Track Selection:
     *   Add `DefaultTrackSelector.selectImageTrack` to enable image track
         selection.
