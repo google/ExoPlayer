@@ -135,6 +135,13 @@ import androidx.media3.common.util.Clock;
   }
 
   @Override
+  public boolean hasSkippedSilenceSinceLastCall() {
+    return isUsingStandaloneClock
+        ? standaloneClock.hasSkippedSilenceSinceLastCall()
+        : Assertions.checkNotNull(rendererClock).hasSkippedSilenceSinceLastCall();
+  }
+
+  @Override
   public void setPlaybackParameters(PlaybackParameters playbackParameters) {
     if (rendererClock != null) {
       rendererClock.setPlaybackParameters(playbackParameters);

@@ -152,6 +152,9 @@ public interface AudioSink {
      * @param audioTrackConfig The {@link AudioTrackConfig} of the released {@link AudioTrack}.
      */
     default void onAudioTrackReleased(AudioTrackConfig audioTrackConfig) {}
+
+    /** Called when a period of silence has been skipped. */
+    default void onSilenceSkipped() {}
   }
 
   /** Configuration parameters used for an {@link AudioTrack}. */

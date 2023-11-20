@@ -993,7 +993,18 @@ import java.util.concurrent.atomic.AtomicBoolean;
               /* isReadingAhead= */ playingPeriodHolder != queue.getReadingPeriod());
       long periodPositionUs = playingPeriodHolder.toPeriodTime(rendererPositionUs);
       maybeTriggerPendingMessages(playbackInfo.positionUs, periodPositionUs);
-      playbackInfo.updatePositionUs(periodPositionUs);
+      if (mediaClock.hasSkippedSilenceSinceLastCall()) {
+        playbackInfo =
+            handlePositionDiscontinuity(
+                playbackInfo.periodId,
+                /* positionUs= */ periodPositionUs,
+                playbackInfo.requestedContentPositionUs,
+                /* discontinuityStartPositionUs= */ periodPositionUs,
+                /* reportDiscontinuity= */ true,
+                Player.DISCONTINUITY_REASON_SILENCE_SKIP);
+      } else {
+        playbackInfo.updatePositionUs(periodPositionUs);
+      }
     }
 
     // Update the buffered position and total buffered duration.

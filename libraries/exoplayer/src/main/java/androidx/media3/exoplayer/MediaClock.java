@@ -25,6 +25,11 @@ public interface MediaClock {
   /** Returns the current media position in microseconds. */
   long getPositionUs();
 
+  /** Returns whether there is a skipped silence since the last call to this method. */
+  default boolean hasSkippedSilenceSinceLastCall() {
+    return false;
+  }
+
   /**
    * Attempts to set the playback parameters. The media clock may override the speed if changing the
    * playback parameters is not supported.

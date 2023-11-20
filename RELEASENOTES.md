@@ -22,6 +22,8 @@
         `ImageRenderer.ImageOutput`.
     *   `DefaultRenderersFactory` now provides an `ImageRenderer` to the player
         by default with null `ImageOutput` and `ImageDecoder.Factory.DEFAULT`.
+    *   Emit `Player.Listener.onPositionDiscontinuity` event when silence is
+        skipped ([#765](https://github.com/androidx/media/issues/765)).
 *   Transformer:
     *   Add support for flattening H.265/HEVC SEF slow motion videos.
     *   Increase transmuxing speed, especially for 'remove video' edits.

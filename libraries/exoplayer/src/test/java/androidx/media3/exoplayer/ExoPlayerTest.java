@@ -14054,6 +14054,80 @@ public final class ExoPlayerTest {
         .isSameInstanceAs(mediaItem2);
   }
 
+  @Test
+  public void silenceSkipped_playerEmitOnPositionDiscontinuity() throws Exception {
+    Timeline timeline =
+        new FakeTimeline(
+            new TimelineWindowDefinition(
+                /* periodCount= */ 1,
+                /* id= */ 0,
+                /* isSeekable= */ true,
+                /* isDynamic= */ false,
+                /* isLive= */ false,
+                /* isPlaceholder= */ false,
+                /* durationUs= */ 10 * C.MICROS_PER_SECOND,
+                /* defaultPositionUs= */ 0,
+                /* windowOffsetInFirstPeriodUs= */ 0,
+                AdPlaybackState.NONE));
+    FakeMediaClockRenderer audioRenderer =
+        new FakeMediaClockRenderer(C.TRACK_TYPE_AUDIO) {
+          private long offsetUs;
+          private long positionUs;
+          private boolean hasPendingReportedSkippedSilence;
+
+          @Override
+          protected void onStreamChanged(
+              Format[] formats, long startPositionUs, long offsetUs, MediaPeriodId mediaPeriodId) {
+            this.offsetUs = offsetUs;
+            this.positionUs = offsetUs;
+          }
+
+          @Override
+          public long getPositionUs() {
+            // Continuously increase position to let playback progress, and simulate the silence
+            // skip until it reaches some points of time.
+            if (positionUs - offsetUs == 10_000) {
+              hasPendingReportedSkippedSilence = true;
+              positionUs += 30_000;
+            } else {
+              positionUs += 10_000;
+            }
+            return positionUs;
+          }
+
+          @Override
+          public boolean hasSkippedSilenceSinceLastCall() {
+            boolean hasPendingReportedSkippedSilence = this.hasPendingReportedSkippedSilence;
+            if (hasPendingReportedSkippedSilence) {
+              this.hasPendingReportedSkippedSilence = false;
+            }
+            return hasPendingReportedSkippedSilence;
+          }
+
+          @Override
+          public void setPlaybackParameters(PlaybackParameters playbackParameters) {}
+
+          @Override
+          public PlaybackParameters getPlaybackParameters() {
+            return PlaybackParameters.DEFAULT;
+          }
+        };
+    ExoPlayer player = new TestExoPlayerBuilder(context).setRenderers(audioRenderer).build();
+    Player.Listener mockPlayerListener = mock(Player.Listener.class);
+    player.addListener(mockPlayerListener);
+
+    player.setMediaSource(new FakeMediaSource(timeline, ExoPlayerTestRunner.AUDIO_FORMAT));
+    player.prepare();
+    player.play();
+    runUntilPlaybackState(player, Player.STATE_ENDED);
+
+    verify(mockPlayerListener)
+        .onPositionDiscontinuity(any(), any(), eq(Player.DISCONTINUITY_REASON_SILENCE_SKIP));
+    assertThat(audioRenderer.isEnded).isTrue();
+
+    player.release();
+  }
+
   // Internal methods.
 
   private void addWatchAsSystemFeature() {
