@@ -142,6 +142,13 @@ import com.google.android.exoplayer2.util.StandaloneMediaClock;
   }
 
   @Override
+  public boolean hasSkippedSilenceSinceLastCall() {
+    return isUsingStandaloneClock
+        ? standaloneClock.hasSkippedSilenceSinceLastCall()
+        : Assertions.checkNotNull(rendererClock).hasSkippedSilenceSinceLastCall();
+  }
+
+  @Override
   public void setPlaybackParameters(PlaybackParameters playbackParameters) {
     if (rendererClock != null) {
       rendererClock.setPlaybackParameters(playbackParameters);

@@ -1385,7 +1385,8 @@ public interface Player {
     DISCONTINUITY_REASON_SEEK_ADJUSTMENT,
     DISCONTINUITY_REASON_SKIP,
     DISCONTINUITY_REASON_REMOVE,
-    DISCONTINUITY_REASON_INTERNAL
+    DISCONTINUITY_REASON_INTERNAL,
+    DISCONTINUITY_REASON_SILENCE_SKIP
   })
   @interface DiscontinuityReason {}
 
@@ -1416,6 +1417,9 @@ public interface Player {
 
   /** Discontinuity introduced internally (e.g. by the source). */
   int DISCONTINUITY_REASON_INTERNAL = 5;
+
+  /** Discontinuity introduced by a skipped silence. */
+  int DISCONTINUITY_REASON_SILENCE_SKIP = 6;
 
   /**
    * Reasons for timeline changes. One of {@link #TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED} or {@link

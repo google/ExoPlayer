@@ -661,6 +661,8 @@ public class EventLogger implements AnalyticsListener {
         return "SKIP";
       case Player.DISCONTINUITY_REASON_INTERNAL:
         return "INTERNAL";
+      case Player.DISCONTINUITY_REASON_SILENCE_SKIP:
+        return "SILENCE_SKIP";
       default:
         return "?";
     }
