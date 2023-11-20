@@ -277,6 +277,30 @@ public class CastTimelineTrackerTest {
     assertThat(castTimelineTracker.mediaItemsByContentId).hasSize(1);
   }
 
+  @Test
+  public void getCastTimeline_mediaStatusIsNull_returnsEmptyTimeline() {
+    RemoteMediaClient mockRemoteMediaClient = mock(RemoteMediaClient.class);
+    MediaQueue mediaQueue = mock(MediaQueue.class);
+    when(mockRemoteMediaClient.getMediaQueue()).thenReturn(mediaQueue);
+    when(mediaQueue.getItemIds()).thenReturn(new int[0]);
+    when(mockRemoteMediaClient.getMediaStatus()).thenReturn(null);
+
+    assertThat(castTimelineTracker.getCastTimeline(mockRemoteMediaClient).isEmpty()).isTrue();
+  }
+
+  @Test
+  public void getCastTimeline_mediaInfoIsNull_returnsEmptyTimeline() {
+    RemoteMediaClient mockRemoteMediaClient = mock(RemoteMediaClient.class);
+    MediaQueue mediaQueue = mock(MediaQueue.class);
+    when(mockRemoteMediaClient.getMediaQueue()).thenReturn(mediaQueue);
+    when(mediaQueue.getItemIds()).thenReturn(new int[0]);
+    MediaStatus mediaStatus = mock(MediaStatus.class);
+    when(mockRemoteMediaClient.getMediaStatus()).thenReturn(mediaStatus);
+    when(mediaStatus.getMediaInfo()).thenReturn(null);
+
+    assertThat(castTimelineTracker.getCastTimeline(mockRemoteMediaClient).isEmpty()).isTrue();
+  }
+
   private MediaItem createMediaItem(int uid) {
     return new MediaItem.Builder()
         .setUri("http://www.google.com/" + uid)
