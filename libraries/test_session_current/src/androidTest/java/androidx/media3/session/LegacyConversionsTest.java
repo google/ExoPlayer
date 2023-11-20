@@ -284,7 +284,7 @@ public final class LegacyConversionsTest {
         LegacyConversions.convertToMediaMetadataCompat(
             mediaItem.mediaMetadata,
             "mediadId",
-            Uri.parse("http://www.test.com"),
+            Uri.parse("http://www.example.test"),
             /* durationMs= */ C.TIME_UNSET,
             /* artworkBitmap= */ null);
 
