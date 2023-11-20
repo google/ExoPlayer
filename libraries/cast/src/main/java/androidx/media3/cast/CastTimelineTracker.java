@@ -17,7 +17,6 @@ package androidx.media3.cast;
 
 import static androidx.media3.cast.CastTimeline.ItemData.UNKNOWN_CONTENT_ID;
 import static androidx.media3.common.util.Assertions.checkNotNull;
-import static androidx.media3.common.util.Assertions.checkStateNotNull;
 
 import android.util.SparseArray;
 import androidx.annotation.Nullable;
@@ -105,12 +104,12 @@ import java.util.List;
 
     // TODO: Reset state when the app instance changes [Internal ref: b/129672468].
     MediaStatus mediaStatus = remoteMediaClient.getMediaStatus();
-    if (mediaStatus == null) {
+    if (mediaStatus == null || mediaStatus.getMediaInfo() == null) {
       return CastTimeline.EMPTY_CAST_TIMELINE;
     }
 
     int currentItemId = mediaStatus.getCurrentItemId();
-    String currentContentId = checkStateNotNull(mediaStatus.getMediaInfo()).getContentId();
+    String currentContentId = checkNotNull(mediaStatus.getMediaInfo()).getContentId();
     MediaItem mediaItem = mediaItemsByContentId.get(currentContentId);
     updateItemData(
         currentItemId,
