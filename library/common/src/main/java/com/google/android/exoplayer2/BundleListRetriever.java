@@ -28,6 +28,7 @@ import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 
+// LINT.IfChange(javadoc)
 /**
  * A {@link Binder} to transfer a list of {@link Bundle Bundles} across processes by splitting the
  * list into multiple transactions.
@@ -39,7 +40,7 @@ import java.util.List;
  *
  * <pre>{@code
  * // Sender
- * List<Bundle> list = ...;
+ * ImmutableList<Bundle> list = ...;
  * IBinder binder = new BundleListRetriever(list);
  * Bundle bundle = new Bundle();
  * bundle.putBinder("list", binder);
@@ -47,7 +48,7 @@ import java.util.List;
  * // Receiver
  * Bundle bundle = ...; // Received from the sender
  * IBinder binder = bundle.getBinder("list");
- * List<Bundle> list = BundleListRetriever.getList(binder);
+ * ImmutableList<Bundle> list = BundleListRetriever.getList(binder);
  * }</pre>
  *
  * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which

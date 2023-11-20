@@ -2849,6 +2849,7 @@ public interface Player {
    */
   TrackSelectionParameters getTrackSelectionParameters();
 
+  // LINT.IfChange(set_track_selection_parameters)
   /**
    * Sets the parameters constraining the track selection.
    *

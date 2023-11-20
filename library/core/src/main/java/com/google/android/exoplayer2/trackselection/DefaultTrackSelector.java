@@ -84,6 +84,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+// LINT.IfChange(javadoc)
 /**
  * A default {@link TrackSelector} suitable for most use cases.
  *

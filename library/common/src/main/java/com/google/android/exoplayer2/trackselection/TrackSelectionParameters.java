@@ -52,6 +52,7 @@ import java.util.Set;
 import org.checkerframework.checker.initialization.qual.UnknownInitialization;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 
+// LINT.IfChange(javadoc)
 /**
  * Parameters for controlling track selection.
  *
@@ -61,12 +62,12 @@ import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
  *
  * <pre>{@code
  * // Build on the current parameters.
- * TrackSelectionParameters currentParameters = player.getTrackSelectionParameters()
+ * TrackSelectionParameters currentParameters = player.getTrackSelectionParameters();
  * // Build the resulting parameters.
  * TrackSelectionParameters newParameters = currentParameters
  *     .buildUpon()
  *     .setMaxVideoSizeSd()
- *     .setPreferredAudioLanguage("deu")
+ *     .setPreferredAudioLanguage("de")
  *     .build();
  * // Set the new parameters.
  * player.setTrackSelectionParameters(newParameters);
