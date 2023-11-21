@@ -103,7 +103,9 @@ public final class FfmpegAudioRenderer extends DecoderAudioRenderer<FfmpegAudioD
       return C.FORMAT_UNSUPPORTED_TYPE;
     } else if (!FfmpegLibrary.supportsFormat(mimeType)
         || (!sinkSupportsFormat(format, C.ENCODING_PCM_16BIT)
-            && !sinkSupportsFormat(format, C.ENCODING_PCM_FLOAT))) {
+            && !sinkSupportsFormat(format, C.ENCODING_PCM_FLOAT))
+        || (mimeType.equals(MimeTypes.AUDIO_AAC)
+            && MimeTypes.getEncoding(mimeType, format.codecs) == C.ENCODING_AAC_XHE)) {
       return C.FORMAT_UNSUPPORTED_SUBTYPE;
     } else if (format.cryptoType != C.CRYPTO_TYPE_NONE) {
       return C.FORMAT_UNSUPPORTED_DRM;
