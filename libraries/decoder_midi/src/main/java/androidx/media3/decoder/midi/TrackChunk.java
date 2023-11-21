@@ -91,24 +91,12 @@ import java.util.ArrayList;
   }
 
   /**
-   * Outputs the front sample to {@code trackOutput}, flagged as a {@linkplain
-   * C#BUFFER_FLAG_KEY_FRAME key frame}.
-   */
-  public void outputFrontSample(TrackOutput trackOutput) {
-    outputFrontSample(
-        /* trackOutput= */ trackOutput,
-        /* flags= */ C.BUFFER_FLAG_KEY_FRAME,
-        /* skipNoteEvents= */ false);
-  }
-
-  /**
    * Outputs the current track event to {@code trackOutput}.
    *
    * @param trackOutput The {@link TrackOutput} to output samples to.
-   * @param flags {@link C.BufferFlags} to mark the buffer with.
    * @param skipNoteEvents Whether note events should be skipped.
    */
-  public void outputFrontSample(TrackOutput trackOutput, int flags, boolean skipNoteEvents) {
+  public void outputFrontSample(TrackOutput trackOutput, boolean skipNoteEvents) {
     if (!currentTrackEvent.isPopulated()) {
       return;
     }
@@ -149,7 +137,7 @@ import java.util.ArrayList;
     trackOutput.sampleData(sampleData, sampleSize);
     trackOutput.sampleMetadata(
         lastOutputEventTimestampUs,
-        /* flags= */ flags,
+        /* flags= */ 0,
         /* size= */ sampleSize,
         /* offset= */ 0,
         /* cryptoData= */ null);
@@ -207,10 +195,8 @@ import java.util.ArrayList;
       return 1;
     } else if (otherTimestampUs == C.TIME_UNSET) {
       return -1;
-    } else if (thisTimestampUs < otherTimestampUs) {
-      return -1;
     } else {
-      return 1;
+      return Long.compare(thisTimestampUs, otherTimestampUs);
     }
   }
 

@@ -17,17 +17,19 @@ package androidx.media3.decoder.midi;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
+import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
 import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
 import androidx.media3.common.C;
+import androidx.media3.common.DataReader;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.ParserException;
 import androidx.media3.common.util.ParsableByteArray;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
-import androidx.media3.extractor.DummyTrackOutput;
 import androidx.media3.extractor.Extractor;
 import androidx.media3.extractor.ExtractorInput;
 import androidx.media3.extractor.ExtractorOutput;
@@ -43,6 +45,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.PriorityQueue;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** Extracts data from MIDI containers. */
 @UnstableApi
@@ -99,14 +102,13 @@ public final class MidiExtractor implements Extractor, SeekMap {
   private int ticksPerQuarterNote;
   private long currentTimestampUs;
   private long startTimeUs;
-  private TrackOutput trackOutput;
+  private @MonotonicNonNull SingleKeyFrameTrackOutput trackOutput;
 
   public MidiExtractor() {
     state = STATE_INITIALIZED;
     trackChunkList = new ArrayList<>();
     trackPriorityQueue = new PriorityQueue<>();
     midiFileData = new ParsableByteArray(/* limit= */ 512);
-    trackOutput = new DummyTrackOutput();
   }
 
   // Extractor implementation.
@@ -117,7 +119,7 @@ public final class MidiExtractor implements Extractor, SeekMap {
       throw new IllegalStateException();
     }
 
-    trackOutput = output.track(0, C.TRACK_TYPE_AUDIO);
+    trackOutput = new SingleKeyFrameTrackOutput(output.track(0, C.TRACK_TYPE_AUDIO));
     trackOutput.format(
         new Format.Builder()
             .setCodecs(MimeTypes.AUDIO_MIDI)
@@ -140,6 +142,9 @@ public final class MidiExtractor implements Extractor, SeekMap {
   public void seek(long position, long timeUs) {
     checkState(state != STATE_RELEASED);
     startTimeUs = timeUs;
+    if (trackOutput != null) {
+      trackOutput.reset();
+    }
     if (state == STATE_LOADING) {
       midiFileData.setPosition(0);
       bytesRead = 0;
@@ -211,7 +216,8 @@ public final class MidiExtractor implements Extractor, SeekMap {
             outputEmptySample();
           } else { // Event time is sooner than the maximum threshold.
             currentTimestampUs = nextCommandTimestampUs;
-            nextChunk.outputFrontSample(trackOutput);
+            nextChunk.outputFrontSample(
+                checkStateNotNull(trackOutput), /* skipNoteEvents= */ false);
             nextChunk.populateFrontTrackEvent();
           }
 
@@ -223,9 +229,8 @@ public final class MidiExtractor implements Extractor, SeekMap {
         return result;
       case STATE_INITIALIZED:
       case STATE_RELEASED:
-        throw new IllegalStateException();
       default:
-        throw new IllegalStateException(); // Should never happen.
+        throw new IllegalStateException();
     }
   }
 
@@ -333,12 +338,13 @@ public final class MidiExtractor implements Extractor, SeekMap {
   }
 
   private void outputEmptySample() {
-    trackOutput.sampleMetadata(
-        currentTimestampUs,
-        /* flags= */ C.BUFFER_FLAG_KEY_FRAME,
-        /* size= */ 0,
-        /* offset= */ 0,
-        /* cryptoData= */ null);
+    checkStateNotNull(trackOutput)
+        .sampleMetadata(
+            currentTimestampUs,
+            /* flags= */ 0,
+            /* size= */ 0,
+            /* offset= */ 0,
+            /* cryptoData= */ null);
   }
 
   private void seekChunksTo(long seekTimeUs) throws ParserException {
@@ -347,12 +353,64 @@ public final class MidiExtractor implements Extractor, SeekMap {
       long nextTimestampUs = nextChunk.peekNextTimestampUs();
 
       if (nextTimestampUs != C.TIME_UNSET && nextTimestampUs < seekTimeUs) {
-        nextChunk.outputFrontSample(
-            trackOutput, C.BUFFER_FLAG_KEY_FRAME, /* skipNoteEvents= */ true);
+        nextChunk.outputFrontSample(checkStateNotNull(trackOutput), /* skipNoteEvents= */ true);
         nextChunk.populateFrontTrackEvent();
         trackPriorityQueue.add(nextChunk);
       }
     }
     trackPriorityQueue.addAll(trackChunkList);
+  }
+
+  /**
+   * A {@link TrackOutput} wrapper that marks only the first sample as a key-frame.
+   *
+   * <p>Only the first sample is marked as a key-frame so that seeking requires the player to seek
+   * to the beginning of the MIDI input and output all non Note-On and Note-Off events to the {@link
+   * MidiDecoder}.
+   */
+  private static final class SingleKeyFrameTrackOutput implements TrackOutput {
+    private final TrackOutput trackOutput;
+    private int outputSampleCount;
+
+    private SingleKeyFrameTrackOutput(TrackOutput trackOutput) {
+      this.trackOutput = trackOutput;
+    }
+
+    @Override
+    public void format(Format format) {
+      trackOutput.format(format);
+    }
+
+    @Override
+    public int sampleData(
+        DataReader input, int length, boolean allowEndOfInput, @SampleDataPart int sampleDataPart)
+        throws IOException {
+      return trackOutput.sampleData(input, length, allowEndOfInput, sampleDataPart);
+    }
+
+    @Override
+    public void sampleData(ParsableByteArray data, int length, @SampleDataPart int sampleDataPart) {
+      trackOutput.sampleData(data, length, sampleDataPart);
+    }
+
+    @Override
+    public void sampleMetadata(
+        long timeUs,
+        @C.BufferFlags int flags,
+        int size,
+        int offset,
+        @Nullable CryptoData cryptoData) {
+      // No MIDI sample should be marked as key-frame
+      checkState((flags & C.BUFFER_FLAG_KEY_FRAME) == 0);
+      if (outputSampleCount == 0) {
+        flags |= C.BUFFER_FLAG_KEY_FRAME;
+      }
+      trackOutput.sampleMetadata(timeUs, flags, size, offset, cryptoData);
+      outputSampleCount++;
+    }
+
+    public void reset() {
+      outputSampleCount = 0;
+    }
   }
 }
