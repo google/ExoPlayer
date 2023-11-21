@@ -235,6 +235,80 @@ public class MediaSessionCallbackTest {
   }
 
   @Test
+  public void onConnect_connectionResultExtrasAreNull_usesSessionExtras() throws Exception {
+    MediaSession.Callback callback =
+        new MediaSession.Callback() {
+          @Override
+          public MediaSession.ConnectionResult onConnect(
+              MediaSession session, ControllerInfo controller) {
+            return new AcceptedResultBuilder(session)
+                .setAvailablePlayerCommands(Player.Commands.EMPTY)
+                .build();
+          }
+        };
+    Bundle sessionExtras = new Bundle();
+    sessionExtras.putString("origin", "session");
+    MediaSession session =
+        sessionTestRule.ensureReleaseAfterTest(
+            new MediaSession.Builder(context, player)
+                .setSessionExtras(sessionExtras)
+                .setCallback(callback)
+                .setId("onConnect_connectionResultExtrasAreNull_usesGlobalSessionExtras")
+                .build());
+
+    RemoteMediaController remoteController =
+        remoteControllerTestRule.createRemoteController(session.getToken());
+
+    assertThat(remoteController.getSessionExtras().getString("origin")).isEqualTo("session");
+  }
+
+  @Test
+  public void onConnect_connectionResultExtrasAreSet_usesControllerSpecificSessionExtras()
+      throws Exception {
+    MediaSession.Callback callback =
+        new MediaSession.Callback() {
+          @Override
+          public MediaSession.ConnectionResult onConnect(
+              MediaSession session, ControllerInfo controller) {
+            Bundle sessionExtras = new Bundle();
+            sessionExtras.putString("origin", "controller");
+            return new AcceptedResultBuilder(session)
+                .setSessionExtras(sessionExtras)
+                .setAvailablePlayerCommands(Player.Commands.EMPTY)
+                .build();
+          }
+        };
+    Bundle sessionExtras = new Bundle();
+    sessionExtras.putString("origin", "session");
+    MediaSession session =
+        sessionTestRule.ensureReleaseAfterTest(
+            new MediaSession.Builder(context, player)
+                .setSessionExtras(sessionExtras)
+                .setCallback(callback)
+                .setId("onConnect_connectionResultExtrasAreSet_usesControllerSpecificSessionExtras")
+                .build());
+
+    RemoteMediaController remoteController =
+        remoteControllerTestRule.createRemoteController(session.getToken());
+
+    assertThat(remoteController.getSessionExtras().getString("origin")).isEqualTo("controller");
+  }
+
+  @Test
+  public void onConnect_connectionResultDefault_emptySessionExtras() throws Exception {
+    MediaSession session =
+        sessionTestRule.ensureReleaseAfterTest(
+            new MediaSession.Builder(context, player)
+                .setId("onConnect_connectionResultDefault_emptySessionExtras")
+                .build());
+
+    RemoteMediaController remoteController =
+        remoteControllerTestRule.createRemoteController(session.getToken());
+
+    assertThat(remoteController.getSessionExtras().size()).isEqualTo(0);
+  }
+
+  @Test
   public void onPostConnect_afterConnected() throws Exception {
     CountDownLatch latch = new CountDownLatch(1);
     MediaSession.Callback callback =

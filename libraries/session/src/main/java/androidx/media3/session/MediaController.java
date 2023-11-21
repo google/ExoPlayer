@@ -408,10 +408,10 @@ public class MediaController implements Player {
     }
 
     /**
-     * Called when the session extras have changed.
+     * Called when the session extras are set on the session side.
      *
      * @param controller The controller.
-     * @param extras The session extras that have changed.
+     * @param extras The session extras that have been set on the session.
      */
     default void onExtrasChanged(MediaController controller, Bundle extras) {}
 
@@ -965,6 +965,20 @@ public class MediaController implements Player {
   public final ImmutableList<CommandButton> getCustomLayout() {
     verifyApplicationThread();
     return isConnected() ? impl.getCustomLayout() : ImmutableList.of();
+  }
+
+  /**
+   * Returns the session extras.
+   *
+   * <p>After being connected, {@link Listener#onExtrasChanged(MediaController, Bundle)} is called
+   * when the extras on the session are set.
+   *
+   * @return The session extras.
+   */
+  @UnstableApi
+  public final Bundle getSessionExtras() {
+    verifyApplicationThread();
+    return isConnected() ? impl.getSessionExtras() : Bundle.EMPTY;
   }
 
   /** Returns {@code null}. */
@@ -2028,6 +2042,8 @@ public class MediaController implements Player {
     ListenableFuture<SessionResult> sendCustomCommand(SessionCommand command, Bundle args);
 
     ImmutableList<CommandButton> getCustomLayout();
+
+    Bundle getSessionExtras();
 
     Timeline getCurrentTimeline();
 

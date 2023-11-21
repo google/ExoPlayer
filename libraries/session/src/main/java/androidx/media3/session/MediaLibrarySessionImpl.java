@@ -74,6 +74,7 @@ import java.util.concurrent.Future;
       ImmutableList<CommandButton> customLayout,
       MediaLibrarySession.Callback callback,
       Bundle tokenExtras,
+      Bundle sessionExtras,
       BitmapLoader bitmapLoader,
       boolean playIfSuppressed,
       boolean isPeriodicPositionUpdateEnabled) {
@@ -86,6 +87,7 @@ import java.util.concurrent.Future;
         customLayout,
         callback,
         tokenExtras,
+        sessionExtras,
         bitmapLoader,
         playIfSuppressed,
         isPeriodicPositionUpdateEnabled);

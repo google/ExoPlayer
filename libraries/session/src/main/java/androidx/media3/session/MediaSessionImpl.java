@@ -149,6 +149,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private long sessionPositionUpdateDelayMs;
   private boolean isMediaNotificationControllerConnected;
   private ImmutableList<CommandButton> customLayout;
+  private Bundle sessionExtras;
 
   public MediaSessionImpl(
       MediaSession instance,
@@ -159,6 +160,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       ImmutableList<CommandButton> customLayout,
       MediaSession.Callback callback,
       Bundle tokenExtras,
+      Bundle sessionExtras,
       BitmapLoader bitmapLoader,
       boolean playIfSuppressed,
       boolean isPeriodicPositionUpdateEnabled) {
@@ -168,6 +170,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.sessionActivity = sessionActivity;
     this.customLayout = customLayout;
     this.callback = callback;
+    this.sessionExtras = sessionExtras;
     this.bitmapLoader = bitmapLoader;
     this.playIfSuppressed = playIfSuppressed;
     this.isPeriodicPositionUpdateEnabled = isPeriodicPositionUpdateEnabled;
@@ -481,6 +484,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   public void setSessionExtras(Bundle sessionExtras) {
+    this.sessionExtras = sessionExtras;
     dispatchRemoteControllerTaskWithoutReturn(
         (controller, seq) -> controller.onSessionExtrasChanged(seq, sessionExtras));
   }
@@ -489,7 +493,15 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     if (sessionStub.getConnectedControllersManager().isConnected(controller)) {
       dispatchRemoteControllerTaskWithoutReturn(
           controller, (callback, seq) -> callback.onSessionExtrasChanged(seq, sessionExtras));
+      if (isMediaNotificationController(controller)) {
+        dispatchRemoteControllerTaskToLegacyStub(
+            (callback, seq) -> callback.onSessionExtrasChanged(seq, sessionExtras));
+      }
     }
+  }
+
+  public Bundle getSessionExtras() {
+    return sessionExtras;
   }
 
   public BitmapLoader getBitmapLoader() {

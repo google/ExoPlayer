@@ -134,6 +134,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   private long lastSetPlayWhenReadyCalledTimeMs;
   @Nullable private PlayerInfo pendingPlayerInfo;
   @Nullable private BundlingExclusions pendingBundlingExclusions;
+  private Bundle sessionExtras;
 
   public MediaControllerImplBase(
       Context context,
@@ -173,6 +174,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
                 .getInstance()
                 .runOnApplicationLooper(MediaControllerImplBase.this.getInstance()::release);
     surfaceCallback = new SurfaceCallback();
+    sessionExtras = Bundle.EMPTY;
 
     serviceConnection =
         (this.token.getType() == SessionToken.TYPE_SESSION)
@@ -725,6 +727,11 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   @Override
   public ImmutableList<CommandButton> getCustomLayout() {
     return customLayout;
+  }
+
+  @Override
+  public Bundle getSessionExtras() {
+    return sessionExtras;
   }
 
   @Override
@@ -2545,6 +2552,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
             token.getPackageName(),
             result.sessionBinder,
             result.tokenExtras);
+    sessionExtras = result.sessionExtras;
     getInstance().notifyAccepted();
   }
 
@@ -2763,6 +2771,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     if (!isConnected()) {
       return;
     }
+    sessionExtras = extras;
     getInstance()
         .notifyControllerListener(listener -> listener.onExtrasChanged(getInstance(), extras));
   }

@@ -188,12 +188,14 @@ public class MediaControllerListenerWithMediaSessionCompatTest {
     sessionExtras.putString("key-1", "value-1");
     CountDownLatch countDownLatch = new CountDownLatch(1);
     List<Bundle> receivedSessionExtras = new ArrayList<>();
+    List<Bundle> getterSessionExtras = new ArrayList<>();
     controllerTestRule.createController(
         session.getSessionToken(),
         new MediaController.Listener() {
           @Override
           public void onExtrasChanged(MediaController controller, Bundle extras) {
             receivedSessionExtras.add(extras);
+            getterSessionExtras.add(controller.getSessionExtras());
             countDownLatch.countDown();
           }
         });
@@ -202,6 +204,22 @@ public class MediaControllerListenerWithMediaSessionCompatTest {
 
     assertThat(countDownLatch.await(1_000, MILLISECONDS)).isTrue();
     assertThat(TestUtils.equals(receivedSessionExtras.get(0), sessionExtras)).isTrue();
+    assertThat(TestUtils.equals(getterSessionExtras.get(0), sessionExtras)).isTrue();
+  }
+
+  @Test
+  public void setSessionExtras_includedWhenConnecting() throws Exception {
+    Bundle sessionExtras = new Bundle();
+    sessionExtras.putString("key-1", "value-1");
+    session.setExtras(sessionExtras);
+
+    MediaController controller = controllerTestRule.createController(session.getSessionToken());
+
+    assertThat(
+            TestUtils.equals(
+                threadTestRule.getHandler().postAndSync(controller::getSessionExtras),
+                sessionExtras))
+        .isTrue();
   }
 
   @Test

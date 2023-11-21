@@ -53,6 +53,8 @@ import java.util.List;
 
   public final Bundle tokenExtras;
 
+  public final Bundle sessionExtras;
+
   public final PlayerInfo playerInfo;
 
   public final ImmutableList<CommandButton> customLayout;
@@ -67,6 +69,7 @@ import java.util.List;
       Player.Commands playerCommandsFromSession,
       Player.Commands playerCommandsFromPlayer,
       Bundle tokenExtras,
+      Bundle sessionExtras,
       PlayerInfo playerInfo) {
     this.libraryVersion = libraryVersion;
     this.sessionInterfaceVersion = sessionInterfaceVersion;
@@ -77,6 +80,7 @@ import java.util.List;
     this.playerCommandsFromSession = playerCommandsFromSession;
     this.playerCommandsFromPlayer = playerCommandsFromPlayer;
     this.tokenExtras = tokenExtras;
+    this.sessionExtras = sessionExtras;
     this.playerInfo = playerInfo;
   }
 
@@ -90,11 +94,12 @@ import java.util.List;
   private static final String FIELD_PLAYER_COMMANDS_FROM_SESSION = Util.intToStringMaxRadix(4);
   private static final String FIELD_PLAYER_COMMANDS_FROM_PLAYER = Util.intToStringMaxRadix(5);
   private static final String FIELD_TOKEN_EXTRAS = Util.intToStringMaxRadix(6);
+  private static final String FIELD_SESSION_EXTRAS = Util.intToStringMaxRadix(11);
   private static final String FIELD_PLAYER_INFO = Util.intToStringMaxRadix(7);
   private static final String FIELD_SESSION_INTERFACE_VERSION = Util.intToStringMaxRadix(8);
   private static final String FIELD_IN_PROCESS_BINDER = Util.intToStringMaxRadix(10);
 
-  // Next field key = 11
+  // Next field key = 12
 
   @Override
   public Bundle toBundle() {
@@ -115,6 +120,7 @@ import java.util.List;
     bundle.putBundle(FIELD_PLAYER_COMMANDS_FROM_SESSION, playerCommandsFromSession.toBundle());
     bundle.putBundle(FIELD_PLAYER_COMMANDS_FROM_PLAYER, playerCommandsFromPlayer.toBundle());
     bundle.putBundle(FIELD_TOKEN_EXTRAS, tokenExtras);
+    bundle.putBundle(FIELD_SESSION_EXTRAS, sessionExtras);
     Player.Commands intersectedCommands =
         MediaUtils.intersect(playerCommandsFromSession, playerCommandsFromPlayer);
     bundle.putBundle(
@@ -179,6 +185,7 @@ import java.util.List;
             ? Player.Commands.EMPTY
             : Player.Commands.fromBundle(playerCommandsFromSessionBundle);
     @Nullable Bundle tokenExtras = bundle.getBundle(FIELD_TOKEN_EXTRAS);
+    @Nullable Bundle sessionExtras = bundle.getBundle(FIELD_SESSION_EXTRAS);
     @Nullable Bundle playerInfoBundle = bundle.getBundle(FIELD_PLAYER_INFO);
     PlayerInfo playerInfo =
         playerInfoBundle == null ? PlayerInfo.DEFAULT : PlayerInfo.fromBundle(playerInfoBundle);
@@ -192,6 +199,7 @@ import java.util.List;
         playerCommandsFromSession,
         playerCommandsFromPlayer,
         tokenExtras == null ? Bundle.EMPTY : tokenExtras,
+        sessionExtras == null ? Bundle.EMPTY : sessionExtras,
         playerInfo);
   }
 

@@ -176,6 +176,11 @@ public class MediaControllerProviderService extends Service {
     }
 
     @Override
+    public Bundle getSessionExtras(String controllerId) throws RemoteException {
+      return runOnHandler(mediaControllerMap.get(controllerId)::getSessionExtras);
+    }
+
+    @Override
     public void play(String controllerId) throws RemoteException {
       runOnHandler(
           () -> {

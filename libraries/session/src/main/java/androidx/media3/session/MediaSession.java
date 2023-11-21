@@ -318,16 +318,34 @@ public class MediaSession {
     }
 
     /**
-     * Sets an extra {@link Bundle} for the {@link MediaSession}. The {@link
-     * MediaSession#getToken()} session token} will have the {@link SessionToken#getExtras()
-     * extras}. If not set, an empty {@link Bundle} will be used.
+     * Sets an extras {@link Bundle} for the {@linkplain MediaSession#getToken() session token}. If
+     * not set, {@link Bundle#EMPTY} is used.
      *
-     * @param extras The extra {@link Bundle}.
+     * <p>A controller has access to these extras through the {@linkplain
+     * MediaController#getConnectedToken() connected token}.
+     *
+     * @param tokenExtras The extras {@link Bundle}.
      * @return The builder to allow chaining.
      */
     @Override
-    public Builder setExtras(Bundle extras) {
-      return super.setExtras(extras);
+    public Builder setExtras(Bundle tokenExtras) {
+      return super.setExtras(tokenExtras);
+    }
+
+    /**
+     * Sets the {@linkplain MediaSession#getSessionExtras() session extras}. If not set, {@link
+     * Bundle#EMPTY} is used.
+     *
+     * <p>A controller has access to session extras through {@linkplain
+     * MediaController#getSessionExtras()}.
+     *
+     * @param sessionExtras The session extras {@link Bundle}.
+     * @return The builder to allow chaining.
+     */
+    @UnstableApi
+    @Override
+    public Builder setSessionExtras(Bundle sessionExtras) {
+      return super.setSessionExtras(sessionExtras);
     }
 
     /**
@@ -426,7 +444,8 @@ public class MediaSession {
           sessionActivity,
           customLayout,
           callback,
-          extras,
+          tokenExtras,
+          sessionExtras,
           checkNotNull(bitmapLoader),
           playIfSuppressed,
           isPeriodicPositionUpdateEnabled);
@@ -621,6 +640,7 @@ public class MediaSession {
       ImmutableList<CommandButton> customLayout,
       Callback callback,
       Bundle tokenExtras,
+      Bundle sessionExtras,
       BitmapLoader bitmapLoader,
       boolean playIfSuppressed,
       boolean isPeriodicPositionUpdateEnabled) {
@@ -639,6 +659,7 @@ public class MediaSession {
             customLayout,
             callback,
             tokenExtras,
+            sessionExtras,
             bitmapLoader,
             playIfSuppressed,
             isPeriodicPositionUpdateEnabled);
@@ -652,6 +673,7 @@ public class MediaSession {
       ImmutableList<CommandButton> customLayout,
       Callback callback,
       Bundle tokenExtras,
+      Bundle sessionExtras,
       BitmapLoader bitmapLoader,
       boolean playIfSuppressed,
       boolean isPeriodicPositionUpdateEnabled) {
@@ -664,6 +686,7 @@ public class MediaSession {
         customLayout,
         callback,
         tokenExtras,
+        sessionExtras,
         bitmapLoader,
         playIfSuppressed,
         isPeriodicPositionUpdateEnabled);
@@ -982,7 +1005,23 @@ public class MediaSession {
   }
 
   /**
-   * Sends the session extras to connected controllers.
+   * Returns the session extras.
+   *
+   * <p>For informational purpose only. Mutations on the {@link Bundle} do not have immediate
+   * effect. To change the session extras use {@link #setSessionExtras(Bundle)} or {@link
+   * #setSessionExtras(ControllerInfo, Bundle)}.
+   */
+  @UnstableApi
+  public Bundle getSessionExtras() {
+    return impl.getSessionExtras();
+  }
+
+  /**
+   * Sets the {@linkplain #getSessionExtras() session extras} and sends them to connected
+   * controllers.
+   *
+   * <p>The initial extras can be set {@linkplain Builder#setSessionExtras(Bundle) when building the
+   * session}.
    *
    * <p>This is a synchronous call and doesn't wait for results from the controllers.
    *
@@ -995,6 +1034,11 @@ public class MediaSession {
 
   /**
    * Sends the session extras to the connected controller.
+   *
+   * <p>The initial extras for a specific controller can be set in {@link
+   * Callback#onConnect(MediaSession, ControllerInfo)} when {@link
+   * ConnectionResult.AcceptedResultBuilder#setSessionExtras(Bundle) building the connection
+   * result}.
    *
    * <p>This is a synchronous call and doesn't wait for results from the controller.
    *
@@ -1549,6 +1593,7 @@ public class MediaSession {
       private SessionCommands availableSessionCommands;
       private Player.Commands availablePlayerCommands = DEFAULT_PLAYER_COMMANDS;
       @Nullable private ImmutableList<CommandButton> customLayout;
+      @Nullable private Bundle sessionExtras;
 
       /**
        * Creates an instance.
@@ -1611,10 +1656,26 @@ public class MediaSession {
         return this;
       }
 
+      /**
+       * Sets the session extras, overriding the {@linkplain MediaSession#getSessionExtras() extras
+       * of the session}.
+       *
+       * <p>The default is null to indicate that the extras of the session should be used.
+       */
+      @CanIgnoreReturnValue
+      public AcceptedResultBuilder setSessionExtras(Bundle sessionExtras) {
+        this.sessionExtras = sessionExtras;
+        return this;
+      }
+
       /** Returns a new {@link ConnectionResult} instance for accepting a connection. */
       public ConnectionResult build() {
         return new ConnectionResult(
-            /* accepted= */ true, availableSessionCommands, availablePlayerCommands, customLayout);
+            /* accepted= */ true,
+            availableSessionCommands,
+            availablePlayerCommands,
+            customLayout,
+            sessionExtras);
       }
     }
 
@@ -1642,16 +1703,21 @@ public class MediaSession {
     /** The custom layout or null if the custom layout of the session should be used. */
     @UnstableApi @Nullable public final ImmutableList<CommandButton> customLayout;
 
+    /** The session extras. */
+    @UnstableApi @Nullable public final Bundle sessionExtras;
+
     /** Creates a new instance with the given available session and player commands. */
     private ConnectionResult(
         boolean accepted,
         SessionCommands availableSessionCommands,
         Player.Commands availablePlayerCommands,
-        @Nullable ImmutableList<CommandButton> customLayout) {
+        @Nullable ImmutableList<CommandButton> customLayout,
+        @Nullable Bundle sessionExtras) {
       isAccepted = accepted;
       this.availableSessionCommands = availableSessionCommands;
       this.availablePlayerCommands = availablePlayerCommands;
       this.customLayout = customLayout;
+      this.sessionExtras = sessionExtras;
     }
 
     /**
@@ -1670,13 +1736,18 @@ public class MediaSession {
           /* accepted= */ true,
           availableSessionCommands,
           availablePlayerCommands,
-          /* customLayout= */ null);
+          /* customLayout= */ null,
+          /* sessionExtras= */ null);
     }
 
     /** Creates a {@link ConnectionResult} to reject a connection. */
     public static ConnectionResult reject() {
       return new ConnectionResult(
-          /* accepted= */ false, SessionCommands.EMPTY, Player.Commands.EMPTY, ImmutableList.of());
+          /* accepted= */ false,
+          SessionCommands.EMPTY,
+          Player.Commands.EMPTY,
+          /* customLayout= */ ImmutableList.of(),
+          /* sessionExtras= */ Bundle.EMPTY);
     }
   }
 
@@ -1850,7 +1921,8 @@ public class MediaSession {
     /* package */ String id;
     /* package */ CallbackT callback;
     /* package */ @Nullable PendingIntent sessionActivity;
-    /* package */ Bundle extras;
+    /* package */ Bundle tokenExtras;
+    /* package */ Bundle sessionExtras;
     /* package */ @MonotonicNonNull BitmapLoader bitmapLoader;
     /* package */ boolean playIfSuppressed;
     /* package */ ImmutableList<CommandButton> customLayout;
@@ -1862,7 +1934,8 @@ public class MediaSession {
       checkArgument(player.canAdvertiseSession());
       id = "";
       this.callback = callback;
-      extras = Bundle.EMPTY;
+      tokenExtras = Bundle.EMPTY;
+      sessionExtras = Bundle.EMPTY;
       customLayout = ImmutableList.of();
       playIfSuppressed = true;
       isPeriodicPositionUpdateEnabled = true;
@@ -1887,8 +1960,14 @@ public class MediaSession {
     }
 
     @SuppressWarnings("unchecked")
-    public BuilderT setExtras(Bundle extras) {
-      this.extras = new Bundle(checkNotNull(extras));
+    public BuilderT setExtras(Bundle tokenExtras) {
+      this.tokenExtras = new Bundle(checkNotNull(tokenExtras));
+      return (BuilderT) this;
+    }
+
+    @SuppressWarnings("unchecked")
+    public BuilderT setSessionExtras(Bundle sessionExtras) {
+      this.sessionExtras = new Bundle(checkNotNull(sessionExtras));
       return (BuilderT) this;
     }
 

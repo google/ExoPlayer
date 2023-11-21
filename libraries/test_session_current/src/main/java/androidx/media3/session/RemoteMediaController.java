@@ -97,6 +97,10 @@ public class RemoteMediaController {
     return sessionTokenBundle == null ? null : SessionToken.fromBundle(sessionTokenBundle);
   }
 
+  public Bundle getSessionExtras() throws RemoteException {
+    return binder.getSessionExtras(controllerId);
+  }
+
   public void play() throws RemoteException {
     binder.play(controllerId);
   }

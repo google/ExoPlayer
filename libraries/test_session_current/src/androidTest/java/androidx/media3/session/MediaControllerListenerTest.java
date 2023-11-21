@@ -1895,7 +1895,7 @@ public class MediaControllerListenerTest {
         .getMockPlayer()
         .setPlayWhenReady(/* playWhenReady= */ true, Player.PLAYBACK_SUPPRESSION_REASON_NONE);
     MediaController controller = controllerTestRule.createController(remoteSession.getToken());
-    threadTestRule.getHandler().postAndSync(() -> controller.setTimeDiffMs(/* timeDiff= */ 0L));
+    threadTestRule.getHandler().postAndSync(() -> controller.setTimeDiffMs(/* timeDiffMs= */ 0L));
     CountDownLatch latch = new CountDownLatch(2);
     AtomicBoolean isPlayingRef = new AtomicBoolean();
     AtomicLong currentPositionMsRef = new AtomicLong();
@@ -2136,7 +2136,7 @@ public class MediaControllerListenerTest {
     remoteMockPlayer.setCurrentAdGroupIndex(testCurrentAdGroupIndex);
     remoteMockPlayer.setCurrentAdIndexInAdGroup(testCurrentAdIndexInAdGroup);
     remoteMockPlayer.notifyPositionDiscontinuity(
-        /* oldPositionInfo= */ SessionPositionInfo.DEFAULT_POSITION_INFO,
+        /* oldPosition= */ SessionPositionInfo.DEFAULT_POSITION_INFO,
         newPositionInfo,
         Player.DISCONTINUITY_REASON_INTERNAL);
 
@@ -2470,11 +2470,13 @@ public class MediaControllerListenerTest {
     sessionExtras.putString("key-0", "value-0");
     CountDownLatch latch = new CountDownLatch(1);
     List<Bundle> receivedSessionExtras = new ArrayList<>();
+    List<Bundle> getterSessionExtras = new ArrayList<>();
     MediaController.Listener listener =
         new MediaController.Listener() {
           @Override
           public void onExtrasChanged(MediaController controller, Bundle extras) {
             receivedSessionExtras.add(extras);
+            getterSessionExtras.add(controller.getSessionExtras());
             latch.countDown();
           }
         };
@@ -2487,6 +2489,8 @@ public class MediaControllerListenerTest {
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(receivedSessionExtras).hasSize(1);
     assertThat(TestUtils.equals(receivedSessionExtras.get(0), sessionExtras)).isTrue();
+    assertThat(getterSessionExtras).hasSize(1);
+    assertThat(TestUtils.equals(getterSessionExtras.get(0), sessionExtras)).isTrue();
   }
 
   @Test
@@ -2495,11 +2499,13 @@ public class MediaControllerListenerTest {
     sessionExtras.putString("key-0", "value-0");
     CountDownLatch latch = new CountDownLatch(1);
     List<Bundle> receivedSessionExtras = new ArrayList<>();
+    List<Bundle> getterSessionExtras = new ArrayList<>();
     MediaController.Listener listener =
         new MediaController.Listener() {
           @Override
           public void onExtrasChanged(MediaController controller, Bundle extras) {
             receivedSessionExtras.add(extras);
+            getterSessionExtras.add(controller.getSessionExtras());
             latch.countDown();
           }
         };
@@ -2513,6 +2519,7 @@ public class MediaControllerListenerTest {
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(receivedSessionExtras).hasSize(1);
     assertThat(TestUtils.equals(receivedSessionExtras.get(0), sessionExtras)).isTrue();
+    assertThat(TestUtils.equals(getterSessionExtras.get(0), sessionExtras)).isTrue();
   }
 
   @Test

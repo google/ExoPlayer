@@ -191,7 +191,8 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
             maskedPlayerInfo,
             controllerInfo.availableSessionCommands,
             controllerInfo.availablePlayerCommands,
-            controllerInfo.customLayout);
+            controllerInfo.customLayout,
+            controllerInfo.sessionExtras);
     updateStateMaskedControllerInfo(
         maskedControllerInfo,
         /* discontinuityReason= */ null,
@@ -255,7 +256,8 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
                 /* playerError= */ null),
             controllerInfo.availableSessionCommands,
             controllerInfo.availablePlayerCommands,
-            controllerInfo.customLayout);
+            controllerInfo.customLayout,
+            controllerInfo.sessionExtras);
     updateStateMaskedControllerInfo(
         maskedControllerInfo,
         /* discontinuityReason= */ null,
@@ -376,7 +378,8 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
             maskedPlayerInfo,
             controllerInfo.availableSessionCommands,
             controllerInfo.availablePlayerCommands,
-            controllerInfo.customLayout);
+            controllerInfo.customLayout,
+            controllerInfo.sessionExtras);
     updateStateMaskedControllerInfo(
         maskedControllerInfo, discontinuityReason, mediaItemTransitionReason);
   }
@@ -412,6 +415,11 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
   @Override
   public ImmutableList<CommandButton> getCustomLayout() {
     return controllerInfo.customLayout;
+  }
+
+  @Override
+  public Bundle getSessionExtras() {
+    return controllerInfo.sessionExtras;
   }
 
   @Override
@@ -529,7 +537,8 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
               controllerInfo.playerInfo.copyWithPlaybackParameters(playbackParameters),
               controllerInfo.availableSessionCommands,
               controllerInfo.availablePlayerCommands,
-              controllerInfo.customLayout);
+              controllerInfo.customLayout,
+              controllerInfo.sessionExtras);
       updateStateMaskedControllerInfo(
           maskedControllerInfo,
           /* discontinuityReason= */ null,
@@ -548,7 +557,8 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
               controllerInfo.playerInfo.copyWithPlaybackParameters(new PlaybackParameters(speed)),
               controllerInfo.availableSessionCommands,
               controllerInfo.availablePlayerCommands,
-              controllerInfo.customLayout);
+              controllerInfo.customLayout,
+              controllerInfo.sessionExtras);
       updateStateMaskedControllerInfo(
           maskedControllerInfo,
           /* discontinuityReason= */ null,
@@ -640,7 +650,8 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
             maskedPlayerInfo,
             controllerInfo.availableSessionCommands,
             controllerInfo.availablePlayerCommands,
-            controllerInfo.customLayout);
+            controllerInfo.customLayout,
+            controllerInfo.sessionExtras);
     updateStateMaskedControllerInfo(
         maskedControllerInfo,
         /* discontinuityReason= */ null,
@@ -703,7 +714,8 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
             maskedPlayerInfo,
             controllerInfo.availableSessionCommands,
             controllerInfo.availablePlayerCommands,
-            controllerInfo.customLayout);
+            controllerInfo.customLayout,
+            controllerInfo.sessionExtras);
     updateStateMaskedControllerInfo(
         maskedControllerInfo,
         /* discontinuityReason= */ null,
@@ -755,7 +767,8 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
             maskedPlayerInfo,
             controllerInfo.availableSessionCommands,
             controllerInfo.availablePlayerCommands,
-            controllerInfo.customLayout);
+            controllerInfo.customLayout,
+            controllerInfo.sessionExtras);
     updateStateMaskedControllerInfo(
         maskedControllerInfo,
         /* discontinuityReason= */ null,
@@ -821,7 +834,8 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
             maskedPlayerInfo,
             controllerInfo.availableSessionCommands,
             controllerInfo.availablePlayerCommands,
-            controllerInfo.customLayout);
+            controllerInfo.customLayout,
+            controllerInfo.sessionExtras);
     updateStateMaskedControllerInfo(
         maskedControllerInfo,
         /* discontinuityReason= */ null,
@@ -933,7 +947,8 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
               controllerInfo.playerInfo.copyWithRepeatMode(repeatMode),
               controllerInfo.availableSessionCommands,
               controllerInfo.availablePlayerCommands,
-              controllerInfo.customLayout);
+              controllerInfo.customLayout,
+              controllerInfo.sessionExtras);
       updateStateMaskedControllerInfo(
           maskedControllerInfo,
           /* discontinuityReason= */ null,
@@ -959,7 +974,8 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
               controllerInfo.playerInfo.copyWithShuffleModeEnabled(shuffleModeEnabled),
               controllerInfo.availableSessionCommands,
               controllerInfo.availablePlayerCommands,
-              controllerInfo.customLayout);
+              controllerInfo.customLayout,
+              controllerInfo.sessionExtras);
       updateStateMaskedControllerInfo(
           maskedControllerInfo,
           /* discontinuityReason= */ null,
@@ -1081,7 +1097,8 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
               controllerInfo.playerInfo.copyWithDeviceVolume(volume, isDeviceMuted),
               controllerInfo.availableSessionCommands,
               controllerInfo.availablePlayerCommands,
-              controllerInfo.customLayout);
+              controllerInfo.customLayout,
+              controllerInfo.sessionExtras);
       updateStateMaskedControllerInfo(
           maskedControllerInfo,
           /* discontinuityReason= */ null,
@@ -1112,7 +1129,8 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
               controllerInfo.playerInfo.copyWithDeviceVolume(volume + 1, isDeviceMuted),
               controllerInfo.availableSessionCommands,
               controllerInfo.availablePlayerCommands,
-              controllerInfo.customLayout);
+              controllerInfo.customLayout,
+              controllerInfo.sessionExtras);
       updateStateMaskedControllerInfo(
           maskedControllerInfo,
           /* discontinuityReason= */ null,
@@ -1142,7 +1160,8 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
               controllerInfo.playerInfo.copyWithDeviceVolume(volume - 1, isDeviceMuted),
               controllerInfo.availableSessionCommands,
               controllerInfo.availablePlayerCommands,
-              controllerInfo.customLayout);
+              controllerInfo.customLayout,
+              controllerInfo.sessionExtras);
       updateStateMaskedControllerInfo(
           maskedControllerInfo,
           /* discontinuityReason= */ null,
@@ -1175,7 +1194,8 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
               controllerInfo.playerInfo.copyWithDeviceVolume(volume, muted),
               controllerInfo.availableSessionCommands,
               controllerInfo.availablePlayerCommands,
-              controllerInfo.customLayout);
+              controllerInfo.customLayout,
+              controllerInfo.sessionExtras);
       updateStateMaskedControllerInfo(
           maskedControllerInfo,
           /* discontinuityReason= */ null,
@@ -1212,7 +1232,8 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
                 Player.PLAYBACK_SUPPRESSION_REASON_NONE),
             controllerInfo.availableSessionCommands,
             controllerInfo.availablePlayerCommands,
-            controllerInfo.customLayout);
+            controllerInfo.customLayout,
+            controllerInfo.sessionExtras);
     updateStateMaskedControllerInfo(
         maskedControllerInfo,
         /* discontinuityReason= */ null,
@@ -1308,7 +1329,8 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
             convertToNonNullQueueItemList(controllerCompat.getQueue()),
             controllerCompat.getQueueTitle(),
             controllerCompat.getRepeatMode(),
-            controllerCompat.getShuffleMode());
+            controllerCompat.getShuffleMode(),
+            controllerCompat.getExtras());
     handleNewLegacyParameters(/* notifyConnected= */ true, newLegacyPlayerInfo);
   }
 
@@ -1823,6 +1845,13 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
 
     @Override
     public void onExtrasChanged(Bundle extras) {
+      controllerInfo =
+          new ControllerInfo(
+              controllerInfo.playerInfo,
+              controllerInfo.availableSessionCommands,
+              controllerInfo.availablePlayerCommands,
+              controllerInfo.customLayout,
+              extras);
       getInstance()
           .notifyControllerListener(listener -> listener.onExtrasChanged(getInstance(), extras));
     }
@@ -2068,6 +2097,7 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
         availableSessionCommands,
         availablePlayerCommands,
         customLayout,
+        newLegacyPlayerInfo.sessionExtras,
         playerError,
         durationMs,
         currentPositionMs,
@@ -2235,6 +2265,7 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
       SessionCommands availableSessionCommands,
       Commands availablePlayerCommands,
       ImmutableList<CommandButton> customLayout,
+      Bundle sessionExtras,
       @Nullable PlaybackException playerError,
       long durationMs,
       long currentPositionMs,
@@ -2305,7 +2336,7 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
             /* parameters= */ TrackSelectionParameters.DEFAULT_WITHOUT_CONTEXT);
 
     return new ControllerInfo(
-        playerInfo, availableSessionCommands, availablePlayerCommands, customLayout);
+        playerInfo, availableSessionCommands, availablePlayerCommands, customLayout, sessionExtras);
   }
 
   private static PositionInfo createPositionInfo(
@@ -2355,6 +2386,7 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
     @Nullable public final CharSequence queueTitle;
     @PlaybackStateCompat.RepeatMode public final int repeatMode;
     @PlaybackStateCompat.ShuffleMode public final int shuffleMode;
+    public final Bundle sessionExtras;
 
     public LegacyPlayerInfo() {
       playbackInfoCompat = null;
@@ -2364,6 +2396,7 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
       queueTitle = null;
       repeatMode = PlaybackStateCompat.REPEAT_MODE_NONE;
       shuffleMode = PlaybackStateCompat.SHUFFLE_MODE_NONE;
+      sessionExtras = Bundle.EMPTY;
     }
 
     public LegacyPlayerInfo(
@@ -2373,7 +2406,8 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
         List<QueueItem> queue,
         @Nullable CharSequence queueTitle,
         @PlaybackStateCompat.RepeatMode int repeatMode,
-        @PlaybackStateCompat.ShuffleMode int shuffleMode) {
+        @PlaybackStateCompat.ShuffleMode int shuffleMode,
+        Bundle sessionExtras) {
       this.playbackInfoCompat = playbackInfoCompat;
       this.playbackStateCompat = playbackStateCompat;
       this.mediaMetadataCompat = mediaMetadataCompat;
@@ -2381,6 +2415,7 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
       this.queueTitle = queueTitle;
       this.repeatMode = repeatMode;
       this.shuffleMode = shuffleMode;
+      this.sessionExtras = sessionExtras;
     }
 
     public LegacyPlayerInfo(LegacyPlayerInfo other) {
@@ -2391,6 +2426,7 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
       queueTitle = other.queueTitle;
       repeatMode = other.repeatMode;
       shuffleMode = other.shuffleMode;
+      sessionExtras = other.sessionExtras;
     }
 
     @CheckResult
@@ -2405,7 +2441,8 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
           queue,
           queueTitle,
           repeatMode,
-          shuffleMode);
+          shuffleMode,
+          sessionExtras);
     }
 
     @CheckResult
@@ -2418,7 +2455,8 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
           queue,
           queueTitle,
           repeatMode,
-          shuffleMode);
+          shuffleMode,
+          sessionExtras);
     }
 
     @CheckResult
@@ -2431,7 +2469,8 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
           queue,
           queueTitle,
           repeatMode,
-          shuffleMode);
+          shuffleMode,
+          sessionExtras);
     }
 
     @CheckResult
@@ -2443,7 +2482,8 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
           queue,
           queueTitle,
           repeatMode,
-          shuffleMode);
+          shuffleMode,
+          sessionExtras);
     }
 
     @CheckResult
@@ -2455,7 +2495,8 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
           queue,
           queueTitle,
           repeatMode,
-          shuffleMode);
+          shuffleMode,
+          sessionExtras);
     }
 
     @CheckResult
@@ -2468,7 +2509,8 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
           queue,
           queueTitle,
           repeatMode,
-          shuffleMode);
+          shuffleMode,
+          sessionExtras);
     }
 
     @CheckResult
@@ -2480,7 +2522,8 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
           queue,
           queueTitle,
           repeatMode,
-          shuffleMode);
+          shuffleMode,
+          sessionExtras);
     }
 
     @CheckResult
@@ -2492,7 +2535,8 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
           queue,
           queueTitle,
           repeatMode,
-          shuffleMode);
+          shuffleMode,
+          sessionExtras);
     }
   }
 
@@ -2502,23 +2546,27 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
     public final SessionCommands availableSessionCommands;
     public final Commands availablePlayerCommands;
     public final ImmutableList<CommandButton> customLayout;
+    public final Bundle sessionExtras;
 
     public ControllerInfo() {
       playerInfo = PlayerInfo.DEFAULT.copyWithTimeline(QueueTimeline.DEFAULT);
       availableSessionCommands = SessionCommands.EMPTY;
       availablePlayerCommands = Commands.EMPTY;
       customLayout = ImmutableList.of();
+      sessionExtras = Bundle.EMPTY;
     }
 
     public ControllerInfo(
         PlayerInfo playerInfo,
         SessionCommands availableSessionCommands,
         Commands availablePlayerCommands,
-        ImmutableList<CommandButton> customLayout) {
+        ImmutableList<CommandButton> customLayout,
+        Bundle sessionExtras) {
       this.playerInfo = playerInfo;
       this.availableSessionCommands = availableSessionCommands;
       this.availablePlayerCommands = availablePlayerCommands;
       this.customLayout = customLayout;
+      this.sessionExtras = sessionExtras;
     }
   }
 }

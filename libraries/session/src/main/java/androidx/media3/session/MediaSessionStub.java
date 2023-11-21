@@ -528,6 +528,9 @@ import java.util.concurrent.ExecutionException;
                     connectionResult.availablePlayerCommands,
                     playerWrapper.getAvailableCommands(),
                     sessionImpl.getToken().getExtras(),
+                    connectionResult.sessionExtras != null
+                        ? connectionResult.sessionExtras
+                        : sessionImpl.getSessionExtras(),
                     playerInfo);
 
             // Double check if session is still there, because release() can be called in
