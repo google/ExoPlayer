@@ -52,7 +52,7 @@ public class TrackChunkTest {
             /* tempoListener= */ mock(TrackChunk.TempoChangedListener.class));
 
     trackChunk.populateFrontTrackEvent();
-    trackChunk.outputFrontSample(fakeTrackOutput);
+    trackChunk.outputFrontSample(fakeTrackOutput, /* skipNoteEvents= */ false);
     assertThat(fakeTrackOutput.getSampleTimeUs(/* index= */ 0)).isEqualTo(/* expected= */ 0);
 
     trackChunk.addTempoChange(/* tempoBpm= */ 180, /* ticks= */ 480);
@@ -60,7 +60,7 @@ public class TrackChunkTest {
     trackChunk.addTempoChange(/* tempoBpm= */ 300, /* ticks= */ 1440);
 
     trackChunk.populateFrontTrackEvent();
-    trackChunk.outputFrontSample(fakeTrackOutput);
+    trackChunk.outputFrontSample(fakeTrackOutput, /* skipNoteEvents= */ false);
     assertThat(fakeTrackOutput.getSampleTimeUs(/* index= */ 1)).isEqualTo(/* expected= */ 1283333);
   }
 }
