@@ -93,6 +93,8 @@
         ([#710](https://github.com/androidx/media/pull/710)).
     *   MIDI: Fix issue where seeking forward skips the Program Change events
         ([#704](https://github.com/androidx/media/issues/704).
+    *   Handle unsupported format `xHE-AAC` in `FfmpegAudioRenderer`
+        ([#803](https://github.com/androidx/media/issues/803)).
 *   Leanback extension:
 *   Cast Extension:
     *   Sanitize creation of a `Timeline` to not crash the app when loading
