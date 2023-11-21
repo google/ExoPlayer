@@ -56,6 +56,7 @@ import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Utility methods for parsing MP4 format atom payloads according to ISO/IEC 14496-12.
@@ -1728,15 +1729,45 @@ import java.util.List;
       ExtractorUtil.checkContainerInput(childAtomSize > 0, "childAtomSize must be positive");
       int childAtomType = parent.readInt();
       if (childAtomType == Atom.TYPE_mhaC) {
-        // See ISO_IEC_23008-3;2019 MHADecoderConfigurationRecord
+        // See ISO_IEC_23008-3;2022 MHADecoderConfigurationRecord
         // The header consists of: size (4), boxtype 'mhaC' (4), configurationVersion (1),
         // mpegh3daProfileLevelIndication (1), referenceChannelLayout (1), mpegh3daConfigLength (2).
-        int mhacHeaderSize = 13;
-        int childAtomBodySize = childAtomSize - mhacHeaderSize;
-        byte[] initializationDataBytes = new byte[childAtomBodySize];
-        parent.setPosition(childPosition + mhacHeaderSize);
-        parent.readBytes(initializationDataBytes, 0, childAtomBodySize);
-        initializationData = ImmutableList.of(initializationDataBytes);
+        parent.setPosition(childPosition + Atom.HEADER_SIZE);
+        parent.skipBytes(1); // configurationVersion
+        int mpeghProfileLevelIndication = parent.readUnsignedByte();
+        parent.skipBytes(1); // mpeghReferenceChannelLayout
+        codecs =
+            Objects.equals(mimeType, MimeTypes.AUDIO_MPEGH_MHM1)
+                ? String.format("mhm1.%02X", mpeghProfileLevelIndication)
+                : String.format("mha1.%02X", mpeghProfileLevelIndication);
+        int mpegh3daConfigLength = parent.readUnsignedShort();
+        byte[] initializationDataBytes = new byte[mpegh3daConfigLength];
+        parent.readBytes(initializationDataBytes, 0, mpegh3daConfigLength);
+        // The mpegh3daConfig should always be the first entry in initializationData.
+        if (initializationData == null) {
+          initializationData = ImmutableList.of(initializationDataBytes);
+        } else {
+          // We assume that the mhaP box has been parsed before and so add the compatible profile
+          // level sets as the second entry.
+          initializationData = ImmutableList.of(initializationDataBytes, initializationData.get(0));
+        }
+      } else if (childAtomType == Atom.TYPE_mhaP) {
+        // See ISO_IEC_23008-3;2022 MHAProfileAndLevelCompatibilitySetBox
+        // The header consists of: size (4), boxtype 'mhaP' (4), numCompatibleSets (1).
+        parent.setPosition(childPosition + Atom.HEADER_SIZE);
+        int numCompatibleSets = parent.readUnsignedByte();
+        if (numCompatibleSets > 0) {
+          byte[] mpeghCompatibleProfileLevelSet = new byte[numCompatibleSets];
+          parent.readBytes(mpeghCompatibleProfileLevelSet, 0, numCompatibleSets);
+          if (initializationData == null) {
+            initializationData = ImmutableList.of(mpeghCompatibleProfileLevelSet);
+          } else {
+            // We assume that the mhaC box has been parsed before and so add the compatible profile
+            // level sets as the second entry.
+            initializationData =
+                ImmutableList.of(initializationData.get(0), mpeghCompatibleProfileLevelSet);
+          }
+        }
       } else if (childAtomType == Atom.TYPE_esds
           || (isQuickTime && childAtomType == Atom.TYPE_wave)) {
         int esdsAtomPosition =

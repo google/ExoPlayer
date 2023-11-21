@@ -12,6 +12,7 @@ track 0:
   format 0:
     id = 1
     sampleMimeType = audio/mhm1
+    codecs = mhm1.0D
     maxInputSize = 3564
     channelCount = 0
     sampleRate = 48000
@@ -21,6 +22,7 @@ track 0:
     metadata = entries=[Mp4Timestamp: creation time=3701898908, modification time=3701898908, timescale=48000]
     initializationData:
       data = length 26, hash 4E58F6C7
+      data = length 1, hash 31
   sample 0:
     time = 533333
     flags = 1

@@ -1,0 +1,43 @@
+seekMap:
+  isSeekable = true
+  duration = 600000
+  getPosition(0) = [[timeUs=0, position=754]]
+  getPosition(1) = [[timeUs=1, position=754]]
+  getPosition(300000) = [[timeUs=300000, position=754]]
+  getPosition(600000) = [[timeUs=600000, position=2982]]
+numberOfTracks = 1
+track 0:
+  total output bytes = 609
+  sample count = 5
+  format 0:
+    id = 1
+    sampleMimeType = audio/mhm1
+    codecs = mhm1.10
+    maxInputSize = 365
+    channelCount = 0
+    sampleRate = 48000
+    language = und
+    metadata = entries=[Mp4Timestamp: creation time=3782733149, modification time=3782733149, timescale=600]
+    initializationData:
+      data = length 60, hash C05CB07B
+  sample 0:
+    time = 512000
+    flags = 1
+    data = length 320, hash 58EEA8F6
+  sample 1:
+    time = 533333
+    flags = 0
+    data = length 77, hash 7349D247
+  sample 2:
+    time = 554666
+    flags = 0
+    data = length 77, hash 73C5B274
+  sample 3:
+    time = 576000
+    flags = 0
+    data = length 65, hash 622B1A8
+  sample 4:
+    time = 597333
+    flags = 536870912
+    data = length 70, hash E441B6B8
+tracksEnded = true

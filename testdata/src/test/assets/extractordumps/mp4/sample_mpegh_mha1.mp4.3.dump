@@ -12,6 +12,7 @@ track 0:
   format 0:
     id = 1
     sampleMimeType = audio/mha1
+    codecs = mha1.0D
     maxInputSize = 3528
     channelCount = 0
     sampleRate = 48000
