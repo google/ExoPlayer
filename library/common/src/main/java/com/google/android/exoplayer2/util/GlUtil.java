@@ -578,6 +578,24 @@ public final class GlUtil {
   }
 
   /**
+   * Allocates a new texture, initialized with the {@link Bitmap bitmap} data.
+   *
+   * <p>The created texture will have the same size as the specified {@link Bitmap}.
+   *
+   * @param bitmap The {@link Bitmap} for which the texture is created.
+   * @return The texture identifier for the newly-allocated texture.
+   * @throws GlException If the texture allocation fails.
+   */
+  public static int createTexture(Bitmap bitmap) throws GlException {
+    assertValidTextureSize(bitmap.getWidth(), bitmap.getHeight());
+    int texId = generateTexture();
+    bindTexture(GLES20.GL_TEXTURE_2D, texId);
+    GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, /* level= */ 0, bitmap, /* border= */ 0);
+    checkGlError();
+    return texId;
+  }
+
+  /**
    * Allocates a new RGBA texture with the specified dimensions and color component precision.
    *
    * <p>The created texture is not zero-initialized. To clear the texture, {@linkplain
@@ -600,24 +618,6 @@ public final class GlUtil {
       return createTextureUninitialized(width, height, GLES30.GL_RGBA16F, GLES30.GL_HALF_FLOAT);
     }
     return createTextureUninitialized(width, height, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE);
-  }
-
-  /**
-   * Allocates a new texture, initialized with the {@link Bitmap bitmap} data.
-   *
-   * <p>The created texture will have the same size as the specified {@link Bitmap}.
-   *
-   * @param bitmap The {@link Bitmap} for which the texture is created.
-   * @return The texture identifier for the newly-allocated texture.
-   * @throws GlException If the texture allocation fails.
-   */
-  public static int createTexture(Bitmap bitmap) throws GlException {
-    assertValidTextureSize(bitmap.getWidth(), bitmap.getHeight());
-    int texId = generateTexture();
-    bindTexture(GLES20.GL_TEXTURE_2D, texId);
-    GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, /* level= */ 0, bitmap, /* border= */ 0);
-    checkGlError();
-    return texId;
   }
 
   /**
