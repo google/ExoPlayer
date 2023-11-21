@@ -112,7 +112,7 @@ public class DefaultLivePlaybackSpeedControlTest {
 
   @Test
   public void
-      getTargetLiveOffsetUs_afterSetTargetLiveOffsetOverrideUsGreaterThanMax_returnsMaxLiveOffset() {
+      getTargetLiveOffsetUs_afterSetTargetLiveOffsetOverrideUsGreaterThanMax_returnsOverride() {
     DefaultLivePlaybackSpeedControl defaultLivePlaybackSpeedControl =
         new DefaultLivePlaybackSpeedControl.Builder().build();
 
@@ -128,12 +128,12 @@ public class DefaultLivePlaybackSpeedControlTest {
 
     long targetLiveOffsetUs = defaultLivePlaybackSpeedControl.getTargetLiveOffsetUs();
 
-    assertThat(targetLiveOffsetUs).isEqualTo(400_000);
+    assertThat(targetLiveOffsetUs).isEqualTo(123_456_789);
   }
 
   @Test
   public void
-      getTargetLiveOffsetUs_afterSetTargetLiveOffsetOverrideUsLessThanMin_returnsMinLiveOffset() {
+      getTargetLiveOffsetUs_afterSetTargetLiveOffsetOverrideUsLessThanMin_returnsOverride() {
     DefaultLivePlaybackSpeedControl defaultLivePlaybackSpeedControl =
         new DefaultLivePlaybackSpeedControl.Builder().build();
 
@@ -149,7 +149,7 @@ public class DefaultLivePlaybackSpeedControlTest {
 
     long targetLiveOffsetUs = defaultLivePlaybackSpeedControl.getTargetLiveOffsetUs();
 
-    assertThat(targetLiveOffsetUs).isEqualTo(5_000);
+    assertThat(targetLiveOffsetUs).isEqualTo(3_141);
   }
 
   @Test

@@ -10599,6 +10599,57 @@ public final class ExoPlayerTest {
   }
 
   @Test
+  public void targetLiveOffsetInMedia_withUserSeekOutsideMaxLivOffset_adjustsLiveOffsetToSeek()
+      throws Exception {
+    long windowStartUnixTimeMs = 987_654_321_000L;
+    long nowUnixTimeMs = windowStartUnixTimeMs + 20_000;
+    ExoPlayer player =
+        new TestExoPlayerBuilder(context)
+            .setClock(
+                new FakeClock(/* initialTimeMs= */ nowUnixTimeMs, /* isAutoAdvancing= */ true))
+            .build();
+    Timeline timeline =
+        new FakeTimeline(
+            new TimelineWindowDefinition(
+                /* periodCount= */ 1,
+                /* id= */ 0,
+                /* isSeekable= */ true,
+                /* isDynamic= */ true,
+                /* isLive= */ true,
+                /* isPlaceholder= */ false,
+                /* durationUs= */ 1000 * C.MICROS_PER_SECOND,
+                /* defaultPositionUs= */ 8 * C.MICROS_PER_SECOND,
+                /* windowOffsetInFirstPeriodUs= */ Util.msToUs(windowStartUnixTimeMs),
+                ImmutableList.of(AdPlaybackState.NONE),
+                new MediaItem.Builder()
+                    .setUri(Uri.EMPTY)
+                    .setLiveConfiguration(
+                        new MediaItem.LiveConfiguration.Builder()
+                            .setTargetOffsetMs(9_000)
+                            .setMaxOffsetMs(10_000)
+                            .build())
+                    .build()));
+    player.pause();
+    player.setMediaSource(new FakeMediaSource(timeline));
+    player.prepare();
+    TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_READY);
+    long liveOffsetAtStart = player.getCurrentLiveOffset();
+    // Verify test setup (now = 20 seconds in live window, default start position = 8 seconds).
+    assertThat(liveOffsetAtStart).isIn(Range.closed(11_900L, 12_100L));
+
+    // Seek to a live offset of 15 seconds (outside of declared max offset of 10 seconds).
+    player.seekTo(5_000);
+    // Play until close to the end of the available live window.
+    TestPlayerRunHelper.playUntilPosition(
+        player, /* mediaItemIndex= */ 0, /* positionMs= */ 999_000);
+    long liveOffsetAtEnd = player.getCurrentLiveOffset();
+    player.release();
+
+    // Assert the live offset adjustment was permanent.
+    assertThat(liveOffsetAtEnd).isIn(Range.closed(14_100L, 15_900L));
+  }
+
+  @Test
   public void targetLiveOffsetInMedia_withTimelineUpdate_adjustsLiveOffsetToLatestTimeline()
       throws Exception {
     long windowStartUnixTimeMs = 987_654_321_000L;

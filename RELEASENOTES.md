@@ -24,6 +24,9 @@
         by default with null `ImageOutput` and `ImageDecoder.Factory.DEFAULT`.
     *   Emit `Player.Listener.onPositionDiscontinuity` event when silence is
         skipped ([#765](https://github.com/androidx/media/issues/765)).
+    *   Fix issue where manual seeks outside of the
+        `LiveConfiguration.min/maxOffset` range keep adjusting the offset back
+        to `min/maxOffset`.
 *   Transformer:
     *   Add support for flattening H.265/HEVC SEF slow motion videos.
     *   Increase transmuxing speed, especially for 'remove video' edits.
