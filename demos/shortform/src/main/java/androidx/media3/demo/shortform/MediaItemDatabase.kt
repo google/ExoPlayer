@@ -30,7 +30,7 @@ class MediaItemDatabase() {
       MediaItem.fromUri("https://storage.googleapis.com/exoplayer-test-media-0/shortform_2.mp4"),
       MediaItem.fromUri("https://storage.googleapis.com/exoplayer-test-media-0/shortform_3.mp4"),
       MediaItem.fromUri("https://storage.googleapis.com/exoplayer-test-media-0/shortform_4.mp4"),
-      MediaItem.fromUri("https://storage.googleapis.com/exoplayer-test-media-0/shortform_5.mp4")
+      MediaItem.fromUri("https://storage.googleapis.com/exoplayer-test-media-0/shortform_6.mp4")
     )
 
   // Effective sliding window of size = lCacheSize + 1 + rCacheSize
