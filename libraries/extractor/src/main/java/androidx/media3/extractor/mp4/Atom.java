@@ -126,6 +126,9 @@ import java.util.List;
   public static final int TYPE_mhaC = 0x6d686143;
 
   @SuppressWarnings("ConstantCaseForConstants")
+  public static final int TYPE_mhaP = 0x6d686150;
+
+  @SuppressWarnings("ConstantCaseForConstants")
   public static final int TYPE_wave = 0x77617665;
 
   @SuppressWarnings("ConstantCaseForConstants")
