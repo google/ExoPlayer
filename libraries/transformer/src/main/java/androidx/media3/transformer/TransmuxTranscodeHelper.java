@@ -36,8 +36,8 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Utility methods for resuming an export. */
-/* package */ final class ExportResumeHelper {
+/** Utility methods used in transmux-transcode exports. */
+/* package */ final class TransmuxTranscodeHelper {
 
   /** Provides metadata required to resume an export. */
   public static final class ResumeMetadata {
@@ -59,7 +59,59 @@ import java.util.List;
     }
   }
 
-  private ExportResumeHelper() {}
+  public static ListenableFuture<Mp4MetadataInfo> getMp4MetadataInfo(
+      Context context, String filePath, long timeUs) {
+    SettableFuture<Mp4MetadataInfo> mp4MetadataInfoSettableFuture = SettableFuture.create();
+    new Thread("TransmuxTranscodeHelper:Mp4MetadataInfo") {
+      @Override
+      public void run() {
+        try {
+          mp4MetadataInfoSettableFuture.set(Mp4MetadataInfo.create(context, filePath, timeUs));
+        } catch (Exception ex) {
+          mp4MetadataInfoSettableFuture.setException(ex);
+        }
+      }
+    }.start();
+    return mp4MetadataInfoSettableFuture;
+  }
+
+  public static Composition buildNewCompositionWithClipTimes(
+      Composition oldComposition,
+      long startTimeUs,
+      long endTimeUs,
+      long mediaDurationUs,
+      boolean startsAtKeyFrame) {
+    EditedMediaItem firstEditedMediaItem = oldComposition.sequences.get(0).editedMediaItems.get(0);
+
+    MediaItem.ClippingConfiguration clippingConfiguration =
+        new MediaItem.ClippingConfiguration.Builder()
+            .setStartPositionUs(startTimeUs)
+            .setEndPositionUs(endTimeUs)
+            .setStartsAtKeyFrame(startsAtKeyFrame)
+            .build();
+
+    MediaItem mediaItem =
+        firstEditedMediaItem
+            .mediaItem
+            .buildUpon()
+            .setClippingConfiguration(clippingConfiguration)
+            .build();
+    EditedMediaItem editedMediaItem =
+        firstEditedMediaItem
+            .buildUpon()
+            .setMediaItem(mediaItem)
+            .setDurationUs(mediaDurationUs)
+            // TODO: b/304476154 - Support audio in trim optimization.
+            .setRemoveAudio(true)
+            .build();
+
+    return oldComposition
+        .buildUpon()
+        .setSequences(ImmutableList.of(new EditedMediaItemSequence(editedMediaItem)))
+        .build();
+  }
+
+  private TransmuxTranscodeHelper() {}
 
   /**
    * Returns a video only {@link Composition} from the given {@code filePath} and {@code
@@ -94,7 +146,7 @@ import java.util.List;
   public static Composition createAudioTranscodeAndVideoTransmuxComposition(
       Composition composition, String videoFilePath) {
     Composition audioOnlyComposition =
-        ExportResumeHelper.buildUponComposition(
+        TransmuxTranscodeHelper.buildUponComposition(
             checkNotNull(composition),
             /* removeAudio= */ false,
             /* removeVideo= */ true,
@@ -203,7 +255,7 @@ import java.util.List;
   public static ListenableFuture<ResumeMetadata> getResumeMetadataAsync(
       Context context, String filePath, Composition composition) {
     SettableFuture<ResumeMetadata> resumeMetadataSettableFuture = SettableFuture.create();
-    new Thread("ExportResumeHelper:ResumeMetadata") {
+    new Thread("TransmuxTranscodeHelper:ResumeMetadata") {
       @Override
       public void run() {
         try {
@@ -256,7 +308,7 @@ import java.util.List;
   /** Copies {@link File} content from source to destination asynchronously. */
   public static ListenableFuture<Void> copyFileAsync(File source, File destination) {
     SettableFuture<Void> copyFileSettableFuture = SettableFuture.create();
-    new Thread("ExportResumeHelper:CopyFile") {
+    new Thread("TransmuxTranscodeHelper:CopyFile") {
       @Override
       public void run() {
         if (copyFileSettableFuture.isCancelled()) {

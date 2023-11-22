@@ -16,7 +16,9 @@
 package androidx.media3.transformer;
 
 import static androidx.media3.common.util.Assertions.checkArgument;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
+import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.ColorInfo;
@@ -24,6 +26,10 @@ import androidx.media3.common.MediaItem;
 import androidx.media3.common.util.UnstableApi;
 import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.List;
 import java.util.Objects;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -46,6 +52,7 @@ public final class ExportResult {
     private int width;
     private int videoFrameCount;
     @Nullable private String videoEncoderName;
+    private @OptimizationResult int optimizationResult;
     @Nullable private ExportException exportException;
 
     /** Creates a builder. */
@@ -192,6 +199,21 @@ public final class ExportResult {
       return this;
     }
 
+    /**
+     * Sets {@link OptimizationResult} to indicate an optimization as been successful, or has failed
+     * and normal export proceeded instead.
+     *
+     * <p>The default value is {@link #OPTIMIZATION_NONE}.
+     *
+     * @param optimizationResult The {@link OptimizationResult}.
+     * @return This {@link Builder}.
+     */
+    @CanIgnoreReturnValue
+    public Builder setOptimizationResult(@OptimizationResult int optimizationResult) {
+      this.optimizationResult = optimizationResult;
+      return this;
+    }
+
     /** Sets the {@link ExportException} that caused the export to fail. */
     @CanIgnoreReturnValue
     public Builder setExportException(@Nullable ExportException exportException) {
@@ -215,6 +237,7 @@ public final class ExportResult {
           width,
           videoFrameCount,
           videoEncoderName,
+          optimizationResult,
           exportException);
     }
 
@@ -263,6 +286,38 @@ public final class ExportResult {
     }
   }
 
+  /**
+   * Specifies the result of an optimized operation, such as {@link
+   * Transformer.Builder#experimentalSetTrimOptimizationEnabled}. One of {@link #OPTIMIZATION_NONE},
+   * {@link #OPTIMIZATION_SUCCEEDED}, {@link #OPTIMIZATION_FAILED_NO_VIDEO_TRACK_TO_TRIM} or {@link
+   * #OPTIMIZATION_FAILED_EXTRACTION_FAILED}.
+   */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
+  @IntDef({
+    OPTIMIZATION_NONE,
+    OPTIMIZATION_SUCCEEDED,
+    OPTIMIZATION_FAILED_NO_VIDEO_TRACK_TO_TRIM,
+    OPTIMIZATION_FAILED_EXTRACTION_FAILED
+  })
+  @interface OptimizationResult {}
+
+  /** No optimizations were applied since none were requested. */
+  public static final int OPTIMIZATION_NONE = 0;
+
+  /** The optimization was successfully applied. */
+  public static final int OPTIMIZATION_SUCCEEDED = 1;
+
+  /** The trim optimization failed because there was no video track. Normal export proceeded. */
+  public static final int OPTIMIZATION_FAILED_NO_VIDEO_TRACK_TO_TRIM = 2;
+
+  /**
+   * The optimization failed because mp4 metadata extraction failed (possibly because the file
+   * wasn't an mp4 file). Normal export proceeded.
+   */
+  public static final int OPTIMIZATION_FAILED_EXTRACTION_FAILED = 3;
+
   /** The list of {@linkplain ProcessedInput processed inputs}. */
   public final ImmutableList<ProcessedInput> processedInputs;
 
@@ -306,6 +361,9 @@ public final class ExportResult {
   /** The name of the video encoder used, or {@code null} if none were used. */
   @Nullable public final String videoEncoderName;
 
+  /** The result of any requested optimizations. */
+  public final @OptimizationResult int optimizationResult;
+
   /**
    * The {@link ExportException} that caused the export to fail, or {@code null} if the export was a
    * success.
@@ -326,6 +384,7 @@ public final class ExportResult {
       int width,
       int videoFrameCount,
       @Nullable String videoEncoderName,
+      @OptimizationResult int optimizationResult,
       @Nullable ExportException exportException) {
     this.processedInputs = processedInputs;
     this.durationMs = durationMs;
@@ -340,6 +399,7 @@ public final class ExportResult {
     this.width = width;
     this.videoFrameCount = videoFrameCount;
     this.videoEncoderName = videoEncoderName;
+    this.optimizationResult = optimizationResult;
     this.exportException = exportException;
   }
 

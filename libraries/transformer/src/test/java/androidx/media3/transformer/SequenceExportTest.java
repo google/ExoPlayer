@@ -29,6 +29,7 @@ import static androidx.media3.transformer.TestUtil.createPitchChangingAudioProce
 import static androidx.media3.transformer.TestUtil.createTransformerBuilder;
 import static androidx.media3.transformer.TestUtil.getDumpFileName;
 import static androidx.media3.transformer.TestUtil.removeEncodersAndDecoders;
+import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
 import androidx.media3.common.MediaItem;
@@ -167,6 +168,56 @@ public final class SequenceExportTest {
     transformer.start(composition, outputDir.newFile().getPath());
     TransformerTestRunner.runLooper(transformer);
 
+    DumpFileAsserts.assertOutput(
+        context,
+        muxerFactory.getCreatedMuxer(),
+        getDumpFileName(
+            /* originalFileName= */ FILE_AUDIO_VIDEO_INCREASING_TIMESTAMPS_15S,
+            /* modifications...= */ "clipped",
+            "clipped",
+            "transmux"));
+  }
+
+  @Test
+  public void
+      start_trimOptimizationEnabled_concatenateClippedMediaItemsWithTransmux_completesSuccessfully()
+          throws Exception {
+    Transformer transformer =
+        createTransformerBuilder(muxerFactory, /* enableFallback= */ false)
+            .experimentalSetTrimOptimizationEnabled(true)
+            .build();
+    MediaItem.ClippingConfiguration clippingConfiguration1 =
+        new MediaItem.ClippingConfiguration.Builder()
+            .setStartPositionMs(0) // Corresponds to key frame.
+            .setEndPositionMs(500)
+            .build();
+    MediaItem mediaItem1 =
+        new MediaItem.Builder()
+            .setUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO_INCREASING_TIMESTAMPS_15S)
+            .setClippingConfiguration(clippingConfiguration1)
+            .build();
+    EditedMediaItem editedMediaItem1 = new EditedMediaItem.Builder(mediaItem1).build();
+    MediaItem.ClippingConfiguration clippingConfiguration2 =
+        new MediaItem.ClippingConfiguration.Builder()
+            .setStartPositionMs(12_500) // Corresponds to key frame.
+            .setEndPositionMs(14_000)
+            .build();
+    MediaItem mediaItem2 =
+        new MediaItem.Builder()
+            .setUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO_INCREASING_TIMESTAMPS_15S)
+            .setClippingConfiguration(clippingConfiguration2)
+            .build();
+    EditedMediaItem editedMediaItem2 = new EditedMediaItem.Builder(mediaItem2).build();
+    Composition composition =
+        new Composition.Builder(new EditedMediaItemSequence(editedMediaItem1, editedMediaItem2))
+            .setTransmuxAudio(true)
+            .setTransmuxVideo(true)
+            .build();
+
+    transformer.start(composition, outputDir.newFile().getPath());
+    ExportResult exportResult = TransformerTestRunner.runLooper(transformer);
+
+    assertThat(exportResult.optimizationResult).isEqualTo(ExportResult.OPTIMIZATION_NONE);
     DumpFileAsserts.assertOutput(
         context,
         muxerFactory.getCreatedMuxer(),
