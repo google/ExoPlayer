@@ -31,6 +31,7 @@ import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.VideoFrameProcessor;
 import androidx.media3.common.VideoGraph;
 import androidx.media3.common.util.UnstableApi;
+import com.google.common.util.concurrent.MoreExecutors;
 import java.util.List;
 import java.util.concurrent.Executor;
 
@@ -54,6 +55,7 @@ public abstract class SingleInputVideoGraph implements VideoGraph {
   @Nullable private final Presentation presentation;
 
   @Nullable private VideoFrameProcessor videoFrameProcessor;
+  private boolean isEnded;
 
   private boolean released;
   private volatile boolean hasProducedFrameWithTimestampZero;
@@ -112,7 +114,7 @@ public abstract class SingleInputVideoGraph implements VideoGraph {
             inputColorInfo,
             outputColorInfo,
             renderFramesAutomatically,
-            listenerExecutor,
+            /* listenerExecutor= */ MoreExecutors.directExecutor(),
             new VideoFrameProcessor.Listener() {
               private long lastProcessedFramePresentationTimeUs;
 
@@ -129,6 +131,12 @@ public abstract class SingleInputVideoGraph implements VideoGraph {
 
               @Override
               public void onOutputFrameAvailableForRendering(long presentationTimeUs) {
+                if (isEnded) {
+                  onError(
+                      new VideoFrameProcessingException(
+                          "onOutputFrameAvailableForRendering() received after onEnded()"));
+                  return;
+                }
                 // Frames are rendered automatically.
                 if (presentationTimeUs == 0) {
                   hasProducedFrameWithTimestampZero = true;
@@ -145,7 +153,13 @@ public abstract class SingleInputVideoGraph implements VideoGraph {
 
               @Override
               public void onEnded() {
-                listener.onEnded(lastProcessedFramePresentationTimeUs);
+                if (isEnded) {
+                  onError(new VideoFrameProcessingException("onEnded() received multiple times"));
+                  return;
+                }
+                isEnded = true;
+                listenerExecutor.execute(
+                    () -> listener.onEnded(lastProcessedFramePresentationTimeUs));
               }
             });
     return SINGLE_INPUT_INDEX;

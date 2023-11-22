@@ -56,6 +56,7 @@ import androidx.media3.common.PlaybackException;
 import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.VideoFrameProcessor;
 import androidx.media3.common.VideoSize;
+import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.MediaFormatUtil;
 import androidx.media3.common.util.Size;
@@ -393,7 +394,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer
         assumedMinimumCodecOperatingRate);
     this.maxDroppedFramesToNotify = maxDroppedFramesToNotify;
     this.context = context.getApplicationContext();
-
     @SuppressWarnings("nullness:assignment")
     VideoFrameReleaseControl.@Initialized FrameTimingEvaluator thisRef = this;
     videoFrameReleaseControl =
@@ -617,7 +617,9 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer
   @Override
   protected void onInit() {
     super.onInit();
-    videoFrameReleaseControl.setClock(getClock());
+    Clock clock = getClock();
+    videoFrameReleaseControl.setClock(clock);
+    videoSinkProvider.setClock(clock);
   }
 
   @Override

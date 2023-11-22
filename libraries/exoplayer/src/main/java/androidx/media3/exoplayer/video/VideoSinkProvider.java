@@ -19,6 +19,7 @@ package androidx.media3.exoplayer.video;
 import android.view.Surface;
 import androidx.media3.common.Effect;
 import androidx.media3.common.Format;
+import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.Size;
 import androidx.media3.common.util.UnstableApi;
 import java.util.List;
@@ -78,4 +79,11 @@ public interface VideoSinkProvider {
 
   /** Sets a {@link VideoFrameMetadataListener} which is used in the returned {@link VideoSink}. */
   void setVideoFrameMetadataListener(VideoFrameMetadataListener videoFrameMetadataListener);
+
+  /**
+   * Sets the {@link Clock} that the provider should use internally.
+   *
+   * <p>Must be called before the sink provider is {@linkplain #initialize(Format) initialized}.
+   */
+  void setClock(Clock clock);
 }
