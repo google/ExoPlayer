@@ -16,12 +16,15 @@
 package androidx.media3.effect;
 
 import androidx.media3.common.VideoFrameProcessingException;
+import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.Size;
 import androidx.media3.common.util.UnstableApi;
 
 /** Creates overlays from OpenGL textures. */
 @UnstableApi
 public abstract class TextureOverlay {
+  private static final float[] IDENTITY_MATRIX = GlUtil.create4x4IdentityMatrix();
+
   /**
    * Returns the overlay texture identifier displayed at the specified timestamp.
    *
@@ -40,6 +43,18 @@ public abstract class TextureOverlay {
    * @param presentationTimeUs The presentation timestamp of the current frame, in microseconds.
    */
   public abstract Size getTextureSize(long presentationTimeUs);
+
+  /**
+   * Returns a 4x4 OpenGL matrix, controlling how the vertices of the overlay are displayed at the
+   * specified timestamp.
+   *
+   * <p>Applied before {@linkplain #getOverlaySettings overlay settings}.
+   *
+   * @param presentationTimeUs The presentation timestamp of the current frame, in microseconds.
+   */
+  public float[] getVertexTransformation(long presentationTimeUs) {
+    return IDENTITY_MATRIX;
+  }
 
   /**
    * Set up resources for the overlay given the input video’s dimensions.

@@ -20,6 +20,7 @@ import static androidx.media3.common.util.Assertions.checkNotNull;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.opengl.Matrix;
 import androidx.media3.common.C;
 import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.util.BitmapLoader;
@@ -39,10 +40,17 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  */
 @UnstableApi
 public abstract class BitmapOverlay extends TextureOverlay {
+
+  private final float[] flipVerticallyMatrix;
+
   private int lastTextureId;
   private @Nullable Bitmap lastBitmap;
 
-  BitmapOverlay() {
+  /* package */ BitmapOverlay() {
+    float[] temp = GlUtil.create4x4IdentityMatrix();
+    Matrix.scaleM(temp, /* offset */ 0, /* x= */ 1f, /* y= */ -1f, /* z= */ 1f);
+    flipVerticallyMatrix = temp;
+
     lastTextureId = C.INDEX_UNSET;
   }
 
@@ -72,16 +80,24 @@ public abstract class BitmapOverlay extends TextureOverlay {
     if (bitmap != lastBitmap) {
       try {
         lastBitmap = bitmap;
-        if (lastTextureId != -1) {
+        if (lastTextureId != C.INDEX_UNSET) {
           GlUtil.deleteTexture(lastTextureId);
         }
-        lastTextureId =
-            GlUtil.createTexture(BitmapUtil.flipBitmapVertically(checkNotNull(lastBitmap)));
+        lastTextureId = GlUtil.createTexture(checkNotNull(lastBitmap));
       } catch (GlUtil.GlException e) {
         throw new VideoFrameProcessingException(e);
       }
     }
     return lastTextureId;
+  }
+
+  @Override
+  public float[] getVertexTransformation(long presentationTimeUs) {
+    // Whereas the Android system uses the top-left corner as (0,0) of the
+    // coordinate system, OpenGL uses the bottom-left corner as (0,0), so the
+    // texture gets flipped. Flip the texture vertically to ensure the
+    // orientation of the output is correct.
+    return flipVerticallyMatrix;
   }
 
   /**
@@ -164,7 +180,7 @@ public abstract class BitmapOverlay extends TextureOverlay {
   public void release() throws VideoFrameProcessingException {
     super.release();
     lastBitmap = null;
-    if (lastTextureId != -1) {
+    if (lastTextureId != C.INDEX_UNSET) {
       try {
         GlUtil.deleteTexture(lastTextureId);
       } catch (GlUtil.GlException e) {
