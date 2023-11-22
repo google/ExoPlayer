@@ -65,6 +65,7 @@ import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer;
 import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
+import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.DebugViewProvider;
 import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.Log;
@@ -395,7 +396,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer
         assumedMinimumCodecOperatingRate);
     this.maxDroppedFramesToNotify = maxDroppedFramesToNotify;
     this.context = context.getApplicationContext();
-
     @SuppressWarnings("nullness:assignment")
     VideoFrameReleaseControl.@Initialized FrameTimingEvaluator thisRef = this;
     videoFrameReleaseControl =
@@ -619,7 +619,9 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer
   @Override
   protected void onInit() {
     super.onInit();
-    videoFrameReleaseControl.setClock(getClock());
+    Clock clock = getClock();
+    videoFrameReleaseControl.setClock(clock);
+    videoSinkProvider.setClock(clock);
   }
 
   @Override

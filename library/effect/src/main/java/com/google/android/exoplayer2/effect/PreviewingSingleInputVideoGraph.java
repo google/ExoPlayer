@@ -102,4 +102,9 @@ public final class PreviewingSingleInputVideoGraph extends SingleInputVideoGraph
         presentation,
         initialTimestampOffsetUs);
   }
+
+  @Override
+  public void renderOutputFrame(long renderTimeNs) {
+    getProcessor(SINGLE_INPUT_INDEX).renderOutputFrame(renderTimeNs);
+  }
 }

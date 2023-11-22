@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.video;
 
 import android.view.Surface;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.Size;
 import java.util.List;
@@ -84,4 +85,11 @@ public interface VideoSinkProvider {
 
   /** Sets a {@link VideoFrameMetadataListener} which is used in the returned {@link VideoSink}. */
   void setVideoFrameMetadataListener(VideoFrameMetadataListener videoFrameMetadataListener);
+
+  /**
+   * Sets the {@link Clock} that the provider should use internally.
+   *
+   * <p>Must be called before the sink provider is {@linkplain #initialize(Format) initialized}.
+   */
+  void setClock(Clock clock);
 }
