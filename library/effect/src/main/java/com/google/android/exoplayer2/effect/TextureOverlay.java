@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.effect;
 
+import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.Size;
 import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 
@@ -28,6 +29,8 @@ import com.google.android.exoplayer2.util.VideoFrameProcessingException;
  */
 @Deprecated
 public abstract class TextureOverlay {
+  private static final float[] IDENTITY_MATRIX = GlUtil.create4x4IdentityMatrix();
+
   /**
    * Returns the overlay texture identifier displayed at the specified timestamp.
    *
@@ -46,6 +49,18 @@ public abstract class TextureOverlay {
    * @param presentationTimeUs The presentation timestamp of the current frame, in microseconds.
    */
   public abstract Size getTextureSize(long presentationTimeUs);
+
+  /**
+   * Returns a 4x4 OpenGL matrix, controlling how the vertices of the overlay are displayed at the
+   * specified timestamp.
+   *
+   * <p>Applied before {@linkplain #getOverlaySettings overlay settings}.
+   *
+   * @param presentationTimeUs The presentation timestamp of the current frame, in microseconds.
+   */
+  public float[] getVertexTransformation(long presentationTimeUs) {
+    return IDENTITY_MATRIX;
+  }
 
   /**
    * Set up resources for the overlay given the input video’s dimensions.

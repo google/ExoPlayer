@@ -86,26 +86,24 @@ import com.google.common.collect.ImmutableList;
       throws VideoFrameProcessingException {
     try {
       glProgram.use();
-      if (!overlays.isEmpty()) {
-        for (int texUnitIndex = 1; texUnitIndex <= overlays.size(); texUnitIndex++) {
-          TextureOverlay overlay = overlays.get(texUnitIndex - 1);
-
-          glProgram.setSamplerTexIdUniform(
-              Util.formatInvariant("uOverlayTexSampler%d", texUnitIndex),
-              overlay.getTextureId(presentationTimeUs),
-              texUnitIndex);
-          OverlaySettings overlaySettings = overlay.getOverlaySettings(presentationTimeUs);
-          Size overlaySize = overlay.getTextureSize(presentationTimeUs);
-
-          glProgram.setFloatsUniform(
-              Util.formatInvariant("uTransformationMatrix%d", texUnitIndex),
-              samplerOverlayMatrixProvider.getTransformationMatrix(overlaySize, overlaySettings));
-
-          glProgram.setFloatUniform(
-              Util.formatInvariant("uOverlayAlphaScale%d", texUnitIndex),
-              overlaySettings.alphaScale);
-        }
+      for (int texUnitIndex = 1; texUnitIndex <= overlays.size(); texUnitIndex++) {
+        TextureOverlay overlay = overlays.get(texUnitIndex - 1);
+        glProgram.setSamplerTexIdUniform(
+            Util.formatInvariant("uOverlayTexSampler%d", texUnitIndex),
+            overlay.getTextureId(presentationTimeUs),
+            texUnitIndex);
+        glProgram.setFloatsUniform(
+            Util.formatInvariant("uVertexTransformationMatrix%d", texUnitIndex),
+            overlay.getVertexTransformation(presentationTimeUs));
+        OverlaySettings overlaySettings = overlay.getOverlaySettings(presentationTimeUs);
+        Size overlaySize = overlay.getTextureSize(presentationTimeUs);
+        glProgram.setFloatsUniform(
+            Util.formatInvariant("uTransformationMatrix%d", texUnitIndex),
+            samplerOverlayMatrixProvider.getTransformationMatrix(overlaySize, overlaySettings));
+        glProgram.setFloatUniform(
+            Util.formatInvariant("uOverlayAlphaScale%d", texUnitIndex), overlaySettings.alphaScale);
       }
+
       glProgram.setSamplerTexIdUniform("uVideoTexSampler0", inputTexId, /* texUnitIndex= */ 0);
       glProgram.bindAttributesAndUniforms();
       // The four-vertex triangle strip forms a quad.
@@ -139,6 +137,8 @@ import com.google.common.collect.ImmutableList;
     for (int texUnitIndex = 1; texUnitIndex <= numOverlays; texUnitIndex++) {
       shader
           .append(Util.formatInvariant("uniform mat4 uTransformationMatrix%s;\n", texUnitIndex))
+          .append(
+              Util.formatInvariant("uniform mat4 uVertexTransformationMatrix%s;\n", texUnitIndex))
           .append(Util.formatInvariant("varying vec2 vOverlayTexSamplingCoord%s;\n", texUnitIndex));
     }
 
@@ -154,7 +154,9 @@ import com.google.common.collect.ImmutableList;
       shader
           .append(Util.formatInvariant("  vec4 aOverlayPosition%d = \n", texUnitIndex))
           .append(
-              Util.formatInvariant("  uTransformationMatrix%s * aFramePosition;\n", texUnitIndex))
+              Util.formatInvariant(
+                  "  uVertexTransformationMatrix%s * uTransformationMatrix%s * aFramePosition;\n",
+                  texUnitIndex, texUnitIndex))
           .append(
               Util.formatInvariant(
                   "  vOverlayTexSamplingCoord%d = getTexSamplingCoord(aOverlayPosition%d.xy);\n",
