@@ -46,14 +46,11 @@ import androidx.annotation.DoNotInline;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.media3.common.C;
-import androidx.media3.common.ColorInfo;
-import androidx.media3.common.DebugViewProvider;
 import androidx.media3.common.DrmInitData;
 import androidx.media3.common.Effect;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.PlaybackException;
-import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.VideoFrameProcessor;
 import androidx.media3.common.VideoSize;
 import androidx.media3.common.util.Clock;
@@ -80,13 +77,10 @@ import androidx.media3.exoplayer.mediacodec.MediaCodecSelector;
 import androidx.media3.exoplayer.mediacodec.MediaCodecUtil;
 import androidx.media3.exoplayer.mediacodec.MediaCodecUtil.DecoderQueryException;
 import androidx.media3.exoplayer.video.VideoRendererEventListener.EventDispatcher;
-import com.google.common.base.Supplier;
-import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.nio.ByteBuffer;
 import java.util.List;
-import java.util.concurrent.Executor;
 import org.checkerframework.checker.initialization.qual.Initialized;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
@@ -349,7 +343,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer
         eventListener,
         maxDroppedFramesToNotify,
         assumedMinimumCodecOperatingRate,
-        new ReflectiveDefaultVideoFrameProcessorFactory());
+        /* videoFrameProcessorFactory= */ null);
   }
 
   /**
@@ -385,7 +379,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer
       @Nullable VideoRendererEventListener eventListener,
       int maxDroppedFramesToNotify,
       float assumedMinimumCodecOperatingRate,
-      VideoFrameProcessor.Factory videoFrameProcessorFactory) {
+      @Nullable VideoFrameProcessor.Factory videoFrameProcessorFactory) {
     super(
         C.TRACK_TYPE_VIDEO,
         codecAdapterFactory,
@@ -401,9 +395,13 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer
             this.context, /* frameTimingEvaluator= */ thisRef, allowedJoiningTimeMs);
     videoFrameReleaseInfo = new VideoFrameReleaseControl.FrameReleaseInfo();
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
-    videoSinkProvider =
-        new CompositingVideoSinkProvider(
-            context, videoFrameProcessorFactory, videoFrameReleaseControl);
+    CompositingVideoSinkProvider.Builder compositingVideoSinkProvider =
+        new CompositingVideoSinkProvider.Builder(context)
+            .setVideoFrameReleaseControl(videoFrameReleaseControl);
+    if (videoFrameProcessorFactory != null) {
+      compositingVideoSinkProvider.setVideoFrameProcessorFactory(videoFrameProcessorFactory);
+    }
+    videoSinkProvider = compositingVideoSinkProvider.build();
     deviceNeedsNoPostProcessWorkaround = deviceNeedsNoPostProcessWorkaround();
     scalingMode = C.VIDEO_SCALING_MODE_DEFAULT;
     decodedVideoSize = VideoSize.UNKNOWN;
@@ -1889,58 +1887,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer
   protected MediaCodecDecoderException createDecoderException(
       Throwable cause, @Nullable MediaCodecInfo codecInfo) {
     return new MediaCodecVideoDecoderException(cause, codecInfo, displaySurface);
-  }
-
-  /**
-   * Delays reflection for loading a {@linkplain VideoFrameProcessor.Factory
-   * DefaultVideoFrameProcessor} instance.
-   */
-  private static final class ReflectiveDefaultVideoFrameProcessorFactory
-      implements VideoFrameProcessor.Factory {
-    private static final Supplier<VideoFrameProcessor.Factory>
-        VIDEO_FRAME_PROCESSOR_FACTORY_SUPPLIER =
-            Suppliers.memoize(
-                () -> {
-                  try {
-                    // TODO: b/284964524- Add LINT and proguard checks for media3.effect reflection.
-                    Class<?> defaultVideoFrameProcessorFactoryBuilderClass =
-                        Class.forName(
-                            "androidx.media3.effect.DefaultVideoFrameProcessor$Factory$Builder");
-                    Object builder =
-                        defaultVideoFrameProcessorFactoryBuilderClass
-                            .getConstructor()
-                            .newInstance();
-                    return (VideoFrameProcessor.Factory)
-                        checkNotNull(
-                            defaultVideoFrameProcessorFactoryBuilderClass
-                                .getMethod("build")
-                                .invoke(builder));
-                  } catch (Exception e) {
-                    throw new IllegalStateException(e);
-                  }
-                });
-
-    @Override
-    public VideoFrameProcessor create(
-        Context context,
-        DebugViewProvider debugViewProvider,
-        ColorInfo inputColorInfo,
-        ColorInfo outputColorInfo,
-        boolean renderFramesAutomatically,
-        Executor listenerExecutor,
-        VideoFrameProcessor.Listener listener)
-        throws VideoFrameProcessingException {
-      return VIDEO_FRAME_PROCESSOR_FACTORY_SUPPLIER
-          .get()
-          .create(
-              context,
-              debugViewProvider,
-              inputColorInfo,
-              outputColorInfo,
-              renderFramesAutomatically,
-              listenerExecutor,
-              listener);
-    }
   }
 
   /**

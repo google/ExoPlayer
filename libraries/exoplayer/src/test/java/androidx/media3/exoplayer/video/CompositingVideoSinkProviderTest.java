@@ -18,6 +18,7 @@ package androidx.media3.exoplayer.video;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import android.content.Context;
@@ -28,7 +29,6 @@ import androidx.media3.common.Format;
 import androidx.media3.common.PreviewingVideoGraph;
 import androidx.media3.common.VideoFrameProcessor;
 import androidx.media3.common.VideoGraph;
-import androidx.media3.exoplayer.ExoPlaybackException;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
@@ -41,6 +41,30 @@ import org.mockito.Mockito;
 /** Unit test for {@link CompositingVideoSinkProvider}. */
 @RunWith(AndroidJUnit4.class)
 public final class CompositingVideoSinkProviderTest {
+
+  @Test
+  public void builder_withoutVideoFrameReleaseControl_throws() {
+    assertThrows(
+        IllegalStateException.class,
+        () ->
+            new CompositingVideoSinkProvider.Builder(ApplicationProvider.getApplicationContext())
+                .build());
+  }
+
+  @Test
+  public void builder_calledMultipleTimes_throws() {
+    CompositingVideoSinkProvider.Builder builder =
+        new CompositingVideoSinkProvider.Builder(ApplicationProvider.getApplicationContext())
+            .setVideoFrameReleaseControl(
+                new VideoFrameReleaseControl(
+                    ApplicationProvider.getApplicationContext(),
+                    mock(VideoFrameReleaseControl.FrameTimingEvaluator.class),
+                    /* allowedJoiningTimeMs= */ 0));
+
+    builder.build();
+
+    assertThrows(IllegalStateException.class, builder::build);
+  }
 
   @Test
   public void initialize() throws VideoSink.VideoSinkException {
@@ -133,6 +157,7 @@ public final class CompositingVideoSinkProviderTest {
   }
 
   private static CompositingVideoSinkProvider createCompositingVideoSinkProvider() {
+    Context context = ApplicationProvider.getApplicationContext();
     VideoFrameReleaseControl.FrameTimingEvaluator frameTimingEvaluator =
         new VideoFrameReleaseControl.FrameTimingEvaluator() {
           @Override
@@ -152,20 +177,16 @@ public final class CompositingVideoSinkProviderTest {
               long positionUs,
               long elapsedRealtimeUs,
               boolean isLastFrame,
-              boolean treatDroppedBuffersAsSkipped)
-              throws ExoPlaybackException {
+              boolean treatDroppedBuffersAsSkipped) {
             return false;
           }
         };
     VideoFrameReleaseControl releaseControl =
-        new VideoFrameReleaseControl(
-            ApplicationProvider.getApplicationContext(),
-            frameTimingEvaluator,
-            /* allowedJoiningTimeMs= */ 0);
-    return new CompositingVideoSinkProvider(
-        ApplicationProvider.getApplicationContext(),
-        new TestPreviewingVideoGraphFactory(),
-        releaseControl);
+        new VideoFrameReleaseControl(context, frameTimingEvaluator, /* allowedJoiningTimeMs= */ 0);
+    return new CompositingVideoSinkProvider.Builder(context)
+        .setPreviewingVideoGraphFactory(new TestPreviewingVideoGraphFactory())
+        .setVideoFrameReleaseControl(releaseControl)
+        .build();
   }
 
   private static class TestPreviewingVideoGraphFactory implements PreviewingVideoGraph.Factory {
