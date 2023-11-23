@@ -66,10 +66,11 @@ import java.nio.ByteBuffer;
   }
 
   /** Returns a new {@link AudioGraphInput} instance. */
-  public AudioGraphInput registerInput(EditedMediaItem item, Format format) throws ExportException {
+  public AudioGraphInput registerInput(EditedMediaItem editedMediaItem, Format format)
+      throws ExportException {
     checkArgument(format.pcmEncoding != Format.NO_VALUE);
     try {
-      AudioGraphInput audioGraphInput = new AudioGraphInput(item, format);
+      AudioGraphInput audioGraphInput = new AudioGraphInput(editedMediaItem, format);
 
       if (inputs.size() == 0) {
         outputAudioFormat = audioGraphInput.getOutputAudioFormat();
