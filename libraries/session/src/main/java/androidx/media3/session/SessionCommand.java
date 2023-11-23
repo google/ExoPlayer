@@ -38,8 +38,8 @@ import java.lang.annotation.Target;
 /**
  * A command that a {@link MediaController} can send to a {@link MediaSession}.
  *
- * <p>If {@link #commandCode} isn't {@link #COMMAND_CODE_CUSTOM}), it's a predefined command. If
- * {@link #commandCode} is {@link #COMMAND_CODE_CUSTOM}), it's a custom command and {@link
+ * <p>If {@link #commandCode} isn't {@link #COMMAND_CODE_CUSTOM}, it's a predefined command. If
+ * {@link #commandCode} is {@link #COMMAND_CODE_CUSTOM}, it's a custom command and {@link
  * #customAction} must not be {@code null}.
  */
 public final class SessionCommand implements Bundleable {
