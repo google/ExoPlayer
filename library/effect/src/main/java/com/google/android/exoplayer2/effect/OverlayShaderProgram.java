@@ -16,12 +16,12 @@
 package com.google.android.exoplayer2.effect;
 
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
+import static com.google.android.exoplayer2.util.Util.formatInvariant;
 
 import android.opengl.GLES20;
 import com.google.android.exoplayer2.util.GlProgram;
 import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.Size;
-import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 import com.google.common.collect.ImmutableList;
 
@@ -89,19 +89,19 @@ import com.google.common.collect.ImmutableList;
       for (int texUnitIndex = 1; texUnitIndex <= overlays.size(); texUnitIndex++) {
         TextureOverlay overlay = overlays.get(texUnitIndex - 1);
         glProgram.setSamplerTexIdUniform(
-            Util.formatInvariant("uOverlayTexSampler%d", texUnitIndex),
+            formatInvariant("uOverlayTexSampler%d", texUnitIndex),
             overlay.getTextureId(presentationTimeUs),
             texUnitIndex);
         glProgram.setFloatsUniform(
-            Util.formatInvariant("uVertexTransformationMatrix%d", texUnitIndex),
+            formatInvariant("uVertexTransformationMatrix%d", texUnitIndex),
             overlay.getVertexTransformation(presentationTimeUs));
         OverlaySettings overlaySettings = overlay.getOverlaySettings(presentationTimeUs);
         Size overlaySize = overlay.getTextureSize(presentationTimeUs);
         glProgram.setFloatsUniform(
-            Util.formatInvariant("uTransformationMatrix%d", texUnitIndex),
+            formatInvariant("uTransformationMatrix%d", texUnitIndex),
             samplerOverlayMatrixProvider.getTransformationMatrix(overlaySize, overlaySettings));
         glProgram.setFloatUniform(
-            Util.formatInvariant("uOverlayAlphaScale%d", texUnitIndex), overlaySettings.alphaScale);
+            formatInvariant("uOverlayAlphaScale%d", texUnitIndex), overlaySettings.alphaScale);
       }
 
       glProgram.setSamplerTexIdUniform("uVideoTexSampler0", inputTexId, /* texUnitIndex= */ 0);
@@ -136,10 +136,9 @@ import com.google.common.collect.ImmutableList;
 
     for (int texUnitIndex = 1; texUnitIndex <= numOverlays; texUnitIndex++) {
       shader
-          .append(Util.formatInvariant("uniform mat4 uTransformationMatrix%s;\n", texUnitIndex))
-          .append(
-              Util.formatInvariant("uniform mat4 uVertexTransformationMatrix%s;\n", texUnitIndex))
-          .append(Util.formatInvariant("varying vec2 vOverlayTexSamplingCoord%s;\n", texUnitIndex));
+          .append(formatInvariant("uniform mat4 uTransformationMatrix%s;\n", texUnitIndex))
+          .append(formatInvariant("uniform mat4 uVertexTransformationMatrix%s;\n", texUnitIndex))
+          .append(formatInvariant("varying vec2 vOverlayTexSamplingCoord%s;\n", texUnitIndex));
     }
 
     shader
@@ -152,13 +151,13 @@ import com.google.common.collect.ImmutableList;
 
     for (int texUnitIndex = 1; texUnitIndex <= numOverlays; texUnitIndex++) {
       shader
-          .append(Util.formatInvariant("  vec4 aOverlayPosition%d = \n", texUnitIndex))
+          .append(formatInvariant("  vec4 aOverlayPosition%d = \n", texUnitIndex))
           .append(
-              Util.formatInvariant(
+              formatInvariant(
                   "  uVertexTransformationMatrix%s * uTransformationMatrix%s * aFramePosition;\n",
                   texUnitIndex, texUnitIndex))
           .append(
-              Util.formatInvariant(
+              formatInvariant(
                   "  vOverlayTexSamplingCoord%d = getTexSamplingCoord(aOverlayPosition%d.xy);\n",
                   texUnitIndex, texUnitIndex));
     }
@@ -215,9 +214,9 @@ import com.google.common.collect.ImmutableList;
 
     for (int texUnitIndex = 1; texUnitIndex <= numOverlays; texUnitIndex++) {
       shader
-          .append(Util.formatInvariant("uniform sampler2D uOverlayTexSampler%d;\n", texUnitIndex))
-          .append(Util.formatInvariant("uniform float uOverlayAlphaScale%d;\n", texUnitIndex))
-          .append(Util.formatInvariant("varying vec2 vOverlayTexSamplingCoord%d;\n", texUnitIndex));
+          .append(formatInvariant("uniform sampler2D uOverlayTexSampler%d;\n", texUnitIndex))
+          .append(formatInvariant("uniform float uOverlayAlphaScale%d;\n", texUnitIndex))
+          .append(formatInvariant("varying vec2 vOverlayTexSamplingCoord%d;\n", texUnitIndex));
     }
 
     shader
@@ -229,21 +228,21 @@ import com.google.common.collect.ImmutableList;
     for (int texUnitIndex = 1; texUnitIndex <= numOverlays; texUnitIndex++) {
       shader
           .append(
-              Util.formatInvariant(
+              formatInvariant(
                   "  vec4 electricalOverlayColor%d = getClampToBorderOverlayColor(\n",
                   texUnitIndex))
           .append(
-              Util.formatInvariant(
+              formatInvariant(
                   "    uOverlayTexSampler%d, vOverlayTexSamplingCoord%d, uOverlayAlphaScale%d);\n",
                   texUnitIndex, texUnitIndex, texUnitIndex))
-          .append(Util.formatInvariant("  vec4 opticalOverlayColor%d = vec4(\n", texUnitIndex))
+          .append(formatInvariant("  vec4 opticalOverlayColor%d = vec4(\n", texUnitIndex))
           .append(
-              Util.formatInvariant(
+              formatInvariant(
                   "    applyEotf(electricalOverlayColor%d.rgb), electricalOverlayColor%d.a);\n",
                   texUnitIndex, texUnitIndex))
           .append("  fragColor = mix(\n")
           .append(
-              Util.formatInvariant(
+              formatInvariant(
                   "    fragColor, opticalOverlayColor%d, getMixAlpha(videoColor.a,"
                       + " opticalOverlayColor%d.a));\n",
                   texUnitIndex, texUnitIndex));

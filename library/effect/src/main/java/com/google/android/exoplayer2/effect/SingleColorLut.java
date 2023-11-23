@@ -18,12 +18,12 @@ package com.google.android.exoplayer2.effect;
 
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
+import static com.google.android.exoplayer2.util.Util.formatInvariant;
 
 import android.content.Context;
 import android.graphics.Bitmap;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.GlUtil;
-import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 
 /**
@@ -51,7 +51,7 @@ public final class SingleColorLut implements ColorLut {
         "LUT must have three dimensions.");
     checkArgument(
         lutCube.length == lutCube[0].length && lutCube.length == lutCube[0][0].length,
-        Util.formatInvariant(
+        formatInvariant(
             "All three dimensions of a LUT must match, received %d x %d x %d.",
             lutCube.length, lutCube[0].length, lutCube[0][0].length));
 
@@ -68,7 +68,7 @@ public final class SingleColorLut implements ColorLut {
   public static SingleColorLut createFromBitmap(Bitmap lut) {
     checkArgument(
         lut.getWidth() * lut.getWidth() == lut.getHeight(),
-        Util.formatInvariant(
+        formatInvariant(
             "LUT needs to be in a N x N^2 format, received %d x %d.",
             lut.getWidth(), lut.getHeight()));
     checkArgument(
