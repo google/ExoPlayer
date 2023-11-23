@@ -1173,6 +1173,18 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer
   }
 
   @Override
+  protected int getCodecBufferFlags(DecoderInputBuffer buffer) {
+    if (Util.SDK_INT >= 34 && tunneling && buffer.timeUs < getLastResetPositionUs()) {
+      // The buffer likely needs to be dropped because its timestamp is less than the start time.
+      // We can't decide to do this after decoding because we won't get the buffer back from the
+      // codec in tunneling mode. This may not work perfectly, e.g. when the codec is doing frame
+      // rate conversion, but it's still better than not dropping the buffers at all.
+      return MediaCodec.BUFFER_FLAG_DECODE_ONLY;
+    }
+    return 0;
+  }
+
+  @Override
   protected void onOutputFormatChanged(Format format, @Nullable MediaFormat mediaFormat) {
     @Nullable MediaCodecAdapter codec = getCodec();
     if (codec != null) {
