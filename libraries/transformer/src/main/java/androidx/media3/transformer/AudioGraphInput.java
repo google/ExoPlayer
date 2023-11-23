@@ -42,7 +42,7 @@ import com.google.common.collect.ImmutableList;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -72,14 +72,14 @@ import java.util.concurrent.atomic.AtomicReference;
     AudioFormat inputAudioFormat = new AudioFormat(inputFormat);
     checkArgument(isInputAudioFormatValid(inputAudioFormat), /* errorMessage= */ inputAudioFormat);
 
-    availableInputBuffers = new ConcurrentLinkedDeque<>();
+    availableInputBuffers = new ConcurrentLinkedQueue<>();
     ByteBuffer emptyBuffer = ByteBuffer.allocateDirect(0).order(ByteOrder.nativeOrder());
     for (int i = 0; i < MAX_INPUT_BUFFER_COUNT; i++) {
       DecoderInputBuffer inputBuffer = new DecoderInputBuffer(BUFFER_REPLACEMENT_MODE_DIRECT);
       inputBuffer.data = emptyBuffer;
       availableInputBuffers.add(inputBuffer);
     }
-    pendingInputBuffers = new ConcurrentLinkedDeque<>();
+    pendingInputBuffers = new ConcurrentLinkedQueue<>();
     pendingMediaItemChange = new AtomicReference<>();
     silentAudioGenerator = new SilentAudioGenerator(inputAudioFormat);
     audioProcessingPipeline =
