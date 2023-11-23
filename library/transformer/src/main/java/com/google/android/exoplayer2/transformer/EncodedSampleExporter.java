@@ -26,7 +26,7 @@ import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -81,8 +81,8 @@ import java.util.concurrent.atomic.AtomicLong;
     this.format = format;
     this.initialTimestampOffsetUs = initialTimestampOffsetUs;
     nextMediaItemOffsetUs = new AtomicLong();
-    availableInputBuffers = new ConcurrentLinkedDeque<>();
-    pendingInputBuffers = new ConcurrentLinkedDeque<>();
+    availableInputBuffers = new ConcurrentLinkedQueue<>();
+    pendingInputBuffers = new ConcurrentLinkedQueue<>();
     fallbackListener.onTransformationRequestFinalized(transformationRequest);
   }
 
