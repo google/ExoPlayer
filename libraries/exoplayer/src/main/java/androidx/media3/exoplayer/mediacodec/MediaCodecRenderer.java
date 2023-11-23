@@ -1425,11 +1425,12 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     }
 
     onQueueInputBuffer(buffer);
+    int flags = getCodecBufferFlags(buffer);
     try {
       if (bufferEncrypted) {
         checkNotNull(codec)
             .queueSecureInputBuffer(
-                inputIndex, /* offset= */ 0, buffer.cryptoInfo, presentationTimeUs, /* flags= */ 0);
+                inputIndex, /* offset= */ 0, buffer.cryptoInfo, presentationTimeUs, flags);
       } else {
         checkNotNull(codec)
             .queueInputBuffer(
@@ -1437,7 +1438,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
                 /* offset= */ 0,
                 checkNotNull(buffer.data).limit(),
                 presentationTimeUs,
-                /* flags= */ 0);
+                flags);
       }
     } catch (CryptoException e) {
       throw createRendererException(
@@ -1668,6 +1669,18 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    */
   protected void onQueueInputBuffer(DecoderInputBuffer buffer) throws ExoPlaybackException {
     // Do nothing.
+  }
+
+  /**
+   * Returns the flags that should be set on {@link MediaCodec#queueInputBuffer} or {@link
+   * MediaCodec#queueSecureInputBuffer} for this buffer.
+   *
+   * @param buffer The input buffer.
+   * @return The flags to set on {@link MediaCodec#queueInputBuffer} or {@link
+   *     MediaCodec#queueSecureInputBuffer}.
+   */
+  protected int getCodecBufferFlags(DecoderInputBuffer buffer) {
+    return 0;
   }
 
   /**
