@@ -26,7 +26,6 @@ import android.util.Pair;
 import android.view.Surface;
 import androidx.annotation.FloatRange;
 import androidx.annotation.Nullable;
-import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
@@ -42,6 +41,8 @@ import com.google.android.exoplayer2.util.TimestampIterator;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 import com.google.android.exoplayer2.util.VideoFrameProcessor;
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableList;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -65,6 +66,89 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 /* package */ final class CompositingVideoSinkProvider
     implements VideoSinkProvider, VideoGraph.Listener, VideoFrameRenderControl.FrameRenderer {
 
+  /** A builder for {@link CompositingVideoSinkProvider} instances. */
+  public static final class Builder {
+    private final Context context;
+
+    private VideoFrameProcessor.@MonotonicNonNull Factory videoFrameProcessorFactory;
+    private PreviewingVideoGraph.@MonotonicNonNull Factory previewingVideoGraphFactory;
+    private @MonotonicNonNull VideoFrameReleaseControl videoFrameReleaseControl;
+    private boolean built;
+
+    /** Creates a builder with the supplied {@linkplain Context application context}. */
+    public Builder(Context context) {
+      this.context = context;
+    }
+
+    /**
+     * Sets the {@link VideoFrameProcessor.Factory} that will be used for creating {@link
+     * VideoFrameProcessor} instances.
+     *
+     * <p>By default, the {@code DefaultVideoFrameProcessor.Factory} with its default values will be
+     * used.
+     *
+     * @param videoFrameProcessorFactory The {@link VideoFrameProcessor.Factory}.
+     * @return This builder, for convenience.
+     */
+    public Builder setVideoFrameProcessorFactory(
+        VideoFrameProcessor.Factory videoFrameProcessorFactory) {
+      this.videoFrameProcessorFactory = videoFrameProcessorFactory;
+      return this;
+    }
+
+    /**
+     * Sets the {@link PreviewingVideoGraph.Factory} that will be used for creating {@link
+     * PreviewingVideoGraph} instances.
+     *
+     * <p>By default, the {@code PreviewingSingleInputVideoGraph.Factory} will be used.
+     *
+     * @param previewingVideoGraphFactory The {@link PreviewingVideoGraph.Factory}.
+     * @return This builder, for convenience.
+     */
+    public Builder setPreviewingVideoGraphFactory(
+        PreviewingVideoGraph.Factory previewingVideoGraphFactory) {
+      this.previewingVideoGraphFactory = previewingVideoGraphFactory;
+      return this;
+    }
+
+    /**
+     * Sets the {@link VideoFrameReleaseControl} that will be used.
+     *
+     * @param videoFrameReleaseControl The {@link VideoFrameReleaseControl}.
+     * @return This builder, for convenience.
+     */
+    public Builder setVideoFrameReleaseControl(VideoFrameReleaseControl videoFrameReleaseControl) {
+      this.videoFrameReleaseControl = videoFrameReleaseControl;
+      return this;
+    }
+
+    /**
+     * Builds the {@link CompositingVideoSinkProvider}.
+     *
+     * <p>A {@link VideoFrameReleaseControl} must be set with {@link
+     * #setVideoFrameReleaseControl(VideoFrameReleaseControl)} otherwise this method throws {@link
+     * IllegalStateException}.
+     *
+     * <p>This method must be called at most once and will throw an {@link IllegalStateException} if
+     * it has already been called.
+     */
+    public CompositingVideoSinkProvider build() {
+      checkState(!built);
+
+      if (previewingVideoGraphFactory == null) {
+        if (videoFrameProcessorFactory == null) {
+          videoFrameProcessorFactory = new ReflectiveDefaultVideoFrameProcessorFactory();
+        }
+        previewingVideoGraphFactory =
+            new ReflectivePreviewingSingleInputVideoGraphFactory(videoFrameProcessorFactory);
+      }
+      CompositingVideoSinkProvider compositingVideoSinkProvider =
+          new CompositingVideoSinkProvider(this);
+      built = true;
+      return compositingVideoSinkProvider;
+    }
+  }
+
   private static final Executor NO_OP_EXECUTOR = runnable -> {};
 
   private final Context context;
@@ -85,25 +169,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private int pendingFlushCount;
   private boolean released;
 
-  /** Creates a new instance. */
-  public CompositingVideoSinkProvider(
-      Context context,
-      VideoFrameProcessor.Factory videoFrameProcessorFactory,
-      VideoFrameReleaseControl videoFrameReleaseControl) {
-    this(
-        context,
-        new ReflectivePreviewingSingleInputVideoGraphFactory(videoFrameProcessorFactory),
-        videoFrameReleaseControl);
-  }
-
-  @VisibleForTesting
-  /* package */ CompositingVideoSinkProvider(
-      Context context,
-      PreviewingVideoGraph.Factory previewingVideoGraphFactory,
-      VideoFrameReleaseControl videoFrameReleaseControl) {
-    this.context = context;
-    this.previewingVideoGraphFactory = previewingVideoGraphFactory;
-    this.videoFrameReleaseControl = videoFrameReleaseControl;
+  private CompositingVideoSinkProvider(Builder builder) {
+    this.context = builder.context;
+    this.previewingVideoGraphFactory = checkStateNotNull(builder.previewingVideoGraphFactory);
+    videoFrameReleaseControl = checkStateNotNull(builder.videoFrameReleaseControl);
     @SuppressWarnings("nullness:assignment")
     VideoFrameRenderControl.@Initialized FrameRenderer thisRef = this;
     videoFrameRenderControl =
@@ -684,6 +753,58 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       } catch (Exception e) {
         throw VideoFrameProcessingException.from(e);
       }
+    }
+  }
+
+  /**
+   * Delays reflection for loading a {@linkplain VideoFrameProcessor.Factory
+   * DefaultVideoFrameProcessor.Factory} instance.
+   */
+  private static final class ReflectiveDefaultVideoFrameProcessorFactory
+      implements VideoFrameProcessor.Factory {
+    private static final Supplier<VideoFrameProcessor.Factory>
+        VIDEO_FRAME_PROCESSOR_FACTORY_SUPPLIER =
+            Suppliers.memoize(
+                () -> {
+                  try {
+                    // TODO: b/284964524- Add LINT and proguard checks for media3.effect reflection.
+                    Class<?> defaultVideoFrameProcessorFactoryBuilderClass =
+                        Class.forName(
+                            "com.google.android.exoplayer2.effect.DefaultVideoFrameProcessor$Factory$Builder");
+                    Object builder =
+                        defaultVideoFrameProcessorFactoryBuilderClass
+                            .getConstructor()
+                            .newInstance();
+                    return (VideoFrameProcessor.Factory)
+                        checkNotNull(
+                            defaultVideoFrameProcessorFactoryBuilderClass
+                                .getMethod("build")
+                                .invoke(builder));
+                  } catch (Exception e) {
+                    throw new IllegalStateException(e);
+                  }
+                });
+
+    @Override
+    public VideoFrameProcessor create(
+        Context context,
+        DebugViewProvider debugViewProvider,
+        ColorInfo inputColorInfo,
+        ColorInfo outputColorInfo,
+        boolean renderFramesAutomatically,
+        Executor listenerExecutor,
+        VideoFrameProcessor.Listener listener)
+        throws VideoFrameProcessingException {
+      return VIDEO_FRAME_PROCESSOR_FACTORY_SUPPLIER
+          .get()
+          .create(
+              context,
+              debugViewProvider,
+              inputColorInfo,
+              outputColorInfo,
+              renderFramesAutomatically,
+              listenerExecutor,
+              listener);
     }
   }
 }
