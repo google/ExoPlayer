@@ -17,6 +17,7 @@
 package androidx.media3.effect;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
+import static androidx.media3.common.util.Util.formatInvariant;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
 import androidx.annotation.GuardedBy;
@@ -25,7 +26,6 @@ import androidx.annotation.StringDef;
 import androidx.media3.common.C;
 import androidx.media3.common.util.SystemClock;
 import androidx.media3.common.util.UnstableApi;
-import androidx.media3.common.util.Util;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
@@ -191,11 +191,11 @@ public final class DebugTraceUtil {
     for (int i = 0; i < EVENT_TYPES.size(); i++) {
       String eventType = EVENT_TYPES.get(i);
       if (!events.containsKey(eventType)) {
-        stringBuilder.append(Util.formatInvariant("\"%s\": \"No events logged\",", eventType));
+        stringBuilder.append(formatInvariant("\"%s\": \"No events logged\",", eventType));
         continue;
       }
       stringBuilder
-          .append(Util.formatInvariant("\"%s\":{", eventType))
+          .append(formatInvariant("\"%s\":{", eventType))
           .append(checkNotNull(events.get(eventType)))
           .append("},");
     }
@@ -211,7 +211,7 @@ public final class DebugTraceUtil {
       for (int i = 0; i < eventLogs.size(); i++) {
         EventLog eventLog = eventLogs.get(i);
         writer.write(
-            Util.formatInvariant(
+            formatInvariant(
                 "%s\t%d\t%s\t%s\n",
                 entry.getKey(),
                 eventLog.eventTimeMs,
@@ -246,10 +246,9 @@ public final class DebugTraceUtil {
     public String toString() {
       StringBuilder stringBuilder = new StringBuilder();
       stringBuilder.append(
-          Util.formatInvariant(
-              "\"%s@%d", presentationTimeToString(presentationTimeUs), eventTimeMs));
+          formatInvariant("\"%s@%d", presentationTimeToString(presentationTimeUs), eventTimeMs));
       if (extra != null) {
-        stringBuilder.append(Util.formatInvariant("(%s)", extra));
+        stringBuilder.append(formatInvariant("(%s)", extra));
       }
       return stringBuilder.append('"').toString();
     }
