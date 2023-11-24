@@ -19,17 +19,16 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.Typeface;
 import android.text.Layout;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.SpannedString;
 import android.text.style.StrikethroughSpan;
-import android.text.style.StyleSpan;
-import android.text.style.UnderlineSpan;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.truth.SpannedSubject;
+import com.google.android.exoplayer2.text.span.RubySpan;
+import com.google.android.exoplayer2.text.span.TextAnnotation;
 import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -86,48 +85,52 @@ public class CueSerializationTest {
   }
 
   @Test
-  public void serializingBitmapCueAndCueWithAndroidSpans() {
+  public void serializingBitmapCue() {
     CueEncoder encoder = new CueEncoder();
     CueDecoder decoder = new CueDecoder();
-    Spannable spannable = SpannableString.valueOf("text text");
-    spannable.setSpan(
-        new StrikethroughSpan(), 0, "text".length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-    spannable.setSpan(
-        new StyleSpan(Typeface.BOLD), 0, "text text".length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-    spannable.setSpan(
-        new StyleSpan(Typeface.ITALIC), 0, "text text".length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-    spannable.setSpan(
-        new UnderlineSpan(),
-        "text ".length(),
-        "text text".length(),
-        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-    Cue textCue = new Cue.Builder().setText(spannable).build();
     Bitmap bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888);
     Cue bitmapCue = new Cue.Builder().setBitmap(bitmap).build();
 
     // encoding and decoding
-    byte[] encodedCues =
-        encoder.encode(ImmutableList.of(textCue, bitmapCue), /* durationUs= */ 2000);
+    byte[] encodedCues = encoder.encode(ImmutableList.of(bitmapCue), /* durationUs= */ 2000);
     CuesWithTiming cuesAfterDecoding = decoder.decode(/* startTimeUs= */ 1000, encodedCues);
 
     assertThat(cuesAfterDecoding.startTimeUs).isEqualTo(1000);
     assertThat(cuesAfterDecoding.durationUs).isEqualTo(2000);
     assertThat(cuesAfterDecoding.endTimeUs).isEqualTo(3000);
 
-    assertThat(cuesAfterDecoding.cues).hasSize(2);
-    Cue textCueAfterDecoding = cuesAfterDecoding.cues.get(0);
-    Cue bitmapCueAfterDecoding = cuesAfterDecoding.cues.get(1);
-
-    assertThat(textCueAfterDecoding.text.toString()).isEqualTo(textCue.text.toString());
-    SpannedSubject.assertThat((Spanned) textCueAfterDecoding.text)
-        .hasStrikethroughSpanBetween(0, "text".length());
-    SpannedSubject.assertThat((Spanned) textCueAfterDecoding.text)
-        .hasBoldSpanBetween(0, "text text".length());
-    SpannedSubject.assertThat((Spanned) textCueAfterDecoding.text)
-        .hasItalicSpanBetween(0, "text text".length());
-    SpannedSubject.assertThat((Spanned) textCueAfterDecoding.text)
-        .hasUnderlineSpanBetween("text ".length(), "text text".length());
-
+    Cue bitmapCueAfterDecoding = cuesAfterDecoding.cues.get(0);
     assertThat(bitmapCueAfterDecoding.bitmap.sameAs(bitmap)).isTrue();
+  }
+
+  @Test
+  public void serializingCueWithAndroidAndCustomSpans() {
+    CueEncoder encoder = new CueEncoder();
+    CueDecoder decoder = new CueDecoder();
+    Spannable spannable = SpannableString.valueOf("The Player");
+    spannable.setSpan(new StrikethroughSpan(), 0, "The".length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+    spannable.setSpan(
+        new RubySpan("small ruby", TextAnnotation.POSITION_AFTER),
+        "The ".length(),
+        "The Player".length(),
+        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+    Cue mixedSpansCue = new Cue.Builder().setText(spannable).build();
+
+    // encoding and decoding
+    byte[] encodedCues = encoder.encode(ImmutableList.of(mixedSpansCue), /* durationUs= */ 2000);
+    CuesWithTiming cuesAfterDecoding = decoder.decode(/* startTimeUs= */ 1000, encodedCues);
+
+    assertThat(cuesAfterDecoding.startTimeUs).isEqualTo(1000);
+    assertThat(cuesAfterDecoding.durationUs).isEqualTo(2000);
+    assertThat(cuesAfterDecoding.endTimeUs).isEqualTo(3000);
+
+    Cue mixedSpansCueAfterDecoding = cuesAfterDecoding.cues.get(0);
+
+    assertThat(mixedSpansCueAfterDecoding.text.toString()).isEqualTo(mixedSpansCue.text.toString());
+    Spanned mixedSpans = (Spanned) mixedSpansCueAfterDecoding.text;
+    SpannedSubject.assertThat(mixedSpans).hasStrikethroughSpanBetween(0, "The".length());
+    SpannedSubject.assertThat(mixedSpans)
+        .hasRubySpanBetween("The ".length(), "The Player".length())
+        .withTextAndPosition("small ruby", TextAnnotation.POSITION_AFTER);
   }
 }
