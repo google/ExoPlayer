@@ -51,8 +51,6 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
   /** Best effort, or as-fast-as-possible priority setting for {@link MediaFormat#KEY_PRIORITY}. */
   private static final int PRIORITY_BEST_EFFORT = 1;
 
-  private static final String TAG = "DefaultEncoderFactory";
-
   /** A builder for {@link DefaultEncoderFactory} instances. */
   public static final class Builder {
     private final Context context;
@@ -519,6 +517,11 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
 
     if (Util.SDK_INT == 26) {
       mediaFormat.setInteger(MediaFormat.KEY_OPERATING_RATE, DEFAULT_FRAME_RATE);
+    } else if (Util.SDK_INT <= 34) {
+      // On some devices setting Integer.MAX_VALUE will cause the encoder to throw at configuration
+      // time. Setting the operating to 1000 avoids being close to an integer overflow limit while
+      // being higher than a maximum feasible operating rate. See [internal b/311206113].
+      mediaFormat.setInteger(MediaFormat.KEY_OPERATING_RATE, 1000);
     } else {
       mediaFormat.setInteger(MediaFormat.KEY_OPERATING_RATE, Integer.MAX_VALUE);
     }

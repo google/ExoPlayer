@@ -30,6 +30,8 @@
 *   Transformer:
     *   Add support for flattening H.265/HEVC SEF slow motion videos.
     *   Increase transmuxing speed, especially for 'remove video' edits.
+    *   Work around an issue where the encoder would throw at configuration time
+        due to setting a high operating rate.
 *   Track Selection:
     *   Add `DefaultTrackSelector.selectImageTrack` to enable image track
         selection.

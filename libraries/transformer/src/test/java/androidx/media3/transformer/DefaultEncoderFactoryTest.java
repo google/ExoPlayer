@@ -231,8 +231,7 @@ public class DefaultEncoderFactoryTest {
     assertThat(configurationMediaFormat.containsKey(MediaFormat.KEY_PRIORITY)).isTrue();
     assertThat(configurationMediaFormat.getInteger(MediaFormat.KEY_PRIORITY)).isEqualTo(1);
     assertThat(configurationMediaFormat.containsKey(MediaFormat.KEY_OPERATING_RATE)).isTrue();
-    assertThat(configurationMediaFormat.getInteger(MediaFormat.KEY_OPERATING_RATE))
-        .isEqualTo(Integer.MAX_VALUE);
+    assertThat(configurationMediaFormat.getInteger(MediaFormat.KEY_OPERATING_RATE)).isEqualTo(1000);
   }
 
   @Test
