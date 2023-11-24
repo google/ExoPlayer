@@ -15,6 +15,7 @@
  */
 package androidx.media3.common.text;
 
+import static androidx.media3.common.text.CustomSpanBundler.bundleCustomSpans;
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.LOCAL_VARIABLE;
 import static java.lang.annotation.ElementType.METHOD;
@@ -26,6 +27,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Layout;
 import android.text.Layout.Alignment;
+import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.SpannedString;
 import android.text.TextUtils;
@@ -42,6 +44,7 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.ArrayList;
 import org.checkerframework.dataflow.qual.Pure;
 
 /** Contains information about a specific cue, including textual content and formatting data. */
@@ -826,6 +829,7 @@ public final class Cue implements Bundleable {
   // Bundleable implementation.
 
   private static final String FIELD_TEXT = Util.intToStringMaxRadix(0);
+  private static final String FIELD_CUSTOM_SPANS = Util.intToStringMaxRadix(17);
   private static final String FIELD_TEXT_ALIGNMENT = Util.intToStringMaxRadix(1);
   private static final String FIELD_MULTI_ROW_ALIGNMENT = Util.intToStringMaxRadix(2);
   private static final String FIELD_BITMAP = Util.intToStringMaxRadix(3);
@@ -848,6 +852,12 @@ public final class Cue implements Bundleable {
   public Bundle toBundle() {
     Bundle bundle = new Bundle();
     bundle.putCharSequence(FIELD_TEXT, text);
+    if (text instanceof Spanned) {
+      ArrayList<Bundle> customSpanBundles = bundleCustomSpans((Spanned) text);
+      if (!customSpanBundles.isEmpty()) {
+        bundle.putParcelableArrayList(FIELD_CUSTOM_SPANS, customSpanBundles);
+      }
+    }
     bundle.putSerializable(FIELD_TEXT_ALIGNMENT, textAlignment);
     bundle.putSerializable(FIELD_MULTI_ROW_ALIGNMENT, multiRowAlignment);
     bundle.putParcelable(FIELD_BITMAP, bitmap);
@@ -882,6 +892,15 @@ public final class Cue implements Bundleable {
     @Nullable CharSequence text = bundle.getCharSequence(FIELD_TEXT);
     if (text != null) {
       builder.setText(text);
+      @Nullable
+      ArrayList<Bundle> customSpanBundles = bundle.getParcelableArrayList(FIELD_CUSTOM_SPANS);
+      if (customSpanBundles != null) {
+        SpannableString textWithCustomSpans = SpannableString.valueOf(text);
+        for (Bundle customSpanBundle : customSpanBundles) {
+          CustomSpanBundler.unbundleAndApplyCustomSpan(customSpanBundle, textWithCustomSpans);
+        }
+        builder.setText(textWithCustomSpans);
+      }
     }
     @Nullable Alignment textAlignment = (Alignment) bundle.getSerializable(FIELD_TEXT_ALIGNMENT);
     if (textAlignment != null) {

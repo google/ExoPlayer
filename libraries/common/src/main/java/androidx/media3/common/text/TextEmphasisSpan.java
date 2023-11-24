@@ -18,8 +18,10 @@ package androidx.media3.common.text;
 import static java.lang.annotation.ElementType.TYPE_USE;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
+import android.os.Bundle;
 import androidx.annotation.IntDef;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.common.util.Util;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
@@ -91,10 +93,29 @@ public final class TextEmphasisSpan implements LanguageFeatureSpan {
   /** The position of the text emphasis relative to the base text. */
   public final @TextAnnotation.Position int position;
 
+  private static final String FIELD_MARK_SHAPE = Util.intToStringMaxRadix(0);
+  private static final String FIELD_MARK_FILL = Util.intToStringMaxRadix(1);
+  private static final String FIELD_POSITION = Util.intToStringMaxRadix(2);
+
   public TextEmphasisSpan(
       @MarkShape int shape, @MarkFill int fill, @TextAnnotation.Position int position) {
     this.markShape = shape;
     this.markFill = fill;
     this.position = position;
+  }
+
+  public Bundle toBundle() {
+    Bundle bundle = new Bundle();
+    bundle.putInt(FIELD_MARK_SHAPE, markShape);
+    bundle.putInt(FIELD_MARK_FILL, markFill);
+    bundle.putInt(FIELD_POSITION, position);
+    return bundle;
+  }
+
+  public static TextEmphasisSpan fromBundle(Bundle bundle) {
+    return new TextEmphasisSpan(
+        /* shape= */ bundle.getInt(FIELD_MARK_SHAPE),
+        /* fill= */ bundle.getInt(FIELD_MARK_FILL),
+        /* position= */ bundle.getInt(FIELD_POSITION));
   }
 }

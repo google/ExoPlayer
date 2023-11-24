@@ -16,7 +16,11 @@
  */
 package androidx.media3.common.text;
 
+import static androidx.media3.common.util.Assertions.checkNotNull;
+
+import android.os.Bundle;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.common.util.Util;
 
 /**
  * A styling span for ruby text.
@@ -41,8 +45,24 @@ public final class RubySpan implements LanguageFeatureSpan {
   /** The position of the ruby text relative to the base text. */
   public final @TextAnnotation.Position int position;
 
+  private static final String FIELD_TEXT = Util.intToStringMaxRadix(0);
+  private static final String FIELD_POSITION = Util.intToStringMaxRadix(1);
+
   public RubySpan(String rubyText, @TextAnnotation.Position int position) {
     this.rubyText = rubyText;
     this.position = position;
+  }
+
+  public Bundle toBundle() {
+    Bundle bundle = new Bundle();
+    bundle.putString(FIELD_TEXT, rubyText);
+    bundle.putInt(FIELD_POSITION, position);
+    return bundle;
+  }
+
+  public static RubySpan fromBundle(Bundle bundle) {
+    return new RubySpan(
+        /* rubyText= */ checkNotNull(bundle.getString(FIELD_TEXT)),
+        /* position= */ bundle.getInt(FIELD_POSITION));
   }
 }
