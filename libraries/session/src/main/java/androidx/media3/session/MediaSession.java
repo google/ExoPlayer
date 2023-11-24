@@ -554,10 +554,11 @@ public class MediaSession {
 
     /**
      * Returns if the controller has been granted {@code android.permission.MEDIA_CONTENT_CONTROL}
-     * or has a enabled notification listener so it can be trusted to accept connection and incoming
-     * command request.
+     * or has an enabled notification listener so it can be trusted to accept connection and
+     * incoming command requests.
      */
-    /* package */ boolean isTrusted() {
+    @UnstableApi
+    public boolean isTrusted() {
       return isTrusted;
     }
 
