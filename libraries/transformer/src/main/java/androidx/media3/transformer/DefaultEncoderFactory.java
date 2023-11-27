@@ -21,6 +21,7 @@ import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static androidx.media3.common.util.MediaFormatUtil.createMediaFormatFromFormat;
+import static androidx.media3.common.util.Util.SDK_INT;
 import static java.lang.Math.abs;
 import static java.lang.Math.floor;
 import static java.lang.Math.round;
@@ -199,7 +200,7 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
    */
   @Override
   public DefaultCodec createForVideoEncoding(Format format) throws ExportException {
-    if (format.frameRate == Format.NO_VALUE) {
+    if (format.frameRate == Format.NO_VALUE || deviceNeedsDefaultFrameRateWorkaround()) {
       format = format.buildUpon().setFrameRate(DEFAULT_FRAME_RATE).build();
     }
     checkArgument(format.width != Format.NO_VALUE);
@@ -660,5 +661,10 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
         MimeTypes.isVideo(format.sampleMimeType),
         /* isDecoder= */ false,
         format);
+  }
+
+  private static boolean deviceNeedsDefaultFrameRateWorkaround() {
+    // Redmi Note 9 Pro fails if KEY_FRAME_RATE is set too high (see b/278076311).
+    return SDK_INT < 30 && Util.DEVICE.equals("joyeuse");
   }
 }

@@ -41,7 +41,6 @@ import androidx.media3.exoplayer.mediacodec.MediaCodecInfo;
 import androidx.media3.exoplayer.mediacodec.MediaCodecSelector;
 import androidx.media3.exoplayer.mediacodec.MediaCodecUtil;
 import java.util.List;
-import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /**
  * Default implementation of {@link Codec.DecoderFactory} that uses {@link MediaCodec} for decoding.
@@ -66,7 +65,6 @@ public final class DefaultDecoderFactory implements Codec.DecoderFactory {
 
   @Override
   public DefaultCodec createForAudioDecoding(Format format) throws ExportException {
-    checkNotNull(format.sampleMimeType);
     MediaFormat mediaFormat = createMediaFormatFromFormat(format);
 
     String mediaCodecName;
@@ -98,8 +96,6 @@ public final class DefaultDecoderFactory implements Codec.DecoderFactory {
   @Override
   public DefaultCodec createForVideoDecoding(
       Format format, Surface outputSurface, boolean requestSdrToneMapping) throws ExportException {
-    checkNotNull(format.sampleMimeType);
-
     if (ColorInfo.isTransferHdr(format.colorInfo)) {
       if (requestSdrToneMapping
           && (SDK_INT < 31
@@ -117,6 +113,9 @@ public final class DefaultDecoderFactory implements Codec.DecoderFactory {
     if (deviceNeedsDisable8kWorkaround(format)) {
       throw createExportException(
           format, /* reason= */ "Decoding 8k is not supported on this device.");
+    }
+    if (deviceNeedsNoFrameRateWorkaround()) {
+      format = format.buildUpon().setFrameRate(Format.NO_VALUE).build();
     }
 
     MediaFormat mediaFormat = createMediaFormatFromFormat(format);
@@ -195,12 +194,16 @@ public final class DefaultDecoderFactory implements Codec.DecoderFactory {
     return false;
   }
 
-  @RequiresNonNull("#1.sampleMimeType")
+  private static boolean deviceNeedsNoFrameRateWorkaround() {
+    // Redmi Note 9 Pro fails if KEY_FRAME_RATE is set too high (see b/278076311).
+    return SDK_INT < 30 && Util.DEVICE.equals("joyeuse");
+  }
+
   private static ExportException createExportException(Format format, String reason) {
     return ExportException.createForCodec(
         new IllegalArgumentException(reason),
         ExportException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED,
-        MimeTypes.isVideo(format.sampleMimeType),
+        MimeTypes.isVideo(checkNotNull(format.sampleMimeType)),
         /* isDecoder= */ true,
         format);
   }

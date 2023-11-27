@@ -158,8 +158,9 @@ public class ExportTest {
             .setEncoderFactory(new ForceEncodeEncoderFactory(context))
             .build();
     MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_ASSET_4K60_PORTRAIT_URI_STRING));
+    boolean skipCalculateSsim = Util.SDK_INT < 30 && Util.DEVICE.equals("joyeuse");
     new TransformerAndroidTestRunner.Builder(context, transformer)
-        .setRequestCalculateSsim(true)
+        .setRequestCalculateSsim(!skipCalculateSsim)
         .setTimeoutSeconds(180)
         .build()
         .run(testId, mediaItem);
