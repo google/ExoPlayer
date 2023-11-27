@@ -311,12 +311,14 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       DebugTraceUtil.logEvent(
           DebugTraceUtil.EVENT_MUXER_CAN_WRITE_SAMPLE_VIDEO,
           presentationTimeUs,
-          String.valueOf(canWriteSample));
+          /* extraFormat= */ "%s",
+          /* extraArgs...= */ canWriteSample);
     } else if (trackType == C.TRACK_TYPE_AUDIO) {
       DebugTraceUtil.logEvent(
           DebugTraceUtil.EVENT_MUXER_CAN_WRITE_SAMPLE_AUDIO,
           presentationTimeUs,
-          String.valueOf(canWriteSample));
+          /* extraFormat= */ "%s",
+          /* extraArgs...= */ canWriteSample);
     }
     if (!canWriteSample) {
       return false;
