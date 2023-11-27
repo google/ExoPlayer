@@ -29,6 +29,7 @@ import static java.lang.Math.round;
 import android.content.Context;
 import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
+import android.os.Build;
 import android.util.Pair;
 import android.util.Size;
 import androidx.annotation.Nullable;
@@ -524,14 +525,19 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
 
     if (Util.SDK_INT == 26) {
       mediaFormat.setInteger(MediaFormat.KEY_OPERATING_RATE, DEFAULT_FRAME_RATE);
-    } else if (Util.SDK_INT <= 34) {
-      // On some devices setting Integer.MAX_VALUE will cause the encoder to throw at configuration
-      // time. Setting the operating to 1000 avoids being close to an integer overflow limit while
-      // being higher than a maximum feasible operating rate. See [internal b/311206113].
+    } else if (deviceNeedsLowerOperatingRateAvoidingOverflowWorkaround()) {
       mediaFormat.setInteger(MediaFormat.KEY_OPERATING_RATE, 1000);
     } else {
       mediaFormat.setInteger(MediaFormat.KEY_OPERATING_RATE, Integer.MAX_VALUE);
     }
+  }
+
+  private static boolean deviceNeedsLowerOperatingRateAvoidingOverflowWorkaround() {
+    // On this chipset, setting an operating rate close to Integer.MAX_VALUE will cause the encoder
+    // to throw at configuration time. Setting the operating rate to 1000 avoids being close to an
+    // integer overflow limit while being higher than a maximum feasible operating rate. See
+    // [internal b/311206113].
+    return Util.SDK_INT >= 31 && Util.SDK_INT <= 34 && Build.SOC_MODEL.equals("SM8550");
   }
 
   /**
