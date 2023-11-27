@@ -246,7 +246,7 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
   private static String adjustLicenseServerUrl(String licenseServerUrl) {
     if (MOCK_LA_URL.equals(licenseServerUrl)) {
       return "";
-    } else if (Util.SDK_INT == 33 && "https://default.url".equals(licenseServerUrl)) {
+    } else if (Util.SDK_INT >= 33 && "https://default.url".equals(licenseServerUrl)) {
       // Work around b/247808112
       return "";
     } else {

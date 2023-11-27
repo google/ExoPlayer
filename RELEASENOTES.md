@@ -53,6 +53,9 @@
 *   Text:
 *   Metadata:
 *   DRM:
+    *   Extend workaround for spurious ClearKey `https://default.url` license
+        URL to API 33+ (previously the workaround only applied on API 33
+        exactly) ([#837](https://github.com/androidx/media/pull/837)).
 *   Effect:
 *   Muxers:
 *   IMA extension:
