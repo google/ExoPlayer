@@ -18,7 +18,9 @@ package androidx.media3.extractor.text;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.os.Bundle;
 import android.text.Layout;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -28,18 +30,26 @@ import android.text.style.StrikethroughSpan;
 import androidx.media3.common.text.Cue;
 import androidx.media3.common.text.RubySpan;
 import androidx.media3.common.text.TextAnnotation;
+import androidx.media3.test.utils.TestUtil;
 import androidx.media3.test.utils.truth.SpannedSubject;
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
  * Test of {@link Cue} serialization and deserialization using {@link CueEncoder} and {@link
  * CueDecoder}.
+ *
+ * <p>This needs to be an instrumentation test because Robolectric's handling of serializing a
+ * {@link Bundle} containing a {@link Bitmap} is not realistic, leading to real failures not being
+ * caught by the test (e.g. https://github.com/androidx/media/issues/836).
  */
 @RunWith(AndroidJUnit4.class)
 public class CueSerializationTest {
+
   @Test
   public void serializingCueWithoutSpans() {
     CueEncoder encoder = new CueEncoder();
@@ -86,10 +96,16 @@ public class CueSerializationTest {
   }
 
   @Test
-  public void serializingBitmapCue() {
+  @Ignore("Currently broken: https://github.com/androidx/media/issues/836")
+  public void serializingBitmapCue() throws Exception {
     CueEncoder encoder = new CueEncoder();
     CueDecoder decoder = new CueDecoder();
-    Bitmap bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888);
+
+    byte[] imageData =
+        TestUtil.getByteArray(
+            ApplicationProvider.getApplicationContext(),
+            "media/png/non-motion-photo-shortened.png");
+    Bitmap bitmap = BitmapFactory.decodeByteArray(imageData, 0, imageData.length);
     Cue bitmapCue = new Cue.Builder().setBitmap(bitmap).build();
 
     // encoding and decoding

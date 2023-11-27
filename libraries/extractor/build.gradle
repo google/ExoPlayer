@@ -22,7 +22,10 @@ android {
         }
     }
 
-    sourceSets.test.assets.srcDir '../test_data/src/test/assets/'
+    sourceSets {
+        androidTest.assets.srcDir '../test_data/src/test/assets'
+        test.assets.srcDir '../test_data/src/test/assets/'
+    }
 
     publishing {
         singleVariant('release') {
@@ -44,6 +47,9 @@ dependencies {
     testImplementation project(modulePrefix + 'test-utils')
     testImplementation project(modulePrefix + 'test-data')
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
+    androidTestImplementation 'androidx.test:runner:' + androidxTestRunnerVersion
+    androidTestImplementation project(modulePrefix + 'test-utils')
+    androidTestImplementation 'com.linkedin.dexmaker:dexmaker:' + dexmakerVersion
 }
 
 ext {
