@@ -463,9 +463,10 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
     logEvent(
         EVENT_VFP_REGISTER_NEW_INPUT_STREAM,
         /* presentationTimeUs= */ frameInfo.offsetToAddUs,
-        /* extra= */ Util.formatInvariant(
-            "InputType %s - %dx%d",
-            getInputTypeString(inputType), frameInfo.width, frameInfo.height));
+        /* extraFormat= */ "InputType %s - %dx%d",
+        /* extraArgs...= */ getInputTypeString(inputType),
+        frameInfo.width,
+        frameInfo.height);
     nextInputFrameInfo = adjustForPixelWidthHeightRatio(frameInfo);
 
     try {

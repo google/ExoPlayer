@@ -175,7 +175,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     DebugTraceUtil.logEvent(
         DebugTraceUtil.EVENT_VFP_QUEUE_BITMAP,
         currentPresentationTimeUs,
-        /* extra= */ currentFrameInfo.width + "x" + currentFrameInfo.height);
+        /* extraFormat= */ "%dx%d",
+        /* extraArgs...= */ currentFrameInfo.width,
+        currentFrameInfo.height);
 
     if (!currentBitmapInfo.inStreamOffsetsUs.hasNext()) {
       isNextFrameInTexture = false;

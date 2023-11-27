@@ -25,6 +25,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.StringDef;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.SystemClock;
+import com.google.android.exoplayer2.util.Util;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
@@ -41,7 +42,7 @@ import java.util.Map;
 import java.util.Queue;
 
 /**
- * A debugging tracing utility.
+ * A debugging tracing utility. Debug logging is disabled at compile time by default.
  *
  * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
  *     contains the same ExoPlayer code). See <a
@@ -50,6 +51,14 @@ import java.util.Queue;
  */
 @Deprecated
 public final class DebugTraceUtil {
+
+  /**
+   * Whether to store tracing events for debug logging. Should be set to {@code true} for testing
+   * and debugging purposes only, before running transformer.
+   */
+  @SuppressWarnings("NonFinalStaticField") // Only for debugging/testing.
+  public static boolean enableTracing = false;
+
   /** Events logged by {@link #logEvent}. */
   @Retention(RetentionPolicy.SOURCE)
   @StringDef({
@@ -159,25 +168,35 @@ public final class DebugTraceUtil {
   }
 
   /**
-   * Logs a new event.
+   * Logs a new event, if debug logging is enabled.
    *
    * @param eventName The {@linkplain DebugTraceEvent event name} to log.
    * @param presentationTimeUs The current presentation time of the media. Use {@link C#TIME_UNSET}
    *     if unknown, {@link C#TIME_END_OF_SOURCE} if EOS.
-   * @param extra Optional extra info about the event being logged.
+   * @param extraFormat Format string for optional extra information. See {@link
+   *     Util#formatInvariant(String, Object...)}.
+   * @param extraArgs Arguments for optional extra information.
    */
   public static synchronized void logEvent(
-      @DebugTraceEvent String eventName, long presentationTimeUs, @Nullable String extra) {
+      @DebugTraceEvent String eventName,
+      long presentationTimeUs,
+      @Nullable String extraFormat,
+      Object... extraArgs) {
+    if (!enableTracing) {
+      return;
+    }
     long eventTimeMs = SystemClock.DEFAULT.elapsedRealtime() - startTimeMs;
     if (!events.containsKey(eventName)) {
       events.put(eventName, new EventLogger());
     }
     EventLogger logger = events.get(eventName);
+    @Nullable
+    String extra = extraFormat != null ? Util.formatInvariant(extraFormat, extraArgs) : null;
     logger.addLog(new EventLog(presentationTimeUs, eventTimeMs, extra));
   }
 
   /**
-   * Logs a new event.
+   * Logs a new event, if debug logging is enabled.
    *
    * @param eventName The {@linkplain DebugTraceEvent event name} to log.
    * @param presentationTimeUs The current presentation time of the media. Use {@link C#TIME_UNSET}
@@ -185,14 +204,17 @@ public final class DebugTraceUtil {
    */
   public static synchronized void logEvent(
       @DebugTraceEvent String eventName, long presentationTimeUs) {
-    logEvent(eventName, presentationTimeUs, /* extra= */ null);
+    logEvent(eventName, presentationTimeUs, /* extraFormat= */ null);
   }
 
   /**
-   * Generate a summary of the traced events, containing the total number of times an event happened
+   * Generate a summary of the logged events, containing the total number of times an event happened
    * and the detailed log on the first and last {@link #MAX_FIRST_LAST_LOGS} times.
    */
   public static synchronized String generateTraceSummary() {
+    if (!enableTracing) {
+      return "Tracing disabled";
+    }
     StringBuilder stringBuilder = new StringBuilder().append('{');
     for (int i = 0; i < EVENT_TYPES.size(); i++) {
       String eventType = EVENT_TYPES.get(i);
@@ -209,8 +231,12 @@ public final class DebugTraceUtil {
     return stringBuilder.toString();
   }
 
-  /** Dumps all the stored events to a tsv file. */
+  /** Dumps all the logged events to a tsv file. */
   public static synchronized void dumpTsv(Writer writer) throws IOException {
+    if (!enableTracing) {
+      writer.write("Tracing disabled");
+      return;
+    }
     writer.write("event\ttimestamp\tpresentation\textra\n");
     for (Map.Entry<String, EventLogger> entry : events.entrySet()) {
       ImmutableList<EventLog> eventLogs = entry.getValue().getLogs();

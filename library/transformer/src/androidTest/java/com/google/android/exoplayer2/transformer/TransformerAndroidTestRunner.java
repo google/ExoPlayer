@@ -316,6 +316,8 @@ public class TransformerAndroidTestRunner {
     CountDownLatch countDownLatch = new CountDownLatch(1);
     long startTimeMs = SystemClock.DEFAULT.elapsedRealtime();
 
+    DebugTraceUtil.enableTracing = true;
+
     Transformer testTransformer =
         transformer
             .buildUpon()

@@ -90,7 +90,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           DebugTraceUtil.logEvent(
               DebugTraceUtil.EVENT_VFP_QUEUE_TEXTURE,
               presentationTimeUs,
-              /* extra= */ frameInfo.width + "x" + frameInfo.height);
+              /* extraFormat= */ "%dx%d",
+              /* extraArgs...= */ frameInfo.width,
+              frameInfo.height);
         });
   }
 
