@@ -19,6 +19,7 @@ import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Util.SDK_INT;
+import static com.google.android.exoplayer2.util.Util.isRunningOnEmulator;
 import static com.google.common.truth.Truth.assertThat;
 import static java.lang.Math.abs;
 import static java.lang.Math.max;
@@ -38,7 +39,6 @@ import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
-import com.google.common.base.Ascii;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -93,10 +93,7 @@ public class BitmapPixelTestUtil {
    * if running on physical devices.
    */
   public static final float MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE =
-      Ascii.toLowerCase(Util.DEVICE).contains("emulator")
-              || Ascii.toLowerCase(Util.DEVICE).contains("generic")
-          ? 1f
-          : MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE_DIFFERENT_DEVICE;
+      isRunningOnEmulator() ? 1f : MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE_DIFFERENT_DEVICE;
 
   /**
    * Maximum allowed average pixel difference between bitmaps with 16-bit primaries generated using

@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.effect;
 
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
+import static com.google.android.exoplayer2.util.Util.isRunningOnEmulator;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import android.graphics.SurfaceTexture;
@@ -30,7 +31,6 @@ import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.util.VideoFrameProcessingException;
-import com.google.common.base.Ascii;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Future;
@@ -61,11 +61,7 @@ import java.util.concurrent.atomic.AtomicInteger;
    * operation takes a long time to finish, the timeout could be a result of slow GL operation back
    * pressured the decoder, and the decoder is not able to decode another frame.
    */
-  private static final long SURFACE_TEXTURE_TIMEOUT_MS =
-      Ascii.toLowerCase(Util.DEVICE).contains("emulator")
-              || Ascii.toLowerCase(Util.DEVICE).contains("generic")
-          ? 10_000
-          : 500;
+  private static final long SURFACE_TEXTURE_TIMEOUT_MS = isRunningOnEmulator() ? 10_000 : 500;
 
   private final GlObjectsProvider glObjectsProvider;
   private final ExternalShaderProgram externalShaderProgram;

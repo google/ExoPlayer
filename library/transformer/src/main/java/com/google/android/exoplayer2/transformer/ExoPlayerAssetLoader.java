@@ -27,6 +27,7 @@ import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STA
 import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STATE_UNAVAILABLE;
 import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STATE_WAITING_FOR_AVAILABILITY;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.android.exoplayer2.util.Util.isRunningOnEmulator;
 import static java.lang.Math.min;
 
 import android.content.Context;
@@ -51,9 +52,7 @@ import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.util.Clock;
-import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
-import com.google.common.base.Ascii;
 import com.google.common.collect.ImmutableMap;
 
 /**
@@ -381,8 +380,7 @@ public final class ExoPlayerAssetLoader implements AssetLoader {
 
   private static long getReleaseTimeoutMs() {
     // b/297916906 - Emulators need a larger timeout for releasing.
-    return Ascii.toLowerCase(Util.DEVICE).contains("emulator")
-            || Ascii.toLowerCase(Util.DEVICE).contains("generic")
+    return isRunningOnEmulator()
         ? EMULATOR_RELEASE_TIMEOUT_MS
         : ExoPlayer.DEFAULT_RELEASE_TIMEOUT_MS;
   }
