@@ -491,6 +491,15 @@ public final class Util {
     return TextUtils.isEmpty(scheme) || "file".equals(scheme);
   }
 
+  /** Returns true if the code path is currently running on an emulator. */
+  @UnstableApi
+  public static boolean isRunningOnEmulator() {
+    String deviceName = Ascii.toLowerCase(Util.DEVICE);
+    return deviceName.contains("emulator")
+        || deviceName.contains("emu64a")
+        || deviceName.contains("generic");
+  }
+
   /**
    * Tests two objects for {@link Object#equals(Object)} equality, handling the case where one or
    * both may be null.

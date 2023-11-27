@@ -16,6 +16,7 @@
 package androidx.media3.effect;
 
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
+import static androidx.media3.common.util.Util.isRunningOnEmulator;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import android.graphics.SurfaceTexture;
@@ -30,7 +31,6 @@ import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.Util;
 import androidx.media3.effect.GlShaderProgram.InputListener;
-import com.google.common.base.Ascii;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Future;
@@ -55,11 +55,7 @@ import java.util.concurrent.atomic.AtomicInteger;
    * operation takes a long time to finish, the timeout could be a result of slow GL operation back
    * pressured the decoder, and the decoder is not able to decode another frame.
    */
-  private static final long SURFACE_TEXTURE_TIMEOUT_MS =
-      Ascii.toLowerCase(Util.DEVICE).contains("emulator")
-              || Ascii.toLowerCase(Util.DEVICE).contains("generic")
-          ? 10_000
-          : 500;
+  private static final long SURFACE_TEXTURE_TIMEOUT_MS = isRunningOnEmulator() ? 10_000 : 500;
 
   private final GlObjectsProvider glObjectsProvider;
   private final ExternalShaderProgram externalShaderProgram;

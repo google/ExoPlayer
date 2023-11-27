@@ -16,6 +16,7 @@
 package androidx.media3.transformer;
 
 import static androidx.media3.common.util.Util.SDK_INT;
+import static androidx.media3.common.util.Util.isRunningOnEmulator;
 import static androidx.media3.test.utils.BitmapPixelTestUtil.MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE;
 import static androidx.media3.test.utils.BitmapPixelTestUtil.maybeSaveTestBitmap;
 import static androidx.media3.test.utils.BitmapPixelTestUtil.readBitmapUnpremultipliedAlpha;
@@ -62,7 +63,6 @@ import androidx.media3.effect.VideoCompositorSettings;
 import androidx.media3.test.utils.BitmapPixelTestUtil;
 import androidx.media3.test.utils.TextureBitmapReader;
 import androidx.media3.test.utils.VideoFrameProcessorTestRunner;
-import com.google.common.base.Ascii;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import java.io.IOException;
@@ -96,11 +96,7 @@ public final class DefaultVideoCompositorPixelTest {
   // Golden images were generated on an API 33 emulator. API 26 emulators have a different text
   // rendering implementation that leads to a larger pixel difference.
   public static final float MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE_WITH_TEXT_OVERLAY =
-      (Ascii.toLowerCase(Util.DEVICE).contains("emulator")
-                  || Ascii.toLowerCase(Util.DEVICE).contains("generic"))
-              && SDK_INT <= 26
-          ? 2.5f
-          : MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE;
+      isRunningOnEmulator() && SDK_INT <= 26 ? 2.5f : MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE;
 
   @Parameterized.Parameter public boolean useSharedExecutor;
   @Rule public final TestName testName = new TestName();
