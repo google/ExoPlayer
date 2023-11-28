@@ -42,7 +42,6 @@ import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 import com.google.android.exoplayer2.util.Consumer;
 import com.google.android.exoplayer2.util.DebugViewProvider;
 import com.google.android.exoplayer2.util.Effect;
-import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.SurfaceInfo;
 import com.google.android.exoplayer2.util.Util;
@@ -107,7 +106,6 @@ import org.checkerframework.dataflow.qual.Pure;
 
     ColorInfo decoderInputColor;
     if (firstInputFormat.colorInfo == null || !firstInputFormat.colorInfo.isDataSpaceValid()) {
-      Log.d(TAG, "colorInfo is null or invalid. Defaulting to SDR_BT709_LIMITED.");
       decoderInputColor = ColorInfo.SDR_BT709_LIMITED;
     } else {
       decoderInputColor = firstInputFormat.colorInfo;
