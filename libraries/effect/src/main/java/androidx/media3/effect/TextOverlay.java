@@ -22,6 +22,8 @@ import static java.lang.Math.ceil;
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.text.Layout;
 import android.text.SpannableString;
 import android.text.StaticLayout;
@@ -78,6 +80,8 @@ public abstract class TextOverlay extends BitmapOverlay {
 
   public static final int TEXT_SIZE_PIXELS = 100;
 
+  private boolean hasUpdatedText;
+
   private @MonotonicNonNull Bitmap lastBitmap;
   private @MonotonicNonNull SpannableString lastText;
 
@@ -88,19 +92,34 @@ public abstract class TextOverlay extends BitmapOverlay {
    */
   public abstract SpannableString getText(long presentationTimeUs);
 
+  /**
+   * Returns whether the cached text overlay should be updated using the latest {@linkplain #getText
+   * text}
+   */
+  @Override
+  protected final boolean shouldInvalidateCache() {
+    return hasUpdatedText;
+  }
+
   @Override
   public Bitmap getBitmap(long presentationTimeUs) {
     SpannableString overlayText = getText(presentationTimeUs);
-    if (!overlayText.equals(lastText)) {
+    hasUpdatedText = !overlayText.equals(lastText);
+    if (shouldInvalidateCache()) {
       lastText = overlayText;
       TextPaint textPaint = new TextPaint();
       textPaint.setTextSize(TEXT_SIZE_PIXELS);
       StaticLayout staticLayout =
           createStaticLayout(overlayText, textPaint, getSpannedTextWidth(overlayText, textPaint));
-      lastBitmap =
-          Bitmap.createBitmap(
-              staticLayout.getWidth(), staticLayout.getHeight(), Bitmap.Config.ARGB_8888);
+      if (lastBitmap == null
+          || lastBitmap.getWidth() != staticLayout.getWidth()
+          || lastBitmap.getHeight() != staticLayout.getHeight()) {
+        lastBitmap =
+            Bitmap.createBitmap(
+                staticLayout.getWidth(), staticLayout.getHeight(), Bitmap.Config.ARGB_8888);
+      }
       Canvas canvas = new Canvas(checkNotNull(lastBitmap));
+      canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
       staticLayout.draw(canvas);
     }
     return checkNotNull(lastBitmap);

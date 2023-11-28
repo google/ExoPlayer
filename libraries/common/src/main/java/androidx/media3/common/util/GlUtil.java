@@ -571,20 +571,15 @@ public final class GlUtil {
   }
 
   /**
-   * Allocates a new texture, initialized with the {@link Bitmap bitmap} data.
-   *
-   * <p>The created texture will have the same size as the specified {@link Bitmap}.
+   * Allocates a new texture, initialized with the {@link Bitmap bitmap} data and size.
    *
    * @param bitmap The {@link Bitmap} for which the texture is created.
    * @return The texture identifier for the newly-allocated texture.
    * @throws GlException If the texture allocation fails.
    */
   public static int createTexture(Bitmap bitmap) throws GlException {
-    assertValidTextureSize(bitmap.getWidth(), bitmap.getHeight());
     int texId = generateTexture();
-    bindTexture(GLES20.GL_TEXTURE_2D, texId);
-    GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, /* level= */ 0, bitmap, /* border= */ 0);
-    checkGlError();
+    setTexture(texId, bitmap);
     return texId;
   }
 
@@ -642,12 +637,20 @@ public final class GlUtil {
     return texId;
   }
 
-  /** Returns a new GL texture identifier. */
-  private static int generateTexture() throws GlException {
+  /** Returns a new, unbound GL texture identifier. */
+  public static int generateTexture() throws GlException {
     int[] texId = new int[1];
     GLES20.glGenTextures(/* n= */ 1, texId, /* offset= */ 0);
     checkGlError();
     return texId[0];
+  }
+
+  /** Sets the {@code texId} to contain the {@link Bitmap bitmap} data and size. */
+  public static void setTexture(int texId, Bitmap bitmap) throws GlException {
+    assertValidTextureSize(bitmap.getWidth(), bitmap.getHeight());
+    bindTexture(GLES20.GL_TEXTURE_2D, texId);
+    GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, /* level= */ 0, bitmap, /* border= */ 0);
+    checkGlError();
   }
 
   /**
