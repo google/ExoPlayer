@@ -20,6 +20,7 @@ import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Util.formatInvariant;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
+import android.util.JsonWriter;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringDef;
@@ -29,6 +30,7 @@ import com.google.android.exoplayer2.util.Util;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.io.Writer;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -209,26 +211,32 @@ public final class DebugTraceUtil {
 
   /**
    * Generate a summary of the logged events, containing the total number of times an event happened
-   * and the detailed log on the first and last {@link #MAX_FIRST_LAST_LOGS} times.
+   * and the detailed log of a window of the oldest and newest events.
    */
   public static synchronized String generateTraceSummary() {
     if (!enableTracing) {
-      return "Tracing disabled";
+      return "\"Tracing disabled\"";
     }
-    StringBuilder stringBuilder = new StringBuilder().append('{');
-    for (int i = 0; i < EVENT_TYPES.size(); i++) {
-      String eventType = EVENT_TYPES.get(i);
-      if (!events.containsKey(eventType)) {
-        stringBuilder.append(formatInvariant("\"%s\": \"No events logged\",", eventType));
-        continue;
+    StringWriter stringWriter = new StringWriter();
+    JsonWriter jsonWriter = new JsonWriter(stringWriter);
+    try {
+      jsonWriter.beginObject();
+      for (int i = 0; i < EVENT_TYPES.size(); i++) {
+        String eventType = EVENT_TYPES.get(i);
+        jsonWriter.name(eventType);
+        if (!events.containsKey(eventType)) {
+          jsonWriter.value("No events");
+        } else {
+          checkNotNull(events.get(eventType)).toJson(jsonWriter);
+        }
       }
-      stringBuilder
-          .append(formatInvariant("\"%s\":{", eventType))
-          .append(checkNotNull(events.get(eventType)))
-          .append("},");
+      jsonWriter.endObject();
+      return stringWriter.toString();
+    } catch (IOException e) {
+      return "\"Error generating trace summary\"";
+    } finally {
+      Util.closeQuietly(jsonWriter);
     }
-    stringBuilder.append('}');
-    return stringBuilder.toString();
   }
 
   /** Dumps all the logged events to a tsv file. */
@@ -276,13 +284,8 @@ public final class DebugTraceUtil {
 
     @Override
     public String toString() {
-      StringBuilder stringBuilder = new StringBuilder();
-      stringBuilder.append(
-          formatInvariant("\"%s@%d", presentationTimeToString(presentationTimeUs), eventTimeMs));
-      if (extra != null) {
-        stringBuilder.append(formatInvariant("(%s)", extra));
-      }
-      return stringBuilder.append('"').toString();
+      return formatInvariant("%s@%d", presentationTimeToString(presentationTimeUs), eventTimeMs)
+          + (extra != null ? formatInvariant("(%s)", extra) : "");
     }
   }
 
@@ -313,24 +316,16 @@ public final class DebugTraceUtil {
       return new ImmutableList.Builder<EventLog>().addAll(firstLogs).addAll(lastLogs).build();
     }
 
-    @Override
-    public String toString() {
-      StringBuilder stringBuilder =
-          new StringBuilder().append("\"Count\": ").append(totalCount).append(", \"first\":[");
-      for (int i = 0; i < firstLogs.size(); i++) {
-        stringBuilder.append(firstLogs.get(i)).append(",");
+    public void toJson(JsonWriter jsonWriter) throws IOException {
+      jsonWriter.beginObject().name("count").value(totalCount).name("first").beginArray();
+      for (EventLog eventLog : firstLogs) {
+        jsonWriter.value(eventLog.toString());
       }
-      stringBuilder.append("],");
-      if (lastLogs.isEmpty()) {
-        return stringBuilder.toString();
+      jsonWriter.endArray().name("last").beginArray();
+      for (EventLog eventLog : lastLogs) {
+        jsonWriter.value(eventLog.toString());
       }
-      ImmutableList<EventLog> lastLogsList = ImmutableList.copyOf(lastLogs);
-      stringBuilder.append("\"last\":[");
-      for (int i = 0; i < lastLogsList.size(); i++) {
-        stringBuilder.append(lastLogsList.get(i)).append(",");
-      }
-      stringBuilder.append(']');
-      return stringBuilder.toString();
+      jsonWriter.endArray().endObject();
     }
   }
 }
