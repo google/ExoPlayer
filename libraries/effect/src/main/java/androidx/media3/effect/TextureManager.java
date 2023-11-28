@@ -152,8 +152,7 @@ import androidx.media3.common.util.TimestampIterator;
    */
   public abstract void release() throws VideoFrameProcessingException;
 
-  // Methods that must be called on the GL thread.
-
+  /** Clears any pending data. Must be called on the GL thread. */
   protected void flush() {
     synchronized (lock) {
       if (onFlushCompleteTask != null) {
