@@ -1532,9 +1532,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     if (newFormat.sampleMimeType == null) {
       // If the new format is invalid, it is either a media bug or it is not intended to be played.
       // See also https://github.com/google/ExoPlayer/issues/8283.
-
       throw createRendererException(
-          new IllegalArgumentException(),
+          new IllegalArgumentException("Sample MIME type is null."),
           newFormat,
           PlaybackException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED);
     }
