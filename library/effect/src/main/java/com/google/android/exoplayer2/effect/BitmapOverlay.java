@@ -48,6 +48,7 @@ public abstract class BitmapOverlay extends TextureOverlay {
   private final float[] flipVerticallyMatrix;
 
   private int lastTextureId;
+  private boolean hasUpdatedBitmapReference;
   private @Nullable Bitmap lastBitmap;
 
   /* package */ BitmapOverlay() {
@@ -78,16 +79,27 @@ public abstract class BitmapOverlay extends TextureOverlay {
     return new Size(checkNotNull(lastBitmap).getWidth(), checkNotNull(lastBitmap).getHeight());
   }
 
+  /**
+   * Returns whether the cached bitmap overlay should be updated using the latest {@linkplain
+   * #getBitmap bitmap}.
+   */
+  protected boolean shouldInvalidateCache() {
+    // Bitmap#sameAs() is documented as a slow method. Therefore, only use a reference comparison by
+    // default, instead of the deeper comparison done in sameAs.
+    return hasUpdatedBitmapReference;
+  }
+
   @Override
   public int getTextureId(long presentationTimeUs) throws VideoFrameProcessingException {
     Bitmap bitmap = getBitmap(presentationTimeUs);
-    if (bitmap != lastBitmap) {
+    hasUpdatedBitmapReference = bitmap != lastBitmap;
+    if (shouldInvalidateCache()) {
+      lastBitmap = bitmap;
       try {
-        lastBitmap = bitmap;
-        if (lastTextureId != C.INDEX_UNSET) {
-          GlUtil.deleteTexture(lastTextureId);
+        if (lastTextureId == C.INDEX_UNSET) {
+          lastTextureId = GlUtil.generateTexture();
         }
-        lastTextureId = GlUtil.createTexture(checkNotNull(lastBitmap));
+        GlUtil.setTexture(lastTextureId, bitmap);
       } catch (GlUtil.GlException e) {
         throw new VideoFrameProcessingException(e);
       }
