@@ -71,30 +71,21 @@ import java.util.concurrent.atomic.AtomicInteger;
   private final float[] textureTransformMatrix;
   private final Queue<FrameInfo> pendingFrames;
   private final ScheduledExecutorService forceEndOfStreamExecutorService;
-
-  // Created on any thread. Otherwise, read and written on the GL thread only.
   private final AtomicInteger externalShaderProgramInputCapacity;
+
   // Counts the frames that are registered before flush but are made available after flush.
-  // Read and written on the GL thread only.
   private int numberOfFramesToDropOnBecomingAvailable;
-
-  // Read and written on the GL thread only.
   private int availableFrameCount;
-
-  // Read and written on the GL thread only.
   private boolean currentInputStreamEnded;
 
   // The frame that is sent downstream and is not done processing yet.
-  // Read and written on the GL thread only.
   @Nullable private FrameInfo currentFrame;
 
   @Nullable private Future<?> forceSignalEndOfStreamFuture;
-
-  // Whether to reject frames from the SurfaceTexture. Accessed on the GL thread only.
   private boolean shouldRejectIncomingFrames;
 
   /**
-   * Creates a new instance.
+   * Creates a new instance. The caller's thread must have a current GL context.
    *
    * @param glObjectsProvider The {@link GlObjectsProvider} for using EGL and GLES.
    * @param externalShaderProgram The {@link ExternalShaderProgram} for which this {@code
@@ -232,8 +223,6 @@ import java.util.concurrent.atomic.AtomicInteger;
     surface.release();
     forceEndOfStreamExecutorService.shutdownNow();
   }
-
-  // Methods that must be called on the GL thread.
 
   @Override
   protected void flush() {
