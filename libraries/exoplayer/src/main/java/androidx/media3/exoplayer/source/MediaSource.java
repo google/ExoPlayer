@@ -99,6 +99,24 @@ public interface MediaSource {
     Factory setLoadErrorHandlingPolicy(LoadErrorHandlingPolicy loadErrorHandlingPolicy);
 
     /**
+     * Sets whether subtitles should be parsed as part of extraction (before being added to the
+     * sample queue) or as part of rendering (when being taken from the sample queue). Defaults to
+     * {@code false} (i.e. subtitles will be parsed as part of rendering).
+     *
+     * <p>This method is experimental and will be renamed or removed in a future release.
+     *
+     * @param parseSubtitlesDuringExtraction Whether to parse subtitles during extraction or
+     *     rendering.
+     * @return This factory, for convenience.
+     */
+    // TODO: b/289916598 - Flip the default of this to true.
+    @UnstableApi
+    default Factory experimentalParseSubtitlesDuringExtraction(
+        boolean parseSubtitlesDuringExtraction) {
+      return this;
+    }
+
+    /**
      * Returns the {@link C.ContentType content types} supported by media sources created by this
      * factory.
      */

@@ -27,6 +27,9 @@
     *   Fix issue where manual seeks outside of the
         `LiveConfiguration.min/maxOffset` range keep adjusting the offset back
         to `min/maxOffset`.
+    *   Add experimental support for parsing subtitles during extraction. You
+        can enable this using
+        `MediaSource.Factory.experimentalParseSubtitlesDuringExtraction()`.
 *   Transformer:
     *   Add support for flattening H.265/HEVC SEF slow motion videos.
     *   Increase transmuxing speed, especially for 'remove video' edits.
@@ -82,19 +85,10 @@
 *   HLS Extension:
     *   Reduce `HlsMediaPeriod` to package-private visibility. This type
         shouldn't be directly depended on from outside the HLS package.
-    *   Add experimental support for parsing subtitles during extraction. You
-        can enable this using
-        `HlsMediaSource.Factory.experimentalParseSubtitlesDuringExtraction()`.
 *   DASH Extension:
-    *   Extend experimental support for parsing subtitles during extraction to
-        work with standalone text files (previously it only worked with
-        subtitles muxed into MP4 segments).
     *   Parse "f800" as channel count of 5 for Dolby in DASH manifest
         ([#688](https://github.com/androidx/media/issues/688)).
 *   Smooth Streaming Extension:
-    *   Add experimental support for parsing subtitles during extraction. You
-        can enable this using
-        `SsMediaSource.Factory.experimentalParseSubtitlesDuringExtraction()`.
 *   RTSP Extension:
 *   Decoder Extensions (FFmpeg, VP9, AV1, MIDI, etc.):
     *   MIDI decoder: Ignore SysEx event messages
