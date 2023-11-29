@@ -37,7 +37,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  */
 @Deprecated
 public abstract class DrawableOverlay extends BitmapOverlay {
-  private boolean hasUpdatedDrawable;
   private @MonotonicNonNull Bitmap lastBitmap;
   private @MonotonicNonNull Drawable lastDrawable;
 
@@ -51,22 +50,12 @@ public abstract class DrawableOverlay extends BitmapOverlay {
    */
   public abstract Drawable getDrawable(long presentationTimeUs);
 
-  /**
-   * Returns whether the cached drawable overlay should be updated using the latest {@linkplain
-   * #getDrawable drawable}
-   */
-  @Override
-  protected final boolean shouldInvalidateCache() {
-    return hasUpdatedDrawable;
-  }
-
   @Override
   public Bitmap getBitmap(long presentationTimeUs) {
     Drawable overlayDrawable = getDrawable(presentationTimeUs);
     // TODO(b/227625365): Drawable doesn't implement the equals method, so investigate other methods
     //   of detecting the need to redraw the bitmap.
-    hasUpdatedDrawable = !overlayDrawable.equals(lastDrawable);
-    if (shouldInvalidateCache()) {
+    if (!overlayDrawable.equals(lastDrawable)) {
       lastDrawable = overlayDrawable;
       if (lastBitmap == null
           || lastBitmap.getWidth() != lastDrawable.getIntrinsicWidth()

@@ -84,8 +84,6 @@ public abstract class TextOverlay extends BitmapOverlay {
 
   public static final int TEXT_SIZE_PIXELS = 100;
 
-  private boolean hasUpdatedText;
-
   private @MonotonicNonNull Bitmap lastBitmap;
   private @MonotonicNonNull SpannableString lastText;
 
@@ -96,20 +94,10 @@ public abstract class TextOverlay extends BitmapOverlay {
    */
   public abstract SpannableString getText(long presentationTimeUs);
 
-  /**
-   * Returns whether the cached text overlay should be updated using the latest {@linkplain #getText
-   * text}
-   */
-  @Override
-  protected final boolean shouldInvalidateCache() {
-    return hasUpdatedText;
-  }
-
   @Override
   public Bitmap getBitmap(long presentationTimeUs) {
     SpannableString overlayText = getText(presentationTimeUs);
-    hasUpdatedText = !overlayText.equals(lastText);
-    if (shouldInvalidateCache()) {
+    if (!overlayText.equals(lastText)) {
       lastText = overlayText;
       TextPaint textPaint = new TextPaint();
       textPaint.setTextSize(TEXT_SIZE_PIXELS);
