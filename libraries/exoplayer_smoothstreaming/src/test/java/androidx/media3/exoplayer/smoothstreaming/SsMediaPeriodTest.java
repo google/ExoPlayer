@@ -17,6 +17,7 @@ package androidx.media3.exoplayer.smoothstreaming;
 
 import static androidx.media3.exoplayer.smoothstreaming.SsTestUtils.createSsManifest;
 import static androidx.media3.exoplayer.smoothstreaming.SsTestUtils.createStreamElement;
+import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Mockito.mock;
 
 import androidx.media3.common.C;
@@ -32,6 +33,9 @@ import androidx.media3.exoplayer.source.MediaSourceEventListener;
 import androidx.media3.exoplayer.upstream.Allocator;
 import androidx.media3.exoplayer.upstream.LoadErrorHandlingPolicy;
 import androidx.media3.exoplayer.upstream.LoaderErrorThrower;
+import androidx.media3.extractor.text.DefaultSubtitleParserFactory;
+import androidx.media3.extractor.text.SubtitleParser;
+import androidx.media3.test.utils.FakeTimeline;
 import androidx.media3.test.utils.MediaPeriodAsserts;
 import androidx.media3.test.utils.MediaPeriodAsserts.FilterableManifestMediaPeriodFactory;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -75,11 +79,73 @@ public class SsMediaPeriodTest {
               new MediaSourceEventListener.EventDispatcher()
                   .withParameters(/* windowIndex= */ 0, mediaPeriodId),
               mock(LoaderErrorThrower.class),
-              mock(Allocator.class));
+              mock(Allocator.class),
+              /* subtitleParserFactory= */ null);
         };
 
     MediaPeriodAsserts.assertGetStreamKeysAndManifestFilterIntegration(
         mediaPeriodFactory, testManifest);
+  }
+
+  @Test
+  public void getTrackGroups_withSubtitleParserFactory_matchesFormat() {
+    SubtitleParser.Factory subtitleParserFactory = new DefaultSubtitleParserFactory();
+
+    Format originalSubtitleFormat =
+        new Format.Builder()
+            .setContainerMimeType(MimeTypes.APPLICATION_MP4)
+            .setSampleMimeType(MimeTypes.TEXT_VTT)
+            .setLanguage("eng")
+            .build();
+    Format expectedSubtitleFormat =
+        new Format.Builder()
+            .setContainerMimeType(originalSubtitleFormat.containerMimeType)
+            .setSampleMimeType(MimeTypes.APPLICATION_MEDIA3_CUES)
+            .setCodecs(originalSubtitleFormat.sampleMimeType)
+            .setCueReplacementBehavior(
+                subtitleParserFactory.getCueReplacementBehavior(originalSubtitleFormat))
+            .setLanguage(originalSubtitleFormat.language)
+            .build();
+
+    SsManifest testManifest =
+        createSsManifest(
+            createStreamElement(
+                /* name= */ "video",
+                C.TRACK_TYPE_VIDEO,
+                createVideoFormat(/* bitrate= */ 200000),
+                createVideoFormat(/* bitrate= */ 400000),
+                createVideoFormat(/* bitrate= */ 800000)),
+            createStreamElement(
+                /* name= */ "audio",
+                C.TRACK_TYPE_AUDIO,
+                createAudioFormat(/* bitrate= */ 48000),
+                createAudioFormat(/* bitrate= */ 96000)),
+            createStreamElement(/* name= */ "text", C.TRACK_TYPE_TEXT, originalSubtitleFormat));
+
+    MediaPeriodId mediaPeriodId =
+        new MediaPeriodId(
+            new FakeTimeline(/* windowCount= */ 2).getUidOfPeriod(/* periodIndex= */ 0),
+            /* windowSequenceNumber= */ 0);
+
+    SsMediaPeriod period =
+        new SsMediaPeriod(
+            testManifest,
+            mock(SsChunkSource.Factory.class),
+            mock(TransferListener.class),
+            mock(CompositeSequenceableLoaderFactory.class),
+            /* cmcdConfiguration= */ null,
+            mock(DrmSessionManager.class),
+            new DrmSessionEventListener.EventDispatcher()
+                .withParameters(/* windowIndex= */ 0, mediaPeriodId),
+            mock(LoadErrorHandlingPolicy.class),
+            new MediaSourceEventListener.EventDispatcher()
+                .withParameters(/* windowIndex= */ 0, mediaPeriodId),
+            mock(LoaderErrorThrower.class),
+            mock(Allocator.class),
+            subtitleParserFactory);
+
+    Format subtitleFormat = period.getTrackGroups().get(2).getFormat(0);
+    assertThat(subtitleFormat).isEqualTo(expectedSubtitleFormat);
   }
 
   private static Format createVideoFormat(int bitrate) {

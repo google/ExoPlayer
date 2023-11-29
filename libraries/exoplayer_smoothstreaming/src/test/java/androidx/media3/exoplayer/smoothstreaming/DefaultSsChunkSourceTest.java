@@ -297,6 +297,7 @@ public class DefaultSsChunkSourceTest {
         /* streamElementIndex= */ 0,
         adaptiveTrackSelection,
         new FakeDataSource(),
-        cmcdConfiguration);
+        cmcdConfiguration,
+        /* subtitleParserFactory= */ null);
   }
 }
