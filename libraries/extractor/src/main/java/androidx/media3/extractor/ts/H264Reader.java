@@ -183,7 +183,7 @@ public final class H264Reader implements ElementaryStreamReader {
       pps.startNalUnit(nalUnitType);
     }
     sei.startNalUnit(nalUnitType);
-    sampleReader.startNalUnit(position, nalUnitType, pesTimeUs);
+    sampleReader.startNalUnit(position, nalUnitType, pesTimeUs, randomAccessIndicator);
   }
 
   @RequiresNonNull("sampleReader")
@@ -254,7 +254,7 @@ public final class H264Reader implements ElementaryStreamReader {
       seiReader.consume(pesTimeUs, seiWrapper);
     }
     boolean sampleIsKeyFrame =
-        sampleReader.endNalUnit(position, offset, hasOutputFormat, randomAccessIndicator);
+        sampleReader.endNalUnit(position, offset, hasOutputFormat);
     if (sampleIsKeyFrame) {
       // This is either an IDR frame or the first I-frame since the random access indicator, so mark
       // it as a keyframe. Clear the flag so that subsequent non-IDR I-frames are not marked as
@@ -297,6 +297,7 @@ public final class H264Reader implements ElementaryStreamReader {
     private long samplePosition;
     private long sampleTimeUs;
     private boolean sampleIsKeyframe;
+    private boolean randomAccessIndicator;
 
     public SampleReader(
         TrackOutput output, boolean allowNonIdrKeyframes, boolean detectAccessUnits) {
@@ -330,10 +331,11 @@ public final class H264Reader implements ElementaryStreamReader {
       sliceHeader.clear();
     }
 
-    public void startNalUnit(long position, int type, long pesTimeUs) {
+    public void startNalUnit(long position, int type, long pesTimeUs, boolean rai) {
       nalUnitType = type;
       nalUnitTimeUs = pesTimeUs;
       nalUnitStartPosition = position;
+      randomAccessIndicator = rai;
       if ((allowNonIdrKeyframes && nalUnitType == NalUnitUtil.NAL_UNIT_TYPE_NON_IDR)
           || (detectAccessUnits
               && (nalUnitType == NalUnitUtil.NAL_UNIT_TYPE_IDR
@@ -482,7 +484,7 @@ public final class H264Reader implements ElementaryStreamReader {
     }
 
     public boolean endNalUnit(
-        long position, int offset, boolean hasOutputFormat, boolean randomAccessIndicator) {
+        long position, int offset, boolean hasOutputFormat) {
       if (nalUnitType == NalUnitUtil.NAL_UNIT_TYPE_AUD
           || (detectAccessUnits && sliceHeader.isFirstVclNalUnitOfPicture(previousSliceHeader))) {
         // If the NAL unit ending is the start of a new sample, output the previous one.
