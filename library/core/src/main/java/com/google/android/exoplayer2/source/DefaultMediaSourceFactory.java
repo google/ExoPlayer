@@ -129,7 +129,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
   private long liveMaxOffsetMs;
   private float liveMinSpeed;
   private float liveMaxSpeed;
-  private boolean useProgressiveMediaSourceForSubtitles;
+  private boolean parseSubtitlesDuringExtraction;
 
   /**
    * Creates a new instance.
@@ -192,20 +192,17 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
   }
 
   /**
-   * Sets whether a {@link ProgressiveMediaSource} or {@link SingleSampleMediaSource} is constructed
-   * to handle {@link MediaItem.LocalConfiguration#subtitleConfigurations}. Defaults to false (i.e.
-   * {@link SingleSampleMediaSource}.
+   * {@inheritDoc}
    *
-   * <p>This method is experimental, and will be renamed or removed in a future release.
-   *
-   * @param useProgressiveMediaSourceForSubtitles Indicates that {@link ProgressiveMediaSource}
-   *     should be used for subtitles instead of {@link SingleSampleMediaSource}.
-   * @return This factory, for convenience.
+   * <p>The current limitation is that this method will have no effect when progressive media with
+   * muxed subtitles is {@linkplain #createMediaSource created}.
    */
   @CanIgnoreReturnValue
-  public DefaultMediaSourceFactory experimentalUseProgressiveMediaSourceForSubtitles(
-      boolean useProgressiveMediaSourceForSubtitles) {
-    this.useProgressiveMediaSourceForSubtitles = useProgressiveMediaSourceForSubtitles;
+  @Override
+  public DefaultMediaSourceFactory experimentalParseSubtitlesDuringExtraction(
+      boolean parseSubtitlesDuringExtraction) {
+    this.parseSubtitlesDuringExtraction = parseSubtitlesDuringExtraction;
+    delegateFactoryLoader.setParseSubtitlesDuringExtraction(parseSubtitlesDuringExtraction);
     return this;
   }
 
@@ -494,7 +491,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
       MediaSource[] mediaSources = new MediaSource[subtitleConfigurations.size() + 1];
       mediaSources[0] = mediaSource;
       for (int i = 0; i < subtitleConfigurations.size(); i++) {
-        if (useProgressiveMediaSourceForSubtitles) {
+        if (parseSubtitlesDuringExtraction) {
           Format format =
               new Format.Builder()
                   .setSampleMimeType(subtitleConfigurations.get(i).mimeType)
@@ -596,6 +593,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
     private final Map<Integer, MediaSource.Factory> mediaSourceFactories;
 
     private DataSource.@MonotonicNonNull Factory dataSourceFactory;
+    private boolean parseSubtitlesDuringExtraction;
     @Nullable private CmcdConfiguration.Factory cmcdConfigurationFactory;
     @Nullable private DrmSessionManagerProvider drmSessionManagerProvider;
     @Nullable private LoadErrorHandlingPolicy loadErrorHandlingPolicy;
@@ -635,6 +633,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
       if (loadErrorHandlingPolicy != null) {
         mediaSourceFactory.setLoadErrorHandlingPolicy(loadErrorHandlingPolicy);
       }
+      mediaSourceFactory.experimentalParseSubtitlesDuringExtraction(parseSubtitlesDuringExtraction);
       mediaSourceFactories.put(contentType, mediaSourceFactory);
       return mediaSourceFactory;
     }
@@ -646,6 +645,14 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
         // exists on the interface.
         mediaSourceFactorySuppliers.clear();
         mediaSourceFactories.clear();
+      }
+    }
+
+    public void setParseSubtitlesDuringExtraction(boolean parseSubtitlesDuringExtraction) {
+      this.parseSubtitlesDuringExtraction = parseSubtitlesDuringExtraction;
+      for (MediaSource.Factory mediaSourceFactory : mediaSourceFactories.values()) {
+        mediaSourceFactory.experimentalParseSubtitlesDuringExtraction(
+            parseSubtitlesDuringExtraction);
       }
     }
 
@@ -721,6 +728,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
             mediaSourceFactorySupplier = () -> newInstance(clazz);
             break;
           case C.CONTENT_TYPE_OTHER:
+            // TODO(181312195): potential setter on Default/ExtractorsFactory for subtitles
             mediaSourceFactorySupplier =
                 () -> new ProgressiveMediaSource.Factory(dataSourceFactory, extractorsFactory);
             break;

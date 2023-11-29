@@ -60,7 +60,7 @@ public class WebvttPlaybackTest {
         new CapturingRenderersFactory(applicationContext);
     MediaSource.Factory mediaSourceFactory =
         new DefaultMediaSourceFactory(applicationContext)
-            .experimentalUseProgressiveMediaSourceForSubtitles(true);
+            .experimentalParseSubtitlesDuringExtraction(true);
     ExoPlayer player =
         new ExoPlayer.Builder(applicationContext, capturingRenderersFactory)
             .setClock(new FakeClock(/* isAutoAdvancing= */ true))

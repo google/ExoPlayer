@@ -162,12 +162,7 @@ public final class SsMediaSource extends BaseMediaSource
     }
 
     /**
-     * Sets whether subtitles should be parsed as part of extraction (before being added to the
-     * sample queue) or as part of rendering (when being taken from the sample queue). Defaults to
-     * {@code false} (i.e. subtitles will be parsed as part of rendering).
-     *
-     * <p>This method is experimental. Its default value may change, or it may be renamed or removed
-     * in a future release.
+     * {@inheritDoc}
      *
      * <p>This method may only be used with {@link DefaultSsChunkSource.Factory}.
      *
@@ -175,8 +170,8 @@ public final class SsMediaSource extends BaseMediaSource
      *     rendering.
      * @return This factory, for convenience.
      */
-    // TODO: b/289916598 - Flip the default of this to true (probably wired up to a single method on
-    //  DefaultMediaSourceFactory via the MediaSource.Factory interface).
+    // TODO: b/289916598 - Flip the default of this to true.
+    @Override
     public Factory experimentalParseSubtitlesDuringExtraction(
         boolean parseSubtitlesDuringExtraction) {
       if (parseSubtitlesDuringExtraction) {
