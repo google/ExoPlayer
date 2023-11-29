@@ -1027,6 +1027,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           long position = positionHolder.position;
           dataSpec = buildDataSpec(position);
           long length = dataSource.open(dataSpec);
+          if (loadCanceled) {
+            break;
+          }
           if (length != C.LENGTH_UNSET) {
             length += position;
             onLengthKnown();
