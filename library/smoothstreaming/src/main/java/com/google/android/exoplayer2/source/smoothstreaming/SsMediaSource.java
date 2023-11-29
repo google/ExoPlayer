@@ -50,6 +50,8 @@ import com.google.android.exoplayer2.source.SinglePeriodTimeline;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest.StreamElement;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifestParser;
+import com.google.android.exoplayer2.text.DefaultSubtitleParserFactory;
+import com.google.android.exoplayer2.text.SubtitleParser;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.CmcdConfiguration;
 import com.google.android.exoplayer2.upstream.DataSource;
@@ -97,6 +99,7 @@ public final class SsMediaSource extends BaseMediaSource
     @Nullable private CmcdConfiguration.Factory cmcdConfigurationFactory;
     private DrmSessionManagerProvider drmSessionManagerProvider;
     private LoadErrorHandlingPolicy loadErrorHandlingPolicy;
+    @Nullable private SubtitleParser.Factory subtitleParserFactory;
     private long livePresentationDelayMs;
     @Nullable private ParsingLoadable.Parser<? extends SsManifest> manifestParser;
 
@@ -155,6 +158,40 @@ public final class SsMediaSource extends BaseMediaSource
               "MediaSource.Factory#setLoadErrorHandlingPolicy no longer handles null by"
                   + " instantiating a new DefaultLoadErrorHandlingPolicy. Explicitly construct and"
                   + " pass an instance in order to retain the old behavior.");
+      return this;
+    }
+
+    /**
+     * Sets whether subtitles should be parsed as part of extraction (before being added to the
+     * sample queue) or as part of rendering (when being taken from the sample queue). Defaults to
+     * {@code false} (i.e. subtitles will be parsed as part of rendering).
+     *
+     * <p>This method is experimental. Its default value may change, or it may be renamed or removed
+     * in a future release.
+     *
+     * <p>This method may only be used with {@link DefaultSsChunkSource.Factory}.
+     *
+     * @param parseSubtitlesDuringExtraction Whether to parse subtitles during extraction or
+     *     rendering.
+     * @return This factory, for convenience.
+     */
+    // TODO: b/289916598 - Flip the default of this to true (probably wired up to a single method on
+    //  DefaultMediaSourceFactory via the MediaSource.Factory interface).
+    public Factory experimentalParseSubtitlesDuringExtraction(
+        boolean parseSubtitlesDuringExtraction) {
+      if (parseSubtitlesDuringExtraction) {
+        if (subtitleParserFactory == null) {
+          this.subtitleParserFactory = new DefaultSubtitleParserFactory();
+        }
+      } else {
+        this.subtitleParserFactory = null;
+      }
+      if (chunkSourceFactory instanceof DefaultSsChunkSource.Factory) {
+        ((DefaultSsChunkSource.Factory) chunkSourceFactory)
+            .setSubtitleParserFactory(subtitleParserFactory);
+      } else {
+        throw new IllegalStateException();
+      }
       return this;
     }
 
@@ -279,6 +316,7 @@ public final class SsMediaSource extends BaseMediaSource
           cmcdConfiguration,
           drmSessionManagerProvider.get(mediaItem),
           loadErrorHandlingPolicy,
+          subtitleParserFactory,
           livePresentationDelayMs);
     }
 
@@ -316,6 +354,7 @@ public final class SsMediaSource extends BaseMediaSource
           cmcdConfiguration,
           drmSessionManagerProvider.get(mediaItem),
           loadErrorHandlingPolicy,
+          subtitleParserFactory,
           livePresentationDelayMs);
     }
 
@@ -359,6 +398,7 @@ public final class SsMediaSource extends BaseMediaSource
   private long manifestLoadStartTimestamp;
   private SsManifest manifest;
   private Handler manifestRefreshHandler;
+  @Nullable private final SubtitleParser.Factory subtitleParserFactory;
 
   @GuardedBy("this")
   private MediaItem mediaItem;
@@ -373,6 +413,7 @@ public final class SsMediaSource extends BaseMediaSource
       @Nullable CmcdConfiguration cmcdConfiguration,
       DrmSessionManager drmSessionManager,
       LoadErrorHandlingPolicy loadErrorHandlingPolicy,
+      @Nullable SubtitleParser.Factory subtitleParserFactory,
       long livePresentationDelayMs) {
     Assertions.checkState(manifest == null || !manifest.isLive);
     this.mediaItem = mediaItem;
@@ -389,6 +430,7 @@ public final class SsMediaSource extends BaseMediaSource
     this.cmcdConfiguration = cmcdConfiguration;
     this.drmSessionManager = drmSessionManager;
     this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
+    this.subtitleParserFactory = subtitleParserFactory;
     this.livePresentationDelayMs = livePresentationDelayMs;
     this.manifestEventDispatcher = createEventDispatcher(/* mediaPeriodId= */ null);
     sideloadedManifest = manifest != null;
@@ -456,7 +498,8 @@ public final class SsMediaSource extends BaseMediaSource
             loadErrorHandlingPolicy,
             mediaSourceEventDispatcher,
             manifestLoaderErrorThrower,
-            allocator);
+            allocator,
+            subtitleParserFactory);
     mediaPeriods.add(period);
     return period;
   }

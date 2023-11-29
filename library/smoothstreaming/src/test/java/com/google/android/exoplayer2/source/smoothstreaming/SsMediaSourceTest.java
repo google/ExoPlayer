@@ -16,8 +16,10 @@
 package com.google.android.exoplayer2.source.smoothstreaming;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.fail;
 
+import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
@@ -27,9 +29,15 @@ import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.robolectric.RobolectricUtil;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest;
+import com.google.android.exoplayer2.testutil.FakeDataSource;
 import com.google.android.exoplayer2.testutil.TestUtil;
+import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.upstream.ByteArrayDataSource;
+import com.google.android.exoplayer2.upstream.CmcdConfiguration;
 import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.LoaderErrorThrower;
+import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicReference;
@@ -92,6 +100,27 @@ public class SsMediaSourceTest {
     boolean canUpdateMediaItem = mediaSource.canUpdateMediaItem(updatedMediaItem);
 
     assertThat(canUpdateMediaItem).isFalse();
+  }
+
+  @Test
+  public void
+      setExperimentalParseSubtitlesDuringExtraction_withNonDefaultChunkSourceFactory_setThrows() {
+    SsMediaSource.Factory ssMediaSourceFactory =
+        new SsMediaSource.Factory(
+            /* chunkSourceFactory= */ this::createSampleSsChunkSource,
+            /* manifestDataSourceFactory= */ () -> createSampleDataSource(SAMPLE_MANIFEST));
+    assertThrows(
+        IllegalStateException.class,
+        () -> ssMediaSourceFactory.experimentalParseSubtitlesDuringExtraction(false));
+  }
+
+  @Test
+  public void
+      setExperimentalParseSubtitlesDuringExtraction_withDefaultChunkSourceFactory_setSucceeds() {
+    SsMediaSource.Factory ssMediaSourceFactory =
+        new SsMediaSource.Factory(() -> createSampleDataSource(SAMPLE_MANIFEST));
+    ssMediaSourceFactory.experimentalParseSubtitlesDuringExtraction(false);
+    ssMediaSourceFactory.experimentalParseSubtitlesDuringExtraction(true);
   }
 
   @Test
@@ -174,5 +203,22 @@ public class SsMediaSourceTest {
       fail(e.getMessage());
     }
     return new ByteArrayDataSource(manifestData);
+  }
+
+  private SsChunkSource createSampleSsChunkSource(
+      LoaderErrorThrower manifestLoaderErrorThrower,
+      SsManifest manifest,
+      int streamElementIndex,
+      ExoTrackSelection trackSelection,
+      @Nullable TransferListener transferListener,
+      @Nullable CmcdConfiguration cmcdConfiguration) {
+    return new DefaultSsChunkSource(
+        manifestLoaderErrorThrower,
+        manifest,
+        streamElementIndex,
+        trackSelection,
+        new FakeDataSource(),
+        cmcdConfiguration,
+        /* subtitleParserFactory= */ null);
   }
 }
