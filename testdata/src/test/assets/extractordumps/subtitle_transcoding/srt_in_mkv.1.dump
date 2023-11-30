@@ -267,7 +267,7 @@ track 2:
     flags = 1
     data = length 418, hash 56AB8D37
 track 3:
-  total output bytes = 993
+  total output bytes = 972
   sample count = 1
   format 0:
     id = 3
@@ -279,5 +279,5 @@ track 3:
   sample 0:
     time = 0
     flags = 1
-    data = length 993, hash E926FD1E
+    data = length 972, hash 8E8A2E4B
 tracksEnded = true

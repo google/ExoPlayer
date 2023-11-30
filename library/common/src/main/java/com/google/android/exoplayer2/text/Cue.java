@@ -855,16 +855,20 @@ public final class Cue implements Bundleable {
   @Override
   public Bundle toBundle() {
     Bundle bundle = new Bundle();
-    bundle.putCharSequence(FIELD_TEXT, text);
-    if (text instanceof Spanned) {
-      ArrayList<Bundle> customSpanBundles = bundleCustomSpans((Spanned) text);
-      if (!customSpanBundles.isEmpty()) {
-        bundle.putParcelableArrayList(FIELD_CUSTOM_SPANS, customSpanBundles);
+    if (text != null) {
+      bundle.putCharSequence(FIELD_TEXT, text);
+      if (text instanceof Spanned) {
+        ArrayList<Bundle> customSpanBundles = bundleCustomSpans((Spanned) text);
+        if (!customSpanBundles.isEmpty()) {
+          bundle.putParcelableArrayList(FIELD_CUSTOM_SPANS, customSpanBundles);
+        }
       }
     }
     bundle.putSerializable(FIELD_TEXT_ALIGNMENT, textAlignment);
     bundle.putSerializable(FIELD_MULTI_ROW_ALIGNMENT, multiRowAlignment);
-    bundle.putParcelable(FIELD_BITMAP, bitmap);
+    if (bitmap != null) {
+      bundle.putParcelable(FIELD_BITMAP, bitmap);
+    }
     bundle.putFloat(FIELD_LINE, line);
     bundle.putInt(FIELD_LINE_TYPE, lineType);
     bundle.putInt(FIELD_LINE_ANCHOR, lineAnchor);
