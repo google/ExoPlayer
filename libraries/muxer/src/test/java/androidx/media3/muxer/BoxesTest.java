@@ -17,6 +17,10 @@ package androidx.media3.muxer;
 
 import static androidx.media3.muxer.Mp4Muxer.LAST_FRAME_DURATION_BEHAVIOR_DUPLICATE_PREV_DURATION;
 import static androidx.media3.muxer.Mp4Muxer.LAST_FRAME_DURATION_BEHAVIOR_INSERT_SHORT_FRAME;
+import static androidx.media3.muxer.MuxerTestUtil.FAKE_AUDIO_FORMAT;
+import static androidx.media3.muxer.MuxerTestUtil.FAKE_CSD_0;
+import static androidx.media3.muxer.MuxerTestUtil.FAKE_CSD_1;
+import static androidx.media3.muxer.MuxerTestUtil.FAKE_VIDEO_FORMAT;
 import static androidx.media3.muxer.MuxerTestUtil.getExpectedDumpFilePath;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
@@ -57,15 +61,13 @@ public class BoxesTest {
 
   @Test
   public void createTkhdBox_forVideoTrack_matchesExpected() throws IOException {
-    Format videoFormat = MuxerTestUtil.getFakeVideoFormat();
-
     ByteBuffer tkhdBox =
         Boxes.tkhd(
             /* trackId= */ 1,
             /* trackDurationVu= */ 5_000_000,
             /* modificationTimestampSeconds= */ 1_000_000_000,
             /* orientation= */ 90,
-            videoFormat);
+            FAKE_VIDEO_FORMAT);
 
     DumpableMp4Box dumpableBox = new DumpableMp4Box(tkhdBox);
     DumpFileAsserts.assertOutput(
@@ -74,15 +76,13 @@ public class BoxesTest {
 
   @Test
   public void createTkhdBox_forAudioTrack_matchesExpected() throws IOException {
-    Format audioFormat = MuxerTestUtil.getFakeAudioFormat();
-
     ByteBuffer tkhdBox =
         Boxes.tkhd(
             /* trackId= */ 1,
             /* trackDurationVu= */ 5_000_000,
             /* modificationTimestampSeconds= */ 1_000_000_000,
             /* orientation= */ 90,
-            audioFormat);
+            FAKE_AUDIO_FORMAT);
 
     DumpableMp4Box dumpableBox = new DumpableMp4Box(tkhdBox);
     DumpFileAsserts.assertOutput(
@@ -315,11 +315,7 @@ public class BoxesTest {
             .setMaxInputSize(39)
             .setFrameRate(25)
             .setHeight(12)
-            .setInitializationData(
-                ImmutableList.of(
-                    BaseEncoding.base16()
-                        .decode("0000000167F4000A919B2BF3CB3640000003004000000C83C4896580"),
-                    BaseEncoding.base16().decode("0000000168EBE3C448")))
+            .setInitializationData(ImmutableList.of(FAKE_CSD_0, FAKE_CSD_1))
             .build();
 
     ByteBuffer videoSampleEntryBox = Boxes.videoSampleEntry(format);
