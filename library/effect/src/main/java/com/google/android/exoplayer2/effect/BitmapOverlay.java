@@ -51,60 +51,12 @@ public abstract class BitmapOverlay extends TextureOverlay {
   private int lastBitmapGenerationId;
   private @Nullable Bitmap lastBitmap;
 
-  /* package */ BitmapOverlay() {
+  public BitmapOverlay() {
     float[] temp = GlUtil.create4x4IdentityMatrix();
     Matrix.scaleM(temp, /* offset */ 0, /* x= */ 1f, /* y= */ -1f, /* z= */ 1f);
     flipVerticallyMatrix = temp;
 
     lastTextureId = C.INDEX_UNSET;
-  }
-
-  /**
-   * Returns the overlay bitmap displayed at the specified timestamp.
-   *
-   * @param presentationTimeUs The presentation timestamp of the current frame, in microseconds.
-   * @throws VideoFrameProcessingException If an error occurs while processing or drawing the frame.
-   */
-  public abstract Bitmap getBitmap(long presentationTimeUs) throws VideoFrameProcessingException;
-
-  /**
-   * {@inheritDoc}
-   *
-   * <p>Gets the width and height of the cached bitmap.
-   *
-   * @param presentationTimeUs The presentation timestamp of the current frame, in microseconds.
-   */
-  @Override
-  public Size getTextureSize(long presentationTimeUs) {
-    return new Size(checkNotNull(lastBitmap).getWidth(), checkNotNull(lastBitmap).getHeight());
-  }
-
-  @Override
-  public int getTextureId(long presentationTimeUs) throws VideoFrameProcessingException {
-    Bitmap bitmap = getBitmap(presentationTimeUs);
-    int generationId = bitmap.getGenerationId();
-    if (bitmap != lastBitmap || generationId != lastBitmapGenerationId) {
-      lastBitmap = bitmap;
-      lastBitmapGenerationId = generationId;
-      try {
-        if (lastTextureId == C.INDEX_UNSET) {
-          lastTextureId = GlUtil.generateTexture();
-        }
-        GlUtil.setTexture(lastTextureId, bitmap);
-      } catch (GlUtil.GlException e) {
-        throw new VideoFrameProcessingException(e);
-      }
-    }
-    return lastTextureId;
-  }
-
-  @Override
-  public float[] getVertexTransformation(long presentationTimeUs) {
-    // Whereas the Android system uses the top-left corner as (0,0) of the
-    // coordinate system, OpenGL uses the bottom-left corner as (0,0), so the
-    // texture gets flipped. Flip the texture vertically to ensure the
-    // orientation of the output is correct.
-    return flipVerticallyMatrix;
   }
 
   /**
@@ -181,6 +133,54 @@ public abstract class BitmapOverlay extends TextureOverlay {
         return overlaySettings;
       }
     };
+  }
+
+  /**
+   * Returns the overlay bitmap displayed at the specified timestamp.
+   *
+   * @param presentationTimeUs The presentation timestamp of the current frame, in microseconds.
+   * @throws VideoFrameProcessingException If an error occurs while processing or drawing the frame.
+   */
+  public abstract Bitmap getBitmap(long presentationTimeUs) throws VideoFrameProcessingException;
+
+  /**
+   * {@inheritDoc}
+   *
+   * <p>Gets the width and height of the cached bitmap.
+   *
+   * @param presentationTimeUs The presentation timestamp of the current frame, in microseconds.
+   */
+  @Override
+  public Size getTextureSize(long presentationTimeUs) {
+    return new Size(checkNotNull(lastBitmap).getWidth(), checkNotNull(lastBitmap).getHeight());
+  }
+
+  @Override
+  public int getTextureId(long presentationTimeUs) throws VideoFrameProcessingException {
+    Bitmap bitmap = getBitmap(presentationTimeUs);
+    int generationId = bitmap.getGenerationId();
+    if (bitmap != lastBitmap || generationId != lastBitmapGenerationId) {
+      lastBitmap = bitmap;
+      lastBitmapGenerationId = generationId;
+      try {
+        if (lastTextureId == C.INDEX_UNSET) {
+          lastTextureId = GlUtil.generateTexture();
+        }
+        GlUtil.setTexture(lastTextureId, bitmap);
+      } catch (GlUtil.GlException e) {
+        throw new VideoFrameProcessingException(e);
+      }
+    }
+    return lastTextureId;
+  }
+
+  @Override
+  public float[] getVertexTransformation(long presentationTimeUs) {
+    // Whereas the Android system uses the top-left corner as (0,0) of the
+    // coordinate system, OpenGL uses the bottom-left corner as (0,0), so the
+    // texture gets flipped. Flip the texture vertically to ensure the
+    // orientation of the output is correct.
+    return flipVerticallyMatrix;
   }
 
   @Override
