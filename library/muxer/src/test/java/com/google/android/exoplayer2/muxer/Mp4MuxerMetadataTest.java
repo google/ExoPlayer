@@ -15,12 +15,13 @@
  */
 package com.google.android.exoplayer2.muxer;
 
+import static com.google.android.exoplayer2.muxer.MuxerTestUtil.FAKE_VIDEO_FORMAT;
+
 import android.content.Context;
 import android.media.MediaCodec.BufferInfo;
 import android.util.Pair;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.mp4.Mp4Extractor;
 import com.google.android.exoplayer2.muxer.Mp4Muxer.TrackToken;
 import com.google.android.exoplayer2.testutil.DumpFileAsserts;
@@ -29,7 +30,6 @@ import com.google.android.exoplayer2.testutil.FakeExtractorOutput;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import java.io.FileOutputStream;
 import java.nio.ByteBuffer;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -43,30 +43,18 @@ public class Mp4MuxerMetadataTest {
   // Input files.
   private static final String XMP_SAMPLE_DATA = "media/xmp/sample_datetime_xmp.xmp";
 
-  private Context context;
-  private String outputFilePath;
-  private FileOutputStream outputFileStream;
-  private Format format;
-  private Pair<ByteBuffer, BufferInfo> sampleAndSampleInfo;
-
-  @Before
-  public void setUp() throws Exception {
-    context = ApplicationProvider.getApplicationContext();
-
-    outputFilePath = temporaryFolder.newFile("output.mp4").getPath();
-    outputFileStream = new FileOutputStream(outputFilePath);
-
-    format = MuxerTestUtil.getFakeVideoFormat();
-    sampleAndSampleInfo = MuxerTestUtil.getFakeSampleAndSampleInfo(/* presentationTimeUs= */ 0L);
-  }
+  private final Context context = ApplicationProvider.getApplicationContext();
+  private final Pair<ByteBuffer, BufferInfo> sampleAndSampleInfo =
+      MuxerTestUtil.getFakeSampleAndSampleInfo(/* presentationTimeUs= */ 0L);
 
   @Test
   public void writeMp4File_orientationNotSet_setsOrientationTo0() throws Exception {
-    Mp4Muxer muxer = new Mp4Muxer.Builder(outputFileStream).build();
+    String outputFilePath = temporaryFolder.newFile().getPath();
+    Mp4Muxer muxer = new Mp4Muxer.Builder(new FileOutputStream(outputFilePath)).build();
 
     try {
       muxer.setModificationTime(/* timestampMs= */ 5_000_000L);
-      TrackToken token = muxer.addTrack(/* sortKey= */ 0, format);
+      TrackToken token = muxer.addTrack(/* sortKey= */ 0, FAKE_VIDEO_FORMAT);
       muxer.writeSampleData(token, sampleAndSampleInfo.first, sampleAndSampleInfo.second);
     } finally {
       muxer.close();
@@ -83,11 +71,12 @@ public class Mp4MuxerMetadataTest {
 
   @Test
   public void writeMp4File_setOrientationTo90_setsOrientationTo90() throws Exception {
-    Mp4Muxer muxer = new Mp4Muxer.Builder(outputFileStream).build();
+    String outputFilePath = temporaryFolder.newFile().getPath();
+    Mp4Muxer muxer = new Mp4Muxer.Builder(new FileOutputStream(outputFilePath)).build();
 
     try {
       muxer.setModificationTime(/* timestampMs= */ 5_000_000L);
-      TrackToken token = muxer.addTrack(/* sortKey= */ 0, format);
+      TrackToken token = muxer.addTrack(/* sortKey= */ 0, FAKE_VIDEO_FORMAT);
       muxer.writeSampleData(token, sampleAndSampleInfo.first, sampleAndSampleInfo.second);
 
       muxer.setOrientation(90);
@@ -106,11 +95,12 @@ public class Mp4MuxerMetadataTest {
 
   @Test
   public void writeMp4File_setOrientationTo180_setsOrientationTo180() throws Exception {
-    Mp4Muxer muxer = new Mp4Muxer.Builder(outputFileStream).build();
+    String outputFilePath = temporaryFolder.newFile().getPath();
+    Mp4Muxer muxer = new Mp4Muxer.Builder(new FileOutputStream(outputFilePath)).build();
 
     try {
       muxer.setModificationTime(/* timestampMs= */ 5_000_000L);
-      TrackToken token = muxer.addTrack(/* sortKey= */ 0, format);
+      TrackToken token = muxer.addTrack(/* sortKey= */ 0, FAKE_VIDEO_FORMAT);
       muxer.writeSampleData(token, sampleAndSampleInfo.first, sampleAndSampleInfo.second);
 
       muxer.setOrientation(180);
@@ -129,11 +119,12 @@ public class Mp4MuxerMetadataTest {
 
   @Test
   public void writeMp4File_setOrientationTo270_setsOrientationTo270() throws Exception {
-    Mp4Muxer muxer = new Mp4Muxer.Builder(outputFileStream).build();
+    String outputFilePath = temporaryFolder.newFile().getPath();
+    Mp4Muxer muxer = new Mp4Muxer.Builder(new FileOutputStream(outputFilePath)).build();
 
     try {
       muxer.setModificationTime(/* timestampMs= */ 5_000_000L);
-      TrackToken token = muxer.addTrack(/* sortKey= */ 0, format);
+      TrackToken token = muxer.addTrack(/* sortKey= */ 0, FAKE_VIDEO_FORMAT);
       muxer.writeSampleData(token, sampleAndSampleInfo.first, sampleAndSampleInfo.second);
 
       muxer.setOrientation(270);
@@ -152,11 +143,12 @@ public class Mp4MuxerMetadataTest {
 
   @Test
   public void writeMp4File_setLocation_setsSameLocation() throws Exception {
-    Mp4Muxer muxer = new Mp4Muxer.Builder(outputFileStream).build();
+    String outputFilePath = temporaryFolder.newFile().getPath();
+    Mp4Muxer muxer = new Mp4Muxer.Builder(new FileOutputStream(outputFilePath)).build();
 
     try {
       muxer.setModificationTime(/* timestampMs= */ 5_000_000L);
-      TrackToken token = muxer.addTrack(/* sortKey= */ 0, format);
+      TrackToken token = muxer.addTrack(/* sortKey= */ 0, FAKE_VIDEO_FORMAT);
       muxer.writeSampleData(token, sampleAndSampleInfo.first, sampleAndSampleInfo.second);
       muxer.setLocation(33.0f, -120f);
     } finally {
@@ -174,11 +166,12 @@ public class Mp4MuxerMetadataTest {
 
   @Test
   public void writeMp4File_locationNotSet_setsLocationToNull() throws Exception {
-    Mp4Muxer muxer = new Mp4Muxer.Builder(outputFileStream).build();
+    String outputFilePath = temporaryFolder.newFile().getPath();
+    Mp4Muxer muxer = new Mp4Muxer.Builder(new FileOutputStream(outputFilePath)).build();
 
     try {
       muxer.setModificationTime(/* timestampMs= */ 5_000_000L);
-      TrackToken token = muxer.addTrack(/* sortKey= */ 0, format);
+      TrackToken token = muxer.addTrack(/* sortKey= */ 0, FAKE_VIDEO_FORMAT);
       muxer.writeSampleData(token, sampleAndSampleInfo.first, sampleAndSampleInfo.second);
     } finally {
       muxer.close();
@@ -195,12 +188,13 @@ public class Mp4MuxerMetadataTest {
 
   @Test
   public void writeMp4File_setFrameRate_setsSameFrameRate() throws Exception {
-    Mp4Muxer muxer = new Mp4Muxer.Builder(outputFileStream).build();
+    String outputFilePath = temporaryFolder.newFile().getPath();
+    Mp4Muxer muxer = new Mp4Muxer.Builder(new FileOutputStream(outputFilePath)).build();
 
     try {
       muxer.setModificationTime(/* timestampMs= */ 5_000_000L);
       muxer.setCaptureFps(120.0f);
-      TrackToken token = muxer.addTrack(/* sortKey= */ 0, format);
+      TrackToken token = muxer.addTrack(/* sortKey= */ 0, FAKE_VIDEO_FORMAT);
       muxer.writeSampleData(token, sampleAndSampleInfo.first, sampleAndSampleInfo.second);
     } finally {
       muxer.close();
@@ -217,12 +211,13 @@ public class Mp4MuxerMetadataTest {
 
   @Test
   public void writeMp4File_addStringMetadata_matchesExpected() throws Exception {
-    Mp4Muxer muxer = new Mp4Muxer.Builder(outputFileStream).build();
+    String outputFilePath = temporaryFolder.newFile().getPath();
+    Mp4Muxer muxer = new Mp4Muxer.Builder(new FileOutputStream(outputFilePath)).build();
 
     try {
       muxer.setModificationTime(/* timestampMs= */ 5_000_000L);
       muxer.addMetadata("SomeStringKey", "Some Random String");
-      TrackToken token = muxer.addTrack(/* sortKey= */ 0, format);
+      TrackToken token = muxer.addTrack(/* sortKey= */ 0, FAKE_VIDEO_FORMAT);
       muxer.writeSampleData(token, sampleAndSampleInfo.first, sampleAndSampleInfo.second);
     } finally {
       muxer.close();
@@ -239,12 +234,13 @@ public class Mp4MuxerMetadataTest {
 
   @Test
   public void writeMp4File_addFloatMetadata_matchesExpected() throws Exception {
-    Mp4Muxer muxer = new Mp4Muxer.Builder(outputFileStream).build();
+    String outputFilePath = temporaryFolder.newFile().getPath();
+    Mp4Muxer muxer = new Mp4Muxer.Builder(new FileOutputStream(outputFilePath)).build();
 
     try {
       muxer.setModificationTime(/* timestampMs= */ 5_000_000L);
       muxer.addMetadata("SomeStringKey", 10.0f);
-      TrackToken token = muxer.addTrack(/* sortKey= */ 0, format);
+      TrackToken token = muxer.addTrack(/* sortKey= */ 0, FAKE_VIDEO_FORMAT);
       muxer.writeSampleData(token, sampleAndSampleInfo.first, sampleAndSampleInfo.second);
     } finally {
       muxer.close();
@@ -261,7 +257,8 @@ public class Mp4MuxerMetadataTest {
 
   @Test
   public void writeMp4File_addXmp_matchesExpected() throws Exception {
-    Mp4Muxer muxer = new Mp4Muxer.Builder(outputFileStream).build();
+    String outputFilePath = temporaryFolder.newFile().getPath();
+    Mp4Muxer muxer = new Mp4Muxer.Builder(new FileOutputStream(outputFilePath)).build();
 
     try {
       muxer.setModificationTime(/* timestampMs= */ 5_000_000L);
@@ -270,7 +267,7 @@ public class Mp4MuxerMetadataTest {
       ByteBuffer xmp = ByteBuffer.wrap(xmpBytes);
       muxer.addXmp(xmp);
       xmp.rewind();
-      TrackToken token = muxer.addTrack(0, format);
+      TrackToken token = muxer.addTrack(0, FAKE_VIDEO_FORMAT);
       muxer.writeSampleData(token, sampleAndSampleInfo.first, sampleAndSampleInfo.second);
     } finally {
       muxer.close();

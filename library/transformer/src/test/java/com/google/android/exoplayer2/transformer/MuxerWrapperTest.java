@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.transformer;
 
 import static com.google.android.exoplayer2.transformer.MuxerWrapper.MUXER_MODE_MUX_PARTIAL_VIDEO;
+import static com.google.android.exoplayer2.util.MimeTypes.AUDIO_AAC;
 import static com.google.android.exoplayer2.util.MimeTypes.VIDEO_H264;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
@@ -25,9 +26,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.collect.ImmutableList;
-import java.io.IOException;
 import java.nio.ByteBuffer;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -36,8 +35,6 @@ import org.junit.runner.RunWith;
 /** Unit tests for {@link MuxerWrapper}. */
 @RunWith(AndroidJUnit4.class)
 public class MuxerWrapperTest {
-  @Rule public final TemporaryFolder temporaryFolder = new TemporaryFolder();
-
   private static final Format FAKE_VIDEO_TRACK_FORMAT =
       new Format.Builder()
           .setSampleMimeType(VIDEO_H264)
@@ -48,25 +45,20 @@ public class MuxerWrapperTest {
           .build();
   private static final Format FAKE_AUDIO_TRACK_FORMAT =
       new Format.Builder()
-          .setSampleMimeType("audio/mp4a-latm")
+          .setSampleMimeType(AUDIO_AAC)
           .setSampleRate(40000)
           .setChannelCount(2)
           .build();
 
   private static final ByteBuffer FAKE_SAMPLE = ByteBuffer.wrap(new byte[] {1, 2, 3, 4});
 
-  private String outputFilePath;
-
-  @Before
-  public void setUp() throws IOException {
-    outputFilePath = temporaryFolder.newFile("output.mp4").getPath();
-  }
+  @Rule public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
   @Test
-  public void changeToAppendVideoMode_afterDefaultMode_throws() {
+  public void changeToAppendVideoMode_afterDefaultMode_throws() throws Exception {
     MuxerWrapper muxerWrapper =
         new MuxerWrapper(
-            outputFilePath,
+            temporaryFolder.newFile().getPath(),
             new DefaultMuxer.Factory(),
             new NoOpMuxerListenerImpl(),
             MuxerWrapper.MUXER_MODE_DEFAULT);
@@ -75,10 +67,10 @@ public class MuxerWrapperTest {
   }
 
   @Test
-  public void setTrackCount_toTwoInMuxPartialVideoMode_throws() {
+  public void setTrackCount_toTwoInMuxPartialVideoMode_throws() throws Exception {
     MuxerWrapper muxerWrapper =
         new MuxerWrapper(
-            outputFilePath,
+            temporaryFolder.newFile().getPath(),
             new DefaultMuxer.Factory(),
             new NoOpMuxerListenerImpl(),
             MUXER_MODE_MUX_PARTIAL_VIDEO);
@@ -90,7 +82,7 @@ public class MuxerWrapperTest {
   public void setTrackCount_toTwoInAppendVideoMode_throws() throws Exception {
     MuxerWrapper muxerWrapper =
         new MuxerWrapper(
-            outputFilePath,
+            temporaryFolder.newFile().getPath(),
             new DefaultMuxer.Factory(),
             new NoOpMuxerListenerImpl(),
             MUXER_MODE_MUX_PARTIAL_VIDEO);
@@ -105,10 +97,10 @@ public class MuxerWrapperTest {
   }
 
   @Test
-  public void addTrackFormat_withAudioFormatInMuxPartialVideoMode_throws() {
+  public void addTrackFormat_withAudioFormatInMuxPartialVideoMode_throws() throws Exception {
     MuxerWrapper muxerWrapper =
         new MuxerWrapper(
-            outputFilePath,
+            temporaryFolder.newFile().getPath(),
             new DefaultMuxer.Factory(),
             new NoOpMuxerListenerImpl(),
             MUXER_MODE_MUX_PARTIAL_VIDEO);
@@ -122,7 +114,7 @@ public class MuxerWrapperTest {
   public void addTrackFormat_withSameVideoFormatInAppendVideoMode_doesNotThrow() throws Exception {
     MuxerWrapper muxerWrapper =
         new MuxerWrapper(
-            outputFilePath,
+            temporaryFolder.newFile().getPath(),
             new DefaultMuxer.Factory(),
             new NoOpMuxerListenerImpl(),
             MUXER_MODE_MUX_PARTIAL_VIDEO);
@@ -141,7 +133,7 @@ public class MuxerWrapperTest {
   public void addTrackFormat_withDifferentVideoFormatInAppendVideoMode_throws() throws Exception {
     MuxerWrapper muxerWrapper =
         new MuxerWrapper(
-            outputFilePath,
+            temporaryFolder.newFile().getPath(),
             new DefaultMuxer.Factory(),
             new NoOpMuxerListenerImpl(),
             MUXER_MODE_MUX_PARTIAL_VIDEO);
@@ -162,7 +154,7 @@ public class MuxerWrapperTest {
   public void isEnded_afterPartialVideoMuxed_returnsTrue() throws Exception {
     MuxerWrapper muxerWrapper =
         new MuxerWrapper(
-            outputFilePath,
+            temporaryFolder.newFile().getPath(),
             new DefaultMuxer.Factory(),
             new NoOpMuxerListenerImpl(),
             MUXER_MODE_MUX_PARTIAL_VIDEO);
@@ -179,7 +171,7 @@ public class MuxerWrapperTest {
   public void isEnded_afterStartingAppendVideo_returnsFalse() throws Exception {
     MuxerWrapper muxerWrapper =
         new MuxerWrapper(
-            outputFilePath,
+            temporaryFolder.newFile().getPath(),
             new DefaultMuxer.Factory(),
             new NoOpMuxerListenerImpl(),
             MUXER_MODE_MUX_PARTIAL_VIDEO);

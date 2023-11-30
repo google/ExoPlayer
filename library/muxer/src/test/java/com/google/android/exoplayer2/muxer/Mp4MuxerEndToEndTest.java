@@ -15,14 +15,13 @@
  */
 package com.google.android.exoplayer2.muxer;
 
+import static com.google.android.exoplayer2.muxer.MuxerTestUtil.FAKE_VIDEO_FORMAT;
 import static com.google.common.truth.Truth.assertThat;
 
-import android.content.Context;
 import android.media.MediaCodec.BufferInfo;
 import android.util.Pair;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.mp4.Mp4Extractor;
 import com.google.android.exoplayer2.muxer.Mp4Muxer.TrackToken;
 import com.google.android.exoplayer2.testutil.DumpFileAsserts;
@@ -31,7 +30,6 @@ import com.google.android.exoplayer2.testutil.TestUtil;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -42,24 +40,13 @@ import org.junit.runner.RunWith;
 public class Mp4MuxerEndToEndTest {
   @Rule public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-  private Format format;
-  private String outputFilePath;
-  private FileOutputStream outputFileStream;
-
-  @Before
-  public void setUp() throws IOException {
-    outputFilePath = temporaryFolder.newFile("output.mp4").getPath();
-    outputFileStream = new FileOutputStream(outputFilePath);
-
-    format = MuxerTestUtil.getFakeVideoFormat();
-  }
-
   @Test
   public void createMp4File_addTrackAndMetadataButNoSamples_createsEmptyFile() throws IOException {
-    Mp4Muxer mp4Muxer = new Mp4Muxer.Builder(outputFileStream).build();
+    String outputFilePath = temporaryFolder.newFile().getPath();
+    Mp4Muxer mp4Muxer = new Mp4Muxer.Builder(new FileOutputStream(outputFilePath)).build();
 
     try {
-      mp4Muxer.addTrack(/* sortKey= */ 0, format);
+      mp4Muxer.addTrack(/* sortKey= */ 0, FAKE_VIDEO_FORMAT);
       mp4Muxer.setOrientation(90);
       mp4Muxer.addMetadata("key", "value");
     } finally {
@@ -72,8 +59,8 @@ public class Mp4MuxerEndToEndTest {
 
   @Test
   public void createMp4File_withSameTracksOffset_matchesExpected() throws IOException {
-    Context context = ApplicationProvider.getApplicationContext();
-    Mp4Muxer mp4Muxer = new Mp4Muxer.Builder(outputFileStream).build();
+    String outputFilePath = temporaryFolder.newFile().getPath();
+    Mp4Muxer mp4Muxer = new Mp4Muxer.Builder(new FileOutputStream(outputFilePath)).build();
     mp4Muxer.setModificationTime(/* timestampMs= */ 500_000_000L);
 
     Pair<ByteBuffer, BufferInfo> track1Sample1 =
@@ -87,12 +74,12 @@ public class Mp4MuxerEndToEndTest {
         MuxerTestUtil.getFakeSampleAndSampleInfo(/* presentationTimeUs= */ 300L);
 
     try {
-      TrackToken track1 = mp4Muxer.addTrack(/* sortKey= */ 0, format);
+      TrackToken track1 = mp4Muxer.addTrack(/* sortKey= */ 0, FAKE_VIDEO_FORMAT);
       mp4Muxer.writeSampleData(track1, track1Sample1.first, track1Sample1.second);
       mp4Muxer.writeSampleData(track1, track1Sample2.first, track1Sample2.second);
 
       // Add same track again but with different samples.
-      TrackToken track2 = mp4Muxer.addTrack(/* sortKey= */ 1, format);
+      TrackToken track2 = mp4Muxer.addTrack(/* sortKey= */ 1, FAKE_VIDEO_FORMAT);
       mp4Muxer.writeSampleData(track2, track2Sample1.first, track2Sample1.second);
       mp4Muxer.writeSampleData(track2, track2Sample2.first, track2Sample2.second);
     } finally {
@@ -107,15 +94,15 @@ public class Mp4MuxerEndToEndTest {
     FakeExtractorOutput fakeExtractorOutput =
         TestUtil.extractAllSamplesFromFilePath(new Mp4Extractor(), outputFilePath);
     DumpFileAsserts.assertOutput(
-        context,
+        ApplicationProvider.getApplicationContext(),
         fakeExtractorOutput,
         MuxerTestUtil.getExpectedDumpFilePath("mp4_with_same_tracks_offset.mp4"));
   }
 
   @Test
   public void createMp4File_withDifferentTracksOffset_matchesExpected() throws IOException {
-    Context context = ApplicationProvider.getApplicationContext();
-    Mp4Muxer mp4Muxer = new Mp4Muxer.Builder(outputFileStream).build();
+    String outputFilePath = temporaryFolder.newFile().getPath();
+    Mp4Muxer mp4Muxer = new Mp4Muxer.Builder(new FileOutputStream(outputFilePath)).build();
     mp4Muxer.setModificationTime(/* timestampMs= */ 500_000_000L);
 
     Pair<ByteBuffer, BufferInfo> track1Sample1 =
@@ -129,12 +116,12 @@ public class Mp4MuxerEndToEndTest {
         MuxerTestUtil.getFakeSampleAndSampleInfo(/* presentationTimeUs= */ 200L);
 
     try {
-      TrackToken track1 = mp4Muxer.addTrack(/* sortKey= */ 0, format);
+      TrackToken track1 = mp4Muxer.addTrack(/* sortKey= */ 0, FAKE_VIDEO_FORMAT);
       mp4Muxer.writeSampleData(track1, track1Sample1.first, track1Sample1.second);
       mp4Muxer.writeSampleData(track1, track1Sample2.first, track1Sample2.second);
 
       // Add same track again but with different samples.
-      TrackToken track2 = mp4Muxer.addTrack(/* sortKey= */ 1, format);
+      TrackToken track2 = mp4Muxer.addTrack(/* sortKey= */ 1, FAKE_VIDEO_FORMAT);
       mp4Muxer.writeSampleData(track2, track2Sample1.first, track2Sample1.second);
       mp4Muxer.writeSampleData(track2, track2Sample2.first, track2Sample2.second);
     } finally {
@@ -145,7 +132,7 @@ public class Mp4MuxerEndToEndTest {
     FakeExtractorOutput fakeExtractorOutput =
         TestUtil.extractAllSamplesFromFilePath(new Mp4Extractor(), outputFilePath);
     DumpFileAsserts.assertOutput(
-        context,
+        ApplicationProvider.getApplicationContext(),
         fakeExtractorOutput,
         MuxerTestUtil.getExpectedDumpFilePath("mp4_with_different_tracks_offset.mp4"));
   }
