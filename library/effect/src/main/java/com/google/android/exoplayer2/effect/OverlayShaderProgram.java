@@ -189,14 +189,14 @@ import com.google.common.collect.ImmutableList;
             .append("  }\n")
             .append("}\n")
             .append("\n")
-            .append("float getMixAlpha(float videoAlpha, float overlayAlpha) {\n")
-            .append("  if (videoAlpha == 0.0) {\n")
-            .append("    return 1.0;\n")
-            .append("  } else {\n")
-            .append("    return clamp(overlayAlpha/videoAlpha, 0.0, 1.0);\n")
-            .append("  }\n")
+            .append("vec4 getMixColor(vec4 videoColor, vec4 overlayColor) {\n")
+            .append("  vec4 outputColor;\n")
+            .append("  outputColor.rgb = overlayColor.rgb * overlayColor.a\n")
+            .append("      + videoColor.rgb * (1.0 - overlayColor.a);\n")
+            .append("  outputColor.a = overlayColor.a + videoColor.a * (1.0 - overlayColor.a);\n")
+            .append("  return outputColor;\n")
             .append("}\n")
-            .append("")
+            .append("\n")
             .append("float srgbEotfSingleChannel(float srgb) {\n")
             .append("  return srgb <= 0.04045 ? srgb / 12.92 : pow((srgb + 0.055) / 1.055, 2.4);\n")
             .append("}\n")
@@ -240,12 +240,9 @@ import com.google.common.collect.ImmutableList;
               formatInvariant(
                   "    applyEotf(electricalOverlayColor%d.rgb), electricalOverlayColor%d.a);\n",
                   texUnitIndex, texUnitIndex))
-          .append("  fragColor = mix(\n")
           .append(
               formatInvariant(
-                  "    fragColor, opticalOverlayColor%d, getMixAlpha(videoColor.a,"
-                      + " opticalOverlayColor%d.a));\n",
-                  texUnitIndex, texUnitIndex));
+                  "  fragColor = getMixColor(fragColor, opticalOverlayColor%d);\n", texUnitIndex));
     }
 
     shader.append("  gl_FragColor = fragColor;\n").append("}\n");
