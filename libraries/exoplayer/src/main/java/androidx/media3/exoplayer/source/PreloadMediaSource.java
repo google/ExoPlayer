@@ -176,6 +176,7 @@ public final class PreloadMediaSource extends WrappingMediaSource {
 
   private static final String TAG = "PreloadMediaSource";
 
+  private final PlayerId playerId;
   private final PreloadControl preloadControl;
   private final TrackSelector trackSelector;
   private final BandwidthMeter bandwidthMeter;
@@ -199,6 +200,7 @@ public final class PreloadMediaSource extends WrappingMediaSource {
       Allocator allocator,
       Looper preloadLooper) {
     super(mediaSource);
+    this.playerId = playerId;
     this.preloadControl = preloadControl;
     this.trackSelector = trackSelector;
     this.bandwidthMeter = bandwidthMeter;
@@ -207,7 +209,6 @@ public final class PreloadMediaSource extends WrappingMediaSource {
 
     preloadHandler = Util.createHandler(preloadLooper, /* callback= */ null);
     startPositionUs = C.TIME_UNSET;
-    setPlayerId(playerId);
   }
 
   /**
@@ -224,6 +225,7 @@ public final class PreloadMediaSource extends WrappingMediaSource {
           preloadCalled = true;
           this.startPositionUs = startPositionUs;
           if (!isUsedByPlayer()) {
+            setPlayerId(playerId);
             prepareSourceInternal(bandwidthMeter.getTransferListener());
           }
         });

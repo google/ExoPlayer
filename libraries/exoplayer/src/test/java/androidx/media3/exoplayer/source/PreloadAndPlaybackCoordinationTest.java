@@ -15,6 +15,7 @@
  */
 package androidx.media3.exoplayer.source;
 
+import static androidx.media3.common.util.Assertions.checkNotNull;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
@@ -45,6 +46,8 @@ import androidx.media3.test.utils.FakeVideoRenderer;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.shadows.ShadowLooper;
@@ -64,10 +67,11 @@ public class PreloadAndPlaybackCoordinationTest {
   private final FakeMediaSource wrappedMediaSource;
   private final MediaSource.MediaSourceCaller playbackMediaSourceCaller;
 
-  private final AtomicBoolean preloadControlOnSourceInfoRefreshedCalled;
-  private final AtomicBoolean preloadControlOnPreparedCalled;
+  private final AtomicInteger preloadControlOnSourceInfoRefreshedCalledCounter;
+  private final AtomicInteger preloadControlOnPreparedCalledCounter;
   private final AtomicBoolean playbackSourceCallerOnSourceInfoRefreshedCalled;
   private final AtomicBoolean playbackPeriodCallbackOnPreparedCalled;
+  private final AtomicReference<MediaPeriod> preloadMediaPeriodReference;
 
   public PreloadAndPlaybackCoordinationTest() {
     playerId = new PlayerId();
@@ -88,22 +92,23 @@ public class PreloadAndPlaybackCoordinationTest {
                   SystemClock.DEFAULT.createHandler(handler.getLooper(), /* callback= */ null),
                   audioListener)
             };
-    preloadControlOnSourceInfoRefreshedCalled = new AtomicBoolean();
-    preloadControlOnPreparedCalled = new AtomicBoolean();
+    preloadControlOnSourceInfoRefreshedCalledCounter = new AtomicInteger();
+    preloadControlOnPreparedCalledCounter = new AtomicInteger();
     playbackSourceCallerOnSourceInfoRefreshedCalled = new AtomicBoolean();
     playbackPeriodCallbackOnPreparedCalled = new AtomicBoolean();
+    preloadMediaPeriodReference = new AtomicReference<>();
 
     PreloadMediaSource.PreloadControl preloadControl =
         new PreloadMediaSource.PreloadControl() {
           @Override
           public boolean onTimelineRefreshed(PreloadMediaSource mediaSource) {
-            preloadControlOnSourceInfoRefreshedCalled.set(true);
+            preloadControlOnSourceInfoRefreshedCalledCounter.addAndGet(1);
             return true;
           }
 
           @Override
           public boolean onPrepared(PreloadMediaSource mediaSource) {
-            preloadControlOnPreparedCalled.set(true);
+            preloadControlOnPreparedCalledCounter.addAndGet(1);
             return true;
           }
 
@@ -151,25 +156,60 @@ public class PreloadAndPlaybackCoordinationTest {
               new MediaSource.MediaPeriodId(periodPosition.first);
           MediaPeriod mediaPeriod =
               source.createPeriod(mediaPeriodId, allocator, periodPosition.second);
+          preloadMediaPeriodReference.set(mediaPeriod);
           mediaPeriod.prepare(playbackMediaPeriodCallback, /* positionUs= */ 0L);
         };
   }
 
   @Test
-  public void playbackPrepareSource_beforePreloadStart() {
+  public void playbackWithoutPreload_reusableForPreloadAfterRelease() {
+    preloadMediaSource.prepareSource(
+        playbackMediaSourceCaller, bandwidthMeter.getTransferListener(), playerId);
+    ShadowLooper.idleMainLooper();
+
+    assertThat(preloadControlOnSourceInfoRefreshedCalledCounter.get()).isEqualTo(0);
+    assertThat(preloadControlOnPreparedCalledCounter.get()).isEqualTo(0);
+    assertThat(playbackSourceCallerOnSourceInfoRefreshedCalled.get()).isTrue();
+    assertThat(playbackPeriodCallbackOnPreparedCalled.get()).isTrue();
+    assertThat(preloadMediaPeriodReference.get()).isNotNull();
+
+    // Reuse for preload after playback releases the source
+    MediaPeriod mediaPeriod = checkNotNull(preloadMediaPeriodReference.get());
+    preloadMediaSource.releasePeriod(mediaPeriod);
+    preloadMediaSource.releaseSource(playbackMediaSourceCaller);
+    preloadMediaSource.preload(/* startPositionUs= */ 0L);
+    ShadowLooper.idleMainLooper();
+
+    assertThat(preloadControlOnSourceInfoRefreshedCalledCounter.get()).isEqualTo(1);
+    assertThat(preloadControlOnPreparedCalledCounter.get()).isEqualTo(1);
+  }
+
+  @Test
+  public void playbackBeforePreload_reusableForPreloadAfterRelease() {
     preloadMediaSource.prepareSource(
         playbackMediaSourceCaller, bandwidthMeter.getTransferListener(), playerId);
     preloadMediaSource.preload(/* startPositionUs= */ 0L);
     ShadowLooper.idleMainLooper();
 
-    assertThat(preloadControlOnSourceInfoRefreshedCalled.get()).isFalse();
-    assertThat(preloadControlOnPreparedCalled.get()).isFalse();
+    assertThat(preloadControlOnSourceInfoRefreshedCalledCounter.get()).isEqualTo(0);
+    assertThat(preloadControlOnPreparedCalledCounter.get()).isEqualTo(0);
     assertThat(playbackSourceCallerOnSourceInfoRefreshedCalled.get()).isTrue();
     assertThat(playbackPeriodCallbackOnPreparedCalled.get()).isTrue();
+    assertThat(preloadMediaPeriodReference.get()).isNotNull();
+
+    // Reuse for preload after playback releases the source
+    MediaPeriod mediaPeriod = checkNotNull(preloadMediaPeriodReference.get());
+    preloadMediaSource.releasePeriod(mediaPeriod);
+    preloadMediaSource.releaseSource(playbackMediaSourceCaller);
+    preloadMediaSource.preload(/* startPositionUs= */ 0L);
+    ShadowLooper.idleMainLooper();
+
+    assertThat(preloadControlOnSourceInfoRefreshedCalledCounter.get()).isEqualTo(1);
+    assertThat(preloadControlOnPreparedCalledCounter.get()).isEqualTo(1);
   }
 
   @Test
-  public void playbackPrepareSource_betweenPreloadStartAndTimelineInfoRefreshed() {
+  public void playbackBetweenPreloadStartAndTimelineInfoRefreshed_reusableForPreloadAfterRelease() {
     wrappedMediaSource.setAllowPreparation(false);
 
     preloadMediaSource.preload(/* startPositionUs= */ 0L);
@@ -179,14 +219,26 @@ public class PreloadAndPlaybackCoordinationTest {
     wrappedMediaSource.setAllowPreparation(true);
     ShadowLooper.idleMainLooper();
 
-    assertThat(preloadControlOnSourceInfoRefreshedCalled.get()).isFalse();
-    assertThat(preloadControlOnPreparedCalled.get()).isFalse();
+    assertThat(preloadControlOnSourceInfoRefreshedCalledCounter.get()).isEqualTo(0);
+    assertThat(preloadControlOnPreparedCalledCounter.get()).isEqualTo(0);
     assertThat(playbackSourceCallerOnSourceInfoRefreshedCalled.get()).isTrue();
     assertThat(playbackPeriodCallbackOnPreparedCalled.get()).isTrue();
+    assertThat(preloadMediaPeriodReference.get()).isNotNull();
+
+    // Reuse for preload after playback releases the source
+    MediaPeriod mediaPeriod = checkNotNull(preloadMediaPeriodReference.get());
+    preloadMediaSource.releasePeriod(mediaPeriod);
+    preloadMediaSource.releaseSource(playbackMediaSourceCaller);
+    preloadMediaSource.preload(/* startPositionUs= */ 0L);
+    ShadowLooper.idleMainLooper();
+
+    assertThat(preloadControlOnSourceInfoRefreshedCalledCounter.get()).isEqualTo(1);
+    assertThat(preloadControlOnPreparedCalledCounter.get()).isEqualTo(1);
   }
 
   @Test
-  public void playbackPrepareSource_betweenTimelineInfoRefreshedAndPeriodPrepared() {
+  public void
+      playbackBetweenPreloadTimelineRefreshedAndPeriodPrepared_reusableForPreloadAfterRelease() {
     wrappedMediaSource.setPeriodDefersOnPreparedCallback(true);
 
     preloadMediaSource.preload(/* startPositionUs= */ 0L);
@@ -198,24 +250,47 @@ public class PreloadAndPlaybackCoordinationTest {
     lastCreatedActiveMediaPeriod.setPreparationComplete();
     ShadowLooper.idleMainLooper();
 
-    assertThat(preloadControlOnSourceInfoRefreshedCalled.get()).isTrue();
-    assertThat(preloadControlOnPreparedCalled.get()).isFalse();
+    assertThat(preloadControlOnSourceInfoRefreshedCalledCounter.get()).isEqualTo(1);
+    assertThat(preloadControlOnPreparedCalledCounter.get()).isEqualTo(0);
     assertThat(playbackSourceCallerOnSourceInfoRefreshedCalled.get()).isTrue();
     assertThat(playbackPeriodCallbackOnPreparedCalled.get()).isTrue();
+    assertThat(preloadMediaPeriodReference.get()).isNotNull();
+
+    // Reuse for preload after playback releases the source
+    MediaPeriod mediaPeriod = checkNotNull(preloadMediaPeriodReference.get());
+    preloadMediaSource.releasePeriod(mediaPeriod);
+    preloadMediaSource.releaseSource(playbackMediaSourceCaller);
+    wrappedMediaSource.setPeriodDefersOnPreparedCallback(false);
+    preloadMediaSource.preload(/* startPositionUs= */ 0L);
+    ShadowLooper.idleMainLooper();
+
+    assertThat(preloadControlOnSourceInfoRefreshedCalledCounter.get()).isEqualTo(2);
+    assertThat(preloadControlOnPreparedCalledCounter.get()).isEqualTo(1);
   }
 
   @Test
-  public void playbackPrepareSource_afterPeriodContinueLoading() {
+  public void playbackWhilePreloadPeriodContinueLoading_reusableForPreloadAfterRelease() {
     preloadMediaSource.preload(/* startPositionUs= */ 0L);
     ShadowLooper.idleMainLooper();
     preloadMediaSource.prepareSource(
         playbackMediaSourceCaller, bandwidthMeter.getTransferListener(), playerId);
     ShadowLooper.idleMainLooper();
 
-    assertThat(preloadControlOnSourceInfoRefreshedCalled.get()).isTrue();
-    assertThat(preloadControlOnPreparedCalled.get()).isTrue();
+    assertThat(preloadControlOnSourceInfoRefreshedCalledCounter.get()).isEqualTo(1);
+    assertThat(preloadControlOnPreparedCalledCounter.get()).isEqualTo(1);
     assertThat(playbackSourceCallerOnSourceInfoRefreshedCalled.get()).isTrue();
     assertThat(playbackPeriodCallbackOnPreparedCalled.get()).isTrue();
+    assertThat(preloadMediaPeriodReference.get()).isNotNull();
+
+    // Reuse for preload after playback releases the source
+    MediaPeriod mediaPeriod = checkNotNull(preloadMediaPeriodReference.get());
+    preloadMediaSource.releasePeriod(mediaPeriod);
+    preloadMediaSource.releaseSource(playbackMediaSourceCaller);
+    preloadMediaSource.preload(/* startPositionUs= */ 0L);
+    ShadowLooper.idleMainLooper();
+
+    assertThat(preloadControlOnSourceInfoRefreshedCalledCounter.get()).isEqualTo(2);
+    assertThat(preloadControlOnPreparedCalledCounter.get()).isEqualTo(2);
   }
 
   private static RendererCapabilities[] getRendererCapabilities(RenderersFactory renderersFactory) {
