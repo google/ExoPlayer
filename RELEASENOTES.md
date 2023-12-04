@@ -59,6 +59,9 @@
     *   Extend workaround for spurious ClearKey `https://default.url` license
         URL to API 33+ (previously the workaround only applied on API 33
         exactly) ([#837](https://github.com/androidx/media/pull/837)).
+    *   Fix `ERROR_DRM_SESSION_NOT_OPENED` when switching from encrypted to
+        clear content without a surface attached to the player. The error was
+        due to incorrectly using a secure decoder to play the clear content.
 *   Effect:
 *   Muxers:
 *   IMA extension:
