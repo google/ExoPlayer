@@ -2407,7 +2407,7 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
         @Nullable CharSequence queueTitle,
         @PlaybackStateCompat.RepeatMode int repeatMode,
         @PlaybackStateCompat.ShuffleMode int shuffleMode,
-        Bundle sessionExtras) {
+        @Nullable Bundle sessionExtras) {
       this.playbackInfoCompat = playbackInfoCompat;
       this.playbackStateCompat = playbackStateCompat;
       this.mediaMetadataCompat = mediaMetadataCompat;
@@ -2415,7 +2415,7 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
       this.queueTitle = queueTitle;
       this.repeatMode = repeatMode;
       this.shuffleMode = shuffleMode;
-      this.sessionExtras = sessionExtras;
+      this.sessionExtras = sessionExtras != null ? sessionExtras : Bundle.EMPTY;
     }
 
     public LegacyPlayerInfo(LegacyPlayerInfo other) {
