@@ -143,6 +143,31 @@ public final class VorbisUtil {
   private static final String TAG = "VorbisUtil";
 
   /**
+   * Returns the mapping from VORBIS channel layout to the channel layout expected by Android, or
+   * null if the mapping is unchanged.
+   *
+   * <p>See https://www.xiph.org/vorbis/doc/Vorbis_I_spec.html#x1-140001.2.3 and
+   * https://developer.android.com/reference/android/media/AudioFormat#channelMask.
+   */
+  @Nullable
+  public static int[] getVorbisToAndroidChannelLayoutMapping(int channelCount) {
+    switch (channelCount) {
+      case 3:
+        return new int[] {0, 2, 1};
+      case 5:
+        return new int[] {0, 2, 1, 3, 4};
+      case 6:
+        return new int[] {0, 2, 1, 5, 3, 4};
+      case 7:
+        return new int[] {0, 2, 1, 6, 5, 3, 4};
+      case 8:
+        return new int[] {0, 2, 1, 7, 5, 6, 3, 4};
+      default:
+        return null;
+    }
+  }
+
+  /**
    * Returns ilog(x), which is the index of the highest set bit in {@code x}.
    *
    * <p>See the <a href="https://www.xiph.org/vorbis/doc/Vorbis_I_spec.html#x1-1190009.2.1">Vorbis

@@ -30,6 +30,9 @@
     *   Add experimental support for parsing subtitles during extraction. You
         can enable this using
         `MediaSource.Factory.experimentalParseSubtitlesDuringExtraction()`.
+    *   Fix issue that OPUS and VORBIS channel layouts are wrong for 3, 5, 6, 7
+        and 8 channels
+        ([#8396](https://github.com/google/ExoPlayer/issues/8396)).
 *   Transformer:
     *   Add support for flattening H.265/HEVC SEF slow motion videos.
     *   Increase transmuxing speed, especially for 'remove video' edits.

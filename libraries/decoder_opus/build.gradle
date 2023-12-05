@@ -33,6 +33,7 @@ dependencies {
     compileOnly 'org.jetbrains.kotlin:kotlin-annotations-jvm:' + kotlinAnnotationsVersion
     testImplementation project(modulePrefix + 'test-utils')
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
+    androidTestImplementation project(modulePrefix + 'test-utils')
     androidTestImplementation 'androidx.test:runner:' + androidxTestRunnerVersion
     androidTestImplementation 'androidx.test.ext:junit:' + androidxTestJUnitVersion
 }
