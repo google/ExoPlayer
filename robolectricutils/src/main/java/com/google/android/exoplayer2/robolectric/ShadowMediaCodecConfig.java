@@ -115,6 +115,16 @@ public final class ShadowMediaCodecConfig extends ExternalResource {
             /* colorFormats= */ ImmutableList.of(
                 MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420Flexible)));
     codecs.put(
+        MimeTypes.VIDEO_H265,
+        new CodecImpl(
+            /* codecName= */ "exotest.video.hevc",
+            /* mimeType= */ MimeTypes.VIDEO_H265,
+            /* profileLevels= */ ImmutableList.of(
+                createProfileLevel(
+                    CodecProfileLevel.HEVCProfileMain, CodecProfileLevel.HEVCMainTierLevel61)),
+            /* colorFormats= */ ImmutableList.of(
+                MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420Flexible)));
+    codecs.put(
         MimeTypes.VIDEO_MPEG2,
         new CodecImpl(
             /* codecName= */ "exotest.video.mpeg2",
@@ -238,10 +248,11 @@ public final class ShadowMediaCodecConfig extends ExternalResource {
               .build());
       // TODO: Update ShadowMediaCodec to consider the MediaFormat.KEY_MAX_INPUT_SIZE value passed
       // to configure() so we don't have to specify large buffers here.
+      int bufferSize = mimeType.equals(MimeTypes.VIDEO_H265) ? 200_000 : 100_000;
       ShadowMediaCodec.addDecoder(
           codecName,
           new ShadowMediaCodec.CodecConfig(
-              /* inputBufferSize= */ 100_000, /* outputBufferSize= */ 100_000, this));
+              /* inputBufferSize= */ bufferSize, /* outputBufferSize= */ bufferSize, this));
     }
 
     @Override
