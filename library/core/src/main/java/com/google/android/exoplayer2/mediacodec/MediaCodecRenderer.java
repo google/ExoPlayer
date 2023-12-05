@@ -2313,10 +2313,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     // Process any batched data.
     checkState(!outputStreamEnded);
     if (bypassBatchBuffer.hasSamples()) {
-      boolean isDecodeOnly =
-          bypassBatchBuffer.getLastSampleTimeUs() < getLastResetPositionUs()
-              && (outputFormat == null
-                  || !Objects.equals(outputFormat.sampleMimeType, MimeTypes.AUDIO_OPUS));
       if (processOutputBuffer(
           positionUs,
           elapsedRealtimeUs,
@@ -2326,7 +2322,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
           /* bufferFlags= */ 0,
           bypassBatchBuffer.getSampleCount(),
           bypassBatchBuffer.getFirstSampleTimeUs(),
-          isDecodeOnly,
+          isDecodeOnly(getLastResetPositionUs(), bypassBatchBuffer.getLastSampleTimeUs()),
           bypassBatchBuffer.isEndOfStream(),
           checkNotNull(outputFormat))) {
         // The batch buffer has been fully processed.
@@ -2423,8 +2419,13 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
               bypassSampleBuffer.format = outputFormat;
               handleInputBufferSupplementalData(bypassSampleBuffer);
             }
-            oggOpusAudioPacketizer.packetize(
-                bypassSampleBuffer, checkNotNull(outputFormat).initializationData);
+            if (OpusUtil.needToDecodeOpusFrame(
+                getLastResetPositionUs(), bypassSampleBuffer.timeUs)) {
+              // Packetize as long as frame does not precede the last reset position by more than
+              // seek-preroll.
+              oggOpusAudioPacketizer.packetize(
+                  bypassSampleBuffer, checkNotNull(outputFormat).initializationData);
+            }
           }
           if (!haveBypassBatchBufferAndNewSampleSameDecodeOnlyState()
               || !bypassBatchBuffer.append(bypassSampleBuffer)) {
@@ -2446,9 +2447,29 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       return true;
     }
     long lastResetPositionUs = getLastResetPositionUs();
-    boolean batchBufferIsDecodeOnly = bypassBatchBuffer.getLastSampleTimeUs() < lastResetPositionUs;
-    boolean sampleBufferIsDecodeOnly = bypassSampleBuffer.timeUs < lastResetPositionUs;
+    boolean batchBufferIsDecodeOnly =
+        isDecodeOnly(lastResetPositionUs, bypassBatchBuffer.getLastSampleTimeUs());
+    boolean sampleBufferIsDecodeOnly = isDecodeOnly(lastResetPositionUs, bypassSampleBuffer.timeUs);
     return batchBufferIsDecodeOnly == sampleBufferIsDecodeOnly;
+  }
+
+  /**
+   * Returns if based on target play time and frame time that the frame should be decode-only.
+   *
+   * <p>If the format is Opus, then the frame is decode-only if the frame time precedes the start
+   * time by more than seek-preroll.
+   *
+   * @param startTimeUs The time to start playing at.
+   * @param frameTimeUs The time of the sample.
+   * @return Whether the frame is decode-only.
+   */
+  private boolean isDecodeOnly(long startTimeUs, long frameTimeUs) {
+    // Opus frames that precede the target position by more than seek-preroll should be skipped.
+    return frameTimeUs < startTimeUs
+        && (outputFormat == null
+            || !Objects.equals(outputFormat.sampleMimeType, MimeTypes.AUDIO_OPUS)
+            || !OpusUtil.needToDecodeOpusFrame(
+                /* startTimeUs= */ startTimeUs, /* frameTimeUs= */ frameTimeUs));
   }
 
   private static boolean isMediaCodecException(IllegalStateException error) {
