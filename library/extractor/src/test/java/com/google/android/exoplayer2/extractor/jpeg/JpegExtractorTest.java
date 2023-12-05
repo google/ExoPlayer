@@ -92,4 +92,13 @@ public final class JpegExtractorTest {
         "media/jpeg/ss-motion-photo-shortened.jpg",
         simulationConfig);
   }
+
+  /** Regression test for [internal b/301025983]. */
+  @Test
+  public void samplePixelMotionPhotoWithTwoHevcTracks_extractMotionPhoto() throws Exception {
+    ExtractorAsserts.assertBehavior(
+        JpegMotionPhotoExtractor::new,
+        "media/jpeg/pixel-motion-photo-2-hevc-tracks.jpg",
+        simulationConfig);
+  }
 }

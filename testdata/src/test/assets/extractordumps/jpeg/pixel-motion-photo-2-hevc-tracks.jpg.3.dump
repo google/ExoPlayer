@@ -1,0 +1,92 @@
+seekMap:
+  isSeekable = true
+  duration = 2100700
+  getPosition(0) = [[timeUs=0, position=2603638]]
+  getPosition(1) = [[timeUs=0, position=2603638], [timeUs=233244, position=2954238]]
+  getPosition(1050350) = [[timeUs=933666, position=3996417], [timeUs=1167088, position=4338425]]
+  getPosition(2100700) = [[timeUs=2058988, position=5701022]]
+numberOfTracks = 5
+track 0:
+  total output bytes = 209513
+  sample count = 2
+  format 0:
+    id = 1
+    sampleMimeType = video/hevc
+    codecs = hvc1.1.6.L153
+    maxInputSize = 229249
+    width = 1024
+    height = 768
+    frameRate = 27.609846
+    rotationDegrees = 90
+    colorInfo:
+      colorSpace = 1
+      colorRange = 1
+      colorTransfer = 3
+      lumaBitdepth = 8
+      chromaBitdepth = 8
+    metadata = entries=[Mp4Timestamp: creation time=3784612704, modification time=3784612704, timescale=10000]
+    initializationData:
+      data = length 82, hash C508E2F1
+  sample 0:
+    time = 2058988
+    flags = 1
+    data = length 171963, hash 7115AF3D
+  sample 1:
+    time = 2100700
+    flags = 536870912
+    data = length 37550, hash F7D849CB
+track 1:
+  total output bytes = 151315
+  sample count = 1
+  format 0:
+    id = 2
+    sampleMimeType = video/hevc
+    codecs = hvc1.1.6.L153
+    maxInputSize = 151345
+    width = 2048
+    height = 1536
+    rotationDegrees = 90
+    colorInfo:
+      colorSpace = 1
+      colorRange = 1
+      colorTransfer = 3
+      lumaBitdepth = 8
+      chromaBitdepth = 8
+    metadata = entries=[Mp4Timestamp: creation time=3784612704, modification time=3784612704, timescale=10000]
+    initializationData:
+      data = length 82, hash 1924973
+  sample 0:
+    time = 0
+    flags = 536870913
+    data = length 151315, hash FBF6FF68
+track 2:
+  total output bytes = 450
+  sample count = 1
+  format 0:
+    id = 3
+    sampleMimeType = application/microvideo-meta-stream
+    maxInputSize = 480
+    metadata = entries=[Mp4Timestamp: creation time=3784612704, modification time=3784612704, timescale=10000]
+  sample 0:
+    time = 2100700
+    flags = 536870913
+    data = length 450, hash B6FD8734
+track 3:
+  total output bytes = 59
+  sample count = 1
+  format 0:
+    id = 4
+    sampleMimeType = application/motionphoto-image-meta
+    maxInputSize = 89
+    metadata = entries=[Mp4Timestamp: creation time=3784612704, modification time=3784612704, timescale=10000]
+  sample 0:
+    time = 0
+    flags = 536870913
+    data = length 59, hash 869099E5
+track 1024:
+  total output bytes = 0
+  sample count = 0
+  format 0:
+    containerMimeType = image/jpeg
+    metadata = entries=[Motion photo metadata: photoStartPosition=0, photoSize=2603594, photoPresentationTimestampUs=1133745, videoStartPosition=2603594, videoSize=3487735]
+tracksEnded = true
