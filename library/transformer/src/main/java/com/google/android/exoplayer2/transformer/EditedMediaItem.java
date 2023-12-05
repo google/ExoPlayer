@@ -256,7 +256,7 @@ public final class EditedMediaItem {
   public final Effects effects;
 
   /** The duration for which this {@code EditedMediaItem} should be presented, in microseconds. */
-  public final long presentationDurationUs;
+  private long presentationDurationUs;
 
   private EditedMediaItem(
       MediaItem mediaItem,
@@ -274,26 +274,32 @@ public final class EditedMediaItem {
     this.durationUs = durationUs;
     this.frameRate = frameRate;
     this.effects = effects;
-
-    if (mediaItem.clippingConfiguration.equals(MediaItem.ClippingConfiguration.UNSET)
-        || durationUs == C.TIME_UNSET) {
-      // TODO - b/290734981: Use presentationDurationUs for image presentation
-      presentationDurationUs = durationUs;
-    } else {
-      MediaItem.ClippingConfiguration clippingConfiguration = mediaItem.clippingConfiguration;
-      checkArgument(!clippingConfiguration.relativeToDefaultPosition);
-      if (clippingConfiguration.endPositionUs == C.TIME_END_OF_SOURCE) {
-        presentationDurationUs = durationUs - clippingConfiguration.startPositionUs;
-      } else {
-        checkArgument(clippingConfiguration.endPositionUs <= durationUs);
-        presentationDurationUs =
-            clippingConfiguration.endPositionUs - clippingConfiguration.startPositionUs;
-      }
-    }
+    presentationDurationUs = C.TIME_UNSET;
   }
 
   /** Returns a {@link Builder} initialized with the values of this instance. */
   /* package */ Builder buildUpon() {
     return new Builder(this);
+  }
+
+  /* package */ long getPresentationDurationUs() {
+    if (presentationDurationUs == C.TIME_UNSET) {
+      if (mediaItem.clippingConfiguration.equals(MediaItem.ClippingConfiguration.UNSET)
+          || durationUs == C.TIME_UNSET) {
+        // TODO - b/290734981: Use presentationDurationUs for image presentation
+        presentationDurationUs = durationUs;
+      } else {
+        MediaItem.ClippingConfiguration clippingConfiguration = mediaItem.clippingConfiguration;
+        checkArgument(!clippingConfiguration.relativeToDefaultPosition);
+        if (clippingConfiguration.endPositionUs == C.TIME_END_OF_SOURCE) {
+          presentationDurationUs = durationUs - clippingConfiguration.startPositionUs;
+        } else {
+          checkArgument(clippingConfiguration.endPositionUs <= durationUs);
+          presentationDurationUs =
+              clippingConfiguration.endPositionUs - clippingConfiguration.startPositionUs;
+        }
+      }
+    }
+    return presentationDurationUs;
   }
 }

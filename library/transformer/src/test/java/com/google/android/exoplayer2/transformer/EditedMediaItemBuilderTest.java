@@ -62,7 +62,7 @@ public final class EditedMediaItemBuilderTest {
     EditedMediaItem editedMediaItem =
         new EditedMediaItem.Builder(mediaItem).setDurationUs(1_000).build();
 
-    assertThat(editedMediaItem.presentationDurationUs).isEqualTo(1_000);
+    assertThat(editedMediaItem.getPresentationDurationUs()).isEqualTo(1_000);
   }
 
   @Test
@@ -78,7 +78,7 @@ public final class EditedMediaItemBuilderTest {
     EditedMediaItem editedMediaItem =
         new EditedMediaItem.Builder(mediaItem).setDurationUs(1_000_000).build();
 
-    assertThat(editedMediaItem.presentationDurationUs).isEqualTo(500_000);
+    assertThat(editedMediaItem.getPresentationDurationUs()).isEqualTo(500_000);
   }
 
   @Test
@@ -99,7 +99,7 @@ public final class EditedMediaItemBuilderTest {
     EditedMediaItem editedMediaItem =
         new EditedMediaItem.Builder(mediaItem).setDurationUs(1_000_000).build();
 
-    assertThat(editedMediaItem.presentationDurationUs).isEqualTo(200_000);
+    assertThat(editedMediaItem.getPresentationDurationUs()).isEqualTo(200_000);
   }
 
   @Test
@@ -118,7 +118,7 @@ public final class EditedMediaItemBuilderTest {
     EditedMediaItem editedMediaItem =
         new EditedMediaItem.Builder(mediaItem).setDurationUs(1_000_000).build();
 
-    assertThat(editedMediaItem.presentationDurationUs).isEqualTo(200_000);
+    assertThat(editedMediaItem.getPresentationDurationUs()).isEqualTo(200_000);
   }
 
   @Test
@@ -137,6 +137,6 @@ public final class EditedMediaItemBuilderTest {
     EditedMediaItem editedMediaItem =
         new EditedMediaItem.Builder(mediaItem).setDurationUs(1_000_000).build();
 
-    assertThat(editedMediaItem.presentationDurationUs).isEqualTo(700_000);
+    assertThat(editedMediaItem.getPresentationDurationUs()).isEqualTo(700_000);
   }
 }
