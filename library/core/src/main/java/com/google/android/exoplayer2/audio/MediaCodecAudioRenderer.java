@@ -48,6 +48,7 @@ import com.google.android.exoplayer2.audio.AudioSink.WriteException;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.decoder.DecoderReuseEvaluation;
 import com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DecoderDiscardReasons;
+import com.google.android.exoplayer2.extractor.VorbisUtil;
 import com.google.android.exoplayer2.mediacodec.MediaCodecAdapter;
 import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
 import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer;
@@ -109,6 +110,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
 
   private int codecMaxInputSize;
   private boolean codecNeedsDiscardChannelsWorkaround;
+  private boolean codecNeedsVorbisToAndroidChannelMappingWorkaround;
   @Nullable private Format inputFormat;
 
   /** Codec used for DRM decryption only in passthrough and offload. */
@@ -436,6 +438,8 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       float codecOperatingRate) {
     codecMaxInputSize = getCodecMaxInputSize(codecInfo, format, getStreamFormats());
     codecNeedsDiscardChannelsWorkaround = codecNeedsDiscardChannelsWorkaround(codecInfo.name);
+    codecNeedsVorbisToAndroidChannelMappingWorkaround =
+        codecNeedsVorbisToAndroidChannelMappingWorkaround(codecInfo.name);
     MediaFormat mediaFormat =
         getMediaFormat(format, codecInfo.codecMimeType, codecMaxInputSize, codecOperatingRate);
     // Store the input MIME type if we're only using the codec for decryption.
@@ -568,6 +572,9 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
         for (int i = 0; i < format.channelCount; i++) {
           channelMap[i] = i;
         }
+      } else if (codecNeedsVorbisToAndroidChannelMappingWorkaround) {
+        channelMap =
+            VorbisUtil.getVorbisToAndroidChannelLayoutMapping(audioSinkInputFormat.channelCount);
       }
     }
     try {
@@ -971,6 +978,19 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
         && (Util.DEVICE.startsWith("zeroflte")
             || Util.DEVICE.startsWith("herolte")
             || Util.DEVICE.startsWith("heroqlte"));
+  }
+
+  /**
+   * Returns whether the decoder is known to output PCM samples in VORBIS order, which does not
+   * match the channel layout required by AudioTrack.
+   *
+   * <p>See https://github.com/google/ExoPlayer/issues/8396#issuecomment-1833867901.
+   */
+  private static boolean codecNeedsVorbisToAndroidChannelMappingWorkaround(String codecName) {
+    return codecName.equals("OMX.google.opus.decoder")
+        || codecName.equals("c2.android.opus.decoder")
+        || codecName.equals("OMX.google.vorbis.decoder")
+        || codecName.equals("c2.android.vorbis.decoder");
   }
 
   private final class AudioSinkListener implements AudioSink.Listener {

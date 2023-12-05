@@ -375,6 +375,18 @@ public abstract class DecoderAudioRenderer<
   protected abstract Format getOutputFormat(T decoder);
 
   /**
+   * Returns the channel layout mapping that should be applied when sending this data to the output,
+   * or null to not change the channel layout.
+   *
+   * @param decoder The decoder.
+   */
+  @ForOverride
+  @Nullable
+  protected int[] getChannelMapping(T decoder) {
+    return null;
+  }
+
+  /**
    * Evaluates whether the existing decoder can be reused for a new {@link Format}.
    *
    * <p>The default implementation does not allow decoder reuse.
@@ -444,7 +456,7 @@ public abstract class DecoderAudioRenderer<
               .setSelectionFlags(inputFormat.selectionFlags)
               .setRoleFlags(inputFormat.roleFlags)
               .build();
-      audioSink.configure(outputFormat, /* specifiedBufferSize= */ 0, /* outputChannels= */ null);
+      audioSink.configure(outputFormat, /* specifiedBufferSize= */ 0, getChannelMapping(decoder));
       audioTrackNeedsConfigure = false;
     }
 

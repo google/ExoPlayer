@@ -25,6 +25,7 @@ import com.google.android.exoplayer2.audio.AudioSink;
 import com.google.android.exoplayer2.audio.AudioSink.SinkFormatSupport;
 import com.google.android.exoplayer2.audio.DecoderAudioRenderer;
 import com.google.android.exoplayer2.decoder.CryptoConfig;
+import com.google.android.exoplayer2.extractor.VorbisUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.TraceUtil;
 import com.google.android.exoplayer2.util.Util;
@@ -136,6 +137,12 @@ public class LibopusAudioRenderer extends DecoderAudioRenderer<OpusDecoder> {
     @C.PcmEncoding
     int pcmEncoding = decoder.outputFloat ? C.ENCODING_PCM_FLOAT : C.ENCODING_PCM_16BIT;
     return Util.getPcmFormat(pcmEncoding, decoder.channelCount, OpusDecoder.SAMPLE_RATE);
+  }
+
+  @Nullable
+  @Override
+  protected int[] getChannelMapping(OpusDecoder decoder) {
+    return VorbisUtil.getVorbisToAndroidChannelLayoutMapping(decoder.channelCount);
   }
 
   /**

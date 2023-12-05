@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.ext.opus;
 
-import static org.junit.Assert.fail;
+import static com.google.common.truth.Truth.assertWithMessage;
 
 import android.content.Context;
 import android.net.Uri;
@@ -29,9 +29,13 @@ import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RenderersFactory;
+import com.google.android.exoplayer2.audio.AudioSink;
+import com.google.android.exoplayer2.audio.DefaultAudioSink;
 import com.google.android.exoplayer2.extractor.mkv.MatroskaExtractor;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
+import com.google.android.exoplayer2.testutil.CapturingAudioSink;
+import com.google.android.exoplayer2.testutil.DumpFileAsserts;
 import com.google.android.exoplayer2.upstream.DefaultDataSource;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,49 +45,69 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class OpusPlaybackTest {
 
-  private static final String BEAR_OPUS_URI = "asset:///media/mka/bear-opus.mka";
-  private static final String BEAR_OPUS_NEGATIVE_GAIN_URI =
-      "asset:///media/mka/bear-opus-negative-gain.mka";
+  private static final String BEAR_OPUS = "mka/bear-opus.mka";
+  private static final String BEAR_OPUS_NEGATIVE_GAIN = "mka/bear-opus-negative-gain.mka";
+  private static final String OPUS_5POINT1 = "mka/opus-5.1.mka";
 
   @Before
   public void setUp() {
-    if (!OpusLibrary.isAvailable()) {
-      fail("Opus library not available.");
-    }
+    assertWithMessage("Opus library not available").that(OpusLibrary.isAvailable()).isTrue();
+    assertWithMessage("Dump files were generated for x86_64")
+        .that(System.getProperty("os.arch"))
+        .isEqualTo("x86_64");
   }
 
   @Test
-  public void basicPlayback() throws Exception {
-    playUri(BEAR_OPUS_URI);
+  public void playBasicOpus() throws Exception {
+    playUri(BEAR_OPUS);
   }
 
   @Test
-  public void basicPlaybackNegativeGain() throws Exception {
-    playUri(BEAR_OPUS_NEGATIVE_GAIN_URI);
+  public void playWithNegativeGain() throws Exception {
+    playUri(BEAR_OPUS_NEGATIVE_GAIN);
   }
 
-  private void playUri(String uri) throws Exception {
+  @Test
+  public void play5Point1() throws Exception {
+    playUri(OPUS_5POINT1);
+  }
+
+  private void playUri(String fileName) throws Exception {
+    CapturingAudioSink audioSink =
+        new CapturingAudioSink(
+            new DefaultAudioSink.Builder(ApplicationProvider.getApplicationContext()).build());
+
     TestPlaybackRunnable testPlaybackRunnable =
-        new TestPlaybackRunnable(Uri.parse(uri), ApplicationProvider.getApplicationContext());
+        new TestPlaybackRunnable(
+            Uri.parse("asset:///media/" + fileName),
+            ApplicationProvider.getApplicationContext(),
+            audioSink);
     Thread thread = new Thread(testPlaybackRunnable);
     thread.start();
     thread.join();
+
     if (testPlaybackRunnable.playbackException != null) {
       throw testPlaybackRunnable.playbackException;
     }
+    DumpFileAsserts.assertOutput(
+        ApplicationProvider.getApplicationContext(),
+        audioSink,
+        "audiosinkdumps/" + fileName + ".audiosink.dump");
   }
 
   private static class TestPlaybackRunnable implements Player.Listener, Runnable {
 
     private final Context context;
     private final Uri uri;
+    private final AudioSink audioSink;
 
     @Nullable private ExoPlayer player;
     @Nullable private PlaybackException playbackException;
 
-    public TestPlaybackRunnable(Uri uri, Context context) {
+    public TestPlaybackRunnable(Uri uri, Context context, AudioSink audioSink) {
       this.uri = uri;
       this.context = context;
+      this.audioSink = audioSink;
     }
 
     @Override
@@ -95,7 +119,9 @@ public class OpusPlaybackTest {
               audioRendererEventListener,
               textRendererOutput,
               metadataRendererOutput) ->
-              new Renderer[] {new LibopusAudioRenderer(eventHandler, audioRendererEventListener)};
+              new Renderer[] {
+                new LibopusAudioRenderer(eventHandler, audioRendererEventListener, audioSink)
+              };
       player = new ExoPlayer.Builder(context, renderersFactory).build();
       player.addListener(this);
       MediaSource mediaSource =
