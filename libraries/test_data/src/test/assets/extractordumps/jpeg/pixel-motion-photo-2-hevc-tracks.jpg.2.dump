@@ -1,0 +1,240 @@
+seekMap:
+  isSeekable = true
+  duration = 2100700
+  getPosition(0) = [[timeUs=0, position=2603638]]
+  getPosition(1) = [[timeUs=0, position=2603638], [timeUs=233244, position=2954238]]
+  getPosition(1050350) = [[timeUs=933666, position=3996417], [timeUs=1167088, position=4338425]]
+  getPosition(2100700) = [[timeUs=2058988, position=5701022]]
+numberOfTracks = 5
+track 0:
+  total output bytes = 1572110
+  sample count = 23
+  format 0:
+    id = 1
+    sampleMimeType = video/hevc
+    codecs = hvc1.1.6.L153
+    maxInputSize = 229249
+    width = 1024
+    height = 768
+    frameRate = 27.609846
+    rotationDegrees = 90
+    colorInfo:
+      colorSpace = 1
+      colorRange = 1
+      colorTransfer = 3
+      lumaBitdepth = 8
+      chromaBitdepth = 8
+    metadata = entries=[Mp4Timestamp: creation time=3784612704, modification time=3784612704, timescale=10000]
+    initializationData:
+      data = length 82, hash C508E2F1
+  sample 0:
+    time = 1167088
+    flags = 1
+    data = length 154591, hash 62D2311C
+  sample 1:
+    time = 1200433
+    flags = 0
+    data = length 27223, hash 6733CC93
+  sample 2:
+    time = 1233777
+    flags = 0
+    data = length 27659, hash BCE01964
+  sample 3:
+    time = 1267077
+    flags = 0
+    data = length 39427, hash 4260E860
+  sample 4:
+    time = 1300422
+    flags = 0
+    data = length 27698, hash 8D6087A2
+  sample 5:
+    time = 1333811
+    flags = 0
+    data = length 40089, hash 61C9B394
+  sample 6:
+    time = 1367222
+    flags = 0
+    data = length 27601, hash 7B3D87E8
+  sample 7:
+    time = 1408833
+    flags = 1
+    data = length 219559, hash 881031BA
+  sample 8:
+    time = 1450511
+    flags = 0
+    data = length 30027, hash 7BBBF608
+  sample 9:
+    time = 1492188
+    flags = 0
+    data = length 41623, hash 3A6D4A48
+  sample 10:
+    time = 1600544
+    flags = 0
+    data = length 114695, hash D61EAD29
+  sample 11:
+    time = 1642222
+    flags = 0
+    data = length 82113, hash DA0FCB1F
+  sample 12:
+    time = 1683900
+    flags = 0
+    data = length 59998, hash 72EE3D06
+  sample 13:
+    time = 1725577
+    flags = 0
+    data = length 37475, hash FA6E62C4
+  sample 14:
+    time = 1767244
+    flags = 1
+    data = length 229219, hash 37A06706
+  sample 15:
+    time = 1808922
+    flags = 0
+    data = length 24001, hash 3DA0DA79
+  sample 16:
+    time = 1850533
+    flags = 0
+    data = length 45931, hash 6B88632C
+  sample 17:
+    time = 1892211
+    flags = 0
+    data = length 35838, hash 3DC6FDE6
+  sample 18:
+    time = 1933955
+    flags = 0
+    data = length 36848, hash 6F9986EC
+  sample 19:
+    time = 1975633
+    flags = 0
+    data = length 29700, hash CF094404
+  sample 20:
+    time = 2017311
+    flags = 0
+    data = length 31282, hash 57AABAAA
+  sample 21:
+    time = 2058988
+    flags = 1
+    data = length 171963, hash 7115AF3D
+  sample 22:
+    time = 2100700
+    flags = 536870912
+    data = length 37550, hash F7D849CB
+track 1:
+  total output bytes = 151315
+  sample count = 1
+  format 0:
+    id = 2
+    sampleMimeType = video/hevc
+    codecs = hvc1.1.6.L153
+    maxInputSize = 151345
+    width = 2048
+    height = 1536
+    rotationDegrees = 90
+    colorInfo:
+      colorSpace = 1
+      colorRange = 1
+      colorTransfer = 3
+      lumaBitdepth = 8
+      chromaBitdepth = 8
+    metadata = entries=[Mp4Timestamp: creation time=3784612704, modification time=3784612704, timescale=10000]
+    initializationData:
+      data = length 82, hash 1924973
+  sample 0:
+    time = 0
+    flags = 536870913
+    data = length 151315, hash FBF6FF68
+track 2:
+  total output bytes = 7650
+  sample count = 17
+  format 0:
+    id = 3
+    sampleMimeType = application/microvideo-meta-stream
+    maxInputSize = 480
+    metadata = entries=[Mp4Timestamp: creation time=3784612704, modification time=3784612704, timescale=10000]
+  sample 0:
+    time = 1367222
+    flags = 1
+    data = length 450, hash 5D066E86
+  sample 1:
+    time = 1408833
+    flags = 1
+    data = length 450, hash C778961C
+  sample 2:
+    time = 1450511
+    flags = 1
+    data = length 450, hash 9BAFB769
+  sample 3:
+    time = 1492188
+    flags = 1
+    data = length 450, hash D75C7D3B
+  sample 4:
+    time = 1600544
+    flags = 1
+    data = length 450, hash 99567E6F
+  sample 5:
+    time = 1642222
+    flags = 1
+    data = length 450, hash 91D53D15
+  sample 6:
+    time = 1683900
+    flags = 1
+    data = length 450, hash AD0DC631
+  sample 7:
+    time = 1725577
+    flags = 1
+    data = length 450, hash 6DDB52D
+  sample 8:
+    time = 1767244
+    flags = 1
+    data = length 450, hash 563846ED
+  sample 9:
+    time = 1808922
+    flags = 1
+    data = length 450, hash E4BF4849
+  sample 10:
+    time = 1850533
+    flags = 1
+    data = length 450, hash 7A5646D3
+  sample 11:
+    time = 1892211
+    flags = 1
+    data = length 450, hash 59B2529E
+  sample 12:
+    time = 1933955
+    flags = 1
+    data = length 450, hash 8EEAF538
+  sample 13:
+    time = 1975633
+    flags = 1
+    data = length 450, hash 1D6CFB63
+  sample 14:
+    time = 2017311
+    flags = 1
+    data = length 450, hash 9D344846
+  sample 15:
+    time = 2058988
+    flags = 1
+    data = length 450, hash D07CD09D
+  sample 16:
+    time = 2100700
+    flags = 536870913
+    data = length 450, hash B6FD8734
+track 3:
+  total output bytes = 59
+  sample count = 1
+  format 0:
+    id = 4
+    sampleMimeType = application/motionphoto-image-meta
+    maxInputSize = 89
+    metadata = entries=[Mp4Timestamp: creation time=3784612704, modification time=3784612704, timescale=10000]
+  sample 0:
+    time = 0
+    flags = 536870913
+    data = length 59, hash 869099E5
+track 1024:
+  total output bytes = 0
+  sample count = 0
+  format 0:
+    containerMimeType = image/jpeg
+    metadata = entries=[Motion photo metadata: photoStartPosition=0, photoSize=2603594, photoPresentationTimestampUs=1133745, videoStartPosition=2603594, videoSize=3487735]
+tracksEnded = true
