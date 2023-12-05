@@ -149,6 +149,23 @@ public class OpusUtil {
     return ((header[11] & 0xFF) << 8) | (header[10] & 0xFF);
   }
 
+  /**
+   * Returns whether an Opus frame should be sent to the decoder as it is either past the start
+   * position or within the seek-preroll duration.
+   *
+   * <p>The measure of whether an Opus frame should not be decoded is if its time precedes the start
+   * position by more than the default seek-preroll value.
+   *
+   * @param startTimeUs The time to start playing at.
+   * @param frameTimeUs The time of the Opus sample.
+   * @return Whether the frame should be decoded.
+   */
+  public static boolean needToDecodeOpusFrame(long startTimeUs, long frameTimeUs) {
+    // Divide by 1000 in rhs value to convert nanoseconds to microseconds.
+    return (startTimeUs - frameTimeUs)
+        <= (sampleCountToNanoseconds(DEFAULT_SEEK_PRE_ROLL_SAMPLES) / 1000);
+  }
+
   private static long getPacketDurationUs(byte packetByte0, byte packetByte1) {
     // See RFC6716, Sections 3.1 and 3.2.
     int toc = packetByte0 & 0xFF;
