@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.video;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -25,6 +26,7 @@ import android.os.Looper;
 import android.util.Pair;
 import android.view.Surface;
 import androidx.annotation.FloatRange;
+import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -45,6 +47,10 @@ import com.google.android.exoplayer2.video.VideoFrameReleaseControl.FrameTimingE
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableList;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -201,6 +207,16 @@ public final class CompositingVideoSinkProvider
     }
   }
 
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
+  @IntDef({STATE_CREATED, STATE_INITIALIZED, STATE_RELEASED})
+  private @interface State {}
+
+  private static final int STATE_CREATED = 0;
+  private static final int STATE_INITIALIZED = 1;
+  private static final int STATE_RELEASED = 2;
+
   private static final Executor NO_OP_EXECUTOR = runnable -> {};
 
   private final Context context;
@@ -219,7 +235,7 @@ public final class CompositingVideoSinkProvider
   private VideoSink.Listener listener;
   private Executor listenerExecutor;
   private int pendingFlushCount;
-  private boolean released;
+  private @State int state;
 
   private CompositingVideoSinkProvider(Builder builder) {
     this.context = builder.context;
@@ -232,13 +248,14 @@ public final class CompositingVideoSinkProvider
     clock = Clock.DEFAULT;
     listener = VideoSink.Listener.NO_OP;
     listenerExecutor = NO_OP_EXECUTOR;
+    state = STATE_CREATED;
   }
 
   // VideoSinkProvider methods
 
   @Override
   public void initialize(Format sourceFormat) throws VideoSink.VideoSinkException {
-    checkState(!released && videoSinkImpl == null);
+    checkState(state == STATE_CREATED);
     checkStateNotNull(videoEffects);
 
     // Lazily initialize the handler here so it's initialized on the playback looper.
@@ -274,18 +291,20 @@ public final class CompositingVideoSinkProvider
       throw new VideoSink.VideoSinkException(e, sourceFormat);
     }
     videoSinkImpl.setVideoEffects(checkNotNull(videoEffects));
+    state = STATE_INITIALIZED;
   }
 
   @Override
   public boolean isInitialized() {
-    return videoSinkImpl != null;
+    return state == STATE_INITIALIZED;
   }
 
   @Override
   public void release() {
-    if (released) {
+    if (state == STATE_RELEASED) {
       return;
     }
+
     if (handler != null) {
       handler.removeCallbacksAndMessages(/* token= */ null);
     }
@@ -294,7 +313,7 @@ public final class CompositingVideoSinkProvider
       videoGraph.release();
     }
     currentSurfaceAndSize = null;
-    released = true;
+    state = STATE_RELEASED;
   }
 
   @Override

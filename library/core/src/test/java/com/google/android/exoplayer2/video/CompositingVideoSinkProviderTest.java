@@ -84,6 +84,17 @@ public final class CompositingVideoSinkProviderTest {
   }
 
   @Test
+  public void isInitialized_afterRelease_returnsFalse() throws VideoSink.VideoSinkException {
+    CompositingVideoSinkProvider provider = createCompositingVideoSinkProvider();
+    provider.setVideoEffects(ImmutableList.of());
+    provider.initialize(new Format.Builder().build());
+
+    provider.release();
+
+    assertThat(provider.isInitialized()).isFalse();
+  }
+
+  @Test
   public void initialize_afterRelease_throws() throws VideoSink.VideoSinkException {
     CompositingVideoSinkProvider provider = createCompositingVideoSinkProvider();
     provider.setVideoEffects(ImmutableList.of());
