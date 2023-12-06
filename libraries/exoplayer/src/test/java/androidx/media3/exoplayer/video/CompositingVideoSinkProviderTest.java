@@ -43,15 +43,6 @@ import org.mockito.Mockito;
 public final class CompositingVideoSinkProviderTest {
 
   @Test
-  public void builder_withoutVideoFrameReleaseControl_throws() {
-    assertThrows(
-        IllegalStateException.class,
-        () ->
-            new CompositingVideoSinkProvider.Builder(ApplicationProvider.getApplicationContext())
-                .build());
-  }
-
-  @Test
   public void builder_calledMultipleTimes_throws() {
     CompositingVideoSinkProvider.Builder builder =
         new CompositingVideoSinkProvider.Builder(ApplicationProvider.getApplicationContext())

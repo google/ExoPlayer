@@ -81,6 +81,12 @@ public interface VideoSinkProvider {
   void setVideoFrameMetadataListener(VideoFrameMetadataListener videoFrameMetadataListener);
 
   /**
+   * Returns the {@link VideoFrameReleaseControl} that will be used for releasing of video frames
+   * during rendering.
+   */
+  VideoFrameReleaseControl getVideoFrameReleaseControl();
+
+  /**
    * Sets the {@link Clock} that the provider should use internally.
    *
    * <p>Must be called before the sink provider is {@linkplain #initialize(Format) initialized}.

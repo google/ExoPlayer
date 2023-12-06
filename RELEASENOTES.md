@@ -56,6 +56,13 @@
         Google TV, and Lenovo M10 FHD Plus that causes 60fps AVC streams to be
         marked as unsupported
         ([#693](https://github.com/androidx/media/issues/693)).
+    *   Change the `MediaCodecVideoRenderer` constructor that takes a
+        `VideoFrameProcessor.Factory` argument and replace it with a constructor
+        that takes a `VideoSinkProvider` argument. Apps that want to inject a
+        custom `VideoFrameProcessor.Factory` can instantiate a
+        `CompositingVideoSinkProvider` that uses the custom
+        `VideoFrameProcessor.Factory` and pass the video sink provider to
+        `MediaCodecVideoRenderer`.
 *   Text:
     *   Fix serialization of bitmap cues to resolve `Tried to marshall a Parcel
         that contained Binder objects` error when using

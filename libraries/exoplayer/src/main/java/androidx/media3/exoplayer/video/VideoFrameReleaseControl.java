@@ -36,7 +36,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /** Controls the releasing of video frames. */
-/* package */ final class VideoFrameReleaseControl {
+@UnstableApi
+public final class VideoFrameReleaseControl {
 
   /**
    * The frame release action returned by {@link #getFrameReleaseAction(long, long, long, long,
@@ -181,6 +182,9 @@ import java.lang.annotation.Target;
    * Creates an instance.
    *
    * @param applicationContext The application context.
+   * @param frameTimingEvaluator The {@link FrameTimingEvaluator} that will assist in {@linkplain
+   *     #getFrameReleaseAction(long, long, long, long, boolean, FrameReleaseInfo)} frame release
+   *     actions}.
    * @param allowedJoiningTimeMs The maximum duration in milliseconds for which the renderer can
    *     attempt to seamlessly join an ongoing playback.
    */

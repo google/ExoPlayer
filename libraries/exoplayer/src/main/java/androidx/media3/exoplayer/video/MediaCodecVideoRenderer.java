@@ -51,7 +51,6 @@ import androidx.media3.common.Effect;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.PlaybackException;
-import androidx.media3.common.VideoFrameProcessor;
 import androidx.media3.common.VideoSize;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.Log;
@@ -343,7 +342,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer
         eventListener,
         maxDroppedFramesToNotify,
         assumedMinimumCodecOperatingRate,
-        /* videoFrameProcessorFactory= */ null);
+        /* videoSinkProvider= */ null);
   }
 
   /**
@@ -366,8 +365,12 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer
    * @param assumedMinimumCodecOperatingRate A codec operating rate that all codecs instantiated by
    *     this renderer are assumed to meet implicitly (i.e. without the operating rate being set
    *     explicitly using {@link MediaFormat#KEY_OPERATING_RATE}).
-   * @param videoFrameProcessorFactory The {@link VideoFrameProcessor.Factory} applied on video
-   *     output. {@code null} means a default implementation will be applied.
+   * @param videoSinkProvider The {@link VideoSinkProvider} that will used be used for applying
+   *     video effects also providing the {@linkplain
+   *     VideoSinkProvider#getVideoFrameReleaseControl() VideoFrameReleaseControl} for releasing
+   *     video frames. If {@code null}, the {@link CompositingVideoSinkProvider} with its default
+   *     configuration will be used, and the renderer will drive releasing of video frames by
+   *     itself.
    */
   public MediaCodecVideoRenderer(
       Context context,
@@ -379,7 +382,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer
       @Nullable VideoRendererEventListener eventListener,
       int maxDroppedFramesToNotify,
       float assumedMinimumCodecOperatingRate,
-      @Nullable VideoFrameProcessor.Factory videoFrameProcessorFactory) {
+      @Nullable VideoSinkProvider videoSinkProvider) {
     super(
         C.TRACK_TYPE_VIDEO,
         codecAdapterFactory,
@@ -388,20 +391,20 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer
         assumedMinimumCodecOperatingRate);
     this.maxDroppedFramesToNotify = maxDroppedFramesToNotify;
     this.context = context.getApplicationContext();
-    @SuppressWarnings("nullness:assignment")
-    VideoFrameReleaseControl.@Initialized FrameTimingEvaluator thisRef = this;
-    videoFrameReleaseControl =
-        new VideoFrameReleaseControl(
-            this.context, /* frameTimingEvaluator= */ thisRef, allowedJoiningTimeMs);
-    videoFrameReleaseInfo = new VideoFrameReleaseControl.FrameReleaseInfo();
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
-    CompositingVideoSinkProvider.Builder compositingVideoSinkProvider =
-        new CompositingVideoSinkProvider.Builder(context)
-            .setVideoFrameReleaseControl(videoFrameReleaseControl);
-    if (videoFrameProcessorFactory != null) {
-      compositingVideoSinkProvider.setVideoFrameProcessorFactory(videoFrameProcessorFactory);
+    if (videoSinkProvider == null) {
+      @SuppressWarnings("nullness:assignment")
+      VideoFrameReleaseControl.@Initialized FrameTimingEvaluator thisRef = this;
+      videoSinkProvider =
+          new CompositingVideoSinkProvider.Builder(this.context)
+              .setVideoFrameReleaseControl(
+                  new VideoFrameReleaseControl(
+                      this.context, /* frameTimingEvaluator= */ thisRef, allowedJoiningTimeMs))
+              .build();
     }
-    videoSinkProvider = compositingVideoSinkProvider.build();
+    this.videoSinkProvider = videoSinkProvider;
+    this.videoFrameReleaseControl = this.videoSinkProvider.getVideoFrameReleaseControl();
+    videoFrameReleaseInfo = new VideoFrameReleaseControl.FrameReleaseInfo();
     deviceNeedsNoPostProcessWorkaround = deviceNeedsNoPostProcessWorkaround();
     scalingMode = C.VIDEO_SCALING_MODE_DEFAULT;
     decodedVideoSize = VideoSize.UNKNOWN;
@@ -1105,10 +1108,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer
   public void setVideoEffects(List<Effect> effects) {
     videoSinkProvider.setVideoEffects(effects);
     hasEffects = true;
-  }
-
-  protected final VideoSinkProvider getVideoSinkProvider() {
-    return videoSinkProvider;
   }
 
   @Override

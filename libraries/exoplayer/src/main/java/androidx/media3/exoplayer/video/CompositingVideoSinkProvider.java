@@ -46,6 +46,7 @@ import androidx.media3.common.util.TimestampIterator;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import androidx.media3.exoplayer.ExoPlaybackException;
+import androidx.media3.exoplayer.video.VideoFrameReleaseControl.FrameTimingEvaluator;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableList;
@@ -61,7 +62,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** Handles composition of video sinks. */
 @UnstableApi
-/* package */ final class CompositingVideoSinkProvider
+public final class CompositingVideoSinkProvider
     implements VideoSinkProvider, VideoGraph.Listener, VideoFrameRenderControl.FrameRenderer {
 
   /** A builder for {@link CompositingVideoSinkProvider} instances. */
@@ -112,6 +113,21 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     /**
      * Sets the {@link VideoFrameReleaseControl} that will be used.
      *
+     * <p>By default, a {@link VideoFrameReleaseControl} will be used with a {@link
+     * FrameTimingEvaluator} implementation which:
+     *
+     * <ul>
+     *   <li>Signals to {@linkplain FrameTimingEvaluator#shouldForceReleaseFrame(long, long) force
+     *       release} a frame if the frame is late by more than {@link #FRAME_LATE_THRESHOLD_US} and
+     *       the elapsed time since the previous frame release is greater than {@link
+     *       #FRAME_RELEASE_THRESHOLD_US}.
+     *   <li>Signals to {@linkplain FrameTimingEvaluator#shouldDropFrame(long, long, boolean) drop a
+     *       frame} if the frame is late by more than {@link #FRAME_LATE_THRESHOLD_US} and the frame
+     *       is not marked as the last one.
+     *   <li>Signals to never {@linkplain FrameTimingEvaluator#shouldIgnoreFrame(long, long, long,
+     *       boolean, boolean) ignore} a frame.
+     * </ul>
+     *
      * @param videoFrameReleaseControl The {@link VideoFrameReleaseControl}.
      * @return This builder, for convenience.
      */
@@ -122,10 +138,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     /**
      * Builds the {@link CompositingVideoSinkProvider}.
-     *
-     * <p>A {@link VideoFrameReleaseControl} must be set with {@link
-     * #setVideoFrameReleaseControl(VideoFrameReleaseControl)} otherwise this method throws {@link
-     * IllegalStateException}.
      *
      * <p>This method must be called at most once and will throw an {@link IllegalStateException} if
      * it has already been called.
@@ -140,10 +152,50 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         previewingVideoGraphFactory =
             new ReflectivePreviewingSingleInputVideoGraphFactory(videoFrameProcessorFactory);
       }
+      if (videoFrameReleaseControl == null) {
+        videoFrameReleaseControl =
+            new VideoFrameReleaseControl(
+                context, new CompositionFrameTimingEvaluator(), /* allowedJoiningTimeMs= */ 0);
+      }
       CompositingVideoSinkProvider compositingVideoSinkProvider =
           new CompositingVideoSinkProvider(this);
       built = true;
       return compositingVideoSinkProvider;
+    }
+  }
+
+  /** The time threshold, in microseconds, after which a frame is considered late. */
+  public static final long FRAME_LATE_THRESHOLD_US = -30_000;
+
+  /**
+   * The maximum elapsed time threshold, in microseconds, since last releasing a frame after which a
+   * frame can be force released.
+   */
+  public static final long FRAME_RELEASE_THRESHOLD_US = 100_000;
+
+  /** A {@link FrameTimingEvaluator} for composition frames. */
+  private static final class CompositionFrameTimingEvaluator implements FrameTimingEvaluator {
+
+    @Override
+    public boolean shouldForceReleaseFrame(long earlyUs, long elapsedSinceLastReleaseUs) {
+      return earlyUs < FRAME_LATE_THRESHOLD_US
+          && elapsedSinceLastReleaseUs > FRAME_RELEASE_THRESHOLD_US;
+    }
+
+    @Override
+    public boolean shouldDropFrame(long earlyUs, long elapsedRealtimeUs, boolean isLastFrame) {
+      return earlyUs < FRAME_LATE_THRESHOLD_US && !isLastFrame;
+    }
+
+    @Override
+    public boolean shouldIgnoreFrame(
+        long earlyUs,
+        long positionUs,
+        long elapsedRealtimeUs,
+        boolean isLastFrame,
+        boolean treatDroppedBuffersAsSkipped) {
+      // TODO b/293873191 - Handle very late buffers and drop to key frame.
+      return false;
     }
   }
 
@@ -232,13 +284,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     if (released) {
       return;
     }
-
     if (handler != null) {
       handler.removeCallbacksAndMessages(/* token= */ null);
     }
-    if (videoSinkImpl != null) {
-      videoSinkImpl.release();
-    }
+
     if (videoGraph != null) {
       videoGraph.release();
     }
@@ -299,6 +348,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   @Override
+  public VideoFrameReleaseControl getVideoFrameReleaseControl() {
+    return videoFrameReleaseControl;
+  }
+
+  @Override
   public void setClock(Clock clock) {
     checkState(!isInitialized());
     this.clock = clock;
@@ -356,7 +410,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   @Override
   public void renderFrame(
-      long renderTimeNs, long bufferPresentationTimeUs, long streamOffsetUs, boolean isFirstFrame) {
+      long renderTimeNs, long presentationTimeUs, long streamOffsetUs, boolean isFirstFrame) {
     if (isFirstFrame && listenerExecutor != NO_OP_EXECUTOR) {
       VideoSinkImpl videoSink = checkStateNotNull(videoSinkImpl);
       VideoSink.Listener currentListener = this.listener;
@@ -367,7 +421,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       //  onVideoSizeChanged is announced after the first frame is available for rendering.
       Format format = outputFormat == null ? new Format.Builder().build() : outputFormat;
       videoFrameMetadataListener.onVideoFrameAboutToBeRendered(
-          /* presentationTimeUs= */ bufferPresentationTimeUs - streamOffsetUs,
+          /* presentationTimeUs= */ presentationTimeUs - streamOffsetUs,
           clock.nanoTime(),
           format,
           /* mediaFormat= */ null);
@@ -618,11 +672,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
 
     // Other methods
-
-    /** Releases the video sink. */
-    public void release() {
-      videoFrameProcessor.release();
-    }
 
     /** Sets the {@linkplain Effect video effects}. */
     public void setVideoEffects(List<Effect> videoEffects) {
