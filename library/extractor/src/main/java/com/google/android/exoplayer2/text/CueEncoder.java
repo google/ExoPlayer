@@ -41,7 +41,8 @@ public final class CueEncoder {
    * @return The serialized byte array.
    */
   public byte[] encode(List<Cue> cues, long durationUs) {
-    ArrayList<Bundle> bundledCues = BundleCollectionUtil.toBundleArrayList(cues, Cue::toBundle);
+    ArrayList<Bundle> bundledCues =
+        BundleCollectionUtil.toBundleArrayList(cues, Cue::toSerializableBundle);
     Bundle allCuesBundle = new Bundle();
     allCuesBundle.putParcelableArrayList(CueDecoder.BUNDLE_FIELD_CUES, bundledCues);
     allCuesBundle.putLong(CueDecoder.BUNDLE_FIELD_DURATION_US, durationUs);
