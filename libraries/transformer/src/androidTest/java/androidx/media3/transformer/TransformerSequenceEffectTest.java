@@ -30,6 +30,7 @@ import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_URI_STRING;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_PORTRAIT_ASSET_URI_STRING;
 import static androidx.media3.transformer.AndroidTestUtil.extractBitmapsFromVideo;
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 import static org.junit.Assume.assumeFalse;
 
 import android.content.Context;
@@ -273,7 +274,8 @@ public final class TransformerSequenceEffectTest {
           testId, /* bitmapLabel= */ String.valueOf(i), actualBitmap, /* path= */ null);
       float averagePixelAbsoluteDifference =
           getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, subTestId);
-      assertThat(averagePixelAbsoluteDifference)
+      assertWithMessage("For expected bitmap %s.png", subTestId)
+          .that(averagePixelAbsoluteDifference)
           .isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE_LUMA);
     }
   }

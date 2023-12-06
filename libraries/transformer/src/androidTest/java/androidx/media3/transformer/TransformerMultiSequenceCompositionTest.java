@@ -27,6 +27,7 @@ import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_FORMAT;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_URI_STRING;
 import static androidx.media3.transformer.AndroidTestUtil.extractBitmapsFromVideo;
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -260,7 +261,8 @@ public final class TransformerMultiSequenceCompositionTest {
           readBitmap(Util.formatInvariant("%s/%s.png", PNG_ASSET_BASE_PATH, subTestId));
       float averagePixelAbsoluteDifference =
           getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, subTestId);
-      assertThat(averagePixelAbsoluteDifference)
+      assertWithMessage("For expected bitmap %s.png", subTestId)
+          .that(averagePixelAbsoluteDifference)
           .isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE_LUMA);
     }
   }
