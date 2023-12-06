@@ -29,7 +29,7 @@ FFMPEG_MODULE_PATH="$(pwd)/libraries/decoder_ffmpeg/src/main"
 ```
 
 * Download the [Android NDK][] and set its location in a shell variable.
-  This build configuration has been tested on NDK r21.
+  This build configuration has been tested on NDK r26b (r23c if ANDROID_ABI is 16).
 
 ```
 NDK_PATH="<path to Android NDK>"
@@ -39,6 +39,12 @@ NDK_PATH="<path to Android NDK>"
 
 ```
 HOST_PLATFORM="linux-x86_64"
+```
+
+* Set the ABI version for native code (typically it's equal to minSdk and must not exceed it):
+
+```
+ANDROID_ABI=16
 ```
 
 *   Fetch FFmpeg and checkout an appropriate branch. We cannot guarantee
@@ -74,7 +80,7 @@ ln -s "$FFMPEG_PATH" ffmpeg
 ```
 cd "${FFMPEG_MODULE_PATH}/jni" && \
 ./build_ffmpeg.sh \
-  "${FFMPEG_MODULE_PATH}" "${NDK_PATH}" "${HOST_PLATFORM}" "${ENABLED_DECODERS[@]}"
+  "${FFMPEG_MODULE_PATH}" "${NDK_PATH}" "${HOST_PLATFORM}" "${ANDROID_ABI}" "${ENABLED_DECODERS[@]}"
 ```
 
 ## Build instructions (Windows)
