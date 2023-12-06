@@ -30,6 +30,7 @@ import static com.google.android.exoplayer2.transformer.AndroidTestUtil.extractB
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Util.SDK_INT;
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 import static org.junit.Assume.assumeFalse;
 
 import android.content.Context;
@@ -273,7 +274,8 @@ public final class TransformerSequenceEffectTest {
           testId, /* bitmapLabel= */ String.valueOf(i), actualBitmap, /* path= */ null);
       float averagePixelAbsoluteDifference =
           getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, subTestId);
-      assertThat(averagePixelAbsoluteDifference)
+      assertWithMessage("For expected bitmap %s.png", subTestId)
+          .that(averagePixelAbsoluteDifference)
           .isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE_LUMA);
     }
   }
