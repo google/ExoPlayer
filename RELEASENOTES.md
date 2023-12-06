@@ -57,6 +57,10 @@
         marked as unsupported
         ([#693](https://github.com/androidx/media/issues/693)).
 *   Text:
+    *   Fix serialization of bitmap cues to resolve `Tried to marshall a Parcel
+        that contained Binder objects` error when using
+        `DefaultExtractorsFactory.setTextTrackTranscodingEnabled`
+        ([#836](https://github.com/androidx/media/issues/836)).
 *   Metadata:
 *   DRM:
     *   Extend workaround for spurious ClearKey `https://default.url` license

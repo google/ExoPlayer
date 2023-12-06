@@ -21,8 +21,6 @@ import static org.junit.Assert.assertThrows;
 
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.os.Bundle;
-import android.os.Parcel;
 import android.text.Layout;
 import android.text.SpannedString;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -109,6 +107,51 @@ public class CueTest {
   }
 
   @Test
+  public void roundTripViaBinderBasedBundle_yieldsEqualInstance() {
+    Cue cue =
+        new Cue.Builder()
+            .setText(SpannedString.valueOf("text"))
+            .setTextAlignment(Layout.Alignment.ALIGN_CENTER)
+            .setMultiRowAlignment(Layout.Alignment.ALIGN_NORMAL)
+            .setLine(5, Cue.LINE_TYPE_NUMBER)
+            .setLineAnchor(Cue.ANCHOR_TYPE_END)
+            .setPosition(0.4f)
+            .setPositionAnchor(Cue.ANCHOR_TYPE_MIDDLE)
+            .setTextSize(0.2f, Cue.TEXT_SIZE_TYPE_FRACTIONAL)
+            .setSize(0.8f)
+            .setWindowColor(Color.CYAN)
+            .setVerticalType(Cue.VERTICAL_TYPE_RL)
+            .setShearDegrees(-15f)
+            .build();
+    Cue modifiedCue = Cue.fromBundle(cue.toBinderBasedBundle());
+
+    assertThat(modifiedCue).isEqualTo(cue);
+  }
+
+  @Test
+  public void roundTripViaSerializableBundle_yieldsEqualInstance() {
+    Cue cue =
+        new Cue.Builder()
+            .setText(SpannedString.valueOf("text"))
+            .setTextAlignment(Layout.Alignment.ALIGN_CENTER)
+            .setMultiRowAlignment(Layout.Alignment.ALIGN_NORMAL)
+            .setLine(5, Cue.LINE_TYPE_NUMBER)
+            .setLineAnchor(Cue.ANCHOR_TYPE_END)
+            .setPosition(0.4f)
+            .setPositionAnchor(Cue.ANCHOR_TYPE_MIDDLE)
+            .setTextSize(0.2f, Cue.TEXT_SIZE_TYPE_FRACTIONAL)
+            .setSize(0.8f)
+            .setWindowColor(Color.CYAN)
+            .setVerticalType(Cue.VERTICAL_TYPE_RL)
+            .setShearDegrees(-15f)
+            .build();
+    Cue modifiedCue = Cue.fromBundle(cue.toSerializableBundle());
+
+    assertThat(modifiedCue).isEqualTo(cue);
+  }
+
+  @Test
+  @SuppressWarnings("deprecation") // Testing deprecated Cue.toBundle() method
   public void roundTripViaBundle_yieldsEqualInstance() {
     Cue cue =
         new Cue.Builder()
@@ -125,30 +168,36 @@ public class CueTest {
             .setVerticalType(Cue.VERTICAL_TYPE_RL)
             .setShearDegrees(-15f)
             .build();
-    Cue modifiedCue = parcelAndUnParcelCue(cue);
+    Cue modifiedCue = Cue.fromBundle(cue.toBundle());
 
     assertThat(modifiedCue).isEqualTo(cue);
   }
 
   @Test
-  public void roundTripViaBundle_withBitmap_yieldsEqualInstance() {
+  public void roundTripViaBinderBasedBundle_withBitmap_yieldsEqualInstance() {
     Cue cue =
         new Cue.Builder().setBitmap(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)).build();
-    Cue modifiedCue = parcelAndUnParcelCue(cue);
+    Cue modifiedCue = Cue.fromBundle(cue.toBinderBasedBundle());
 
     assertThat(modifiedCue).isEqualTo(cue);
   }
 
-  private static Cue parcelAndUnParcelCue(Cue cue) {
-    Parcel parcel = Parcel.obtain();
-    try {
-      parcel.writeBundle(cue.toBundle());
-      parcel.setDataPosition(0);
+  @Test
+  public void roundTripViaSerializableBundle_withBitmap_yieldsEqualInstance() {
+    Cue cue =
+        new Cue.Builder().setBitmap(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)).build();
+    Cue modifiedCue = Cue.fromBundle(cue.toSerializableBundle());
 
-      Bundle bundle = parcel.readBundle();
-      return Cue.fromBundle(bundle);
-    } finally {
-      parcel.recycle();
-    }
+    assertThat(modifiedCue).isEqualTo(cue);
+  }
+
+  @Test
+  @SuppressWarnings("deprecation") // Testing deprecated Cue.toBundle() method
+  public void roundTripViaBundle_withBitmap_yieldsEqualInstance() {
+    Cue cue =
+        new Cue.Builder().setBitmap(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)).build();
+    Cue modifiedCue = Cue.fromBundle(cue.toBundle());
+
+    assertThat(modifiedCue).isEqualTo(cue);
   }
 }

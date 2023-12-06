@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.ColorSpace;
 import android.os.Bundle;
 import android.text.Layout;
 import android.text.Spannable;
@@ -35,7 +36,6 @@ import androidx.media3.test.utils.truth.SpannedSubject;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -96,7 +96,6 @@ public class CueSerializationTest {
   }
 
   @Test
-  @Ignore("Currently broken: https://github.com/androidx/media/issues/836")
   public void serializingBitmapCue() throws Exception {
     CueEncoder encoder = new CueEncoder();
     CueDecoder decoder = new CueDecoder();
@@ -105,7 +104,13 @@ public class CueSerializationTest {
         TestUtil.getByteArray(
             ApplicationProvider.getApplicationContext(),
             "media/png/non-motion-photo-shortened.png");
-    Bitmap bitmap = BitmapFactory.decodeByteArray(imageData, 0, imageData.length);
+    BitmapFactory.Options options = new BitmapFactory.Options();
+    // Without this hint BitmapFactory reads an 'unknown' RGB color space from the file, which
+    // then causes spurious comparison failures later. Using a named RGB color space allows the
+    // Bitmap.isSameAs comparison to succeed.
+    options.inPreferredColorSpace = ColorSpace.get(ColorSpace.Named.SRGB);
+    Bitmap bitmap =
+        BitmapFactory.decodeByteArray(imageData, /* offset= */ 0, imageData.length, options);
     Cue bitmapCue = new Cue.Builder().setBitmap(bitmap).build();
 
     // encoding and decoding

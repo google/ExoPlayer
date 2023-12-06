@@ -16,6 +16,7 @@
 package androidx.media3.common.text;
 
 import static androidx.media3.common.text.CustomSpanBundler.bundleCustomSpans;
+import static androidx.media3.common.util.Assertions.checkState;
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.LOCAL_VARIABLE;
 import static java.lang.annotation.ElementType.METHOD;
@@ -23,7 +24,9 @@ import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.os.Binder;
 import android.os.Bundle;
 import android.text.Layout;
 import android.text.Layout.Alignment;
@@ -40,6 +43,7 @@ import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import com.google.common.base.Objects;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import java.io.ByteArrayOutputStream;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -832,7 +836,8 @@ public final class Cue implements Bundleable {
   private static final String FIELD_CUSTOM_SPANS = Util.intToStringMaxRadix(17);
   private static final String FIELD_TEXT_ALIGNMENT = Util.intToStringMaxRadix(1);
   private static final String FIELD_MULTI_ROW_ALIGNMENT = Util.intToStringMaxRadix(2);
-  private static final String FIELD_BITMAP = Util.intToStringMaxRadix(3);
+  private static final String FIELD_BITMAP_PARCELABLE = Util.intToStringMaxRadix(3);
+  private static final String FIELD_BITMAP_BYTES = Util.intToStringMaxRadix(18);
   private static final String FIELD_LINE = Util.intToStringMaxRadix(4);
   private static final String FIELD_LINE_TYPE = Util.intToStringMaxRadix(5);
   private static final String FIELD_LINE_ANCHOR = Util.intToStringMaxRadix(6);
@@ -847,9 +852,56 @@ public final class Cue implements Bundleable {
   private static final String FIELD_VERTICAL_TYPE = Util.intToStringMaxRadix(15);
   private static final String FIELD_SHEAR_DEGREES = Util.intToStringMaxRadix(16);
 
+  /**
+   * Returns a {@link Bundle} that can be serialized to bytes.
+   *
+   * <p>Prefer the more efficient {@link #toBinderBasedBundle()} if the result doesn't need to be
+   * serialized.
+   *
+   * <p>The {@link Bundle} returned from this method must not be passed to other processes that
+   * might be using a different version of the media3 library.
+   */
+  @UnstableApi
+  public Bundle toSerializableBundle() {
+    Bundle bundle = toBundleWithoutBitmap();
+    if (bitmap != null) {
+      ByteArrayOutputStream output = new ByteArrayOutputStream();
+      // The PNG format is lossless, and the quality parameter is ignored.
+      checkState(bitmap.compress(Bitmap.CompressFormat.PNG, /* quality= */ 0, output));
+      bundle.putByteArray(FIELD_BITMAP_BYTES, output.toByteArray());
+    }
+    return bundle;
+  }
+
+  /**
+   * Returns a {@link Bundle} that may contain {@link Binder} references, meaning it cannot be
+   * safely serialized to bytes.
+   *
+   * <p>The {@link Bundle} returned from this method can be safely sent between processes and parsed
+   * by older versions of the media3 library.
+   *
+   * <p>Use {@link #toSerializableBundle()} to get a {@link Bundle} that can be safely serialized.
+   */
+  @UnstableApi
+  public Bundle toBinderBasedBundle() {
+    Bundle bundle = toBundleWithoutBitmap();
+    if (bitmap != null) {
+      bundle.putParcelable(FIELD_BITMAP_PARCELABLE, bitmap);
+    }
+    return bundle;
+  }
+
+  /**
+   * @deprecated Use {@link #toSerializableBundle()} or {@link #toBinderBasedBundle()} instead.
+   */
   @UnstableApi
   @Override
+  @Deprecated
   public Bundle toBundle() {
+    return toBinderBasedBundle();
+  }
+
+  private Bundle toBundleWithoutBitmap() {
     Bundle bundle = new Bundle();
     if (text != null) {
       bundle.putCharSequence(FIELD_TEXT, text);
@@ -862,9 +914,6 @@ public final class Cue implements Bundleable {
     }
     bundle.putSerializable(FIELD_TEXT_ALIGNMENT, textAlignment);
     bundle.putSerializable(FIELD_MULTI_ROW_ALIGNMENT, multiRowAlignment);
-    if (bitmap != null) {
-      bundle.putParcelable(FIELD_BITMAP, bitmap);
-    }
     bundle.putFloat(FIELD_LINE, line);
     bundle.putInt(FIELD_LINE_TYPE, lineType);
     bundle.putInt(FIELD_LINE_ANCHOR, lineAnchor);
@@ -915,9 +964,15 @@ public final class Cue implements Bundleable {
     if (multiRowAlignment != null) {
       builder.setMultiRowAlignment(multiRowAlignment);
     }
-    @Nullable Bitmap bitmap = bundle.getParcelable(FIELD_BITMAP);
+    @Nullable Bitmap bitmap = bundle.getParcelable(FIELD_BITMAP_PARCELABLE);
     if (bitmap != null) {
       builder.setBitmap(bitmap);
+    } else {
+      @Nullable byte[] bitmapBytes = bundle.getByteArray(FIELD_BITMAP_BYTES);
+      if (bitmapBytes != null) {
+        builder.setBitmap(
+            BitmapFactory.decodeByteArray(bitmapBytes, /* offset= */ 0, bitmapBytes.length));
+      }
     }
     if (bundle.containsKey(FIELD_LINE) && bundle.containsKey(FIELD_LINE_TYPE)) {
       builder.setLine(bundle.getFloat(FIELD_LINE), bundle.getInt(FIELD_LINE_TYPE));
