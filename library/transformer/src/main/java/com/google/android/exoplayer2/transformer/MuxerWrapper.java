@@ -19,7 +19,9 @@ package com.google.android.exoplayer2.transformer;
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
+import static com.google.android.exoplayer2.util.Util.areEqual;
 import static com.google.android.exoplayer2.util.Util.contains;
+import static com.google.android.exoplayer2.util.Util.usToMs;
 import static java.lang.Math.max;
 import static java.lang.annotation.ElementType.TYPE_USE;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -63,22 +65,21 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @Target(TYPE_USE)
-  @IntDef({MUXER_MODE_DEFAULT, MUXER_MODE_MUX_PARTIAL_VIDEO, MUXER_MODE_APPEND_VIDEO})
+  @IntDef({MUXER_MODE_DEFAULT, MUXER_MODE_MUX_PARTIAL, MUXER_MODE_APPEND})
   public @interface MuxerMode {}
 
   /** The default muxer mode. */
   public static final int MUXER_MODE_DEFAULT = 0;
 
   /**
-   * Used for muxing a partial video. The video {@link TrackInfo} is kept the same when {@linkplain
-   * #changeToAppendVideoMode() transitioning} to {@link #MUXER_MODE_APPEND_VIDEO} after finishing
-   * muxing partial video. Only one video track can be {@link #addTrackFormat(Format) added} in this
-   * mode.
+   * Used for muxing a partial track(s). The {@link TrackInfo} is kept the same when {@linkplain
+   * #changeToAppendMode() transitioning} to {@link #MUXER_MODE_APPEND} after finishing muxing
+   * partial tracks.
    */
-  public static final int MUXER_MODE_MUX_PARTIAL_VIDEO = 1;
+  public static final int MUXER_MODE_MUX_PARTIAL = 1;
 
-  /** Used for appending the remaining video samples with the previously muxed partial video. */
-  public static final int MUXER_MODE_APPEND_VIDEO = 2;
+  /** Used for appending the remaining samples with the previously muxed partial file. */
+  public static final int MUXER_MODE_APPEND = 2;
 
   private static final String TIMER_THREAD_NAME = "Muxer:Timer";
   private static final String MUXER_TIMEOUT_ERROR_FORMAT_STRING =
@@ -117,7 +118,11 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private @MonotonicNonNull Muxer muxer;
   private @MuxerMode int muxerMode;
 
+  // Read by any thread, only written to on the transformerInternal thread.
   private volatile boolean muxedPartialVideo;
+  // Read by any thread, only written to on the transformerInternal thread.
+  private volatile boolean muxedPartialAudio;
+
   private volatile int additionalRotationDegrees;
   private volatile int trackCount;
 
@@ -128,14 +133,14 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * @param muxerFactory A {@link Muxer.Factory} to create a {@link Muxer}.
    * @param listener A {@link MuxerWrapper.Listener}.
    * @param muxerMode The {@link MuxerMode}. The initial mode must be {@link #MUXER_MODE_DEFAULT} or
-   *     {@link #MUXER_MODE_MUX_PARTIAL_VIDEO}.
+   *     {@link #MUXER_MODE_MUX_PARTIAL}.
    */
   public MuxerWrapper(
       String outputPath, Muxer.Factory muxerFactory, Listener listener, @MuxerMode int muxerMode) {
     this.outputPath = outputPath;
     this.muxerFactory = muxerFactory;
     this.listener = listener;
-    checkArgument(muxerMode == MUXER_MODE_DEFAULT || muxerMode == MUXER_MODE_MUX_PARTIAL_VIDEO);
+    checkArgument(muxerMode == MUXER_MODE_DEFAULT || muxerMode == MUXER_MODE_MUX_PARTIAL);
     this.muxerMode = muxerMode;
     trackTypeToInfo = new SparseArray<>();
     previousTrackType = C.TRACK_TYPE_NONE;
@@ -143,15 +148,15 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   /**
-   * Changes {@link MuxerMode} to {@link #MUXER_MODE_APPEND_VIDEO}.
+   * Changes {@link MuxerMode} to {@link #MUXER_MODE_APPEND}.
    *
-   * <p>This method must be called only after partial video is muxed using {@link
-   * #MUXER_MODE_MUX_PARTIAL_VIDEO}.
+   * <p>This method must be called only after partial file is muxed using {@link
+   * #MUXER_MODE_MUX_PARTIAL}.
    */
-  public void changeToAppendVideoMode() {
-    checkState(muxerMode == MUXER_MODE_MUX_PARTIAL_VIDEO);
+  public void changeToAppendMode() {
+    checkState(muxerMode == MUXER_MODE_MUX_PARTIAL);
 
-    muxerMode = MUXER_MODE_APPEND_VIDEO;
+    muxerMode = MUXER_MODE_APPEND;
   }
 
   /**
@@ -187,14 +192,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    *     before calling this method.
    */
   public void setTrackCount(@IntRange(from = 1) int trackCount) {
-    if (muxerMode == MUXER_MODE_MUX_PARTIAL_VIDEO || muxerMode == MUXER_MODE_APPEND_VIDEO) {
-      checkArgument(
-          trackCount == 1,
-          "Only one video track can be added in MUXER_MODE_MUX_PARTIAL_VIDEO and"
-              + " MUXER_MODE_APPEND_VIDEO");
-      if (muxerMode == MUXER_MODE_APPEND_VIDEO) {
-        return;
-      }
+    if (muxerMode == MUXER_MODE_APPEND) {
+      return;
     }
     checkState(
         trackTypeToInfo.size() == 0,
@@ -225,11 +224,11 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    *
    * <p>{@link Muxer#addMetadata(Metadata)} is called if the {@link Format#metadata} is present.
    *
-   * @param format The {@link Format} to be added. In {@link #MUXER_MODE_APPEND_VIDEO} mode, the
-   *     added {@link Format} must match the existing {@link Format} set when the muxer was in
-   *     {@link #MUXER_MODE_MUX_PARTIAL_VIDEO} mode.
+   * @param format The {@link Format} to be added. In {@link #MUXER_MODE_APPEND} mode, the added
+   *     {@link Format} must match the existing {@link Format} set when the muxer was in {@link
+   *     #MUXER_MODE_MUX_PARTIAL} mode.
    * @throws IllegalArgumentException If the format is unsupported or if it does not match the
-   *     existing format in {@link #MUXER_MODE_APPEND_VIDEO} mode.
+   *     existing format in {@link #MUXER_MODE_APPEND} mode.
    * @throws IllegalStateException If the number of formats added exceeds the {@linkplain
    *     #setTrackCount track count}, if {@link #setTrackCount(int)} has not been called or if there
    *     is already a track of that {@link C.TrackType}.
@@ -237,36 +236,43 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    *     the track.
    */
   public void addTrackFormat(Format format) throws Muxer.MuxerException {
-    if (muxerMode == MUXER_MODE_APPEND_VIDEO) {
-      checkState(contains(trackTypeToInfo, C.TRACK_TYPE_VIDEO));
-      TrackInfo videoTrackInfo = trackTypeToInfo.get(C.TRACK_TYPE_VIDEO);
-
-      // Ensure that video formats are the same. Some fields like codecs, averageBitrate, framerate,
-      // etc, don't match exactly in the Extractor output format and the Encoder output
-      // format but these fields can be ignored.
-      // TODO: b/308180225 - Compare Format.colorInfo as well.
-      Format existingFormat = videoTrackInfo.format;
-      checkArgument(Util.areEqual(existingFormat.sampleMimeType, format.sampleMimeType));
-      checkArgument(existingFormat.width == format.width);
-      checkArgument(existingFormat.height == format.height);
-      checkArgument(existingFormat.initializationDataEquals(format));
-
-      checkNotNull(muxer);
-      resetAbortTimer();
-      return;
-    } else if (muxerMode == MUXER_MODE_MUX_PARTIAL_VIDEO) {
-      checkArgument(MimeTypes.isVideo(format.sampleMimeType));
-    }
-
-    int trackCount = this.trackCount;
-    checkState(trackCount > 0, "The track count should be set before the formats are added.");
-    checkState(trackTypeToInfo.size() < trackCount, "All track formats have already been added.");
     @Nullable String sampleMimeType = format.sampleMimeType;
     @C.TrackType int trackType = MimeTypes.getTrackType(sampleMimeType);
     checkArgument(
         trackType == C.TRACK_TYPE_AUDIO || trackType == C.TRACK_TYPE_VIDEO,
         "Unsupported track format: " + sampleMimeType);
+    if (muxerMode == MUXER_MODE_APPEND) {
+      if (trackType == C.TRACK_TYPE_VIDEO) {
+        checkState(contains(trackTypeToInfo, C.TRACK_TYPE_VIDEO));
+        TrackInfo videoTrackInfo = trackTypeToInfo.get(C.TRACK_TYPE_VIDEO);
 
+        // Ensure that video formats are the same. Some fields like codecs, averageBitrate,
+        // framerate, etc, don't match exactly in the Extractor output format and the Encoder output
+        // format but these fields can be ignored.
+        // TODO: b/308180225 - Compare Format.colorInfo as well.
+        Format existingFormat = videoTrackInfo.format;
+        checkArgument(areEqual(existingFormat.sampleMimeType, format.sampleMimeType));
+        checkArgument(existingFormat.width == format.width);
+        checkArgument(existingFormat.height == format.height);
+        checkArgument(existingFormat.initializationDataEquals(format));
+      } else if (trackType == C.TRACK_TYPE_AUDIO) {
+        checkState(contains(trackTypeToInfo, C.TRACK_TYPE_AUDIO));
+        TrackInfo audioTrackInfo = trackTypeToInfo.get(C.TRACK_TYPE_AUDIO);
+
+        Format existingFormat = audioTrackInfo.format;
+        checkArgument(areEqual(existingFormat.sampleMimeType, format.sampleMimeType));
+        checkArgument(existingFormat.channelCount == format.channelCount);
+        checkArgument(existingFormat.sampleRate == format.sampleRate);
+        checkArgument(existingFormat.initializationDataEquals(format));
+      }
+      checkNotNull(muxer);
+      resetAbortTimer();
+      return;
+    }
+
+    int trackCount = this.trackCount;
+    checkState(trackCount > 0, "The track count should be set before the formats are added.");
+    checkState(trackTypeToInfo.size() < trackCount, "All track formats have already been added.");
     checkState(
         !contains(trackTypeToInfo, trackType), "There is already a track of type " + trackType);
 
@@ -368,8 +374,12 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       DebugTraceUtil.logEvent(DebugTraceUtil.EVENT_MUXER_TRACK_ENDED_AUDIO, trackInfo.timeUs);
     }
 
-    if (muxerMode == MUXER_MODE_MUX_PARTIAL_VIDEO) {
-      muxedPartialVideo = true;
+    if (muxerMode == MUXER_MODE_MUX_PARTIAL) {
+      if (trackType == C.TRACK_TYPE_VIDEO) {
+        muxedPartialVideo = true;
+      } else if (trackType == C.TRACK_TYPE_AUDIO) {
+        muxedPartialAudio = true;
+      }
     } else {
       trackTypeToInfo.delete(trackType);
       if (trackTypeToInfo.size() == 0) {
@@ -377,8 +387,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       }
     }
 
-    if (muxerMode == MUXER_MODE_MUX_PARTIAL_VIDEO && muxedPartialVideo) {
-      listener.onEnded(Util.usToMs(maxEndedTrackTimeUs), getCurrentOutputSizeBytes());
+    if (muxerMode == MUXER_MODE_MUX_PARTIAL
+        && muxedPartialVideo
+        && (muxedPartialAudio || trackCount == 1)) {
+      listener.onEnded(usToMs(maxEndedTrackTimeUs), getCurrentOutputSizeBytes());
       if (abortScheduledFuture != null) {
         abortScheduledFuture.cancel(/* mayInterruptIfRunning= */ false);
       }
@@ -386,26 +398,29 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
 
     if (isEnded) {
-      listener.onEnded(Util.usToMs(maxEndedTrackTimeUs), getCurrentOutputSizeBytes());
+      listener.onEnded(usToMs(maxEndedTrackTimeUs), getCurrentOutputSizeBytes());
       abortScheduledExecutorService.shutdownNow();
     }
   }
 
   /**
-   * Returns whether all the tracks are {@linkplain #endTrack(int) ended} or a partial video is
-   * completely muxed using {@link #MUXER_MODE_MUX_PARTIAL_VIDEO}.
+   * Returns whether all the tracks are {@linkplain #endTrack(int) ended} or a partial file is
+   * completely muxed using {@link #MUXER_MODE_MUX_PARTIAL}.
    */
   public boolean isEnded() {
-    return isEnded || (muxerMode == MUXER_MODE_MUX_PARTIAL_VIDEO && muxedPartialVideo);
+    return isEnded
+        || (muxerMode == MUXER_MODE_MUX_PARTIAL
+            && muxedPartialVideo
+            && (muxedPartialAudio || trackCount == 1));
   }
 
   /**
    * Finishes writing the output and releases any resources associated with muxing.
    *
-   * <p>When this method is called in {@link #MUXER_MODE_MUX_PARTIAL_VIDEO} mode, the resources are
-   * not released and the {@link MuxerWrapper} can be reused after {@link #changeToAppendVideoMode()
-   * changing mode} to {@link #MUXER_MODE_APPEND_VIDEO} mode. In all other modes the {@link
-   * MuxerWrapper} cannot be used anymore once this method has been called.
+   * <p>When this method is called in {@link #MUXER_MODE_MUX_PARTIAL} mode, the resources are not
+   * released and the {@link MuxerWrapper} can be reused after {@link #changeToAppendMode() changing
+   * mode} to {@link #MUXER_MODE_APPEND}. In all other modes the {@link MuxerWrapper} cannot be used
+   * anymore once this method has been called.
    *
    * @param forCancellation Whether the reason for releasing the resources is the transformation
    *     cancellation.
@@ -413,7 +428,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    *     and {@code forCancellation} is false.
    */
   public void release(boolean forCancellation) throws Muxer.MuxerException {
-    if (muxerMode == MUXER_MODE_MUX_PARTIAL_VIDEO && !forCancellation) {
+    if (muxerMode == MUXER_MODE_MUX_PARTIAL && !forCancellation) {
       return;
     }
     isReady = false;

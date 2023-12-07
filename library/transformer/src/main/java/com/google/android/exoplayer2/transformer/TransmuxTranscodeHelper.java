@@ -109,8 +109,6 @@ import java.util.List;
             .buildUpon()
             .setMediaItem(mediaItem)
             .setDurationUs(mediaDurationUs)
-            // TODO: b/304476154 - Support audio in trim optimization.
-            .setRemoveAudio(true)
             .build();
 
     return oldComposition

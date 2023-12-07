@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.transformer;
 
-import static com.google.android.exoplayer2.transformer.MuxerWrapper.MUXER_MODE_MUX_PARTIAL_VIDEO;
+import static com.google.android.exoplayer2.transformer.MuxerWrapper.MUXER_MODE_MUX_PARTIAL;
 import static com.google.android.exoplayer2.util.MimeTypes.AUDIO_AAC;
 import static com.google.android.exoplayer2.util.MimeTypes.VIDEO_H264;
 import static com.google.common.truth.Truth.assertThat;
@@ -66,7 +66,7 @@ public class MuxerWrapperTest {
   }
 
   @Test
-  public void changeToAppendVideoMode_afterDefaultMode_throws() throws Exception {
+  public void changeToAppendMode_afterDefaultMode_throws() throws Exception {
     muxerWrapper =
         new MuxerWrapper(
             temporaryFolder.newFile().getPath(),
@@ -74,91 +74,88 @@ public class MuxerWrapperTest {
             new NoOpMuxerListenerImpl(),
             MuxerWrapper.MUXER_MODE_DEFAULT);
 
-    assertThrows(IllegalStateException.class, muxerWrapper::changeToAppendVideoMode);
+    assertThrows(IllegalStateException.class, muxerWrapper::changeToAppendMode);
   }
 
   @Test
-  public void setTrackCount_toTwoInMuxPartialVideoMode_throws() throws Exception {
+  public void addTrackFormat_withSameVideoFormatInAppendMode_doesNotThrow() throws Exception {
     muxerWrapper =
         new MuxerWrapper(
             temporaryFolder.newFile().getPath(),
             new DefaultMuxer.Factory(),
             new NoOpMuxerListenerImpl(),
-            MUXER_MODE_MUX_PARTIAL_VIDEO);
+            MUXER_MODE_MUX_PARTIAL);
 
-    assertThrows(IllegalArgumentException.class, () -> muxerWrapper.setTrackCount(2));
-  }
-
-  @Test
-  public void setTrackCount_toTwoInAppendVideoMode_throws() throws Exception {
-    muxerWrapper =
-        new MuxerWrapper(
-            temporaryFolder.newFile().getPath(),
-            new DefaultMuxer.Factory(),
-            new NoOpMuxerListenerImpl(),
-            MUXER_MODE_MUX_PARTIAL_VIDEO);
     muxerWrapper.setTrackCount(1);
     muxerWrapper.addTrackFormat(FAKE_VIDEO_TRACK_FORMAT);
     muxerWrapper.writeSample(
         C.TRACK_TYPE_VIDEO, FAKE_SAMPLE, /* isKeyFrame= */ true, /* presentationTimeUs= */ 0);
     muxerWrapper.endTrack(C.TRACK_TYPE_VIDEO);
-    muxerWrapper.changeToAppendVideoMode();
-
-    assertThrows(IllegalArgumentException.class, () -> muxerWrapper.setTrackCount(2));
-  }
-
-  @Test
-  public void addTrackFormat_withAudioFormatInMuxPartialVideoMode_throws() throws Exception {
-    muxerWrapper =
-        new MuxerWrapper(
-            temporaryFolder.newFile().getPath(),
-            new DefaultMuxer.Factory(),
-            new NoOpMuxerListenerImpl(),
-            MUXER_MODE_MUX_PARTIAL_VIDEO);
+    muxerWrapper.changeToAppendMode();
     muxerWrapper.setTrackCount(1);
 
-    assertThrows(
-        IllegalArgumentException.class, () -> muxerWrapper.addTrackFormat(FAKE_AUDIO_TRACK_FORMAT));
+    muxerWrapper.addTrackFormat(FAKE_VIDEO_TRACK_FORMAT);
   }
 
   @Test
-  public void addTrackFormat_withSameVideoFormatInAppendVideoMode_doesNotThrow() throws Exception {
+  public void addTrackFormat_withSameAudioFormatInAppendMode_doesNotThrow() throws Exception {
     muxerWrapper =
         new MuxerWrapper(
             temporaryFolder.newFile().getPath(),
             new DefaultMuxer.Factory(),
             new NoOpMuxerListenerImpl(),
-            MUXER_MODE_MUX_PARTIAL_VIDEO);
+            MUXER_MODE_MUX_PARTIAL);
+    muxerWrapper.setTrackCount(1);
+    muxerWrapper.addTrackFormat(FAKE_AUDIO_TRACK_FORMAT);
+    muxerWrapper.writeSample(
+        C.TRACK_TYPE_AUDIO, FAKE_SAMPLE, /* isKeyFrame= */ true, /* presentationTimeUs= */ 0);
+    muxerWrapper.endTrack(C.TRACK_TYPE_AUDIO);
+    muxerWrapper.changeToAppendMode();
+    muxerWrapper.setTrackCount(1);
+
+    muxerWrapper.addTrackFormat(FAKE_AUDIO_TRACK_FORMAT);
+  }
+
+  @Test
+  public void addTrackFormat_withDifferentVideoFormatInAppendMode_throws() throws Exception {
+    muxerWrapper =
+        new MuxerWrapper(
+            temporaryFolder.newFile().getPath(),
+            new DefaultMuxer.Factory(),
+            new NoOpMuxerListenerImpl(),
+            MUXER_MODE_MUX_PARTIAL);
     muxerWrapper.setTrackCount(1);
     muxerWrapper.addTrackFormat(FAKE_VIDEO_TRACK_FORMAT);
     muxerWrapper.writeSample(
         C.TRACK_TYPE_VIDEO, FAKE_SAMPLE, /* isKeyFrame= */ true, /* presentationTimeUs= */ 0);
     muxerWrapper.endTrack(C.TRACK_TYPE_VIDEO);
-    muxerWrapper.changeToAppendVideoMode();
-    muxerWrapper.setTrackCount(1);
-
-    muxerWrapper.addTrackFormat(FAKE_VIDEO_TRACK_FORMAT);
-  }
-
-  @Test
-  public void addTrackFormat_withDifferentVideoFormatInAppendVideoMode_throws() throws Exception {
-    muxerWrapper =
-        new MuxerWrapper(
-            temporaryFolder.newFile().getPath(),
-            new DefaultMuxer.Factory(),
-            new NoOpMuxerListenerImpl(),
-            MUXER_MODE_MUX_PARTIAL_VIDEO);
-    muxerWrapper.setTrackCount(1);
-    muxerWrapper.addTrackFormat(FAKE_VIDEO_TRACK_FORMAT);
-    muxerWrapper.writeSample(
-        C.TRACK_TYPE_VIDEO, FAKE_SAMPLE, /* isKeyFrame= */ true, /* presentationTimeUs= */ 0);
-    muxerWrapper.endTrack(C.TRACK_TYPE_VIDEO);
-    muxerWrapper.changeToAppendVideoMode();
+    muxerWrapper.changeToAppendMode();
     muxerWrapper.setTrackCount(1);
     Format differentVideoFormat = FAKE_VIDEO_TRACK_FORMAT.buildUpon().setHeight(5000).build();
 
     assertThrows(
         IllegalArgumentException.class, () -> muxerWrapper.addTrackFormat(differentVideoFormat));
+  }
+
+  @Test
+  public void addTrackFormat_withDifferentAudioFormatInAppendMode_throws() throws Exception {
+    muxerWrapper =
+        new MuxerWrapper(
+            temporaryFolder.newFile().getPath(),
+            new DefaultMuxer.Factory(),
+            new NoOpMuxerListenerImpl(),
+            MUXER_MODE_MUX_PARTIAL);
+    muxerWrapper.setTrackCount(1);
+    muxerWrapper.addTrackFormat(FAKE_AUDIO_TRACK_FORMAT);
+    muxerWrapper.writeSample(
+        C.TRACK_TYPE_AUDIO, FAKE_SAMPLE, /* isKeyFrame= */ true, /* presentationTimeUs= */ 0);
+    muxerWrapper.endTrack(C.TRACK_TYPE_AUDIO);
+    muxerWrapper.changeToAppendMode();
+    muxerWrapper.setTrackCount(1);
+    Format differentAudioFormat = FAKE_AUDIO_TRACK_FORMAT.buildUpon().setSampleRate(48000).build();
+
+    assertThrows(
+        IllegalArgumentException.class, () -> muxerWrapper.addTrackFormat(differentAudioFormat));
   }
 
   @Test
@@ -168,7 +165,7 @@ public class MuxerWrapperTest {
             temporaryFolder.newFile().getPath(),
             new DefaultMuxer.Factory(),
             new NoOpMuxerListenerImpl(),
-            MUXER_MODE_MUX_PARTIAL_VIDEO);
+            MUXER_MODE_MUX_PARTIAL);
     muxerWrapper.setTrackCount(1);
     muxerWrapper.addTrackFormat(FAKE_VIDEO_TRACK_FORMAT);
     muxerWrapper.writeSample(
@@ -179,19 +176,44 @@ public class MuxerWrapperTest {
   }
 
   @Test
-  public void isEnded_afterStartingAppendVideo_returnsFalse() throws Exception {
+  public void isEnded_afterPartialAudioAndVideoMuxed_returnsTrue() throws Exception {
     muxerWrapper =
         new MuxerWrapper(
             temporaryFolder.newFile().getPath(),
             new DefaultMuxer.Factory(),
             new NoOpMuxerListenerImpl(),
-            MUXER_MODE_MUX_PARTIAL_VIDEO);
+            MUXER_MODE_MUX_PARTIAL);
+
+    muxerWrapper.setTrackCount(2);
+    muxerWrapper.addTrackFormat(FAKE_VIDEO_TRACK_FORMAT);
+    muxerWrapper.addTrackFormat(FAKE_AUDIO_TRACK_FORMAT);
+    muxerWrapper.writeSample(
+        C.TRACK_TYPE_VIDEO, FAKE_SAMPLE, /* isKeyFrame= */ true, /* presentationTimeUs= */ 0);
+    muxerWrapper.endTrack(C.TRACK_TYPE_VIDEO);
+
+    assertThat(muxerWrapper.isEnded()).isFalse();
+
+    muxerWrapper.writeSample(
+        C.TRACK_TYPE_AUDIO, FAKE_SAMPLE, /* isKeyFrame= */ true, /* presentationTimeUs= */ 0);
+    muxerWrapper.endTrack(C.TRACK_TYPE_AUDIO);
+
+    assertThat(muxerWrapper.isEnded()).isTrue();
+  }
+
+  @Test
+  public void isEnded_afterEnteringAppendMode_returnsFalse() throws Exception {
+    muxerWrapper =
+        new MuxerWrapper(
+            temporaryFolder.newFile().getPath(),
+            new DefaultMuxer.Factory(),
+            new NoOpMuxerListenerImpl(),
+            MUXER_MODE_MUX_PARTIAL);
     muxerWrapper.setTrackCount(1);
     muxerWrapper.addTrackFormat(FAKE_VIDEO_TRACK_FORMAT);
     muxerWrapper.writeSample(
         C.TRACK_TYPE_VIDEO, FAKE_SAMPLE, /* isKeyFrame= */ true, /* presentationTimeUs= */ 0);
     muxerWrapper.endTrack(C.TRACK_TYPE_VIDEO);
-    muxerWrapper.changeToAppendVideoMode();
+    muxerWrapper.changeToAppendMode();
     muxerWrapper.setTrackCount(1);
     muxerWrapper.addTrackFormat(FAKE_VIDEO_TRACK_FORMAT);
 
