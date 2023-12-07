@@ -15,13 +15,15 @@
  */
 package com.google.android.exoplayer2.transformer;
 
+import static com.google.android.exoplayer2.util.MimeTypes.AUDIO_RAW;
+import static com.google.android.exoplayer2.util.Util.getPcmFormat;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
-import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.audio.AudioProcessor.AudioFormat;
 import java.nio.ByteBuffer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,27 +31,107 @@ import org.junit.runner.RunWith;
 /** Unit tests for {@link AudioGraph}. */
 @RunWith(AndroidJUnit4.class)
 public class AudioGraphTest {
+  private static final EditedMediaItem FAKE_ITEM =
+      new EditedMediaItem.Builder(MediaItem.EMPTY).build();
+
   @Test
   public void silentItem_outputsCorrectAmountOfBytes() throws Exception {
-    EditedMediaItem item = new EditedMediaItem.Builder(MediaItem.EMPTY).build();
     Format format =
         new Format.Builder()
             .setSampleRate(50_000)
             .setChannelCount(6)
             .setPcmEncoding(C.ENCODING_PCM_16BIT)
-            .setSampleMimeType(MimeTypes.AUDIO_RAW)
+            .setSampleMimeType(AUDIO_RAW)
             .build();
 
     AudioGraph audioGraph = new AudioGraph(new DefaultAudioMixer.Factory());
-    GraphInput input = audioGraph.registerInput(item, format);
+    GraphInput input = audioGraph.registerInput(FAKE_ITEM, format);
 
     input.onMediaItemChanged(
-        item, /* durationUs= */ 3_000_000, /* trackFormat= */ null, /* isLast= */ true);
+        FAKE_ITEM, /* durationUs= */ 3_000_000, /* trackFormat= */ null, /* isLast= */ true);
     int bytesOutput = drainAudioGraph(audioGraph);
 
     // 3 second stream with 50_000 frames per second.
     // 16 bit PCM has 2 bytes per channel.
     assertThat(bytesOutput).isEqualTo(3 * 50_000 * 2 * 6);
+  }
+
+  @Test
+  public void getOutputAudioFormat_afterInitialization_isNotSet() throws Exception {
+    AudioGraph audioGraph = new AudioGraph(new DefaultAudioMixer.Factory());
+
+    assertThat(audioGraph.getOutputAudioFormat()).isEqualTo(AudioFormat.NOT_SET);
+  }
+
+  @Test
+  public void getOutputAudioFormat_afterRegisterInput_matchesInputFormat() throws Exception {
+    AudioGraph audioGraph = new AudioGraph(new DefaultAudioMixer.Factory());
+    AudioFormat inputAudioFormat =
+        new AudioFormat(/* sampleRate= */ 48_000, /* channelCount= */ 1, C.ENCODING_PCM_16BIT);
+
+    audioGraph.registerInput(
+        FAKE_ITEM, getPcmFormat(inputAudioFormat).buildUpon().setSampleMimeType(AUDIO_RAW).build());
+
+    assertThat(audioGraph.getOutputAudioFormat()).isEqualTo(inputAudioFormat);
+  }
+
+  @Test
+  public void getOutputAudioFormat_afterConfigure_matchesConfiguredFormat() throws Exception {
+    AudioGraph audioGraph = new AudioGraph(new DefaultAudioMixer.Factory());
+    AudioFormat configuredAudioFormat =
+        new AudioFormat(/* sampleRate= */ 44_100, /* channelCount= */ 6, C.ENCODING_PCM_16BIT);
+
+    audioGraph.configure(configuredAudioFormat);
+
+    assertThat(audioGraph.getOutputAudioFormat()).isEqualTo(configuredAudioFormat);
+  }
+
+  @Test
+  public void registerInput_afterConfigure_doesNotChangeOutputFormat() throws Exception {
+    AudioGraph audioGraph = new AudioGraph(new DefaultAudioMixer.Factory());
+    AudioFormat configuredAudioFormat =
+        new AudioFormat(/* sampleRate= */ 44_100, /* channelCount= */ 2, C.ENCODING_PCM_16BIT);
+
+    audioGraph.configure(configuredAudioFormat);
+    audioGraph.registerInput(
+        FAKE_ITEM,
+        getPcmFormat(
+                new AudioFormat(
+                    /* sampleRate= */ 48_000, /* channelCount= */ 2, C.ENCODING_PCM_16BIT))
+            .buildUpon()
+            .setSampleMimeType(AUDIO_RAW)
+            .build());
+    audioGraph.registerInput(
+        FAKE_ITEM,
+        getPcmFormat(
+                new AudioFormat(
+                    /* sampleRate= */ 44_100, /* channelCount= */ 1, C.ENCODING_PCM_16BIT))
+            .buildUpon()
+            .setSampleMimeType(AUDIO_RAW)
+            .build());
+
+    assertThat(audioGraph.getOutputAudioFormat()).isEqualTo(configuredAudioFormat);
+  }
+
+  @Test
+  public void registerInput_afterRegisterInput_doesNotChangeOutputFormat() throws Exception {
+    AudioGraph audioGraph = new AudioGraph(new DefaultAudioMixer.Factory());
+    AudioFormat firstInputAudioFormat =
+        new AudioFormat(/* sampleRate= */ 48_000, /* channelCount= */ 2, C.ENCODING_PCM_16BIT);
+
+    audioGraph.registerInput(
+        FAKE_ITEM,
+        getPcmFormat(firstInputAudioFormat).buildUpon().setSampleMimeType(AUDIO_RAW).build());
+    audioGraph.registerInput(
+        FAKE_ITEM,
+        getPcmFormat(
+                new AudioFormat(
+                    /* sampleRate= */ 44_100, /* channelCount= */ 1, C.ENCODING_PCM_16BIT))
+            .buildUpon()
+            .setSampleMimeType(AUDIO_RAW)
+            .build());
+
+    assertThat(audioGraph.getOutputAudioFormat()).isEqualTo(firstInputAudioFormat);
   }
 
   /** Drains the graph and returns the number of bytes output. */
