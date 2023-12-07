@@ -287,7 +287,7 @@ public final class Transformer {
       return this;
     }
 
-    // TODO: b/304476154 - Support audio and progress updates in trim optimization.
+    // TODO: b/304476154 - Support progress updates in trim optimization.
     /**
      * Sets whether to attempt to optimize trims from the start of the {@link EditedMediaItem} by
      * transcoding as little of the file as possible and transmuxing the rest.
@@ -298,7 +298,6 @@ public final class Transformer {
      *   <li>Only supported for single-asset (i.e. only one {@link EditedMediaItem} in the whole
      *       {@link Composition}) exports of mp4 files.
      *   <li>Not guaranteed to work with any effects.
-     *   <li>Video track only (removes audio from the file).
      *   <li>Progress updates will be unavailable.
      * </ul>
      *
@@ -708,8 +707,8 @@ public final class Transformer {
     TRANSFORMER_STATE_PROCESS_REMAINING_VIDEO,
     TRANSFORMER_STATE_PROCESS_AUDIO,
     TRANSFORMER_STATE_COPY_OUTPUT,
-    TRANSFORMER_STATE_TRANSCODE_VIDEO_START,
-    TRANSFORMER_STATE_TRANSMUX_REMAINING_VIDEO
+    TRANSFORMER_STATE_PROCESS_MEDIA_START,
+    TRANSFORMER_STATE_REMUX_REMAINING_MEDIA
   })
   private @interface TransformerState {}
 
@@ -718,9 +717,11 @@ public final class Transformer {
   private static final int TRANSFORMER_STATE_PROCESS_REMAINING_VIDEO = 2;
   private static final int TRANSFORMER_STATE_PROCESS_AUDIO = 3;
   private static final int TRANSFORMER_STATE_COPY_OUTPUT = 4;
-  private static final int TRANSFORMER_STATE_TRANSCODE_VIDEO_START = 5;
-  private static final int TRANSFORMER_STATE_TRANSMUX_REMAINING_VIDEO = 6;
+  private static final int TRANSFORMER_STATE_PROCESS_MEDIA_START = 5;
+  private static final int TRANSFORMER_STATE_REMUX_REMAINING_MEDIA = 6;
 
+  // TODO: b/304476154 - Calculate duration based on sample rate from audio format.
+  private static final int MAX_ENCODED_AUDIO_BUFFER_DURATION_US = 25_000;
   private final Context context;
   private final TransformationRequest transformationRequest;
   private final ImmutableList<AudioProcessor> audioProcessors;
@@ -925,7 +926,7 @@ public final class Transformer {
           componentListener,
           /* initialTimestampOffsetUs= */ 0);
     } else {
-      transcodeVideoBeforeFirstSyncSampleAfterTrimStartTime();
+      processMediaBeforeFirstSyncSampleAfterTrimStartTime();
     }
   }
 
@@ -1139,7 +1140,7 @@ public final class Transformer {
                     checkNotNull(outputFilePath),
                     muxerFactory,
                     componentListener,
-                    MuxerWrapper.MUXER_MODE_MUX_PARTIAL_VIDEO);
+                    MuxerWrapper.MUXER_MODE_MUX_PARTIAL);
 
             startInternal(
                 TransmuxTranscodeHelper.createVideoOnlyComposition(
@@ -1169,7 +1170,7 @@ public final class Transformer {
             resumeMetadata);
 
     checkNotNull(remuxingMuxerWrapper);
-    remuxingMuxerWrapper.changeToAppendVideoMode();
+    remuxingMuxerWrapper.changeToAppendMode();
 
     startInternal(
         videoOnlyComposition,
@@ -1218,11 +1219,12 @@ public final class Transformer {
         applicationHandler::post);
   }
 
-  private void transcodeVideoBeforeFirstSyncSampleAfterTrimStartTime() {
-    transformerState = TRANSFORMER_STATE_TRANSCODE_VIDEO_START;
+  private void processMediaBeforeFirstSyncSampleAfterTrimStartTime() {
+    transformerState = TRANSFORMER_STATE_PROCESS_MEDIA_START;
     MediaItem firstMediaItem =
         checkNotNull(composition).sequences.get(0).editedMediaItems.get(0).mediaItem;
     long trimStartTimeUs = firstMediaItem.clippingConfiguration.startPositionUs;
+    long trimEndTimeUs = firstMediaItem.clippingConfiguration.endPositionUs;
     getMp4MetadataInfoFuture =
         TransmuxTranscodeHelper.getMp4MetadataInfo(
             context,
@@ -1233,16 +1235,21 @@ public final class Transformer {
         new FutureCallback<Mp4MetadataInfo>() {
           @Override
           public void onSuccess(Mp4MetadataInfo mp4MetadataInfo) {
-            if (mp4MetadataInfo.firstSyncSampleTimestampUsAfterTimeUs == C.TIME_UNSET) {
+            if (mp4MetadataInfo.firstSyncSampleTimestampUsAfterTimeUs == C.TIME_UNSET
+                || (trimEndTimeUs != C.TIME_END_OF_SOURCE
+                    && trimEndTimeUs < mp4MetadataInfo.firstSyncSampleTimestampUsAfterTimeUs)) {
               exportResultBuilder.setOptimizationResult(OPTIMIZATION_FAILED_NO_VIDEO_TRACK_TO_TRIM);
               processFullInput();
               return;
             }
-            if (mp4MetadataInfo.firstSyncSampleTimestampUsAfterTimeUs == trimStartTimeUs) {
+            // Ensure there is an audio sample to mux between the two clip times to prevent
+            // Transformer from hanging because it received an audio track but no audio samples.
+            if (mp4MetadataInfo.firstSyncSampleTimestampUsAfterTimeUs - trimStartTimeUs
+                < MAX_ENCODED_AUDIO_BUFFER_DURATION_US) {
               Transformer.this.composition =
                   buildNewCompositionWithClipTimes(
                       composition,
-                      trimStartTimeUs,
+                      mp4MetadataInfo.firstSyncSampleTimestampUsAfterTimeUs,
                       firstMediaItem.clippingConfiguration.endPositionUs,
                       mp4MetadataInfo.durationUs,
                       /* startsAtKeyFrame= */ true);
@@ -1266,7 +1273,7 @@ public final class Transformer {
                     checkNotNull(outputFilePath),
                     muxerFactory,
                     componentListener,
-                    MuxerWrapper.MUXER_MODE_MUX_PARTIAL_VIDEO);
+                    MuxerWrapper.MUXER_MODE_MUX_PARTIAL);
             startInternal(
                 trancodeComposition,
                 remuxingMuxerWrapper,
@@ -1283,8 +1290,8 @@ public final class Transformer {
         applicationHandler::post);
   }
 
-  private void transmuxRemainingVideo() {
-    transformerState = TRANSFORMER_STATE_TRANSMUX_REMAINING_VIDEO;
+  private void remuxRemainingMedia() {
+    transformerState = TRANSFORMER_STATE_REMUX_REMAINING_MEDIA;
     // TODO: b/304476154 - check original file format against transcode file format here to fail
     //  fast if necessary.
     MediaItem firstMediaItem =
@@ -1300,7 +1307,7 @@ public final class Transformer {
             mp4MetadataInfo.durationUs,
             /* startsAtKeyFrame= */ true);
     checkNotNull(remuxingMuxerWrapper);
-    remuxingMuxerWrapper.changeToAppendVideoMode();
+    remuxingMuxerWrapper.changeToAppendMode();
     startInternal(
         transmuxComposition,
         remuxingMuxerWrapper,
@@ -1410,9 +1417,9 @@ public final class Transformer {
         processAudio();
       } else if (transformerState == TRANSFORMER_STATE_PROCESS_AUDIO) {
         copyOutput();
-      } else if (transformerState == TRANSFORMER_STATE_TRANSCODE_VIDEO_START) {
-        transmuxRemainingVideo();
-      } else if (transformerState == TRANSFORMER_STATE_TRANSMUX_REMAINING_VIDEO) {
+      } else if (transformerState == TRANSFORMER_STATE_PROCESS_MEDIA_START) {
+        remuxRemainingMedia();
+      } else if (transformerState == TRANSFORMER_STATE_REMUX_REMAINING_MEDIA) {
         exportResultBuilder.setOptimizationResult(ExportResult.OPTIMIZATION_SUCCEEDED);
         onExportCompletedWithSuccess();
       } else {

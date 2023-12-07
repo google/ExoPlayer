@@ -196,14 +196,12 @@ public final class MediaItemExportTest {
     ExportResult exportResult = TransformerTestRunner.runLooper(transformer);
 
     assertThat(exportResult.optimizationResult).isEqualTo(ExportResult.OPTIMIZATION_NONE);
-    // TODO: b/304476154 - When trim optimization supports audio, remove trim optimization specific
-    //   file and use the pre-existing clipped file made from normal export path.
     DumpFileAsserts.assertOutput(
         context,
         muxerFactory.getCreatedMuxer(),
         getDumpFileName(
             /* originalFileName= */ FILE_AUDIO_VIDEO_INCREASING_TIMESTAMPS_15S,
-            /* modifications...= */ "trimOptimizedClippedAtKeyFrame"));
+            /* modifications...= */ "clipped"));
   }
 
   @Test

@@ -256,6 +256,7 @@ public final class ExportResult {
       width = C.LENGTH_UNSET;
       videoFrameCount = 0;
       videoEncoderName = null;
+      optimizationResult = OPTIMIZATION_NONE;
       exportException = null;
     }
   }
@@ -418,6 +419,7 @@ public final class ExportResult {
         .setWidth(width)
         .setVideoFrameCount(videoFrameCount)
         .setVideoEncoderName(videoEncoderName)
+        .setOptimizationResult(optimizationResult)
         .setExportException(exportException);
   }
 
@@ -443,6 +445,7 @@ public final class ExportResult {
         && width == result.width
         && videoFrameCount == result.videoFrameCount
         && Objects.equals(videoEncoderName, result.videoEncoderName)
+        && optimizationResult == result.optimizationResult
         && Objects.equals(exportException, result.exportException);
   }
 
@@ -461,6 +464,7 @@ public final class ExportResult {
     result = 31 * result + width;
     result = 31 * result + videoFrameCount;
     result = 31 * result + Objects.hashCode(videoEncoderName);
+    result = 31 * result + optimizationResult;
     result = 31 * result + Objects.hashCode(exportException);
     return result;
   }

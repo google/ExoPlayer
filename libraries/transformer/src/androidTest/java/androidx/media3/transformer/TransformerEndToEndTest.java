@@ -16,6 +16,7 @@
 package androidx.media3.transformer;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
+import static androidx.media3.common.util.Util.isRunningOnEmulator;
 import static androidx.media3.transformer.AndroidTestUtil.JPG_ASSET_URI_STRING;
 import static androidx.media3.transformer.AndroidTestUtil.MP3_ASSET_URI_STRING;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_FORMAT;
@@ -26,8 +27,10 @@ import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_WITH_INCREAS
 import static androidx.media3.transformer.AndroidTestUtil.PNG_ASSET_URI_STRING;
 import static androidx.media3.transformer.AndroidTestUtil.createOpenGlObjects;
 import static androidx.media3.transformer.AndroidTestUtil.generateTextureFromBitmap;
+import static androidx.media3.transformer.AndroidTestUtil.recordTestSkipped;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
+import static org.junit.Assume.assumeTrue;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -49,6 +52,7 @@ import androidx.media3.common.audio.ChannelMixingAudioProcessor;
 import androidx.media3.common.audio.ChannelMixingMatrix;
 import androidx.media3.common.audio.SonicAudioProcessor;
 import androidx.media3.common.util.GlUtil;
+import androidx.media3.common.util.Util;
 import androidx.media3.datasource.DataSourceBitmapLoader;
 import androidx.media3.effect.Contrast;
 import androidx.media3.effect.DefaultGlObjectsProvider;
@@ -435,6 +439,43 @@ public class TransformerEndToEndTest {
             .run(/* testId= */ "clippedMedia_completesWithClippedDuration", mediaItem);
 
     assertThat(result.exportResult.durationMs).isAtMost(clippingEndMs - clippingStartMs);
+  }
+
+  @Test
+  public void clippedMedia_trimOptimizationEnabled_completesWithOptimizationApplied()
+      throws Exception {
+    String testId = "clippedMedia_trimOptimizationEnabled_completesWithOptimizationApplied";
+    if (!isRunningOnEmulator()) {
+      // The trim optimization is only guaranteed to work on emulator for this file.
+      recordTestSkipped(context, testId, /* reason= */ "Emulator only test");
+      assumeTrue(false);
+    }
+    if (Util.SDK_INT == 26) {
+      // MediaCodec returns a segmentation fault fails at this SDK level on emulators.
+      recordTestSkipped(context, testId, /* reason= */ "SDK 26 not supported.");
+      assumeTrue(false);
+    }
+    Transformer transformer =
+        new Transformer.Builder(context).experimentalSetTrimOptimizationEnabled(true).build();
+    MediaItem mediaItem =
+        new MediaItem.Builder()
+            .setUri("asset:///media/mp4/crow_emulator_transformer_output.mp4")
+            .setClippingConfiguration(
+                new MediaItem.ClippingConfiguration.Builder()
+                    .setStartPositionMs(500)
+                    .setEndPositionMs(2500)
+                    .build())
+            .build();
+    EditedMediaItem editedMediaItem = new EditedMediaItem.Builder(mediaItem).build();
+
+    ExportTestResult result =
+        new TransformerAndroidTestRunner.Builder(context, transformer)
+            .build()
+            .run(testId, editedMediaItem);
+
+    assertThat(result.exportResult.optimizationResult)
+        .isEqualTo(ExportResult.OPTIMIZATION_SUCCEEDED);
+    assertThat(result.exportResult.durationMs).isAtMost(2000);
   }
 
   @Test
