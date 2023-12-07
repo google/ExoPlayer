@@ -28,9 +28,11 @@ import static androidx.media3.transformer.AndroidTestUtil.PNG_ASSET_URI_STRING;
 import static androidx.media3.transformer.AndroidTestUtil.createOpenGlObjects;
 import static androidx.media3.transformer.AndroidTestUtil.generateTextureFromBitmap;
 import static androidx.media3.transformer.AndroidTestUtil.recordTestSkipped;
+import static androidx.media3.transformer.ExportResult.OPTIMIZATION_ABANDONED;
 import static androidx.media3.transformer.ExportResult.OPTIMIZATION_SUCCEEDED;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
+import static org.junit.Assume.assumeFalse;
 import static org.junit.Assume.assumeTrue;
 
 import android.content.Context;
@@ -476,6 +478,38 @@ public class TransformerEndToEndTest {
 
     assertThat(result.exportResult.optimizationResult).isEqualTo(OPTIMIZATION_SUCCEEDED);
     assertThat(result.exportResult.durationMs).isAtMost(2000);
+  }
+
+  @Test
+  public void videoEditing_trimOptimizationEnabled_fallbackToNormalExport() throws Exception {
+    String testId = "videoEditing_trimOptimizationEnabled_fallbackToNormalExport";
+    Transformer transformer =
+        new Transformer.Builder(context).experimentalSetTrimOptimizationEnabled(true).build();
+    // The trim optimization is only guaranteed to work on emulator for this file.
+    assumeTrue(isRunningOnEmulator());
+    // MediaCodec returns a segmentation fault fails at this SDK level on emulators.
+    assumeFalse(Util.SDK_INT == 26);
+    MediaItem mediaItem =
+        new MediaItem.Builder()
+            .setUri("asset:///media/mp4/crow_emulator_transformer_output.mp4")
+            .setClippingConfiguration(
+                new MediaItem.ClippingConfiguration.Builder()
+                    .setStartPositionMs(500)
+                    .setEndPositionMs(2500)
+                    .build())
+            .build();
+    ImmutableList<Effect> videoEffects = ImmutableList.of(Presentation.createForHeight(480));
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem.Builder(mediaItem)
+            .setEffects(new Effects(/* audioProcessors= */ ImmutableList.of(), videoEffects))
+            .build();
+
+    ExportTestResult result =
+        new TransformerAndroidTestRunner.Builder(context, transformer)
+            .build()
+            .run(testId, editedMediaItem);
+
+    assertThat(result.exportResult.optimizationResult).isEqualTo(OPTIMIZATION_ABANDONED);
   }
 
   @Test

@@ -64,15 +64,20 @@ import org.checkerframework.checker.nullness.qual.Nullable;
   /** The video {@link Format} or {@code null} if there is no video track. */
   public final @Nullable Format videoFormat;
 
+  /** The audio {@link Format} or {@code null} if there is no audio track. */
+  public final @Nullable Format audioFormat;
+
   private Mp4MetadataInfo(
       long durationUs,
       long lastSyncSampleTimestampUs,
       long firstSyncSampleTimestampUsAfterTimeUs,
-      @Nullable Format videoFormat) {
+      @Nullable Format videoFormat,
+      @Nullable Format audioFormat) {
     this.durationUs = durationUs;
     this.lastSyncSampleTimestampUs = lastSyncSampleTimestampUs;
     this.firstSyncSampleTimestampUsAfterTimeUs = firstSyncSampleTimestampUsAfterTimeUs;
     this.videoFormat = videoFormat;
+    this.audioFormat = audioFormat;
   }
 
   /**
@@ -129,11 +134,11 @@ import org.checkerframework.checker.nullness.qual.Nullable;
           throw new IllegalStateException("The MP4 file is invalid");
         }
       }
+
       long durationUs = mp4Extractor.getDurationUs();
       long lastSyncSampleTimestampUs = C.TIME_UNSET;
       long firstSyncSampleTimestampUsAfterTimeUs = C.TIME_UNSET;
       @Nullable Format videoFormat = null;
-
       if (extractorOutput.videoTrackId != C.INDEX_UNSET) {
         ExtractorOutputImpl.TrackOutputImpl videoTrackOutput =
             checkNotNull(extractorOutput.trackTypeToTrackOutput.get(C.TRACK_TYPE_VIDEO));
@@ -155,11 +160,20 @@ import org.checkerframework.checker.nullness.qual.Nullable;
           }
         }
       }
+
+      @Nullable Format audioFormat = null;
+      if (extractorOutput.audioTrackId != C.INDEX_UNSET) {
+        ExtractorOutputImpl.TrackOutputImpl audioTrackOutput =
+            checkNotNull(extractorOutput.trackTypeToTrackOutput.get(C.TRACK_TYPE_AUDIO));
+        audioFormat = checkNotNull(audioTrackOutput.format);
+      }
+
       return new Mp4MetadataInfo(
           durationUs,
           lastSyncSampleTimestampUs,
           firstSyncSampleTimestampUsAfterTimeUs,
-          videoFormat);
+          videoFormat,
+          audioFormat);
     } finally {
       DataSourceUtil.closeQuietly(dataSource);
       mp4Extractor.release();
@@ -168,12 +182,14 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
   private static final class ExtractorOutputImpl implements ExtractorOutput {
     public int videoTrackId;
+    public int audioTrackId;
     public boolean seekMapInitialized;
 
     final Map<Integer, TrackOutputImpl> trackTypeToTrackOutput;
 
     public ExtractorOutputImpl() {
       videoTrackId = C.INDEX_UNSET;
+      audioTrackId = C.INDEX_UNSET;
       trackTypeToTrackOutput = new HashMap<>();
     }
 
@@ -181,6 +197,8 @@ import org.checkerframework.checker.nullness.qual.Nullable;
     public TrackOutput track(int id, @C.TrackType int type) {
       if (type == C.TRACK_TYPE_VIDEO) {
         videoTrackId = id;
+      } else if (type == C.TRACK_TYPE_AUDIO) {
+        audioTrackId = id;
       }
 
       @Nullable TrackOutputImpl trackOutput = trackTypeToTrackOutput.get(type);

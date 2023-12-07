@@ -15,6 +15,8 @@
  */
 package androidx.media3.transformer;
 
+import static androidx.media3.common.MimeTypes.AUDIO_AAC;
+import static androidx.media3.common.MimeTypes.VIDEO_H264;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
@@ -125,7 +127,7 @@ public class Mp4MetadataInfoTest {
   }
 
   @Test
-  public void videoFormat_outputsFormatObjectWithCorrectInitializationData() throws IOException {
+  public void videoFormat_outputsFormatObjectWithCorrectRelevantFormatData() throws IOException {
     String mp4FilePath = "asset:///media/mp4/sample.mp4";
     Mp4MetadataInfo mp4MetadataInfo = Mp4MetadataInfo.create(context, mp4FilePath);
     byte[] expectedCsd0 = {
@@ -139,6 +141,11 @@ public class Mp4MetadataInfoTest {
     assertThat(actualFormat).isNotNull();
     assertThat(actualFormat.initializationData.get(0)).isEqualTo(expectedCsd0);
     assertThat(actualFormat.initializationData.get(1)).isEqualTo(expectedCsd1);
+    assertThat(actualFormat.sampleMimeType).isEqualTo(VIDEO_H264);
+    assertThat(actualFormat.width).isEqualTo(1080);
+    assertThat(actualFormat.height).isEqualTo(720);
+    assertThat(actualFormat.rotationDegrees).isEqualTo(0);
+    assertThat(actualFormat.pixelWidthHeightRatio).isEqualTo(1);
   }
 
   @Test
@@ -147,5 +154,28 @@ public class Mp4MetadataInfoTest {
     Mp4MetadataInfo mp4MetadataInfo = Mp4MetadataInfo.create(context, mp4FilePath);
 
     assertThat(mp4MetadataInfo.videoFormat).isNull();
+  }
+
+  @Test
+  public void audioFormat_outputsFormatObjectWithCorrectRelevantFormatData() throws IOException {
+    String mp4FilePath = "asset:///media/mp4/sample.mp4";
+    Mp4MetadataInfo mp4MetadataInfo = Mp4MetadataInfo.create(context, mp4FilePath);
+    byte[] expectedCsd0 = {18, 8};
+
+    Format actualFormat = mp4MetadataInfo.audioFormat;
+
+    assertThat(actualFormat).isNotNull();
+    assertThat(actualFormat.sampleMimeType).isEqualTo(AUDIO_AAC);
+    assertThat(actualFormat.channelCount).isEqualTo(1);
+    assertThat(actualFormat.sampleRate).isEqualTo(44100);
+    assertThat(actualFormat.initializationData.get(0)).isEqualTo(expectedCsd0);
+  }
+
+  @Test
+  public void audioFormat_videoOnlyMp4File_outputsNull() throws IOException {
+    String mp4FilePath = "asset:///media/mp4/sample_18byte_nclx_colr.mp4";
+    Mp4MetadataInfo mp4MetadataInfo = Mp4MetadataInfo.create(context, mp4FilePath);
+
+    assertThat(mp4MetadataInfo.audioFormat).isNull();
   }
 }

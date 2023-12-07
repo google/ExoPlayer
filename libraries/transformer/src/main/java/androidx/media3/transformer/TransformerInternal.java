@@ -45,6 +45,7 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.DebugViewProvider;
 import androidx.media3.common.Format;
+import androidx.media3.common.MediaItem;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.VideoFrameProcessor;
 import androidx.media3.common.util.Clock;
@@ -692,18 +693,24 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       } else if (trackType == C.TRACK_TYPE_VIDEO) {
         shouldTranscode =
             shouldTranscodeVideo(
-                inputFormat,
-                composition,
-                sequenceIndex,
-                transformationRequest,
-                encoderFactory,
-                muxerWrapper);
+                    inputFormat,
+                    composition,
+                    sequenceIndex,
+                    transformationRequest,
+                    encoderFactory,
+                    muxerWrapper)
+                || clippingRequiresTranscode(firstEditedMediaItem.mediaItem);
       }
 
       checkState(!shouldTranscode || assetLoaderCanOutputDecoded);
 
       return shouldTranscode;
     }
+  }
+
+  private static boolean clippingRequiresTranscode(MediaItem mediaItem) {
+    return mediaItem.clippingConfiguration.startPositionMs > 0
+        && !mediaItem.clippingConfiguration.startsAtKeyFrame;
   }
 
   /** Tracks the inputs and outputs of {@link AssetLoader AssetLoaders}. */
