@@ -290,7 +290,7 @@ public final class ExportResult {
   /**
    * Specifies the result of an optimized operation, such as {@link
    * Transformer.Builder#experimentalSetTrimOptimizationEnabled}. One of {@link #OPTIMIZATION_NONE},
-   * {@link #OPTIMIZATION_SUCCEEDED}, {@link #OPTIMIZATION_FAILED_NO_VIDEO_TRACK_TO_TRIM} or {@link
+   * {@link #OPTIMIZATION_SUCCEEDED}, {@link #OPTIMIZATION_ABANDONED}, or {@link
    * #OPTIMIZATION_FAILED_EXTRACTION_FAILED}.
    */
   @Documented
@@ -299,8 +299,8 @@ public final class ExportResult {
   @IntDef({
     OPTIMIZATION_NONE,
     OPTIMIZATION_SUCCEEDED,
-    OPTIMIZATION_FAILED_NO_VIDEO_TRACK_TO_TRIM,
-    OPTIMIZATION_FAILED_EXTRACTION_FAILED
+    OPTIMIZATION_ABANDONED,
+    OPTIMIZATION_FAILED_EXTRACTION_FAILED,
   })
   @interface OptimizationResult {}
 
@@ -310,8 +310,11 @@ public final class ExportResult {
   /** The optimization was successfully applied. */
   public static final int OPTIMIZATION_SUCCEEDED = 1;
 
-  /** The trim optimization failed because there was no video track. Normal export proceeded. */
-  public static final int OPTIMIZATION_FAILED_NO_VIDEO_TRACK_TO_TRIM = 2;
+  /**
+   * The requested optimization would not improve performance so it was abandoned. Normal export
+   * proceeded.
+   */
+  public static final int OPTIMIZATION_ABANDONED = 2;
 
   /**
    * The optimization failed because mp4 metadata extraction failed (possibly because the file

@@ -20,8 +20,8 @@ import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.transformer.Composition.HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR;
+import static androidx.media3.transformer.ExportResult.OPTIMIZATION_ABANDONED;
 import static androidx.media3.transformer.ExportResult.OPTIMIZATION_FAILED_EXTRACTION_FAILED;
-import static androidx.media3.transformer.ExportResult.OPTIMIZATION_FAILED_NO_VIDEO_TRACK_TO_TRIM;
 import static androidx.media3.transformer.TransmuxTranscodeHelper.buildNewCompositionWithClipTimes;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
@@ -1238,7 +1238,7 @@ public final class Transformer {
             if (mp4MetadataInfo.firstSyncSampleTimestampUsAfterTimeUs == C.TIME_UNSET
                 || (trimEndTimeUs != C.TIME_END_OF_SOURCE
                     && trimEndTimeUs < mp4MetadataInfo.firstSyncSampleTimestampUsAfterTimeUs)) {
-              exportResultBuilder.setOptimizationResult(OPTIMIZATION_FAILED_NO_VIDEO_TRACK_TO_TRIM);
+              exportResultBuilder.setOptimizationResult(OPTIMIZATION_ABANDONED);
               processFullInput();
               return;
             }
@@ -1253,6 +1253,7 @@ public final class Transformer {
                       firstMediaItem.clippingConfiguration.endPositionUs,
                       mp4MetadataInfo.durationUs,
                       /* startsAtKeyFrame= */ true);
+              exportResultBuilder.setOptimizationResult(OPTIMIZATION_ABANDONED);
               processFullInput();
               return;
             }
