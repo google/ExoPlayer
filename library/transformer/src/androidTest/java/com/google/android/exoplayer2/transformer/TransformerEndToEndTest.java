@@ -26,6 +26,7 @@ import static com.google.android.exoplayer2.transformer.AndroidTestUtil.PNG_ASSE
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.createOpenGlObjects;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.generateTextureFromBitmap;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.recordTestSkipped;
+import static com.google.android.exoplayer2.transformer.ExportResult.OPTIMIZATION_SUCCEEDED;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Util.isRunningOnEmulator;
 import static com.google.common.truth.Truth.assertThat;
@@ -473,8 +474,7 @@ public class TransformerEndToEndTest {
             .build()
             .run(testId, editedMediaItem);
 
-    assertThat(result.exportResult.optimizationResult)
-        .isEqualTo(ExportResult.OPTIMIZATION_SUCCEEDED);
+    assertThat(result.exportResult.optimizationResult).isEqualTo(OPTIMIZATION_SUCCEEDED);
     assertThat(result.exportResult.durationMs).isAtMost(2000);
   }
 
