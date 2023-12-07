@@ -133,10 +133,6 @@ import com.google.common.collect.ImmutableList;
     }
     EditedMediaItem firstEditedMediaItem =
         composition.sequences.get(sequenceIndex).editedMediaItems.get(0);
-    if (firstEditedMediaItem.mediaItem.clippingConfiguration.startPositionMs > 0
-        && !firstEditedMediaItem.mediaItem.clippingConfiguration.startsAtKeyFrame) {
-      return true;
-    }
     if (encoderFactory.videoNeedsEncoding()) {
       return true;
     }

@@ -19,6 +19,8 @@ package com.google.android.exoplayer2.transformer;
 import static com.google.android.exoplayer2.transformer.Composition.HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR;
 import static com.google.android.exoplayer2.transformer.ExportResult.OPTIMIZATION_ABANDONED;
 import static com.google.android.exoplayer2.transformer.ExportResult.OPTIMIZATION_FAILED_EXTRACTION_FAILED;
+import static com.google.android.exoplayer2.transformer.TransformerUtil.shouldTranscodeAudio;
+import static com.google.android.exoplayer2.transformer.TransformerUtil.shouldTranscodeVideo;
 import static com.google.android.exoplayer2.transformer.TransmuxTranscodeHelper.buildNewCompositionWithClipTimes;
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
@@ -305,14 +307,13 @@ public final class Transformer {
      *   <li>Progress updates will be unavailable.
      * </ul>
      *
-     * <p>{@link ExportResult#optimizationResult} will indicate whether the optimization was
-     * applied.
-     *
      * <p>This process relies on the given {@linkplain #setEncoderFactory EncoderFactory} providing
      * the right encoder level and profiles when transcoding, so that the transcoded and transmuxed
      * segments of the file can be stitched together. If the file segments can't be stitched
-     * together, the {@linkplain #start(Composition, String) export operation} will throw an
-     * exception.
+     * together, Transformer throw away any progress and proceed with unoptimized export instead.
+     *
+     * <p>The {@link ExportResult#optimizationResult} will indicate whether the optimization was
+     * applied.
      *
      * @param enabled Whether to enable trim optimization.
      * @return This builder.
@@ -1261,7 +1262,32 @@ public final class Transformer {
               processFullInput();
               return;
             }
-
+            remuxingMuxerWrapper =
+                new MuxerWrapper(
+                    checkNotNull(outputFilePath),
+                    muxerFactory,
+                    componentListener,
+                    MuxerWrapper.MUXER_MODE_MUX_PARTIAL);
+            if (shouldTranscodeVideo(
+                    checkNotNull(mp4MetadataInfo.videoFormat),
+                    composition,
+                    /* sequenceIndex= */ 0,
+                    transformationRequest,
+                    encoderFactory,
+                    remuxingMuxerWrapper)
+                || (mp4MetadataInfo.audioFormat != null
+                    && shouldTranscodeAudio(
+                        mp4MetadataInfo.audioFormat,
+                        composition,
+                        /* sequenceIndex= */ 0,
+                        transformationRequest,
+                        encoderFactory,
+                        remuxingMuxerWrapper))) {
+              remuxingMuxerWrapper = null;
+              exportResultBuilder.setOptimizationResult(OPTIMIZATION_ABANDONED);
+              processFullInput();
+              return;
+            }
             Transformer.this.mp4MetadataInfo = mp4MetadataInfo;
             Composition trancodeComposition =
                 buildNewCompositionWithClipTimes(
@@ -1271,17 +1297,9 @@ public final class Transformer {
                     mp4MetadataInfo.durationUs,
                     /* startsAtKeyFrame= */ false);
 
-            // TODO: b/304476154 - Check for cases where we shouldTranscode anyway and proceed with
-            //  normal export instead.
-            remuxingMuxerWrapper =
-                new MuxerWrapper(
-                    checkNotNull(outputFilePath),
-                    muxerFactory,
-                    componentListener,
-                    MuxerWrapper.MUXER_MODE_MUX_PARTIAL);
             startInternal(
                 trancodeComposition,
-                remuxingMuxerWrapper,
+                checkNotNull(remuxingMuxerWrapper),
                 componentListener,
                 /* initialTimestampOffsetUs= */ 0);
           }
