@@ -46,7 +46,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** A {@link HostedTest} for {@link ExoPlayer} playback tests. */
 @UnstableApi
-public abstract class ExoHostedTest implements AnalyticsListener, HostedTest {
+public abstract class ExoHostedTest implements HostedTest {
 
   static {
     // DefaultAudioSink is able to work around spurious timestamps reported by the platform (by
@@ -137,7 +137,7 @@ public abstract class ExoHostedTest implements AnalyticsListener, HostedTest {
     trackSelector = buildTrackSelector(host);
     player = buildExoPlayer(host, surface, trackSelector);
     player.play();
-    player.addAnalyticsListener(this);
+    player.addAnalyticsListener(new AnalyticsListenerImpl());
     player.addAnalyticsListener(new EventLogger(tag));
     // Schedule any pending actions.
     actionHandler =
@@ -184,41 +184,6 @@ public abstract class ExoHostedTest implements AnalyticsListener, HostedTest {
     }
     // Make any additional assertions.
     assertPassed(audioDecoderCounters, videoDecoderCounters);
-  }
-
-  // AnalyticsListener
-
-  @Override
-  public void onEvents(Player player, Events events) {
-    if (events.contains(EVENT_IS_PLAYING_CHANGED)) {
-      if (player.isPlaying()) {
-        lastPlayingStartTimeMs = SystemClock.elapsedRealtime();
-      } else {
-        totalPlayingTimeMs += SystemClock.elapsedRealtime() - lastPlayingStartTimeMs;
-      }
-    }
-    if (events.contains(EVENT_PLAYER_ERROR)) {
-      // The exception is guaranteed to be an ExoPlaybackException because the underlying player is
-      // an ExoPlayer instance.
-      playerError = (ExoPlaybackException) checkNotNull(player.getPlayerError());
-      onPlayerErrorInternal(playerError);
-    }
-    if (events.contains(EVENT_PLAYBACK_STATE_CHANGED)) {
-      @Player.State int playbackState = player.getPlaybackState();
-      if (playbackState == Player.STATE_ENDED || playbackState == Player.STATE_IDLE) {
-        stopTest();
-      }
-    }
-  }
-
-  @Override
-  public void onAudioDisabled(EventTime eventTime, DecoderCounters decoderCounters) {
-    audioDecoderCounters.merge(decoderCounters);
-  }
-
-  @Override
-  public void onVideoDisabled(EventTime eventTime, DecoderCounters decoderCounters) {
-    videoDecoderCounters.merge(decoderCounters);
   }
 
   // Internal logic
@@ -282,5 +247,40 @@ public abstract class ExoHostedTest implements AnalyticsListener, HostedTest {
     Util.castNonNull(trackSelector);
     Util.castNonNull(surface);
     return true;
+  }
+
+  private final class AnalyticsListenerImpl implements AnalyticsListener {
+    @Override
+    public void onEvents(Player player, Events events) {
+      if (events.contains(EVENT_IS_PLAYING_CHANGED)) {
+        if (player.isPlaying()) {
+          lastPlayingStartTimeMs = SystemClock.elapsedRealtime();
+        } else {
+          totalPlayingTimeMs += SystemClock.elapsedRealtime() - lastPlayingStartTimeMs;
+        }
+      }
+      if (events.contains(EVENT_PLAYER_ERROR)) {
+        // The exception is guaranteed to be an ExoPlaybackException because the underlying player
+        // is an ExoPlayer instance.
+        playerError = (ExoPlaybackException) checkNotNull(player.getPlayerError());
+        onPlayerErrorInternal(playerError);
+      }
+      if (events.contains(EVENT_PLAYBACK_STATE_CHANGED)) {
+        @Player.State int playbackState = player.getPlaybackState();
+        if (playbackState == Player.STATE_ENDED || playbackState == Player.STATE_IDLE) {
+          stopTest();
+        }
+      }
+    }
+
+    @Override
+    public void onAudioDisabled(EventTime eventTime, DecoderCounters decoderCounters) {
+      audioDecoderCounters.merge(decoderCounters);
+    }
+
+    @Override
+    public void onVideoDisabled(EventTime eventTime, DecoderCounters decoderCounters) {
+      videoDecoderCounters.merge(decoderCounters);
+    }
   }
 }
