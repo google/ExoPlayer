@@ -124,13 +124,17 @@ import java.util.Objects;
     return currentOutput;
   }
 
-  /** Releases underlying resources, including clearing the inputs. */
-  public void release() {
+  /** Resets the graph to an unconfigured state, releasing any underlying resources. */
+  public void reset() {
     for (int i = 0; i < inputs.size(); i++) {
       inputs.valueAt(i).release();
     }
     inputs.clear();
     mixer.reset();
+
+    finishedInputs = 0;
+    currentOutput = EMPTY_BUFFER;
+    outputAudioFormat = AudioFormat.NOT_SET;
   }
 
   /** Returns whether the input has ended and all queued data has been output. */
