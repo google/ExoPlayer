@@ -157,7 +157,9 @@ import java.util.concurrent.atomic.AtomicReference;
     return true;
   }
 
+  /** Releases any underlying resources. */
   public void release() {
+    // TODO(b/303029174): Impl flush(), reset() & decide if a separate release() is still needed.
     audioProcessingPipeline.reset();
   }
 

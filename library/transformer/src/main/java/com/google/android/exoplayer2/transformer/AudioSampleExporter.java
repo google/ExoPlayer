@@ -120,7 +120,7 @@ import org.checkerframework.dataflow.qual.Pure;
 
   @Override
   public void release() {
-    audioGraph.release();
+    audioGraph.reset();
     encoder.release();
   }
 
