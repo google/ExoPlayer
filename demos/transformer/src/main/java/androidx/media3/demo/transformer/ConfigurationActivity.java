@@ -147,8 +147,8 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "https://storage.googleapis.com/exoplayer-test-media-1/mp4/sample_video_track_only.mp4",
   };
   private static final String[] PRESET_FILE_URI_DESCRIPTIONS = { // same order as PRESET_FILE_URIS
-    "720p H264 video and AAC audio",
-    "1080p H265 video and AAC audio",
+    "720p H264 video and AAC audio (B-frames)",
+    "1080p H265 video and AAC audio (B-frames)",
     "360p H264 video and AAC audio",
     "360p VP8 video and Vorbis audio",
     "4K H264 video and AAC audio (portrait, no B-frames)",
@@ -163,7 +163,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "480p DASH (non-square pixels)",
     "HDR (HDR10) H265 limited range video (encoding may fail)",
     "HDR (HLG) H265 limited range video (encoding may fail)",
-    "720p H264 video with no audio",
+    "720p H264 video with no audio (B-frames)",
   };
   private static final String[] AUDIO_EFFECTS = {
     "High pitched",
