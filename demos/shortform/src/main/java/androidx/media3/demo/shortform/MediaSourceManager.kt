@@ -29,7 +29,7 @@ import com.google.android.exoplayer2.RenderersFactory
 import com.google.android.exoplayer2.analytics.PlayerId
 import com.google.android.exoplayer2.audio.AudioRendererEventListener
 import com.google.android.exoplayer2.source.MediaSource
-import com.google.android.exoplayer2.source.PreloadMediaSource
+import com.google.android.exoplayer2.source.preload.PreloadMediaSource
 import com.google.android.exoplayer2.trackselection.TrackSelector
 import com.google.android.exoplayer2.upstream.Allocator
 import com.google.android.exoplayer2.upstream.BandwidthMeter
