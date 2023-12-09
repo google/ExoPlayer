@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.media3.exoplayer.source;
+package androidx.media3.exoplayer.source.preload;
 
 import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -35,6 +35,12 @@ import androidx.media3.common.Tracks;
 import androidx.media3.exoplayer.RendererConfiguration;
 import androidx.media3.exoplayer.drm.DrmSessionEventListener;
 import androidx.media3.exoplayer.drm.DrmSessionManager;
+import androidx.media3.exoplayer.source.EmptySampleStream;
+import androidx.media3.exoplayer.source.MediaPeriod;
+import androidx.media3.exoplayer.source.MediaSource;
+import androidx.media3.exoplayer.source.MediaSourceEventListener;
+import androidx.media3.exoplayer.source.SampleStream;
+import androidx.media3.exoplayer.source.TrackGroupArray;
 import androidx.media3.exoplayer.trackselection.ExoTrackSelection;
 import androidx.media3.exoplayer.trackselection.FixedTrackSelection;
 import androidx.media3.exoplayer.trackselection.TrackSelectorResult;

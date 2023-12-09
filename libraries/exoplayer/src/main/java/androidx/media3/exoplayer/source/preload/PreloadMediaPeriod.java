@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.media3.exoplayer.source;
+package androidx.media3.exoplayer.source.preload;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
 
@@ -21,6 +21,9 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.util.NullableType;
 import androidx.media3.exoplayer.LoadingInfo;
 import androidx.media3.exoplayer.SeekParameters;
+import androidx.media3.exoplayer.source.MediaPeriod;
+import androidx.media3.exoplayer.source.SampleStream;
+import androidx.media3.exoplayer.source.TrackGroupArray;
 import androidx.media3.exoplayer.trackselection.ExoTrackSelection;
 import androidx.media3.exoplayer.trackselection.TrackSelectorResult;
 import java.io.IOException;

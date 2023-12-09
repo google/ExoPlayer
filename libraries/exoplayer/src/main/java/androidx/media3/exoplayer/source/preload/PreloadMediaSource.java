@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.media3.exoplayer.source;
+package androidx.media3.exoplayer.source.preload;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
 
@@ -35,6 +35,10 @@ import androidx.media3.exoplayer.RendererCapabilities;
 import androidx.media3.exoplayer.RenderersFactory;
 import androidx.media3.exoplayer.analytics.PlayerId;
 import androidx.media3.exoplayer.drm.DrmSessionManagerProvider;
+import androidx.media3.exoplayer.source.MediaPeriod;
+import androidx.media3.exoplayer.source.MediaSource;
+import androidx.media3.exoplayer.source.TrackGroupArray;
+import androidx.media3.exoplayer.source.WrappingMediaSource;
 import androidx.media3.exoplayer.trackselection.TrackSelector;
 import androidx.media3.exoplayer.trackselection.TrackSelectorResult;
 import androidx.media3.exoplayer.upstream.Allocator;

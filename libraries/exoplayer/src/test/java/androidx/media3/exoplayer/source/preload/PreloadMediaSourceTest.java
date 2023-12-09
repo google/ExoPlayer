@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.media3.exoplayer.source;
+package androidx.media3.exoplayer.source.preload;
 
 import static androidx.media3.test.utils.robolectric.RobolectricUtil.runMainLooperUntil;
 import static com.google.common.truth.Truth.assertThat;
@@ -43,6 +43,9 @@ import androidx.media3.exoplayer.RenderersFactory;
 import androidx.media3.exoplayer.analytics.PlayerId;
 import androidx.media3.exoplayer.audio.AudioRendererEventListener;
 import androidx.media3.exoplayer.metadata.MetadataOutput;
+import androidx.media3.exoplayer.source.MediaPeriod;
+import androidx.media3.exoplayer.source.MediaSource;
+import androidx.media3.exoplayer.source.ProgressiveMediaSource;
 import androidx.media3.exoplayer.text.TextOutput;
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector;
 import androidx.media3.exoplayer.trackselection.ExoTrackSelection;
