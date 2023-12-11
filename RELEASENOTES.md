@@ -120,6 +120,9 @@
         media fails on the cast device
         ([#708](https://github.com/androidx/media/issues/708)).
 *   Test Utilities:
+    *   Don't pause playback in `TestPlayerRunHelper.playUntilPosition`. The
+        test keeps the playback in a playing state, but suspends progress until
+        the test is able to add assertions and further actions.
 *   Remove deprecated symbols:
 *   Demo app:
     *   Add a shortform demo module to demo the usage of `PreloadMediaSource`

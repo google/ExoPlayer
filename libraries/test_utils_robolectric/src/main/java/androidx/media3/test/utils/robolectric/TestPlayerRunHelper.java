@@ -29,6 +29,7 @@ import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import androidx.media3.exoplayer.ExoPlaybackException;
 import androidx.media3.exoplayer.ExoPlayer;
+import androidx.media3.test.utils.ThreadTestUtil;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -289,7 +290,12 @@ public class TestPlayerRunHelper {
 
   /**
    * Calls {@link Player#play()}, runs tasks of the main {@link Looper} until the {@code player}
-   * reaches the specified position or a playback error occurs, and then pauses the {@code player}.
+   * reaches the specified position or a playback error occurs.
+   *
+   * <p>The playback thread is automatically blocked from making further progress after reaching
+   * this position and will only be unblocked by other {@code run/playUntil...} methods, custom
+   * {@link RobolectricUtil#runMainLooperUntil} conditions or an explicit {@link
+   * ThreadTestUtil#unblockThreadsWaitingForProgressOnCurrentLooper()} on the main thread.
    *
    * <p>If a playback error occurs it will be thrown wrapped in an {@link IllegalStateException}.
    *
@@ -308,17 +314,14 @@ public class TestPlayerRunHelper {
     player
         .createMessage(
             (messageType, payload) -> {
-              // Block playback thread until pause command has been sent from test thread.
+              // Block playback thread until the main app thread is able to trigger further actions.
               ConditionVariable blockPlaybackThreadCondition = new ConditionVariable();
+              ThreadTestUtil.registerThreadIsBlockedUntilProgressOnLooper(
+                  blockPlaybackThreadCondition, applicationLooper);
               player
                   .getClock()
                   .createHandler(applicationLooper, /* callback= */ null)
-                  .post(
-                      () -> {
-                        player.pause();
-                        messageHandled.set(true);
-                        blockPlaybackThreadCondition.open();
-                      });
+                  .post(() -> messageHandled.set(true));
               try {
                 player.getClock().onThreadBlocked();
                 blockPlaybackThreadCondition.block();

@@ -23,13 +23,13 @@ import static org.robolectric.Shadows.shadowOf;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.os.ConditionVariable;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 import android.widget.Button;
 import androidx.annotation.Nullable;
+import androidx.media3.common.util.ConditionVariable;
 import androidx.media3.common.util.HandlerWrapper;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.base.Objects;
@@ -322,7 +322,8 @@ public final class FakeClockTest {
   }
 
   @Test
-  public void createHandler_multiThreadCommunication_deliversMessagesDeterministicallyInOrder() {
+  public void createHandler_multiThreadCommunication_deliversMessagesDeterministicallyInOrder()
+      throws Exception {
     HandlerThread handlerThread1 = new HandlerThread("FakeClockTest");
     handlerThread1.start();
     HandlerThread handlerThread2 = new HandlerThread("FakeClockTest");
@@ -362,7 +363,7 @@ public final class FakeClockTest {
   }
 
   @Test
-  public void createHandler_blockingThreadWithOnBusyWaiting_canBeUnblockedByOtherThread() {
+  public void createHandler_blockingThreadWithOnThreadBlocked_canBeUnblockedByOtherThread() {
     HandlerThread handlerThread1 = new HandlerThread("FakeClockTest");
     handlerThread1.start();
     HandlerThread handlerThread2 = new HandlerThread("FakeClockTest");
@@ -386,7 +387,11 @@ public final class FakeClockTest {
               /* delayMs= */ 50);
           handler1.post(() -> executionOrder.add(4));
           fakeClock.onThreadBlocked();
-          blockingCondition.block();
+          try {
+            blockingCondition.block();
+          } catch (InterruptedException e) {
+            // Ignore.
+          }
           executionOrder.add(3);
         });
     ShadowLooper.idleMainLooper();
@@ -399,7 +404,102 @@ public final class FakeClockTest {
   }
 
   @Test
-  public void createHandler_messageOnDeadThread_doesNotBlockExecution() {
+  public void
+      createHandler_blockingThreadUntilProgressOnLooperWithOnThreadBlocked_canBeUnblockedByOtherThread() {
+    HandlerThread handlerThread1 = new HandlerThread("FakeClockTest");
+    handlerThread1.start();
+    HandlerThread handlerThread2 = new HandlerThread("FakeClockTest");
+    handlerThread2.start();
+    FakeClock fakeClock = new FakeClock(/* initialTimeMs= */ 0, /* isAutoAdvancing= */ true);
+    HandlerWrapper handler1 =
+        fakeClock.createHandler(handlerThread1.getLooper(), /* callback= */ null);
+    HandlerWrapper handler2 =
+        fakeClock.createHandler(handlerThread2.getLooper(), /* callback= */ null);
+
+    ArrayList<Integer> executionOrder = new ArrayList<>();
+    handler1.post(
+        () -> {
+          executionOrder.add(1);
+          ConditionVariable blockingCondition = new ConditionVariable();
+          handler2.postDelayed(
+              () -> {
+                executionOrder.add(2);
+                ThreadTestUtil.unblockThreadsWaitingForProgressOnCurrentLooper();
+              },
+              /* delayMs= */ 100);
+          handler1.post(() -> executionOrder.add(4));
+          ThreadTestUtil.registerThreadIsBlockedUntilProgressOnLooper(
+              blockingCondition, handlerThread2.getLooper());
+          fakeClock.onThreadBlocked();
+          try {
+            blockingCondition.block();
+          } catch (InterruptedException e) {
+            // Ignore.
+          }
+          executionOrder.add(3);
+        });
+    ShadowLooper.idleMainLooper();
+    shadowOf(handler1.getLooper()).idle();
+    shadowOf(handler2.getLooper()).idle();
+    handlerThread1.quitSafely();
+    handlerThread2.quitSafely();
+
+    assertThat(executionOrder).containsExactly(1, 2, 3, 4).inOrder();
+  }
+
+  @Test
+  public void createHandler_blockingDeadlock_unblocksItself() {
+    HandlerThread handlerThread1 = new HandlerThread("FakeClockTest");
+    handlerThread1.start();
+    HandlerThread handlerThread2 = new HandlerThread("FakeClockTest");
+    handlerThread2.start();
+    FakeClock fakeClock = new FakeClock(/* initialTimeMs= */ 0, /* isAutoAdvancing= */ true);
+    HandlerWrapper handler1 =
+        fakeClock.createHandler(handlerThread1.getLooper(), /* callback= */ null);
+    HandlerWrapper handler2 =
+        fakeClock.createHandler(handlerThread2.getLooper(), /* callback= */ null);
+
+    ArrayList<Integer> executionOrder = new ArrayList<>();
+
+    handler1.post(
+        () -> {
+          executionOrder.add(1);
+          ConditionVariable deadlockCondition1 = new ConditionVariable();
+          ConditionVariable deadlockCondition2 = new ConditionVariable();
+          handler2.postDelayed(
+              () -> {
+                executionOrder.add(2);
+                fakeClock.onThreadBlocked();
+                try {
+                  deadlockCondition2.block();
+                } catch (InterruptedException e) {
+                  // Ignore.
+                }
+              },
+              /* delayMs= */ 100);
+          handler1.post(() -> executionOrder.add(4));
+          ThreadTestUtil.registerThreadIsBlockedUntilProgressOnLooper(
+              deadlockCondition1, handlerThread2.getLooper());
+          fakeClock.onThreadBlocked();
+          try {
+            deadlockCondition1.block();
+          } catch (InterruptedException e) {
+            // Ignore.
+          }
+          executionOrder.add(3);
+          deadlockCondition2.open();
+        });
+    ShadowLooper.idleMainLooper();
+    shadowOf(handler1.getLooper()).idle();
+    shadowOf(handler2.getLooper()).idle();
+    handlerThread1.quitSafely();
+    handlerThread2.quitSafely();
+
+    assertThat(executionOrder).containsExactly(1, 2, 3, 4).inOrder();
+  }
+
+  @Test
+  public void createHandler_messageOnDeadThread_doesNotBlockExecution() throws Exception {
     HandlerThread handlerThread1 = new HandlerThread("FakeClockTest");
     handlerThread1.start();
     HandlerThread handlerThread2 = new HandlerThread("FakeClockTest");
