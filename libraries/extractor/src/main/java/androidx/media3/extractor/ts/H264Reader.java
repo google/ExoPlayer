@@ -330,11 +330,12 @@ public final class H264Reader implements ElementaryStreamReader {
       sliceHeader.clear();
     }
 
-    public void startNalUnit(long position, int type, long pesTimeUs, boolean rai) {
+    public void startNalUnit(
+        long position, int type, long pesTimeUs, boolean randomAccessIndicator) {
       nalUnitType = type;
       nalUnitTimeUs = pesTimeUs;
       nalUnitStartPosition = position;
-      randomAccessIndicator = rai;
+      this.randomAccessIndicator = randomAccessIndicator;
       if ((allowNonIdrKeyframes && nalUnitType == NalUnitUtil.NAL_UNIT_TYPE_NON_IDR)
           || (detectAccessUnits
               && (nalUnitType == NalUnitUtil.NAL_UNIT_TYPE_IDR

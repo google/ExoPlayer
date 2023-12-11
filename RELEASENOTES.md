@@ -50,6 +50,8 @@
         `ColorInfo.colorSpace`, `ColorInfo.colorTransfer`, and
         `ColorInfo.colorRange` values
         ([#692](https://github.com/androidx/media/pull/692)).
+    *   Fix wrong keyframe detection for TS H264 streams
+        ([#864](https://github.com/androidx/media/pull/864)).
 *   Audio:
 *   Video:
     *   Add workaround for a device issue on Galaxy Tab S7 FE, Chromecast with
