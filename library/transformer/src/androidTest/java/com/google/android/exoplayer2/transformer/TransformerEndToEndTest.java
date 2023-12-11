@@ -335,7 +335,7 @@ public class TransformerEndToEndTest {
     ExportTestResult result =
         new TransformerAndroidTestRunner.Builder(context, transformer)
             .build()
-            .run(/* testId= */ "videoEditing_completesWithConsistentFrameCount", editedMediaItem);
+            .run(testId, editedMediaItem);
 
     assertThat(result.exportResult.videoFrameCount).isEqualTo(expectedFrameCount);
   }
@@ -376,9 +376,7 @@ public class TransformerEndToEndTest {
     ExportTestResult result =
         new TransformerAndroidTestRunner.Builder(context, transformer)
             .build()
-            .run(
-                /* testId= */ "videoEditing_effectsOverTime_completesWithConsistentFrameCount",
-                editedMediaItem);
+            .run(testId, editedMediaItem);
 
     assertThat(result.exportResult.videoFrameCount).isEqualTo(expectedFrameCount);
   }
@@ -408,7 +406,7 @@ public class TransformerEndToEndTest {
     ExportTestResult result =
         new TransformerAndroidTestRunner.Builder(context, transformer)
             .build()
-            .run(/* testId= */ "videoOnly_completesWithConsistentDuration", editedMediaItem);
+            .run(testId, editedMediaItem);
 
     assertThat(result.exportResult.durationMs).isEqualTo(expectedDurationMs);
   }
@@ -439,7 +437,7 @@ public class TransformerEndToEndTest {
     ExportTestResult result =
         new TransformerAndroidTestRunner.Builder(context, transformer)
             .build()
-            .run(/* testId= */ "clippedMedia_completesWithClippedDuration", mediaItem);
+            .run(testId, mediaItem);
 
     assertThat(result.exportResult.durationMs).isAtMost(clippingEndMs - clippingStartMs);
   }
@@ -537,9 +535,7 @@ public class TransformerEndToEndTest {
             () ->
                 new TransformerAndroidTestRunner.Builder(context, transformer)
                     .build()
-                    .run(
-                        /* testId= */ "videoEncoderFormatUnsupported_completesWithError",
-                        editedMediaItem));
+                    .run(testId, editedMediaItem));
 
     assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
     assertThat(exception.errorCode).isEqualTo(ExportException.ERROR_CODE_ENCODER_INIT_FAILED);
