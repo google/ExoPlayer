@@ -529,7 +529,7 @@ public class MediaSessionTest {
                     })
                 .build()));
     Bundle connectionHints = new Bundle();
-    connectionHints.putBoolean(MediaNotificationManager.KEY_MEDIA_NOTIFICATION_MANAGER, true);
+    connectionHints.putBoolean(MediaController.KEY_MEDIA_NOTIFICATION_CONTROLLER_FLAG, true);
     new MediaController.Builder(
             ApplicationProvider.getApplicationContext(), session.get().getToken())
         .setConnectionHints(connectionHints)
@@ -740,7 +740,7 @@ public class MediaSessionTest {
                     })
                 .build());
     Bundle connectionHints = new Bundle();
-    connectionHints.putBoolean(MediaNotificationManager.KEY_MEDIA_NOTIFICATION_MANAGER, true);
+    connectionHints.putBoolean(MediaController.KEY_MEDIA_NOTIFICATION_CONTROLLER_FLAG, true);
     new MediaController.Builder(ApplicationProvider.getApplicationContext(), session.getToken())
         .setConnectionHints(connectionHints)
         .buildAsync()
@@ -779,7 +779,7 @@ public class MediaSessionTest {
   public void onMediaButtonEvent_noKeyEvent_mediaNotificationControllerConnected_returnsFalse()
       throws Exception {
     Bundle connectionHints = new Bundle();
-    connectionHints.putBoolean(MediaNotificationManager.KEY_MEDIA_NOTIFICATION_MANAGER, true);
+    connectionHints.putBoolean(MediaController.KEY_MEDIA_NOTIFICATION_CONTROLLER_FLAG, true);
     new MediaController.Builder(ApplicationProvider.getApplicationContext(), session.getToken())
         .setConnectionHints(connectionHints)
         .buildAsync()
@@ -809,7 +809,7 @@ public class MediaSessionTest {
   public void onMediaButtonEvent_invalidKeyEvent_mediaNotificationControllerConnected_returnsFalse()
       throws Exception {
     Bundle connectionHints = new Bundle();
-    connectionHints.putBoolean(MediaNotificationManager.KEY_MEDIA_NOTIFICATION_MANAGER, true);
+    connectionHints.putBoolean(MediaController.KEY_MEDIA_NOTIFICATION_CONTROLLER_FLAG, true);
     new MediaController.Builder(ApplicationProvider.getApplicationContext(), session.getToken())
         .setConnectionHints(connectionHints)
         .buildAsync()
@@ -839,7 +839,7 @@ public class MediaSessionTest {
   public void onMediaButtonEvent_invalidAction_mediaNotificationControllerConnected_returnsFalse()
       throws Exception {
     Bundle connectionHints = new Bundle();
-    connectionHints.putBoolean(MediaNotificationManager.KEY_MEDIA_NOTIFICATION_MANAGER, true);
+    connectionHints.putBoolean(MediaController.KEY_MEDIA_NOTIFICATION_CONTROLLER_FLAG, true);
     new MediaController.Builder(ApplicationProvider.getApplicationContext(), session.getToken())
         .setConnectionHints(connectionHints)
         .buildAsync()
@@ -869,7 +869,7 @@ public class MediaSessionTest {
       onMediaButtonEvent_invalidComponent_mediaNotificationControllerConnected_returnsFalse()
           throws Exception {
     Bundle connectionHints = new Bundle();
-    connectionHints.putBoolean(MediaNotificationManager.KEY_MEDIA_NOTIFICATION_MANAGER, true);
+    connectionHints.putBoolean(MediaController.KEY_MEDIA_NOTIFICATION_CONTROLLER_FLAG, true);
     new MediaController.Builder(ApplicationProvider.getApplicationContext(), session.getToken())
         .setConnectionHints(connectionHints)
         .buildAsync()

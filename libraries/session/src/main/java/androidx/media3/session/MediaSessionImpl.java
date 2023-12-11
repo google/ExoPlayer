@@ -387,7 +387,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         && controllerInfo
             .getConnectionHints()
             .getBoolean(
-                MediaNotificationManager.KEY_MEDIA_NOTIFICATION_MANAGER, /* defaultValue= */ false);
+                MediaController.KEY_MEDIA_NOTIFICATION_CONTROLLER_FLAG, /* defaultValue= */ false);
   }
 
   /**

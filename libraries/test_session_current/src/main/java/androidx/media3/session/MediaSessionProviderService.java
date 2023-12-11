@@ -328,7 +328,8 @@ public class MediaSessionProviderService extends Service {
             session.setSessionPositionUpdateDelayMs(0L);
             if (useFakeMediaNotificationManagerController) {
               Bundle connectionHints = new Bundle();
-              connectionHints.putBoolean("androidx.media3.session.MediaNotificationManager", true);
+              connectionHints.putBoolean(
+                  MediaController.KEY_MEDIA_NOTIFICATION_CONTROLLER_FLAG, true);
               //noinspection unused
               ListenableFuture<MediaController> unusedFuture =
                   new MediaController.Builder(getApplicationContext(), session.getToken())

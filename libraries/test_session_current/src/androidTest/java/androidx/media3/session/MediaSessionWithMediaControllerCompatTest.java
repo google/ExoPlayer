@@ -124,7 +124,7 @@ public class MediaSessionWithMediaControllerCompatTest {
         sessionTestRule.ensureReleaseAfterTest(
             new MediaSession.Builder(context, player).setId(TAG).setCallback(callback).build());
     Bundle connectionHints = new Bundle();
-    connectionHints.putBoolean(MediaNotificationManager.KEY_MEDIA_NOTIFICATION_MANAGER, true);
+    connectionHints.putBoolean(MediaController.KEY_MEDIA_NOTIFICATION_CONTROLLER_FLAG, true);
     new MediaController.Builder(context.getApplicationContext(), session.getToken())
         .setConnectionHints(connectionHints)
         .buildAsync()

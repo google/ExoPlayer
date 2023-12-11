@@ -780,7 +780,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
             /* waitForConnection= */ true);
     KeyEvent keyEvent = new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MEDIA_PLAY);
     Bundle connectionHints = new Bundle();
-    connectionHints.putBoolean(MediaNotificationManager.KEY_MEDIA_NOTIFICATION_MANAGER, true);
+    connectionHints.putBoolean(MediaController.KEY_MEDIA_NOTIFICATION_CONTROLLER_FLAG, true);
     new MediaController.Builder(
             ApplicationProvider.getApplicationContext(), session.get().getToken())
         .setConnectionHints(connectionHints)
@@ -889,7 +889,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
                 .setId("dispatchMediaButtonEvent")
                 .build()));
     Bundle connectionHints = new Bundle();
-    connectionHints.putBoolean(MediaNotificationManager.KEY_MEDIA_NOTIFICATION_MANAGER, true);
+    connectionHints.putBoolean(MediaController.KEY_MEDIA_NOTIFICATION_CONTROLLER_FLAG, true);
     new MediaController.Builder(
             ApplicationProvider.getApplicationContext(), session.get().getToken())
         .setConnectionHints(connectionHints)

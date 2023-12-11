@@ -55,8 +55,6 @@ import java.util.concurrent.TimeoutException;
  */
 /* package */ final class MediaNotificationManager {
 
-  /* package */ static final String KEY_MEDIA_NOTIFICATION_MANAGER =
-      "androidx.media3.session.MediaNotificationManager";
   private static final String TAG = "MediaNtfMng";
 
   private final MediaSessionService mediaSessionService;
@@ -92,7 +90,7 @@ import java.util.concurrent.TimeoutException;
     }
     MediaControllerListener listener = new MediaControllerListener(mediaSessionService, session);
     Bundle connectionHints = new Bundle();
-    connectionHints.putBoolean(KEY_MEDIA_NOTIFICATION_MANAGER, true);
+    connectionHints.putBoolean(MediaController.KEY_MEDIA_NOTIFICATION_CONTROLLER_FLAG, true);
     ListenableFuture<MediaController> controllerFuture =
         new MediaController.Builder(mediaSessionService, session.getToken())
             .setConnectionHints(connectionHints)

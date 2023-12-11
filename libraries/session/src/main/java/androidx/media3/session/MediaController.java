@@ -175,6 +175,24 @@ public class MediaController implements Player {
    */
   @UnstableApi public static final long RELEASE_UNBIND_TIMEOUT_MS = 30_000;
 
+  /**
+   * Key to mark the connection hints of the media notification controller.
+   *
+   * <p>For a controller to be {@linkplain
+   * MediaSession#isMediaNotificationController(MediaSession.ControllerInfo) recognized by the
+   * session as the media notification controller}, this key needs to be used to {@linkplain
+   * Bundle#putBoolean(String, boolean) set a boolean flag} in the connection hints to true. Only an
+   * internal controller that has the same package name as the session can be used as a media
+   * notification controller.
+   *
+   * <p>When using a session within a {@link MediaSessionService} or {@link MediaLibraryService},
+   * the service connects a media notification controller automatically. Apps can do this for
+   * standalone session to configure the platform session in the same way.
+   */
+  @UnstableApi
+  public static final String KEY_MEDIA_NOTIFICATION_CONTROLLER_FLAG =
+      "androidx.media3.session.MediaNotificationManager";
+
   private static final String TAG = "MediaController";
 
   private static final String WRONG_THREAD_ERROR_MESSAGE =

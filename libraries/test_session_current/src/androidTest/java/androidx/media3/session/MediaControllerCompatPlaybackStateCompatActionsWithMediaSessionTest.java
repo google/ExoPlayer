@@ -1616,7 +1616,7 @@ public class MediaControllerCompatPlaybackStateCompatActionsWithMediaSessionTest
       throws InterruptedException {
     CountDownLatch connectionLatch = new CountDownLatch(1);
     Bundle connectionHints = new Bundle();
-    connectionHints.putBoolean(MediaNotificationManager.KEY_MEDIA_NOTIFICATION_MANAGER, true);
+    connectionHints.putBoolean(MediaController.KEY_MEDIA_NOTIFICATION_CONTROLLER_FLAG, true);
     ListenableFuture<MediaController> mediaNotificationControllerFuture =
         new MediaController.Builder(
                 ApplicationProvider.getApplicationContext(), mediaSession.getToken())
