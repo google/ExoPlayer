@@ -24,6 +24,7 @@ track 0:
       colorTransfer = 3
       lumaBitdepth = 8
       chromaBitdepth = 8
+    roleFlags = 1
     metadata = entries=[Mp4Timestamp: creation time=3784612704, modification time=3784612704, timescale=10000]
     initializationData:
       data = length 82, hash C508E2F1
@@ -136,6 +137,7 @@ track 1:
       colorTransfer = 3
       lumaBitdepth = 8
       chromaBitdepth = 8
+    roleFlags = 2
     metadata = entries=[Mp4Timestamp: creation time=3784612704, modification time=3784612704, timescale=10000]
     initializationData:
       data = length 82, hash 1924973

@@ -80,7 +80,8 @@ public final class Mp4Extractor implements Extractor, SeekMap {
       value = {
         FLAG_WORKAROUND_IGNORE_EDIT_LISTS,
         FLAG_READ_MOTION_PHOTO_METADATA,
-        FLAG_READ_SEF_DATA
+        FLAG_READ_SEF_DATA,
+        FLAG_MARK_FIRST_VIDEO_TRACK_WITH_MAIN_ROLE
       })
   public @interface Flags {}
 
@@ -101,6 +102,12 @@ public final class Mp4Extractor implements Extractor, SeekMap {
    * videos.
    */
   public static final int FLAG_READ_SEF_DATA = 1 << 2;
+
+  /**
+   * Flag to mark the first video track encountered as {@link C#ROLE_FLAG_MAIN} and all subsequent
+   * video tracks as {@link C#ROLE_FLAG_ALTERNATE}.
+   */
+  public static final int FLAG_MARK_FIRST_VIDEO_TRACK_WITH_MAIN_ROLE = 1 << 3;
 
   /** Parser states. */
   @Documented
@@ -555,11 +562,18 @@ public final class Mp4Extractor implements Extractor, SeekMap {
 
       Format.Builder formatBuilder = track.format.buildUpon();
       formatBuilder.setMaxInputSize(maxInputSize);
-      if (track.type == C.TRACK_TYPE_VIDEO
-          && trackDurationUs > 0
-          && trackSampleTable.sampleCount > 1) {
-        float frameRate = trackSampleTable.sampleCount / (trackDurationUs / 1000000f);
-        formatBuilder.setFrameRate(frameRate);
+      if (track.type == C.TRACK_TYPE_VIDEO) {
+        if ((flags & FLAG_MARK_FIRST_VIDEO_TRACK_WITH_MAIN_ROLE) != 0) {
+          formatBuilder.setRoleFlags(
+              track.format.roleFlags
+                  | (firstVideoTrackIndex == C.INDEX_UNSET
+                      ? C.ROLE_FLAG_MAIN
+                      : C.ROLE_FLAG_ALTERNATE));
+        }
+        if (trackDurationUs > 0 && trackSampleTable.sampleCount > 1) {
+          float frameRate = trackSampleTable.sampleCount / (trackDurationUs / 1000000f);
+          formatBuilder.setFrameRate(frameRate);
+        }
       }
 
       MetadataUtil.setFormatGaplessInfo(track.type, gaplessInfoHolder, formatBuilder);

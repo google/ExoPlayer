@@ -50,6 +50,9 @@
         `ColorInfo.colorSpace`, `ColorInfo.colorTransfer`, and
         `ColorInfo.colorRange` values
         ([#692](https://github.com/androidx/media/pull/692)).
+    *   Mark secondary (unplayable) HEVC tracks in JPEG motion photos as
+        `ROLE_FLAG_ALTERNATE` to prevent them being automatically selected for
+        playback because of their higher resolution.
 *   Audio:
 *   Video:
     *   Add workaround for a device issue on Galaxy Tab S7 FE, Chromecast with
