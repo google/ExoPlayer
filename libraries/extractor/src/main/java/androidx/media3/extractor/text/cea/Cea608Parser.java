@@ -15,6 +15,7 @@
  */
 package androidx.media3.extractor.text.cea;
 
+import static androidx.media3.common.util.Assertions.checkArgument;
 import static java.lang.Math.min;
 
 import android.graphics.Color;
@@ -369,8 +370,12 @@ public final class Cea608Parser implements SubtitleParser {
     cueBuilders = new ArrayList<>();
     currentCueBuilder = new CueBuilder(CC_MODE_UNKNOWN, DEFAULT_CAPTIONS_ROW_COUNT);
     currentChannel = NTSC_CC_CHANNEL_1;
-    this.validDataChannelTimeoutUs =
-        validDataChannelTimeoutMs > 0 ? validDataChannelTimeoutMs * 1000 : C.TIME_UNSET;
+    if (validDataChannelTimeoutMs != C.TIME_UNSET) {
+      checkArgument(validDataChannelTimeoutMs >= MIN_DATA_CHANNEL_TIMEOUT_MS);
+      this.validDataChannelTimeoutUs = validDataChannelTimeoutMs * 1000;
+    } else {
+      this.validDataChannelTimeoutUs = C.TIME_UNSET;
+    }
     packetLength = MimeTypes.APPLICATION_MP4CEA608.equals(mimeType) ? 2 : 3;
     switch (accessibilityChannel) {
       case 1:
