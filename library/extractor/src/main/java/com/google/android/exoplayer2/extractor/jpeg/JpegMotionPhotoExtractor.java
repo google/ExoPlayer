@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.extractor.jpeg;
 
 import static com.google.android.exoplayer2.extractor.SingleSampleExtractor.IMAGE_TRACK_ID;
+import static com.google.android.exoplayer2.extractor.mp4.Mp4Extractor.FLAG_MARK_FIRST_VIDEO_TRACK_WITH_MAIN_ROLE;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
@@ -250,7 +251,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     } else {
       input.resetPeekPosition();
       if (mp4Extractor == null) {
-        mp4Extractor = new Mp4Extractor();
+        mp4Extractor = new Mp4Extractor(FLAG_MARK_FIRST_VIDEO_TRACK_WITH_MAIN_ROLE);
       }
       mp4ExtractorStartOffsetExtractorInput =
           new StartOffsetExtractorInput(input, mp4StartPosition);
