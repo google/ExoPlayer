@@ -109,6 +109,7 @@ import java.math.RoundingMode;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
@@ -3032,6 +3033,80 @@ public final class Util {
       default:
         return trackType >= C.TRACK_TYPE_CUSTOM_BASE ? "custom (" + trackType + ")" : "?";
     }
+  }
+
+  /**
+   * Returns a list of strings representing the {@link C.SelectionFlags} values present in {@code
+   * selectionFlags}.
+   */
+  public static List<String> getSelectionFlagStrings(@C.SelectionFlags int selectionFlags) {
+    List<String> result = new ArrayList<>();
+    // LINT.IfChange(selection_flags)
+    if ((selectionFlags & C.SELECTION_FLAG_AUTOSELECT) != 0) {
+      result.add("auto");
+    }
+    if ((selectionFlags & C.SELECTION_FLAG_DEFAULT) != 0) {
+      result.add("default");
+    }
+    if ((selectionFlags & C.SELECTION_FLAG_FORCED) != 0) {
+      result.add("forced");
+    }
+    return result;
+  }
+
+  /**
+   * Returns a list of strings representing the {@link C.RoleFlags} values present in {@code
+   * roleFlags}.
+   */
+  public static List<String> getRoleFlagStrings(@C.RoleFlags int roleFlags) {
+    List<String> result = new ArrayList<>();
+    // LINT.IfChange(role_flags)
+    if ((roleFlags & C.ROLE_FLAG_MAIN) != 0) {
+      result.add("main");
+    }
+    if ((roleFlags & C.ROLE_FLAG_ALTERNATE) != 0) {
+      result.add("alt");
+    }
+    if ((roleFlags & C.ROLE_FLAG_SUPPLEMENTARY) != 0) {
+      result.add("supplementary");
+    }
+    if ((roleFlags & C.ROLE_FLAG_COMMENTARY) != 0) {
+      result.add("commentary");
+    }
+    if ((roleFlags & C.ROLE_FLAG_DUB) != 0) {
+      result.add("dub");
+    }
+    if ((roleFlags & C.ROLE_FLAG_EMERGENCY) != 0) {
+      result.add("emergency");
+    }
+    if ((roleFlags & C.ROLE_FLAG_CAPTION) != 0) {
+      result.add("caption");
+    }
+    if ((roleFlags & C.ROLE_FLAG_SUBTITLE) != 0) {
+      result.add("subtitle");
+    }
+    if ((roleFlags & C.ROLE_FLAG_SIGN) != 0) {
+      result.add("sign");
+    }
+    if ((roleFlags & C.ROLE_FLAG_DESCRIBES_VIDEO) != 0) {
+      result.add("describes-video");
+    }
+    if ((roleFlags & C.ROLE_FLAG_DESCRIBES_MUSIC_AND_SOUND) != 0) {
+      result.add("describes-music");
+    }
+    if ((roleFlags & C.ROLE_FLAG_ENHANCED_DIALOG_INTELLIGIBILITY) != 0) {
+      result.add("enhanced-intelligibility");
+    }
+    if ((roleFlags & C.ROLE_FLAG_TRANSCRIBES_DIALOG) != 0) {
+      result.add("transcribes-dialog");
+    }
+    if ((roleFlags & C.ROLE_FLAG_EASY_TO_READ) != 0) {
+      result.add("easy-read");
+    }
+    if ((roleFlags & C.ROLE_FLAG_TRICK_PLAY) != 0) {
+      result.add("trick-play");
+    }
+    return result;
   }
 
   /**

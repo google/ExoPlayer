@@ -15,7 +15,7 @@ track 1:
     maxInputSize = 5760
     channelCount = 1
     sampleRate = 48000
-    selectionFlags = 1
+    selectionFlags = [default]
     language = und
     initializationData:
       data = length 19, hash CB9E23BC

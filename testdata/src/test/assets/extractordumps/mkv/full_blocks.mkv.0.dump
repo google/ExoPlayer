@@ -12,7 +12,7 @@ track 1:
   format 0:
     id = 1
     sampleMimeType = application/x-subrip
-    selectionFlags = 1
+    selectionFlags = [default]
     language = und
   sample 0:
     time = 0

@@ -1279,71 +1279,13 @@ public final class Format implements Bundleable {
       builder.append(", label=").append(format.label);
     }
     if (format.selectionFlags != 0) {
-      List<String> selectionFlags = new ArrayList<>();
-      // LINT.IfChange(selection_flags)
-      if ((format.selectionFlags & C.SELECTION_FLAG_AUTOSELECT) != 0) {
-        selectionFlags.add("auto");
-      }
-      if ((format.selectionFlags & C.SELECTION_FLAG_DEFAULT) != 0) {
-        selectionFlags.add("default");
-      }
-      if ((format.selectionFlags & C.SELECTION_FLAG_FORCED) != 0) {
-        selectionFlags.add("forced");
-      }
       builder.append(", selectionFlags=[");
-      Joiner.on(',').appendTo(builder, selectionFlags);
+      Joiner.on(',').appendTo(builder, Util.getSelectionFlagStrings(format.selectionFlags));
       builder.append("]");
     }
     if (format.roleFlags != 0) {
-      // LINT.IfChange(role_flags)
-      List<String> roleFlags = new ArrayList<>();
-      if ((format.roleFlags & C.ROLE_FLAG_MAIN) != 0) {
-        roleFlags.add("main");
-      }
-      if ((format.roleFlags & C.ROLE_FLAG_ALTERNATE) != 0) {
-        roleFlags.add("alt");
-      }
-      if ((format.roleFlags & C.ROLE_FLAG_SUPPLEMENTARY) != 0) {
-        roleFlags.add("supplementary");
-      }
-      if ((format.roleFlags & C.ROLE_FLAG_COMMENTARY) != 0) {
-        roleFlags.add("commentary");
-      }
-      if ((format.roleFlags & C.ROLE_FLAG_DUB) != 0) {
-        roleFlags.add("dub");
-      }
-      if ((format.roleFlags & C.ROLE_FLAG_EMERGENCY) != 0) {
-        roleFlags.add("emergency");
-      }
-      if ((format.roleFlags & C.ROLE_FLAG_CAPTION) != 0) {
-        roleFlags.add("caption");
-      }
-      if ((format.roleFlags & C.ROLE_FLAG_SUBTITLE) != 0) {
-        roleFlags.add("subtitle");
-      }
-      if ((format.roleFlags & C.ROLE_FLAG_SIGN) != 0) {
-        roleFlags.add("sign");
-      }
-      if ((format.roleFlags & C.ROLE_FLAG_DESCRIBES_VIDEO) != 0) {
-        roleFlags.add("describes-video");
-      }
-      if ((format.roleFlags & C.ROLE_FLAG_DESCRIBES_MUSIC_AND_SOUND) != 0) {
-        roleFlags.add("describes-music");
-      }
-      if ((format.roleFlags & C.ROLE_FLAG_ENHANCED_DIALOG_INTELLIGIBILITY) != 0) {
-        roleFlags.add("enhanced-intelligibility");
-      }
-      if ((format.roleFlags & C.ROLE_FLAG_TRANSCRIBES_DIALOG) != 0) {
-        roleFlags.add("transcribes-dialog");
-      }
-      if ((format.roleFlags & C.ROLE_FLAG_EASY_TO_READ) != 0) {
-        roleFlags.add("easy-read");
-      }
-      if ((format.roleFlags & C.ROLE_FLAG_TRICK_PLAY) != 0) {
-        roleFlags.add("trick-play");
-      }
       builder.append(", roleFlags=[");
-      Joiner.on(',').appendTo(builder, roleFlags);
+      Joiner.on(',').appendTo(builder, Util.getRoleFlagStrings(format.roleFlags));
       builder.append("]");
     }
     return builder.toString();

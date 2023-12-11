@@ -55,6 +55,7 @@ import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Formatter;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
@@ -1505,6 +1506,22 @@ public class UtilTest {
 
     assertThat(outputFuture.isDone()).isTrue();
     assertThat(outputFuture.get()).isEqualTo(expectedOutput);
+  }
+
+  @Test
+  public void getSelectionFlagStrings() {
+    List<String> selectionFlags =
+        Util.getSelectionFlagStrings(C.SELECTION_FLAG_AUTOSELECT | C.SELECTION_FLAG_FORCED);
+
+    assertThat(selectionFlags).containsExactly("auto", "forced");
+  }
+
+  @Test
+  public void getRoleFlagStrings() {
+    List<String> roleFlags =
+        Util.getRoleFlagStrings(C.ROLE_FLAG_DESCRIBES_MUSIC_AND_SOUND | C.ROLE_FLAG_EASY_TO_READ);
+
+    assertThat(roleFlags).containsExactly("describes-music", "easy-read");
   }
 
   private static void assertEscapeUnescapeFileName(String fileName, String escapedFileName) {

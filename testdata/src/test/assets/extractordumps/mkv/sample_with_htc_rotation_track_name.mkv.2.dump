@@ -16,7 +16,7 @@ track 1:
     width = 1080
     height = 720
     rotationDegrees = 90
-    selectionFlags = 1
+    selectionFlags = [default]
     language = und
     initializationData:
       data = length 30, hash F6F3D010
@@ -149,7 +149,7 @@ track 2:
     sampleMimeType = audio/ac3
     channelCount = 1
     sampleRate = 44100
-    selectionFlags = 1
+    selectionFlags = [default]
     language = und
   sample 0:
     time = 62000

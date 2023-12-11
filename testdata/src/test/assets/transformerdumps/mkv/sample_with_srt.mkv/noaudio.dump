@@ -4,7 +4,7 @@ format video:
   codecs = avc1.640034
   width = 1080
   height = 720
-  selectionFlags = 1
+  selectionFlags = [default]
   language = und
   initializationData:
     data = length 30, hash F6F3D010
