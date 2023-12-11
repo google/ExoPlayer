@@ -283,8 +283,7 @@ public final class CompositingVideoSinkProvider
               /* compositionEffects= */ ImmutableList.of(),
               /* initialTimestampOffsetUs= */ 0);
       videoSinkImpl =
-          new VideoSinkImpl(
-              context, /* compositingVideoSinkProvider= */ this, videoGraph, sourceFormat);
+          new VideoSinkImpl(context, /* compositingVideoSinkProvider= */ this, videoGraph);
     } catch (VideoFrameProcessingException e) {
       throw new VideoSink.VideoSinkException(e, sourceFormat);
     }
@@ -520,7 +519,7 @@ public final class CompositingVideoSinkProvider
     private final VideoFrameProcessor videoFrameProcessor;
     private final int videoFrameProcessorMaxPendingFrameCount;
     private final ArrayList<Effect> videoEffects;
-    @Nullable private final Effect rotationEffect;
+    @Nullable private Effect rotationEffect;
 
     @Nullable private Format inputFormat;
     private long inputStreamOffsetUs;
@@ -541,8 +540,7 @@ public final class CompositingVideoSinkProvider
     public VideoSinkImpl(
         Context context,
         CompositingVideoSinkProvider compositingVideoSinkProvider,
-        PreviewingVideoGraph videoGraph,
-        Format sourceFormat)
+        PreviewingVideoGraph videoGraph)
         throws VideoFrameProcessingException {
       this.context = context;
       this.compositingVideoSinkProvider = compositingVideoSinkProvider;
@@ -556,11 +554,6 @@ public final class CompositingVideoSinkProvider
       videoFrameProcessor = videoGraph.getProcessor(videoGraphInputId);
 
       videoEffects = new ArrayList<>();
-      // MediaCodec applies rotation after API 21.
-      rotationEffect =
-          Util.SDK_INT < 21 && sourceFormat.rotationDegrees != 0
-              ? ScaleAndRotateAccessor.createRotationEffect(sourceFormat.rotationDegrees)
-              : null;
       finalBufferPresentationTimeUs = C.TIME_UNSET;
       lastBufferPresentationTimeUs = C.TIME_UNSET;
     }
@@ -595,6 +588,20 @@ public final class CompositingVideoSinkProvider
     public void registerInputStream(@InputType int inputType, Format format) {
       if (inputType != INPUT_TYPE_SURFACE) {
         throw new UnsupportedOperationException("Unsupported input type " + inputType);
+      }
+      // MediaCodec applies rotation after API 21.
+      if (Util.SDK_INT < 21
+          && format.rotationDegrees != Format.NO_VALUE
+          && format.rotationDegrees != 0) {
+        // We must apply a rotation effect.
+        if (rotationEffect == null
+            || this.inputFormat == null
+            || this.inputFormat.rotationDegrees != format.rotationDegrees) {
+          rotationEffect = ScaleAndRotateAccessor.createRotationEffect(format.rotationDegrees);
+        } // Else, the rotation effect matches the previous format's rotation degrees, keep the same
+        // instance.
+      } else {
+        rotationEffect = null;
       }
       this.inputFormat = format;
 
