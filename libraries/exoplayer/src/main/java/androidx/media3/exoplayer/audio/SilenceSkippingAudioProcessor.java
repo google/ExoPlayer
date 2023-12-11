@@ -189,8 +189,11 @@ public final class SilenceSkippingAudioProcessor extends BaseAudioProcessor {
   @Override
   protected void onQueueEndOfStream() {
     if (maybeSilenceBufferSize > 0) {
-      // We haven't received enough silence to transition to the silent state, so output the buffer.
+      // We haven't received enough silence to transition to the silent state, so output the buffer
+      // and switch back to the noisy state.
       output(maybeSilenceBuffer, maybeSilenceBufferSize);
+      maybeSilenceBufferSize = 0;
+      state = STATE_NOISY;
     }
     if (!hasOutputNoise) {
       skippedFrames += paddingSize / bytesPerFrame;

@@ -54,6 +54,8 @@
         `ROLE_FLAG_ALTERNATE` to prevent them being automatically selected for
         playback because of their higher resolution.
 *   Audio:
+    *   Fix handling of EOS for `SilenceSkippingAudioProcessor` when called
+        multiple times ([#712](https://github.com/androidx/media/issues/712)).
 *   Video:
     *   Add workaround for a device issue on Galaxy Tab S7 FE, Chromecast with
         Google TV, and Lenovo M10 FHD Plus that causes 60fps AVC streams to be
