@@ -88,8 +88,17 @@ public final class DumpableFormat implements Dumper.Dumpable {
     addIfNonDefault(
         dumper, "subsampleOffsetUs", format, DEFAULT_FORMAT, format -> format.subsampleOffsetUs);
     addIfNonDefault(
-        dumper, "selectionFlags", format, DEFAULT_FORMAT, format -> format.selectionFlags);
-    addIfNonDefault(dumper, "roleFlags", format, DEFAULT_FORMAT, format -> format.roleFlags);
+        dumper,
+        "selectionFlags",
+        format,
+        DEFAULT_FORMAT,
+        format -> Util.getSelectionFlagStrings(format.selectionFlags));
+    addIfNonDefault(
+        dumper,
+        "roleFlags",
+        format,
+        DEFAULT_FORMAT,
+        format -> Util.getRoleFlagStrings(format.roleFlags));
     addIfNonDefault(dumper, "language", format, DEFAULT_FORMAT, format -> format.language);
     addIfNonDefault(dumper, "label", format, DEFAULT_FORMAT, format -> format.label);
     if (format.drmInitData != null) {

@@ -15,7 +15,7 @@ track 1:
     codecs = avc1.640034
     width = 1080
     height = 720
-    selectionFlags = 1
+    selectionFlags = [default]
     language = und
     initializationData:
       data = length 30, hash F6F3D010
@@ -148,7 +148,7 @@ track 2:
     sampleMimeType = audio/ac3
     channelCount = 1
     sampleRate = 44100
-    selectionFlags = 1
+    selectionFlags = [default]
     language = und
   sample 0:
     time = 129000
@@ -272,7 +272,7 @@ track 3:
   format 0:
     id = 3
     sampleMimeType = text/x-ssa
-    selectionFlags = 1
+    selectionFlags = [default]
     language = und
     initializationData:
       data = length 90, hash A5E21974
