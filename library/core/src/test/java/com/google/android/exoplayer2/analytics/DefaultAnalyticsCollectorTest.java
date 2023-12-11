@@ -547,10 +547,8 @@ public final class DefaultAnalyticsCollectorTest {
             WINDOW_0 /* BUFFERING */,
             period0 /* READY */,
             period0 /* setPlayWhenReady=true */,
-            period0 /* setPlayWhenReady=false */,
             period0 /* BUFFERING */,
             period0 /* READY */,
-            period0 /* setPlayWhenReady=true */,
             period1Seq2 /* ENDED */)
         .inOrder();
     assertThat(listener.getEvents(EVENT_TIMELINE_CHANGED))
@@ -829,10 +827,8 @@ public final class DefaultAnalyticsCollectorTest {
             WINDOW_0 /* BUFFERING */,
             window0Period1Seq0 /* READY */,
             window0Period1Seq0 /* setPlayWhenReady=true */,
-            window0Period1Seq0 /* setPlayWhenReady=false */,
             period1Seq0 /* BUFFERING */,
             period1Seq0 /* READY */,
-            period1Seq0 /* setPlayWhenReady=true */,
             period1Seq0 /* ENDED */)
         .inOrder();
     assertThat(listener.getEvents(EVENT_TIMELINE_CHANGED))
@@ -1107,10 +1103,6 @@ public final class DefaultAnalyticsCollectorTest {
             WINDOW_0 /* BUFFERING */,
             prerollAd /* READY */,
             prerollAd /* setPlayWhenReady=true */,
-            contentAfterPreroll /* setPlayWhenReady=false */,
-            contentAfterPreroll /* setPlayWhenReady=true */,
-            contentAfterMidroll /* setPlayWhenReady=false */,
-            contentAfterMidroll /* setPlayWhenReady=true */,
             contentAfterPostroll /* ENDED */)
         .inOrder();
     assertThat(listener.getEvents(EVENT_TIMELINE_CHANGED))
@@ -1186,8 +1178,7 @@ public final class DefaultAnalyticsCollectorTest {
             contentAfterPostroll)
         .inOrder();
     assertThat(listener.getEvents(EVENT_DROPPED_VIDEO_FRAMES))
-        .containsExactly(contentAfterPreroll, contentAfterMidroll, contentAfterPostroll)
-        .inOrder();
+        .containsExactly(contentAfterPostroll);
     assertThat(listener.getEvents(EVENT_VIDEO_SIZE_CHANGED))
         .containsExactly(prerollAd) // First frame rendered
         .inOrder();
@@ -1201,8 +1192,7 @@ public final class DefaultAnalyticsCollectorTest {
             contentAfterPostroll)
         .inOrder();
     assertThat(listener.getEvents(EVENT_VIDEO_FRAME_PROCESSING_OFFSET))
-        .containsExactly(contentAfterPreroll, contentAfterMidroll, contentAfterPostroll)
-        .inOrder();
+        .containsExactly(contentAfterPostroll);
     listener.assertNoMoreEvents();
   }
 

@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.robolectric;
 import static org.robolectric.Shadows.shadowOf;
 
 import android.os.Looper;
+import com.google.android.exoplayer2.testutil.ThreadTestUtil;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.ConditionVariable;
 import com.google.android.exoplayer2.util.SystemClock;
@@ -114,6 +115,7 @@ public final class RobolectricUtil {
     if (Looper.myLooper() != looper) {
       throw new IllegalStateException();
     }
+    ThreadTestUtil.unblockThreadsWaitingForProgressOnCurrentLooper();
     ShadowLooper shadowLooper = shadowOf(looper);
     long timeoutTimeMs = clock.currentTimeMillis() + timeoutMs;
     while (!condition.get()) {

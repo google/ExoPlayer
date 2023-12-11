@@ -23,7 +23,9 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.os.Looper;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.testutil.ThreadTestUtil;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.ConditionVariable;
 import com.google.common.base.Supplier;
@@ -89,5 +91,36 @@ public class RobolectricUtilTest {
     RobolectricUtil.runMainLooperUntil(mockCondition, /* timeoutMs= */ 5674, mock(Clock.class));
 
     verify(mockCondition, times(5)).get();
+  }
+
+  @Test
+  public void
+      runMainLooperUntil_whenConditionIsBlockedOnOtherThreadWaitingForProgress_unblocksItself()
+          throws Exception {
+    Clock mockClock = mock(Clock.class);
+    ConditionVariable testCondition = new ConditionVariable();
+    ConditionVariable testThreadReady = new ConditionVariable();
+    Thread thread =
+        new Thread("RobolectricUtilsTest") {
+          @Override
+          public void run() {
+            ConditionVariable blockedCondition = new ConditionVariable();
+            ThreadTestUtil.registerThreadIsBlockedUntilProgressOnLooper(
+                blockedCondition, Looper.getMainLooper());
+            testThreadReady.open();
+            try {
+              blockedCondition.block();
+            } catch (InterruptedException e) {
+              // Ignore.
+            }
+            testCondition.open();
+          }
+        };
+    thread.start();
+    testThreadReady.block();
+
+    // Verify the thread gets unblocked.
+    RobolectricUtil.runMainLooperUntil(testCondition::isOpen, /* timeoutMs= */ 42, mockClock);
+    thread.join();
   }
 }
