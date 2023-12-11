@@ -262,7 +262,7 @@ public final class TransformerSequenceEffectTest {
         .build();
   }
 
-  static void assertBitmapsMatchExpected(List<Bitmap> actualBitmaps, String testId)
+  private static void assertBitmapsMatchExpected(List<Bitmap> actualBitmaps, String testId)
       throws IOException {
     for (int i = 0; i < actualBitmaps.size(); i++) {
       Bitmap actualBitmap = actualBitmaps.get(i);
