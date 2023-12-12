@@ -5,16 +5,13 @@ body:
   - type: markdown
     attributes:
       value: |
-        We can only process bug reports that are actionable. Unclear bug reports or reports with
-        insufficient information may not get attention.
+        We can only process bug reports that are actionable. Unclear bug reports or reports with insufficient information may not get attention.
 
         Before filing a bug:
         -------------------------
 
-        - Search existing issues, including issues that are closed:
-          https://github.com/androidx/media/issues?q=is%3Aissue
-        - For ExoPlayer-related bugs, please also check for existing issues on the ExoPlayer
-          tracker: https://github.com/google/ExoPlayer/issues?q=is%3Aissue
+        - Search existing issues, including issues that are closed: https://github.com/androidx/media/issues?q=is%3Aissue
+        - For ExoPlayer-related bugs, please also check for existing issues on the ExoPlayer tracker: https://github.com/google/ExoPlayer/issues?q=is%3Aissue
   - type: dropdown
     attributes:
       label: Version
@@ -54,7 +51,7 @@ body:
   - type: textarea
     attributes:
       label: More version details
-      description: |
+      description: >
         Required if you selected `main` or `dev-v2` (please provide an exact commit SHA),
         or 'pre-release' or 'older' (please provide the version).
   - type: textarea
