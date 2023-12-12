@@ -75,10 +75,10 @@ public final class FlacStreamMetadataTest {
 
     assertThat(metadata.length()).isEqualTo(2);
     VorbisComment commentFrame = (VorbisComment) metadata.get(0);
-    assertThat(commentFrame.key).isEqualTo("Title");
+    assertThat(commentFrame.key).isEqualTo("TITLE");
     assertThat(commentFrame.value).isEqualTo("Song");
     commentFrame = (VorbisComment) metadata.get(1);
-    assertThat(commentFrame.key).isEqualTo("Artist");
+    assertThat(commentFrame.key).isEqualTo("ARTIST");
     assertThat(commentFrame.value).isEqualTo("Singer");
   }
 
@@ -124,7 +124,7 @@ public final class FlacStreamMetadataTest {
 
     assertThat(metadata.length()).isEqualTo(1);
     VorbisComment commentFrame = (VorbisComment) metadata.get(0);
-    assertThat(commentFrame.key).isEqualTo("Title");
+    assertThat(commentFrame.key).isEqualTo("TITLE");
     assertThat(commentFrame.value).isEqualTo("So=ng");
   }
 
@@ -150,7 +150,7 @@ public final class FlacStreamMetadataTest {
 
     assertThat(metadata.length()).isEqualTo(1);
     VorbisComment commentFrame = (VorbisComment) metadata.get(0);
-    assertThat(commentFrame.key).isEqualTo("Artist");
+    assertThat(commentFrame.key).isEqualTo("ARTIST");
     assertThat(commentFrame.value).isEqualTo("Singer");
   }
 }

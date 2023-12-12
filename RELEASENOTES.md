@@ -74,6 +74,9 @@
         `DefaultExtractorsFactory.setTextTrackTranscodingEnabled`
         ([#836](https://github.com/androidx/media/issues/836)).
 *   Metadata:
+    *   Fix bug where `MediaMetadata` was only populated from Vorbis comments
+        with upper-case keys
+        ([#876](https://github.com/androidx/media/issues/876)).
 *   DRM:
     *   Extend workaround for spurious ClearKey `https://default.url` license
         URL to API 33+ (previously the workaround only applied on API 33

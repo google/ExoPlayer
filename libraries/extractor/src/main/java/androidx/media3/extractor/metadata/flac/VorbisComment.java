@@ -23,6 +23,7 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.MediaMetadata;
 import androidx.media3.common.Metadata;
 import androidx.media3.common.util.UnstableApi;
+import com.google.common.base.Ascii;
 
 /**
  * @deprecated Use {@link androidx.media3.extractor.metadata.vorbis.VorbisComment} instead.
@@ -31,18 +32,21 @@ import androidx.media3.common.util.UnstableApi;
 @UnstableApi
 public class VorbisComment implements Metadata.Entry {
 
-  /** The key. */
+  /** The key in upper case, to ease case-insensitive comparisons. */
   public final String key;
 
   /** The value. */
   public final String value;
 
   /**
-   * @param key The key.
+   * Constructs an instance.
+   *
+   * @param key The key. Must be an ASCII string containing only characters between 0x20 and 0x7D
+   *     (inclusive), excluding 0x3D ('=').
    * @param value The value.
    */
   public VorbisComment(String key, String value) {
-    this.key = key;
+    this.key = Ascii.toUpperCase(key);
     this.value = value;
   }
 
