@@ -398,11 +398,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
     }
 
     @Override
-    public int sortKey() {
-      return sortKey;
-    }
-
-    @Override
     public ImmutableList<BufferInfo> writtenSamples() {
       return ImmutableList.copyOf(writtenSamples);
     }

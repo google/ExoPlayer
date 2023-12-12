@@ -37,8 +37,6 @@ import org.checkerframework.checker.nullness.qual.PolyNull;
   public interface TrackMetadataProvider {
     Format format();
 
-    int sortKey();
-
     int videoUnitTimebase();
 
     ImmutableList<BufferInfo> writtenSamples();
