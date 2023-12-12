@@ -22,6 +22,7 @@ import android.os.Parcelable;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.MediaMetadata;
 import com.google.android.exoplayer2.metadata.Metadata;
+import com.google.common.base.Ascii;
 
 /**
  * @deprecated Use {@link com.google.android.exoplayer2.metadata.vorbis.VorbisComment} instead.
@@ -29,18 +30,21 @@ import com.google.android.exoplayer2.metadata.Metadata;
 @Deprecated
 public class VorbisComment implements Metadata.Entry {
 
-  /** The key. */
+  /** The key in upper case, to ease case-insensitive comparisons. */
   public final String key;
 
   /** The value. */
   public final String value;
 
   /**
-   * @param key The key.
+   * Constructs an instance.
+   *
+   * @param key The key. Must be an ASCII string containing only characters between 0x20 and 0x7D
+   *     (inclusive), excluding 0x3D ('=').
    * @param value The value.
    */
   public VorbisComment(String key, String value) {
-    this.key = key;
+    this.key = Ascii.toUpperCase(key);
     this.value = value;
   }
 
