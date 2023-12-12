@@ -90,6 +90,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
       throws IOException {
     checkState(token instanceof Track);
     ((Track) token).writeSampleData(byteBuf, bufferInfo);
+    doInterleave();
   }
 
   public void close() throws IOException {
@@ -387,7 +388,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
       }
 
       pendingSamples.addLast(Pair.create(bufferInfo, byteBuffer));
-      doInterleave();
     }
 
     @Override
