@@ -1,0 +1,36 @@
+seekMap:
+  isSeekable = true
+  duration = 900000
+  getPosition(0) = [[timeUs=0, position=0]]
+  getPosition(1) = [[timeUs=1, position=0]]
+  getPosition(450000) = [[timeUs=450000, position=23030]]
+  getPosition(900000) = [[timeUs=900000, position=46248]]
+numberOfTracks = 1
+track 256:
+  total output bytes = 412
+  sample count = 3
+  format 0:
+    id = 1/256
+    sampleMimeType = video/avc
+    codecs = avc1.64001F
+    width = 854
+    height = 480
+    colorInfo:
+      lumaBitdepth = 8
+      chromaBitdepth = 8
+    initializationData:
+      data = length 29, hash A220FDE0
+      data = length 9, hash D971CD89
+  sample 0:
+    time = 900000
+    flags = 0
+    data = length 84, hash 54E55CB4
+  sample 1:
+    time = 966666
+    flags = 0
+    data = length 93, hash B6B6263C
+  sample 2:
+    time = 1033333
+    flags = 0
+    data = length 234, hash A48D3D90
+tracksEnded = true
