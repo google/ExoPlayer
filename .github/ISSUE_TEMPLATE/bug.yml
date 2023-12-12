@@ -19,7 +19,5 @@ body:
   attributes:
     label: This project is deprecated
     options:
-      - label: |
-        I understand this project is deprecated and this issue will be closed with no
-        response.
-      required: true
+      - label: I understand this project is deprecated and this issue will be closed with no response.
+        required: true
