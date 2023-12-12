@@ -19,13 +19,14 @@ import static androidx.media2.common.SessionPlayer.PlayerResult.RESULT_SUCCESS;
 import static com.google.common.truth.Truth.assertThat;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
+import android.content.ContentResolver;
+import android.net.Uri;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.SessionPlayer;
 import androidx.media2.common.SessionPlayer.PlayerResult;
 import androidx.media2.common.UriMediaItem;
 import com.google.android.exoplayer2.ext.media2.test.R;
-import com.google.android.exoplayer2.upstream.RawResourceDataSource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Future;
@@ -39,11 +40,16 @@ import java.util.concurrent.Future;
   }
 
   public static UriMediaItem createMediaItem(int resId) {
+    String resIdString = Integer.toString(resId);
     MediaMetadata metadata =
         new MediaMetadata.Builder()
-            .putString(MediaMetadata.METADATA_KEY_MEDIA_ID, Integer.toString(resId))
+            .putString(MediaMetadata.METADATA_KEY_MEDIA_ID, resIdString)
             .build();
-    return new UriMediaItem.Builder(RawResourceDataSource.buildRawResourceUri(resId))
+    return new UriMediaItem.Builder(
+            new Uri.Builder()
+                .scheme(ContentResolver.SCHEME_ANDROID_RESOURCE)
+                .path(resIdString)
+                .build())
         .setMetadata(metadata)
         .build();
   }

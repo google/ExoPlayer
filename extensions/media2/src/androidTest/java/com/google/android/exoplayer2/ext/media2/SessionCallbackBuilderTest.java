@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
@@ -41,7 +42,6 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import com.google.android.exoplayer2.ext.media2.test.R;
-import com.google.android.exoplayer2.upstream.RawResourceDataSource;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -435,7 +435,11 @@ public class SessionCallbackBuilderTest {
   @Test
   public void setMediaItemProvider_withMediaItemProvider_receivesOnCreateMediaItem()
       throws Exception {
-    Uri testMediaUri = RawResourceDataSource.buildRawResourceUri(R.raw.audio);
+    Uri testMediaUri =
+        new Uri.Builder()
+            .scheme(ContentResolver.SCHEME_ANDROID_RESOURCE)
+            .path(Integer.toString(R.raw.audio))
+            .build();
 
     CountDownLatch providerLatch = new CountDownLatch(1);
     SessionCallbackBuilder.MediaIdMediaItemProvider mediaIdMediaItemProvider =

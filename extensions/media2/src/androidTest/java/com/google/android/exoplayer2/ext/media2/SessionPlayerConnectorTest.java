@@ -26,8 +26,10 @@ import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.media.AudioManager;
+import android.net.Uri;
 import android.os.Looper;
 import androidx.annotation.Nullable;
 import androidx.media.AudioAttributesCompat;
@@ -46,7 +48,6 @@ import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ForwardingPlayer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.ext.media2.test.R;
-import com.google.android.exoplayer2.upstream.RawResourceDataSource;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
@@ -311,18 +312,15 @@ public class SessionPlayerConnectorTest {
   @Test
   @LargeTest
   public void setPlaybackSpeed_afterPlayback_remainsSame() throws Exception {
-    int resId1 = R.raw.video_big_buck_bunny;
+    Uri resId1Uri =
+        new Uri.Builder()
+            .scheme(ContentResolver.SCHEME_ANDROID_RESOURCE)
+            .path(Integer.toString(R.raw.video_big_buck_bunny))
+            .build();
     MediaItem mediaItem1 =
-        new UriMediaItem.Builder(RawResourceDataSource.buildRawResourceUri(resId1))
-            .setStartPosition(6_000)
-            .setEndPosition(7_000)
-            .build();
-
+        new UriMediaItem.Builder(resId1Uri).setStartPosition(6_000).setEndPosition(7_000).build();
     MediaItem mediaItem2 =
-        new UriMediaItem.Builder(RawResourceDataSource.buildRawResourceUri(resId1))
-            .setStartPosition(3_000)
-            .setEndPosition(4_000)
-            .build();
+        new UriMediaItem.Builder(resId1Uri).setStartPosition(3_000).setEndPosition(4_000).build();
 
     List<MediaItem> items = new ArrayList<>();
     items.add(mediaItem1);
