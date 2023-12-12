@@ -38,6 +38,7 @@ public final class RawResourceDataSourceContractTest extends DataSourceContractT
     return new RawResourceDataSource(ApplicationProvider.getApplicationContext());
   }
 
+  @SuppressWarnings("deprecation") // Testing deprecated buildRawResourceUri method
   @Override
   protected ImmutableList<TestResource> getTestResources() {
     // Android packages raw resources into a single file. When reading a resource other than the
@@ -100,6 +101,6 @@ public final class RawResourceDataSourceContractTest extends DataSourceContractT
 
   @Override
   protected Uri getNotFoundUri() {
-    return RawResourceDataSource.buildRawResourceUri(Resources.ID_NULL);
+    return Uri.parse("android.resource://" + Resources.ID_NULL);
   }
 }

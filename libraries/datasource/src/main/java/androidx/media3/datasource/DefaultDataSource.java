@@ -126,7 +126,10 @@ public final class DefaultDataSource implements DataSource {
   private static final String SCHEME_RTMP = "rtmp";
   private static final String SCHEME_UDP = "udp";
   private static final String SCHEME_DATA = DataSchemeDataSource.SCHEME_DATA;
+
+  @SuppressWarnings("deprecation") // Detecting deprecated scheme.
   private static final String SCHEME_RAW = RawResourceDataSource.RAW_RESOURCE_SCHEME;
+
   private static final String SCHEME_ANDROID_RESOURCE = ContentResolver.SCHEME_ANDROID_RESOURCE;
 
   private final Context context;

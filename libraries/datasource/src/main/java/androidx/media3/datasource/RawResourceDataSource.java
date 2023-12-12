@@ -40,11 +40,9 @@ import java.nio.channels.FileChannel;
 /**
  * A {@link DataSource} for reading a raw resource.
  *
- * <p>URIs supported by this source are of one of the forms:
+ * <p>URIs supported by this source are:
  *
  * <ul>
- *   <li>{@code rawresource:///id}, where {@code id} is the integer identifier of a raw resource in
- *       this application.
  *   <li>{@code android.resource:///id}, where {@code id} is the integer identifier of a raw
  *       resource in this application.
  *   <li>{@code android.resource://[package]/[type/]name}, where {@code package} is the name of the
@@ -64,7 +62,9 @@ import java.nio.channels.FileChannel;
  * the ecosystem (including being <a href="https://stackoverflow.com/a/4896272">recommended on Stack
  * Overflow</a>).
  *
- * <p>{@link #buildRawResourceUri(int)} can be used to build supported {@link Uri}s.
+ * <p>{@code new
+ * Uri.Builder().scheme(ContentResolver.SCHEME_ANDROID_RESOURCE).path(Integer.toString(resourceId)).build()}
+ * can be used to build supported {@link Uri}s.
  */
 @UnstableApi
 public final class RawResourceDataSource extends BaseDataSource {
@@ -97,17 +97,20 @@ public final class RawResourceDataSource extends BaseDataSource {
   }
 
   /**
-   * Builds a {@link Uri} for the specified raw resource identifier.
-   *
-   * @param rawResourceId A raw resource identifier (i.e. a constant defined in {@code R.raw}).
-   * @return The corresponding {@link Uri}.
+   * @deprecated Use {@code new
+   *     Uri.Builder().scheme(ContentResolver.SCHEME_ANDROID_RESOURCE).path(Integer.toString(rawResourceId)).build()}
+   *     instead.
    */
+  @SuppressWarnings("deprecation") // Using deprecated scheme
+  @Deprecated
   public static Uri buildRawResourceUri(int rawResourceId) {
     return Uri.parse(RAW_RESOURCE_SCHEME + ":///" + rawResourceId);
   }
 
-  /** The scheme part of a raw resource URI. */
-  public static final String RAW_RESOURCE_SCHEME = "rawresource";
+  /**
+   * @deprecated Use {@link ContentResolver#SCHEME_ANDROID_RESOURCE} instead.
+   */
+  @Deprecated public static final String RAW_RESOURCE_SCHEME = "rawresource";
 
   private final Context applicationContext;
 
@@ -200,6 +203,7 @@ public final class RawResourceDataSource extends BaseDataSource {
   }
 
   /** Resolves {@code dataSpec.uri} to an {@link AssetFileDescriptor}. */
+  @SuppressWarnings("deprecation") // Accepting deprecated scheme
   private static AssetFileDescriptor openAssetFileDescriptor(
       Context applicationContext, DataSpec dataSpec) throws RawResourceDataSourceException {
     Uri normalizedUri = dataSpec.uri.normalizeScheme();
@@ -261,10 +265,8 @@ public final class RawResourceDataSource extends BaseDataSource {
           "Unsupported URI scheme ("
               + normalizedUri.getScheme()
               + "). Only "
-              + RAW_RESOURCE_SCHEME
-              + " and "
               + ContentResolver.SCHEME_ANDROID_RESOURCE
-              + " are supported.",
+              + " is supported.",
           /* cause= */ null,
           PlaybackException.ERROR_CODE_FAILED_RUNTIME_CHECK);
     }
