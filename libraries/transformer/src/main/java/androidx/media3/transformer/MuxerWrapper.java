@@ -293,6 +293,18 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   /**
+   * Returns the {@link Format} of given {@code trackType} that was {@linkplain #addTrackFormat
+   * added}.
+   *
+   * @throws IllegalArgumentException If the {@code trackType} has not been {@linkplain
+   *     #addTrackFormat added}.
+   */
+  public Format getTrackFormat(@C.TrackType int trackType) {
+    checkArgument(contains(trackTypeToInfo, trackType));
+    return trackTypeToInfo.get(trackType).format;
+  }
+
+  /**
    * Attempts to write a sample to the muxer.
    *
    * @param trackType The {@link C.TrackType} of the sample.

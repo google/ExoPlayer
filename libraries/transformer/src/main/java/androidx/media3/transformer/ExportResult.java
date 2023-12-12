@@ -301,6 +301,7 @@ public final class ExportResult {
     OPTIMIZATION_SUCCEEDED,
     OPTIMIZATION_ABANDONED,
     OPTIMIZATION_FAILED_EXTRACTION_FAILED,
+    OPTIMIZATION_FAILED_FORMAT_MISMATCH
   })
   @interface OptimizationResult {}
 
@@ -321,6 +322,12 @@ public final class ExportResult {
    * wasn't an mp4 file). Normal export proceeded.
    */
   public static final int OPTIMIZATION_FAILED_EXTRACTION_FAILED = 3;
+
+  /**
+   * The optimization failed because the format between the two parts of the media to be put
+   * together did not match. Normal export proceeded.
+   */
+  public static final int OPTIMIZATION_FAILED_FORMAT_MISMATCH = 4;
 
   /** The list of {@linkplain ProcessedInput processed inputs}. */
   public final ImmutableList<ProcessedInput> processedInputs;
