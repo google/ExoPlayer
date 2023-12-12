@@ -1,20 +1,17 @@
 name: This project is deprecated
-description: |
-  Please file your issue in the
-  [Media3 issue tracker](https://github.com/androidx/media/issues/new?template=bug.yml)
+description: >
+  Please file your issue in the Media3 issue tracker:
+  https://github.com/androidx/media/issues/new?template=bug.yml
 labels: ["won't fix: infeasible"]
 body:
 - type: markdown
   attributes:
     value: |
-      **This project is deprecated. Please do not file new issues in this repository. They will be
-      closed with no response.**
+      **This project is deprecated. Please do not file new issues in this repository. They will be closed with no response.**
 
-      All new bugs should be filed in the
-      [Media3 issue tracker](https://github.com/androidx/media/issues/new?template=bug.yml).
+      All new bugs should be filed in the [Media3 issue tracker](https://github.com/androidx/media/issues/new?template=bug.yml).
 
-      We will continue to update and reply to existing issues in this repository
-      and will keep existing feature requests active.
+      We will continue to update and reply to existing issues in this repository, and will keep existing feature requests active.
 - type: checkboxes
   attributes:
     label: This project is deprecated
