@@ -53,6 +53,8 @@
     *   Mark secondary (unplayable) HEVC tracks in JPEG motion photos as
         `ROLE_FLAG_ALTERNATE` to prevent them being automatically selected for
         playback because of their higher resolution.
+    *   Fix wrong keyframe detection for TS H264 streams
+        ([#864](https://github.com/androidx/media/pull/864)).
 *   Audio:
     *   Fix handling of EOS for `SilenceSkippingAudioProcessor` when called
         multiple times ([#712](https://github.com/androidx/media/issues/712)).
