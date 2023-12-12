@@ -1,19 +1,25 @@
-name: Bug Report
-description: Report a bug in the ExoPlayer library
-labels: ["bug", "needs triage"]
+name: This project is deprecated
+description: |
+  Please file your issue in the
+  [Media3 issue tracker](https://github.com/androidx/media/issues/new?template=bug.yml)
+labels: ["won't fix: infeasible"]
 body:
 - type: markdown
   attributes:
     value: |
-      **Please do not file new issues in this repository.**
+      **This project is deprecated. Please do not file new issues in this repository. They will be
+      closed with no response.**
 
       All new bugs should be filed in the
       [Media3 issue tracker](https://github.com/androidx/media/issues/new?template=bug.yml).
 
       We will continue to update and reply to existing issues in this repository
       and will keep existing feature requests active.
-- type: textarea
+- type: checkboxes
   attributes:
-    label: Bug
-  validations:
-    required: true
+    label: This project is deprecated
+    options:
+      - label: |
+        I understand this project is deprecated and this issue will be closed with no
+        response.
+      required: true
