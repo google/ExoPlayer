@@ -98,9 +98,6 @@ public final class BitmapFactoryImageDecoder
       if (!MimeTypes.isImage(format.containerMimeType)) {
         return RendererCapabilities.create(C.FORMAT_UNSUPPORTED_TYPE);
       }
-      if (format.tileCountHorizontal != 1 || format.tileCountVertical != 1) {
-        return RendererCapabilities.create(C.FORMAT_EXCEEDS_CAPABILITIES);
-      }
       return SUPPORTED_IMAGE_TYPES.contains(format.containerMimeType)
           ? RendererCapabilities.create(C.FORMAT_HANDLED)
           : RendererCapabilities.create(C.FORMAT_UNSUPPORTED_SUBTYPE);

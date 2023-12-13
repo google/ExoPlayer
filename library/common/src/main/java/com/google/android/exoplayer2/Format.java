@@ -1003,6 +1003,8 @@ public final class Format implements Bundleable {
 
     // Use manifest value only.
     @Nullable String id = manifestFormat.id;
+    int tileCountHorizontal = manifestFormat.tileCountHorizontal;
+    int tileCountVertical = manifestFormat.tileCountVertical;
 
     // Prefer manifest values, but fill in from sample format if missing.
     @Nullable String label = manifestFormat.label != null ? manifestFormat.label : this.label;
@@ -1056,6 +1058,8 @@ public final class Format implements Bundleable {
         .setMetadata(metadata)
         .setDrmInitData(drmInitData)
         .setFrameRate(frameRate)
+        .setTileCountHorizontal(tileCountHorizontal)
+        .setTileCountVertical(tileCountVertical)
         .build();
   }
 

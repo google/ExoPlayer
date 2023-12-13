@@ -35,48 +35,15 @@ public class BitmapFactoryImageDecoderFactoryTest {
 
   @Test
   public void supportsFormat_validFormat_returnsFormatSupported() throws Exception {
-    Format.Builder format =
-        new Format.Builder()
-            .setContainerMimeType(MimeTypes.IMAGE_JPEG)
-            .setTileCountVertical(1)
-            .setTileCountHorizontal(1);
+    Format.Builder format = new Format.Builder().setContainerMimeType(MimeTypes.IMAGE_JPEG);
 
     assertThat(imageDecoderFactory.supportsFormat(format.build()))
         .isEqualTo(RendererCapabilities.create(C.FORMAT_HANDLED));
   }
 
   @Test
-  public void supportsFormat_unsetTileCounts_returnsExceedsCapabilities() throws Exception {
-    Format.Builder format = new Format.Builder().setContainerMimeType(MimeTypes.IMAGE_JPEG);
-
-    assertThat(imageDecoderFactory.supportsFormat(format.build()))
-        .isEqualTo(RendererCapabilities.create(C.FORMAT_EXCEEDS_CAPABILITIES));
-  }
-
-  @Test
-  public void supportsFormat_unsetTileCountVertical_returnsExceedsCapabilities() throws Exception {
-    Format.Builder format = new Format.Builder().setContainerMimeType(MimeTypes.IMAGE_JPEG);
-
-    format.setTileCountVertical(1);
-
-    assertThat(imageDecoderFactory.supportsFormat(format.build()))
-        .isEqualTo(RendererCapabilities.create(C.FORMAT_EXCEEDS_CAPABILITIES));
-  }
-
-  @Test
-  public void supportsFormat_unsetTileCountHorizontal_returnsExceedsCapabilities()
-      throws Exception {
-    Format.Builder format = new Format.Builder().setContainerMimeType(MimeTypes.IMAGE_JPEG);
-
-    format.setTileCountHorizontal(1);
-
-    assertThat(imageDecoderFactory.supportsFormat(format.build()))
-        .isEqualTo(RendererCapabilities.create(C.FORMAT_EXCEEDS_CAPABILITIES));
-  }
-
-  @Test
   public void supportsFormat_noContainerMimeType_returnsUnsupportedType() throws Exception {
-    Format.Builder format = new Format.Builder().setTileCountHorizontal(1).setTileCountVertical(1);
+    Format.Builder format = new Format.Builder();
 
     assertThat(imageDecoderFactory.supportsFormat(format.build()))
         .isEqualTo(RendererCapabilities.create(C.FORMAT_UNSUPPORTED_TYPE));
@@ -84,7 +51,7 @@ public class BitmapFactoryImageDecoderFactoryTest {
 
   @Test
   public void supportsFormat_nonImageMimeType_returnsUnsupportedType() throws Exception {
-    Format.Builder format = new Format.Builder().setTileCountHorizontal(1).setTileCountVertical(1);
+    Format.Builder format = new Format.Builder();
 
     format.setContainerMimeType(MimeTypes.VIDEO_AV1);
 
@@ -94,7 +61,7 @@ public class BitmapFactoryImageDecoderFactoryTest {
 
   @Test
   public void supportsFormat_unsupportedImageMimeType_returnsUnsupportedSubType() throws Exception {
-    Format.Builder format = new Format.Builder().setTileCountHorizontal(1).setTileCountVertical(1);
+    Format.Builder format = new Format.Builder();
 
     format.setContainerMimeType("image/custom");
 
