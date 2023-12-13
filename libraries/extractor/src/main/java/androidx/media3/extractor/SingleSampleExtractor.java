@@ -139,12 +139,7 @@ public final class SingleSampleExtractor implements Extractor {
   @RequiresNonNull("this.extractorOutput")
   private void outputImageTrackAndSeekMap(String containerMimeType) {
     trackOutput = extractorOutput.track(IMAGE_TRACK_ID, C.TRACK_TYPE_IMAGE);
-    trackOutput.format(
-        new Format.Builder()
-            .setContainerMimeType(containerMimeType)
-            .setTileCountHorizontal(1)
-            .setTileCountVertical(1)
-            .build());
+    trackOutput.format(new Format.Builder().setContainerMimeType(containerMimeType).build());
     extractorOutput.endTracks();
     extractorOutput.seekMap(new SingleSampleSeekMap(/* durationUs= */ C.TIME_UNSET));
     state = STATE_READING;
