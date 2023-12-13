@@ -56,8 +56,8 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
   /**
    * The presentation timestamp (in microseconds) of the first sync sample at or after {@code
-   * timeUs}. Set to {@link C#TIME_UNSET} if there is no video track or if {@code timeUs} is {@link
-   * C#TIME_UNSET}.
+   * timeUs}, or {@link C#TIME_END_OF_SOURCE} if there are none. Set to {@link C#TIME_UNSET} if
+   * there is no video track or if {@code timeUs} is {@link C#TIME_UNSET}.
    */
   public final long firstSyncSampleTimestampUsAfterTimeUs;
 
@@ -150,13 +150,14 @@ import org.checkerframework.checker.nullness.qual.Nullable;
         lastSyncSampleTimestampUs = lastSyncSampleSeekPoints.first.timeUs;
 
         if (timeUs != C.TIME_UNSET) {
-          if (timeUs < durationUs) {
-            SeekMap.SeekPoints firstSyncSampleSeekPoints =
-                mp4Extractor.getSeekPoints(timeUs, extractorOutput.videoTrackId);
-            firstSyncSampleTimestampUsAfterTimeUs =
-                firstSyncSampleSeekPoints.first.timeUs == timeUs
-                    ? timeUs
-                    : firstSyncSampleSeekPoints.second.timeUs;
+          SeekMap.SeekPoints firstSyncSampleSeekPoints =
+              mp4Extractor.getSeekPoints(timeUs, extractorOutput.videoTrackId);
+          if (timeUs == firstSyncSampleSeekPoints.first.timeUs) {
+            firstSyncSampleTimestampUsAfterTimeUs = firstSyncSampleSeekPoints.first.timeUs;
+          } else if (timeUs <= firstSyncSampleSeekPoints.second.timeUs) {
+            firstSyncSampleTimestampUsAfterTimeUs = firstSyncSampleSeekPoints.second.timeUs;
+          } else { // There is no sync sample after timeUs
+            firstSyncSampleTimestampUsAfterTimeUs = C.TIME_END_OF_SOURCE;
           }
         }
       }

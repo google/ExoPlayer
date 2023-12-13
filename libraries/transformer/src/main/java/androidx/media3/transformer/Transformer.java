@@ -20,9 +20,11 @@ import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.transformer.Composition.HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR;
-import static androidx.media3.transformer.ExportResult.OPTIMIZATION_ABANDONED;
+import static androidx.media3.transformer.ExportResult.OPTIMIZATION_ABANDONED_OTHER;
 import static androidx.media3.transformer.ExportResult.OPTIMIZATION_FAILED_EXTRACTION_FAILED;
 import static androidx.media3.transformer.ExportResult.OPTIMIZATION_FAILED_FORMAT_MISMATCH;
+import static androidx.media3.transformer.ExportResult.TRIM_OPTIMIZATION_ABANDONED_KEYFRAME_PLACEMENT;
+import static androidx.media3.transformer.ExportResult.TRIM_OPTIMIZATION_ABANDONED_TRANSCODING_EFFECTS_REQUESTED;
 import static androidx.media3.transformer.TransformerUtil.shouldTranscodeAudio;
 import static androidx.media3.transformer.TransformerUtil.shouldTranscodeVideo;
 import static androidx.media3.transformer.TransmuxTranscodeHelper.buildNewCompositionWithClipTimes;
@@ -1242,10 +1244,16 @@ public final class Transformer {
         new FutureCallback<Mp4MetadataInfo>() {
           @Override
           public void onSuccess(Mp4MetadataInfo mp4MetadataInfo) {
-            if (mp4MetadataInfo.firstSyncSampleTimestampUsAfterTimeUs == C.TIME_UNSET
+            if (mp4MetadataInfo.firstSyncSampleTimestampUsAfterTimeUs == C.TIME_UNSET) {
+              exportResultBuilder.setOptimizationResult(OPTIMIZATION_ABANDONED_OTHER);
+              processFullInput();
+              return;
+            }
+            if (mp4MetadataInfo.firstSyncSampleTimestampUsAfterTimeUs == C.TIME_END_OF_SOURCE
                 || (trimEndTimeUs != C.TIME_END_OF_SOURCE
                     && trimEndTimeUs < mp4MetadataInfo.firstSyncSampleTimestampUsAfterTimeUs)) {
-              exportResultBuilder.setOptimizationResult(OPTIMIZATION_ABANDONED);
+              exportResultBuilder.setOptimizationResult(
+                  TRIM_OPTIMIZATION_ABANDONED_KEYFRAME_PLACEMENT);
               processFullInput();
               return;
             }
@@ -1260,7 +1268,8 @@ public final class Transformer {
                       firstMediaItem.clippingConfiguration.endPositionUs,
                       mp4MetadataInfo.durationUs,
                       /* startsAtKeyFrame= */ true);
-              exportResultBuilder.setOptimizationResult(OPTIMIZATION_ABANDONED);
+              exportResultBuilder.setOptimizationResult(
+                  TRIM_OPTIMIZATION_ABANDONED_KEYFRAME_PLACEMENT);
               processFullInput();
               return;
             }
@@ -1286,7 +1295,8 @@ public final class Transformer {
                         encoderFactory,
                         remuxingMuxerWrapper))) {
               remuxingMuxerWrapper = null;
-              exportResultBuilder.setOptimizationResult(OPTIMIZATION_ABANDONED);
+              exportResultBuilder.setOptimizationResult(
+                  TRIM_OPTIMIZATION_ABANDONED_TRANSCODING_EFFECTS_REQUESTED);
               processFullInput();
               return;
             }
