@@ -374,10 +374,22 @@ public final class GlUtil {
   }
 
   /**
+   * Returns the {@link EGL14#EGL_CONTEXT_CLIENT_VERSION} of the current context.
+   *
+   * <p>Returns {@code 0} if no {@link EGLContext} {@linkplain #createFocusedPlaceholderEglSurface
+   * is focused}.
+   */
+  @RequiresApi(17)
+  public static long getContextMajorVersion() throws GlException {
+    return Api17.getContextMajorVersion();
+  }
+
+  /**
    * Returns a newly created sync object and inserts it into the GL command stream.
    *
-   * <p>Returns {@code 0} if the operation failed or the {@link EGLContext} version is less than
-   * 3.0.
+   * <p>Returns {@code 0} if the operation failed, no {@link EGLContext} {@linkplain
+   * #createFocusedPlaceholderEglSurface is focused}, or the focused {@link EGLContext} version is
+   * less than 3.0.
    */
   @RequiresApi(17)
   public static long createGlSyncFence() throws GlException {

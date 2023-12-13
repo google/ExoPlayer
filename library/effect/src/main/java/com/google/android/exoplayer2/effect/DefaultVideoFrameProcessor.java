@@ -23,6 +23,7 @@ import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
+import static com.google.android.exoplayer2.util.Util.SDK_INT;
 import static com.google.common.collect.Iterables.getFirst;
 
 import android.content.Context;
@@ -641,18 +642,20 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
         ColorInfo.isTransferHdr(outputColorInfo)
             ? GlUtil.EGL_CONFIG_ATTRIBUTES_RGBA_1010102
             : GlUtil.EGL_CONFIG_ATTRIBUTES_RGBA_8888;
-    int openGlVersion =
-        ColorInfo.isTransferHdr(inputColorInfo) || ColorInfo.isTransferHdr(outputColorInfo) ? 3 : 2;
     EGLContext eglContext =
-        glObjectsProvider.createEglContext(eglDisplay, openGlVersion, configAttributes);
-    glObjectsProvider.createFocusedPlaceholderEglSurface(eglContext, eglDisplay);
+        createFocusedEglContextWithFallback(glObjectsProvider, eglDisplay, configAttributes);
+    if ((ColorInfo.isTransferHdr(inputColorInfo) || ColorInfo.isTransferHdr(outputColorInfo))
+        && GlUtil.getContextMajorVersion() != 3) {
+      throw new VideoFrameProcessingException(
+          "OpenGL ES 3.0 context support is required for HDR input or output.");
+    }
 
     // Not renderFramesAutomatically means outputting to a display surface. HDR display surfaces
     // require the BT2020 PQ GL extension.
     if (!renderFramesAutomatically && ColorInfo.isTransferHdr(outputColorInfo)) {
       // Display hardware supports PQ only.
       checkArgument(outputColorInfo.colorTransfer == C.COLOR_TRANSFER_ST2084);
-      if (Util.SDK_INT < 33 || !GlUtil.isBt2020PqExtensionSupported()) {
+      if (SDK_INT < 33 || !GlUtil.isBt2020PqExtensionSupported()) {
         GlUtil.destroyEglContext(eglDisplay, eglContext);
         // On API<33, the system cannot display PQ content correctly regardless of whether BT2020 PQ
         // GL extension is supported.
@@ -884,6 +887,43 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
         Log.e(TAG, "Error releasing GL context", e);
       }
     }
+  }
+
+  /** Creates an OpenGL ES 3.0 context if possible, and an OpenGL ES 2.0 context otherwise. */
+  private static EGLContext createFocusedEglContextWithFallback(
+      GlObjectsProvider glObjectsProvider, EGLDisplay eglDisplay, int[] configAttributes)
+      throws GlUtil.GlException {
+    if (SDK_INT < 29) {
+      return createFocusedEglContext(
+          glObjectsProvider, eglDisplay, /* openGlVersion= */ 2, configAttributes);
+    }
+
+    try {
+      return createFocusedEglContext(
+          glObjectsProvider, eglDisplay, /* openGlVersion= */ 3, configAttributes);
+    } catch (GlUtil.GlException e) {
+      return createFocusedEglContext(
+          glObjectsProvider, eglDisplay, /* openGlVersion= */ 2, configAttributes);
+    }
+  }
+
+  /**
+   * Creates an {@link EGLContext} and focus it using a {@linkplain
+   * GlObjectsProvider#createFocusedPlaceholderEglSurface placeholder EGL Surface}.
+   */
+  private static EGLContext createFocusedEglContext(
+      GlObjectsProvider glObjectsProvider,
+      EGLDisplay eglDisplay,
+      int openGlVersion,
+      int[] configAttributes)
+      throws GlUtil.GlException {
+    EGLContext eglContext =
+        glObjectsProvider.createEglContext(eglDisplay, openGlVersion, configAttributes);
+    // Some OpenGL ES 3.0 contexts returned from createEglContext may throw EGL_BAD_MATCH when being
+    // used to createFocusedPlaceHolderEglSurface, despite GL documentation suggesting the contexts,
+    // if successfully created, are valid. Check early whether the context is really valid.
+    glObjectsProvider.createFocusedPlaceholderEglSurface(eglContext, eglDisplay);
+    return eglContext;
   }
 
   private static final class InputStreamInfo {
