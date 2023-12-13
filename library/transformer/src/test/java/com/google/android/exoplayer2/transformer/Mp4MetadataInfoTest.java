@@ -108,13 +108,14 @@ public class Mp4MetadataInfoTest {
   }
 
   @Test
-  public void firstSyncSampleTimestampUsAfterTimeUs_timeUsSetToDuration_returnsTimeUnset()
+  public void firstSyncSampleTimestampUsAfterTimeUs_timeUsSetToDuration_returnsTimeEndOfSource()
       throws IOException {
     String mp4FilePath = "asset:///media/mp4/hdr10-720p.mp4";
     Mp4MetadataInfo mp4MetadataInfo =
         Mp4MetadataInfo.create(context, mp4FilePath, /* timeUs= */ 4_236_600L);
 
-    assertThat(mp4MetadataInfo.firstSyncSampleTimestampUsAfterTimeUs).isEqualTo(C.TIME_UNSET);
+    assertThat(mp4MetadataInfo.firstSyncSampleTimestampUsAfterTimeUs)
+        .isEqualTo(C.TIME_END_OF_SOURCE);
   }
 
   @Test

@@ -26,9 +26,10 @@ import static com.google.android.exoplayer2.transformer.AndroidTestUtil.PNG_ASSE
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.createOpenGlObjects;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.generateTextureFromBitmap;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.recordTestSkipped;
-import static com.google.android.exoplayer2.transformer.ExportResult.OPTIMIZATION_ABANDONED;
 import static com.google.android.exoplayer2.transformer.ExportResult.OPTIMIZATION_FAILED_FORMAT_MISMATCH;
 import static com.google.android.exoplayer2.transformer.ExportResult.OPTIMIZATION_SUCCEEDED;
+import static com.google.android.exoplayer2.transformer.ExportResult.TRIM_OPTIMIZATION_ABANDONED_KEYFRAME_PLACEMENT;
+import static com.google.android.exoplayer2.transformer.ExportResult.TRIM_OPTIMIZATION_ABANDONED_TRANSCODING_EFFECTS_REQUESTED;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Util.isRunningOnEmulator;
 import static com.google.common.truth.Truth.assertThat;
@@ -424,7 +425,7 @@ public class TransformerEndToEndTest {
     }
     Transformer transformer = new Transformer.Builder(context).build();
     long clippingStartMs = 10_000;
-    long clippingEndMs = 13_000;
+    long clippingEndMs = 11_000;
     MediaItem mediaItem =
         new MediaItem.Builder()
             .setUri(Uri.parse(MP4_ASSET_WITH_INCREASING_TIMESTAMPS_320W_240H_15S_URI_STRING))
@@ -478,6 +479,79 @@ public class TransformerEndToEndTest {
     assertThat(result.exportResult.optimizationResult)
         .isEqualTo(OPTIMIZATION_FAILED_FORMAT_MISMATCH);
     assertThat(result.exportResult.durationMs).isAtMost(clippingEndMs - clippingStartMs);
+  }
+
+  @Test
+  public void
+      clippedMedia_trimOptimizationEnabled_noKeyFrameBetweenClipTimes_fallbackToNormalExport()
+          throws Exception {
+    String testId =
+        "clippedMedia_trimOptimizationEnabled_noKeyFrameBetweenClipTimes_fallbackToNormalExport";
+    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
+        context,
+        testId,
+        /* inputFormat= */ MP4_ASSET_WITH_INCREASING_TIMESTAMPS_320W_240H_15S_FORMAT,
+        /* outputFormat= */ MP4_ASSET_WITH_INCREASING_TIMESTAMPS_320W_240H_15S_FORMAT)) {
+      return;
+    }
+    Transformer transformer =
+        new Transformer.Builder(context).experimentalSetTrimOptimizationEnabled(true).build();
+    long clippingStartMs = 10_000;
+    long clippingEndMs = 11_000;
+    MediaItem mediaItem =
+        new MediaItem.Builder()
+            .setUri(Uri.parse(MP4_ASSET_WITH_INCREASING_TIMESTAMPS_320W_240H_15S_URI_STRING))
+            .setClippingConfiguration(
+                new MediaItem.ClippingConfiguration.Builder()
+                    .setStartPositionMs(clippingStartMs)
+                    .setEndPositionMs(clippingEndMs)
+                    .build())
+            .build();
+
+    ExportTestResult result =
+        new TransformerAndroidTestRunner.Builder(context, transformer)
+            .build()
+            .run(testId, mediaItem);
+
+    assertThat(result.exportResult.optimizationResult)
+        .isEqualTo(TRIM_OPTIMIZATION_ABANDONED_KEYFRAME_PLACEMENT);
+    assertThat(result.exportResult.durationMs).isAtMost(clippingEndMs - clippingStartMs);
+  }
+
+  @Test
+  public void
+      clippedMedia_trimOptimizationEnabled_noKeyFramesAfterClipStart_fallbackToNormalExport()
+          throws Exception {
+    String testId =
+        "clippedMedia_trimOptimizationEnabled_noKeyFramesAfterClipStart_fallbackToNormalExport";
+    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
+        context,
+        testId,
+        /* inputFormat= */ MP4_ASSET_WITH_INCREASING_TIMESTAMPS_320W_240H_15S_FORMAT,
+        /* outputFormat= */ MP4_ASSET_WITH_INCREASING_TIMESTAMPS_320W_240H_15S_FORMAT)) {
+      return;
+    }
+    Transformer transformer =
+        new Transformer.Builder(context).experimentalSetTrimOptimizationEnabled(true).build();
+    long clippingStartMs = 14_500;
+    MediaItem mediaItem =
+        new MediaItem.Builder()
+            .setUri(Uri.parse(MP4_ASSET_WITH_INCREASING_TIMESTAMPS_320W_240H_15S_URI_STRING))
+            .setClippingConfiguration(
+                new MediaItem.ClippingConfiguration.Builder()
+                    .setStartPositionMs(clippingStartMs)
+                    .build())
+            .build();
+
+    ExportTestResult result =
+        new TransformerAndroidTestRunner.Builder(context, transformer)
+            .build()
+            .run(testId, mediaItem);
+
+    assertThat(result.exportResult.optimizationResult)
+        .isEqualTo(TRIM_OPTIMIZATION_ABANDONED_KEYFRAME_PLACEMENT);
+    // The asset is 15 s 537 ms long.
+    assertThat(result.exportResult.durationMs).isAtMost(1_017);
   }
 
   @Test
@@ -545,7 +619,8 @@ public class TransformerEndToEndTest {
             .build()
             .run(testId, editedMediaItem);
 
-    assertThat(result.exportResult.optimizationResult).isEqualTo(OPTIMIZATION_ABANDONED);
+    assertThat(result.exportResult.optimizationResult)
+        .isEqualTo(TRIM_OPTIMIZATION_ABANDONED_TRANSCODING_EFFECTS_REQUESTED);
   }
 
   @Test
