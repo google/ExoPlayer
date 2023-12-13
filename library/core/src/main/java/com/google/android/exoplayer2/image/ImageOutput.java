@@ -44,7 +44,9 @@ public interface ImageOutput {
       };
 
   /**
-   * Called when an there is a new image available.
+   * Called on the playback thread when a new image is available.
+   *
+   * <p>This method should have an implementation that runs fast.
    *
    * @param presentationTimeUs The presentation time of the image, in microseconds. This time is an
    *     offset from the start of the current {@link Timeline.Period}.
@@ -52,6 +54,10 @@ public interface ImageOutput {
    */
   void onImageAvailable(long presentationTimeUs, Bitmap bitmap);
 
-  /** Called when the renderer is disabled. */
+  /**
+   * Called on the playback thread when the renderer is disabled.
+   *
+   * <p>This method should have an implementation that runs fast.
+   */
   void onDisabled();
 }
