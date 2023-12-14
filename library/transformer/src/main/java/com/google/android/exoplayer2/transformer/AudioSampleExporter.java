@@ -203,8 +203,8 @@ import org.checkerframework.dataflow.qual.Pure;
   @Pure
   private static TransformationRequest createFallbackTransformationRequest(
       TransformationRequest transformationRequest, Format requestedFormat, Format actualFormat) {
-    // TODO(b/259570024): Consider including bitrate and other audio characteristics in the revised
-    //  fallback design.
+    // TODO(b/255953153): Consider including bitrate and other audio characteristics in the revised
+    //  fallback.
     if (Util.areEqual(requestedFormat.sampleMimeType, actualFormat.sampleMimeType)) {
       return transformationRequest;
     }

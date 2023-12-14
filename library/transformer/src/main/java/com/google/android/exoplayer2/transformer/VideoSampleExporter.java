@@ -413,7 +413,7 @@ import org.checkerframework.dataflow.qual.Pure;
         Format requestedFormat,
         Format supportedFormat,
         @Composition.HdrMode int supportedHdrMode) {
-      // TODO(b/259570024): Consider including bitrate in the revised fallback design.
+      // TODO(b/255953153): Consider including bitrate in the revised fallback.
 
       TransformationRequest.Builder supportedRequestBuilder = transformationRequest.buildUpon();
       if (transformationRequest.hdrMode != supportedHdrMode) {
