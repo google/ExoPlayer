@@ -122,6 +122,7 @@ import androidx.media3.common.Player.PositionInfo;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.Timeline.Window;
 import androidx.media3.common.TrackGroup;
+import androidx.media3.common.TrackSelectionParameters;
 import androidx.media3.common.TrackSelectionParameters.AudioOffloadPreferences;
 import androidx.media3.common.Tracks;
 import androidx.media3.common.VideoSize;
@@ -14177,6 +14178,53 @@ public final class ExoPlayerTest {
     assertThat(audioRenderer.isEnded).isTrue();
 
     player.release();
+  }
+
+  @Test
+  public void seekToZeroAndTrackSelection_withNonZeroDefaultPosition_startsPlaybackAtZero()
+      throws Exception {
+    // Create a timeline with a non-zero default position. It's important to use a
+    // windowOffsetInFirstPeriodUs of zero to ensure that our later manual seek to zero could be
+    // mistaken for the initial placeholder start position of zero
+    // (see https://github.com/google/ExoPlayer/issues/9347).
+    Timeline timeline =
+        new FakeTimeline(
+            new TimelineWindowDefinition(
+                /* periodCount= */ 1,
+                /* id= */ new Object(),
+                /* isSeekable= */ true,
+                /* isDynamic= */ true,
+                /* isLive= */ true,
+                /* isPlaceholder= */ false,
+                /* durationUs= */ 10_000_000,
+                /* defaultPositionUs= */ 9_000_000,
+                /* windowOffsetInFirstPeriodUs= */ 0,
+                /* adPlaybackState= */ AdPlaybackState.NONE));
+    FakeMediaSource mediaSource =
+        new FakeMediaSource(
+            timeline, ExoPlayerTestRunner.VIDEO_FORMAT, ExoPlayerTestRunner.AUDIO_FORMAT);
+    // Make sure the player has to use its placeholder values initially.
+    mediaSource.setAllowPreparation(false);
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    player.setMediaSource(mediaSource);
+    player.prepare();
+    runUntilPendingCommandsAreFullyHandled(player);
+    mediaSource.setAllowPreparation(true);
+    runUntilPlaybackState(player, Player.STATE_READY);
+    long positionAfterPrepare = player.getCurrentPosition();
+
+    // Manually seek back to zero and force to reselect tracks.
+    player.seekTo(0);
+    player.setTrackSelectionParameters(
+        new TrackSelectionParameters.Builder(context)
+            .setTrackTypeDisabled(C.TRACK_TYPE_AUDIO, /* disabled= */ true)
+            .build());
+    runUntilPendingCommandsAreFullyHandled(player);
+    long positionAfterSeek = player.getContentPosition();
+    player.release();
+
+    assertThat(positionAfterPrepare).isEqualTo(9000);
+    assertThat(positionAfterSeek).isEqualTo(0);
   }
 
   // Internal methods.

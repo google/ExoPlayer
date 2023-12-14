@@ -183,8 +183,8 @@ public final class MaskingMediaPeriod implements MediaPeriod, MediaPeriod.Callba
       long positionUs) {
     if (preparePositionOverrideUs != C.TIME_UNSET && positionUs == preparePositionUs) {
       positionUs = preparePositionOverrideUs;
-      preparePositionOverrideUs = C.TIME_UNSET;
     }
+    preparePositionOverrideUs = C.TIME_UNSET;
     return castNonNull(mediaPeriod)
         .selectTracks(selections, mayRetainStreamFlags, streams, streamResetFlags, positionUs);
   }

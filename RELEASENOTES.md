@@ -33,6 +33,9 @@
     *   Fix issue that OPUS and VORBIS channel layouts are wrong for 3, 5, 6, 7
         and 8 channels
         ([#8396](https://github.com/google/ExoPlayer/issues/8396)).
+    *   Fix issue where track selections after seek to zero in a live stream
+        incorrectly let the stream start at its default position
+        ([#9347](https://github.com/google/ExoPlayer/issues/9347)).
 *   Transformer:
     *   Add support for flattening H.265/HEVC SEF slow motion videos.
     *   Increase transmuxing speed, especially for 'remove video' edits.
