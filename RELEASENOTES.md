@@ -100,6 +100,8 @@
         `MediaMetadataCompat`
         ([#756](https://github.com/androidx/media/issues/756),
         [#802](https://github.com/androidx/media/issues/802)).
+    *   Fix broadcasting `notifyChildrenChanged` for legacy controllers
+        ([#644](https://github.com/androidx/media/issues/644)).
 *   UI:
     *   Fix issue where forward and rewind buttons are not visible when used
         with Material Design in a BottomSheetDialogFragment

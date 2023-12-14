@@ -19,6 +19,7 @@ import static androidx.media.utils.MediaConstants.BROWSER_SERVICE_EXTRAS_KEY_SEA
 import static androidx.media3.session.MediaConstants.EXTRAS_KEY_COMPLETION_STATUS;
 import static androidx.media3.session.MediaConstants.EXTRAS_VALUE_COMPLETION_STATUS_PARTIALLY_PLAYED;
 import static androidx.media3.session.MockMediaLibraryService.CONNECTION_HINTS_CUSTOM_LIBRARY_ROOT;
+import static androidx.media3.session.MockMediaLibraryService.createNotifyChildrenChangedBundle;
 import static androidx.media3.test.session.common.CommonConstants.METADATA_ARTWORK_URI;
 import static androidx.media3.test.session.common.CommonConstants.METADATA_DESCRIPTION;
 import static androidx.media3.test.session.common.CommonConstants.METADATA_EXTRA_KEY;
@@ -52,6 +53,7 @@ import static androidx.media3.test.session.common.MediaBrowserConstants.SEARCH_Q
 import static androidx.media3.test.session.common.MediaBrowserConstants.SEARCH_QUERY_LONG_LIST;
 import static androidx.media3.test.session.common.MediaBrowserConstants.SEARCH_RESULT;
 import static androidx.media3.test.session.common.MediaBrowserConstants.SEARCH_RESULT_COUNT;
+import static androidx.media3.test.session.common.MediaBrowserConstants.SUBSCRIBE_PARENT_ID_2;
 import static androidx.media3.test.session.common.TestUtils.LONG_TIMEOUT_MS;
 import static androidx.media3.test.session.common.TestUtils.NO_RESPONSE_TIMEOUT_MS;
 import static androidx.media3.test.session.common.TestUtils.SERVICE_CONNECTION_TIMEOUT_MS;
@@ -479,6 +481,70 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(parentIdRef.get()).isEqualTo(testParentId);
     assertThat(onChildrenLoadedWithBundleCalled.get()).isFalse();
+  }
+
+  @Test
+  public void getChildren_browserNotifyChildrenChanged_callsOnChildrenLoadedTwice()
+      throws Exception {
+    String testParentId = SUBSCRIBE_PARENT_ID_2;
+    connectAndWait(/* rootHints= */ Bundle.EMPTY);
+    CountDownLatch latch = new CountDownLatch(2);
+    List<String> parentIds = new ArrayList<>();
+    List<List<MediaItem>> childrenList = new ArrayList<>();
+    Bundle requestNotifyChildrenWithDelayBundle =
+        createNotifyChildrenChangedBundle(
+            testParentId, /* itemCount= */ 12, /* delayMs= */ 100L, /* broadcast= */ false);
+    requestNotifyChildrenWithDelayBundle.putInt(MediaBrowserCompat.EXTRA_PAGE_SIZE, 12);
+
+    browserCompat.subscribe(
+        testParentId,
+        requestNotifyChildrenWithDelayBundle,
+        new SubscriptionCallback() {
+          @Override
+          public void onChildrenLoaded(String parentId, List<MediaItem> children, Bundle options) {
+            parentIds.add(parentId);
+            childrenList.add(children);
+            latch.countDown();
+          }
+        });
+
+    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(parentIds).containsExactly(testParentId, testParentId);
+    assertThat(childrenList).hasSize(2);
+    assertThat(childrenList.get(0)).hasSize(12);
+    assertThat(childrenList.get(1)).hasSize(12);
+  }
+
+  @Test
+  public void getChildren_broadcastNotifyChildrenChanged_callsOnChildrenLoadedTwice()
+      throws Exception {
+    String testParentId = SUBSCRIBE_PARENT_ID_2;
+    connectAndWait(/* rootHints= */ Bundle.EMPTY);
+    CountDownLatch latch = new CountDownLatch(2);
+    List<String> parentIds = new ArrayList<>();
+    List<List<MediaItem>> childrenList = new ArrayList<>();
+    Bundle requestNotifyChildrenWithDelayBundle =
+        createNotifyChildrenChangedBundle(
+            testParentId, /* itemCount= */ 12, /* delayMs= */ 100L, /* broadcast= */ true);
+    requestNotifyChildrenWithDelayBundle.putInt(MediaBrowserCompat.EXTRA_PAGE_SIZE, 12);
+
+    browserCompat.subscribe(
+        testParentId,
+        requestNotifyChildrenWithDelayBundle,
+        new SubscriptionCallback() {
+          @Override
+          public void onChildrenLoaded(String parentId, List<MediaItem> children, Bundle options) {
+            parentIds.add(parentId);
+            childrenList.add(children);
+            latch.countDown();
+          }
+        });
+
+    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(parentIds).containsExactly(testParentId, testParentId);
+    assertThat(childrenList).hasSize(2);
+    assertThat(childrenList.get(0)).hasSize(12);
+    assertThat(childrenList.get(1)).hasSize(12);
   }
 
   @Test
