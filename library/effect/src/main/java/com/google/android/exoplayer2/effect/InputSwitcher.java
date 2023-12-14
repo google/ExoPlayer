@@ -28,6 +28,7 @@ import static com.google.android.exoplayer2.util.VideoFrameProcessor.INPUT_TYPE_
 import android.content.Context;
 import android.util.SparseArray;
 import android.view.Surface;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.FrameInfo;
 import com.google.android.exoplayer2.util.GlObjectsProvider;
 import com.google.android.exoplayer2.util.GlTextureInfo;
@@ -38,6 +39,7 @@ import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.collect.ImmutableList;
 import java.util.concurrent.Executor;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * A switcher to switch between {@linkplain TextureManager texture managers} of different
@@ -69,7 +71,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor,
       Executor errorListenerExecutor,
       GlShaderProgram.ErrorListener samplingShaderProgramErrorListener,
-      boolean enableColorTransfers) {
+      boolean enableColorTransfers)
+      throws VideoFrameProcessingException {
     this.context = context;
     this.outputColorInfo = outputColorInfo;
     this.glObjectsProvider = glObjectsProvider;
@@ -78,30 +81,24 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.samplingShaderProgramErrorListener = samplingShaderProgramErrorListener;
     this.inputs = new SparseArray<>();
     this.enableColorTransfers = enableColorTransfers;
+
+    // TODO(b/274109008): Investigate lazy instantiating the texture managers.
+    inputs.put(
+        INPUT_TYPE_SURFACE,
+        new Input(new ExternalTextureManager(glObjectsProvider, videoFrameProcessingTaskExecutor)));
+    inputs.put(
+        INPUT_TYPE_BITMAP,
+        new Input(new BitmapTextureManager(glObjectsProvider, videoFrameProcessingTaskExecutor)));
+    inputs.put(
+        INPUT_TYPE_TEXTURE_ID,
+        new Input(new TexIdTextureManager(glObjectsProvider, videoFrameProcessingTaskExecutor)));
   }
 
-  /**
-   * Registers for a new {@link VideoFrameProcessor.InputType input}.
-   *
-   * <p>Can be called multiple times on the same {@link VideoFrameProcessor.InputType inputType},
-   * with the new inputs overwriting the old ones. For example, a new instance of {@link
-   * ExternalTextureManager} is created following each call to this method with {@link
-   * VideoFrameProcessor#INPUT_TYPE_SURFACE}. Effectively, the {@code inputSwitcher} keeps exactly
-   * one {@link TextureManager} per {@linkplain VideoFrameProcessor.InputType input type}.
-   *
-   * <p>Creates an {@link TextureManager} and an appropriate {@linkplain DefaultShaderProgram
-   * sampler} to sample from the input.
-   *
-   * @param inputColorInfo The {@link ColorInfo} for the input frames.
-   * @param inputType The {@linkplain VideoFrameProcessor.InputType type} of the input being
-   *     registered.
-   */
-  public void registerInput(ColorInfo inputColorInfo, @VideoFrameProcessor.InputType int inputType)
+  private DefaultShaderProgram createSamplingShaderProgram(
+      ColorInfo inputColorInfo, @VideoFrameProcessor.InputType int inputType)
       throws VideoFrameProcessingException {
-    // TODO(b/274109008): Investigate lazy instantiating the texture managers.
-    DefaultShaderProgram samplingShaderProgram;
-    TextureManager textureManager;
     // TODO(b/274109008): Refactor DefaultShaderProgram to create a class just for sampling.
+    DefaultShaderProgram samplingShaderProgram;
     switch (inputType) {
       case INPUT_TYPE_SURFACE:
         samplingShaderProgram =
@@ -112,29 +109,24 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                 inputColorInfo,
                 outputColorInfo,
                 enableColorTransfers);
-        samplingShaderProgram.setErrorListener(
-            errorListenerExecutor, samplingShaderProgramErrorListener);
-        textureManager =
-            new ExternalTextureManager(
-                glObjectsProvider, samplingShaderProgram, videoFrameProcessingTaskExecutor);
         break;
       case INPUT_TYPE_BITMAP:
+        // HDR bitmap input is not supported. Bitmaps are always sRGB/Full range/BT.709.
+        checkState(!ColorInfo.isTransferHdr(inputColorInfo));
+        ColorInfo bitmapColorInfo = ColorInfo.SRGB_BT709_FULL;
         samplingShaderProgram =
             DefaultShaderProgram.createWithInternalSampler(
                 context,
                 /* matrixTransformations= */ ImmutableList.of(),
                 /* rgbMatrices= */ ImmutableList.of(),
-                inputColorInfo,
+                bitmapColorInfo,
                 outputColorInfo,
                 enableColorTransfers,
                 inputType);
-        samplingShaderProgram.setErrorListener(
-            errorListenerExecutor, samplingShaderProgramErrorListener);
-        textureManager =
-            new BitmapTextureManager(
-                glObjectsProvider, samplingShaderProgram, videoFrameProcessingTaskExecutor);
         break;
       case INPUT_TYPE_TEXTURE_ID:
+        // Image and textureId concatenation not supported.
+        checkState(inputColorInfo.colorTransfer != C.COLOR_TRANSFER_SRGB);
         samplingShaderProgram =
             DefaultShaderProgram.createWithInternalSampler(
                 context,
@@ -144,16 +136,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                 outputColorInfo,
                 enableColorTransfers,
                 inputType);
-        samplingShaderProgram.setErrorListener(
-            errorListenerExecutor, samplingShaderProgramErrorListener);
-        textureManager =
-            new TexIdTextureManager(
-                glObjectsProvider, samplingShaderProgram, videoFrameProcessingTaskExecutor);
         break;
       default:
         throw new VideoFrameProcessingException("Unsupported input type " + inputType);
     }
-    inputs.put(inputType, new Input(textureManager, samplingShaderProgram));
+    samplingShaderProgram.setErrorListener(
+        errorListenerExecutor, samplingShaderProgramErrorListener);
+    return samplingShaderProgram;
   }
 
   /** Sets the {@link GlShaderProgram} that {@code InputSwitcher} outputs to. */
@@ -164,14 +153,18 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   /**
    * Switches to a new source of input.
    *
-   * <p>Must be called after the corresponding {@code newInputType} is {@linkplain #registerInput
-   * registered}.
+   * <p>The first time this is called for each {@link VideoFrameProcessor.InputType}, a sampling
+   * {@link GlShaderProgram} is created for the {@code newInputType}.
    *
    * @param newInputType The new {@link VideoFrameProcessor.InputType} to switch to.
    * @param inputFrameInfo The {@link FrameInfo} associated with the new input.
+   * @param inputColorInfo The {@link ColorInfo} associated with the new input.
    */
   public void switchToInput(
-      @VideoFrameProcessor.InputType int newInputType, FrameInfo inputFrameInfo) {
+      @VideoFrameProcessor.InputType int newInputType,
+      FrameInfo inputFrameInfo,
+      ColorInfo inputColorInfo)
+      throws VideoFrameProcessingException {
     checkStateNotNull(downstreamShaderProgram);
     checkState(contains(inputs, newInputType), "Input type not registered: " + newInputType);
 
@@ -179,10 +172,16 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       @VideoFrameProcessor.InputType int inputType = inputs.keyAt(i);
       Input input = inputs.get(inputType);
       if (inputType == newInputType) {
+        if (input.getSamplingGlShaderProgram() == null) {
+          // TODO: b/307952514 - When switchToInput is called, and the inputColorInfo doesn't match
+          //  the prior inputColorInfo, recreate and reinitialize the input.samplingGlShaderProgram.
+          input.setSamplingGlShaderProgram(
+              createSamplingShaderProgram(inputColorInfo, newInputType));
+        }
         input.setChainingListener(
             new GatedChainingListenerWrapper(
                 glObjectsProvider,
-                input.samplingGlShaderProgram,
+                checkNotNull(input.getSamplingGlShaderProgram()),
                 this.downstreamShaderProgram,
                 videoFrameProcessingTaskExecutor));
         input.setActive(true);
@@ -223,31 +222,19 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    *
    * @return The input {@link Surface}, regardless if the current input is {@linkplain
    *     #switchToInput set} to {@link VideoFrameProcessor#INPUT_TYPE_SURFACE}.
-   * @throws IllegalStateException If {@link VideoFrameProcessor#INPUT_TYPE_SURFACE} is not
-   *     {@linkplain #registerInput registered}.
    */
   public Surface getInputSurface() {
     checkState(contains(inputs, INPUT_TYPE_SURFACE));
     return inputs.get(INPUT_TYPE_SURFACE).textureManager.getInputSurface();
   }
 
-  /**
-   * See {@link DefaultVideoFrameProcessor#setInputDefaultBufferSize}.
-   *
-   * @throws IllegalStateException If {@link VideoFrameProcessor#INPUT_TYPE_SURFACE} is not
-   *     {@linkplain #registerInput registered}.
-   */
+  /** See {@link DefaultVideoFrameProcessor#setInputDefaultBufferSize}. */
   public void setInputDefaultBufferSize(int width, int height) {
     checkState(contains(inputs, INPUT_TYPE_SURFACE));
     inputs.get(INPUT_TYPE_SURFACE).textureManager.setDefaultBufferSize(width, height);
   }
 
-  /**
-   * Sets the {@link OnInputFrameProcessedListener}.
-   *
-   * @throws IllegalStateException If {@link VideoFrameProcessor#INPUT_TYPE_TEXTURE_ID} is not
-   *     {@linkplain #registerInput registered}.
-   */
+  /** Sets the {@link OnInputFrameProcessedListener}. */
   public void setOnInputFrameProcessedListener(OnInputFrameProcessedListener listener) {
     checkState(contains(inputs, INPUT_TYPE_TEXTURE_ID));
     inputs.get(INPUT_TYPE_TEXTURE_ID).textureManager.setOnInputFrameProcessedListener(listener);
@@ -268,19 +255,27 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    */
   private static final class Input {
     public final TextureManager textureManager;
-    public final GlShaderProgram samplingGlShaderProgram;
 
+    private @MonotonicNonNull ExternalShaderProgram samplingGlShaderProgram;
     private @MonotonicNonNull GatedChainingListenerWrapper gatedChainingListenerWrapper;
 
-    public Input(TextureManager textureManager, GlShaderProgram samplingGlShaderProgram) {
+    public Input(TextureManager textureManager) {
       this.textureManager = textureManager;
+    }
+
+    public void setSamplingGlShaderProgram(ExternalShaderProgram samplingGlShaderProgram) {
       this.samplingGlShaderProgram = samplingGlShaderProgram;
+      textureManager.setSamplingGlShaderProgram(samplingGlShaderProgram);
       samplingGlShaderProgram.setInputListener(textureManager);
     }
 
     public void setChainingListener(GatedChainingListenerWrapper gatedChainingListenerWrapper) {
       this.gatedChainingListenerWrapper = gatedChainingListenerWrapper;
-      samplingGlShaderProgram.setOutputListener(gatedChainingListenerWrapper);
+      checkNotNull(samplingGlShaderProgram).setOutputListener(gatedChainingListenerWrapper);
+    }
+
+    public @Nullable ExternalShaderProgram getSamplingGlShaderProgram() {
+      return samplingGlShaderProgram;
     }
 
     public void setActive(boolean active) {
@@ -292,7 +287,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     public void release() throws VideoFrameProcessingException {
       textureManager.release();
-      samplingGlShaderProgram.release();
+      if (samplingGlShaderProgram != null) {
+        samplingGlShaderProgram.release();
+      }
     }
   }
 

@@ -37,31 +37,28 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  */
 @Deprecated
 /* package */ final class TexIdTextureManager extends TextureManager {
-  private final FrameConsumptionManager frameConsumptionManager;
+  private @MonotonicNonNull FrameConsumptionManager frameConsumptionManager;
 
   private @MonotonicNonNull OnInputFrameProcessedListener frameProcessedListener;
   private @MonotonicNonNull FrameInfo inputFrameInfo;
+  private final GlObjectsProvider glObjectsProvider;
 
   /**
    * Creates a new instance.
    *
    * @param glObjectsProvider The {@link GlObjectsProvider} for using EGL and GLES.
-   * @param shaderProgram The {@link GlShaderProgram} for which this {@code texIdTextureManager}
-   *     will be set as the {@link GlShaderProgram.InputListener}.
    * @param videoFrameProcessingTaskExecutor The {@link VideoFrameProcessingTaskExecutor}.
    */
   public TexIdTextureManager(
       GlObjectsProvider glObjectsProvider,
-      GlShaderProgram shaderProgram,
       VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor) {
     super(videoFrameProcessingTaskExecutor);
-    frameConsumptionManager =
-        new FrameConsumptionManager(
-            glObjectsProvider, shaderProgram, videoFrameProcessingTaskExecutor);
+    this.glObjectsProvider = glObjectsProvider;
   }
 
   @Override
   public void onReadyToAcceptInputFrame() {
+    checkNotNull(frameConsumptionManager);
     videoFrameProcessingTaskExecutor.submit(frameConsumptionManager::onReadyToAcceptInputFrame);
   }
 
@@ -71,6 +68,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         () ->
             checkNotNull(frameProcessedListener)
                 .onInputFrameProcessed(inputTexture.texId, GlUtil.createGlSyncFence()));
+  }
+
+  @Override
+  public void setSamplingGlShaderProgram(GlShaderProgram samplingGlShaderProgram) {
+    frameConsumptionManager =
+        new FrameConsumptionManager(
+            glObjectsProvider, samplingGlShaderProgram, videoFrameProcessingTaskExecutor);
   }
 
   @Override
@@ -86,7 +90,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                   /* rboId= */ C.INDEX_UNSET,
                   frameInfo.width,
                   frameInfo.height);
-          frameConsumptionManager.queueInputFrame(inputTexture, presentationTimeUs);
+          checkNotNull(frameConsumptionManager).queueInputFrame(inputTexture, presentationTimeUs);
           DebugTraceUtil.logEvent(
               DebugTraceUtil.EVENT_VFP_QUEUE_TEXTURE,
               presentationTimeUs,
@@ -108,14 +112,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   @Override
   public int getPendingFrameCount() {
-    return frameConsumptionManager.getPendingFrameCount();
+    return checkNotNull(frameConsumptionManager).getPendingFrameCount();
   }
 
   @Override
   public void signalEndOfCurrentInputStream() {
     videoFrameProcessingTaskExecutor.submit(
         () -> {
-          frameConsumptionManager.signalEndOfCurrentStream();
+          checkNotNull(frameConsumptionManager).signalEndOfCurrentStream();
           DebugTraceUtil.logEvent(
               DebugTraceUtil.EVENT_TEX_ID_TEXTURE_MANAGER_SIGNAL_EOS, C.TIME_END_OF_SOURCE);
         });
@@ -130,7 +134,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   @Override
   protected synchronized void flush() {
-    frameConsumptionManager.onFlush();
+    checkNotNull(frameConsumptionManager).onFlush();
     super.flush();
   }
 }

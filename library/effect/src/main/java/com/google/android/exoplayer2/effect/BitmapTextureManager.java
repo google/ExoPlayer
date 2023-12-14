@@ -49,7 +49,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           + " RGB channel.";
 
   private final GlObjectsProvider glObjectsProvider;
-  private final GlShaderProgram shaderProgram;
+  private @MonotonicNonNull GlShaderProgram shaderProgram;
   // The queue holds all bitmaps with one or more frames pending to be sent downstream.
   private final Queue<BitmapFrameSequenceInfo> pendingBitmaps;
 
@@ -67,19 +67,20 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * Creates a new instance.
    *
    * @param glObjectsProvider The {@link GlObjectsProvider} for using EGL and GLES.
-   * @param shaderProgram The {@link GlShaderProgram} for which this {@code BitmapTextureManager}
-   *     will be set as the {@link GlShaderProgram.InputListener}.
    * @param videoFrameProcessingTaskExecutor The {@link VideoFrameProcessingTaskExecutor} that the
    *     methods of this class run on.
    */
   public BitmapTextureManager(
       GlObjectsProvider glObjectsProvider,
-      GlShaderProgram shaderProgram,
       VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor) {
     super(videoFrameProcessingTaskExecutor);
     this.glObjectsProvider = glObjectsProvider;
-    this.shaderProgram = shaderProgram;
     pendingBitmaps = new LinkedBlockingQueue<>();
+  }
+
+  @Override
+  public void setSamplingGlShaderProgram(GlShaderProgram samplingGlShaderProgram) {
+    this.shaderProgram = samplingGlShaderProgram;
   }
 
   @Override
@@ -115,7 +116,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     videoFrameProcessingTaskExecutor.submit(
         () -> {
           if (pendingBitmaps.isEmpty()) {
-            shaderProgram.signalEndOfCurrentInputStream();
+            checkNotNull(shaderProgram).signalEndOfCurrentInputStream();
             DebugTraceUtil.logEvent(
                 DebugTraceUtil.EVENT_BITMAP_TEXTURE_MANAGER_SIGNAL_EOS, C.TIME_END_OF_SOURCE);
           } else {
@@ -170,8 +171,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
 
     downstreamShaderProgramCapacity--;
-    shaderProgram.queueInputFrame(
-        glObjectsProvider, checkNotNull(currentGlTextureInfo), currentPresentationTimeUs);
+    checkNotNull(shaderProgram)
+        .queueInputFrame(
+            glObjectsProvider, checkNotNull(currentGlTextureInfo), currentPresentationTimeUs);
     DebugTraceUtil.logEvent(
         DebugTraceUtil.EVENT_VFP_QUEUE_BITMAP,
         currentPresentationTimeUs,
@@ -185,7 +187,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       finishedBitmapInfo.bitmap.recycle();
       if (pendingBitmaps.isEmpty() && currentInputStreamEnded) {
         // Only signal end of stream after all pending bitmaps are processed.
-        shaderProgram.signalEndOfCurrentInputStream();
+        checkNotNull(shaderProgram).signalEndOfCurrentInputStream();
         DebugTraceUtil.logEvent(
             DebugTraceUtil.EVENT_BITMAP_TEXTURE_MANAGER_SIGNAL_EOS, C.TIME_END_OF_SOURCE);
         currentInputStreamEnded = false;
