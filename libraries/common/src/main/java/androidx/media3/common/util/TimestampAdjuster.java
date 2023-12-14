@@ -187,6 +187,9 @@ public final class TimestampAdjuster {
   /**
    * Scales and offsets an MPEG-2 TS presentation timestamp considering wraparound.
    *
+   * <p>When estimating the wraparound, the method assumes that this timestamp is close to the
+   * previous adjusted timestamp.
+   *
    * @param pts90Khz A 90 kHz clock MPEG-2 TS presentation timestamp.
    * @return The adjusted timestamp in microseconds.
    */
@@ -205,6 +208,30 @@ public final class TimestampAdjuster {
           Math.abs(ptsWrapBelow - lastPts) < Math.abs(ptsWrapAbove - lastPts)
               ? ptsWrapBelow
               : ptsWrapAbove;
+    }
+    return adjustSampleTimestamp(ptsToUs(pts90Khz));
+  }
+
+  /**
+   * Scales and offsets an MPEG-2 TS presentation timestamp considering wraparound.
+   *
+   * <p>When estimating the wraparound, the method assumes that the timestamp is strictly greater
+   * than the previous adjusted timestamp.
+   *
+   * @param pts90Khz A 90 kHz clock MPEG-2 TS presentation timestamp.
+   * @return The adjusted timestamp in microseconds.
+   */
+  public synchronized long adjustTsTimestampGreaterThanPreviousTimestamp(long pts90Khz) {
+    if (pts90Khz == C.TIME_UNSET) {
+      return C.TIME_UNSET;
+    }
+    if (lastUnadjustedTimestampUs != C.TIME_UNSET) {
+      // The wrap count for the current PTS must be same or greater than the previous one.
+      long lastPts = usToNonWrappedPts(lastUnadjustedTimestampUs);
+      long wrapCount = lastPts / MAX_PTS_PLUS_ONE;
+      long ptsSameWrap = pts90Khz + (MAX_PTS_PLUS_ONE * wrapCount);
+      long ptsNextWrap = pts90Khz + (MAX_PTS_PLUS_ONE * (wrapCount + 1));
+      pts90Khz = ptsSameWrap >= lastPts ? ptsSameWrap : ptsNextWrap;
     }
     return adjustSampleTimestamp(ptsToUs(pts90Khz));
   }

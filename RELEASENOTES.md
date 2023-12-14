@@ -58,6 +58,8 @@
         playback because of their higher resolution.
     *   Fix wrong keyframe detection for TS H264 streams
         ([#864](https://github.com/androidx/media/pull/864)).
+    *   Fix duration estimation of TS streams that are longer than 47721 seconds
+        ([#855](https://github.com/androidx/media/issues/855)).
 *   Audio:
     *   Fix handling of EOS for `SilenceSkippingAudioProcessor` when called
         multiple times ([#712](https://github.com/androidx/media/issues/712)).

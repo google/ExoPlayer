@@ -18,7 +18,6 @@ package androidx.media3.extractor.ts;
 import static java.lang.Math.min;
 
 import androidx.media3.common.C;
-import androidx.media3.common.util.Log;
 import androidx.media3.common.util.ParsableByteArray;
 import androidx.media3.common.util.TimestampAdjuster;
 import androidx.media3.common.util.Util;
@@ -103,12 +102,9 @@ import java.io.IOException;
     }
 
     long minScrPositionUs = scrTimestampAdjuster.adjustTsTimestamp(firstScrValue);
-    long maxScrPositionUs = scrTimestampAdjuster.adjustTsTimestamp(lastScrValue);
+    long maxScrPositionUs =
+        scrTimestampAdjuster.adjustTsTimestampGreaterThanPreviousTimestamp(lastScrValue);
     durationUs = maxScrPositionUs - minScrPositionUs;
-    if (durationUs < 0) {
-      Log.w(TAG, "Invalid duration: " + durationUs + ". Using TIME_UNSET instead.");
-      durationUs = C.TIME_UNSET;
-    }
     return finishReadDuration(input);
   }
 
