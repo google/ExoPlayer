@@ -891,6 +891,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
         for (int i = 0; i < intermediateGlShaderPrograms.size(); i++) {
           intermediateGlShaderPrograms.get(i).release();
         }
+        finalShaderProgramWrapper.release();
       } catch (Exception e) {
         Log.e(TAG, "Error releasing shader program", e);
       }
