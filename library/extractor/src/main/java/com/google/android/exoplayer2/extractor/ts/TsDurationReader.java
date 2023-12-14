@@ -21,7 +21,6 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.PositionHolder;
-import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
 import com.google.android.exoplayer2.util.Util;
@@ -105,12 +104,9 @@ import java.io.IOException;
     }
 
     long minPcrPositionUs = pcrTimestampAdjuster.adjustTsTimestamp(firstPcrValue);
-    long maxPcrPositionUs = pcrTimestampAdjuster.adjustTsTimestamp(lastPcrValue);
+    long maxPcrPositionUs =
+        pcrTimestampAdjuster.adjustTsTimestampGreaterThanPreviousTimestamp(lastPcrValue);
     durationUs = maxPcrPositionUs - minPcrPositionUs;
-    if (durationUs < 0) {
-      Log.w(TAG, "Invalid duration: " + durationUs + ". Using TIME_UNSET instead.");
-      durationUs = C.TIME_UNSET;
-    }
     return finishReadDuration(input);
   }
 

@@ -82,4 +82,162 @@ public class TimestampAdjusterTest {
     assertThat(firstAdjustedTimestampUs).isEqualTo(5000);
     assertThat(secondAdjustedTimestampUs).isEqualTo(9000);
   }
+
+  @Test
+  public void
+      adjustTsTimestamp_closeToWraparoundFollowedBySlightlySmallerValue_doesNotAssumeWraparound() {
+    // Init timestamp with a non-zero wraparound (multiple of 33-bit) and close to the next one.
+    TimestampAdjuster adjuster =
+        new TimestampAdjuster(TimestampAdjuster.ptsToUs(3 * 0x200000000L - 90_000));
+
+    long firstAdjustedTimestampUs = adjuster.adjustTsTimestamp(0x200000000L - 90_000);
+    long secondAdjustedTimestampUs = adjuster.adjustTsTimestamp(0x200000000L - 180_000);
+
+    assertThat(secondAdjustedTimestampUs).isEqualTo(firstAdjustedTimestampUs - 1_000_000);
+  }
+
+  @Test
+  public void
+      adjustTsTimestamp_closeToWraparoundFollowedBySlightlyLargerValue_doesNotAssumeWraparound() {
+    // Init timestamp with a non-zero wraparound (multiple of 33-bit) and close to the next one.
+    TimestampAdjuster adjuster =
+        new TimestampAdjuster(TimestampAdjuster.ptsToUs(3 * 0x200000000L - 90_000));
+
+    long firstAdjustedTimestampUs = adjuster.adjustTsTimestamp(0x200000000L - 90_000);
+    long secondAdjustedTimestampUs = adjuster.adjustTsTimestamp(0x200000000L - 45_000);
+
+    assertThat(secondAdjustedTimestampUs).isEqualTo(firstAdjustedTimestampUs + 500_000);
+  }
+
+  @Test
+  public void adjustTsTimestamp_closeToWraparoundFollowedByMuchSmallerValue_assumesWraparound() {
+    // Init timestamp with a non-zero wraparound (multiple of 33-bit) and close to the next one.
+    TimestampAdjuster adjuster =
+        new TimestampAdjuster(TimestampAdjuster.ptsToUs(3 * 0x200000000L - 90_000));
+
+    long firstAdjustedTimestampUs = adjuster.adjustTsTimestamp(0x200000000L - 90_000);
+    long secondAdjustedTimestampUs = adjuster.adjustTsTimestamp(90_000);
+
+    assertThat(secondAdjustedTimestampUs).isEqualTo(firstAdjustedTimestampUs + 2_000_000);
+  }
+
+  @Test
+  public void
+      adjustTsTimestamp_justBeyondWraparoundFollowedBySlightlySmallerValue_doesNotAssumeWraparound() {
+    // Init timestamp with a non-zero wraparound (multiple of 33-bit), just beyond the last one.
+    TimestampAdjuster adjuster =
+        new TimestampAdjuster(TimestampAdjuster.ptsToUs(3 * 0x200000000L + 90_000));
+
+    long firstAdjustedTimestampUs = adjuster.adjustTsTimestamp(90_000);
+    long secondAdjustedTimestampUs = adjuster.adjustTsTimestamp(45_000);
+
+    assertThat(secondAdjustedTimestampUs).isEqualTo(firstAdjustedTimestampUs - 500_000);
+  }
+
+  @Test
+  public void
+      adjustTsTimestamp_justBeyondWraparoundFollowedBySlightlyLargerValue_doesNotAssumeWraparound() {
+    // Init timestamp with a non-zero wraparound (multiple of 33-bit), just beyond the last one.
+    TimestampAdjuster adjuster =
+        new TimestampAdjuster(TimestampAdjuster.ptsToUs(3 * 0x200000000L + 90_000));
+
+    long firstAdjustedTimestampUs = adjuster.adjustTsTimestamp(90_000);
+    long secondAdjustedTimestampUs = adjuster.adjustTsTimestamp(180_000);
+
+    assertThat(secondAdjustedTimestampUs).isEqualTo(firstAdjustedTimestampUs + 1_000_000);
+  }
+
+  @Test
+  public void adjustTsTimestamp_justBeyondWraparoundFollowedByMuchLargerValue_assumesWraparound() {
+    // Init timestamp with a non-zero wraparound (multiple of 33-bit), just beyond the last one.
+    TimestampAdjuster adjuster =
+        new TimestampAdjuster(TimestampAdjuster.ptsToUs(3 * 0x200000000L + 90_000));
+
+    long firstAdjustedTimestampUs = adjuster.adjustTsTimestamp(90_000);
+    long secondAdjustedTimestampUs = adjuster.adjustTsTimestamp(0x200000000L - 90_000);
+
+    assertThat(secondAdjustedTimestampUs).isEqualTo(firstAdjustedTimestampUs - 2_000_000);
+  }
+
+  @Test
+  public void
+      adjustTsTimestampGreaterThanPreviousTimestamp_closeToWraparoundFollowedBySlightlySmallerValue_assumesWraparound() {
+    // Init timestamp with a non-zero wraparound (multiple of 33-bit) and close to the next one.
+    TimestampAdjuster adjuster =
+        new TimestampAdjuster(TimestampAdjuster.ptsToUs(3 * 0x200000000L - 90_000));
+
+    long firstAdjustedTimestampUs = adjuster.adjustTsTimestamp(0x200000000L - 90_000);
+    long secondAdjustedTimestampUs =
+        adjuster.adjustTsTimestampGreaterThanPreviousTimestamp(0x200000000L - 180_000);
+
+    assertThat(secondAdjustedTimestampUs - firstAdjustedTimestampUs).isGreaterThan(0x100000000L);
+  }
+
+  @Test
+  public void
+      adjustTsTimestampGreaterThanPreviousTimestamp_closeToWraparoundFollowedBySlightlyLargerValue_doesNotAssumeWraparound() {
+    // Init timestamp with a non-zero wraparound (multiple of 33-bit) and close to the next one.
+    TimestampAdjuster adjuster =
+        new TimestampAdjuster(TimestampAdjuster.ptsToUs(3 * 0x200000000L - 90_000));
+
+    long firstAdjustedTimestampUs = adjuster.adjustTsTimestamp(0x200000000L - 90_000);
+    long secondAdjustedTimestampUs =
+        adjuster.adjustTsTimestampGreaterThanPreviousTimestamp(0x200000000L - 45_000);
+
+    assertThat(secondAdjustedTimestampUs).isEqualTo(firstAdjustedTimestampUs + 500_000);
+  }
+
+  @Test
+  public void
+      adjustTsTimestampGreaterThanPreviousTimestamp_closeToWraparoundFollowedByMuchSmallerValue_assumesWraparound() {
+    // Init timestamp with a non-zero wraparound (multiple of 33-bit) and close to the next one.
+    TimestampAdjuster adjuster =
+        new TimestampAdjuster(TimestampAdjuster.ptsToUs(3 * 0x200000000L - 90_000));
+
+    long firstAdjustedTimestampUs = adjuster.adjustTsTimestamp(0x200000000L - 90_000);
+    long secondAdjustedTimestampUs = adjuster.adjustTsTimestampGreaterThanPreviousTimestamp(90_000);
+
+    assertThat(secondAdjustedTimestampUs).isEqualTo(firstAdjustedTimestampUs + 2_000_000);
+  }
+
+  @Test
+  public void
+      adjustTsTimestampGreaterThanPreviousTimestamp_justBeyondWraparoundFollowedBySlightlySmallerValue_assumesWraparound() {
+    // Init timestamp with a non-zero wraparound (multiple of 33-bit), just beyond the last one.
+    TimestampAdjuster adjuster =
+        new TimestampAdjuster(TimestampAdjuster.ptsToUs(3 * 0x200000000L + 90_000));
+
+    long firstAdjustedTimestampUs = adjuster.adjustTsTimestamp(90_000);
+    long secondAdjustedTimestampUs = adjuster.adjustTsTimestampGreaterThanPreviousTimestamp(45_000);
+
+    assertThat(secondAdjustedTimestampUs - firstAdjustedTimestampUs).isGreaterThan(0x100000000L);
+  }
+
+  @Test
+  public void
+      adjustTsTimestampGreaterThanPreviousTimestamp_justBeyondWraparoundFollowedBySlightlyLargerValue_doesNotAssumeWraparound() {
+    // Init timestamp with a non-zero wraparound (multiple of 33-bit), just beyond the last one.
+    TimestampAdjuster adjuster =
+        new TimestampAdjuster(TimestampAdjuster.ptsToUs(3 * 0x200000000L + 90_000));
+
+    long firstAdjustedTimestampUs = adjuster.adjustTsTimestamp(90_000);
+    long secondAdjustedTimestampUs =
+        adjuster.adjustTsTimestampGreaterThanPreviousTimestamp(180_000);
+
+    assertThat(secondAdjustedTimestampUs).isEqualTo(firstAdjustedTimestampUs + 1_000_000);
+  }
+
+  @Test
+  public void
+      adjustTsTimestampGreaterThanPreviousTimestamp_justBeyondWraparoundFollowedByMuchLargerValue_doesNotAssumeWraparound() {
+    // Init timestamp with a non-zero wraparound (multiple of 33-bit), just beyond the last one.
+    TimestampAdjuster adjuster =
+        new TimestampAdjuster(TimestampAdjuster.ptsToUs(3 * 0x200000000L + 90_000));
+
+    long firstAdjustedTimestampUs = adjuster.adjustTsTimestamp(90_000);
+    long secondAdjustedTimestampUs =
+        adjuster.adjustTsTimestampGreaterThanPreviousTimestamp(0x200000000L - 90_000);
+
+    assertThat(secondAdjustedTimestampUs - firstAdjustedTimestampUs).isGreaterThan(0x100000000L);
+  }
 }
