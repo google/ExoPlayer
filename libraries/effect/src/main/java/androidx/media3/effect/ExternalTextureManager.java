@@ -15,6 +15,8 @@
  */
 package androidx.media3.effect;
 
+import static androidx.media3.common.util.Assertions.checkNotNull;
+import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static androidx.media3.common.util.Util.isRunningOnEmulator;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -30,12 +32,12 @@ import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.Util;
-import androidx.media3.effect.GlShaderProgram.InputListener;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * Forwards externally produced frames that become available via a {@link SurfaceTexture} to an
@@ -58,7 +60,7 @@ import java.util.concurrent.atomic.AtomicInteger;
   private static final long SURFACE_TEXTURE_TIMEOUT_MS = isRunningOnEmulator() ? 10_000 : 500;
 
   private final GlObjectsProvider glObjectsProvider;
-  private final ExternalShaderProgram externalShaderProgram;
+  private @MonotonicNonNull ExternalShaderProgram externalShaderProgram;
   private final int externalTexId;
   private final Surface surface;
   private final SurfaceTexture surfaceTexture;
@@ -82,8 +84,6 @@ import java.util.concurrent.atomic.AtomicInteger;
    * Creates a new instance. The caller's thread must have a current GL context.
    *
    * @param glObjectsProvider The {@link GlObjectsProvider} for using EGL and GLES.
-   * @param externalShaderProgram The {@link ExternalShaderProgram} for which this {@code
-   *     ExternalTextureManager} will be set as the {@link InputListener}.
    * @param videoFrameProcessingTaskExecutor The {@link VideoFrameProcessingTaskExecutor}.
    * @throws VideoFrameProcessingException If a problem occurs while creating the external texture.
    */
@@ -91,12 +91,10 @@ import java.util.concurrent.atomic.AtomicInteger;
   @SuppressWarnings("nullness:method.invocation.invalid")
   public ExternalTextureManager(
       GlObjectsProvider glObjectsProvider,
-      ExternalShaderProgram externalShaderProgram,
       VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor)
       throws VideoFrameProcessingException {
     super(videoFrameProcessingTaskExecutor);
     this.glObjectsProvider = glObjectsProvider;
-    this.externalShaderProgram = externalShaderProgram;
     try {
       externalTexId = GlUtil.createExternalTexture();
     } catch (GlUtil.GlException e) {
@@ -134,6 +132,17 @@ import java.util.concurrent.atomic.AtomicInteger;
     surface = new Surface(surfaceTexture);
   }
 
+  /**
+   * {@inheritDoc}
+   *
+   * <p>{@code glShaderProgram} must be an {@link ExternalShaderProgram}.
+   */
+  @Override
+  public void setSamplingGlShaderProgram(GlShaderProgram samplingGlShaderProgram) {
+    checkState(samplingGlShaderProgram instanceof ExternalShaderProgram);
+    this.externalShaderProgram = (ExternalShaderProgram) samplingGlShaderProgram;
+  }
+
   @Override
   public void setDefaultBufferSize(int width, int height) {
     surfaceTexture.setDefaultBufferSize(width, height);
@@ -161,7 +170,7 @@ import java.util.concurrent.atomic.AtomicInteger;
           if (currentInputStreamEnded && pendingFrames.isEmpty()) {
             // Reset because there could be further input streams after the current one ends.
             currentInputStreamEnded = false;
-            externalShaderProgram.signalEndOfCurrentInputStream();
+            checkNotNull(externalShaderProgram).signalEndOfCurrentInputStream();
             DebugTraceUtil.logEvent(
                 DebugTraceUtil.EVENT_EXTERNAL_TEXTURE_MANAGER_SIGNAL_EOS, C.TIME_END_OF_SOURCE);
             cancelForceSignalEndOfStreamTimer();
@@ -200,7 +209,7 @@ import java.util.concurrent.atomic.AtomicInteger;
     videoFrameProcessingTaskExecutor.submit(
         () -> {
           if (pendingFrames.isEmpty() && currentFrame == null) {
-            externalShaderProgram.signalEndOfCurrentInputStream();
+            checkNotNull(externalShaderProgram).signalEndOfCurrentInputStream();
             DebugTraceUtil.logEvent(
                 DebugTraceUtil.EVENT_EXTERNAL_TEXTURE_MANAGER_SIGNAL_EOS, C.TIME_END_OF_SOURCE);
             cancelForceSignalEndOfStreamTimer();
@@ -294,20 +303,21 @@ import java.util.concurrent.atomic.AtomicInteger;
     FrameInfo currentFrame = checkStateNotNull(this.currentFrame);
     externalShaderProgramInputCapacity.decrementAndGet();
     surfaceTexture.getTransformMatrix(textureTransformMatrix);
-    externalShaderProgram.setTextureTransformMatrix(textureTransformMatrix);
+    checkNotNull(externalShaderProgram).setTextureTransformMatrix(textureTransformMatrix);
     long frameTimeNs = surfaceTexture.getTimestamp();
     long offsetToAddUs = currentFrame.offsetToAddUs;
     // Correct presentationTimeUs so that GlShaderPrograms don't see the stream offset.
     long presentationTimeUs = (frameTimeNs / 1000) + offsetToAddUs;
-    externalShaderProgram.queueInputFrame(
-        glObjectsProvider,
-        new GlTextureInfo(
-            externalTexId,
-            /* fboId= */ C.INDEX_UNSET,
-            /* rboId= */ C.INDEX_UNSET,
-            currentFrame.width,
-            currentFrame.height),
-        presentationTimeUs);
+    checkNotNull(externalShaderProgram)
+        .queueInputFrame(
+            glObjectsProvider,
+            new GlTextureInfo(
+                externalTexId,
+                /* fboId= */ C.INDEX_UNSET,
+                /* rboId= */ C.INDEX_UNSET,
+                currentFrame.width,
+                currentFrame.height),
+            presentationTimeUs);
     checkStateNotNull(pendingFrames.remove());
     DebugTraceUtil.logEvent(DebugTraceUtil.EVENT_VFP_QUEUE_FRAME, presentationTimeUs);
     // If the queued frame is the last frame, end of stream will be signaled onInputFrameProcessed.
