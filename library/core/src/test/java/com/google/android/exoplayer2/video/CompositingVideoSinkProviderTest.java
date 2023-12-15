@@ -107,20 +107,6 @@ public final class CompositingVideoSinkProviderTest {
   }
 
   @Test
-  public void registerInputStream_withInputTypeBitmap_throws() throws VideoSink.VideoSinkException {
-    CompositingVideoSinkProvider provider = createCompositingVideoSinkProvider();
-    provider.setVideoEffects(ImmutableList.of());
-    provider.initialize(new Format.Builder().build());
-    VideoSink videoSink = provider.getSink();
-
-    assertThrows(
-        UnsupportedOperationException.class,
-        () ->
-            videoSink.registerInputStream(
-                VideoSink.INPUT_TYPE_BITMAP, new Format.Builder().build()));
-  }
-
-  @Test
   public void setOutputStreamOffsetUs_frameReleaseTimesAreAdjusted()
       throws VideoSink.VideoSinkException {
     CompositingVideoSinkProvider provider = createCompositingVideoSinkProvider();

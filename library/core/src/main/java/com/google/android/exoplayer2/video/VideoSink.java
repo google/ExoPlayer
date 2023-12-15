@@ -39,7 +39,7 @@ import java.util.concurrent.Executor;
  *     migration guide</a> for more details, including a script to help with the migration.
  */
 @Deprecated
-/* package */ interface VideoSink {
+public interface VideoSink {
 
   /** Thrown by {@link VideoSink} implementations. */
   final class VideoSinkException extends Exception {

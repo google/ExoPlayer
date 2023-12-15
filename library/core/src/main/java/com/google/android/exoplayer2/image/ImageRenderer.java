@@ -26,6 +26,7 @@ import static java.lang.Math.min;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.graphics.Bitmap;
+import android.os.SystemClock;
 import androidx.annotation.IntDef;
 import com.google.android.exoplayer2.BaseRenderer;
 import com.google.android.exoplayer2.C;
@@ -57,7 +58,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  *     migration guide</a> for more details, including a script to help with the migration.
  */
 @Deprecated
-public final class ImageRenderer extends BaseRenderer {
+public class ImageRenderer extends BaseRenderer {
 
   private static final String TAG = "ImageRenderer";
 
@@ -266,7 +267,7 @@ public final class ImageRenderer extends BaseRenderer {
         && getState() != STATE_STARTED) {
       return false;
     }
-    if (checkNotNull(outputBuffer).isEndOfStream()) {
+    if (checkStateNotNull(outputBuffer).isEndOfStream()) {
       offsetQueue.remove();
       if (decoderReinitializationState == REINITIALIZATION_STATE_WAIT_END_OF_STREAM) {
         // We're waiting to re-initialize the decoder, and have now processed all final buffers.
@@ -282,27 +283,40 @@ public final class ImageRenderer extends BaseRenderer {
       }
       return false;
     }
-    checkStateNotNull(outputBuffer);
-    if (!processOutputBuffer(positionUs, elapsedRealtimeUs)) {
+
+    ImageOutputBuffer imageOutputBuffer = checkStateNotNull(outputBuffer);
+    checkStateNotNull(
+        imageOutputBuffer.bitmap, "Non-EOS buffer came back from the decoder without bitmap.");
+    if (!processOutputBuffer(
+        positionUs, elapsedRealtimeUs, imageOutputBuffer.bitmap, imageOutputBuffer.timeUs)) {
       return false;
     }
+    checkStateNotNull(outputBuffer).release();
+    outputBuffer = null;
     firstFrameState = FIRST_FRAME_RENDERED;
     return true;
   }
 
-  @SuppressWarnings("unused") // Will be used or removed when the integrated with the videoSink.
-  @RequiresNonNull("outputBuffer")
-  private boolean processOutputBuffer(long positionUs, long elapsedRealtimeUs) {
-    Bitmap outputBitmap =
-        checkNotNull(
-            outputBuffer.bitmap, "Non-EOS buffer came back from the decoder without bitmap.");
-    if (positionUs < outputBuffer.timeUs) {
+  /**
+   * Processes an output image.
+   *
+   * @param positionUs The current media time in microseconds, measured at the start of the current
+   *     iteration of the rendering loop.
+   * @param elapsedRealtimeUs {@link SystemClock#elapsedRealtime()} in microseconds, measured at the
+   *     start of the current iteration of the rendering loop.
+   * @param outputBitmap The {@link Bitmap}.
+   * @param bufferPresentationTimeUs The presentation time of the output buffer in microseconds.
+   * @return Whether the output image was fully processed (for example, rendered or skipped).
+   * @throws ExoPlaybackException If an error occurs processing the output buffer.
+   */
+  protected boolean processOutputBuffer(
+      long positionUs, long elapsedRealtimeUs, Bitmap outputBitmap, long bufferPresentationTimeUs)
+      throws ExoPlaybackException {
+    if (positionUs < bufferPresentationTimeUs) {
       // It's too early to render the buffer.
       return false;
     }
-    imageOutput.onImageAvailable(outputBuffer.timeUs - offsetQueue.element(), outputBitmap);
-    checkNotNull(outputBuffer).release();
-    outputBuffer = null;
+    imageOutput.onImageAvailable(bufferPresentationTimeUs - offsetQueue.element(), outputBitmap);
     return true;
   }
 
