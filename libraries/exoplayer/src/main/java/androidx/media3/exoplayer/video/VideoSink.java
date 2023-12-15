@@ -34,7 +34,7 @@ import java.util.concurrent.Executor;
 
 /** A sink that consumes decoded video frames. */
 @UnstableApi
-/* package */ interface VideoSink {
+public interface VideoSink {
 
   /** Thrown by {@link VideoSink} implementations. */
   final class VideoSinkException extends Exception {

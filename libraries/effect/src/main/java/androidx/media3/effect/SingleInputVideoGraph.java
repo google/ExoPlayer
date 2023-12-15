@@ -16,7 +16,6 @@
 
 package androidx.media3.effect;
 
-import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 
@@ -50,13 +49,12 @@ public abstract class SingleInputVideoGraph implements VideoGraph {
   private final DebugViewProvider debugViewProvider;
   private final Executor listenerExecutor;
   private final boolean renderFramesAutomatically;
-
   private final long initialTimestampOffsetUs;
   @Nullable private final Presentation presentation;
 
   @Nullable private VideoFrameProcessor videoFrameProcessor;
+  @Nullable private SurfaceInfo outputSurfaceInfo;
   private boolean isEnded;
-
   private boolean released;
   private volatile boolean hasProducedFrameWithTimestampZero;
 
@@ -162,6 +160,9 @@ public abstract class SingleInputVideoGraph implements VideoGraph {
                     () -> listener.onEnded(lastProcessedFramePresentationTimeUs));
               }
             });
+    if (outputSurfaceInfo != null) {
+      videoFrameProcessor.setOutputSurfaceInfo(outputSurfaceInfo);
+    }
     return SINGLE_INPUT_INDEX;
   }
 
@@ -172,7 +173,10 @@ public abstract class SingleInputVideoGraph implements VideoGraph {
 
   @Override
   public void setOutputSurfaceInfo(@Nullable SurfaceInfo outputSurfaceInfo) {
-    checkNotNull(videoFrameProcessor).setOutputSurfaceInfo(outputSurfaceInfo);
+    this.outputSurfaceInfo = outputSurfaceInfo;
+    if (videoFrameProcessor != null) {
+      videoFrameProcessor.setOutputSurfaceInfo(outputSurfaceInfo);
+    }
   }
 
   @Override

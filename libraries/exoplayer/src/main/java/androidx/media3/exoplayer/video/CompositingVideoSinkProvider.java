@@ -282,6 +282,11 @@ public final class CompositingVideoSinkProvider
               /* listenerExecutor= */ handler::post,
               /* compositionEffects= */ ImmutableList.of(),
               /* initialTimestampOffsetUs= */ 0);
+      if (currentSurfaceAndSize != null) {
+        Surface surface = currentSurfaceAndSize.first;
+        Size size = currentSurfaceAndSize.second;
+        maybeSetOutputSurfaceInfo(surface, size.getWidth(), size.getHeight());
+      }
       videoSinkImpl =
           new VideoSinkImpl(context, /* compositingVideoSinkProvider= */ this, videoGraph);
     } catch (VideoFrameProcessingException e) {
@@ -346,17 +351,17 @@ public final class CompositingVideoSinkProvider
         && currentSurfaceAndSize.second.equals(outputResolution)) {
       return;
     }
-    videoFrameReleaseControl.setOutputSurface(outputSurface);
     currentSurfaceAndSize = Pair.create(outputSurface, outputResolution);
-    checkStateNotNull(videoGraph)
-        .setOutputSurfaceInfo(
-            new SurfaceInfo(
-                outputSurface, outputResolution.getWidth(), outputResolution.getHeight()));
+    maybeSetOutputSurfaceInfo(
+        outputSurface, outputResolution.getWidth(), outputResolution.getHeight());
   }
 
   @Override
   public void clearOutputSurfaceInfo() {
-    checkStateNotNull(videoGraph).setOutputSurfaceInfo(/* outputSurfaceInfo= */ null);
+    maybeSetOutputSurfaceInfo(
+        /* surface= */ null,
+        /* width= */ Size.UNKNOWN.getWidth(),
+        /* height= */ Size.UNKNOWN.getHeight());
     currentSurfaceAndSize = null;
   }
 
@@ -455,6 +460,31 @@ public final class CompositingVideoSinkProvider
     checkStateNotNull(videoGraph).renderOutputFrame(VideoFrameProcessor.DROP_OUTPUT_FRAME);
   }
 
+  // Other public methods
+
+  /**
+   * Incrementally renders available video frames.
+   *
+   * @param positionUs The current playback position, in microseconds.
+   * @param elapsedRealtimeUs {@link android.os.SystemClock#elapsedRealtime()} in microseconds,
+   *     taken approximately at the time the playback position was {@code positionUs}.
+   */
+  public void render(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
+    if (pendingFlushCount == 0) {
+      videoFrameRenderControl.render(positionUs, elapsedRealtimeUs);
+    }
+  }
+
+  /**
+   * Returns the output surface that was {@linkplain #setOutputSurfaceInfo(Surface, Size) set}, or
+   * {@code null} if no surface is set or the surface is {@linkplain #clearOutputSurfaceInfo()
+   * cleared}.
+   */
+  @Nullable
+  public Surface getOutputSurface() {
+    return currentSurfaceAndSize != null ? currentSurfaceAndSize.first : null;
+  }
+
   // Internal methods
 
   private void setListener(VideoSink.Listener listener, Executor executor) {
@@ -467,18 +497,21 @@ public final class CompositingVideoSinkProvider
     this.listenerExecutor = executor;
   }
 
+  private void maybeSetOutputSurfaceInfo(@Nullable Surface surface, int width, int height) {
+    if (videoGraph != null) {
+      // Update the surface on the video graph and the video frame release control together.
+      SurfaceInfo surfaceInfo = surface != null ? new SurfaceInfo(surface, width, height) : null;
+      videoGraph.setOutputSurfaceInfo(surfaceInfo);
+      videoFrameReleaseControl.setOutputSurface(surface);
+    }
+  }
+
   private boolean isReady() {
     return pendingFlushCount == 0 && videoFrameRenderControl.isReady();
   }
 
   private boolean hasReleasedFrame(long presentationTimeUs) {
     return pendingFlushCount == 0 && videoFrameRenderControl.hasReleasedFrame(presentationTimeUs);
-  }
-
-  private void render(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
-    if (pendingFlushCount == 0) {
-      videoFrameRenderControl.render(positionUs, elapsedRealtimeUs);
-    }
   }
 
   private void flush() {
@@ -522,6 +555,7 @@ public final class CompositingVideoSinkProvider
     @Nullable private Effect rotationEffect;
 
     @Nullable private Format inputFormat;
+    @InputType int inputType;
     private long inputStreamOffsetUs;
     private boolean pendingInputStreamOffsetChange;
 
@@ -586,11 +620,16 @@ public final class CompositingVideoSinkProvider
 
     @Override
     public void registerInputStream(@InputType int inputType, Format format) {
-      if (inputType != INPUT_TYPE_SURFACE) {
-        throw new UnsupportedOperationException("Unsupported input type " + inputType);
+      switch (inputType) {
+        case INPUT_TYPE_SURFACE:
+        case INPUT_TYPE_BITMAP:
+          break;
+        default:
+          throw new UnsupportedOperationException("Unsupported input type " + inputType);
       }
       // MediaCodec applies rotation after API 21.
-      if (Util.SDK_INT < 21
+      if (inputType == INPUT_TYPE_SURFACE
+          && Util.SDK_INT < 21
           && format.rotationDegrees != Format.NO_VALUE
           && format.rotationDegrees != 0) {
         // We must apply a rotation effect.
@@ -603,6 +642,7 @@ public final class CompositingVideoSinkProvider
       } else {
         rotationEffect = null;
       }
+      this.inputType = inputType;
       this.inputFormat = format;
 
       if (!hasRegisteredFirstInputStream) {
@@ -678,8 +718,9 @@ public final class CompositingVideoSinkProvider
     }
 
     @Override
-    public boolean queueBitmap(Bitmap inputBitmap, TimestampIterator inStreamOffsetsUs) {
-      throw new UnsupportedOperationException();
+    public boolean queueBitmap(Bitmap inputBitmap, TimestampIterator timestampIterator) {
+      return checkStateNotNull(videoFrameProcessor)
+          .queueInputBitmap(inputBitmap, timestampIterator);
     }
 
     @Override
@@ -714,7 +755,7 @@ public final class CompositingVideoSinkProvider
       this.videoEffects.addAll(videoEffects);
     }
 
-    /** Sets the stream offset, in micro seconds. */
+    /** Sets the stream offset, in microseconds. */
     public void setStreamOffsetUs(long streamOffsetUs) {
       pendingInputStreamOffsetChange = inputStreamOffsetUs != streamOffsetUs;
       inputStreamOffsetUs = streamOffsetUs;
@@ -732,7 +773,7 @@ public final class CompositingVideoSinkProvider
       effects.addAll(videoEffects);
       Format inputFormat = checkNotNull(this.inputFormat);
       videoFrameProcessor.registerInputStream(
-          VideoFrameProcessor.INPUT_TYPE_SURFACE,
+          inputType,
           effects,
           new FrameInfo.Builder(inputFormat.width, inputFormat.height)
               .setPixelWidthHeightRatio(inputFormat.pixelWidthHeightRatio)
