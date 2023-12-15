@@ -260,6 +260,7 @@ public final class VideoFrameProcessorTestRunner {
   private final AtomicReference<VideoFrameProcessingException> videoFrameProcessingException;
   private final VideoFrameProcessor videoFrameProcessor;
   private final ImmutableList<Effect> effects;
+  private final ColorInfo inputColorInfo;
   private final @MonotonicNonNull BitmapReader bitmapReader;
 
   private VideoFrameProcessorTestRunner(
@@ -288,7 +289,6 @@ public final class VideoFrameProcessorTestRunner {
         videoFrameProcessorFactory.create(
             getApplicationContext(),
             DebugViewProvider.NONE,
-            inputColorInfo,
             outputColorInfo,
             /* renderFramesAutomatically= */ true,
             /* listenerExecutor= */ MoreExecutors.directExecutor(),
@@ -333,6 +333,7 @@ public final class VideoFrameProcessorTestRunner {
               }
             });
     this.effects = effects;
+    this.inputColorInfo = inputColorInfo;
   }
 
   public void processFirstFrameAndEnd() throws Exception {
@@ -346,6 +347,7 @@ public final class VideoFrameProcessorTestRunner {
                 INPUT_TYPE_SURFACE,
                 effects,
                 new FrameInfo.Builder(
+                        inputColorInfo,
                         mediaFormat.getInteger(MediaFormat.KEY_WIDTH),
                         mediaFormat.getInteger(MediaFormat.KEY_HEIGHT))
                     .setPixelWidthHeightRatio(pixelWidthHeightRatio)
@@ -375,7 +377,7 @@ public final class VideoFrameProcessorTestRunner {
     videoFrameProcessor.registerInputStream(
         INPUT_TYPE_BITMAP,
         effects,
-        new FrameInfo.Builder(inputBitmap.getWidth(), inputBitmap.getHeight())
+        new FrameInfo.Builder(inputColorInfo, inputBitmap.getWidth(), inputBitmap.getHeight())
             .setPixelWidthHeightRatio(pixelWidthHeightRatio)
             .setOffsetToAddUs(offsetToAddUs)
             .build());
@@ -391,7 +393,7 @@ public final class VideoFrameProcessorTestRunner {
     videoFrameProcessor.registerInputStream(
         INPUT_TYPE_BITMAP,
         effects,
-        new FrameInfo.Builder(width, height)
+        new FrameInfo.Builder(inputColorInfo, width, height)
             .setPixelWidthHeightRatio(pixelWidthHeightRatio)
             .build());
     videoFrameProcessorReadyCondition.block();
@@ -404,7 +406,7 @@ public final class VideoFrameProcessorTestRunner {
     videoFrameProcessor.registerInputStream(
         INPUT_TYPE_TEXTURE_ID,
         effects,
-        new FrameInfo.Builder(inputTexture.width, inputTexture.height)
+        new FrameInfo.Builder(inputColorInfo, inputTexture.width, inputTexture.height)
             .setPixelWidthHeightRatio(pixelWidthHeightRatio)
             .build());
     videoFrameProcessor.setOnInputFrameProcessedListener(

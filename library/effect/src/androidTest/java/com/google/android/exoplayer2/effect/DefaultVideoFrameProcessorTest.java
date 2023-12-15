@@ -100,7 +100,8 @@ public class DefaultVideoFrameProcessorTest {
     defaultVideoFrameProcessor.registerInputStream(
         VideoFrameProcessor.INPUT_TYPE_BITMAP,
         ImmutableList.of(),
-        new FrameInfo.Builder(/* width= */ 100, /* height= */ 100).build());
+        new FrameInfo.Builder(ColorInfo.SRGB_BT709_FULL, /* width= */ 100, /* height= */ 100)
+            .build());
 
     assertThat(defaultVideoFrameProcessor.getPendingInputFrameCount()).isEqualTo(0);
     // Unblocks configuration.
@@ -150,17 +151,20 @@ public class DefaultVideoFrameProcessorTest {
         new InputStreamInfo(
             VideoFrameProcessor.INPUT_TYPE_BITMAP,
             ImmutableList.of(),
-            new FrameInfo.Builder(/* width= */ 100, /* height= */ 100).build());
+            new FrameInfo.Builder(ColorInfo.SRGB_BT709_FULL, /* width= */ 100, /* height= */ 100)
+                .build());
     InputStreamInfo stream2 =
         new InputStreamInfo(
             VideoFrameProcessor.INPUT_TYPE_BITMAP,
             ImmutableList.of(new Contrast(.5f)),
-            new FrameInfo.Builder(/* width= */ 200, /* height= */ 200).build());
+            new FrameInfo.Builder(ColorInfo.SRGB_BT709_FULL, /* width= */ 200, /* height= */ 200)
+                .build());
     InputStreamInfo stream3 =
         new InputStreamInfo(
             VideoFrameProcessor.INPUT_TYPE_BITMAP,
             ImmutableList.of(),
-            new FrameInfo.Builder(/* width= */ 300, /* height= */ 300).build());
+            new FrameInfo.Builder(ColorInfo.SRGB_BT709_FULL, /* width= */ 300, /* height= */ 300)
+                .build());
 
     registerInputStream(defaultVideoFrameProcessor, stream1);
     registerInputStream(defaultVideoFrameProcessor, stream2);
@@ -179,7 +183,6 @@ public class DefaultVideoFrameProcessorTest {
         .create(
             getApplicationContext(),
             DebugViewProvider.NONE,
-            /* inputColorInfo= */ ColorInfo.SDR_BT709_LIMITED,
             /* outputColorInfo= */ ColorInfo.SDR_BT709_LIMITED,
             /* renderFramesAutomatically= */ true,
             /* listenerExecutor= */ MoreExecutors.directExecutor(),

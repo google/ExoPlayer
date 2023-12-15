@@ -153,9 +153,6 @@ public abstract class MultipleInputVideoGraph implements VideoGraph {
         videoFrameProcessorFactory.create(
             context,
             debugViewProvider,
-            // Pre-processing VideoFrameProcessors have converted the inputColor to outputColor
-            // already.
-            /* inputColorInfo= */ outputColorInfo,
             outputColorInfo,
             /* renderFramesAutomatically= */ true,
             /* listenerExecutor= */ MoreExecutors.directExecutor(),
@@ -239,7 +236,6 @@ public abstract class MultipleInputVideoGraph implements VideoGraph {
             .create(
                 context,
                 DebugViewProvider.NONE,
-                inputColorInfo,
                 outputColorInfo,
                 // Pre-processors render frames as soon as available, to VideoCompositor.
                 /* renderFramesAutomatically= */ true,
@@ -367,7 +363,11 @@ public abstract class MultipleInputVideoGraph implements VideoGraph {
           .registerInputStream(
               INPUT_TYPE_TEXTURE_ID,
               compositionEffects,
-              new FrameInfo.Builder(outputTexture.width, outputTexture.height).build());
+              // Pre-processing VideoFrameProcessors have converted the inputColor to outputColor
+              // already, so use outputColorInfo for the input color to the
+              // compositionVideoFrameProcessor.
+              new FrameInfo.Builder(outputColorInfo, outputTexture.width, outputTexture.height)
+                  .build());
       compositionVideoFrameProcessorInputStreamRegistered = true;
       // Return as the VideoFrameProcessor rejects input textures until the input is registered.
       return;

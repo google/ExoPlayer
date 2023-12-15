@@ -158,12 +158,9 @@ import org.checkerframework.checker.nullness.qual.Nullable;
    *
    * @param newInputType The new {@link VideoFrameProcessor.InputType} to switch to.
    * @param inputFrameInfo The {@link FrameInfo} associated with the new input.
-   * @param inputColorInfo The {@link ColorInfo} associated with the new input.
    */
   public void switchToInput(
-      @VideoFrameProcessor.InputType int newInputType,
-      FrameInfo inputFrameInfo,
-      ColorInfo inputColorInfo)
+      @VideoFrameProcessor.InputType int newInputType, FrameInfo inputFrameInfo)
       throws VideoFrameProcessingException {
     checkStateNotNull(downstreamShaderProgram);
     checkState(contains(inputs, newInputType), "Input type not registered: " + newInputType);
@@ -176,7 +173,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
           // TODO: b/307952514 - When switchToInput is called, and the inputColorInfo doesn't match
           //  the prior inputColorInfo, recreate and reinitialize the input.samplingGlShaderProgram.
           input.setSamplingGlShaderProgram(
-              createSamplingShaderProgram(inputColorInfo, newInputType));
+              createSamplingShaderProgram(inputFrameInfo.colorInfo, newInputType));
         }
         input.setChainingListener(
             new GatedChainingListenerWrapper(

@@ -292,7 +292,6 @@ public final class DefaultVideoFrameProcessorVideoFrameRenderingTest {
                 .create(
                     getApplicationContext(),
                     DebugViewProvider.NONE,
-                    /* inputColorInfo= */ ColorInfo.SDR_BT709_LIMITED,
                     /* outputColorInfo= */ ColorInfo.SDR_BT709_LIMITED,
                     renderFramesAutomatically,
                     MoreExecutors.directExecutor(),
@@ -349,7 +348,7 @@ public final class DefaultVideoFrameProcessorVideoFrameRenderingTest {
         .registerInputStream(
             INPUT_TYPE_SURFACE,
             /* effects= */ ImmutableList.of((GlEffect) (context, useHdr) -> blankFrameProducer),
-            new FrameInfo.Builder(WIDTH, HEIGHT).build());
+            new FrameInfo.Builder(ColorInfo.SDR_BT709_LIMITED, WIDTH, HEIGHT).build());
     videoFrameProcessorReadyCountDownLatch.await();
     blankFrameProducer.produceBlankFrames(inputPresentationTimesUs);
     defaultVideoFrameProcessor.signalEndOfInput();

@@ -62,6 +62,7 @@ import java.util.concurrent.atomic.AtomicLong;
       long initialTimestampOffsetUs) {
     this.videoFrameProcessor = videoFrameProcessor;
     this.mediaItemOffsetUs = new AtomicLong();
+    // TODO: b/307952514 - Remove inputColorInfo reference.
     this.inputColorInfo = inputColorInfo;
     this.initialTimestampOffsetUs = initialTimestampOffsetUs;
     this.presentation = presentation;
@@ -78,7 +79,7 @@ import java.util.concurrent.atomic.AtomicLong;
       videoFrameProcessor.registerInputStream(
           getInputType(checkNotNull(trackFormat.sampleMimeType)),
           createEffectListWithPresentation(editedMediaItem.effects.videoEffects, presentation),
-          new FrameInfo.Builder(decodedSize.getWidth(), decodedSize.getHeight())
+          new FrameInfo.Builder(inputColorInfo, decodedSize.getWidth(), decodedSize.getHeight())
               .setPixelWidthHeightRatio(trackFormat.pixelWidthHeightRatio)
               .setOffsetToAddUs(initialTimestampOffsetUs + mediaItemOffsetUs.get())
               .build());
