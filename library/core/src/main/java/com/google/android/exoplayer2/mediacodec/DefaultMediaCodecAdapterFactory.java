@@ -58,7 +58,6 @@ public final class DefaultMediaCodecAdapterFactory implements MediaCodecAdapter.
   private static final String TAG = "DMCodecAdapterFactory";
 
   private @Mode int asynchronousMode;
-  private boolean enableSynchronizeCodecInteractionsWithQueueing;
 
   public DefaultMediaCodecAdapterFactory() {
     asynchronousMode = MODE_DEFAULT;
@@ -88,18 +87,6 @@ public final class DefaultMediaCodecAdapterFactory implements MediaCodecAdapter.
     return this;
   }
 
-  /**
-   * Enable synchronizing codec interactions with asynchronous buffer queueing.
-   *
-   * <p>This method is experimental, and will be renamed or removed in a future release.
-   *
-   * @param enabled Whether codec interactions will be synchronized with asynchronous buffer
-   *     queueing.
-   */
-  public void experimentalSetSynchronizeCodecInteractionsWithQueueingEnabled(boolean enabled) {
-    enableSynchronizeCodecInteractionsWithQueueing = enabled;
-  }
-
   @Override
   public MediaCodecAdapter createAdapter(MediaCodecAdapter.Configuration configuration)
       throws IOException {
@@ -112,8 +99,7 @@ public final class DefaultMediaCodecAdapterFactory implements MediaCodecAdapter.
           "Creating an asynchronous MediaCodec adapter for track type "
               + Util.getTrackTypeString(trackType));
       AsynchronousMediaCodecAdapter.Factory factory =
-          new AsynchronousMediaCodecAdapter.Factory(
-              trackType, enableSynchronizeCodecInteractionsWithQueueing);
+          new AsynchronousMediaCodecAdapter.Factory(trackType);
       return factory.createAdapter(configuration);
     }
     return new SynchronousMediaCodecAdapter.Factory().createAdapter(configuration);

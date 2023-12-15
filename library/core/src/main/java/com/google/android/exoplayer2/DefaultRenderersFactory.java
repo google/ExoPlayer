@@ -170,22 +170,6 @@ public class DefaultRenderersFactory implements RenderersFactory {
   }
 
   /**
-   * Enable synchronizing codec interactions with asynchronous buffer queueing.
-   *
-   * <p>This method is experimental, and will be renamed or removed in a future release.
-   *
-   * @param enabled Whether codec interactions will be synchronized with asynchronous buffer
-   *     queueing.
-   * @return This factory, for convenience.
-   */
-  @CanIgnoreReturnValue
-  public DefaultRenderersFactory experimentalSetSynchronizeCodecInteractionsWithQueueingEnabled(
-      boolean enabled) {
-    codecAdapterFactory.experimentalSetSynchronizeCodecInteractionsWithQueueingEnabled(enabled);
-    return this;
-  }
-
-  /**
    * Sets whether to enable fallback to lower-priority decoders if decoder initialization fails.
    * This may result in using a decoder that is less efficient or slower than the primary decoder.
    *
