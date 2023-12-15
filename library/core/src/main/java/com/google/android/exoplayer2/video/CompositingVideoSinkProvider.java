@@ -523,8 +523,7 @@ public final class CompositingVideoSinkProvider
   private void flush() {
     pendingFlushCount++;
     // Flush the render control now to ensure it has no data, eg calling isReady() must return false
-    // and
-    // render() should not render any frames.
+    // and render() should not render any frames.
     videoFrameRenderControl.flush();
     // Finish flushing after handling pending video graph callbacks to ensure video size changes
     // reach the video render control.
@@ -568,7 +567,7 @@ public final class CompositingVideoSinkProvider
 
     @Nullable private Format inputFormat;
     private @MonotonicNonNull ColorInfo firstInputColorInfo;
-    @InputType int inputType;
+    private @InputType int inputType;
     private long inputStreamOffsetUs;
     private boolean pendingInputStreamOffsetChange;
 
