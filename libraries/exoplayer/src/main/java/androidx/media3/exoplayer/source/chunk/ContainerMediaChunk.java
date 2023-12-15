@@ -15,9 +15,13 @@
  */
 package androidx.media3.exoplayer.source.chunk;
 
+import static androidx.media3.common.C.BUFFER_FLAG_KEY_FRAME;
+
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
+import androidx.media3.common.MimeTypes;
+import androidx.media3.common.util.ParsableByteArray;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.datasource.DataSource;
 import androidx.media3.datasource.DataSourceUtil;
@@ -26,6 +30,7 @@ import androidx.media3.exoplayer.source.chunk.ChunkExtractor.TrackOutputProvider
 import androidx.media3.extractor.DefaultExtractorInput;
 import androidx.media3.extractor.Extractor;
 import androidx.media3.extractor.ExtractorInput;
+import androidx.media3.extractor.TrackOutput;
 import java.io.IOException;
 
 /** A {@link BaseMediaChunk} that uses an {@link Extractor} to decode sample data. */
@@ -109,9 +114,9 @@ public class ContainerMediaChunk extends BaseMediaChunk {
   @SuppressWarnings("NonAtomicVolatileUpdate")
   @Override
   public final void load() throws IOException {
+    BaseMediaChunkOutput output = getOutput();
     if (nextLoadPosition == 0) {
       // Configure the output and set it as the target for the extractor wrapper.
-      BaseMediaChunkOutput output = getOutput();
       output.setSampleOffsetUs(sampleOffsetUs);
       chunkExtractor.init(
           getTrackOutputProvider(output),
@@ -127,6 +132,7 @@ public class ContainerMediaChunk extends BaseMediaChunk {
       // Load and decode the sample data.
       try {
         while (!loadCanceled && chunkExtractor.read(input)) {}
+        maybeWriteEmptySamples(output);
       } finally {
         nextLoadPosition = input.getPosition() - dataSpec.position;
       }
@@ -145,5 +151,31 @@ public class ContainerMediaChunk extends BaseMediaChunk {
    */
   protected TrackOutputProvider getTrackOutputProvider(BaseMediaChunkOutput baseMediaChunkOutput) {
     return baseMediaChunkOutput;
+  }
+
+  private void maybeWriteEmptySamples(BaseMediaChunkOutput output) {
+    if (!MimeTypes.isImage(trackFormat.containerMimeType)) {
+      return;
+    }
+    if ((trackFormat.tileCountHorizontal <= 1 && trackFormat.tileCountVertical <= 1)
+        || trackFormat.tileCountHorizontal == Format.NO_VALUE
+        || trackFormat.tileCountVertical == Format.NO_VALUE) {
+      return;
+    }
+
+    TrackOutput trackOutput = output.track(/* id= */ 0, C.TRACK_TYPE_IMAGE);
+    int tileCount = trackFormat.tileCountHorizontal * trackFormat.tileCountVertical;
+    long tileDurationUs = (endTimeUs - startTimeUs) / tileCount;
+
+    for (int i = 1; i < tileCount; ++i) {
+      long tileStartTimeUs = i * tileDurationUs;
+      trackOutput.sampleData(new ParsableByteArray(), /* length= */ 0);
+      trackOutput.sampleMetadata(
+          tileStartTimeUs,
+          /* flags= */ BUFFER_FLAG_KEY_FRAME,
+          /* size= */ 0,
+          /* offset= */ 0,
+          /* cryptoData= */ null);
+    }
   }
 }

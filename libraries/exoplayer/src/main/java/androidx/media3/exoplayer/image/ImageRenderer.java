@@ -344,13 +344,26 @@ public class ImageRenderer extends BaseRenderer {
         return false;
       case C.RESULT_BUFFER_READ:
         inputBuffer.flip();
-        checkNotNull(decoder).queueInputBuffer(inputBuffer);
-        if (inputBuffer.isEndOfStream()) {
+        // Input buffers with no data that are also non-EOS, only carry the timestamp for a grid
+        // tile. These buffers are not queued.
+        boolean shouldQueueBuffer =
+            checkNotNull(inputBuffer.data).remaining() > 0
+                || checkNotNull(inputBuffer).isEndOfStream();
+        if (shouldQueueBuffer) {
+          checkNotNull(decoder).queueInputBuffer(checkNotNull(inputBuffer));
+        }
+        if (checkNotNull(inputBuffer).isEndOfStream()) {
           inputStreamEnded = true;
           inputBuffer = null;
           return false;
         }
-        inputBuffer = null;
+        // If inputBuffer was queued, the decoder already cleared it. Otherwise, inputBuffer is
+        // cleared here.
+        if (shouldQueueBuffer) {
+          inputBuffer = null;
+        } else {
+          checkNotNull(inputBuffer).clear();
+        }
         return true;
       case C.RESULT_FORMAT_READ:
         inputFormat = checkNotNull(formatHolder.format);
