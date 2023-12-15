@@ -172,7 +172,6 @@ public class FrameDropTest {
                 .create(
                     getApplicationContext(),
                     DebugViewProvider.NONE,
-                    /* inputColorInfo= */ ColorInfo.SDR_BT709_LIMITED,
                     /* outputColorInfo= */ ColorInfo.SDR_BT709_LIMITED,
                     /* renderFramesAutomatically= */ true,
                     MoreExecutors.directExecutor(),
@@ -241,7 +240,9 @@ public class FrameDropTest {
                           }
                         })),
                 frameDropEffect),
-            new FrameInfo.Builder(BLANK_FRAME_WIDTH, BLANK_FRAME_HEIGHT).build());
+            new FrameInfo.Builder(
+                    ColorInfo.SDR_BT709_LIMITED, BLANK_FRAME_WIDTH, BLANK_FRAME_HEIGHT)
+                .build());
     videoFrameProcessorReadyCountDownLatch.await();
     checkNoVideoFrameProcessingExceptionIsThrown(videoFrameProcessingExceptionReference);
     blankFrameProducer.produceBlankFrames(inputPresentationTimesUs);

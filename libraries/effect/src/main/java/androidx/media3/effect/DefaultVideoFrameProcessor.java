@@ -246,7 +246,6 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
     public DefaultVideoFrameProcessor create(
         Context context,
         DebugViewProvider debugViewProvider,
-        ColorInfo inputColorInfo,
         ColorInfo outputColorInfo,
         boolean renderFramesAutomatically,
         Executor listenerExecutor,
@@ -268,7 +267,6 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
                   createOpenGlObjectsAndFrameProcessor(
                       context,
                       debugViewProvider,
-                      inputColorInfo,
                       outputColorInfo,
                       enableColorTransfers,
                       renderFramesAutomatically,
@@ -321,8 +319,9 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
   private final List<Effect> activeEffects;
   private final Object lock;
   private final boolean enableColorTransfers;
-  private final ColorInfo firstInputColorInfo;
   private final ColorInfo outputColorInfo;
+
+  private @MonotonicNonNull ColorInfo firstInputColorInfo;
 
   private volatile @MonotonicNonNull FrameInfo nextInputFrameInfo;
   private volatile boolean inputStreamEnded;
@@ -339,7 +338,6 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       FinalShaderProgramWrapper finalShaderProgramWrapper,
       boolean renderFramesAutomatically,
       boolean enableColorTransfers,
-      ColorInfo firstInputColorInfo,
       ColorInfo outputColorInfo) {
     this.context = context;
     this.glObjectsProvider = glObjectsProvider;
@@ -353,7 +351,6 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
     this.activeEffects = new ArrayList<>();
     this.lock = new Object();
     this.enableColorTransfers = enableColorTransfers;
-    this.firstInputColorInfo = firstInputColorInfo;
     this.outputColorInfo = outputColorInfo;
     this.finalShaderProgramWrapper = finalShaderProgramWrapper;
     this.intermediateGlShaderPrograms = new ArrayList<>();
@@ -438,6 +435,13 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
     return inputSwitcher.getInputSurface();
   }
 
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The {@link FrameInfo}'s {@link ColorInfo} must not change between different calls to this
+   * method.
+   */
+  // TODO: b/307952514: Remove this javadoc after FrameInfo.colorInfo may change between calls.
   @Override
   public void registerInputStream(
       @InputType int inputType, List<Effect> effects, FrameInfo frameInfo) {
@@ -463,10 +467,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
 
     synchronized (lock) {
       // An input stream is pending until its effects are configured.
-      // TODO: b/307952514 - Move inputColorInfo's API from Factory.create into registerInputStream,
-      //  and from StreamInfo into FrameInfo.
-      InputStreamInfo pendingInputStreamInfo =
-          new InputStreamInfo(inputType, effects, this.firstInputColorInfo, frameInfo);
+      InputStreamInfo pendingInputStreamInfo = new InputStreamInfo(inputType, effects, frameInfo);
       if (!registeredFirstInputStream) {
         registeredFirstInputStream = true;
         inputStreamRegisteredCondition.close();
@@ -611,7 +612,6 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
   private static DefaultVideoFrameProcessor createOpenGlObjectsAndFrameProcessor(
       Context context,
       DebugViewProvider debugViewProvider,
-      ColorInfo inputColorInfo,
       ColorInfo outputColorInfo,
       boolean enableColorTransfers,
       boolean renderFramesAutomatically,
@@ -685,7 +685,6 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
         finalShaderProgramWrapper,
         renderFramesAutomatically,
         enableColorTransfers,
-        /* firstInputColorInfo= */ inputColorInfo,
         outputColorInfo);
   }
 
@@ -802,7 +801,18 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
    */
   private void configureEffects(InputStreamInfo inputStreamInfo, boolean forceReconfigure)
       throws VideoFrameProcessingException {
-    checkColors(firstInputColorInfo, outputColorInfo, enableColorTransfers);
+    // TODO: b/307952514 - Remove this color check, and reinitialize the InputSwitcher's
+    // samplingGlShaderProgram instead.
+    checkState(
+        firstInputColorInfo == null
+            || firstInputColorInfo.equals(inputStreamInfo.frameInfo.colorInfo));
+    if (inputStreamInfo.frameInfo.colorInfo != null) {
+      firstInputColorInfo = inputStreamInfo.frameInfo.colorInfo;
+    }
+    checkColors(
+        /* inputColorInfo= */ inputStreamInfo.frameInfo.colorInfo,
+        outputColorInfo,
+        enableColorTransfers);
     if (forceReconfigure || !activeEffects.equals(inputStreamInfo.effects)) {
       if (!intermediateGlShaderPrograms.isEmpty()) {
         for (int i = 0; i < intermediateGlShaderPrograms.size(); i++) {
@@ -830,8 +840,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       activeEffects.addAll(inputStreamInfo.effects);
     }
 
-    inputSwitcher.switchToInput(
-        inputStreamInfo.inputType, inputStreamInfo.frameInfo, inputStreamInfo.colorInfo);
+    inputSwitcher.switchToInput(inputStreamInfo.inputType, inputStreamInfo.frameInfo);
     inputStreamRegisteredCondition.open();
     listenerExecutor.execute(
         () ->
@@ -940,14 +949,11 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
   private static final class InputStreamInfo {
     public final @InputType int inputType;
     public final List<Effect> effects;
-    public final ColorInfo colorInfo;
     public final FrameInfo frameInfo;
 
-    public InputStreamInfo(
-        @InputType int inputType, List<Effect> effects, ColorInfo colorInfo, FrameInfo frameInfo) {
+    public InputStreamInfo(@InputType int inputType, List<Effect> effects, FrameInfo frameInfo) {
       this.inputType = inputType;
       this.effects = effects;
-      this.colorInfo = colorInfo;
       this.frameInfo = frameInfo;
     }
   }

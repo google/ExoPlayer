@@ -63,6 +63,7 @@ public abstract class SingleInputVideoGraph implements VideoGraph {
    *
    * <p>{@code videoCompositorSettings} must be {@link VideoCompositorSettings#DEFAULT}.
    */
+  // TODO: b/307952514 - Remove inputColorInfo reference in VideoGraph constructor.
   public SingleInputVideoGraph(
       Context context,
       VideoFrameProcessor.Factory videoFrameProcessorFactory,
@@ -109,7 +110,6 @@ public abstract class SingleInputVideoGraph implements VideoGraph {
         videoFrameProcessorFactory.create(
             context,
             debugViewProvider,
-            inputColorInfo,
             outputColorInfo,
             renderFramesAutomatically,
             /* listenerExecutor= */ MoreExecutors.directExecutor(),

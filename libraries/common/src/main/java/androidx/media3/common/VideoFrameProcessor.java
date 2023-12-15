@@ -82,7 +82,6 @@ public interface VideoFrameProcessor {
      *
      * @param context A {@link Context}.
      * @param debugViewProvider A {@link DebugViewProvider}.
-     * @param inputColorInfo The {@link ColorInfo} for the input frames.
      * @param outputColorInfo The {@link ColorInfo} for the output frames.
      * @param renderFramesAutomatically If {@code true}, the instance will render output frames to
      *     the {@linkplain #setOutputSurfaceInfo(SurfaceInfo) output surface} automatically as
@@ -98,7 +97,6 @@ public interface VideoFrameProcessor {
     VideoFrameProcessor create(
         Context context,
         DebugViewProvider debugViewProvider,
-        ColorInfo inputColorInfo,
         ColorInfo outputColorInfo,
         boolean renderFramesAutomatically,
         Executor listenerExecutor,

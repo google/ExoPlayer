@@ -259,10 +259,7 @@ public final class CompositingVideoSinkProvider
     // Lazily initialize the handler here so it's initialized on the playback looper.
     handler = clock.createHandler(checkStateNotNull(Looper.myLooper()), /* callback= */ null);
 
-    ColorInfo inputColorInfo =
-        sourceFormat.colorInfo != null && ColorInfo.isTransferHdr(sourceFormat.colorInfo)
-            ? sourceFormat.colorInfo
-            : ColorInfo.SDR_BT709_LIMITED;
+    ColorInfo inputColorInfo = getAdjustedInputColorInfo(sourceFormat.colorInfo);
     ColorInfo outputColorInfo = inputColorInfo;
     if (inputColorInfo.colorTransfer == C.COLOR_TRANSFER_HLG) {
       // SurfaceView only supports BT2020 PQ input. Therefore, convert HLG to PQ.
@@ -552,6 +549,12 @@ public final class CompositingVideoSinkProvider
     videoFrameRenderControl.onStreamOffsetChange(bufferPresentationTimeUs, streamOffsetUs);
   }
 
+  private static ColorInfo getAdjustedInputColorInfo(@Nullable ColorInfo inputColorInfo) {
+    return inputColorInfo != null && ColorInfo.isTransferHdr(inputColorInfo)
+        ? inputColorInfo
+        : ColorInfo.SDR_BT709_LIMITED;
+  }
+
   /** Receives input from an ExoPlayer renderer and forwards it to the video graph. */
   private static final class VideoSinkImpl implements VideoSink {
     private final Context context;
@@ -562,6 +565,7 @@ public final class CompositingVideoSinkProvider
     @Nullable private Effect rotationEffect;
 
     @Nullable private Format inputFormat;
+    private @MonotonicNonNull ColorInfo firstInputColorInfo;
     @InputType int inputType;
     private long inputStreamOffsetUs;
     private boolean pendingInputStreamOffsetChange;
@@ -779,10 +783,15 @@ public final class CompositingVideoSinkProvider
       }
       effects.addAll(videoEffects);
       Format inputFormat = checkNotNull(this.inputFormat);
+      if (firstInputColorInfo == null) {
+        // TODO: b/307952514 - Get inputColorInfo from inputFormat for each stream, after this value
+        // can change per-stream.
+        firstInputColorInfo = getAdjustedInputColorInfo(inputFormat.colorInfo);
+      }
       videoFrameProcessor.registerInputStream(
           inputType,
           effects,
-          new FrameInfo.Builder(inputFormat.width, inputFormat.height)
+          new FrameInfo.Builder(firstInputColorInfo, inputFormat.width, inputFormat.height)
               .setPixelWidthHeightRatio(inputFormat.pixelWidthHeightRatio)
               .build());
     }
@@ -908,7 +917,6 @@ public final class CompositingVideoSinkProvider
     public VideoFrameProcessor create(
         Context context,
         DebugViewProvider debugViewProvider,
-        ColorInfo inputColorInfo,
         ColorInfo outputColorInfo,
         boolean renderFramesAutomatically,
         Executor listenerExecutor,
@@ -919,7 +927,6 @@ public final class CompositingVideoSinkProvider
           .create(
               context,
               debugViewProvider,
-              inputColorInfo,
               outputColorInfo,
               renderFramesAutomatically,
               listenerExecutor,

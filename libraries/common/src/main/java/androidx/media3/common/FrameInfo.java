@@ -27,6 +27,7 @@ public class FrameInfo {
   /** A builder for {@link FrameInfo} instances. */
   public static final class Builder {
 
+    private ColorInfo colorInfo;
     private int width;
     private int height;
     private float pixelWidthHeightRatio;
@@ -35,10 +36,12 @@ public class FrameInfo {
     /**
      * Creates an instance with default values.
      *
+     * @param colorInfo The {@link ColorInfo}.
      * @param width The frame width, in pixels.
      * @param height The frame height, in pixels.
      */
-    public Builder(int width, int height) {
+    public Builder(ColorInfo colorInfo, int width, int height) {
+      this.colorInfo = colorInfo;
       this.width = width;
       this.height = height;
       pixelWidthHeightRatio = 1;
@@ -46,10 +49,18 @@ public class FrameInfo {
 
     /** Creates an instance with the values of the provided {@link FrameInfo}. */
     public Builder(FrameInfo frameInfo) {
+      colorInfo = frameInfo.colorInfo;
       width = frameInfo.width;
       height = frameInfo.height;
       pixelWidthHeightRatio = frameInfo.pixelWidthHeightRatio;
       offsetToAddUs = frameInfo.offsetToAddUs;
+    }
+
+    /** Sets the {@link ColorInfo}. */
+    @CanIgnoreReturnValue
+    public Builder setColorInfo(ColorInfo colorInfo) {
+      this.colorInfo = colorInfo;
+      return this;
     }
 
     /** Sets the frame width, in pixels. */
@@ -91,9 +102,12 @@ public class FrameInfo {
 
     /** Builds a {@link FrameInfo} instance. */
     public FrameInfo build() {
-      return new FrameInfo(width, height, pixelWidthHeightRatio, offsetToAddUs);
+      return new FrameInfo(colorInfo, width, height, pixelWidthHeightRatio, offsetToAddUs);
     }
   }
+
+  /** The {@link ColorInfo} of the frame. */
+  public final ColorInfo colorInfo;
 
   /** The width of the frame, in pixels. */
   public final int width;
@@ -112,12 +126,12 @@ public class FrameInfo {
    */
   public final long offsetToAddUs;
 
-  // TODO(b/227624622): Add color space information for HDR.
-
-  private FrameInfo(int width, int height, float pixelWidthHeightRatio, long offsetToAddUs) {
+  private FrameInfo(
+      ColorInfo colorInfo, int width, int height, float pixelWidthHeightRatio, long offsetToAddUs) {
     checkArgument(width > 0, "width must be positive, but is: " + width);
     checkArgument(height > 0, "height must be positive, but is: " + height);
 
+    this.colorInfo = colorInfo;
     this.width = width;
     this.height = height;
     this.pixelWidthHeightRatio = pixelWidthHeightRatio;
