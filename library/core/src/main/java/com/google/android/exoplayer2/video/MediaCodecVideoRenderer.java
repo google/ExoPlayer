@@ -774,8 +774,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer
         break;
       case MSG_SET_VIDEO_OUTPUT_RESOLUTION:
         Size outputResolution = (Size) checkNotNull(message);
-        if (videoSinkProvider.isInitialized()
-            && outputResolution.getWidth() != 0
+        if (outputResolution.getWidth() != 0
             && outputResolution.getHeight() != 0
             && displaySurface != null) {
           videoSinkProvider.setOutputSurfaceInfo(displaySurface, outputResolution);

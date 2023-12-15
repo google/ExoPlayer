@@ -53,6 +53,7 @@ dependencies {
     testImplementation project(modulePrefix + 'testdata')
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
     testImplementation 'com.google.truth:truth:' + truthVersion
+    androidTestImplementation project(modulePrefix + 'library-core')
     androidTestImplementation 'junit:junit:' + junitVersion
     androidTestImplementation 'androidx.test:runner:' + androidxTestRunnerVersion
     androidTestImplementation 'com.google.truth:truth:' + truthVersion
