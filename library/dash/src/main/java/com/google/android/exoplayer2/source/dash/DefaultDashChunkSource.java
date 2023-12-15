@@ -58,6 +58,7 @@ import com.google.android.exoplayer2.upstream.HttpDataSource.InvalidResponseCode
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.LoaderErrorThrower;
 import com.google.android.exoplayer2.upstream.TransferListener;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.UriUtil;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableMap;
@@ -858,6 +859,9 @@ public class DefaultDashChunkSource implements DashChunkSource {
         dataSpec = cmcdData.addToDataSpec(dataSpec);
       }
       long sampleOffsetUs = -representation.presentationTimeOffsetUs;
+      if (MimeTypes.isImage(trackFormat.sampleMimeType)) {
+        sampleOffsetUs += startTimeUs;
+      }
       return new ContainerMediaChunk(
           dataSource,
           dataSpec,
