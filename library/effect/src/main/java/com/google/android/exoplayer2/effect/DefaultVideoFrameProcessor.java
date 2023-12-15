@@ -215,25 +215,14 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
     /**
      * {@inheritDoc}
      *
-     * <p>Using HDR {@code inputColorInfo} requires the {@code EXT_YUV_target} OpenGL extension.
-     *
-     * <p>Using HDR {@code inputColorInfo} or {@code outputColorInfo} requires OpenGL ES 3.0.
+     * <p>Using HDR {@code outputColorInfo} requires OpenGL ES 3.0.
      *
      * <p>If outputting HDR content to a display, {@code EGL_GL_COLORSPACE_BT2020_PQ_EXT} is
      * required, and {@link ColorInfo#colorTransfer outputColorInfo.colorTransfer} must be {@link
      * C#COLOR_TRANSFER_ST2084}.
      *
-     * <p>{@link Effect}s are applied on {@link C#COLOR_RANGE_FULL} colors with {@code null} {@link
-     * ColorInfo#hdrStaticInfo}. {@code inputColorInfo}'s {@link ColorInfo#hdrStaticInfo} and {@code
-     * outputColorInfo}'s {@link ColorInfo#colorRange} values are currently ignored, in favor of
-     * {@code null} and {@link C#COLOR_RANGE_FULL}, respectively.
-     *
-     * <p>If {@code inputColorInfo} or {@code outputColorInfo} {@linkplain ColorInfo#isTransferHdr}
-     * are HDR}, textures will use {@link GLES30#GL_RGBA16F} and {@link GLES30#GL_HALF_FLOAT}.
-     * Otherwise, textures will use {@link GLES20#GL_RGBA} and {@link GLES20#GL_UNSIGNED_BYTE}.
-     *
-     * <p>If {@code inputColorInfo} or {@code outputColorInfo} {@linkplain ColorInfo#isTransferHdr}
-     * are HDR}, color transfers must be enabled.
+     * <p>{@code outputColorInfo}'s {@link ColorInfo#colorRange} values are currently ignored, in
+     * favor of {@link C#COLOR_RANGE_FULL}.
      *
      * <p>If {@code outputColorInfo} {@linkplain ColorInfo#isTransferHdr is HDR}, the context will
      * be configured with {@link GlUtil#EGL_CONFIG_ATTRIBUTES_RGBA_1010102}. Otherwise, the context
@@ -442,10 +431,25 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
   /**
    * {@inheritDoc}
    *
+   * <p>Using HDR {@link FrameInfo#colorInfo} requires OpenGL ES 3.0 and the {@code EXT_YUV_target}
+   * OpenGL extension.
+   *
+   * <p>{@link Effect}s are applied on {@link C#COLOR_RANGE_FULL} colors with {@code null} {@link
+   * ColorInfo#hdrStaticInfo}.
+   *
+   * <p>If either {@link FrameInfo#colorInfo} or {@code outputColorInfo} {@linkplain
+   * ColorInfo#isTransferHdr} are HDR}, textures will use {@link GLES30#GL_RGBA16F} and {@link
+   * GLES30#GL_HALF_FLOAT}. Otherwise, textures will use {@link GLES20#GL_RGBA} and {@link
+   * GLES20#GL_UNSIGNED_BYTE}.
+   *
+   * <p>If either {@link FrameInfo#colorInfo} or {@code outputColorInfo} {@linkplain
+   * ColorInfo#isTransferHdr} are HDR}, color transfers must {@linkplain
+   * Factory.Builder#setEnableColorTransfers be enabled}.
+   *
    * <p>The {@link FrameInfo}'s {@link ColorInfo} must not change between different calls to this
    * method.
    */
-  // TODO: b/307952514: Remove this javadoc after FrameInfo.colorInfo may change between calls.
+  // TODO: b/307952514: After FrameInfo.colorInfo may change between calls, remove relevant javadoc.
   @Override
   public void registerInputStream(
       @InputType int inputType, List<Effect> effects, FrameInfo frameInfo) {
