@@ -40,6 +40,7 @@
         negative values for `bufferedDurationUs` from chunk sources, resulting
         in an `IllegalArgumentException`
         ([#888](https://github.com/androidx/media/issues/888)).
+    *   Support adaptive media sources with `PreloadMediaSource`.
 *   Transformer:
     *   Add support for flattening H.265/HEVC SEF slow motion videos.
     *   Increase transmuxing speed, especially for 'remove video' edits.
