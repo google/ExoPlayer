@@ -53,35 +53,27 @@ import java.nio.ByteBuffer;
   public static final class Factory implements MediaCodecAdapter.Factory {
     private final Supplier<HandlerThread> callbackThreadSupplier;
     private final Supplier<HandlerThread> queueingThreadSupplier;
-    private final boolean synchronizeCodecInteractionsWithQueueing;
 
     /**
      * Creates an factory for {@link AsynchronousMediaCodecAdapter} instances.
      *
      * @param trackType One of {@link C#TRACK_TYPE_AUDIO} or {@link C#TRACK_TYPE_VIDEO}. Used for
      *     labelling the internal thread accordingly.
-     * @param synchronizeCodecInteractionsWithQueueing Whether the adapter should synchronize {@link
-     *     MediaCodec} interactions with asynchronous buffer queueing. When {@code true}, codec
-     *     interactions will wait until all input buffers pending queueing wil be submitted to the
-     *     {@link MediaCodec}.
      */
-    public Factory(@C.TrackType int trackType, boolean synchronizeCodecInteractionsWithQueueing) {
+    public Factory(@C.TrackType int trackType) {
       this(
           /* callbackThreadSupplier= */ () ->
               new HandlerThread(createCallbackThreadLabel(trackType)),
           /* queueingThreadSupplier= */ () ->
-              new HandlerThread(createQueueingThreadLabel(trackType)),
-          synchronizeCodecInteractionsWithQueueing);
+              new HandlerThread(createQueueingThreadLabel(trackType)));
     }
 
     @VisibleForTesting
     /* package */ Factory(
         Supplier<HandlerThread> callbackThreadSupplier,
-        Supplier<HandlerThread> queueingThreadSupplier,
-        boolean synchronizeCodecInteractionsWithQueueing) {
+        Supplier<HandlerThread> queueingThreadSupplier) {
       this.callbackThreadSupplier = callbackThreadSupplier;
       this.queueingThreadSupplier = queueingThreadSupplier;
-      this.synchronizeCodecInteractionsWithQueueing = synchronizeCodecInteractionsWithQueueing;
     }
 
     @Override
@@ -95,10 +87,7 @@ import java.nio.ByteBuffer;
         codec = MediaCodec.createByCodecName(codecName);
         codecAdapter =
             new AsynchronousMediaCodecAdapter(
-                codec,
-                callbackThreadSupplier.get(),
-                queueingThreadSupplier.get(),
-                synchronizeCodecInteractionsWithQueueing);
+                codec, callbackThreadSupplier.get(), queueingThreadSupplier.get());
         TraceUtil.endSection();
         codecAdapter.initialize(
             configuration.mediaFormat,
@@ -130,19 +119,14 @@ import java.nio.ByteBuffer;
   private final MediaCodec codec;
   private final AsynchronousMediaCodecCallback asynchronousMediaCodecCallback;
   private final AsynchronousMediaCodecBufferEnqueuer bufferEnqueuer;
-  private final boolean synchronizeCodecInteractionsWithQueueing;
   private boolean codecReleased;
   private @State int state;
 
   private AsynchronousMediaCodecAdapter(
-      MediaCodec codec,
-      HandlerThread callbackThread,
-      HandlerThread enqueueingThread,
-      boolean synchronizeCodecInteractionsWithQueueing) {
+      MediaCodec codec, HandlerThread callbackThread, HandlerThread enqueueingThread) {
     this.codec = codec;
     this.asynchronousMediaCodecCallback = new AsynchronousMediaCodecCallback(callbackThread);
     this.bufferEnqueuer = new AsynchronousMediaCodecBufferEnqueuer(codec, enqueueingThread);
-    this.synchronizeCodecInteractionsWithQueueing = synchronizeCodecInteractionsWithQueueing;
     this.state = STATE_CREATED;
   }
 
@@ -250,7 +234,6 @@ import java.nio.ByteBuffer;
 
   @Override
   public void setOnFrameRenderedListener(OnFrameRenderedListener listener, Handler handler) {
-    maybeBlockOnQueueing();
     codec.setOnFrameRenderedListener(
         (codec, presentationTimeUs, nanoTime) ->
             listener.onFrameRendered(
@@ -260,26 +243,22 @@ import java.nio.ByteBuffer;
 
   @Override
   public void setOutputSurface(Surface surface) {
-    maybeBlockOnQueueing();
     codec.setOutputSurface(surface);
   }
 
   @Override
   public void setParameters(Bundle params) {
-    maybeBlockOnQueueing();
     codec.setParameters(params);
   }
 
   @Override
   public void setVideoScalingMode(@C.VideoScalingMode int scalingMode) {
-    maybeBlockOnQueueing();
     codec.setVideoScalingMode(scalingMode);
   }
 
   @Override
   @RequiresApi(26)
   public PersistableBundle getMetrics() {
-    maybeBlockOnQueueing();
     return codec.getMetrics();
   }
 
@@ -291,19 +270,6 @@ import java.nio.ByteBuffer;
   @VisibleForTesting
   /* package */ void onOutputFormatChanged(MediaFormat format) {
     asynchronousMediaCodecCallback.onOutputFormatChanged(codec, format);
-  }
-
-  private void maybeBlockOnQueueing() {
-    if (synchronizeCodecInteractionsWithQueueing) {
-      try {
-        bufferEnqueuer.waitUntilQueueingComplete();
-      } catch (InterruptedException e) {
-        Thread.currentThread().interrupt();
-        // The playback thread should not be interrupted. Raising this as an
-        // IllegalStateException.
-        throw new IllegalStateException(e);
-      }
-    }
   }
 
   private static String createCallbackThreadLabel(@C.TrackType int trackType) {
