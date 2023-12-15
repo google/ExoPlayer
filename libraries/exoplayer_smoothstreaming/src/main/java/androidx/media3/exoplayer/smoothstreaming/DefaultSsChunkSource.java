@@ -16,6 +16,7 @@
 package androidx.media3.exoplayer.smoothstreaming;
 
 import static androidx.media3.exoplayer.trackselection.TrackSelectionUtil.createFallbackOptions;
+import static java.lang.Math.max;
 
 import android.net.Uri;
 import android.os.SystemClock;
@@ -319,7 +320,7 @@ public class DefaultSsChunkSource implements SsChunkSource {
           new CmcdData.Factory(
                   cmcdConfiguration,
                   trackSelection,
-                  bufferedDurationUs,
+                  max(0, bufferedDurationUs),
                   /* playbackRate= */ loadingInfo.playbackSpeed,
                   /* streamingFormat= */ CmcdData.Factory.STREAMING_FORMAT_SS,
                   /* isLive= */ manifest.isLive,

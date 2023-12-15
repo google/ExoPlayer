@@ -410,7 +410,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
             : new CmcdData.Factory(
                 cmcdConfiguration,
                 trackSelection,
-                bufferedDurationUs,
+                max(0, bufferedDurationUs),
                 /* playbackRate= */ loadingInfo.playbackSpeed,
                 /* streamingFormat= */ CmcdData.Factory.STREAMING_FORMAT_DASH,
                 /* isLive= */ manifest.dynamic,
