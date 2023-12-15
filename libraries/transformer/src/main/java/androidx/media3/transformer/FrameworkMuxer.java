@@ -123,6 +123,7 @@ import java.nio.ByteBuffer;
     } else {
       mediaFormat =
           MediaFormat.createAudioFormat(sampleMimeType, format.sampleRate, format.channelCount);
+      MediaFormatUtil.maybeSetString(mediaFormat, MediaFormat.KEY_LANGUAGE, format.language);
     }
     MediaFormatUtil.setCsdBuffers(mediaFormat, format.initializationData);
     int trackIndex;
