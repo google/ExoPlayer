@@ -124,7 +124,8 @@ public final class CmcdData {
      *     and this one, {@code false} otherwise.
      * @param isBufferEmpty {@code true} if the queue of buffered chunks is empty, {@code false}
      *     otherwise.
-     * @throws IllegalArgumentException If {@code bufferedDurationUs} is negative.
+     * @throws IllegalArgumentException If {@code bufferedDurationUs} is negative or {@code
+     *     playbackRate} is non-positive.
      */
     public Factory(
         CmcdConfiguration cmcdConfiguration,

@@ -89,6 +89,23 @@ public class DefaultSsChunkSourceTest {
             "bl=1000,dl=500,mtp=1000,nor=\"..%2FFragments(video%3D28660000)\"",
             "CMCD-Session",
             "cid=\"mediaId\",pr=2.00,sf=s,sid=\"" + cmcdConfiguration.sessionId + "\",st=v");
+
+    // Playing mid-chunk, where loadPositionUs is less than playbackPositionUs
+    chunkSource.getNextChunk(
+        new LoadingInfo.Builder().setPlaybackPositionUs(5_000_000).setPlaybackSpeed(2.0f).build(),
+        /* loadPositionUs= */ 4_000_000,
+        /* queue= */ ImmutableList.of((MediaChunk) output.chunk),
+        output);
+
+    // buffer length is set to 0 when bufferedDurationUs is negative
+    assertThat(output.chunk.dataSpec.httpRequestHeaders)
+        .containsExactly(
+            "CMCD-Object",
+            "br=308,d=898,ot=v,tb=1536",
+            "CMCD-Request",
+            "bl=0,dl=0,mtp=1000",
+            "CMCD-Session",
+            "cid=\"mediaId\",pr=2.00,sf=s,sid=\"" + cmcdConfiguration.sessionId + "\",st=v");
   }
 
   @Test
