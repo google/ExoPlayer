@@ -61,6 +61,7 @@ public final class InAppMuxer implements Muxer {
      * <ul>
      *   <li>{@link Mp4LocationData}
      *   <li>{@link XmpData}
+     *   <li>{@link Mp4TimestampData}
      *   <li>{@link MdtaMetadataEntry}
      * </ul>
      */
