@@ -23,6 +23,7 @@ import static org.robolectric.Shadows.shadowOf;
 
 import android.media.MediaCodec;
 import android.media.MediaFormat;
+import android.os.Bundle;
 import android.os.HandlerThread;
 import androidx.media3.common.C;
 import androidx.media3.common.util.ConditionVariable;
@@ -159,6 +160,23 @@ public class AsynchronousMediaCodecBufferEnqueuerTest {
                 /* info= */ info,
                 /* presentationTimeUs= */ 0,
                 /* flags= */ 0));
+  }
+
+  @Test
+  public void setParameters_withPendingCryptoExceptionSet_throwsCryptoException() {
+    enqueuer.setPendingRuntimeException(
+        new MediaCodec.CryptoException(/* errorCode= */ 0, /* detailMessage= */ null));
+    enqueuer.start();
+
+    assertThrows(MediaCodec.CryptoException.class, () -> enqueuer.setParameters(new Bundle()));
+  }
+
+  @Test
+  public void setParameters_withPendingIllegalStateExceptionSet_throwsIllegalStateException() {
+    enqueuer.start();
+    enqueuer.setPendingRuntimeException(new IllegalStateException());
+
+    assertThrows(IllegalStateException.class, () -> enqueuer.setParameters(new Bundle()));
   }
 
   @Test

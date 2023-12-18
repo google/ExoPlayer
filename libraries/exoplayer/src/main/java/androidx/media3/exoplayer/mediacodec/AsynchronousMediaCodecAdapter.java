@@ -248,7 +248,7 @@ import java.nio.ByteBuffer;
 
   @Override
   public void setParameters(Bundle params) {
-    codec.setParameters(params);
+    bufferEnqueuer.setParameters(params);
   }
 
   @Override
