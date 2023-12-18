@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.media3.exoplayer.mediacodec;
 
 import static androidx.annotation.VisibleForTesting.NONE;
@@ -39,13 +38,11 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
- * Performs {@link MediaCodec} input buffer queueing on a background thread.
- *
- * <p>The implementation of this class assumes that its public methods will be called from the same
- * thread.
+ * Performs {@link MediaCodec} input buffer queueing on a background thread. This is required on API
+ * 33 and below because queuing secure buffers blocks until decryption is complete.
  */
 @RequiresApi(23)
-class AsynchronousMediaCodecBufferEnqueuer {
+/* package */ class AsynchronousMediaCodecBufferEnqueuer implements MediaCodecBufferEnqueuer {
 
   private static final int MSG_QUEUE_INPUT_BUFFER = 0;
   private static final int MSG_QUEUE_SECURE_INPUT_BUFFER = 1;
@@ -83,11 +80,7 @@ class AsynchronousMediaCodecBufferEnqueuer {
     pendingRuntimeException = new AtomicReference<>();
   }
 
-  /**
-   * Starts this instance.
-   *
-   * <p>Call this method after creating an instance and before queueing input buffers.
-   */
+  @Override
   public void start() {
     if (!started) {
       handlerThread.start();
@@ -102,11 +95,7 @@ class AsynchronousMediaCodecBufferEnqueuer {
     }
   }
 
-  /**
-   * Submits an input buffer for decoding.
-   *
-   * @see android.media.MediaCodec#queueInputBuffer
-   */
+  @Override
   public void queueInputBuffer(
       int index, int offset, int size, long presentationTimeUs, int flags) {
     maybeThrowException();
@@ -116,15 +105,7 @@ class AsynchronousMediaCodecBufferEnqueuer {
     message.sendToTarget();
   }
 
-  /**
-   * Submits an input buffer that potentially contains encrypted data for decoding.
-   *
-   * <p>Note: This method behaves as {@link MediaCodec#queueSecureInputBuffer} with the difference
-   * that {@code info} is of type {@link CryptoInfo} and not {@link
-   * android.media.MediaCodec.CryptoInfo}.
-   *
-   * @see android.media.MediaCodec#queueSecureInputBuffer
-   */
+  @Override
   public void queueSecureInputBuffer(
       int index, int offset, CryptoInfo info, long presentationTimeUs, int flags) {
     maybeThrowException();
@@ -136,12 +117,13 @@ class AsynchronousMediaCodecBufferEnqueuer {
     message.sendToTarget();
   }
 
+  @Override
   public void setParameters(Bundle params) {
     maybeThrowException();
     castNonNull(handler).obtainMessage(MSG_SET_PARAMETERS, params).sendToTarget();
   }
 
-  /** Flushes the instance. */
+  @Override
   public void flush() {
     if (started) {
       try {
@@ -155,7 +137,7 @@ class AsynchronousMediaCodecBufferEnqueuer {
     }
   }
 
-  /** Shuts down the instance. Make sure to call this method to release its internal resources. */
+  @Override
   public void shutdown() {
     if (started) {
       flush();
@@ -164,12 +146,12 @@ class AsynchronousMediaCodecBufferEnqueuer {
     started = false;
   }
 
-  /** Blocks the current thread until all input buffers pending queueing are submitted. */
+  @Override
   public void waitUntilQueueingComplete() throws InterruptedException {
     blockUntilHandlerThreadIsIdle();
   }
 
-  /** Throw any exception that occurred on the enqueuer's background queueing thread. */
+  @Override
   public void maybeThrowException() {
     @Nullable RuntimeException exception = pendingRuntimeException.getAndSet(null);
     if (exception != null) {
