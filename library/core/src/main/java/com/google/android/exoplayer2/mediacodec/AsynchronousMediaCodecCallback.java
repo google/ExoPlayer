@@ -72,6 +72,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private MediaCodec.CodecException mediaCodecException;
 
   @GuardedBy("lock")
+  @Nullable
+  private MediaCodec.CryptoException mediaCodecCryptoException;
+
+  @GuardedBy("lock")
   private long pendingFlushCount;
 
   @GuardedBy("lock")
@@ -237,6 +241,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   @Override
+  public void onCryptoError(MediaCodec codec, MediaCodec.CryptoException e) {
+    synchronized (lock) {
+      mediaCodecCryptoException = e;
+    }
+  }
+
+  @Override
   public void onOutputFormatChanged(MediaCodec codec, MediaFormat format) {
     synchronized (lock) {
       addOutputFormat(format);
@@ -295,6 +306,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private void maybeThrowException() {
     maybeThrowInternalException();
     maybeThrowMediaCodecException();
+    maybeThrowMediaCodecCryptoException();
   }
 
   @GuardedBy("lock")
@@ -312,6 +324,15 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       MediaCodec.CodecException codecException = mediaCodecException;
       mediaCodecException = null;
       throw codecException;
+    }
+  }
+
+  @GuardedBy("lock")
+  private void maybeThrowMediaCodecCryptoException() {
+    if (mediaCodecCryptoException != null) {
+      MediaCodec.CryptoException cryptoException = mediaCodecCryptoException;
+      mediaCodecCryptoException = null;
+      throw cryptoException;
     }
   }
 

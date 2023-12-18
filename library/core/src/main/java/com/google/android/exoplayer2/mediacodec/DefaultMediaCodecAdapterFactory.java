@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.mediacodec;
 
 import static java.lang.annotation.ElementType.TYPE_USE;
 
+import android.media.MediaCodec;
 import androidx.annotation.IntDef;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -58,9 +59,11 @@ public final class DefaultMediaCodecAdapterFactory implements MediaCodecAdapter.
   private static final String TAG = "DMCodecAdapterFactory";
 
   private @Mode int asynchronousMode;
+  private boolean asyncCryptoFlagEnabled;
 
   public DefaultMediaCodecAdapterFactory() {
     asynchronousMode = MODE_DEFAULT;
+    asyncCryptoFlagEnabled = true;
   }
 
   /**
@@ -87,6 +90,20 @@ public final class DefaultMediaCodecAdapterFactory implements MediaCodecAdapter.
     return this;
   }
 
+  /**
+   * Sets whether to enable {@link MediaCodec#CONFIGURE_FLAG_USE_CRYPTO_ASYNC} on API 34 and above
+   * for {@link AsynchronousMediaCodecAdapter} instances.
+   *
+   * <p>This method is experimental. Its default value may change, or it may be renamed or removed
+   * in a future release.
+   */
+  @CanIgnoreReturnValue
+  public DefaultMediaCodecAdapterFactory experimentalSetAsyncCryptoFlagEnabled(
+      boolean enableAsyncCryptoFlag) {
+    asyncCryptoFlagEnabled = enableAsyncCryptoFlag;
+    return this;
+  }
+
   @Override
   public MediaCodecAdapter createAdapter(MediaCodecAdapter.Configuration configuration)
       throws IOException {
@@ -100,6 +117,7 @@ public final class DefaultMediaCodecAdapterFactory implements MediaCodecAdapter.
               + Util.getTrackTypeString(trackType));
       AsynchronousMediaCodecAdapter.Factory factory =
           new AsynchronousMediaCodecAdapter.Factory(trackType);
+      factory.experimentalSetAsyncCryptoFlagEnabled(asyncCryptoFlagEnabled);
       return factory.createAdapter(configuration);
     }
     return new SynchronousMediaCodecAdapter.Factory().createAdapter(configuration);

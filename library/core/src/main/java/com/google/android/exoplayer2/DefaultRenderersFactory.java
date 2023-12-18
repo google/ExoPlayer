@@ -170,6 +170,20 @@ public class DefaultRenderersFactory implements RenderersFactory {
   }
 
   /**
+   * Sets whether to enable {@link MediaCodec#CONFIGURE_FLAG_USE_CRYPTO_ASYNC} on API 34 and above
+   * when operating the codec in asynchronous mode.
+   *
+   * <p>This method is experimental. Its default value may change, or it may be renamed or removed
+   * in a future release.
+   */
+  @CanIgnoreReturnValue
+  public DefaultRenderersFactory experimentalSetMediaCodecAsyncCryptoFlagEnabled(
+      boolean enableAsyncCryptoFlag) {
+    codecAdapterFactory.experimentalSetAsyncCryptoFlagEnabled(enableAsyncCryptoFlag);
+    return this;
+  }
+
+  /**
    * Sets whether to enable fallback to lower-priority decoders if decoder initialization fails.
    * This may result in using a decoder that is less efficient or slower than the primary decoder.
    *
