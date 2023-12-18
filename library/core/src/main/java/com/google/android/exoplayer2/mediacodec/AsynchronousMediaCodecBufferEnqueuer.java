@@ -21,6 +21,7 @@ import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
 
 import android.media.MediaCodec;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
@@ -55,6 +56,7 @@ class AsynchronousMediaCodecBufferEnqueuer {
   private static final int MSG_QUEUE_INPUT_BUFFER = 0;
   private static final int MSG_QUEUE_SECURE_INPUT_BUFFER = 1;
   private static final int MSG_OPEN_CV = 2;
+  private static final int MSG_SET_PARAMETERS = 3;
 
   @GuardedBy("MESSAGE_PARAMS_INSTANCE_POOL")
   private static final ArrayDeque<MessageParams> MESSAGE_PARAMS_INSTANCE_POOL = new ArrayDeque<>();
@@ -140,6 +142,11 @@ class AsynchronousMediaCodecBufferEnqueuer {
     message.sendToTarget();
   }
 
+  public void setParameters(Bundle params) {
+    maybeThrowException();
+    castNonNull(handler).obtainMessage(MSG_SET_PARAMETERS, params).sendToTarget();
+  }
+
   /** Flushes the instance. */
   public void flush() {
     if (started) {
@@ -218,6 +225,10 @@ class AsynchronousMediaCodecBufferEnqueuer {
       case MSG_OPEN_CV:
         conditionVariable.open();
         break;
+      case MSG_SET_PARAMETERS:
+        Bundle parameters = (Bundle) msg.obj;
+        doSetParameters(parameters);
+        break;
       default:
         pendingRuntimeException.compareAndSet(
             null, new IllegalStateException(String.valueOf(msg.what)));
@@ -245,6 +256,14 @@ class AsynchronousMediaCodecBufferEnqueuer {
       synchronized (QUEUE_SECURE_LOCK) {
         codec.queueSecureInputBuffer(index, offset, info, presentationTimeUs, flags);
       }
+    } catch (RuntimeException e) {
+      pendingRuntimeException.compareAndSet(null, e);
+    }
+  }
+
+  private void doSetParameters(Bundle parameters) {
+    try {
+      codec.setParameters(parameters);
     } catch (RuntimeException e) {
       pendingRuntimeException.compareAndSet(null, e);
     }
