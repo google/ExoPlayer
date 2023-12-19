@@ -28,10 +28,10 @@ import static androidx.media3.transformer.AndroidTestUtil.PNG_ASSET_URI_STRING;
 import static androidx.media3.transformer.AndroidTestUtil.createOpenGlObjects;
 import static androidx.media3.transformer.AndroidTestUtil.generateTextureFromBitmap;
 import static androidx.media3.transformer.AndroidTestUtil.recordTestSkipped;
+import static androidx.media3.transformer.ExportResult.OPTIMIZATION_ABANDONED_KEYFRAME_PLACEMENT_OPTIMAL_FOR_TRIM;
+import static androidx.media3.transformer.ExportResult.OPTIMIZATION_ABANDONED_TRIM_AND_TRANSCODING_TRANSFORMATION_REQUESTED;
 import static androidx.media3.transformer.ExportResult.OPTIMIZATION_FAILED_FORMAT_MISMATCH;
 import static androidx.media3.transformer.ExportResult.OPTIMIZATION_SUCCEEDED;
-import static androidx.media3.transformer.ExportResult.TRIM_OPTIMIZATION_ABANDONED_KEYFRAME_PLACEMENT;
-import static androidx.media3.transformer.ExportResult.TRIM_OPTIMIZATION_ABANDONED_TRANSCODING_EFFECTS_REQUESTED;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assume.assumeFalse;
@@ -514,7 +514,7 @@ public class TransformerEndToEndTest {
             .run(testId, mediaItem);
 
     assertThat(result.exportResult.optimizationResult)
-        .isEqualTo(TRIM_OPTIMIZATION_ABANDONED_KEYFRAME_PLACEMENT);
+        .isEqualTo(OPTIMIZATION_ABANDONED_KEYFRAME_PLACEMENT_OPTIMAL_FOR_TRIM);
     assertThat(result.exportResult.durationMs).isAtMost(clippingEndMs - clippingStartMs);
   }
 
@@ -549,7 +549,7 @@ public class TransformerEndToEndTest {
             .run(testId, mediaItem);
 
     assertThat(result.exportResult.optimizationResult)
-        .isEqualTo(TRIM_OPTIMIZATION_ABANDONED_KEYFRAME_PLACEMENT);
+        .isEqualTo(OPTIMIZATION_ABANDONED_KEYFRAME_PLACEMENT_OPTIMAL_FOR_TRIM);
     // The asset is 15 s 537 ms long.
     assertThat(result.exportResult.durationMs).isAtMost(1_017);
   }
@@ -620,7 +620,7 @@ public class TransformerEndToEndTest {
             .run(testId, editedMediaItem);
 
     assertThat(result.exportResult.optimizationResult)
-        .isEqualTo(TRIM_OPTIMIZATION_ABANDONED_TRANSCODING_EFFECTS_REQUESTED);
+        .isEqualTo(OPTIMIZATION_ABANDONED_TRIM_AND_TRANSCODING_TRANSFORMATION_REQUESTED);
   }
 
   @Test

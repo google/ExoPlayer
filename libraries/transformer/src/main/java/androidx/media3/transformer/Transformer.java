@@ -20,11 +20,11 @@ import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.transformer.Composition.HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR;
+import static androidx.media3.transformer.ExportResult.OPTIMIZATION_ABANDONED_KEYFRAME_PLACEMENT_OPTIMAL_FOR_TRIM;
 import static androidx.media3.transformer.ExportResult.OPTIMIZATION_ABANDONED_OTHER;
+import static androidx.media3.transformer.ExportResult.OPTIMIZATION_ABANDONED_TRIM_AND_TRANSCODING_TRANSFORMATION_REQUESTED;
 import static androidx.media3.transformer.ExportResult.OPTIMIZATION_FAILED_EXTRACTION_FAILED;
 import static androidx.media3.transformer.ExportResult.OPTIMIZATION_FAILED_FORMAT_MISMATCH;
-import static androidx.media3.transformer.ExportResult.TRIM_OPTIMIZATION_ABANDONED_KEYFRAME_PLACEMENT;
-import static androidx.media3.transformer.ExportResult.TRIM_OPTIMIZATION_ABANDONED_TRANSCODING_EFFECTS_REQUESTED;
 import static androidx.media3.transformer.TransformerUtil.shouldTranscodeAudio;
 import static androidx.media3.transformer.TransformerUtil.shouldTranscodeVideo;
 import static androidx.media3.transformer.TransmuxTranscodeHelper.buildNewCompositionWithClipTimes;
@@ -1253,7 +1253,7 @@ public final class Transformer {
                 || (trimEndTimeUs != C.TIME_END_OF_SOURCE
                     && trimEndTimeUs < mp4MetadataInfo.firstSyncSampleTimestampUsAfterTimeUs)) {
               exportResultBuilder.setOptimizationResult(
-                  TRIM_OPTIMIZATION_ABANDONED_KEYFRAME_PLACEMENT);
+                  OPTIMIZATION_ABANDONED_KEYFRAME_PLACEMENT_OPTIMAL_FOR_TRIM);
               processFullInput();
               return;
             }
@@ -1269,7 +1269,7 @@ public final class Transformer {
                       mp4MetadataInfo.durationUs,
                       /* startsAtKeyFrame= */ true);
               exportResultBuilder.setOptimizationResult(
-                  TRIM_OPTIMIZATION_ABANDONED_KEYFRAME_PLACEMENT);
+                  OPTIMIZATION_ABANDONED_KEYFRAME_PLACEMENT_OPTIMAL_FOR_TRIM);
               processFullInput();
               return;
             }
@@ -1296,7 +1296,7 @@ public final class Transformer {
                         remuxingMuxerWrapper))) {
               remuxingMuxerWrapper = null;
               exportResultBuilder.setOptimizationResult(
-                  TRIM_OPTIMIZATION_ABANDONED_TRANSCODING_EFFECTS_REQUESTED);
+                  OPTIMIZATION_ABANDONED_TRIM_AND_TRANSCODING_TRANSFORMATION_REQUESTED);
               processFullInput();
               return;
             }
