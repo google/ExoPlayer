@@ -30,7 +30,7 @@ import androidx.media3.demo.shortform.R
 import com.google.android.exoplayer2.DefaultLoadControl
 import com.google.android.exoplayer2.DefaultRenderersFactory
 import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.source.ProgressiveMediaSource
+import com.google.android.exoplayer2.source.DefaultMediaSourceFactory
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
 import com.google.android.exoplayer2.util.EventLogger
@@ -46,6 +46,7 @@ class ViewPagerMediaAdapter(
   private val mediaSourceManager: MediaSourceManager
   private var viewCounter = 0
   private var playerPool: PlayerPool
+  private val holderMap: MutableMap<Int, ViewPagerMediaHolder>
 
   init {
     playbackThread.start()
@@ -60,9 +61,10 @@ class ViewPagerMediaAdapter(
         renderersFactory,
         DefaultBandwidthMeter.getSingletonInstance(context)
       )
+    holderMap = mutableMapOf()
     mediaSourceManager =
       MediaSourceManager(
-        ProgressiveMediaSource.Factory(DefaultDataSource.Factory(context)),
+        DefaultMediaSourceFactory(DefaultDataSource.Factory(context)),
         playbackThread.looper,
         loadControl.allocator,
         renderersFactory,
@@ -98,6 +100,14 @@ class ViewPagerMediaAdapter(
     mediaSourceManager.addAll(reachableMediaItems)
   }
 
+  override fun onViewAttachedToWindow(holder: ViewPagerMediaHolder) {
+    holderMap[holder.currentToken] = holder
+  }
+
+  override fun onViewDetachedFromWindow(holder: ViewPagerMediaHolder) {
+    holderMap.remove(holder.currentToken)
+  }
+
   override fun getItemCount(): Int {
     // Effectively infinite scroll
     return Int.MAX_VALUE
@@ -105,13 +115,16 @@ class ViewPagerMediaAdapter(
 
   override fun onViewRecycled(holder: ViewPagerMediaHolder) {
     super.onViewRecycled(holder)
-    Log.d("viewpager", "Recycling the view")
   }
 
   fun onDestroy() {
     playbackThread.quit()
     playerPool.destroyPlayers()
     mediaSourceManager.release()
+  }
+
+  fun play(position: Int) {
+    holderMap[position]?.let { holder -> holder.player?.let { playerPool.play(it) } }
   }
 
   inner class Factory : PlayerPool.PlayerFactory {
@@ -121,10 +134,10 @@ class ViewPagerMediaAdapter(
       val loadControl =
         DefaultLoadControl.Builder()
           .setBufferDurationsMs(
-            DefaultLoadControl.DEFAULT_MIN_BUFFER_MS,
-            DefaultLoadControl.DEFAULT_MAX_BUFFER_MS,
-            /* bufferForPlaybackMs= */ 0,
-            DefaultLoadControl.DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS
+            /* minBufferMs= */ 15_000,
+            /* maxBufferMs= */ 15_000,
+            /* bufferForPlaybackMs= */ 500,
+            /* bufferForPlaybackAfterRebufferMs= */ 1_000
           )
           .build()
       val player = ExoPlayer.Builder(context).setLoadControl(loadControl).build()

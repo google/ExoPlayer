@@ -19,6 +19,7 @@ import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import androidx.annotation.OptIn
+import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.util.UnstableApi
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.LoadControl
@@ -76,6 +77,25 @@ class PlayerPool(
         return
       } else if (playerRequestTokenSet.contains(token)) {
         Handler(Looper.getMainLooper()).postDelayed({ acquirePlayerInternal(token, callback) }, 500)
+      }
+    }
+  }
+
+  /** Calls [Player.play()] for the given player and pauses all other players. */
+  fun play(player: Player) {
+    pauseAllPlayers(player)
+    player.play()
+  }
+
+  /**
+   * Pauses all players.
+   *
+   * @param keepOngoingPlayer The optional player that should keep playing if not paused.
+   */
+  fun pauseAllPlayers(keepOngoingPlayer: Player? = null) {
+    playerMap.values.forEach {
+      if (it != keepOngoingPlayer) {
+        it.pause()
       }
     }
   }
