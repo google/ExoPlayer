@@ -475,4 +475,8 @@ import com.google.android.exoplayer2.util.NullableType;
       Log.e(TAG, "Period release failed.", e);
     }
   }
+
+  /* package */ interface Factory {
+    MediaPeriodHolder create(MediaPeriodInfo info, long rendererPositionOffsetUs);
+  }
 }
