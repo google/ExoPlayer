@@ -19,7 +19,6 @@ import static com.google.android.exoplayer2.C.FIRST_FRAME_NOT_RENDERED;
 import static com.google.android.exoplayer2.C.FIRST_FRAME_NOT_RENDERED_ONLY_ALLOWED_IF_STARTED;
 import static com.google.android.exoplayer2.C.FIRST_FRAME_RENDERED;
 import static com.google.android.exoplayer2.source.SampleStream.FLAG_REQUIRE_FORMAT;
-import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 import static java.lang.Math.min;
@@ -147,7 +146,7 @@ public class ImageRenderer extends BaseRenderer {
       int result = readSource(formatHolder, flagsOnlyBuffer, FLAG_REQUIRE_FORMAT);
       if (result == C.RESULT_FORMAT_READ) {
         // Note that this works because we only expect to enter this if-condition once per playback.
-        inputFormat = checkNotNull(formatHolder.format);
+        inputFormat = checkStateNotNull(formatHolder.format);
         initDecoder();
       } else if (result == C.RESULT_BUFFER_READ) {
         // End of stream read having not read a format.
@@ -275,7 +274,7 @@ public class ImageRenderer extends BaseRenderer {
         checkStateNotNull(inputFormat);
         initDecoder();
       } else {
-        checkNotNull(outputBuffer).release();
+        checkStateNotNull(outputBuffer).release();
         outputBuffer = null;
         if (offsetQueue.isEmpty()) {
           outputStreamEnded = true;
@@ -340,7 +339,7 @@ public class ImageRenderer extends BaseRenderer {
     if (decoderReinitializationState == REINITIALIZATION_STATE_SIGNAL_END_OF_STREAM_THEN_WAIT) {
       checkStateNotNull(inputBuffer);
       inputBuffer.setFlags(C.BUFFER_FLAG_END_OF_STREAM);
-      checkNotNull(decoder).queueInputBuffer(inputBuffer);
+      checkStateNotNull(decoder).queueInputBuffer(inputBuffer);
       inputBuffer = null;
       decoderReinitializationState = REINITIALIZATION_STATE_WAIT_END_OF_STREAM;
       return false;
@@ -353,12 +352,12 @@ public class ImageRenderer extends BaseRenderer {
         // Input buffers with no data that are also non-EOS, only carry the timestamp for a grid
         // tile. These buffers are not queued.
         boolean shouldQueueBuffer =
-            checkNotNull(inputBuffer.data).remaining() > 0
-                || checkNotNull(inputBuffer).isEndOfStream();
+            checkStateNotNull(inputBuffer.data).remaining() > 0
+                || checkStateNotNull(inputBuffer).isEndOfStream();
         if (shouldQueueBuffer) {
-          checkNotNull(decoder).queueInputBuffer(checkNotNull(inputBuffer));
+          checkStateNotNull(decoder).queueInputBuffer(checkStateNotNull(inputBuffer));
         }
-        if (checkNotNull(inputBuffer).isEndOfStream()) {
+        if (checkStateNotNull(inputBuffer).isEndOfStream()) {
           inputStreamEnded = true;
           inputBuffer = null;
           return false;
@@ -368,11 +367,11 @@ public class ImageRenderer extends BaseRenderer {
         if (shouldQueueBuffer) {
           inputBuffer = null;
         } else {
-          checkNotNull(inputBuffer).clear();
+          checkStateNotNull(inputBuffer).clear();
         }
         return true;
       case C.RESULT_FORMAT_READ:
-        inputFormat = checkNotNull(formatHolder.format);
+        inputFormat = checkStateNotNull(formatHolder.format);
         decoderReinitializationState = REINITIALIZATION_STATE_SIGNAL_END_OF_STREAM_THEN_WAIT;
         return true;
       default:
