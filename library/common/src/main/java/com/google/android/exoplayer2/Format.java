@@ -1233,6 +1233,9 @@ public final class Format implements Bundleable {
     }
     StringBuilder builder = new StringBuilder();
     builder.append("id=").append(format.id).append(", mimeType=").append(format.sampleMimeType);
+    if (format.containerMimeType != null) {
+      builder.append(", container=").append(format.containerMimeType);
+    }
     if (format.bitrate != NO_VALUE) {
       builder.append(", bitrate=").append(format.bitrate);
     }
