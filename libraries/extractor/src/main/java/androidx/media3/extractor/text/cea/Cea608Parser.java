@@ -40,6 +40,7 @@ import androidx.media3.common.util.NullableType;
 import androidx.media3.common.util.ParsableByteArray;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.extractor.text.CuesWithTiming;
+import androidx.media3.extractor.text.Subtitle;
 import androidx.media3.extractor.text.SubtitleParser;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -423,6 +424,12 @@ public final class Cea608Parser implements SubtitleParser {
   @Override
   public @CueReplacementBehavior int getCueReplacementBehavior() {
     return CUE_REPLACEMENT_BEHAVIOR;
+  }
+
+  @Override
+  public Subtitle parseToLegacySubtitle(byte[] data, int offset, int length) {
+    throw new UnsupportedOperationException(
+        "Cannot produce Subtitle instances directly. Use Cea608Decoder instead.");
   }
 
   @Override
