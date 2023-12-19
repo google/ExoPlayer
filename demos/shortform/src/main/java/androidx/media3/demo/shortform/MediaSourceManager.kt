@@ -82,7 +82,7 @@ class MediaSourceManager(
     }
   }
 
-  operator fun get(mediaItem: MediaItem): MediaSource {
+  operator fun get(mediaItem: MediaItem): PreloadMediaSource {
     if (!sourceMap.containsKey(mediaItem)) {
       add(mediaItem)
     }

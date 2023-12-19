@@ -43,20 +43,11 @@ class ViewPagerActivity : AppCompatActivity() {
     Log.d("viewpager", "Backward cache is of size: ${mediaItemDatabase.lCacheSize}")
     Log.d("viewpager", "Forward cache is of size: ${mediaItemDatabase.rCacheSize}")
     viewPagerView = findViewById(R.id.viewPager)
+    viewPagerView.offscreenPageLimit = 1
     viewPagerView.registerOnPageChangeCallback(
       object : ViewPager2.OnPageChangeCallback() {
-        override fun onPageScrolled(
-          position: Int,
-          positionOffset: Float,
-          positionOffsetPixels: Int
-        ) {}
-
-        override fun onPageScrollStateChanged(state: Int) {
-          Log.d("viewpager", "onPageScrollStateChanged: state=$state")
-        }
-
         override fun onPageSelected(position: Int) {
-          Log.d("viewpager", "onPageSelected: position=$position")
+          adapter.play(position)
         }
       }
     )
