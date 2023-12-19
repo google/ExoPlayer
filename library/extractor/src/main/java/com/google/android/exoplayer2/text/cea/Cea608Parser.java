@@ -33,6 +33,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Format.CueReplacementBehavior;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.CuesWithTiming;
+import com.google.android.exoplayer2.text.Subtitle;
 import com.google.android.exoplayer2.text.SubtitleParser;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Consumer;
@@ -429,6 +430,12 @@ public final class Cea608Parser implements SubtitleParser {
   @Override
   public @CueReplacementBehavior int getCueReplacementBehavior() {
     return CUE_REPLACEMENT_BEHAVIOR;
+  }
+
+  @Override
+  public Subtitle parseToLegacySubtitle(byte[] data, int offset, int length) {
+    throw new UnsupportedOperationException(
+        "Cannot produce Subtitle instances directly. Use Cea608Decoder instead.");
   }
 
   @Override
