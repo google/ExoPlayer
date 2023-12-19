@@ -105,7 +105,23 @@ public final class MediaPeriodQueueTest {
         Looper.getMainLooper());
     HandlerWrapper handler =
         Clock.DEFAULT.createHandler(Looper.getMainLooper(), /* callback= */ null);
-    mediaPeriodQueue = new MediaPeriodQueue(analyticsCollector, handler);
+    mediaPeriodQueue =
+        new MediaPeriodQueue(
+            analyticsCollector,
+            handler,
+            (info, rendererPositionOffsetUs) ->
+                new MediaPeriodHolder(
+                    rendererCapabilities,
+                    rendererPositionOffsetUs,
+                    trackSelector,
+                    allocator,
+                    mediaSourceList,
+                    info,
+                    new TrackSelectorResult(
+                        new RendererConfiguration[0],
+                        new ExoTrackSelection[0],
+                        Tracks.EMPTY,
+                        /* info= */ null)));
     mediaSourceList =
         new MediaSourceList(
             mock(MediaSourceList.MediaSourceListInfoRefreshListener.class),
@@ -1442,17 +1458,7 @@ public final class MediaPeriodQueueTest {
   }
 
   private void enqueueNext() {
-    mediaPeriodQueue.enqueueNextMediaPeriodHolder(
-        rendererCapabilities,
-        trackSelector,
-        allocator,
-        mediaSourceList,
-        getNextMediaPeriodInfo(),
-        new TrackSelectorResult(
-            new RendererConfiguration[0],
-            new ExoTrackSelection[0],
-            Tracks.EMPTY,
-            /* info= */ null));
+    mediaPeriodQueue.enqueueNextMediaPeriodHolder(getNextMediaPeriodInfo());
   }
 
   private void clear() {

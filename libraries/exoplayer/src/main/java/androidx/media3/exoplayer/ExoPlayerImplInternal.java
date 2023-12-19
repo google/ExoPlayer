@@ -295,7 +295,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     deliverPendingMessageAtStartPositionRequired = true;
 
     HandlerWrapper eventHandler = clock.createHandler(applicationLooper, /* callback= */ null);
-    queue = new MediaPeriodQueue(analyticsCollector, eventHandler);
+    queue = new MediaPeriodQueue(analyticsCollector, eventHandler, this::createMediaPeriodHolder);
     mediaSourceList =
         new MediaSourceList(/* listener= */ this, analyticsCollector, eventHandler, playerId);
 
@@ -311,6 +311,18 @@ import java.util.concurrent.atomic.AtomicBoolean;
       this.playbackLooper = internalPlaybackThread.getLooper();
     }
     handler = clock.createHandler(this.playbackLooper, this);
+  }
+
+  private MediaPeriodHolder createMediaPeriodHolder(
+      MediaPeriodInfo mediaPeriodInfo, long rendererPositionOffsetUs) {
+    return new MediaPeriodHolder(
+        rendererCapabilities,
+        rendererPositionOffsetUs,
+        trackSelector,
+        loadControl.getAllocator(),
+        mediaSourceList,
+        mediaPeriodInfo,
+        emptyTrackSelectorResult);
   }
 
   public void experimentalSetForegroundModeTimeoutMs(long setForegroundModeTimeoutMs) {
@@ -2110,14 +2122,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
       @Nullable
       MediaPeriodInfo info = queue.getNextMediaPeriodInfo(rendererPositionUs, playbackInfo);
       if (info != null) {
-        MediaPeriodHolder mediaPeriodHolder =
-            queue.enqueueNextMediaPeriodHolder(
-                rendererCapabilities,
-                trackSelector,
-                loadControl.getAllocator(),
-                mediaSourceList,
-                info,
-                emptyTrackSelectorResult);
+        MediaPeriodHolder mediaPeriodHolder = queue.enqueueNextMediaPeriodHolder(info);
         mediaPeriodHolder.mediaPeriod.prepare(this, info.startPositionUs);
         if (queue.getPlayingPeriod() == mediaPeriodHolder) {
           resetRendererPosition(info.startPositionUs);

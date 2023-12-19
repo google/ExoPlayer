@@ -470,4 +470,8 @@ import androidx.media3.exoplayer.upstream.Allocator;
       Log.e(TAG, "Period release failed.", e);
     }
   }
+
+  /* package */ interface Factory {
+    MediaPeriodHolder create(MediaPeriodInfo info, long rendererPositionOffsetUs);
+  }
 }
