@@ -300,8 +300,8 @@ public final class ExportResult {
    * <ul>
    *   <li>{@link #OPTIMIZATION_NONE}
    *   <li>{@link #OPTIMIZATION_SUCCEEDED}
-   *   <li>{@link #TRIM_OPTIMIZATION_ABANDONED_KEYFRAME_PLACEMENT}
-   *   <li>{@link #TRIM_OPTIMIZATION_ABANDONED_TRANSCODING_EFFECTS_REQUESTED}
+   *   <li>{@link #OPTIMIZATION_ABANDONED_KEYFRAME_PLACEMENT_OPTIMAL_FOR_TRIM}
+   *   <li>{@link #OPTIMIZATION_ABANDONED_TRIM_AND_TRANSCODING_TRANSFORMATION_REQUESTED}
    *   <li>{@link #OPTIMIZATION_ABANDONED_OTHER}
    *   <li>{@link #OPTIMIZATION_FAILED_EXTRACTION_FAILED}
    *   <li>{@link #OPTIMIZATION_FAILED_FORMAT_MISMATCH}
@@ -313,8 +313,8 @@ public final class ExportResult {
   @IntDef({
     OPTIMIZATION_NONE,
     OPTIMIZATION_SUCCEEDED,
-    TRIM_OPTIMIZATION_ABANDONED_KEYFRAME_PLACEMENT,
-    TRIM_OPTIMIZATION_ABANDONED_TRANSCODING_EFFECTS_REQUESTED,
+    OPTIMIZATION_ABANDONED_KEYFRAME_PLACEMENT_OPTIMAL_FOR_TRIM,
+    OPTIMIZATION_ABANDONED_TRIM_AND_TRANSCODING_TRANSFORMATION_REQUESTED,
     OPTIMIZATION_ABANDONED_OTHER,
     OPTIMIZATION_FAILED_EXTRACTION_FAILED,
     OPTIMIZATION_FAILED_FORMAT_MISMATCH
@@ -332,19 +332,20 @@ public final class ExportResult {
    * requested}, but it would not improve performance because of key frame placement. The
    * optimization was abandoned and normal export proceeded.
    *
-   * <p>The trim optimization does not improve performance when the video starts at a key frame, or
-   * when there is no key frames between the requested {@link
+   * <p>The trim optimization does not improve performance when the requested {@link
+   * com.google.android.exoplayer2.MediaItem.ClippingConfiguration#startPositionUs} is at a key
+   * frame, or when there are no key frames between the requested {@link
    * com.google.android.exoplayer2.MediaItem.ClippingConfiguration#startPositionUs} and {@link
    * com.google.android.exoplayer2.MediaItem.ClippingConfiguration#endPositionUs}
    */
-  public static final int TRIM_OPTIMIZATION_ABANDONED_KEYFRAME_PLACEMENT = 2;
+  public static final int OPTIMIZATION_ABANDONED_KEYFRAME_PLACEMENT_OPTIMAL_FOR_TRIM = 2;
 
   /**
    * {@linkplain Transformer.Builder#experimentalSetTrimOptimizationEnabled Trim optimization was
-   * requested}, but it would not improve performance because an effect that requires transcoding
-   * was also requested. The optimization was abandoned and normal export proceeded.
+   * requested}, but it would not improve performance because another transformation that requires
+   * transcoding was also requested. The optimization was abandoned and normal export proceeded.
    */
-  public static final int TRIM_OPTIMIZATION_ABANDONED_TRANSCODING_EFFECTS_REQUESTED = 3;
+  public static final int OPTIMIZATION_ABANDONED_TRIM_AND_TRANSCODING_TRANSFORMATION_REQUESTED = 3;
 
   /**
    * The requested optimization would not improve performance for a reason other than the ones

@@ -19,8 +19,8 @@ package com.google.android.exoplayer2.transformer;
 import static com.google.android.exoplayer2.robolectric.RobolectricUtil.runLooperUntil;
 import static com.google.android.exoplayer2.transformer.AssetLoader.SUPPORTED_OUTPUT_TYPE_DECODED;
 import static com.google.android.exoplayer2.transformer.AssetLoader.SUPPORTED_OUTPUT_TYPE_ENCODED;
+import static com.google.android.exoplayer2.transformer.ExportResult.OPTIMIZATION_ABANDONED_KEYFRAME_PLACEMENT_OPTIMAL_FOR_TRIM;
 import static com.google.android.exoplayer2.transformer.ExportResult.OPTIMIZATION_FAILED_EXTRACTION_FAILED;
-import static com.google.android.exoplayer2.transformer.ExportResult.TRIM_OPTIMIZATION_ABANDONED_KEYFRAME_PLACEMENT;
 import static com.google.android.exoplayer2.transformer.TestUtil.ASSET_URI_PREFIX;
 import static com.google.android.exoplayer2.transformer.TestUtil.FILE_AUDIO_AMR_NB;
 import static com.google.android.exoplayer2.transformer.TestUtil.FILE_AUDIO_AMR_WB;
@@ -170,7 +170,7 @@ public final class MediaItemExportTest {
     ExportResult exportResult = TransformerTestRunner.runLooper(transformer);
 
     assertThat(exportResult.optimizationResult)
-        .isEqualTo(TRIM_OPTIMIZATION_ABANDONED_KEYFRAME_PLACEMENT);
+        .isEqualTo(OPTIMIZATION_ABANDONED_KEYFRAME_PLACEMENT_OPTIMAL_FOR_TRIM);
     // Asserts against file generated when experimentalSetTrimOptimizationEnabled is set to false.
     DumpFileAsserts.assertOutput(
         context,
@@ -199,7 +199,7 @@ public final class MediaItemExportTest {
     ExportResult exportResult = TransformerTestRunner.runLooper(transformer);
 
     assertThat(exportResult.optimizationResult)
-        .isEqualTo(TRIM_OPTIMIZATION_ABANDONED_KEYFRAME_PLACEMENT);
+        .isEqualTo(OPTIMIZATION_ABANDONED_KEYFRAME_PLACEMENT_OPTIMAL_FOR_TRIM);
     DumpFileAsserts.assertOutput(
         context,
         muxerFactory.getCreatedMuxer(),

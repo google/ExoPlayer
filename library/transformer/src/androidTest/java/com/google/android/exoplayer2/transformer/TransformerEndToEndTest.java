@@ -26,10 +26,10 @@ import static com.google.android.exoplayer2.transformer.AndroidTestUtil.PNG_ASSE
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.createOpenGlObjects;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.generateTextureFromBitmap;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.recordTestSkipped;
+import static com.google.android.exoplayer2.transformer.ExportResult.OPTIMIZATION_ABANDONED_KEYFRAME_PLACEMENT_OPTIMAL_FOR_TRIM;
+import static com.google.android.exoplayer2.transformer.ExportResult.OPTIMIZATION_ABANDONED_TRIM_AND_TRANSCODING_TRANSFORMATION_REQUESTED;
 import static com.google.android.exoplayer2.transformer.ExportResult.OPTIMIZATION_FAILED_FORMAT_MISMATCH;
 import static com.google.android.exoplayer2.transformer.ExportResult.OPTIMIZATION_SUCCEEDED;
-import static com.google.android.exoplayer2.transformer.ExportResult.TRIM_OPTIMIZATION_ABANDONED_KEYFRAME_PLACEMENT;
-import static com.google.android.exoplayer2.transformer.ExportResult.TRIM_OPTIMIZATION_ABANDONED_TRANSCODING_EFFECTS_REQUESTED;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Util.isRunningOnEmulator;
 import static com.google.common.truth.Truth.assertThat;
@@ -514,7 +514,7 @@ public class TransformerEndToEndTest {
             .run(testId, mediaItem);
 
     assertThat(result.exportResult.optimizationResult)
-        .isEqualTo(TRIM_OPTIMIZATION_ABANDONED_KEYFRAME_PLACEMENT);
+        .isEqualTo(OPTIMIZATION_ABANDONED_KEYFRAME_PLACEMENT_OPTIMAL_FOR_TRIM);
     assertThat(result.exportResult.durationMs).isAtMost(clippingEndMs - clippingStartMs);
   }
 
@@ -549,7 +549,7 @@ public class TransformerEndToEndTest {
             .run(testId, mediaItem);
 
     assertThat(result.exportResult.optimizationResult)
-        .isEqualTo(TRIM_OPTIMIZATION_ABANDONED_KEYFRAME_PLACEMENT);
+        .isEqualTo(OPTIMIZATION_ABANDONED_KEYFRAME_PLACEMENT_OPTIMAL_FOR_TRIM);
     // The asset is 15 s 537 ms long.
     assertThat(result.exportResult.durationMs).isAtMost(1_017);
   }
@@ -620,7 +620,7 @@ public class TransformerEndToEndTest {
             .run(testId, editedMediaItem);
 
     assertThat(result.exportResult.optimizationResult)
-        .isEqualTo(TRIM_OPTIMIZATION_ABANDONED_TRANSCODING_EFFECTS_REQUESTED);
+        .isEqualTo(OPTIMIZATION_ABANDONED_TRIM_AND_TRANSCODING_TRANSFORMATION_REQUESTED);
   }
 
   @Test
