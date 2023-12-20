@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.media3.datasource.httpengine;
+package androidx.media3.datasource;
 
 import static android.net.http.NetworkException.ERROR_HOSTNAME_NOT_RESOLVED;
 import static com.google.common.truth.Truth.assertThat;
@@ -42,11 +42,8 @@ import android.os.ConditionVariable;
 import android.os.SystemClock;
 import androidx.media3.common.C;
 import androidx.media3.common.util.Util;
-import androidx.media3.datasource.DataSpec;
-import androidx.media3.datasource.HttpDataSource;
 import androidx.media3.datasource.HttpDataSource.HttpDataSourceException;
 import androidx.media3.datasource.HttpDataSource.InvalidResponseCodeException;
-import androidx.media3.datasource.TransferListener;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import java.io.IOException;
 import java.io.InterruptedIOException;

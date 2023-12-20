@@ -13,11 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.media3.datasource.httpengine;
+package androidx.media3.datasource;
 
 import android.net.Uri;
 import android.net.http.HttpEngine;
-import androidx.media3.datasource.DataSource;
 import androidx.media3.test.utils.DataSourceContractTest;
 import androidx.media3.test.utils.HttpDataSourceTestEnv;
 import androidx.test.core.app.ApplicationProvider;

@@ -41,6 +41,9 @@
         in an `IllegalArgumentException`
         ([#888](https://github.com/androidx/media/issues/888)).
     *   Support adaptive media sources with `PreloadMediaSource`.
+    *   Implement `HttpEngineDataSource`, an `HttpDataSource` using the
+        [HttpEngine](https://developer.android.com/reference/android/net/http/HttpEngine)
+        API.
 *   Transformer:
     *   Add support for flattening H.265/HEVC SEF slow motion videos.
     *   Increase transmuxing speed, especially for 'remove video' edits.
@@ -116,10 +119,6 @@
 *   Downloads:
 *   OkHttp Extension:
 *   Cronet Extension:
-*   HttpEngine Extension:
-    *   Implement `HttpEngineDataSource`, an `HttpDataSource` using the
-        [HttpEngine](https://developer.android.com/reference/android/net/http/HttpEngine)
-        API.
 *   RTMP Extension:
 *   HLS Extension:
     *   Reduce `HlsMediaPeriod` to package-private visibility. This type
