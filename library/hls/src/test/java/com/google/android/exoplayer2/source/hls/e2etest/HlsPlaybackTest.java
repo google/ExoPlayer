@@ -95,4 +95,62 @@ public final class HlsPlaybackTest {
     DumpFileAsserts.assertOutput(
         applicationContext, playbackOutput, "playbackdumps/hls/ttml-in-mp4.dump");
   }
+
+  /**
+   * This test and {@link #cea608_parseDuringExtraction()} use the same output dump file, to
+   * demonstrate the flag has no effect on the resulting subtitles.
+   */
+  @Test
+  public void cea608_parseDuringRendering() throws Exception {
+    Context applicationContext = ApplicationProvider.getApplicationContext();
+    CapturingRenderersFactory capturingRenderersFactory =
+        new CapturingRenderersFactory(applicationContext);
+    ExoPlayer player =
+        new ExoPlayer.Builder(applicationContext, capturingRenderersFactory)
+            .setMediaSourceFactory(
+                new HlsMediaSource.Factory(new DefaultDataSource.Factory(applicationContext))
+                    .experimentalParseSubtitlesDuringExtraction(false))
+            .setClock(new FakeClock(/* isAutoAdvancing= */ true))
+            .build();
+    player.setVideoSurface(new Surface(new SurfaceTexture(/* texName= */ 1)));
+    PlaybackOutput playbackOutput = PlaybackOutput.register(player, capturingRenderersFactory);
+
+    player.setMediaItem(MediaItem.fromUri("asset:///media/hls/cea608/manifest.m3u8"));
+    player.prepare();
+    player.play();
+    TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_ENDED);
+    player.release();
+
+    DumpFileAsserts.assertOutput(
+        applicationContext, playbackOutput, "playbackdumps/hls/cea608.dump");
+  }
+
+  /**
+   * This test and {@link #cea608_parseDuringRendering()} use the same output dump file, to
+   * demonstrate the flag has no effect on the resulting subtitles.
+   */
+  @Test
+  public void cea608_parseDuringExtraction() throws Exception {
+    Context applicationContext = ApplicationProvider.getApplicationContext();
+    CapturingRenderersFactory capturingRenderersFactory =
+        new CapturingRenderersFactory(applicationContext);
+    ExoPlayer player =
+        new ExoPlayer.Builder(applicationContext, capturingRenderersFactory)
+            .setMediaSourceFactory(
+                new HlsMediaSource.Factory(new DefaultDataSource.Factory(applicationContext))
+                    .experimentalParseSubtitlesDuringExtraction(true))
+            .setClock(new FakeClock(/* isAutoAdvancing= */ true))
+            .build();
+    player.setVideoSurface(new Surface(new SurfaceTexture(/* texName= */ 1)));
+    PlaybackOutput playbackOutput = PlaybackOutput.register(player, capturingRenderersFactory);
+
+    player.setMediaItem(MediaItem.fromUri("asset:///media/hls/cea608/manifest.m3u8"));
+    player.prepare();
+    player.play();
+    TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_ENDED);
+    player.release();
+
+    DumpFileAsserts.assertOutput(
+        applicationContext, playbackOutput, "playbackdumps/hls/cea608.dump");
+  }
 }

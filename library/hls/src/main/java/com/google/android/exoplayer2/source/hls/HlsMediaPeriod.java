@@ -543,29 +543,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               positionUs);
       manifestUrlIndicesPerWrapper.add(new int[] {i});
       sampleStreamWrappers.add(sampleStreamWrapper);
-      if (subtitleParserFactory != null
-          && subtitleParserFactory.supportsFormat(originalSubtitleFormat)) {
-        Format updatedSubtitleFormat =
-            originalSubtitleFormat
-                .buildUpon()
-                .setSampleMimeType(MimeTypes.APPLICATION_MEDIA3_CUES)
-                .setCueReplacementBehavior(
-                    subtitleParserFactory.getCueReplacementBehavior(originalSubtitleFormat))
-                .setCodecs(
-                    originalSubtitleFormat.sampleMimeType
-                        + (originalSubtitleFormat.codecs != null
-                            ? " " + originalSubtitleFormat.codecs
-                            : ""))
-                .setSubsampleOffsetUs(Format.OFFSET_SAMPLE_RELATIVE)
-                .build();
-        sampleStreamWrapper.prepareWithMultivariantPlaylistInfo(
-            new TrackGroup[] {new TrackGroup(sampleStreamWrapperUid, updatedSubtitleFormat)},
-            /* primaryTrackGroupIndex= */ 0);
-      } else {
-        sampleStreamWrapper.prepareWithMultivariantPlaylistInfo(
-            new TrackGroup[] {new TrackGroup(sampleStreamWrapperUid, originalSubtitleFormat)},
-            /* primaryTrackGroupIndex= */ 0);
-      }
+      sampleStreamWrapper.prepareWithMultivariantPlaylistInfo(
+          new TrackGroup[] {
+            new TrackGroup(
+                sampleStreamWrapperUid, maybeUpdateFormatForParsedText(originalSubtitleFormat))
+          },
+          /* primaryTrackGroupIndex= */ 0);
     }
 
     this.sampleStreamWrappers = sampleStreamWrappers.toArray(new HlsSampleStreamWrapper[0]);
@@ -710,7 +693,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         if (ccFormats != null) {
           for (int i = 0; i < ccFormats.size(); i++) {
             String ccId = sampleStreamWrapperUid + ":cc:" + i;
-            muxedTrackGroups.add(new TrackGroup(ccId, ccFormats.get(i)));
+            muxedTrackGroups.add(
+                new TrackGroup(ccId, maybeUpdateFormatForParsedText(ccFormats.get(i))));
           }
         }
       } else /* numberOfAudioCodecs > 0 */ {
@@ -931,6 +915,23 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         .setSelectionFlags(selectionFlags)
         .setRoleFlags(roleFlags)
         .setLanguage(language)
+        .build();
+  }
+
+  /**
+   * Returns a modified {@link Format} if subtitle/caption parsing is configured to happen during
+   * extraction.
+   */
+  private Format maybeUpdateFormatForParsedText(Format format) {
+    if (subtitleParserFactory == null || !subtitleParserFactory.supportsFormat(format)) {
+      return format;
+    }
+    return format
+        .buildUpon()
+        .setSampleMimeType(MimeTypes.APPLICATION_MEDIA3_CUES)
+        .setCueReplacementBehavior(subtitleParserFactory.getCueReplacementBehavior(format))
+        .setCodecs(format.sampleMimeType + (format.codecs != null ? " " + format.codecs : ""))
+        .setSubsampleOffsetUs(Format.OFFSET_SAMPLE_RELATIVE)
         .build();
   }
 
