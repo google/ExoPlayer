@@ -529,7 +529,7 @@ public final class DefaultAudioSink implements AudioSink {
   @Nullable private ByteBuffer inputBuffer;
   private int inputBufferAccessUnitCount;
   @Nullable private ByteBuffer outputBuffer;
-  private @MonotonicNonNull byte[] preV21OutputBuffer;
+  private byte @MonotonicNonNull [] preV21OutputBuffer;
   private int preV21OutputBufferOffset;
   private boolean handledEndOfStream;
   private boolean stoppedAudioTrack;
@@ -609,6 +609,7 @@ public final class DefaultAudioSink implements AudioSink {
 
   @Override
   public @SinkFormatSupport int getFormatSupport(Format format) {
+    maybeStartAudioCapabilitiesReceiver();
     if (MimeTypes.AUDIO_RAW.equals(format.sampleMimeType)) {
       if (!Util.isEncodingLinearPcm(format.pcmEncoding)) {
         Log.w(TAG, "Invalid PCM encoding: " + format.pcmEncoding);
@@ -622,7 +623,7 @@ public final class DefaultAudioSink implements AudioSink {
       // guaranteed to support.
       return SINK_FORMAT_SUPPORTED_WITH_TRANSCODING;
     }
-    if (getAudioCapabilities().isPassthroughPlaybackSupported(format)) {
+    if (audioCapabilities.isPassthroughPlaybackSupported(format)) {
       return SINK_FORMAT_SUPPORTED_DIRECTLY;
     }
     return SINK_FORMAT_UNSUPPORTED;
@@ -659,6 +660,7 @@ public final class DefaultAudioSink implements AudioSink {
     boolean enableAudioTrackPlaybackParams;
     boolean enableOffloadGapless = false;
 
+    maybeStartAudioCapabilitiesReceiver();
     if (MimeTypes.AUDIO_RAW.equals(inputFormat.sampleMimeType)) {
       Assertions.checkArgument(Util.isEncodingLinearPcm(inputFormat.pcmEncoding));
 
@@ -727,7 +729,7 @@ public final class DefaultAudioSink implements AudioSink {
         outputMode = OUTPUT_MODE_PASSTHROUGH;
         @Nullable
         Pair<Integer, Integer> encodingAndChannelConfig =
-            getAudioCapabilities().getEncodingAndChannelConfigForPassthrough(inputFormat);
+            audioCapabilities.getEncodingAndChannelConfigForPassthrough(inputFormat);
         if (encodingAndChannelConfig == null) {
           throw new ConfigurationException(
               "Unable to configure passthrough for: " + inputFormat, inputFormat);
@@ -1483,7 +1485,7 @@ public final class DefaultAudioSink implements AudioSink {
 
   public void onAudioCapabilitiesChanged(AudioCapabilities audioCapabilities) {
     checkState(playbackLooper == Looper.myLooper());
-    if (!audioCapabilities.equals(getAudioCapabilities())) {
+    if (!audioCapabilities.equals(this.audioCapabilities)) {
       this.audioCapabilities = audioCapabilities;
       if (listener != null) {
         listener.onAudioCapabilitiesChanged();
@@ -1696,7 +1698,7 @@ public final class DefaultAudioSink implements AudioSink {
         : writtenEncodedFrames;
   }
 
-  private AudioCapabilities getAudioCapabilities() {
+  private void maybeStartAudioCapabilitiesReceiver() {
     if (audioCapabilitiesReceiver == null && context != null) {
       // Must be lazily initialized to receive audio capabilities receiver listener event on the
       // current (playback) thread as the constructor is not called in the playback thread.
@@ -1705,7 +1707,6 @@ public final class DefaultAudioSink implements AudioSink {
           new AudioCapabilitiesReceiver(context, this::onAudioCapabilitiesChanged);
       audioCapabilities = audioCapabilitiesReceiver.register();
     }
-    return audioCapabilities;
   }
 
   private static boolean isOffloadedPlayback(AudioTrack audioTrack) {
