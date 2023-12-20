@@ -245,13 +245,13 @@ public final class C {
   @UnstableApi public static final int ENCODING_PCM_16BIT_BIG_ENDIAN = 0x10000000;
 
   /** PCM encoding with 24 bits per sample. */
-  @UnstableApi public static final int ENCODING_PCM_24BIT = 0x20000000;
+  @UnstableApi public static final int ENCODING_PCM_24BIT = AudioFormat.ENCODING_PCM_24BIT_PACKED;
 
   /** Like {@link #ENCODING_PCM_24BIT} but with the bytes in big endian order. */
   @UnstableApi public static final int ENCODING_PCM_24BIT_BIG_ENDIAN = 0x50000000;
 
   /** PCM encoding with 32 bits per sample. */
-  @UnstableApi public static final int ENCODING_PCM_32BIT = 0x30000000;
+  @UnstableApi public static final int ENCODING_PCM_32BIT = AudioFormat.ENCODING_PCM_32BIT;
 
   /** Like {@link #ENCODING_PCM_32BIT} but with the bytes in big endian order. */
   @UnstableApi public static final int ENCODING_PCM_32BIT_BIG_ENDIAN = 0x60000000;
