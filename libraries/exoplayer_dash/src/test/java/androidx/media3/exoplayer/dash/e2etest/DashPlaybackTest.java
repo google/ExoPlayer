@@ -167,6 +167,33 @@ public final class DashPlaybackTest {
         applicationContext, playbackOutput, "playbackdumps/dash/ttml-in-mp4.dump");
   }
 
+  @Test
+  public void cea608() throws Exception {
+    Context applicationContext = ApplicationProvider.getApplicationContext();
+    CapturingRenderersFactory capturingRenderersFactory =
+        new CapturingRenderersFactory(applicationContext);
+    // TODO(b/181312195): Opt this test into the new subtitle parsing when it works.
+    ExoPlayer player =
+        new ExoPlayer.Builder(applicationContext, capturingRenderersFactory)
+            .setClock(new FakeClock(/* isAutoAdvancing= */ true))
+            .build();
+    player.setVideoSurface(new Surface(new SurfaceTexture(/* texName= */ 1)));
+    PlaybackOutput playbackOutput = PlaybackOutput.register(player, capturingRenderersFactory);
+
+    // Ensure the subtitle track is selected.
+    DefaultTrackSelector trackSelector =
+        checkNotNull((DefaultTrackSelector) player.getTrackSelector());
+    trackSelector.setParameters(trackSelector.buildUponParameters().setPreferredTextLanguage("en"));
+    player.setMediaItem(MediaItem.fromUri("asset:///media/dash/cea608/manifest.mpd"));
+    player.prepare();
+    player.play();
+    TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_ENDED);
+    player.release();
+
+    DumpFileAsserts.assertOutput(
+        applicationContext, playbackOutput, "playbackdumps/dash/cea608.dump");
+  }
+
   // https://github.com/google/ExoPlayer/issues/8710
   @Test
   public void emsgNearToPeriodBoundary() throws Exception {

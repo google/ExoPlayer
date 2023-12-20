@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" minBufferTime="PT1.500000S" type="static" xmlns:cenc="urn:mpeg:cenc:2013" mediaPresentationDuration="PT0H0M2.500S" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011">
+  <Period id="0" duration="PT2.500S">
+    <AdaptationSet mimeType="video/mp4">
+      <Accessibility schemeIdUri="urn:scte:dash:cc:cea-608:2015" value="CC1=eng"/>
+      <Representation codecs="avc1.64001e" width="640" height="360" bandwidth="742564" id="sd-dash">
+        <BaseURL>sd-dash0000000000.m4s</BaseURL>
+        <SegmentList presentationTimeOffset="0" duration="24998" timescale="10000">
+          <Initialization range="0-671"/>
+          <SegmentURL mediaRange="672-232714"/>
+        </SegmentList>
+      </Representation>
+    </AdaptationSet>
+    <AdaptationSet mimeType="audio/mp4">
+      <Representation codecs="mp4a.40.2" audioSamplingRate="48000" bandwidth="73273" id="audio-dash">
+        <BaseURL>audio-dash0000000000.m4s</BaseURL>
+        <SegmentList presentationTimeOffset="0" duration="116736" timescale="48000">
+          <Initialization range="0-593"/>
+          <SegmentURL mediaRange="594-22869"/>
+        </SegmentList>
+      </Representation>
+    </AdaptationSet>
+  </Period>
+</MPD>
