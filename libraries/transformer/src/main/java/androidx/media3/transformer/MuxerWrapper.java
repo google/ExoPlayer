@@ -111,11 +111,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private boolean isAborted;
   private @MonotonicNonNull Muxer muxer;
   private @MuxerMode int muxerMode;
-
-  // Read by any thread, only written to on the transformerInternal thread.
-  private volatile boolean muxedPartialVideo;
-  // Read by any thread, only written to on the transformerInternal thread.
-  private volatile boolean muxedPartialAudio;
+  private boolean muxedPartialVideo;
+  private boolean muxedPartialAudio;
 
   private volatile int additionalRotationDegrees;
   private volatile int trackCount;
