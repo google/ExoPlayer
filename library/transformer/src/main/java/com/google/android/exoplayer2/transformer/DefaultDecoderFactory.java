@@ -28,7 +28,6 @@ import android.os.Build;
 import android.util.Pair;
 import android.view.Surface;
 import androidx.annotation.Nullable;
-import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
@@ -39,6 +38,8 @@ import com.google.android.exoplayer2.util.MediaFormatUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.ColorInfo;
+import com.google.common.collect.ImmutableList;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -50,17 +51,34 @@ import java.util.List;
  *     migration guide</a> for more details, including a script to help with the migration.
  */
 @Deprecated
-public final class DefaultDecoderFactory implements Codec.DecoderFactory {
+public class DefaultDecoderFactory implements Codec.DecoderFactory {
 
   private static final String TAG = "DefaultDecoderFactory";
 
-  private final Context context;
+  protected final Context context;
 
   private final boolean decoderSupportsKeyAllowFrameDrop;
+  @Nullable private final CodecFallbackListener fallbackListener;
+
+  /** A custom listener of codec initialization failures. */
+  public static interface CodecFallbackListener {
+    /**
+     * Reports that we were able to initialize the codec, however we had to apply a fallback due to
+     * {@code initializationExceptions}.
+     */
+    public void onCodecFallback(
+        String fallbackCodecName, List<ExportException> initializationExceptions);
+  }
 
   /** Creates a new factory. */
   public DefaultDecoderFactory(Context context) {
+    this(context, /* fallbackListener= */ null);
+  }
+
+  /** Creates a new factory that supports falling back to a different codec when needed. */
+  public DefaultDecoderFactory(Context context, @Nullable CodecFallbackListener fallbackListener) {
     this.context = context;
+    this.fallbackListener = fallbackListener;
 
     decoderSupportsKeyAllowFrameDrop =
         SDK_INT >= 29
@@ -70,30 +88,8 @@ public final class DefaultDecoderFactory implements Codec.DecoderFactory {
   @Override
   public DefaultCodec createForAudioDecoding(Format format) throws ExportException {
     MediaFormat mediaFormat = createMediaFormatFromFormat(format);
-
-    String mediaCodecName;
-    try {
-      @Nullable MediaCodecInfo decoderInfo = getDecoderInfo(format);
-      if (decoderInfo == null) {
-        throw createExportException(format, /* reason= */ "No decoders for format");
-      }
-      mediaCodecName = decoderInfo.name;
-      String codecMimeType = decoderInfo.codecMimeType;
-      // Does not alter format.sampleMimeType to keep the original MimeType.
-      // The MIME type of the selected decoder may differ from Format.sampleMimeType.
-      mediaFormat.setString(MediaFormat.KEY_MIME, codecMimeType);
-    } catch (MediaCodecUtil.DecoderQueryException e) {
-      Log.e(TAG, "Error querying decoders", e);
-      throw createExportException(format, /* reason= */ "Querying codecs failed.");
-    }
-
-    return new DefaultCodec(
-        context,
-        format,
-        mediaFormat,
-        mediaCodecName,
-        /* isDecoder= */ true,
-        /* outputSurface= */ null);
+    return createCodecForMediaFormatAndReportOnFallback(
+        mediaFormat, format, /* outputSurface= */ null);
   }
 
   @SuppressLint("InlinedApi")
@@ -133,23 +129,6 @@ public final class DefaultDecoderFactory implements Codec.DecoderFactory {
           MediaFormat.KEY_COLOR_TRANSFER_REQUEST, MediaFormat.COLOR_TRANSFER_SDR_VIDEO);
     }
 
-    String mediaCodecName;
-    try {
-      @Nullable MediaCodecInfo decoderInfo = getDecoderInfo(format);
-      if (decoderInfo == null) {
-        throw createExportException(format, /* reason= */ "No decoders for format");
-      }
-      mediaCodecName = decoderInfo.name;
-      String codecMimeType = decoderInfo.codecMimeType;
-      // Does not alter format.sampleMimeType to keep the original MimeType.
-      // The MIME type of the selected decoder may differ from Format.sampleMimeType, for example,
-      // video/hevc is used instead of video/dolby-vision for some specific DolbyVision videos.
-      mediaFormat.setString(MediaFormat.KEY_MIME, codecMimeType);
-    } catch (MediaCodecUtil.DecoderQueryException e) {
-      Log.e(TAG, "Error querying decoders", e);
-      throw createExportException(format, /* reason= */ "Querying codecs failed");
-    }
-
     @Nullable
     Pair<Integer, Integer> codecProfileAndLevel = MediaCodecUtil.getCodecProfileAndLevel(format);
     if (codecProfileAndLevel != null) {
@@ -158,8 +137,73 @@ public final class DefaultDecoderFactory implements Codec.DecoderFactory {
       MediaFormatUtil.maybeSetInteger(
           mediaFormat, MediaFormat.KEY_LEVEL, codecProfileAndLevel.second);
     }
-    return new DefaultCodec(
-        context, format, mediaFormat, mediaCodecName, /* isDecoder= */ true, outputSurface);
+
+    return createCodecForMediaFormatAndReportOnFallback(mediaFormat, format, outputSurface);
+  }
+
+  private DefaultCodec createCodecForMediaFormatAndReportOnFallback(
+      MediaFormat mediaFormat, Format format, @Nullable Surface outputSurface)
+      throws ExportException {
+    List<MediaCodecInfo> decoderInfos = ImmutableList.of();
+    checkNotNull(format.sampleMimeType);
+    try {
+      decoderInfos =
+          MediaCodecUtil.getDecoderInfosSortedByFormatSupport(
+              MediaCodecUtil.getDecoderInfosSoftMatch(
+                  MediaCodecSelector.DEFAULT,
+                  format,
+                  /* requiresSecureDecoder= */ false,
+                  /* requiresTunnelingDecoder= */ false),
+              format);
+    } catch (MediaCodecUtil.DecoderQueryException e) {
+      Log.e(TAG, "Error querying decoders", e);
+      throw createExportException(format, /* reason= */ "Querying codecs failed");
+    }
+
+    if (decoderInfos.isEmpty()) {
+      throw createExportException(format, /* reason= */ "No decoders for format");
+    }
+
+    List<ExportException> codecInitExceptions = new ArrayList<>();
+    DefaultCodec codec =
+        createCodecFromDecoderInfos(
+            context,
+            fallbackListener == null ? decoderInfos.subList(0, 1) : decoderInfos,
+            format,
+            mediaFormat,
+            outputSurface,
+            codecInitExceptions);
+
+    if (fallbackListener != null && !codecInitExceptions.isEmpty()) {
+      fallbackListener.onCodecFallback(codec.getName(), codecInitExceptions);
+    }
+    return codec;
+  }
+
+  private static DefaultCodec createCodecFromDecoderInfos(
+      Context context,
+      List<MediaCodecInfo> decoderInfos,
+      Format format,
+      MediaFormat mediaFormat,
+      @Nullable Surface outputSurface,
+      List<ExportException> codecInitExceptions)
+      throws ExportException {
+    for (MediaCodecInfo decoderInfo : decoderInfos) {
+      String codecMimeType = decoderInfo.codecMimeType;
+      // Does not alter format.sampleMimeType to keep the original MimeType.
+      // The MIME type of the selected decoder may differ from Format.sampleMimeType, for example,
+      // video/hevc is used instead of video/dolby-vision for some specific DolbyVision videos.
+      mediaFormat.setString(MediaFormat.KEY_MIME, codecMimeType);
+      try {
+        return new DefaultCodec(
+            context, format, mediaFormat, decoderInfo.name, /* isDecoder= */ true, outputSurface);
+      } catch (ExportException e) {
+        codecInitExceptions.add(e);
+      }
+    }
+
+    // All codecs failed to be initialized, throw the first codec init error out.
+    throw codecInitExceptions.get(0);
   }
 
   private static boolean deviceNeedsDisable8kWorkaround(Format format) {
@@ -210,24 +254,5 @@ public final class DefaultDecoderFactory implements Codec.DecoderFactory {
         MimeTypes.isVideo(checkNotNull(format.sampleMimeType)),
         /* isDecoder= */ true,
         format);
-  }
-
-  @VisibleForTesting
-  @Nullable
-  /* package */ static MediaCodecInfo getDecoderInfo(Format format)
-      throws MediaCodecUtil.DecoderQueryException {
-    checkNotNull(format.sampleMimeType);
-    List<MediaCodecInfo> decoderInfos =
-        MediaCodecUtil.getDecoderInfosSortedByFormatSupport(
-            MediaCodecUtil.getDecoderInfosSoftMatch(
-                MediaCodecSelector.DEFAULT,
-                format,
-                /* requiresSecureDecoder= */ false,
-                /* requiresTunnelingDecoder= */ false),
-            format);
-    if (decoderInfos.isEmpty()) {
-      return null;
-    }
-    return decoderInfos.get(0);
   }
 }
