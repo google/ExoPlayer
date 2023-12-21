@@ -47,13 +47,19 @@ COMMON_OPTIONS="
     --disable-vulkan
     "
 TOOLCHAIN_PREFIX="${NDK_PATH}/toolchains/llvm/prebuilt/${HOST_PLATFORM}/bin"
+if [[ ! -d "${TOOLCHAIN_PREFIX}" ]]
+then
+    echo "Please set correct NDK_PATH, $NDK_PATH is incorrect"
+    exit 1
+fi
+
 for decoder in "${ENABLED_DECODERS[@]}"
 do
     COMMON_OPTIONS="${COMMON_OPTIONS} --enable-decoder=${decoder}"
 done
 
 ARMV7_CLANG="${TOOLCHAIN_PREFIX}/armv7a-linux-androideabi${ANDROID_ABI}-clang"
-if [[ -e "${TOOLCHAIN_PREFIX}" && ! -e "$ARMV7_CLANG" ]]
+if [[ ! -e "$ARMV7_CLANG" ]]
 then
     echo "AVMv7 Clang compiler with path $ARMV7_CLANG does not exist"
     echo "It's likely your NDK version doesn't support ANDROID_ABI $ANDROID_ABI"
