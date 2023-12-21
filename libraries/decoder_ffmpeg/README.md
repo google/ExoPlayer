@@ -29,7 +29,8 @@ FFMPEG_MODULE_PATH="$(pwd)/libraries/decoder_ffmpeg/src/main"
 ```
 
 *   Download the [Android NDK][] and set its location in a shell variable. This
-    build configuration has been tested on NDK r26b (r23c if ANDROID_ABI is 16).
+    build configuration has been tested on NDK r26b (r23c if ANDROID_ABI is less
+    than 21).
 
 ```
 NDK_PATH="<path to Android NDK>"
@@ -45,7 +46,7 @@ HOST_PLATFORM="linux-x86_64"
     not exceed it):
 
 ```
-ANDROID_ABI=16
+ANDROID_ABI=21
 ```
 
 *   Fetch FFmpeg and checkout an appropriate branch. We cannot guarantee
