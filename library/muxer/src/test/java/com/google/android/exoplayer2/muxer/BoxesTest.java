@@ -371,14 +371,14 @@ public class BoxesTest {
 
   @Test
   public void
-      getDurationsVuForStts_singleSampleAtZeroTimestamp_lastFrameDurationShort_returnsSingleZeroLengthSample() {
+      convertPresentationTimestampsToDurationsVu_singleSampleAtZeroTimestamp_returnsSampleLengthEqualsZero() {
     List<MediaCodec.BufferInfo> sampleBufferInfos =
         createBufferInfoListWithSamplePresentationTimestamps(0L);
 
     List<Long> durationsVu =
-        Boxes.durationsVuForStts(
+        Boxes.convertPresentationTimestampsToDurationsVu(
             sampleBufferInfos,
-            /* minInputPresentationTimestampUs= */ 0L,
+            /* firstSamplePresentationTimeUs= */ 0L,
             VU_TIMEBASE,
             LAST_FRAME_DURATION_BEHAVIOR_INSERT_SHORT_FRAME);
 
@@ -387,62 +387,30 @@ public class BoxesTest {
 
   @Test
   public void
-      getDurationsVuForStts_singleSampleAtZeroTimestamp_lastFrameDurationDuplicate_returnsSingleZeroLengthSample() {
+      convertPresentationTimestampsToDurationsVu_singleSampleAtNonZeroTimestamp_returnsSampleLengthEqualsZero() {
     List<MediaCodec.BufferInfo> sampleBufferInfos =
-        createBufferInfoListWithSamplePresentationTimestamps(0L);
+        createBufferInfoListWithSamplePresentationTimestamps(5_000L);
 
     List<Long> durationsVu =
-        Boxes.durationsVuForStts(
+        Boxes.convertPresentationTimestampsToDurationsVu(
             sampleBufferInfos,
-            /* minInputPresentationTimestampUs= */ 0L,
+            /* firstSamplePresentationTimeUs= */ 0L,
             VU_TIMEBASE,
-            LAST_FRAME_DURATION_BEHAVIOR_DUPLICATE_PREV_DURATION);
+            LAST_FRAME_DURATION_BEHAVIOR_INSERT_SHORT_FRAME);
 
     assertThat(durationsVu).containsExactly(0L);
   }
 
   @Test
   public void
-      getDurationsVuForStts_singleSampleAtNonZeroTimestamp_lastFrameDurationShort_returnsSampleLengthEqualsTimestamp() {
-    List<MediaCodec.BufferInfo> sampleBufferInfos =
-        createBufferInfoListWithSamplePresentationTimestamps(5_000L);
-
-    List<Long> durationsVu =
-        Boxes.durationsVuForStts(
-            sampleBufferInfos,
-            /* minInputPresentationTimestampUs= */ 0L,
-            VU_TIMEBASE,
-            LAST_FRAME_DURATION_BEHAVIOR_INSERT_SHORT_FRAME);
-
-    assertThat(durationsVu).containsExactly(500L);
-  }
-
-  @Test
-  public void
-      getDurationsVuForStts_singleSampleAtNonZeroTimestamp_lastFrameDurationDuplicate_returnsSampleLengthEqualsTimestamp() {
-    List<MediaCodec.BufferInfo> sampleBufferInfos =
-        createBufferInfoListWithSamplePresentationTimestamps(5_000L);
-
-    List<Long> durationsVu =
-        Boxes.durationsVuForStts(
-            sampleBufferInfos,
-            /* minInputPresentationTimestampUs= */ 0L,
-            VU_TIMEBASE,
-            LAST_FRAME_DURATION_BEHAVIOR_DUPLICATE_PREV_DURATION);
-
-    assertThat(durationsVu).containsExactly(500L);
-  }
-
-  @Test
-  public void
-      getDurationsVuForStts_differentSampleDurations_lastFrameDurationShort_returnsLastSampleOfZeroDuration() {
+      convertPresentationTimestampsToDurationsVu_differentSampleDurations_lastFrameDurationShort_returnsLastSampleOfZeroDuration() {
     List<MediaCodec.BufferInfo> sampleBufferInfos =
         createBufferInfoListWithSamplePresentationTimestamps(0L, 30_000L, 80_000L);
 
     List<Long> durationsVu =
-        Boxes.durationsVuForStts(
+        Boxes.convertPresentationTimestampsToDurationsVu(
             sampleBufferInfos,
-            /* minInputPresentationTimestampUs= */ 0L,
+            /* firstSamplePresentationTimeUs= */ 0L,
             VU_TIMEBASE,
             LAST_FRAME_DURATION_BEHAVIOR_INSERT_SHORT_FRAME);
 
@@ -451,14 +419,14 @@ public class BoxesTest {
 
   @Test
   public void
-      getDurationsVuForStts_differentSampleDurations_lastFrameDurationDuplicate_returnsLastSampleOfDuplicateDuration() {
+      convertPresentationTimestampsToDurationsVu_differentSampleDurations_lastFrameDurationDuplicate_returnsLastSampleOfDuplicateDuration() {
     List<MediaCodec.BufferInfo> sampleBufferInfos =
         createBufferInfoListWithSamplePresentationTimestamps(0L, 30_000L, 80_000L);
 
     List<Long> durationsVu =
-        Boxes.durationsVuForStts(
+        Boxes.convertPresentationTimestampsToDurationsVu(
             sampleBufferInfos,
-            /* minInputPresentationTimestampUs= */ 0L,
+            /* firstSamplePresentationTimeUs= */ 0L,
             VU_TIMEBASE,
             LAST_FRAME_DURATION_BEHAVIOR_DUPLICATE_PREV_DURATION);
 

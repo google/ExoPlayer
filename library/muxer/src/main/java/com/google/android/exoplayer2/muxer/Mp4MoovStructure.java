@@ -80,7 +80,7 @@ import org.checkerframework.checker.nullness.qual.PolyNull;
 
         // Generate the sample durations to calculate the total duration for tkhd box.
         List<Long> sampleDurationsVu =
-            Boxes.durationsVuForStts(
+            Boxes.convertPresentationTimestampsToDurationsVu(
                 track.writtenSamples(),
                 minInputPtsUs,
                 track.videoUnitTimebase(),
