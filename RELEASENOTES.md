@@ -116,6 +116,9 @@
     *   Fix issue where forward and rewind buttons are not visible when used
         with Material Design in a BottomSheetDialogFragment
         ([#511](https://github.com/androidx/media/issues/511)).
+    *   Fix issue where the numbers in the fast forward button of the
+        `PlayerControlView` were misaligned
+        ([#547](https://github.com/androidx/media/issues/547)).
 *   Downloads:
 *   OkHttp Extension:
 *   Cronet Extension:
