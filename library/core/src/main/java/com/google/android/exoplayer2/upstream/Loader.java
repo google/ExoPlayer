@@ -53,7 +53,11 @@ public final class Loader implements LoaderErrorThrower {
   public static final class UnexpectedLoaderException extends IOException {
 
     public UnexpectedLoaderException(Throwable cause) {
-      super("Unexpected " + cause.getClass().getSimpleName() + ": " + cause.getMessage(), cause);
+      super(
+          "Unexpected " + cause.getClass().getSimpleName() + cause.getMessage() != null
+              ? ": " + cause.getMessage()
+              : "",
+          cause);
     }
   }
 
