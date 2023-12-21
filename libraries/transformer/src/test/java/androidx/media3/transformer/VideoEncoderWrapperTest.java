@@ -68,8 +68,7 @@ public final class VideoEncoderWrapperTest {
               .build(),
           /* muxerSupportedMimeTypes= */ ImmutableList.of(MimeTypes.VIDEO_H264),
           emptyTransformationRequest,
-          fallbackListener,
-          /* matchInitializationData= */ false);
+          fallbackListener);
 
   @Before
   public void setUp() {
@@ -135,52 +134,6 @@ public final class VideoEncoderWrapperTest {
     assertThat(surfaceInfo.height).isEqualTo(fallbackHeight);
   }
 
-  @Test
-  public void matchInitializationData_setToFalse_initializationDataNotPassedToEncoderFactory()
-      throws Exception {
-    VideoSampleExporter.EncoderWrapper encoderWrapper =
-        new VideoSampleExporter.EncoderWrapper(
-            fakeEncoderFactory,
-            /* inputFormat= */ new Format.Builder()
-                .setSampleMimeType(MimeTypes.VIDEO_H264)
-                .setColorInfo(ColorInfo.SDR_BT709_LIMITED)
-                .setInitializationData(ImmutableList.of(new byte[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9}))
-                .build(),
-            /* muxerSupportedMimeTypes= */ ImmutableList.of(MimeTypes.VIDEO_H264),
-            emptyTransformationRequest,
-            fallbackListener,
-            /* matchInitializationData= */ false);
-
-    // Create the video encoder.
-    encoderWrapper.getSurfaceInfo(/* requestedWidth= */ 150, /* requestedHeight= */ 200);
-
-    assertThat(fakeEncoderFactory.format.initializationData).isEmpty();
-  }
-
-  @Test
-  public void matchInitializationData_setToTrue_initializationDataIsPassedToEncoderFactory()
-      throws Exception {
-    Format inputFormat =
-        new Format.Builder()
-            .setSampleMimeType(MimeTypes.VIDEO_H264)
-            .setColorInfo(ColorInfo.SDR_BT709_LIMITED)
-            .setInitializationData(ImmutableList.of(new byte[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9}))
-            .build();
-    VideoSampleExporter.EncoderWrapper encoderWrapper =
-        new VideoSampleExporter.EncoderWrapper(
-            fakeEncoderFactory,
-            inputFormat,
-            /* muxerSupportedMimeTypes= */ ImmutableList.of(MimeTypes.VIDEO_H264),
-            emptyTransformationRequest,
-            fallbackListener,
-            /* matchInitializationData= */ true);
-
-    // Create the video encoder.
-    encoderWrapper.getSurfaceInfo(/* requestedWidth= */ 150, /* requestedHeight= */ 200);
-
-    assertThat(fakeEncoderFactory.format.initializationDataEquals(inputFormat)).isTrue();
-  }
-
   private static void createShadowH264Encoder() {
     MediaFormat avcFormat = new MediaFormat();
     avcFormat.setString(MediaFormat.KEY_MIME, MediaFormat.MIMETYPE_VIDEO_AVC);
@@ -216,8 +169,6 @@ public final class VideoEncoderWrapperTest {
 
   private static class FakeVideoEncoderFactory implements Codec.EncoderFactory {
 
-    public Format format;
-
     private int fallbackWidth;
     private int fallbackHeight;
 
@@ -238,7 +189,6 @@ public final class VideoEncoderWrapperTest {
 
     @Override
     public Codec createForVideoEncoding(Format format) {
-      this.format = format;
       Codec mockEncoder = mock(Codec.class);
       if (fallbackWidth != C.LENGTH_UNSET) {
         format = format.buildUpon().setWidth(fallbackWidth).build();

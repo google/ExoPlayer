@@ -87,8 +87,7 @@ import org.checkerframework.dataflow.qual.Pure;
       FallbackListener fallbackListener,
       DebugViewProvider debugViewProvider,
       long initialTimestampOffsetUs,
-      boolean hasMultipleInputs,
-      boolean matchInitializationData)
+      boolean hasMultipleInputs)
       throws ExportException {
     // TODO(b/278259383) Consider delaying configuration of VideoSampleExporter to use the decoder
     //  output format instead of the extractor output format, to match AudioSampleExporter behavior.
@@ -108,8 +107,7 @@ import org.checkerframework.dataflow.qual.Pure;
             firstInputFormat.buildUpon().setColorInfo(decoderInputColor).build(),
             muxerWrapper.getSupportedSampleMimeTypes(C.TRACK_TYPE_VIDEO),
             transformationRequest,
-            fallbackListener,
-            matchInitializationData);
+            fallbackListener);
     encoderOutputBuffer =
         new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);
 
@@ -239,7 +237,6 @@ import org.checkerframework.dataflow.qual.Pure;
     private final FallbackListener fallbackListener;
     private final String requestedOutputMimeType;
     private final @Composition.HdrMode int hdrModeAfterFallback;
-    private final boolean matchInitializationData;
 
     private @MonotonicNonNull SurfaceInfo encoderSurfaceInfo;
 
@@ -252,15 +249,13 @@ import org.checkerframework.dataflow.qual.Pure;
         Format inputFormat,
         List<String> muxerSupportedMimeTypes,
         TransformationRequest transformationRequest,
-        FallbackListener fallbackListener,
-        boolean matchInitializationData) {
+        FallbackListener fallbackListener) {
       checkArgument(inputFormat.colorInfo != null);
       this.encoderFactory = encoderFactory;
       this.inputFormat = inputFormat;
       this.muxerSupportedMimeTypes = muxerSupportedMimeTypes;
       this.transformationRequest = transformationRequest;
       this.fallbackListener = fallbackListener;
-      this.matchInitializationData = matchInitializationData;
       Pair<String, Integer> outputMimeTypeAndHdrModeAfterFallback =
           getRequestedOutputMimeTypeAndHdrModeAfterFallback(inputFormat, transformationRequest);
       requestedOutputMimeType = outputMimeTypeAndHdrModeAfterFallback.first;
@@ -335,8 +330,7 @@ import org.checkerframework.dataflow.qual.Pure;
               .setFrameRate(inputFormat.frameRate)
               .setSampleMimeType(requestedOutputMimeType)
               .setColorInfo(getSupportedInputColor())
-              .setInitializationData(
-                  matchInitializationData ? inputFormat.initializationData : null)
+              .setCodecs(inputFormat.codecs)
               .build();
 
       encoder =

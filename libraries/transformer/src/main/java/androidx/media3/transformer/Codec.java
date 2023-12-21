@@ -69,6 +69,10 @@ public interface Codec {
      * <p>The caller should ensure the {@linkplain Format#sampleMimeType MIME type} is supported on
      * the device before calling this method.
      *
+     * <p>{@link Format#codecs} contains the codec string for the original input media that has been
+     * decoded and processed. This is provided only as a hint, and the factory may encode to a
+     * different format.
+     *
      * @param format The {@link Format} (of the output data) used to determine the underlying
      *     encoder and its configuration values. {@link Format#sampleMimeType}, {@link
      *     Format#sampleRate}, {@link Format#channelCount} and {@link Format#bitrate} are set to
@@ -85,6 +89,10 @@ public interface Codec {
      * <p>The caller should ensure the {@linkplain Format#sampleMimeType MIME type} is supported on
      * the device before calling this method. If encoding to HDR, the caller should also ensure the
      * {@linkplain Format#colorInfo color characteristics} are supported.
+     *
+     * <p>{@link Format#codecs} contains the codec string for the original input media that has been
+     * decoded and processed. This is provided only as a hint, and the factory may encode to a
+     * different format.
      *
      * @param format The {@link Format} (of the output data) used to determine the underlying
      *     encoder and its configuration values. {@link Format#sampleMimeType}, {@link Format#width}
