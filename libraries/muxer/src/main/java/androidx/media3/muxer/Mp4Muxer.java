@@ -133,7 +133,7 @@ public final class Mp4Muxer {
       Mp4MoovStructure moovStructure =
           new Mp4MoovStructure(metadataCollector, lastFrameDurationBehavior);
       Mp4Writer mp4Writer =
-          new Mp4Writer(
+          new DefaultMp4Writer(
               fileOutputStream,
               moovStructure,
               annexBToAvccConverter == null
