@@ -207,11 +207,6 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
    */
   @Override
   public DefaultCodec createForVideoEncoding(Format format) throws ExportException {
-    // TODO b/304476154 - Investigate how to match initialization data without running into
-    // mediaCodec errors under API 29.
-    if (SDK_INT < 29) {
-      format = format.buildUpon().setInitializationData(null).build();
-    }
     if (format.frameRate == Format.NO_VALUE || deviceNeedsDefaultFrameRateWorkaround()) {
       format = format.buildUpon().setFrameRate(DEFAULT_FRAME_RATE).build();
     }

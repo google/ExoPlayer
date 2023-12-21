@@ -932,8 +932,7 @@ public final class Transformer {
           composition,
           new MuxerWrapper(path, muxerFactory, componentListener, MuxerWrapper.MUXER_MODE_DEFAULT),
           componentListener,
-          /* initialTimestampOffsetUs= */ 0,
-          /* matchInitializationData= */ false);
+          /* initialTimestampOffsetUs= */ 0);
     } else {
       processMediaBeforeFirstSyncSampleAfterTrimStartTime();
     }
@@ -1121,8 +1120,7 @@ public final class Transformer {
             componentListener,
             MuxerWrapper.MUXER_MODE_DEFAULT),
         componentListener,
-        /* initialTimestampOffsetUs= */ 0,
-        /* matchInitializationData= */ false);
+        /* initialTimestampOffsetUs= */ 0);
   }
 
   private void remuxProcessedVideo() {
@@ -1158,8 +1156,7 @@ public final class Transformer {
                     /* clippingEndPositionUs= */ resumeMetadata.lastSyncSampleTimestampUs),
                 checkNotNull(remuxingMuxerWrapper),
                 componentListener,
-                /* initialTimestampOffsetUs= */ 0,
-                /* matchInitializationData= */ false);
+                /* initialTimestampOffsetUs= */ 0);
           }
 
           @Override
@@ -1187,8 +1184,7 @@ public final class Transformer {
         videoOnlyComposition,
         remuxingMuxerWrapper,
         componentListener,
-        /* initialTimestampOffsetUs= */ checkNotNull(resumeMetadata).lastSyncSampleTimestampUs,
-        /* matchInitializationData= */ false);
+        /* initialTimestampOffsetUs= */ checkNotNull(resumeMetadata).lastSyncSampleTimestampUs);
   }
 
   private void processAudio() {
@@ -1203,8 +1199,7 @@ public final class Transformer {
             componentListener,
             MuxerWrapper.MUXER_MODE_DEFAULT),
         componentListener,
-        /* initialTimestampOffsetUs= */ 0,
-        /* matchInitializationData= */ false);
+        /* initialTimestampOffsetUs= */ 0);
   }
 
   // TODO: b/308253384 - Move copy output logic into MuxerWrapper.
@@ -1317,8 +1312,7 @@ public final class Transformer {
                 trancodeComposition,
                 checkNotNull(remuxingMuxerWrapper),
                 componentListener,
-                /* initialTimestampOffsetUs= */ 0,
-                /* matchInitializationData= */ true);
+                /* initialTimestampOffsetUs= */ 0);
           }
 
           @Override
@@ -1358,8 +1352,7 @@ public final class Transformer {
         remuxingMuxerWrapper,
         componentListener,
         /* initialTimestampOffsetUs= */ mp4MetadataInfo.firstSyncSampleTimestampUsAfterTimeUs
-            - trimStartTimeUs,
-        /* matchInitializationData= */ false);
+            - trimStartTimeUs);
   }
 
   private boolean doesFormatsMatch() {
@@ -1390,8 +1383,7 @@ public final class Transformer {
       Composition composition,
       MuxerWrapper muxerWrapper,
       ComponentListener componentListener,
-      long initialTimestampOffsetUs,
-      boolean matchInitializationData) {
+      long initialTimestampOffsetUs) {
     checkArgument(composition.effects.audioProcessors.isEmpty());
     checkState(transformerInternal == null, "There is already an export in progress.");
     TransformationRequest transformationRequest = this.transformationRequest;
@@ -1427,8 +1419,7 @@ public final class Transformer {
             applicationHandler,
             debugViewProvider,
             clock,
-            initialTimestampOffsetUs,
-            matchInitializationData);
+            initialTimestampOffsetUs);
     transformerInternal.start();
   }
 

@@ -131,7 +131,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final List<SampleExporter> sampleExporters;
   private final Object setMaxSequenceDurationUsLock;
   private final MuxerWrapper muxerWrapper;
-  private final boolean matchInitializationData;
   private final ConditionVariable transformerConditionVariable;
 
   private boolean isDrainingExporters;
@@ -156,8 +155,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       HandlerWrapper applicationHandler,
       DebugViewProvider debugViewProvider,
       Clock clock,
-      long videoSampleTimestampOffsetUs,
-      boolean matchInitializationData) {
+      long videoSampleTimestampOffsetUs) {
     this.context = context;
     this.composition = composition;
     this.encoderFactory = new CapturingEncoderFactory(encoderFactory);
@@ -166,7 +164,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.clock = clock;
     this.videoSampleTimestampOffsetUs = videoSampleTimestampOffsetUs;
     this.muxerWrapper = muxerWrapper;
-    this.matchInitializationData = matchInitializationData;
     internalHandlerThread = new HandlerThread("Transformer:Internal");
     internalHandlerThread.start();
     sequenceAssetLoaders = new ArrayList<>();
@@ -587,8 +584,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                 audioMixerFactory,
                 encoderFactory,
                 muxerWrapper,
-                fallbackListener,
-                matchInitializationData));
+                fallbackListener));
       } else {
         // TODO(b/267301878): Pass firstAssetLoaderOutputFormat once surface creation not in VSP.
         assetLoaderInputTracker.registerSampleExporter(
@@ -606,8 +602,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                 fallbackListener,
                 debugViewProvider,
                 videoSampleTimestampOffsetUs,
-                /* hasMultipleInputs= */ assetLoaderInputTracker.hasMultipleConcurrentVideoTracks(),
-                matchInitializationData));
+                /* hasMultipleInputs= */ assetLoaderInputTracker
+                    .hasMultipleConcurrentVideoTracks()));
       }
     }
 

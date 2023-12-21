@@ -63,8 +63,7 @@ import org.checkerframework.dataflow.qual.Pure;
       AudioMixer.Factory mixerFactory,
       Codec.EncoderFactory encoderFactory,
       MuxerWrapper muxerWrapper,
-      FallbackListener fallbackListener,
-      boolean matchInitializationData)
+      FallbackListener fallbackListener)
       throws ExportException {
     super(firstAssetLoaderTrackFormat, muxerWrapper);
     audioGraph = new AudioGraph(mixerFactory);
@@ -82,9 +81,8 @@ import org.checkerframework.dataflow.qual.Pure;
             .setSampleRate(encoderInputAudioFormat.sampleRate)
             .setChannelCount(encoderInputAudioFormat.channelCount)
             .setPcmEncoding(encoderInputAudioFormat.encoding)
+            .setCodecs(firstInputFormat.codecs)
             .setAverageBitrate(DEFAULT_ENCODER_BITRATE)
-            .setInitializationData(
-                matchInitializationData ? firstInputFormat.initializationData : null)
             .build();
 
     encoder =
