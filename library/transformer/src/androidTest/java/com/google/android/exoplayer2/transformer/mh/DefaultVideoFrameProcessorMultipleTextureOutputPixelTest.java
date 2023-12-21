@@ -30,7 +30,6 @@ import com.google.android.exoplayer2.testutil.BitmapPixelTestUtil;
 import com.google.android.exoplayer2.testutil.TextureBitmapReader;
 import com.google.android.exoplayer2.testutil.VideoFrameProcessorTestRunner;
 import com.google.android.exoplayer2.util.VideoFrameProcessor;
-import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.util.List;
@@ -171,7 +170,6 @@ public class DefaultVideoFrameProcessorMultipleTextureOutputPixelTest {
     return new VideoFrameProcessorTestRunner.Builder()
         .setTestId(testId)
         .setVideoFrameProcessorFactory(defaultVideoFrameProcessorFactory)
-        .setInputColorInfo(ColorInfo.SRGB_BT709_FULL)
         .setBitmapReader(textureBitmapReader);
   }
 }

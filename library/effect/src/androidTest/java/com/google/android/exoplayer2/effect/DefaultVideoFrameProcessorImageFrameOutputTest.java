@@ -25,7 +25,6 @@ import android.util.Pair;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.testutil.VideoFrameProcessorTestRunner;
-import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.collect.ImmutableList;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -196,7 +195,6 @@ public class DefaultVideoFrameProcessorImageFrameOutputTest {
     return new VideoFrameProcessorTestRunner.Builder()
         .setTestId(testId)
         .setVideoFrameProcessorFactory(new DefaultVideoFrameProcessor.Factory.Builder().build())
-        .setInputColorInfo(ColorInfo.SRGB_BT709_FULL)
         .setOnOutputFrameAvailableForRenderingListener(
             unused -> checkNotNull(framesProduced).incrementAndGet());
   }

@@ -903,7 +903,6 @@ public final class DefaultVideoCompositorPixelTest {
       return new VideoFrameProcessorTestRunner.Builder()
           .setTestId(testId)
           .setVideoFrameProcessorFactory(defaultVideoFrameProcessorFactoryBuilder.build())
-          .setInputColorInfo(ColorInfo.SRGB_BT709_FULL)
           .setBitmapReader(textureBitmapReader)
           .setOnEndedListener(() -> videoCompositor.signalEndOfInputSource(inputId));
     }

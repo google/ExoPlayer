@@ -25,7 +25,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.testutil.VideoFrameProcessorTestRunner;
 import com.google.android.exoplayer2.util.VideoFrameProcessingException;
-import com.google.android.exoplayer2.video.ColorInfo;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
@@ -115,7 +114,6 @@ public class DefaultVideoFrameProcessorFlushTest {
     return new VideoFrameProcessorTestRunner.Builder()
         .setTestId(testId)
         .setVideoFrameProcessorFactory(new DefaultVideoFrameProcessor.Factory.Builder().build())
-        .setInputColorInfo(ColorInfo.SRGB_BT709_FULL)
         .setOnOutputFrameAvailableForRenderingListener(unused -> outputFrameCount++)
         .build();
   }

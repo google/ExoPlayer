@@ -23,7 +23,6 @@ import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSE
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.recordTestSkipped;
 import static com.google.android.exoplayer2.transformer.mh.HdrCapabilitiesUtil.skipAndLogIfOpenGlToneMappingUnsupported;
 import static com.google.android.exoplayer2.transformer.mh.UnoptimizedGlEffect.NO_OP_EFFECT;
-import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.graphics.Bitmap;
@@ -99,7 +98,6 @@ public final class ToneMapHdrToSdrUsingOpenGlPixelTest {
     videoFrameProcessorTestRunner =
         getDefaultFrameProcessorTestRunnerBuilder(testId)
             .setVideoAssetPath(INPUT_HLG_MP4_ASSET_STRING)
-            .setInputColorInfo(checkNotNull(MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT.colorInfo))
             .setOutputColorInfo(TONE_MAP_SDR_COLOR)
             .build();
     Bitmap expectedBitmap = readBitmap(TONE_MAP_HLG_TO_SDR_PNG_ASSET_PATH);
@@ -138,7 +136,6 @@ public final class ToneMapHdrToSdrUsingOpenGlPixelTest {
     videoFrameProcessorTestRunner =
         getDefaultFrameProcessorTestRunnerBuilder(testId)
             .setVideoAssetPath(INPUT_HLG_MP4_ASSET_STRING)
-            .setInputColorInfo(checkNotNull(MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT.colorInfo))
             .setOutputColorInfo(TONE_MAP_SDR_COLOR)
             .setEffects(ImmutableList.of(NO_OP_EFFECT))
             .build();
@@ -179,7 +176,6 @@ public final class ToneMapHdrToSdrUsingOpenGlPixelTest {
     videoFrameProcessorTestRunner =
         getDefaultFrameProcessorTestRunnerBuilder(testId)
             .setVideoAssetPath(INPUT_PQ_MP4_ASSET_STRING)
-            .setInputColorInfo(checkNotNull(MP4_ASSET_720P_4_SECOND_HDR10_FORMAT.colorInfo))
             .setOutputColorInfo(TONE_MAP_SDR_COLOR)
             .build();
     Bitmap expectedBitmap = readBitmap(TONE_MAP_PQ_TO_SDR_PNG_ASSET_PATH);
@@ -219,7 +215,6 @@ public final class ToneMapHdrToSdrUsingOpenGlPixelTest {
     videoFrameProcessorTestRunner =
         getDefaultFrameProcessorTestRunnerBuilder(testId)
             .setVideoAssetPath(INPUT_PQ_MP4_ASSET_STRING)
-            .setInputColorInfo(checkNotNull(MP4_ASSET_720P_4_SECOND_HDR10_FORMAT.colorInfo))
             .setOutputColorInfo(TONE_MAP_SDR_COLOR)
             .setEffects(ImmutableList.of(NO_OP_EFFECT))
             .build();
