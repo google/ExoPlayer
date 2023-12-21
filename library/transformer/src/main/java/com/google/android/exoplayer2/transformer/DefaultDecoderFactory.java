@@ -51,45 +51,57 @@ import java.util.List;
  *     migration guide</a> for more details, including a script to help with the migration.
  */
 @Deprecated
-public class DefaultDecoderFactory implements Codec.DecoderFactory {
+public final class DefaultDecoderFactory implements Codec.DecoderFactory {
 
   private static final String TAG = "DefaultDecoderFactory";
 
-  protected final Context context;
+  private final Context context;
+  private final boolean enableDecoderFallback;
+  private final Listener listener;
 
-  private final boolean decoderSupportsKeyAllowFrameDrop;
-  @Nullable private final CodecFallbackListener fallbackListener;
-
-  /** A custom listener of codec initialization failures. */
-  public static interface CodecFallbackListener {
+  /** Listener for decoder factory events. */
+  public interface Listener {
     /**
-     * Reports that we were able to initialize the codec, however we had to apply a fallback due to
-     * {@code initializationExceptions}.
+     * Reports that a codec was initialized.
+     *
+     * <p>Called on the thread that is using the associated factory.
+     *
+     * @param codecName The {@linkplain MediaCodec#getName() name of the codec} that was
+     *     initialized.
+     * @param codecInitializationExceptions The list of non-fatal errors that occurred before the
+     *     codec was initialization, which is empty if no errors occurred.
      */
-    public void onCodecFallback(
-        String fallbackCodecName, List<ExportException> initializationExceptions);
+    void onCodecInitialized(String codecName, List<ExportException> codecInitializationExceptions);
   }
 
-  /** Creates a new factory. */
+  /** Creates a new factory that selects the most preferred decoder for the format. */
   public DefaultDecoderFactory(Context context) {
-    this(context, /* fallbackListener= */ null);
+    this(
+        context,
+        /* enableDecoderFallback= */ false,
+        (codecName, codecInitializationExceptions) -> {});
   }
 
-  /** Creates a new factory that supports falling back to a different codec when needed. */
-  public DefaultDecoderFactory(Context context, @Nullable CodecFallbackListener fallbackListener) {
-    this.context = context;
-    this.fallbackListener = fallbackListener;
-
-    decoderSupportsKeyAllowFrameDrop =
-        SDK_INT >= 29
-            && context.getApplicationContext().getApplicationInfo().targetSdkVersion >= 29;
+  /**
+   * Creates a new factory that selects the most preferred decoder, optionally falling back to less
+   * preferred decoders if initialization fails.
+   *
+   * @param context The context.
+   * @param enableDecoderFallback Whether to enable fallback to lower-priority decoders if decoder
+   *     initialization fails. This may result in using a decoder that is less efficient or slower
+   *     than the primary decoder.
+   * @param listener Listener for codec initialization errors.
+   */
+  public DefaultDecoderFactory(Context context, boolean enableDecoderFallback, Listener listener) {
+    this.context = context.getApplicationContext();
+    this.enableDecoderFallback = enableDecoderFallback;
+    this.listener = listener;
   }
 
   @Override
   public DefaultCodec createForAudioDecoding(Format format) throws ExportException {
     MediaFormat mediaFormat = createMediaFormatFromFormat(format);
-    return createCodecForMediaFormatAndReportOnFallback(
-        mediaFormat, format, /* outputSurface= */ null);
+    return createCodecForMediaFormat(mediaFormat, format, /* outputSurface= */ null);
   }
 
   @SuppressLint("InlinedApi")
@@ -119,7 +131,7 @@ public class DefaultDecoderFactory implements Codec.DecoderFactory {
     }
 
     MediaFormat mediaFormat = createMediaFormatFromFormat(format);
-    if (decoderSupportsKeyAllowFrameDrop) {
+    if (decoderSupportsKeyAllowFrameDrop(context)) {
       // This key ensures no frame dropping when the decoder's output surface is full. This allows
       // transformer to decode as many frames as possible in one render cycle.
       mediaFormat.setInteger(MediaFormat.KEY_ALLOW_FRAME_DROP, 0);
@@ -138,10 +150,10 @@ public class DefaultDecoderFactory implements Codec.DecoderFactory {
           mediaFormat, MediaFormat.KEY_LEVEL, codecProfileAndLevel.second);
     }
 
-    return createCodecForMediaFormatAndReportOnFallback(mediaFormat, format, outputSurface);
+    return createCodecForMediaFormat(mediaFormat, format, outputSurface);
   }
 
-  private DefaultCodec createCodecForMediaFormatAndReportOnFallback(
+  private DefaultCodec createCodecForMediaFormat(
       MediaFormat mediaFormat, Format format, @Nullable Surface outputSurface)
       throws ExportException {
     List<MediaCodecInfo> decoderInfos = ImmutableList.of();
@@ -168,15 +180,12 @@ public class DefaultDecoderFactory implements Codec.DecoderFactory {
     DefaultCodec codec =
         createCodecFromDecoderInfos(
             context,
-            fallbackListener == null ? decoderInfos.subList(0, 1) : decoderInfos,
+            enableDecoderFallback ? decoderInfos : decoderInfos.subList(0, 1),
             format,
             mediaFormat,
             outputSurface,
             codecInitExceptions);
-
-    if (fallbackListener != null && !codecInitExceptions.isEmpty()) {
-      fallbackListener.onCodecFallback(codec.getName(), codecInitExceptions);
-    }
+    listener.onCodecInitialized(codec.getName(), codecInitExceptions);
     return codec;
   }
 
@@ -245,6 +254,10 @@ public class DefaultDecoderFactory implements Codec.DecoderFactory {
   private static boolean deviceNeedsNoFrameRateWorkaround() {
     // Redmi Note 9 Pro fails if KEY_FRAME_RATE is set too high (see b/278076311).
     return SDK_INT < 30 && Util.DEVICE.equals("joyeuse");
+  }
+
+  private static boolean decoderSupportsKeyAllowFrameDrop(Context context) {
+    return SDK_INT >= 29 && context.getApplicationInfo().targetSdkVersion >= 29;
   }
 
   private static ExportException createExportException(Format format, String reason) {
