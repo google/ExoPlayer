@@ -34,7 +34,6 @@ import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Util.isRunningOnEmulator;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
-import static org.junit.Assume.assumeFalse;
 import static org.junit.Assume.assumeTrue;
 
 import android.content.Context;
@@ -558,21 +557,17 @@ public class TransformerEndToEndTest {
   public void clippedMedia_trimOptimizationEnabled_completesWithOptimizationApplied()
       throws Exception {
     String testId = "clippedMedia_trimOptimizationEnabled_completesWithOptimizationApplied";
-    if (!isRunningOnEmulator()) {
-      // The trim optimization is only guaranteed to work on emulator for this file.
-      recordTestSkipped(context, testId, /* reason= */ "Emulator only test");
-      assumeTrue(false);
-    }
-    if (Util.SDK_INT == 26) {
-      // MediaCodec returns a segmentation fault fails at this SDK level on emulators.
-      recordTestSkipped(context, testId, /* reason= */ "SDK 26 not supported.");
+    if (!isRunningOnEmulator() || Util.SDK_INT != 33) {
+      // The trim optimization is only guaranteed to work on emulator for this (emulator-transcoded)
+      // file.
+      recordTestSkipped(context, testId, /* reason= */ "SDK 33 Emulator only test");
       assumeTrue(false);
     }
     Transformer transformer =
         new Transformer.Builder(context).experimentalSetTrimOptimizationEnabled(true).build();
     MediaItem mediaItem =
         new MediaItem.Builder()
-            .setUri("asset:///media/mp4/crow_emulator_transformer_output.mp4")
+            .setUri("asset:///media/mp4/internal_emulator_transformer_output.mp4")
             .setClippingConfiguration(
                 new MediaItem.ClippingConfiguration.Builder()
                     .setStartPositionMs(500)
@@ -595,13 +590,15 @@ public class TransformerEndToEndTest {
     String testId = "videoEditing_trimOptimizationEnabled_fallbackToNormalExport";
     Transformer transformer =
         new Transformer.Builder(context).experimentalSetTrimOptimizationEnabled(true).build();
-    // The trim optimization is only guaranteed to work on emulator for this file.
-    assumeTrue(isRunningOnEmulator());
-    // MediaCodec returns a segmentation fault fails at this SDK level on emulators.
-    assumeFalse(Util.SDK_INT == 26);
+    if (!isRunningOnEmulator()) {
+      // The trim optimization is only guaranteed to work on emulator for this (emulator-transcoded)
+      // file.
+      recordTestSkipped(context, testId, /* reason= */ "Emulator only test");
+      assumeTrue(false);
+    }
     MediaItem mediaItem =
         new MediaItem.Builder()
-            .setUri("asset:///media/mp4/crow_emulator_transformer_output.mp4")
+            .setUri("asset:///media/mp4/internal_emulator_transformer_output.mp4")
             .setClippingConfiguration(
                 new MediaItem.ClippingConfiguration.Builder()
                     .setStartPositionMs(500)
