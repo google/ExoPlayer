@@ -50,6 +50,8 @@
   <style name="ExoStyledControls.Button.Center.FfwdWithAmount">
     <item name="android:foreground">@drawable/exo_styled_controls_fastforward</item>
     <item name="android:gravity">center|bottom</item>
+    <item name="android:paddingRight">0dp</item>
+    <item name="android:paddingLeft">0dp</item>
     <item name="android:paddingBottom">@dimen/exo_icon_padding_bottom</item>
     <item name="android:textStyle">bold</item>
     <item name="android:textSize">@dimen/exo_icon_text_size</item>
@@ -62,6 +64,8 @@
   <style name="ExoStyledControls.Button.Center.RewWithAmount">
     <item name="android:foreground">@drawable/exo_styled_controls_rewind</item>
     <item name="android:gravity">center|bottom</item>
+    <item name="android:paddingRight">0dp</item>
+    <item name="android:paddingLeft">0dp</item>
     <item name="android:paddingBottom">@dimen/exo_icon_padding_bottom</item>
     <item name="android:textStyle">bold</item>
     <item name="android:textSize">@dimen/exo_icon_text_size</item>
