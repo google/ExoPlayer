@@ -23,7 +23,6 @@ import static com.google.common.truth.Truth.assertThat;
 import android.graphics.Bitmap;
 import android.util.Pair;
 import androidx.media3.common.C;
-import androidx.media3.common.ColorInfo;
 import androidx.media3.test.utils.VideoFrameProcessorTestRunner;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
@@ -196,7 +195,6 @@ public class DefaultVideoFrameProcessorImageFrameOutputTest {
     return new VideoFrameProcessorTestRunner.Builder()
         .setTestId(testId)
         .setVideoFrameProcessorFactory(new DefaultVideoFrameProcessor.Factory.Builder().build())
-        .setInputColorInfo(ColorInfo.SRGB_BT709_FULL)
         .setOnOutputFrameAvailableForRenderingListener(
             unused -> checkNotNull(framesProduced).incrementAndGet());
   }

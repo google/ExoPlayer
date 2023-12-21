@@ -24,7 +24,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.graphics.Bitmap;
 import android.util.Pair;
-import androidx.media3.common.ColorInfo;
 import androidx.media3.common.VideoFrameProcessor;
 import androidx.media3.effect.DefaultVideoFrameProcessor;
 import androidx.media3.test.utils.BitmapPixelTestUtil;
@@ -171,7 +170,6 @@ public class DefaultVideoFrameProcessorMultipleTextureOutputPixelTest {
     return new VideoFrameProcessorTestRunner.Builder()
         .setTestId(testId)
         .setVideoFrameProcessorFactory(defaultVideoFrameProcessorFactory)
-        .setInputColorInfo(ColorInfo.SRGB_BT709_FULL)
         .setBitmapReader(textureBitmapReader);
   }
 }

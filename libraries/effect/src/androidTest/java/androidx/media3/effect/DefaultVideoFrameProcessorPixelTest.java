@@ -26,7 +26,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import androidx.media3.common.C;
-import androidx.media3.common.ColorInfo;
 import androidx.media3.common.Effect;
 import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.util.Size;
@@ -169,10 +168,7 @@ public final class DefaultVideoFrameProcessorPixelTest {
   @Test
   @RequiresNonNull("testId")
   public void noEffects_withImageInput_matchesGoldenFile() throws Exception {
-    videoFrameProcessorTestRunner =
-        getDefaultFrameProcessorTestRunnerBuilder(testId)
-            .setInputColorInfo(ColorInfo.SRGB_BT709_FULL)
-            .build();
+    videoFrameProcessorTestRunner = getDefaultFrameProcessorTestRunnerBuilder(testId).build();
     Bitmap originalBitmap = readBitmap(IMAGE_JPG_ASSET_PATH);
     Bitmap expectedBitmap = readBitmap(IMAGE_TO_VIDEO_PNG_ASSET_PATH);
 
@@ -192,7 +188,6 @@ public final class DefaultVideoFrameProcessorPixelTest {
   public void wrappedCrop_withImageInput_matchesGoldenFile() throws Exception {
     videoFrameProcessorTestRunner =
         getDefaultFrameProcessorTestRunnerBuilder(testId)
-            .setInputColorInfo(ColorInfo.SRGB_BT709_FULL)
             .setEffects(
                 new GlEffectWrapper(
                     new Crop(
@@ -225,7 +220,6 @@ public final class DefaultVideoFrameProcessorPixelTest {
                 new DefaultVideoFrameProcessor.Factory.Builder()
                     .setEnableColorTransfers(false)
                     .build())
-            .setInputColorInfo(ColorInfo.SRGB_BT709_FULL)
             .setEffects(NO_OP_EFFECT)
             .build();
     Bitmap originalBitmap = readBitmap(IMAGE_JPG_ASSET_PATH);

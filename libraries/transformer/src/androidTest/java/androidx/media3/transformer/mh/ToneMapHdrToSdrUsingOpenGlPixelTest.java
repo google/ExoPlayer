@@ -15,7 +15,6 @@
  */
 package androidx.media3.transformer.mh;
 
-import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.test.utils.BitmapPixelTestUtil.getBitmapAveragePixelAbsoluteDifferenceArgb8888;
 import static androidx.media3.test.utils.BitmapPixelTestUtil.readBitmap;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT;
@@ -99,7 +98,6 @@ public final class ToneMapHdrToSdrUsingOpenGlPixelTest {
     videoFrameProcessorTestRunner =
         getDefaultFrameProcessorTestRunnerBuilder(testId)
             .setVideoAssetPath(INPUT_HLG_MP4_ASSET_STRING)
-            .setInputColorInfo(checkNotNull(MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT.colorInfo))
             .setOutputColorInfo(TONE_MAP_SDR_COLOR)
             .build();
     Bitmap expectedBitmap = readBitmap(TONE_MAP_HLG_TO_SDR_PNG_ASSET_PATH);
@@ -138,7 +136,6 @@ public final class ToneMapHdrToSdrUsingOpenGlPixelTest {
     videoFrameProcessorTestRunner =
         getDefaultFrameProcessorTestRunnerBuilder(testId)
             .setVideoAssetPath(INPUT_HLG_MP4_ASSET_STRING)
-            .setInputColorInfo(checkNotNull(MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT.colorInfo))
             .setOutputColorInfo(TONE_MAP_SDR_COLOR)
             .setEffects(ImmutableList.of(NO_OP_EFFECT))
             .build();
@@ -179,7 +176,6 @@ public final class ToneMapHdrToSdrUsingOpenGlPixelTest {
     videoFrameProcessorTestRunner =
         getDefaultFrameProcessorTestRunnerBuilder(testId)
             .setVideoAssetPath(INPUT_PQ_MP4_ASSET_STRING)
-            .setInputColorInfo(checkNotNull(MP4_ASSET_720P_4_SECOND_HDR10_FORMAT.colorInfo))
             .setOutputColorInfo(TONE_MAP_SDR_COLOR)
             .build();
     Bitmap expectedBitmap = readBitmap(TONE_MAP_PQ_TO_SDR_PNG_ASSET_PATH);
@@ -219,7 +215,6 @@ public final class ToneMapHdrToSdrUsingOpenGlPixelTest {
     videoFrameProcessorTestRunner =
         getDefaultFrameProcessorTestRunnerBuilder(testId)
             .setVideoAssetPath(INPUT_PQ_MP4_ASSET_STRING)
-            .setInputColorInfo(checkNotNull(MP4_ASSET_720P_4_SECOND_HDR10_FORMAT.colorInfo))
             .setOutputColorInfo(TONE_MAP_SDR_COLOR)
             .setEffects(ImmutableList.of(NO_OP_EFFECT))
             .build();
