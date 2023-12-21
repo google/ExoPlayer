@@ -38,7 +38,6 @@ import com.google.android.exoplayer2.transformer.ExportTestResult;
 import com.google.android.exoplayer2.transformer.TransformationRequest;
 import com.google.android.exoplayer2.transformer.Transformer;
 import com.google.android.exoplayer2.transformer.TransformerAndroidTestRunner;
-import com.google.android.exoplayer2.video.ColorInfo;
 import java.util.Objects;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -59,10 +58,7 @@ public class ToneMapHdrToSdrUsingMediaCodecTest {
         context,
         testId,
         /* inputFormat= */ MP4_ASSET_720P_4_SECOND_HDR10_FORMAT,
-        /* outputFormat= */ MP4_ASSET_720P_4_SECOND_HDR10_FORMAT
-            .buildUpon()
-            .setColorInfo(ColorInfo.SDR_BT709_LIMITED)
-            .build())) {
+        /* outputFormat= */ null)) {
       return;
     }
 
@@ -120,10 +116,7 @@ public class ToneMapHdrToSdrUsingMediaCodecTest {
         context,
         testId,
         /* inputFormat= */ MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT,
-        /* outputFormat= */ MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT
-            .buildUpon()
-            .setColorInfo(ColorInfo.SDR_BT709_LIMITED)
-            .build())) {
+        /* outputFormat= */ null)) {
       return;
     }
 
@@ -181,10 +174,7 @@ public class ToneMapHdrToSdrUsingMediaCodecTest {
         context,
         testId,
         /* inputFormat= */ MP4_ASSET_720P_4_SECOND_HDR10_FORMAT,
-        /* outputFormat= */ MP4_ASSET_720P_4_SECOND_HDR10_FORMAT
-            .buildUpon()
-            .setColorInfo(ColorInfo.SDR_BT709_LIMITED)
-            .build())) {
+        /* outputFormat= */ null)) {
       return;
     }
 
@@ -243,10 +233,7 @@ public class ToneMapHdrToSdrUsingMediaCodecTest {
         context,
         testId,
         /* inputFormat= */ MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT,
-        /* outputFormat= */ MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT
-            .buildUpon()
-            .setColorInfo(ColorInfo.SDR_BT709_LIMITED)
-            .build())) {
+        /* outputFormat= */ null)) {
       return;
     }
 

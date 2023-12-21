@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.transformer.mh;
 
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
-import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.recordTestSkipped;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.skipAndLogIfFormatsUnsupported;
 
@@ -25,7 +24,6 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.Util;
-import com.google.android.exoplayer2.video.ColorInfo;
 import java.io.IOException;
 import org.json.JSONException;
 
@@ -52,14 +50,7 @@ public final class HdrCapabilitiesUtil {
       recordTestSkipped(context, testId, SKIP_REASON_NO_YUV);
       return true;
     }
-    if (skipAndLogIfFormatsUnsupported(
-        context,
-        testId,
-        inputFormat,
-        /* outputFormat= */ MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT
-            .buildUpon()
-            .setColorInfo(ColorInfo.SDR_BT709_LIMITED)
-            .build())) {
+    if (skipAndLogIfFormatsUnsupported(context, testId, inputFormat, /* outputFormat= */ null)) {
       return true;
     }
     return false;
