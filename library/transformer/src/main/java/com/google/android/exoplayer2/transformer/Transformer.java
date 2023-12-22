@@ -112,6 +112,7 @@ public final class Transformer {
     private boolean removeVideo;
     private boolean flattenForSlowMotion;
     private boolean trimOptimizationEnabled;
+    private boolean fileStartsOnVideoFrameEnabled;
     private ListenerSet<Transformer.Listener> listeners;
     private AssetLoader.@MonotonicNonNull Factory assetLoaderFactory;
     private AudioMixer.Factory audioMixerFactory;
@@ -152,6 +153,7 @@ public final class Transformer {
       this.removeAudio = transformer.removeAudio;
       this.removeVideo = transformer.removeVideo;
       this.trimOptimizationEnabled = transformer.trimOptimizationEnabled;
+      this.fileStartsOnVideoFrameEnabled = transformer.fileStartsOnVideoFrameEnabled;
       this.listeners = transformer.listeners;
       this.assetLoaderFactory = transformer.assetLoaderFactory;
       this.audioMixerFactory = transformer.audioMixerFactory;
@@ -324,6 +326,25 @@ public final class Transformer {
     @CanIgnoreReturnValue
     public Builder experimentalSetTrimOptimizationEnabled(boolean enabled) {
       trimOptimizationEnabled = enabled;
+      return this;
+    }
+
+    /**
+     * Set whether to ensure that the output file starts on a video frame.
+     *
+     * <p>Any audio samples that are earlier than the first video frame will be dropped. This can
+     * make the output of trimming operations more compatible with player implementations that don't
+     * show the first video frame until its presentation timestamp.
+     *
+     * <p>Ignored when {@linkplain #experimentalSetTrimOptimizationEnabled trim optimization} is
+     * set.
+     *
+     * @param enabled Whether to ensure that the file starts on a video frame.
+     * @return This builder.
+     */
+    @CanIgnoreReturnValue
+    public Builder setEnsureFileStartsOnVideoFrameEnabled(boolean enabled) {
+      fileStartsOnVideoFrameEnabled = enabled;
       return this;
     }
 
@@ -543,6 +564,7 @@ public final class Transformer {
           removeVideo,
           flattenForSlowMotion,
           trimOptimizationEnabled,
+          fileStartsOnVideoFrameEnabled,
           listeners,
           assetLoaderFactory,
           audioMixerFactory,
@@ -738,6 +760,7 @@ public final class Transformer {
   private final boolean removeVideo;
   private final boolean flattenForSlowMotion;
   private final boolean trimOptimizationEnabled;
+  private final boolean fileStartsOnVideoFrameEnabled;
   private final ListenerSet<Transformer.Listener> listeners;
   @Nullable private final AssetLoader.Factory assetLoaderFactory;
   private final AudioMixer.Factory audioMixerFactory;
@@ -773,6 +796,7 @@ public final class Transformer {
       boolean removeVideo,
       boolean flattenForSlowMotion,
       boolean trimOptimizationEnabled,
+      boolean fileStartsOnVideoFrameEnabled,
       ListenerSet<Listener> listeners,
       @Nullable AssetLoader.Factory assetLoaderFactory,
       AudioMixer.Factory audioMixerFactory,
@@ -791,6 +815,7 @@ public final class Transformer {
     this.removeVideo = removeVideo;
     this.flattenForSlowMotion = flattenForSlowMotion;
     this.trimOptimizationEnabled = trimOptimizationEnabled;
+    this.fileStartsOnVideoFrameEnabled = fileStartsOnVideoFrameEnabled;
     this.listeners = listeners;
     this.assetLoaderFactory = assetLoaderFactory;
     this.audioMixerFactory = audioMixerFactory;
@@ -930,7 +955,12 @@ public final class Transformer {
     if (!trimOptimizationEnabled || isMultiAsset()) {
       startInternal(
           composition,
-          new MuxerWrapper(path, muxerFactory, componentListener, MuxerWrapper.MUXER_MODE_DEFAULT),
+          new MuxerWrapper(
+              path,
+              muxerFactory,
+              componentListener,
+              MuxerWrapper.MUXER_MODE_DEFAULT,
+              /* dropSamplesBeforeFirstVideoSample= */ fileStartsOnVideoFrameEnabled),
           componentListener,
           /* initialTimestampOffsetUs= */ 0);
     } else {
@@ -1118,7 +1148,8 @@ public final class Transformer {
             checkNotNull(outputFilePath),
             muxerFactory,
             componentListener,
-            MuxerWrapper.MUXER_MODE_DEFAULT),
+            MuxerWrapper.MUXER_MODE_DEFAULT,
+            /* dropSamplesBeforeFirstVideoSample= */ false),
         componentListener,
         /* initialTimestampOffsetUs= */ 0);
   }
@@ -1148,7 +1179,8 @@ public final class Transformer {
                     checkNotNull(outputFilePath),
                     muxerFactory,
                     componentListener,
-                    MuxerWrapper.MUXER_MODE_MUX_PARTIAL);
+                    MuxerWrapper.MUXER_MODE_MUX_PARTIAL,
+                    /* dropSamplesBeforeFirstVideoSample= */ false);
 
             startInternal(
                 TransmuxTranscodeHelper.createVideoOnlyComposition(
@@ -1197,7 +1229,8 @@ public final class Transformer {
             checkNotNull(oldFilePath),
             muxerFactory,
             componentListener,
-            MuxerWrapper.MUXER_MODE_DEFAULT),
+            MuxerWrapper.MUXER_MODE_DEFAULT,
+            /* dropSamplesBeforeFirstVideoSample= */ false),
         componentListener,
         /* initialTimestampOffsetUs= */ 0);
   }
@@ -1277,7 +1310,8 @@ public final class Transformer {
                     checkNotNull(outputFilePath),
                     muxerFactory,
                     componentListener,
-                    MuxerWrapper.MUXER_MODE_MUX_PARTIAL);
+                    MuxerWrapper.MUXER_MODE_MUX_PARTIAL,
+                    /* dropSamplesBeforeFirstVideoSample= */ false);
             if (shouldTranscodeVideo(
                     checkNotNull(mp4MetadataInfo.videoFormat),
                     composition,

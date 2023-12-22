@@ -19,6 +19,7 @@ package com.google.android.exoplayer2.transformer;
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
+import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 import static com.google.android.exoplayer2.util.Util.areEqual;
 import static com.google.android.exoplayer2.util.Util.contains;
 import static com.google.android.exoplayer2.util.Util.usToMs;
@@ -47,7 +48,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
-import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /**
  * A wrapper around a media muxer.
@@ -105,6 +105,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private final String outputPath;
   private final Muxer.Factory muxerFactory;
   private final Listener listener;
+  private final boolean dropSamplesBeforeFirstVideoSample;
   private final SparseArray<TrackInfo> trackTypeToInfo;
   private final ScheduledExecutorService abortScheduledExecutorService;
 
@@ -119,6 +120,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private @MuxerMode int muxerMode;
   private boolean muxedPartialVideo;
   private boolean muxedPartialAudio;
+  private long firstVideoPresentationTimeUs;
 
   private volatile int additionalRotationDegrees;
   private volatile int trackCount;
@@ -131,16 +133,24 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * @param listener A {@link MuxerWrapper.Listener}.
    * @param muxerMode The {@link MuxerMode}. The initial mode must be {@link #MUXER_MODE_DEFAULT} or
    *     {@link #MUXER_MODE_MUX_PARTIAL}.
+   * @param dropSamplesBeforeFirstVideoSample Whether to drop any non-video samples with
+   *     presentation timestamps before the first video sample.
    */
   public MuxerWrapper(
-      String outputPath, Muxer.Factory muxerFactory, Listener listener, @MuxerMode int muxerMode) {
+      String outputPath,
+      Muxer.Factory muxerFactory,
+      Listener listener,
+      @MuxerMode int muxerMode,
+      boolean dropSamplesBeforeFirstVideoSample) {
     this.outputPath = outputPath;
     this.muxerFactory = muxerFactory;
     this.listener = listener;
     checkArgument(muxerMode == MUXER_MODE_DEFAULT || muxerMode == MUXER_MODE_MUX_PARTIAL);
     this.muxerMode = muxerMode;
+    this.dropSamplesBeforeFirstVideoSample = dropSamplesBeforeFirstVideoSample;
     trackTypeToInfo = new SparseArray<>();
     previousTrackType = C.TRACK_TYPE_NONE;
+    firstVideoPresentationTimeUs = C.TIME_UNSET;
     abortScheduledExecutorService = Util.newSingleThreadScheduledExecutor(TIMER_THREAD_NAME);
   }
 
@@ -262,7 +272,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         checkArgument(existingFormat.sampleRate == format.sampleRate);
         checkArgument(existingFormat.initializationDataEquals(format));
       }
-      checkNotNull(muxer);
       resetAbortTimer();
       return;
     }
@@ -314,7 +323,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * @param data The sample to write.
    * @param isKeyFrame Whether the sample is a key frame.
    * @param presentationTimeUs The presentation time of the sample in microseconds.
-   * @return Whether the sample was successfully written. {@code false} if samples of other
+   * @return Whether the sample was successfully written, or dropped if configured to drop the
+   *     sample via {@code dropSamplesBeforeFirstVideoSample}. {@code false} if samples of other
    *     {@linkplain C.TrackType track types} should be written first to ensure the files track
    *     interleaving is balanced, or if the muxer hasn't {@linkplain #addTrackFormat(Format)
    *     received a format} for every {@linkplain #setTrackCount(int) track}.
@@ -334,12 +344,22 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
           presentationTimeUs,
           /* extraFormat= */ "%s",
           /* extraArgs...= */ canWriteSample);
+      if (firstVideoPresentationTimeUs == C.TIME_UNSET) {
+        firstVideoPresentationTimeUs = presentationTimeUs;
+      }
     } else if (trackType == C.TRACK_TYPE_AUDIO) {
       DebugTraceUtil.logEvent(
           DebugTraceUtil.EVENT_MUXER_CAN_WRITE_SAMPLE_AUDIO,
           presentationTimeUs,
           /* extraFormat= */ "%s",
           /* extraArgs...= */ canWriteSample);
+      if (dropSamplesBeforeFirstVideoSample
+          && firstVideoPresentationTimeUs != C.TIME_UNSET
+          && presentationTimeUs < firstVideoPresentationTimeUs) {
+        // Drop the buffer.
+        resetAbortTimer();
+        return true;
+      }
     }
     if (!canWriteSample) {
       return false;
@@ -349,8 +369,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     trackInfo.bytesWritten += data.remaining();
     trackInfo.timeUs = max(trackInfo.timeUs, presentationTimeUs);
 
-    checkNotNull(muxer);
     resetAbortTimer();
+    checkStateNotNull(muxer);
     muxer.writeSampleData(
         trackInfo.index, data, presentationTimeUs, isKeyFrame ? C.BUFFER_FLAG_KEY_FRAME : 0);
     if (trackType == C.TRACK_TYPE_VIDEO) {
@@ -448,6 +468,12 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   private boolean canWriteSample(@C.TrackType int trackType, long presentationTimeUs) {
+    if (dropSamplesBeforeFirstVideoSample
+        && trackType != C.TRACK_TYPE_VIDEO
+        && firstVideoPresentationTimeUs == C.TIME_UNSET) {
+      // Haven't received the first video sample yet, so can't write any audio.
+      return false;
+    }
     if (!isReady) {
       return false;
     }
@@ -468,8 +494,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     return presentationTimeUs - minTrackTimeUs <= MAX_TRACK_WRITE_AHEAD_US;
   }
 
-  @RequiresNonNull("muxer")
   private void resetAbortTimer() {
+    checkStateNotNull(muxer);
     long maxDelayBetweenSamplesMs = muxer.getMaxDelayBetweenSamplesMs();
     if (maxDelayBetweenSamplesMs == C.TIME_UNSET) {
       return;
