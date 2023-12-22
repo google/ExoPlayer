@@ -31,9 +31,9 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 
-/** Unit tests for {@link Mp4MetadataInfo}. */
+/** Unit tests for {@link Mp4Info}. */
 @RunWith(AndroidJUnit4.class)
-public class Mp4MetadataInfoTest {
+public class Mp4InfoTest {
   @Rule public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
   private final Context context = ApplicationProvider.getApplicationContext();
@@ -42,58 +42,57 @@ public class Mp4MetadataInfoTest {
   public void create_withEmptyFile_throws() throws IOException {
     String emptyFilePath = temporaryFolder.newFile("EmptyFile").getPath();
 
-    assertThrows(IllegalStateException.class, () -> Mp4MetadataInfo.create(context, emptyFilePath));
+    assertThrows(IllegalStateException.class, () -> Mp4Info.create(context, emptyFilePath));
   }
 
   @Test
   public void create_withNonMp4File_throws() {
     String nonMp4FilePath = "asset:///media/mkv/sample.mkv";
 
-    assertThrows(
-        IllegalStateException.class, () -> Mp4MetadataInfo.create(context, nonMp4FilePath));
+    assertThrows(IllegalStateException.class, () -> Mp4Info.create(context, nonMp4FilePath));
   }
 
   @Test
   public void lastSyncSampleTimestampUs_ofSmallMp4File_outputsFirstTimestamp() throws IOException {
     String mp4FilePath = "asset:///media/mp4/sample.mp4";
-    Mp4MetadataInfo mp4MetadataInfo = Mp4MetadataInfo.create(context, mp4FilePath);
+    Mp4Info mp4Info = Mp4Info.create(context, mp4FilePath);
 
-    assertThat(mp4MetadataInfo.lastSyncSampleTimestampUs)
+    assertThat(mp4Info.lastSyncSampleTimestampUs)
         .isEqualTo(0); // The timestamp of the first sample in sample.mp4.
   }
 
   @Test
   public void lastSyncSampleTimestampUs_ofMp4File_outputMatchesExpected() throws IOException {
     String mp4FilePath = "asset:///media/mp4/hdr10-720p.mp4";
-    Mp4MetadataInfo mp4MetadataInfo = Mp4MetadataInfo.create(context, mp4FilePath);
+    Mp4Info mp4Info = Mp4Info.create(context, mp4FilePath);
 
-    assertThat(mp4MetadataInfo.lastSyncSampleTimestampUs)
+    assertThat(mp4Info.lastSyncSampleTimestampUs)
         .isEqualTo(4_003_277L); // The timestamp of the last sync sample in hdr10-720p.mp4.
   }
 
   @Test
   public void lastSyncSampleTimestampUs_ofAudioOnlyMp4File_isUnset() throws IOException {
     String audioOnlyMp4FilePath = "asset:///media/mp4/sample_ac3.mp4";
-    Mp4MetadataInfo mp4MetadataInfo = Mp4MetadataInfo.create(context, audioOnlyMp4FilePath);
+    Mp4Info mp4Info = Mp4Info.create(context, audioOnlyMp4FilePath);
 
-    assertThat(mp4MetadataInfo.lastSyncSampleTimestampUs).isEqualTo(C.TIME_UNSET);
+    assertThat(mp4Info.lastSyncSampleTimestampUs).isEqualTo(C.TIME_UNSET);
   }
 
   @Test
   public void durationUs_ofMp4File_outputMatchesExpected() throws Exception {
     String mp4FilePath = "asset:///media/mp4/hdr10-720p.mp4";
-    Mp4MetadataInfo mp4MetadataInfo = Mp4MetadataInfo.create(context, mp4FilePath);
+    Mp4Info mp4Info = Mp4Info.create(context, mp4FilePath);
 
-    assertThat(mp4MetadataInfo.durationUs).isEqualTo(4_236_600L); // The duration of hdr10-720p.mp4.
+    assertThat(mp4Info.durationUs).isEqualTo(4_236_600L); // The duration of hdr10-720p.mp4.
   }
 
   @Test
   public void firstSyncSampleTimestampUsAfterTimeUs_timeUsIsSyncSample_outputsFirstTimestamp()
       throws IOException {
     String mp4FilePath = "asset:///media/mp4/sample.mp4";
-    Mp4MetadataInfo mp4MetadataInfo = Mp4MetadataInfo.create(context, mp4FilePath, /* timeUs= */ 0);
+    Mp4Info mp4Info = Mp4Info.create(context, mp4FilePath, /* timeUs= */ 0);
 
-    assertThat(mp4MetadataInfo.firstSyncSampleTimestampUsAfterTimeUs)
+    assertThat(mp4Info.firstSyncSampleTimestampUsAfterTimeUs)
         .isEqualTo(0); // The timestamp of the first sample in sample.mp4.
   }
 
@@ -101,43 +100,40 @@ public class Mp4MetadataInfoTest {
   public void firstSyncSampleTimestampUsAfterTimeUs_timeUsNotASyncSample_returnsCorrectTimestamp()
       throws IOException {
     String mp4FilePath = "asset:///media/mp4/hdr10-720p.mp4";
-    Mp4MetadataInfo mp4MetadataInfo =
-        Mp4MetadataInfo.create(context, mp4FilePath, /* timeUs= */ 400);
+    Mp4Info mp4Info = Mp4Info.create(context, mp4FilePath, /* timeUs= */ 400);
 
-    assertThat(mp4MetadataInfo.firstSyncSampleTimestampUsAfterTimeUs).isEqualTo(1_002_955L);
+    assertThat(mp4Info.firstSyncSampleTimestampUsAfterTimeUs).isEqualTo(1_002_955L);
   }
 
   @Test
   public void firstSyncSampleTimestampUsAfterTimeUs_timeUsSetToDuration_returnsTimeEndOfSource()
       throws IOException {
     String mp4FilePath = "asset:///media/mp4/hdr10-720p.mp4";
-    Mp4MetadataInfo mp4MetadataInfo =
-        Mp4MetadataInfo.create(context, mp4FilePath, /* timeUs= */ 4_236_600L);
+    Mp4Info mp4Info = Mp4Info.create(context, mp4FilePath, /* timeUs= */ 4_236_600L);
 
-    assertThat(mp4MetadataInfo.firstSyncSampleTimestampUsAfterTimeUs)
-        .isEqualTo(C.TIME_END_OF_SOURCE);
+    assertThat(mp4Info.firstSyncSampleTimestampUsAfterTimeUs).isEqualTo(C.TIME_END_OF_SOURCE);
   }
 
   @Test
   public void firstSyncSampleTimestampUsAfterTimeUs_ofAudioOnlyMp4File_returnsUnsetValue()
       throws IOException {
     String mp4FilePath = "asset:///media/mp4/sample_ac3.mp4";
-    Mp4MetadataInfo mp4MetadataInfo = Mp4MetadataInfo.create(context, mp4FilePath, /* timeUs= */ 0);
+    Mp4Info mp4Info = Mp4Info.create(context, mp4FilePath, /* timeUs= */ 0);
 
-    assertThat(mp4MetadataInfo.firstSyncSampleTimestampUsAfterTimeUs).isEqualTo(C.TIME_UNSET);
+    assertThat(mp4Info.firstSyncSampleTimestampUsAfterTimeUs).isEqualTo(C.TIME_UNSET);
   }
 
   @Test
   public void videoFormat_outputsFormatObjectWithCorrectRelevantFormatData() throws IOException {
     String mp4FilePath = "asset:///media/mp4/sample.mp4";
-    Mp4MetadataInfo mp4MetadataInfo = Mp4MetadataInfo.create(context, mp4FilePath);
+    Mp4Info mp4Info = Mp4Info.create(context, mp4FilePath);
     byte[] expectedCsd0 = {
       0, 0, 0, 1, 103, 100, 0, 31, -84, -39, 64, 68, 5, -66, 95, 1, 16, 0, 0, 62, -112, 0, 14, -90,
       0, -15, -125, 25, 96
     };
     byte[] expectedCsd1 = {0, 0, 0, 1, 104, -21, -29, -53, 34, -64};
 
-    Format actualFormat = mp4MetadataInfo.videoFormat;
+    Format actualFormat = mp4Info.videoFormat;
 
     assertThat(actualFormat).isNotNull();
     assertThat(actualFormat.initializationData.get(0)).isEqualTo(expectedCsd0);
@@ -152,18 +148,18 @@ public class Mp4MetadataInfoTest {
   @Test
   public void videoFormat_audioOnlyMp4File_outputsNull() throws IOException {
     String mp4FilePath = "asset:///media/mp4/sample_ac3.mp4";
-    Mp4MetadataInfo mp4MetadataInfo = Mp4MetadataInfo.create(context, mp4FilePath);
+    Mp4Info mp4Info = Mp4Info.create(context, mp4FilePath);
 
-    assertThat(mp4MetadataInfo.videoFormat).isNull();
+    assertThat(mp4Info.videoFormat).isNull();
   }
 
   @Test
   public void audioFormat_outputsFormatObjectWithCorrectRelevantFormatData() throws IOException {
     String mp4FilePath = "asset:///media/mp4/sample.mp4";
-    Mp4MetadataInfo mp4MetadataInfo = Mp4MetadataInfo.create(context, mp4FilePath);
+    Mp4Info mp4Info = Mp4Info.create(context, mp4FilePath);
     byte[] expectedCsd0 = {18, 8};
 
-    Format actualFormat = mp4MetadataInfo.audioFormat;
+    Format actualFormat = mp4Info.audioFormat;
 
     assertThat(actualFormat).isNotNull();
     assertThat(actualFormat.sampleMimeType).isEqualTo(AUDIO_AAC);
@@ -175,8 +171,8 @@ public class Mp4MetadataInfoTest {
   @Test
   public void audioFormat_videoOnlyMp4File_outputsNull() throws IOException {
     String mp4FilePath = "asset:///media/mp4/sample_18byte_nclx_colr.mp4";
-    Mp4MetadataInfo mp4MetadataInfo = Mp4MetadataInfo.create(context, mp4FilePath);
+    Mp4Info mp4Info = Mp4Info.create(context, mp4FilePath);
 
-    assertThat(mp4MetadataInfo.audioFormat).isNull();
+    assertThat(mp4Info.audioFormat).isNull();
   }
 }

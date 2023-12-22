@@ -67,20 +67,20 @@ import java.util.List;
     }
   }
 
-  public static ListenableFuture<Mp4MetadataInfo> getMp4MetadataInfo(
+  public static ListenableFuture<Mp4Info> getMp4Info(
       Context context, String filePath, long timeUs) {
-    SettableFuture<Mp4MetadataInfo> mp4MetadataInfoSettableFuture = SettableFuture.create();
-    new Thread("TransmuxTranscodeHelper:Mp4MetadataInfo") {
+    SettableFuture<Mp4Info> mp4InfoSettableFuture = SettableFuture.create();
+    new Thread("TransmuxTranscodeHelper:Mp4Info") {
       @Override
       public void run() {
         try {
-          mp4MetadataInfoSettableFuture.set(Mp4MetadataInfo.create(context, filePath, timeUs));
+          mp4InfoSettableFuture.set(Mp4Info.create(context, filePath, timeUs));
         } catch (Exception ex) {
-          mp4MetadataInfoSettableFuture.setException(ex);
+          mp4InfoSettableFuture.setException(ex);
         }
       }
     }.start();
-    return mp4MetadataInfoSettableFuture;
+    return mp4InfoSettableFuture;
   }
 
   public static Composition buildNewCompositionWithClipTimes(
@@ -269,7 +269,7 @@ import java.util.List;
             return;
           }
           long lastSyncSampleTimestampUs =
-              Mp4MetadataInfo.create(context, filePath).lastSyncSampleTimestampUs;
+              Mp4Info.create(context, filePath).lastSyncSampleTimestampUs;
 
           ImmutableList.Builder<Pair<Integer, Long>> firstMediaItemIndexAndOffsetInfoBuilder =
               new ImmutableList.Builder<>();
@@ -356,7 +356,7 @@ import java.util.List;
     if (mediaItem.clippingConfiguration.endPositionMs != C.TIME_END_OF_SOURCE) {
       endUs = Util.msToUs(mediaItem.clippingConfiguration.endPositionMs);
     } else {
-      endUs = Mp4MetadataInfo.create(context, filePath).durationUs;
+      endUs = Mp4Info.create(context, filePath).durationUs;
     }
 
     return endUs - startUs;
