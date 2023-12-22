@@ -20,7 +20,6 @@ import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
-import static java.lang.Math.max;
 
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -157,6 +156,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         SubtitleParser.OutputOptions.allCues(),
         cuesWithTiming -> outputSample(cuesWithTiming, timeUs, flags));
     sampleDataStart = sampleStart + size;
+    if (sampleDataStart == sampleDataEnd) {
+      // The array is now empty, so we can move the start and end pointers back to the start.
+      sampleDataStart = 0;
+      sampleDataEnd = 0;
+    }
   }
 
   // Clearing deprecated decode-only flag for compatibility with decoders that are still using it.
@@ -200,7 +204,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       return;
     }
     int existingSampleDataLength = sampleDataEnd - sampleDataStart;
-    int targetLength = max(existingSampleDataLength * 2, sampleDataEnd + newSampleSize);
+    // Make sure there's enough space for the new sample (after we move existing data to the
+    // beginning of the array).
+    int targetLength =
+        Math.max(existingSampleDataLength * 2, existingSampleDataLength + newSampleSize);
     byte[] newSampleData = targetLength <= sampleData.length ? sampleData : new byte[targetLength];
     System.arraycopy(sampleData, sampleDataStart, newSampleData, 0, existingSampleDataLength);
     sampleDataStart = 0;
