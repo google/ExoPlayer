@@ -28,6 +28,7 @@ import static androidx.media3.transformer.ExportResult.OPTIMIZATION_FAILED_FORMA
 import static androidx.media3.transformer.TransformerUtil.shouldTranscodeAudio;
 import static androidx.media3.transformer.TransformerUtil.shouldTranscodeVideo;
 import static androidx.media3.transformer.TransmuxTranscodeHelper.buildNewCompositionWithClipTimes;
+import static java.lang.Math.round;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.content.Context;
@@ -294,7 +295,6 @@ public final class Transformer {
       return this;
     }
 
-    // TODO: b/304476154 - Support progress updates in trim optimization.
     /**
      * Sets whether to attempt to optimize trims from the start of the {@link EditedMediaItem} by
      * transcoding as little of the file as possible and transmuxing the rest.
@@ -305,7 +305,6 @@ public final class Transformer {
      *   <li>Only supported for single-asset (i.e. only one {@link EditedMediaItem} in the whole
      *       {@link Composition}) exports of mp4 files.
      *   <li>Not guaranteed to work with any effects.
-     *   <li>Progress updates will be unavailable.
      * </ul>
      *
      * <p>This process relies on the given {@linkplain #setEncoderFactory EncoderFactory} providing
@@ -781,7 +780,7 @@ public final class Transformer {
       getResumeMetadataFuture;
   private @MonotonicNonNull ListenableFuture<Void> copyOutputFuture;
   private @MonotonicNonNull ListenableFuture<Mp4MetadataInfo> getMp4MetadataInfoFuture;
-  private @MonotonicNonNull Mp4MetadataInfo mp4MetadataInfo;
+  @Nullable private Mp4MetadataInfo mediaItemMetadataInfo;
 
   private Transformer(
       Context context,
@@ -821,6 +820,7 @@ public final class Transformer {
     this.looper = looper;
     this.debugViewProvider = debugViewProvider;
     this.clock = clock;
+    transformerState = TRANSFORMER_STATE_PROCESS_FULL_INPUT;
     applicationHandler = clock.createHandler(looper, /* callback= */ null);
     componentListener = new ComponentListener();
     exportResultBuilder = new ExportResult.Builder();
@@ -1069,12 +1069,65 @@ public final class Transformer {
    */
   public @ProgressState int getProgress(ProgressHolder progressHolder) {
     verifyApplicationThread();
-    if (transformerState != TRANSFORMER_STATE_PROCESS_FULL_INPUT) {
+    if (transformerState == TRANSFORMER_STATE_PROCESS_FULL_INPUT) {
+      return transformerInternal == null
+          ? PROGRESS_STATE_NOT_STARTED
+          : transformerInternal.getProgress(progressHolder);
+    }
+    if (isExportResumed()) {
       return PROGRESS_STATE_UNAVAILABLE;
     }
-    return transformerInternal == null
-        ? PROGRESS_STATE_NOT_STARTED
-        : transformerInternal.getProgress(progressHolder);
+
+    return getTrimOptimizationProgress(progressHolder);
+  }
+
+  private boolean isExportResumed() {
+    return transformerState == TRANSFORMER_STATE_REMUX_PROCESSED_VIDEO
+        || transformerState == TRANSFORMER_STATE_PROCESS_REMAINING_VIDEO
+        || transformerState == TRANSFORMER_STATE_PROCESS_AUDIO
+        || transformerState == TRANSFORMER_STATE_COPY_OUTPUT;
+  }
+
+  private @ProgressState int getTrimOptimizationProgress(ProgressHolder progressHolder) {
+    if (mediaItemMetadataInfo == null) {
+      return PROGRESS_STATE_WAITING_FOR_AVAILABILITY;
+    }
+    MediaItem firstMediaItem =
+        checkNotNull(composition).sequences.get(0).editedMediaItems.get(0).mediaItem;
+    long trimStartTimeUs = firstMediaItem.clippingConfiguration.startPositionUs;
+    long transcodeDuration =
+        mediaItemMetadataInfo.firstSyncSampleTimestampUsAfterTimeUs - trimStartTimeUs;
+    float transcodeWeighting = (float) transcodeDuration / mediaItemMetadataInfo.durationUs;
+
+    if (transformerState == TRANSFORMER_STATE_PROCESS_MEDIA_START) {
+      if (transformerInternal == null) {
+        return PROGRESS_STATE_WAITING_FOR_AVAILABILITY;
+      }
+      @ProgressState
+      int processMediaStartProgressState = transformerInternal.getProgress(progressHolder);
+      if (processMediaStartProgressState == PROGRESS_STATE_AVAILABLE) {
+        progressHolder.progress = round(progressHolder.progress * transcodeWeighting);
+      }
+      return processMediaStartProgressState;
+    }
+
+    float fullTranscodeProgress = 100 * transcodeWeighting;
+    if (transformerInternal == null) {
+      // Transformer has not started remuxing the remaining media yet.
+      progressHolder.progress = round(fullTranscodeProgress);
+      return PROGRESS_STATE_AVAILABLE;
+    }
+    @ProgressState
+    int remuxRemainingMediaProgressState = transformerInternal.getProgress(progressHolder);
+    if (remuxRemainingMediaProgressState == PROGRESS_STATE_NOT_STARTED
+        || remuxRemainingMediaProgressState == PROGRESS_STATE_WAITING_FOR_AVAILABILITY) {
+      progressHolder.progress = round(fullTranscodeProgress);
+      return PROGRESS_STATE_AVAILABLE;
+    } else if (remuxRemainingMediaProgressState == PROGRESS_STATE_AVAILABLE) {
+      progressHolder.progress =
+          round(fullTranscodeProgress + (1 - transcodeWeighting) * progressHolder.progress);
+    }
+    return remuxRemainingMediaProgressState;
   }
 
   /**
@@ -1329,7 +1382,7 @@ public final class Transformer {
               processFullInput();
               return;
             }
-            Transformer.this.mp4MetadataInfo = mp4MetadataInfo;
+            Transformer.this.mediaItemMetadataInfo = mp4MetadataInfo;
             Composition trancodeComposition =
                 buildNewCompositionWithClipTimes(
                     composition,
@@ -1355,6 +1408,7 @@ public final class Transformer {
   }
 
   private void remuxRemainingMedia() {
+    Mp4MetadataInfo mediaItemMetadataInfo = checkNotNull(this.mediaItemMetadataInfo);
     transformerState = TRANSFORMER_STATE_REMUX_REMAINING_MEDIA;
     if (!doesFormatsMatch()) {
       remuxingMuxerWrapper = null;
@@ -1367,13 +1421,12 @@ public final class Transformer {
         checkNotNull(composition).sequences.get(0).editedMediaItems.get(0).mediaItem;
     long trimStartTimeUs = firstMediaItem.clippingConfiguration.startPositionUs;
     long trimEndTimeUs = firstMediaItem.clippingConfiguration.endPositionUs;
-    checkNotNull(mp4MetadataInfo);
     Composition transmuxComposition =
         buildNewCompositionWithClipTimes(
             composition,
-            mp4MetadataInfo.firstSyncSampleTimestampUsAfterTimeUs,
+            mediaItemMetadataInfo.firstSyncSampleTimestampUsAfterTimeUs,
             trimEndTimeUs,
-            mp4MetadataInfo.durationUs,
+            mediaItemMetadataInfo.durationUs,
             /* startsAtKeyFrame= */ true);
     checkNotNull(remuxingMuxerWrapper);
     remuxingMuxerWrapper.changeToAppendMode();
@@ -1381,19 +1434,19 @@ public final class Transformer {
         transmuxComposition,
         remuxingMuxerWrapper,
         componentListener,
-        /* initialTimestampOffsetUs= */ mp4MetadataInfo.firstSyncSampleTimestampUsAfterTimeUs
+        /* initialTimestampOffsetUs= */ mediaItemMetadataInfo.firstSyncSampleTimestampUsAfterTimeUs
             - trimStartTimeUs);
   }
 
   private boolean doesFormatsMatch() {
-    checkNotNull(mp4MetadataInfo);
+    Mp4MetadataInfo mediaItemMetadataInfo = checkNotNull(this.mediaItemMetadataInfo);
     boolean videoFormatMatches =
         checkNotNull(remuxingMuxerWrapper)
             .getTrackFormat(C.TRACK_TYPE_VIDEO)
-            .initializationDataEquals(checkNotNull(mp4MetadataInfo.videoFormat));
+            .initializationDataEquals(checkNotNull(mediaItemMetadataInfo.videoFormat));
     boolean audioFormatMatches =
-        mp4MetadataInfo.audioFormat == null
-            || mp4MetadataInfo.audioFormat.initializationDataEquals(
+        mediaItemMetadataInfo.audioFormat == null
+            || mediaItemMetadataInfo.audioFormat.initializationDataEquals(
                 checkNotNull(remuxingMuxerWrapper).getTrackFormat(C.TRACK_TYPE_AUDIO));
     return videoFormatMatches && audioFormatMatches;
   }
@@ -1501,6 +1554,8 @@ public final class Transformer {
       } else if (transformerState == TRANSFORMER_STATE_PROCESS_MEDIA_START) {
         remuxRemainingMedia();
       } else if (transformerState == TRANSFORMER_STATE_REMUX_REMAINING_MEDIA) {
+        transformerState = TRANSFORMER_STATE_PROCESS_FULL_INPUT;
+        mediaItemMetadataInfo = null;
         exportResultBuilder.setOptimizationResult(ExportResult.OPTIMIZATION_SUCCEEDED);
         onExportCompletedWithSuccess();
       } else {

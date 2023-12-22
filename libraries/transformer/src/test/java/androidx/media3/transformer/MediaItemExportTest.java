@@ -1066,6 +1066,51 @@ public final class MediaItemExportTest {
   }
 
   @Test
+  public void getProgress_unknownDuration_returnsConsistentStates() throws Exception {
+    Transformer transformer =
+        createTransformerBuilder(muxerFactory, /* enableFallback= */ false).build();
+    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_UNKNOWN_DURATION);
+    AtomicInteger previousProgressState =
+        new AtomicInteger(PROGRESS_STATE_WAITING_FOR_AVAILABILITY);
+    AtomicBoolean foundInconsistentState = new AtomicBoolean();
+    Handler progressHandler =
+        new Handler(Looper.myLooper()) {
+          @Override
+          public void handleMessage(Message msg) {
+            @Transformer.ProgressState
+            int progressState = transformer.getProgress(new ProgressHolder());
+            switch (previousProgressState.get()) {
+              case PROGRESS_STATE_WAITING_FOR_AVAILABILITY:
+                break;
+              case PROGRESS_STATE_UNAVAILABLE:
+              case PROGRESS_STATE_AVAILABLE: // See [Internal: b/176145097].
+                if (progressState == PROGRESS_STATE_WAITING_FOR_AVAILABILITY) {
+                  foundInconsistentState.set(true);
+                  return;
+                }
+                break;
+              case PROGRESS_STATE_NOT_STARTED:
+                if (progressState != PROGRESS_STATE_NOT_STARTED) {
+                  foundInconsistentState.set(true);
+                  return;
+                }
+                break;
+              default:
+                throw new IllegalStateException();
+            }
+            previousProgressState.set(progressState);
+            sendEmptyMessage(0);
+          }
+        };
+
+    transformer.start(mediaItem, outputDir.newFile().getPath());
+    progressHandler.sendEmptyMessage(0);
+    TransformerTestRunner.runLooper(transformer);
+
+    assertThat(foundInconsistentState.get()).isFalse();
+  }
+
+  @Test
   public void getProgress_knownDuration_returnsConsistentStates() throws Exception {
     Transformer transformer =
         createTransformerBuilder(muxerFactory, /* enableFallback= */ false).build();
@@ -1165,10 +1210,14 @@ public final class MediaItemExportTest {
   }
 
   @Test
-  public void getProgress_unknownDuration_returnsConsistentStates() throws Exception {
+  public void
+      getProgress_trimOptimizationEnabledButNotApplied_withClippingConfigurationUnset_returnsConsistentStates()
+          throws Exception {
     Transformer transformer =
-        createTransformerBuilder(muxerFactory, /* enableFallback= */ false).build();
-    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_UNKNOWN_DURATION);
+        createTransformerBuilder(muxerFactory, /* enableFallback= */ false)
+            .experimentalSetTrimOptimizationEnabled(true)
+            .build();
+    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_VIDEO_ONLY);
     AtomicInteger previousProgressState =
         new AtomicInteger(PROGRESS_STATE_WAITING_FOR_AVAILABILITY);
     AtomicBoolean foundInconsistentState = new AtomicBoolean();
@@ -1178,11 +1227,14 @@ public final class MediaItemExportTest {
           public void handleMessage(Message msg) {
             @Transformer.ProgressState
             int progressState = transformer.getProgress(new ProgressHolder());
+            if (progressState == PROGRESS_STATE_UNAVAILABLE) {
+              foundInconsistentState.set(true);
+              return;
+            }
             switch (previousProgressState.get()) {
               case PROGRESS_STATE_WAITING_FOR_AVAILABILITY:
                 break;
-              case PROGRESS_STATE_UNAVAILABLE:
-              case PROGRESS_STATE_AVAILABLE: // See [Internal: b/176145097].
+              case PROGRESS_STATE_AVAILABLE:
                 if (progressState == PROGRESS_STATE_WAITING_FOR_AVAILABILITY) {
                   foundInconsistentState.set(true);
                   return;
@@ -1198,15 +1250,74 @@ public final class MediaItemExportTest {
                 throw new IllegalStateException();
             }
             previousProgressState.set(progressState);
-            sendEmptyMessage(0);
+            sendEmptyMessageDelayed(/* what= */ 0, /* delayMillis= */ 50);
           }
         };
 
     transformer.start(mediaItem, outputDir.newFile().getPath());
-    progressHandler.sendEmptyMessage(0);
+    progressHandler.sendEmptyMessage(/* what= */ 0);
     TransformerTestRunner.runLooper(transformer);
 
     assertThat(foundInconsistentState.get()).isFalse();
+  }
+
+  @Test
+  public void
+      getProgress_trimOptimizationEnabledButNotApplied_withClippingConfigurationUnset_givesIncreasingPercentages()
+          throws Exception {
+    Transformer transformer =
+        createTransformerBuilder(muxerFactory, /* enableFallback= */ false)
+            .experimentalSetTrimOptimizationEnabled(true)
+            .build();
+    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_VIDEO_ONLY);
+    List<Integer> progresses = new ArrayList<>();
+    Handler progressHandler =
+        new Handler(Looper.myLooper()) {
+          @Override
+          public void handleMessage(Message msg) {
+            ProgressHolder progressHolder = new ProgressHolder();
+            @Transformer.ProgressState int progressState = transformer.getProgress(progressHolder);
+            if (progressState == PROGRESS_STATE_NOT_STARTED) {
+              return;
+            }
+            if (progressState == PROGRESS_STATE_AVAILABLE
+                && (progresses.isEmpty()
+                    || Iterables.getLast(progresses) != progressHolder.progress)) {
+              progresses.add(progressHolder.progress);
+            }
+            sendEmptyMessageDelayed(/* what= */ 0, /* delayMillis= */ 50);
+          }
+        };
+
+    transformer.start(mediaItem, outputDir.newFile().getPath());
+    progressHandler.sendEmptyMessage(/* what= */ 0);
+    TransformerTestRunner.runLooper(transformer);
+
+    assertThat(progresses).isInOrder();
+    if (!progresses.isEmpty()) {
+      // The progress list could be empty if the export ends before any progress can be retrieved.
+      assertThat(progresses.get(0)).isAtLeast(0);
+      assertThat(Iterables.getLast(progresses)).isAtMost(100);
+    }
+  }
+
+  @Test
+  public void
+      getProgress_trimOptimizationEnabledButNotApplied_withClippingConfigurationUnset_noCurrentExport_returnsNotStarted()
+          throws Exception {
+    Transformer transformer =
+        createTransformerBuilder(muxerFactory, /* enableFallback= */ false)
+            .experimentalSetTrimOptimizationEnabled(true)
+            .build();
+    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_VIDEO_ONLY);
+    ProgressHolder progressHolder = new ProgressHolder();
+    @Transformer.ProgressState int stateBeforeTransform = transformer.getProgress(progressHolder);
+    transformer.start(mediaItem, outputDir.newFile().getPath());
+    TransformerTestRunner.runLooper(transformer);
+    @Transformer.ProgressState int stateAfterTransform = transformer.getProgress(progressHolder);
+
+    assertThat(stateBeforeTransform).isEqualTo(PROGRESS_STATE_NOT_STARTED);
+    assertThat(stateAfterTransform).isEqualTo(PROGRESS_STATE_NOT_STARTED);
   }
 
   @Test
