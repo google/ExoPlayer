@@ -109,6 +109,8 @@ public final class Composition {
      *
      * <p>The default value is {@link Effects#EMPTY}.
      *
+     * <p>This only works with the {@code Presentation} effect.
+     *
      * @param effects The {@link Composition} {@link Effects}.
      * @return This builder.
      */
