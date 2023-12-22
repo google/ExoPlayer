@@ -348,6 +348,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           /* extraFormat= */ "%s",
           /* extraArgs...= */ canWriteSample);
       if (dropSamplesBeforeFirstVideoSample
+          && contains(trackTypeToInfo, C.TRACK_TYPE_VIDEO)
           && firstVideoPresentationTimeUs != C.TIME_UNSET
           && presentationTimeUs < firstVideoPresentationTimeUs) {
         // Drop the buffer.
@@ -464,6 +465,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private boolean canWriteSample(@C.TrackType int trackType, long presentationTimeUs) {
     if (dropSamplesBeforeFirstVideoSample
         && trackType != C.TRACK_TYPE_VIDEO
+        && contains(trackTypeToInfo, C.TRACK_TYPE_VIDEO)
         && firstVideoPresentationTimeUs == C.TIME_UNSET) {
       // Haven't received the first video sample yet, so can't write any audio.
       return false;
