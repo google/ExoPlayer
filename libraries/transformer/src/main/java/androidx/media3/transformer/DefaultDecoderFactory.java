@@ -65,7 +65,7 @@ public final class DefaultDecoderFactory implements Codec.DecoderFactory {
      * @param codecName The {@linkplain MediaCodec#getName() name of the codec} that was
      *     initialized.
      * @param codecInitializationExceptions The list of non-fatal errors that occurred before the
-     *     codec was initialization, which is empty if no errors occurred.
+     *     codec was successfully initialized, which is empty if no errors occurred.
      */
     void onCodecInitialized(String codecName, List<ExportException> codecInitializationExceptions);
   }
