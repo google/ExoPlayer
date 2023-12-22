@@ -49,6 +49,11 @@
     *   Increase transmuxing speed, especially for 'remove video' edits.
     *   Work around an issue where the encoder would throw at configuration time
         due to setting a high operating rate.
+    *   Add api to ensure that the output file starts on a video frame. This can
+        make the output of trimming operations more compatible with player
+        implementations that don't show the first video frame until its
+        presentation timestamp
+        ([#829](https://github.com/androidx/media/issues/829)).
 *   Track Selection:
     *   Add `DefaultTrackSelector.selectImageTrack` to enable image track
         selection.

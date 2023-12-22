@@ -1,0 +1,45 @@
+format audio:
+  sampleMimeType = audio/mp4a-latm
+  channelCount = 2
+  sampleRate = 40000
+format video:
+  sampleMimeType = video/avc
+  width = 1080
+  height = 720
+  colorInfo:
+    colorSpace = 1
+    colorRange = 2
+    colorTransfer = 3
+  initializationData:
+    data = length 4, hash E93C3
+sample:
+  trackType = audio
+  dataHashCode = 955331
+  size = 4
+  isKeyFrame = true
+  presentationTimeUs = 10
+sample:
+  trackType = audio
+  dataHashCode = 955331
+  size = 4
+  isKeyFrame = true
+  presentationTimeUs = 12
+sample:
+  trackType = audio
+  dataHashCode = 955331
+  size = 4
+  isKeyFrame = true
+  presentationTimeUs = 17
+sample:
+  trackType = video
+  dataHashCode = 955331
+  size = 4
+  isKeyFrame = true
+  presentationTimeUs = 10
+sample:
+  trackType = video
+  dataHashCode = 955331
+  size = 4
+  isKeyFrame = true
+  presentationTimeUs = 15
+released = false
