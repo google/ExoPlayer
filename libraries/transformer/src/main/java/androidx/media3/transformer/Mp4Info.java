@@ -40,8 +40,11 @@ import java.util.Map;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-/** Provides MP4 metadata like duration, last sync sample timestamp etc. */
-/* package */ final class Mp4MetadataInfo {
+/**
+ * Provides some specific MP4 metadata about an mp4 file such as the duration, last sync sample
+ * timestamp etc.
+ */
+/* package */ final class Mp4Info {
   /**
    * The duration (in microseconds) of the MP4 file or {@link C#TIME_UNSET} if the duration is
    * unknown.
@@ -67,7 +70,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
   /** The audio {@link Format} or {@code null} if there is no audio track. */
   public final @Nullable Format audioFormat;
 
-  private Mp4MetadataInfo(
+  private Mp4Info(
       long durationUs,
       long lastSyncSampleTimestampUs,
       long firstSyncSampleTimestampUsAfterTimeUs,
@@ -81,18 +84,18 @@ import org.checkerframework.checker.nullness.qual.Nullable;
   }
 
   /**
-   * Extracts the MP4 metadata synchronously and returns {@link Mp4MetadataInfo}.
+   * Extracts the MP4 metadata synchronously and returns {@link Mp4Info}.
    *
    * @param context A {@link Context}.
    * @param filePath The file path of a valid MP4.
    * @throws IOException If an error occurs during metadata extraction.
    */
-  public static Mp4MetadataInfo create(Context context, String filePath) throws IOException {
+  public static Mp4Info create(Context context, String filePath) throws IOException {
     return create(context, filePath, C.TIME_UNSET);
   }
 
   /**
-   * Extracts the MP4 metadata synchronously and returns {@link Mp4MetadataInfo}.
+   * Extracts the MP4 metadata synchronously and returns {@link Mp4Info}.
    *
    * @param context A {@link Context}.
    * @param filePath The file path of a valid MP4.
@@ -100,8 +103,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
    *     #firstSyncSampleTimestampUsAfterTimeUs}. {@link C#TIME_UNSET} if not needed.
    * @throws IOException If an error occurs during metadata extraction.
    */
-  public static Mp4MetadataInfo create(Context context, String filePath, long timeUs)
-      throws IOException {
+  public static Mp4Info create(Context context, String filePath, long timeUs) throws IOException {
     Mp4Extractor mp4Extractor = new Mp4Extractor();
     ExtractorOutputImpl extractorOutput = new ExtractorOutputImpl();
     DefaultDataSource dataSource =
@@ -169,7 +171,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
         audioFormat = checkNotNull(audioTrackOutput.format);
       }
 
-      return new Mp4MetadataInfo(
+      return new Mp4Info(
           durationUs,
           lastSyncSampleTimestampUs,
           firstSyncSampleTimestampUsAfterTimeUs,
