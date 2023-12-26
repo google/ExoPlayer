@@ -54,6 +54,8 @@ public class FakeClock implements Clock {
 
   private final boolean isRobolectric;
   private final boolean isAutoAdvancing;
+  private final float clockSpeed;
+  private final long messageExecutionDelayMs;
 
   @GuardedBy("this")
   private final List<HandlerMessage> handlerMessages;
@@ -112,6 +114,8 @@ public class FakeClock implements Clock {
    * @param initialTimeMs The initial elapsed time since the boot time, in milliseconds.
    * @param isAutoAdvancing Whether the clock should automatically advance the time to the time of
    *     next message that is due to be sent.
+   * @param clockSpeed             The speed at which the clock advances time. 1.0 represents real-time.
+   * @param messageExecutionDelayMs The delay introduced between triggering a message and executing its associated code.
    */
   public FakeClock(long bootTimeMs, long initialTimeMs, boolean isAutoAdvancing) {
     this.bootTimeMs = bootTimeMs;
@@ -120,6 +124,8 @@ public class FakeClock implements Clock {
     this.handlerMessages = new ArrayList<>();
     this.busyLoopers = new HashSet<>();
     this.isRobolectric = "robolectric".equals(Build.FINGERPRINT);
+    this.clockSpeed = clockSpeed;
+    this.messageExecutionDelayMs = messageExecutionDelayMs;
     if (isRobolectric) {
       SystemClock.setCurrentTimeMillis(initialTimeMs);
     }
@@ -131,6 +137,7 @@ public class FakeClock implements Clock {
    * @param timeDiffMs The amount of time to add to the timestamp in milliseconds.
    */
   public synchronized void advanceTime(long timeDiffMs) {
+    Log.d(TAG, "Advancing time by " + timeDiffMs + " ms");
     advanceTimeInternal(timeDiffMs);
     maybeTriggerMessage();
   }
@@ -246,6 +253,27 @@ public class FakeClock implements Clock {
         return;
       }
     }
+    handler.handler.postDelayed(() -> executeMessage(message), messageExecutionDelayMs);
+  }
+  private void executeMessage(HandlerMessage message) {
+        handlerMessages.remove(messageIndex);
+        waitingForMessage = true;
+        boolean messageSent;
+        Handler realHandler = message.handler.handler;
+        if (message.runnable != null) {
+            messageSent = realHandler.post(message.runnable);
+        } else {
+            messageSent =
+                    realHandler.sendMessage(
+                            realHandler.obtainMessage(message.what, message.arg1, message.arg2, message.obj));
+        }
+        messageSent &= message.handler.internalHandler.post(this::onMessageHandled);
+        if (!messageSent) {
+            onMessageHandled();
+        }
+    }
+}
+
     handlerMessages.remove(messageIndex);
     waitingForMessage = true;
     boolean messageSent;
@@ -270,11 +298,11 @@ public class FakeClock implements Clock {
   }
 
   private synchronized void advanceTimeInternal(long timeDiffMs) {
-    timeSinceBootMs += timeDiffMs;
+    timeSinceBootMs += (long) (timeDiffMs * clockSpeed);
     if (isRobolectric) {
-      SystemClock.setCurrentTimeMillis(timeSinceBootMs);
+        SystemClock.setCurrentTimeMillis(timeSinceBootMs);
     }
-  }
+}
 
   private static synchronized long getNextMessageId() {
     return messageIdProvider++;
