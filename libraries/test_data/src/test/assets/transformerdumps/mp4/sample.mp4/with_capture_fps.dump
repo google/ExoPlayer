@@ -7,149 +7,150 @@ seekMap:
   getPosition(1065600) = [[timeUs=0, position=44]]
 numberOfTracks = 2
 track 0:
-  total output bytes = 89876
+  total output bytes = 301392
   sample count = 30
   format 0:
     id = 1
     sampleMimeType = video/avc
-    codecs = avc1.64001F
-    maxInputSize = 36722
+    codecs = avc1.640034
+    maxInputSize = 22910
     width = 1080
     height = 720
-    frameRate = 32.113037
+    frameRate = 31.004547
     colorInfo:
+      colorSpace = 1
       colorRange = 2
+      colorTransfer = 3
       lumaBitdepth = 8
       chromaBitdepth = 8
-    metadata = entries=[mdta: key=com.android.capture.fps, value=60.0, xyz: latitude=40.68, longitude=-74.5, Mp4Timestamp: creation time=3547558895, modification time=3547558895, timescale=10000]
+    metadata = entries=[mdta: key=com.android.version, value=13, mdta: key=com.android.capture.fps, value=60.0, xyz: latitude=40.68, longitude=-74.4999, Mp4Timestamp: creation time=3785416745, modification time=3785416745, timescale=10000]
     initializationData:
-      data = length 29, hash 4746B5D9
-      data = length 10, hash 7A0D0F2B
+      data = length 23, hash 33E412EE
+      data = length 9, hash FBAFBC0C
   sample 0:
     time = 0
     flags = 1
-    data = length 36692, hash D216076E
+    data = length 7744, hash DDF91733
   sample 1:
-    time = 66722
-    flags = 0
-    data = length 5312, hash D45D3CA0
-  sample 2:
     time = 33355
     flags = 0
-    data = length 599, hash 1BE7812D
-  sample 3:
-    time = 200200
+    data = length 1168, hash 89E48A20
+  sample 2:
+    time = 66722
     flags = 0
-    data = length 7735, hash 4490F110
+    data = length 960, hash D4AD9EF0
+  sample 3:
+    time = 100100
+    flags = 0
+    data = length 976, hash CD49C23C
   sample 4:
     time = 133455
     flags = 0
-    data = length 987, hash 560B5036
+    data = length 1360, hash 337B78A9
   sample 5:
-    time = 100100
-    flags = 0
-    data = length 673, hash ED7CD8C7
-  sample 6:
     time = 166822
     flags = 0
-    data = length 523, hash 3020DF50
-  sample 7:
-    time = 333655
+    data = length 2288, hash 5D5FD1C8
+  sample 6:
+    time = 200200
     flags = 0
-    data = length 6061, hash 736C72B2
+    data = length 3856, hash 3D7DCD46
+  sample 7:
+    time = 233555
+    flags = 0
+    data = length 4048, hash 47C78814
   sample 8:
     time = 266922
     flags = 0
-    data = length 992, hash FE132F23
+    data = length 6144, hash 8FD9AD7D
   sample 9:
-    time = 233555
-    flags = 0
-    data = length 623, hash 5B2C1816
-  sample 10:
     time = 300300
     flags = 0
-    data = length 421, hash 742E69C1
-  sample 11:
-    time = 433755
+    data = length 7632, hash 4245F848
+  sample 10:
+    time = 333655
     flags = 0
-    data = length 4899, hash F72F86A1
+    data = length 9792, hash B2B9AB4B
+  sample 11:
+    time = 367022
+    flags = 0
+    data = length 14496, hash E0F2E0BA
   sample 12:
     time = 400400
     flags = 0
-    data = length 568, hash 519A8E50
+    data = length 17664, hash 3E3189E
   sample 13:
-    time = 367022
+    time = 433755
     flags = 0
-    data = length 620, hash 3990AA39
+    data = length 5712, hash CA808ECF
   sample 14:
-    time = 567222
+    time = 467122
     flags = 0
-    data = length 5450, hash F06EC4AA
+    data = length 9776, hash C875D1AA
   sample 15:
     time = 500500
     flags = 0
-    data = length 1051, hash 92DFA63A
+    data = length 17712, hash 69AE17D4
   sample 16:
-    time = 467122
-    flags = 0
-    data = length 874, hash 69587FB4
-  sample 17:
     time = 533855
     flags = 0
-    data = length 781, hash 36BE495B
-  sample 18:
-    time = 700700
+    data = length 11440, hash 7370E78C
+  sample 17:
+    time = 567222
     flags = 0
-    data = length 4725, hash AC0C8CD3
+    data = length 8544, hash 5A581986
+  sample 18:
+    time = 600600
+    flags = 0
+    data = length 19904, hash 98AB5C44
   sample 19:
     time = 633955
     flags = 0
-    data = length 1022, hash 5D8BFF34
+    data = length 14352, hash 74B754E3
   sample 20:
-    time = 600600
-    flags = 0
-    data = length 790, hash 99413A99
-  sample 21:
     time = 667322
     flags = 0
-    data = length 610, hash 5E129290
-  sample 22:
-    time = 834155
+    data = length 9568, hash 369746A6
+  sample 21:
+    time = 700700
     flags = 0
-    data = length 2751, hash 769974CB
+    data = length 12192, hash E0F8A71A
+  sample 22:
+    time = 734055
+    flags = 0
+    data = length 22880, hash 75E833BA
   sample 23:
     time = 767422
     flags = 0
-    data = length 745, hash B78A477A
+    data = length 16832, hash E8BFCFE3
   sample 24:
-    time = 734055
-    flags = 0
-    data = length 621, hash CF741E7A
-  sample 25:
     time = 800800
     flags = 0
-    data = length 505, hash 1DB4894E
-  sample 26:
-    time = 967622
+    data = length 5120, hash E04AEF94
+  sample 25:
+    time = 834155
     flags = 0
-    data = length 1268, hash C15348DC
+    data = length 9888, hash 1166103E
+  sample 26:
+    time = 867522
+    flags = 0
+    data = length 17024, hash F9A96740
   sample 27:
     time = 900900
     flags = 0
-    data = length 880, hash C2DE85D0
+    data = length 20864, hash DF9E88B8
   sample 28:
-    time = 867522
-    flags = 0
-    data = length 530, hash C98BC6A8
-  sample 29:
     time = 934255
+    flags = 0
+    data = length 7216, hash BE22BE2F
+  sample 29:
+    time = 967622
     flags = 536870912
-    data = length 568, hash 4FE5C8EA
+    data = length 14240, hash E190BF31
 track 1:
   total output bytes = 9529
   sample count = 45
   format 0:
-    peakBitrate = 200000
     id = 2
     sampleMimeType = audio/mp4a-latm
     codecs = mp4a.40.2
@@ -157,7 +158,7 @@ track 1:
     channelCount = 1
     sampleRate = 44100
     language = und
-    metadata = entries=[xyz: latitude=40.68, longitude=-74.5, Mp4Timestamp: creation time=3547558895, modification time=3547558895, timescale=10000]
+    metadata = entries=[mdta: key=com.android.version, value=13, xyz: latitude=40.68, longitude=-74.4999, Mp4Timestamp: creation time=3785416745, modification time=3785416745, timescale=10000]
     initializationData:
       data = length 2, hash 5F7
   sample 0:

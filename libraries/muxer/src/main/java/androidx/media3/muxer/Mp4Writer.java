@@ -15,8 +15,11 @@
  */
 package androidx.media3.muxer;
 
+import static androidx.media3.common.util.Assertions.checkArgument;
+
 import android.media.MediaCodec;
 import android.media.MediaCodec.BufferInfo;
+import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.muxer.Mp4Muxer.TrackToken;
@@ -74,8 +77,9 @@ import java.util.List;
     public final List<Integer> writtenChunkSampleCounts;
     public final Deque<BufferInfo> pendingSamplesBufferInfo;
     public final Deque<ByteBuffer> pendingSamplesByteBuffer;
-
     public boolean hadKeyframe = false;
+
+    private long lastSamplePresentationTimeUs;
 
     /** Creates an instance with {@code sortKey} set to 1. */
     public Track(Format format) {
@@ -96,9 +100,13 @@ import java.util.List;
       writtenChunkSampleCounts = new ArrayList<>();
       pendingSamplesBufferInfo = new ArrayDeque<>();
       pendingSamplesByteBuffer = new ArrayDeque<>();
+      lastSamplePresentationTimeUs = C.TIME_UNSET;
     }
 
     public void writeSampleData(ByteBuffer byteBuffer, BufferInfo bufferInfo) throws IOException {
+      checkArgument(
+          bufferInfo.presentationTimeUs > lastSamplePresentationTimeUs,
+          "Out of order B-frames are not supported");
       // TODO: b/279931840 - Confirm whether muxer should throw when writing empty samples.
       //  Skip empty samples.
       if (bufferInfo.size == 0 || byteBuffer.remaining() == 0) {
@@ -109,12 +117,14 @@ import java.util.List;
         hadKeyframe = true;
       }
 
+      // The video track must start with a key frame.
       if (!hadKeyframe && MimeTypes.isVideo(format.sampleMimeType)) {
         return;
       }
 
       pendingSamplesBufferInfo.addLast(bufferInfo);
       pendingSamplesByteBuffer.addLast(byteBuffer);
+      lastSamplePresentationTimeUs = bufferInfo.presentationTimeUs;
     }
 
     @Override

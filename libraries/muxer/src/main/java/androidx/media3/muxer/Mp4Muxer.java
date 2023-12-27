@@ -242,6 +242,8 @@ public final class Mp4Muxer {
    * <p>The samples are cached and are written in batches so the caller must not change/release the
    * {@link ByteBuffer} and the {@link BufferInfo} after calling this method.
    *
+   * <p>Note: Out of order B-frames are currently not supported.
+   *
    * @param trackToken The {@link TrackToken} for which this sample is being written.
    * @param byteBuffer The encoded sample.
    * @param bufferInfo The {@link BufferInfo} related to this sample.
