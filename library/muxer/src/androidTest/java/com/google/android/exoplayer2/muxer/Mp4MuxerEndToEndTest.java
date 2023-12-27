@@ -46,7 +46,7 @@ import org.junit.runners.Parameterized.Parameters;
 /** End to end instrumentation tests for {@link Mp4Muxer}. */
 @RunWith(Parameterized.class)
 public class Mp4MuxerEndToEndTest {
-  private static final String H264_MP4 = "sample.mp4";
+  private static final String H264_MP4 = "sample_no_bframes.mp4";
   private static final String H265_HDR10_MP4 = "hdr10-720p.mp4";
   private static final String H265_WITH_METADATA_TRACK_MP4 = "h265_with_metadata_track.mp4";
   private static final String AV1_MP4 = "sample_av1.mp4";

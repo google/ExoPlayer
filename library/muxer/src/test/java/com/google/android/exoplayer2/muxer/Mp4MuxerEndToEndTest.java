@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.muxer;
 
 import static com.google.android.exoplayer2.muxer.MuxerTestUtil.FAKE_VIDEO_FORMAT;
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertThrows;
 
 import android.media.MediaCodec.BufferInfo;
 import android.util.Pair;
@@ -62,12 +63,10 @@ public class Mp4MuxerEndToEndTest {
     String outputFilePath = temporaryFolder.newFile().getPath();
     Mp4Muxer mp4Muxer = new Mp4Muxer.Builder(new FileOutputStream(outputFilePath)).build();
     mp4Muxer.setModificationTime(/* timestampMs= */ 500_000_000L);
-
     Pair<ByteBuffer, BufferInfo> track1Sample1 =
         MuxerTestUtil.getFakeSampleAndSampleInfo(/* presentationTimeUs= */ 100L);
     Pair<ByteBuffer, BufferInfo> track1Sample2 =
         MuxerTestUtil.getFakeSampleAndSampleInfo(/* presentationTimeUs= */ 200L);
-
     Pair<ByteBuffer, BufferInfo> track2Sample1 =
         MuxerTestUtil.getFakeSampleAndSampleInfo(/* presentationTimeUs= */ 100L);
     Pair<ByteBuffer, BufferInfo> track2Sample2 =
@@ -104,12 +103,10 @@ public class Mp4MuxerEndToEndTest {
     String outputFilePath = temporaryFolder.newFile().getPath();
     Mp4Muxer mp4Muxer = new Mp4Muxer.Builder(new FileOutputStream(outputFilePath)).build();
     mp4Muxer.setModificationTime(/* timestampMs= */ 500_000_000L);
-
     Pair<ByteBuffer, BufferInfo> track1Sample1 =
         MuxerTestUtil.getFakeSampleAndSampleInfo(/* presentationTimeUs= */ 0L);
     Pair<ByteBuffer, BufferInfo> track1Sample2 =
         MuxerTestUtil.getFakeSampleAndSampleInfo(/* presentationTimeUs= */ 100L);
-
     Pair<ByteBuffer, BufferInfo> track2Sample1 =
         MuxerTestUtil.getFakeSampleAndSampleInfo(/* presentationTimeUs= */ 100L);
     Pair<ByteBuffer, BufferInfo> track2Sample2 =
@@ -135,5 +132,28 @@ public class Mp4MuxerEndToEndTest {
         ApplicationProvider.getApplicationContext(),
         fakeExtractorOutput,
         MuxerTestUtil.getExpectedDumpFilePath("mp4_with_different_tracks_offset.mp4"));
+  }
+
+  @Test
+  public void writeSampleData_withOutOfOrderSampleTimestamps_throws() throws IOException {
+    String outputFilePath = temporaryFolder.newFile().getPath();
+    Mp4Muxer mp4Muxer = new Mp4Muxer.Builder(new FileOutputStream(outputFilePath)).build();
+    Pair<ByteBuffer, BufferInfo> track1Sample1 =
+        MuxerTestUtil.getFakeSampleAndSampleInfo(/* presentationTimeUs= */ 0L);
+    Pair<ByteBuffer, BufferInfo> track1Sample2 =
+        MuxerTestUtil.getFakeSampleAndSampleInfo(/* presentationTimeUs= */ 2000L);
+    Pair<ByteBuffer, BufferInfo> track1Sample3 =
+        MuxerTestUtil.getFakeSampleAndSampleInfo(/* presentationTimeUs= */ 1000L);
+    try {
+      TrackToken track1 = mp4Muxer.addTrack(/* sortKey= */ 0, FAKE_VIDEO_FORMAT);
+      mp4Muxer.writeSampleData(track1, track1Sample1.first, track1Sample1.second);
+      mp4Muxer.writeSampleData(track1, track1Sample2.first, track1Sample2.second);
+
+      assertThrows(
+          IllegalArgumentException.class,
+          () -> mp4Muxer.writeSampleData(track1, track1Sample3.first, track1Sample3.second));
+    } finally {
+      mp4Muxer.close();
+    }
   }
 }

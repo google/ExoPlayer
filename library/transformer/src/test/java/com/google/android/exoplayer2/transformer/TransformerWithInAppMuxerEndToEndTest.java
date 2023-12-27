@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.transformer;
 
-import static com.google.android.exoplayer2.transformer.TestUtil.ASSET_URI_PREFIX;
 import static com.google.android.exoplayer2.transformer.TestUtil.FILE_AUDIO_VIDEO;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.common.truth.Truth.assertThat;
@@ -44,8 +43,7 @@ import org.junit.runner.RunWith;
 /** End-to-end test for {@link Transformer} with {@link InAppMuxer}. */
 @RunWith(AndroidJUnit4.class)
 public class TransformerWithInAppMuxerEndToEndTest {
-  private static final String XMP_SAMPLE_DATA = "media/xmp/sample_datetime_xmp.xmp";
-
+  private static final String MP4_FILE = "asset:///media/mp4/sample_no_bframes.mp4";
   @Rule public final TemporaryFolder outputDir = new TemporaryFolder();
 
   private final Context context = ApplicationProvider.getApplicationContext();
@@ -70,7 +68,7 @@ public class TransformerWithInAppMuxerEndToEndTest {
             .setClock(new FakeClock(/* isAutoAdvancing= */ true))
             .setMuxerFactory(inAppMuxerFactory)
             .build();
-    MediaItem mediaItem = MediaItem.fromUri(Uri.parse(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO));
+    MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_FILE));
 
     transformer.start(mediaItem, outputPath);
     TransformerTestRunner.runLooper(transformer);
@@ -89,8 +87,9 @@ public class TransformerWithInAppMuxerEndToEndTest {
 
   @Test
   public void transmux_withXmpData_completesSuccessfully() throws Exception {
+    String xmpSampleData = "media/xmp/sample_datetime_xmp.xmp";
     byte[] xmpData =
-        com.google.android.exoplayer2.testutil.TestUtil.getByteArray(context, XMP_SAMPLE_DATA);
+        com.google.android.exoplayer2.testutil.TestUtil.getByteArray(context, xmpSampleData);
     Muxer.Factory inAppMuxerFactory =
         new InAppMuxer.Factory(
             DefaultMuxer.Factory.DEFAULT_MAX_DELAY_BETWEEN_SAMPLES_MS,
@@ -100,7 +99,7 @@ public class TransformerWithInAppMuxerEndToEndTest {
             .setClock(new FakeClock(/* isAutoAdvancing= */ true))
             .setMuxerFactory(inAppMuxerFactory)
             .build();
-    MediaItem mediaItem = MediaItem.fromUri(Uri.parse(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO));
+    MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_FILE));
 
     transformer.start(mediaItem, outputPath);
     ExportResult exportResult = TransformerTestRunner.runLooper(transformer);
@@ -128,7 +127,7 @@ public class TransformerWithInAppMuxerEndToEndTest {
             .setClock(new FakeClock(/* isAutoAdvancing= */ true))
             .setMuxerFactory(inAppMuxerFactory)
             .build();
-    MediaItem mediaItem = MediaItem.fromUri(Uri.parse(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO));
+    MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_FILE));
 
     transformer.start(mediaItem, outputPath);
     TransformerTestRunner.runLooper(transformer);
@@ -157,7 +156,7 @@ public class TransformerWithInAppMuxerEndToEndTest {
             .setClock(new FakeClock(/* isAutoAdvancing= */ true))
             .setMuxerFactory(inAppMuxerFactory)
             .build();
-    MediaItem mediaItem = MediaItem.fromUri(Uri.parse(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO));
+    MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_FILE));
 
     transformer.start(mediaItem, outputPath);
     TransformerTestRunner.runLooper(transformer);
@@ -202,7 +201,7 @@ public class TransformerWithInAppMuxerEndToEndTest {
             .setClock(new FakeClock(/* isAutoAdvancing= */ true))
             .setMuxerFactory(inAppMuxerFactory)
             .build();
-    MediaItem mediaItem = MediaItem.fromUri(Uri.parse(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO));
+    MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_FILE));
 
     transformer.start(mediaItem, outputPath);
     TransformerTestRunner.runLooper(transformer);
