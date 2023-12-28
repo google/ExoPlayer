@@ -34,7 +34,9 @@ public final class DumpableMp4Box implements Dumper.Dumpable {
    * @param box The Mp4 box to wrap.
    */
   public DumpableMp4Box(ByteBuffer box) {
-    this.box = new ParsableByteArray(box.array());
+    byte[] boxArray = new byte[box.remaining()];
+    box.get(boxArray);
+    this.box = new ParsableByteArray(boxArray);
   }
 
   @Override
