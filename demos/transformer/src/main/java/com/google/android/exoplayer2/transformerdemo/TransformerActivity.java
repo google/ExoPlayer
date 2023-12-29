@@ -80,6 +80,8 @@ import com.google.android.exoplayer2.transformer.EditedMediaItemSequence;
 import com.google.android.exoplayer2.transformer.Effects;
 import com.google.android.exoplayer2.transformer.ExportException;
 import com.google.android.exoplayer2.transformer.ExportResult;
+import com.google.android.exoplayer2.transformer.InAppMuxer;
+import com.google.android.exoplayer2.transformer.Muxer;
 import com.google.android.exoplayer2.transformer.ProgressHolder;
 import com.google.android.exoplayer2.transformer.Transformer;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
@@ -328,10 +330,20 @@ public final class TransformerActivity extends AppCompatActivity {
               .setEnableFallback(bundle.getBoolean(ConfigurationActivity.ENABLE_FALLBACK))
               .build());
 
+      long maxDelayBetweenSamplesMs = DefaultMuxer.Factory.DEFAULT_MAX_DELAY_BETWEEN_SAMPLES_MS;
       if (!bundle.getBoolean(ConfigurationActivity.ABORT_SLOW_EXPORT)) {
-        transformerBuilder.setMuxerFactory(
-            new DefaultMuxer.Factory(/* maxDelayBetweenSamplesMs= */ C.TIME_UNSET));
+        maxDelayBetweenSamplesMs = C.TIME_UNSET;
       }
+
+      Muxer.Factory muxerFactory = new DefaultMuxer.Factory(maxDelayBetweenSamplesMs);
+      if (bundle.getBoolean(ConfigurationActivity.PRODUCE_FRAGMENTED_MP4)) {
+        muxerFactory =
+            new InAppMuxer.Factory.Builder()
+                .setMaxDelayBetweenSamplesMs(maxDelayBetweenSamplesMs)
+                .setFragmentedMp4Enabled(true)
+                .build();
+      }
+      transformerBuilder.setMuxerFactory(muxerFactory);
 
       if (bundle.getBoolean(ConfigurationActivity.ENABLE_DEBUG_PREVIEW)) {
         transformerBuilder.setDebugViewProvider(new DemoDebugViewProvider());
