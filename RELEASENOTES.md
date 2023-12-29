@@ -117,6 +117,9 @@
         [#802](https://github.com/androidx/media/issues/802)).
     *   Fix broadcasting `notifyChildrenChanged` for legacy controllers
         ([#644](https://github.com/androidx/media/issues/644)).
+    *   Fix a bug where setting a negative time for a disabled `setWhen` timer
+        of the notification caused a crash on some devices
+        ([#903](https://github.com/androidx/media/issues/903)).
 *   UI:
     *   Fix issue where forward and rewind buttons are not visible when used
         with Material Design in a BottomSheetDialogFragment

@@ -375,7 +375,7 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
     long playbackStartTimeMs = getPlaybackStartTimeEpochMs(player);
     boolean displayElapsedTimeWithChronometer = playbackStartTimeMs != C.TIME_UNSET;
     builder
-        .setWhen(playbackStartTimeMs)
+        .setWhen(displayElapsedTimeWithChronometer ? playbackStartTimeMs : 0L)
         .setShowWhen(displayElapsedTimeWithChronometer)
         .setUsesChronometer(displayElapsedTimeWithChronometer);
 
