@@ -1,0 +1,90 @@
+ftyp (28 bytes):
+  Data = length 20, hash EF896440
+moov (1209 bytes):
+  mvhd (108 bytes):
+    Data = length 100, hash 5CF3AC6F
+  trak (610 bytes):
+    tkhd (92 bytes):
+      Data = length 84, hash 112173F4
+    mdia (510 bytes):
+      mdhd (32 bytes):
+        Data = length 24, hash 42753A93
+      hdlr (44 bytes):
+        Data = length 36, hash A0852FF2
+      minf (426 bytes):
+        vmhd (20 bytes):
+          Data = length 12, hash EE830681
+        dinf (36 bytes):
+          Data = length 28, hash D535436B
+        stbl (362 bytes):
+          stsd (270 bytes):
+            Data = length 262, hash 58217180
+          stts (16 bytes):
+            Data = length 8, hash 94446F01
+          stsz (20 bytes):
+            Data = length 12, hash EE830681
+          stsc (16 bytes):
+            Data = length 8, hash 94446F01
+          co64 (16 bytes):
+            Data = length 8, hash 94446F01
+          stss (16 bytes):
+            Data = length 8, hash 94446F01
+  trak (411 bytes):
+    tkhd (92 bytes):
+      Data = length 84, hash 34D7906B
+    mdia (311 bytes):
+      mdhd (32 bytes):
+        Data = length 24, hash EA3D1FE6
+      hdlr (44 bytes):
+        Data = length 36, hash 49FC755F
+      minf (227 bytes):
+        smhd (16 bytes):
+          Data = length 8, hash 94446F01
+        dinf (36 bytes):
+          Data = length 28, hash D535436B
+        stbl (167 bytes):
+          stsd (91 bytes):
+            Data = length 83, hash 895E2DCB
+          stts (16 bytes):
+            Data = length 8, hash 94446F01
+          stsz (20 bytes):
+            Data = length 12, hash EE830681
+          stsc (16 bytes):
+            Data = length 8, hash 94446F01
+          co64 (16 bytes):
+            Data = length 8, hash 94446F01
+  mvex (72 bytes):
+    trex (32 bytes):
+      Data = length 24, hash C35D3183
+    trex (32 bytes):
+      Data = length 24, hash 14070F84
+moof (2852 bytes):
+  mfhd (16 bytes):
+    Data = length 8, hash 94446F02
+  traf (1120 bytes):
+    tfhd (16 bytes):
+      Data = length 8, hash 94446F02
+    trun (1096 bytes):
+      Data = length 1088, hash 1F7B824F
+  traf (1708 bytes):
+    tfhd (16 bytes):
+      Data = length 8, hash 94446F03
+    trun (1684 bytes):
+      Data = length 1676, hash 46E974DC
+mdat (5712395 bytes):
+  Data = length 5712379, hash 86B2819D
+moof (1220 bytes):
+  mfhd (16 bytes):
+    Data = length 8, hash 94446F03
+  traf (484 bytes):
+    tfhd (16 bytes):
+      Data = length 8, hash 94446F02
+    trun (460 bytes):
+      Data = length 452, hash 36E6F796
+  traf (712 bytes):
+    tfhd (16 bytes):
+      Data = length 8, hash 94446F03
+    trun (688 bytes):
+      Data = length 680, hash 4E3D2F16
+mdat (2364929 bytes):
+  Data = length 2364913, hash D363A845

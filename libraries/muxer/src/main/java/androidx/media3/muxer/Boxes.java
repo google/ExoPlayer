@@ -31,6 +31,7 @@ import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.Util;
 import androidx.media3.container.NalUnitUtil;
+import androidx.media3.muxer.FragmentedMp4Writer.SampleMetadata;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.primitives.Bytes;
@@ -48,6 +49,13 @@ import java.util.Locale;
  * buffers}.
  */
 /* package */ final class Boxes {
+  private static final int BYTES_PER_INTEGER = 4;
+  // unsigned int(2) sample_depends_on = 2 (bit index 25 and 24)
+  private static final int TRUN_BOX_SYNC_SAMPLE_FLAGS = 0b00000010_00000000_00000000_00000000;
+  // unsigned int(2) sample_depends_on = 1 (bit index 25 and 24)
+  // bit(1) sample_is_non_sync_sample = 1 (bit index 16)
+  private static final int TRUN_BOX_NON_SYNC_SAMPLE_FLAGS = 0b00000001_00000001_00000000_00000000;
+
   private Boxes() {}
 
   public static final ImmutableList<Byte> XMP_UUID =
@@ -598,6 +606,7 @@ import java.util.Locale;
    * @return A list of all the sample durations.
    */
   // TODO: b/280084657 - Add support for setting last sample duration.
+  // TODO: b/317373578 - Consider changing return type to List<Integer>.
   public static List<Long> convertPresentationTimestampsToDurationsVu(
       List<BufferInfo> samplesInfo,
       long firstSamplePresentationTimeUs,
@@ -803,6 +812,82 @@ import java.util.Locale;
     }
 
     return BoxUtils.wrapBoxesIntoBox("ftyp", boxBytes);
+  }
+
+  /** Returns the movie fragment (moof) box. */
+  public static ByteBuffer moof(ByteBuffer mfhdBox, List<ByteBuffer> trafBoxes) {
+    return BoxUtils.wrapBoxesIntoBox(
+        "moof", new ImmutableList.Builder<ByteBuffer>().add(mfhdBox).addAll(trafBoxes).build());
+  }
+
+  /** Returns the movie fragment header (mfhd) box. */
+  public static ByteBuffer mfhd(int sequenceNumber) {
+    ByteBuffer contents = ByteBuffer.allocate(2 * BYTES_PER_INTEGER);
+    contents.putInt(0x0); // version and flags
+    contents.putInt(sequenceNumber); // An unsigned int(32)
+    contents.flip();
+    return BoxUtils.wrapIntoBox("mfhd", contents);
+  }
+
+  /** Returns a track fragment (traf) box. */
+  public static ByteBuffer traf(ByteBuffer tfhdBox, ByteBuffer trunBox) {
+    return BoxUtils.wrapBoxesIntoBox("traf", ImmutableList.of(tfhdBox, trunBox));
+  }
+
+  /** Returns a track fragment header (tfhd) box. */
+  public static ByteBuffer tfhd(int trackId) {
+    ByteBuffer contents = ByteBuffer.allocate(2 * BYTES_PER_INTEGER);
+    contents.putInt(0x0); // version and flags
+    contents.putInt(trackId);
+    contents.flip();
+    return BoxUtils.wrapIntoBox("tfhd", contents);
+  }
+
+  /** Returns a track fragment run (trun) box. */
+  public static ByteBuffer trun(List<SampleMetadata> samplesMetadata) {
+    // 3 integers are required for each sample's metadata.
+    ByteBuffer contents =
+        ByteBuffer.allocate(2 * BYTES_PER_INTEGER + 3 * samplesMetadata.size() * BYTES_PER_INTEGER);
+
+    // 0x000100 sample-duration-present: indicates that each sample has its own duration, otherwise
+    // the default is used.
+    // 0x000200 sample-size-present: indicates that each sample has its own size, otherwise the
+    // default is used.
+    // 0x000400 sample-flags-present: indicates that each sample has its own flags, otherwise the
+    // default is used.
+    // Version is 0x0.
+    int versionAndFlags = 0x0 | 0x000100 | 0x000200 | 0x000400;
+    contents.putInt(versionAndFlags);
+    contents.putInt(samplesMetadata.size()); // An unsigned int(32)
+    for (int i = 0; i < samplesMetadata.size(); i++) {
+      SampleMetadata currentSampleMetadata = samplesMetadata.get(i);
+      contents.putInt((int) currentSampleMetadata.durationVu); // An unsigned int(32)
+      contents.putInt(currentSampleMetadata.size); // An unsigned int(32)
+      contents.putInt(
+          (currentSampleMetadata.flags & MediaCodec.BUFFER_FLAG_KEY_FRAME) != 0
+              ? TRUN_BOX_SYNC_SAMPLE_FLAGS
+              : TRUN_BOX_NON_SYNC_SAMPLE_FLAGS);
+    }
+    contents.flip();
+    return BoxUtils.wrapIntoBox("trun", contents);
+  }
+
+  /** Returns a movie extends (mvex) box. */
+  public static ByteBuffer mvex(List<ByteBuffer> trexBoxes) {
+    return BoxUtils.wrapBoxesIntoBox("mvex", trexBoxes);
+  }
+
+  /** Returns a track extends (trex) box. */
+  public static ByteBuffer trex(int trackId) {
+    ByteBuffer contents = ByteBuffer.allocate(6 * BYTES_PER_INTEGER);
+    contents.putInt(0x0); // version and flags
+    contents.putInt(trackId);
+    contents.putInt(1); // default_sample_description_index
+    contents.putInt(0); // default_sample_duration
+    contents.putInt(0); // default_sample_size
+    contents.putInt(0); // default_sample_flags
+    contents.flip();
+    return BoxUtils.wrapIntoBox("trex", contents);
   }
 
   // TODO: b/317117431 - Change this method to getLastSampleDuration().
