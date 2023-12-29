@@ -92,13 +92,6 @@ public final class Mp4Muxer {
 
   /** A builder for {@link Mp4Muxer} instances. */
   public static final class Builder {
-    // TODO: b/262704382 - Optimize the default duration.
-    /**
-     * The default fragment duration for the {@linkplain #setFragmentedMp4Enabled(boolean)
-     * fragmented MP4}.
-     */
-    public static final int DEFAULT_FRAGMENT_DURATION_US = 2_000_000;
-
     private final FileOutputStream fileOutputStream;
 
     private @LastFrameDurationBehavior int lastFrameDurationBehavior;
@@ -197,6 +190,13 @@ public final class Mp4Muxer {
   /** A list of supported audio sample mime types. */
   public static final ImmutableList<String> SUPPORTED_AUDIO_SAMPLE_MIME_TYPES =
       ImmutableList.of(MimeTypes.AUDIO_AAC);
+
+  // TODO: b/262704382 - Optimize the default duration.
+  /**
+   * The default fragment duration for the {@linkplain Builder#setFragmentedMp4Enabled(boolean)
+   * fragmented MP4}.
+   */
+  public static final int DEFAULT_FRAGMENT_DURATION_US = 2_000_000;
 
   private final Mp4Writer mp4Writer;
   private final MetadataCollector metadataCollector;
