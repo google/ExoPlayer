@@ -57,12 +57,15 @@ public class TransformerWithInAppMuxerEndToEndTest {
   @Test
   public void transmux_withLocationMetadata_outputMatchesExpected() throws Exception {
     Muxer.Factory inAppMuxerFactory =
-        new InAppMuxer.Factory(
-            DefaultMuxer.Factory.DEFAULT_MAX_DELAY_BETWEEN_SAMPLES_MS,
-            metadataEntries -> {
-              metadataEntries.removeIf((Metadata.Entry entry) -> entry instanceof Mp4LocationData);
-              metadataEntries.add(new Mp4LocationData(/* latitude= */ 45f, /* longitude= */ -90f));
-            });
+        new InAppMuxer.Factory.Builder()
+            .setMetadataProvider(
+                metadataEntries -> {
+                  metadataEntries.removeIf(
+                      (Metadata.Entry entry) -> entry instanceof Mp4LocationData);
+                  metadataEntries.add(
+                      new Mp4LocationData(/* latitude= */ 45f, /* longitude= */ -90f));
+                })
+            .build();
     Transformer transformer =
         new Transformer.Builder(context)
             .setClock(new FakeClock(/* isAutoAdvancing= */ true))
@@ -90,9 +93,9 @@ public class TransformerWithInAppMuxerEndToEndTest {
     String xmpSampleData = "media/xmp/sample_datetime_xmp.xmp";
     byte[] xmpData = androidx.media3.test.utils.TestUtil.getByteArray(context, xmpSampleData);
     Muxer.Factory inAppMuxerFactory =
-        new InAppMuxer.Factory(
-            DefaultMuxer.Factory.DEFAULT_MAX_DELAY_BETWEEN_SAMPLES_MS,
-            metadataEntries -> metadataEntries.add(new XmpData(xmpData)));
+        new InAppMuxer.Factory.Builder()
+            .setMetadataProvider(metadataEntries -> metadataEntries.add(new XmpData(xmpData)))
+            .build();
     Transformer transformer =
         new Transformer.Builder(context)
             .setClock(new FakeClock(/* isAutoAdvancing= */ true))
@@ -110,17 +113,18 @@ public class TransformerWithInAppMuxerEndToEndTest {
   @Test
   public void transmux_withCaptureFps_outputMatchesExpected() throws Exception {
     Muxer.Factory inAppMuxerFactory =
-        new InAppMuxer.Factory(
-            DefaultMuxer.Factory.DEFAULT_MAX_DELAY_BETWEEN_SAMPLES_MS,
-            metadataEntries -> {
-              float captureFps = 60.0f;
-              metadataEntries.add(
-                  new MdtaMetadataEntry(
-                      MdtaMetadataEntry.KEY_ANDROID_CAPTURE_FPS,
-                      /* value= */ Util.toByteArray(captureFps),
-                      /* localeIndicator= */ 0,
-                      MdtaMetadataEntry.TYPE_INDICATOR_FLOAT32));
-            });
+        new InAppMuxer.Factory.Builder()
+            .setMetadataProvider(
+                metadataEntries -> {
+                  float captureFps = 60.0f;
+                  metadataEntries.add(
+                      new MdtaMetadataEntry(
+                          MdtaMetadataEntry.KEY_ANDROID_CAPTURE_FPS,
+                          /* value= */ Util.toByteArray(captureFps),
+                          /* localeIndicator= */ 0,
+                          MdtaMetadataEntry.TYPE_INDICATOR_FLOAT32));
+                })
+            .build();
     Transformer transformer =
         new Transformer.Builder(context)
             .setClock(new FakeClock(/* isAutoAdvancing= */ true))
@@ -145,11 +149,13 @@ public class TransformerWithInAppMuxerEndToEndTest {
   @Test
   public void transmux_withCreationTime_outputMatchesExpected() throws Exception {
     Muxer.Factory inAppMuxerFactory =
-        new InAppMuxer.Factory(
-            DefaultMuxer.Factory.DEFAULT_MAX_DELAY_BETWEEN_SAMPLES_MS,
-            metadataEntries ->
-                metadataEntries.add(
-                    new Mp4TimestampData(/* creationTimestampSeconds= */ 2_000_000_000L)));
+        new InAppMuxer.Factory.Builder()
+            .setMetadataProvider(
+                metadataEntries ->
+                    metadataEntries.add(
+                        new Mp4TimestampData(/* creationTimestampSeconds= */ 2_000_000_000L)))
+            .build();
+
     Transformer transformer =
         new Transformer.Builder(context)
             .setClock(new FakeClock(/* isAutoAdvancing= */ true))
@@ -175,26 +181,27 @@ public class TransformerWithInAppMuxerEndToEndTest {
   @Test
   public void transmux_withCustomeMetadata_outputMatchesExpected() throws Exception {
     Muxer.Factory inAppMuxerFactory =
-        new InAppMuxer.Factory(
-            DefaultMuxer.Factory.DEFAULT_MAX_DELAY_BETWEEN_SAMPLES_MS,
-            metadataEntries -> {
-              String stringKey = "StringKey";
-              String stringValue = "StringValue";
-              metadataEntries.add(
-                  new MdtaMetadataEntry(
-                      stringKey,
-                      Util.getUtf8Bytes(stringValue),
-                      /* localeIndicator= */ 0,
-                      MdtaMetadataEntry.TYPE_INDICATOR_STRING));
-              String floatKey = "FloatKey";
-              float floatValue = 600.0f;
-              metadataEntries.add(
-                  new MdtaMetadataEntry(
-                      floatKey,
-                      Util.toByteArray(floatValue),
-                      /* localeIndicator= */ 0,
-                      MdtaMetadataEntry.TYPE_INDICATOR_FLOAT32));
-            });
+        new InAppMuxer.Factory.Builder()
+            .setMetadataProvider(
+                metadataEntries -> {
+                  String stringKey = "StringKey";
+                  String stringValue = "StringValue";
+                  metadataEntries.add(
+                      new MdtaMetadataEntry(
+                          stringKey,
+                          Util.getUtf8Bytes(stringValue),
+                          /* localeIndicator= */ 0,
+                          MdtaMetadataEntry.TYPE_INDICATOR_STRING));
+                  String floatKey = "FloatKey";
+                  float floatValue = 600.0f;
+                  metadataEntries.add(
+                      new MdtaMetadataEntry(
+                          floatKey,
+                          Util.toByteArray(floatValue),
+                          /* localeIndicator= */ 0,
+                          MdtaMetadataEntry.TYPE_INDICATOR_FLOAT32));
+                })
+            .build();
     Transformer transformer =
         new Transformer.Builder(context)
             .setClock(new FakeClock(/* isAutoAdvancing= */ true))
