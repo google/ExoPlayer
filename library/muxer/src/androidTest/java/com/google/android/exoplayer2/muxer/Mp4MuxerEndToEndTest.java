@@ -20,9 +20,12 @@ import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import android.content.Context;
 import android.media.MediaCodec;
 import android.media.MediaExtractor;
+import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
+import com.google.android.exoplayer2.extractor.mp4.FragmentedMp4Extractor;
 import com.google.android.exoplayer2.extractor.mp4.Mp4Extractor;
 import com.google.android.exoplayer2.testutil.DumpFileAsserts;
+import com.google.android.exoplayer2.testutil.DumpableMp4Box;
 import com.google.android.exoplayer2.testutil.FakeExtractorOutput;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.util.MediaFormatUtil;
@@ -77,7 +80,7 @@ public class Mp4MuxerEndToEndTest {
 
   @Test
   public void createMp4File_fromInputFileSampleData_matchesExpected() throws IOException {
-    Mp4Muxer mp4Muxer = null;
+    @Nullable Mp4Muxer mp4Muxer = null;
 
     try {
       mp4Muxer = new Mp4Muxer.Builder(checkNotNull(outputStream)).build();
@@ -112,6 +115,55 @@ public class Mp4MuxerEndToEndTest {
         context,
         fakeExtractorOutput,
         AndroidMuxerTestUtil.getExpectedDumpFilePath("partial_" + H265_HDR10_MP4));
+  }
+
+  @Test
+  public void createFragmentedMp4File_fromInputFileSampleData_matchesExpected() throws IOException {
+    @Nullable Mp4Muxer mp4Muxer = null;
+
+    try {
+      mp4Muxer =
+          new Mp4Muxer.Builder(checkNotNull(outputStream)).setFragmentedMp4Enabled(true).build();
+      mp4Muxer.setModificationTime(/* timestampMs= */ 500_000_000L);
+      feedInputDataToMuxer(mp4Muxer, H265_HDR10_MP4);
+    } finally {
+      if (mp4Muxer != null) {
+        mp4Muxer.close();
+      }
+    }
+
+    FakeExtractorOutput fakeExtractorOutput =
+        TestUtil.extractAllSamplesFromFilePath(
+            new FragmentedMp4Extractor(), checkNotNull(outputPath));
+    DumpFileAsserts.assertOutput(
+        context,
+        fakeExtractorOutput,
+        AndroidMuxerTestUtil.getExpectedDumpFilePath(H265_HDR10_MP4 + "_fragmented"));
+  }
+
+  @Test
+  public void createFragmentedMp4File_fromInputFileSampleData_matchesExpectedBoxStructure()
+      throws IOException {
+    @Nullable Mp4Muxer mp4Muxer = null;
+
+    try {
+      mp4Muxer =
+          new Mp4Muxer.Builder(checkNotNull(outputStream)).setFragmentedMp4Enabled(true).build();
+      mp4Muxer.setModificationTime(/* timestampMs= */ 500_000_000L);
+      feedInputDataToMuxer(mp4Muxer, H265_HDR10_MP4);
+    } finally {
+      if (mp4Muxer != null) {
+        mp4Muxer.close();
+      }
+    }
+
+    DumpableMp4Box dumpableMp4Box =
+        new DumpableMp4Box(
+            ByteBuffer.wrap(TestUtil.getByteArrayFromFilePath(checkNotNull(outputPath))));
+    DumpFileAsserts.assertOutput(
+        context,
+        dumpableMp4Box,
+        AndroidMuxerTestUtil.getExpectedDumpFilePath(H265_HDR10_MP4 + "_fragmented_box_structure"));
   }
 
   private void feedInputDataToMuxer(Mp4Muxer mp4Muxer, String inputFileName) throws IOException {

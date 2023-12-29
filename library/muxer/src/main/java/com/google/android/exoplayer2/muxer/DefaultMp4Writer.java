@@ -138,7 +138,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
     ByteBuffer moovHeader;
     if (minInputPtsUs != Long.MAX_VALUE) {
-      moovHeader = moovGenerator.moovMetadataHeader(tracks, minInputPtsUs);
+      moovHeader =
+          moovGenerator.moovMetadataHeader(tracks, minInputPtsUs, /* isFragmentedMp4= */ false);
     } else {
       // Skip moov box, if there are no samples.
       moovHeader = ByteBuffer.allocate(0);

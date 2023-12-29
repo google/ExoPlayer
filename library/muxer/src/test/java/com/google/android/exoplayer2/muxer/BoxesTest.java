@@ -31,6 +31,7 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.muxer.FragmentedMp4Writer.SampleMetadata;
 import com.google.android.exoplayer2.testutil.DumpFileAsserts;
 import com.google.android.exoplayer2.testutil.DumpableMp4Box;
 import com.google.android.exoplayer2.testutil.TestUtil;
@@ -525,6 +526,52 @@ public class BoxesTest {
     DumpableMp4Box dumpableBox = new DumpableMp4Box(ftypBox);
     DumpFileAsserts.assertOutput(
         context, dumpableBox, MuxerTestUtil.getExpectedDumpFilePath("ftyp_box"));
+  }
+
+  @Test
+  public void createMfhdBox_matchesExpected() throws IOException {
+    ByteBuffer mfhdBox = Boxes.mfhd(/* sequenceNumber= */ 5);
+
+    DumpableMp4Box dumpableBox = new DumpableMp4Box(mfhdBox);
+    DumpFileAsserts.assertOutput(
+        context, dumpableBox, MuxerTestUtil.getExpectedDumpFilePath("mfhd_box"));
+  }
+
+  @Test
+  public void createTfhdBox_matchesExpected() throws IOException {
+    ByteBuffer tfhdBox = Boxes.tfhd(/* trackId= */ 1);
+
+    DumpableMp4Box dumpableBox = new DumpableMp4Box(tfhdBox);
+    DumpFileAsserts.assertOutput(
+        context, dumpableBox, MuxerTestUtil.getExpectedDumpFilePath("tfhd_box"));
+  }
+
+  @Test
+  public void createTrunBox_matchesExpected() throws IOException {
+    int sampleCount = 5;
+    List<SampleMetadata> samplesMetadata = new ArrayList<>(sampleCount);
+    for (int i = 0; i < sampleCount; i++) {
+      samplesMetadata.add(
+          new SampleMetadata(
+              /* durationsVu= */ 2_000L,
+              /* size= */ 5_000,
+              /* flags= */ i == 0 ? MediaCodec.BUFFER_FLAG_KEY_FRAME : 0));
+    }
+
+    ByteBuffer trunBox = Boxes.trun(samplesMetadata);
+
+    DumpableMp4Box dumpableBox = new DumpableMp4Box(trunBox);
+    DumpFileAsserts.assertOutput(
+        context, dumpableBox, MuxerTestUtil.getExpectedDumpFilePath("trun_box"));
+  }
+
+  @Test
+  public void createTrexBox_matchesExpected() throws IOException {
+    ByteBuffer trexBox = Boxes.trex(/* trackId= */ 2);
+
+    DumpableMp4Box dumpableBox = new DumpableMp4Box(trexBox);
+    DumpFileAsserts.assertOutput(
+        context, dumpableBox, MuxerTestUtil.getExpectedDumpFilePath("trex_box"));
   }
 
   private static List<MediaCodec.BufferInfo> createBufferInfoListWithSamplePresentationTimestamps(

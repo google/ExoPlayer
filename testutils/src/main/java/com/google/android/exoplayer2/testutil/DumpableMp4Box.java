@@ -23,7 +23,8 @@ import java.nio.ByteBuffer;
 /** Wraps an Mp4 box to allow dumping it. */
 public final class DumpableMp4Box implements Dumper.Dumpable {
   private static final ImmutableSet<String> CONTAINER_BOXES =
-      ImmutableSet.of("moov", "trak", "mdia", "minf", "stbl", "edts", "meta");
+      ImmutableSet.of(
+          "moov", "trak", "mdia", "minf", "stbl", "edts", "meta", "mvex", "moof", "traf");
   private final ParsableByteArray box;
 
   /***

@@ -67,105 +67,104 @@ import org.checkerframework.checker.nullness.qual.PolyNull;
   /** Generates a mdat header. */
   @SuppressWarnings("InlinedApi")
   public ByteBuffer moovMetadataHeader(
-      List<? extends TrackMetadataProvider> tracks, long minInputPtsUs) {
+      List<? extends TrackMetadataProvider> tracks, long minInputPtsUs, boolean isFragmentedMp4) {
     List<ByteBuffer> trakBoxes = new ArrayList<>();
+    List<ByteBuffer> trexBoxes = new ArrayList<>();
 
     int nextTrackId = 1;
     long videoDurationUs = 0L;
     for (int i = 0; i < tracks.size(); i++) {
       TrackMetadataProvider track = tracks.get(i);
-      if (!track.writtenSamples().isEmpty()) {
-        Format format = track.format();
-        String languageCode = bcp47LanguageTagToIso3(format.language);
+      Format format = track.format();
+      String languageCode = bcp47LanguageTagToIso3(format.language);
 
-        // Generate the sample durations to calculate the total duration for tkhd box.
-        List<Long> sampleDurationsVu =
-            Boxes.convertPresentationTimestampsToDurationsVu(
-                track.writtenSamples(),
-                minInputPtsUs,
-                track.videoUnitTimebase(),
-                lastFrameDurationBehavior);
+      // Generate the sample durations to calculate the total duration for tkhd box.
+      List<Long> sampleDurationsVu =
+          Boxes.convertPresentationTimestampsToDurationsVu(
+              track.writtenSamples(),
+              minInputPtsUs,
+              track.videoUnitTimebase(),
+              lastFrameDurationBehavior);
 
-        long trackDurationInTrackUnitsVu = 0;
-        for (int j = 0; j < sampleDurationsVu.size(); j++) {
-          trackDurationInTrackUnitsVu += sampleDurationsVu.get(j);
-        }
-
-        long trackDurationUs =
-            Mp4Utils.usFromVu(trackDurationInTrackUnitsVu, track.videoUnitTimebase());
-
-        @C.TrackType int trackType = MimeTypes.getTrackType(format.sampleMimeType);
-        ByteBuffer stts = Boxes.stts(sampleDurationsVu);
-        ByteBuffer stsz = Boxes.stsz(track.writtenSamples());
-        ByteBuffer stsc = Boxes.stsc(track.writtenChunkSampleCounts());
-        ByteBuffer co64 = Boxes.co64(track.writtenChunkOffsets());
-
-        String handlerType;
-        String handlerName;
-        ByteBuffer mhdBox;
-        ByteBuffer sampleEntryBox;
-        ByteBuffer stsdBox;
-        ByteBuffer stblBox;
-
-        switch (trackType) {
-          case C.TRACK_TYPE_VIDEO:
-            handlerType = "vide";
-            handlerName = "VideoHandle";
-            mhdBox = Boxes.vmhd();
-            sampleEntryBox = Boxes.videoSampleEntry(format);
-            stsdBox = Boxes.stsd(sampleEntryBox);
-            stblBox =
-                Boxes.stbl(stsdBox, stts, stsz, stsc, co64, Boxes.stss(track.writtenSamples()));
-            break;
-          case C.TRACK_TYPE_AUDIO:
-            handlerType = "soun";
-            handlerName = "SoundHandle";
-            mhdBox = Boxes.smhd();
-            sampleEntryBox = Boxes.audioSampleEntry(format);
-            stsdBox = Boxes.stsd(sampleEntryBox);
-            stblBox = Boxes.stbl(stsdBox, stts, stsz, stsc, co64);
-            break;
-          case C.TRACK_TYPE_METADATA:
-            // TODO: (b/280443593) - Check if we can identify a metadata track type from a custom
-            //  mime type.
-          case C.TRACK_TYPE_UNKNOWN:
-            handlerType = "meta";
-            handlerName = "MetaHandle";
-            mhdBox = Boxes.nmhd();
-            sampleEntryBox = Boxes.textMetaDataSampleEntry(format);
-            stsdBox = Boxes.stsd(sampleEntryBox);
-            stblBox = Boxes.stbl(stsdBox, stts, stsz, stsc, co64);
-            break;
-          default:
-            throw new IllegalArgumentException("Unsupported track type");
-        }
-
-        // The below statement is also a description of how a mdat box looks like, with all the
-        // inner boxes and what they actually store. Although they're technically instance methods,
-        // everything that is written to a box is visible in the argument list.
-        ByteBuffer trakBox =
-            Boxes.trak(
-                Boxes.tkhd(
-                    nextTrackId,
-                    // Using the time base of the entire file, not that of the track; otherwise,
-                    // Quicktime will stretch the audio accordingly, see b/158120042.
-                    (int) Mp4Utils.vuFromUs(trackDurationUs, MVHD_TIMEBASE),
-                    metadataCollector.modificationTimestampSeconds,
-                    metadataCollector.orientation,
-                    format),
-                Boxes.mdia(
-                    Boxes.mdhd(
-                        trackDurationInTrackUnitsVu,
-                        track.videoUnitTimebase(),
-                        metadataCollector.modificationTimestampSeconds,
-                        languageCode),
-                    Boxes.hdlr(handlerType, handlerName),
-                    Boxes.minf(mhdBox, Boxes.dinf(Boxes.dref(Boxes.localUrl())), stblBox)));
-
-        trakBoxes.add(trakBox);
-        videoDurationUs = max(videoDurationUs, trackDurationUs);
-        nextTrackId++;
+      long trackDurationInTrackUnitsVu = 0;
+      for (int j = 0; j < sampleDurationsVu.size(); j++) {
+        trackDurationInTrackUnitsVu += sampleDurationsVu.get(j);
       }
+
+      long trackDurationUs =
+          Mp4Utils.usFromVu(trackDurationInTrackUnitsVu, track.videoUnitTimebase());
+
+      @C.TrackType int trackType = MimeTypes.getTrackType(format.sampleMimeType);
+      ByteBuffer stts = Boxes.stts(sampleDurationsVu);
+      ByteBuffer stsz = Boxes.stsz(track.writtenSamples());
+      ByteBuffer stsc = Boxes.stsc(track.writtenChunkSampleCounts());
+      ByteBuffer co64 = Boxes.co64(track.writtenChunkOffsets());
+
+      String handlerType;
+      String handlerName;
+      ByteBuffer mhdBox;
+      ByteBuffer sampleEntryBox;
+      ByteBuffer stsdBox;
+      ByteBuffer stblBox;
+
+      switch (trackType) {
+        case C.TRACK_TYPE_VIDEO:
+          handlerType = "vide";
+          handlerName = "VideoHandle";
+          mhdBox = Boxes.vmhd();
+          sampleEntryBox = Boxes.videoSampleEntry(format);
+          stsdBox = Boxes.stsd(sampleEntryBox);
+          stblBox = Boxes.stbl(stsdBox, stts, stsz, stsc, co64, Boxes.stss(track.writtenSamples()));
+          break;
+        case C.TRACK_TYPE_AUDIO:
+          handlerType = "soun";
+          handlerName = "SoundHandle";
+          mhdBox = Boxes.smhd();
+          sampleEntryBox = Boxes.audioSampleEntry(format);
+          stsdBox = Boxes.stsd(sampleEntryBox);
+          stblBox = Boxes.stbl(stsdBox, stts, stsz, stsc, co64);
+          break;
+        case C.TRACK_TYPE_METADATA:
+          // TODO: (b/280443593) - Check if we can identify a metadata track type from a custom
+          //  mime type.
+        case C.TRACK_TYPE_UNKNOWN:
+          handlerType = "meta";
+          handlerName = "MetaHandle";
+          mhdBox = Boxes.nmhd();
+          sampleEntryBox = Boxes.textMetaDataSampleEntry(format);
+          stsdBox = Boxes.stsd(sampleEntryBox);
+          stblBox = Boxes.stbl(stsdBox, stts, stsz, stsc, co64);
+          break;
+        default:
+          throw new IllegalArgumentException("Unsupported track type");
+      }
+
+      // The below statement is also a description of how a mdat box looks like, with all the
+      // inner boxes and what they actually store. Although they're technically instance methods,
+      // everything that is written to a box is visible in the argument list.
+      ByteBuffer trakBox =
+          Boxes.trak(
+              Boxes.tkhd(
+                  nextTrackId,
+                  // Using the time base of the entire file, not that of the track; otherwise,
+                  // Quicktime will stretch the audio accordingly, see b/158120042.
+                  (int) Mp4Utils.vuFromUs(trackDurationUs, MVHD_TIMEBASE),
+                  metadataCollector.modificationTimestampSeconds,
+                  metadataCollector.orientation,
+                  format),
+              Boxes.mdia(
+                  Boxes.mdhd(
+                      trackDurationInTrackUnitsVu,
+                      track.videoUnitTimebase(),
+                      metadataCollector.modificationTimestampSeconds,
+                      languageCode),
+                  Boxes.hdlr(handlerType, handlerName),
+                  Boxes.minf(mhdBox, Boxes.dinf(Boxes.dref(Boxes.localUrl())), stblBox)));
+
+      trakBoxes.add(trakBox);
+      videoDurationUs = max(videoDurationUs, trackDurationUs);
+      trexBoxes.add(Boxes.trex(nextTrackId));
+      nextTrackId++;
     }
 
     ByteBuffer mvhdBox =
@@ -181,7 +180,12 @@ import org.checkerframework.checker.nullness.qual.PolyNull;
 
     ByteBuffer moovBox;
     moovBox =
-        Boxes.moov(mvhdBox, udtaBox, metaBox, trakBoxes, /* mvexBox= */ ByteBuffer.allocate(0));
+        Boxes.moov(
+            mvhdBox,
+            udtaBox,
+            metaBox,
+            trakBoxes,
+            isFragmentedMp4 ? Boxes.mvex(trexBoxes) : ByteBuffer.allocate(0));
 
     // Also add XMP if needed
     if (metadataCollector.xmpData != null) {
