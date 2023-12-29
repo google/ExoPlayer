@@ -216,6 +216,15 @@
           android:layout_gravity="end"/>
       </TableRow>
       <TableRow
+        android:layout_weight="1">
+        <TextView
+          android:layout_gravity="center_vertical"
+          android:text="@string/produce_fragmented_mp4" />
+        <CheckBox
+          android:id="@+id/produce_fragmented_mp4_checkbox"
+          android:layout_gravity="end"/>
+      </TableRow>
+      <TableRow
         android:layout_weight="1"
         android:gravity="center_vertical" >
         <TextView

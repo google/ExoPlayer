@@ -30,6 +30,7 @@
   <string name="enable_fallback" translatable="false">Enable fallback</string>
   <string name="enable_debug_preview" translatable="false">Enable debug preview</string>
   <string name="abort_slow_export" translatable="false">Abort slow export</string>
+  <string name="produce_fragmented_mp4" translatable="false">Produce fragmented MP4</string>
   <string name="trim" translatable="false">Trim</string>
   <string name="hdr_mode" translatable="false">HDR mode</string>
   <string name="select_audio_effects" translatable="false">Add audio effects</string>
