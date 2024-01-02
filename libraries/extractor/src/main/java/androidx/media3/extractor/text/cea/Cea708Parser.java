@@ -783,8 +783,12 @@ public final class Cea708Parser implements SubtitleParser {
     // first byte
     captionChannelPacketData.skipBits(2); // null padding
     boolean visible = captionChannelPacketData.readBit();
-    boolean rowLock = captionChannelPacketData.readBit();
-    boolean columnLock = captionChannelPacketData.readBit();
+
+    // ANSI/CTA-708-E S-2023 spec (Section 8.4.7) indicates that rowLock and columnLock should be ignored and assumed to be lock
+    captionChannelPacketData.readBits(2);
+    boolean rowLock = true;
+    boolean columnLock = true;
+
     int priority = captionChannelPacketData.readBits(3);
     // second byte
     boolean relativePositioning = captionChannelPacketData.readBit();
