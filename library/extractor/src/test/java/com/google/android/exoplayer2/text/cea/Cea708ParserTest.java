@@ -31,10 +31,8 @@ import com.google.common.primitives.Bytes;
 import com.google.common.primitives.UnsignedBytes;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.shadows.ShadowLog;
 
 /** Tests for {@link Cea708Parser}. */
 @RunWith(AndroidJUnit4.class)
@@ -43,11 +41,6 @@ public class Cea708ParserTest {
   private static final byte CHANNEL_PACKET_START = 0x7;
   private static final byte CHANNEL_PACKET_DATA = 0x6;
   private static final byte CHANNEL_PACKET_END = 0x2;
-
-  @Before
-  public void setupLogging() {
-    ShadowLog.stream = System.out;
-  }
 
   @Test
   public void singleServiceAndWindowDefinition() throws Exception {
@@ -76,6 +69,47 @@ public class Cea708ParserTest {
 
     List<CuesWithTiming> result = new ArrayList<>();
     cea708Parser.parse(subtitleData, SubtitleParser.OutputOptions.allCues(), result::add);
+
+    assertThat(Iterables.getOnlyElement(Iterables.getOnlyElement(result).cues).text.toString())
+        .isEqualTo("test subtitle");
+  }
+
+  @Test
+  public void singleServiceAndWindowDefinition_respectsOffsetAndLimit() throws Exception {
+    Cea708Parser cea708Parser =
+        new Cea708Parser(
+            /* accessibilityChannel= */ Format.NO_VALUE, /* initializationData= */ null);
+    byte[] windowDefinition =
+        TestUtil.createByteArray(
+            0x98, // DF0 command (define window 0)
+            0b0010_0000, // visible=true, row lock and column lock disabled, priority=0
+            0xF0 | 50, // relative positioning, anchor vertical
+            50, // anchor horizontal
+            10, // anchor point = 0, row count = 10
+            30, // column count = 30
+            0b0000_1001); // window style = 1, pen style = 1
+    byte[] setCurrentWindow = TestUtil.createByteArray(0x80); // CW0 (set current window to 0)
+    byte[] subtitleData =
+        encodePacketIntoBytePairs(
+            createPacket(
+                /* sequenceNumber= */ 0,
+                createServiceBlock(
+                    Bytes.concat(
+                        windowDefinition,
+                        setCurrentWindow,
+                        "test subtitle".getBytes(Charsets.UTF_8)))));
+    byte[] garbagePrefix = TestUtil.buildTestData(subtitleData.length * 2);
+    byte[] garbageSuffix = TestUtil.buildTestData(10);
+    byte[] subtitleDataWithGarbagePrefixAndSuffix =
+        Bytes.concat(garbagePrefix, subtitleData, garbageSuffix);
+
+    List<CuesWithTiming> result = new ArrayList<>();
+    cea708Parser.parse(
+        subtitleDataWithGarbagePrefixAndSuffix,
+        garbagePrefix.length,
+        subtitleData.length,
+        SubtitleParser.OutputOptions.allCues(),
+        result::add);
 
     assertThat(Iterables.getOnlyElement(Iterables.getOnlyElement(result).cues).text.toString())
         .isEqualTo("test subtitle");
