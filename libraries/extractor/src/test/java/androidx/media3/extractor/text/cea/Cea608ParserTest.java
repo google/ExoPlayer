@@ -76,6 +76,53 @@ public class Cea608ParserTest {
   }
 
   @Test
+  public void paintOnEmitsSubtitlesImmediately_respectsOffsetAndLimit() throws Exception {
+    Cea608Parser cea608Parser =
+        new Cea608Parser(
+            MimeTypes.APPLICATION_CEA608,
+            /* accessibilityChannel= */ 1,
+            Cea608Parser.MIN_DATA_CHANNEL_TIMEOUT_MS);
+    byte[] sample1 =
+        Bytes.concat(
+            // 'paint on' control character
+            createPacket(0xFC, 0x14, 0x29),
+            createPacket(0xFC, 't', 'e'),
+            createPacket(0xFC, 's', 't'),
+            createPacket(0xFC, ' ', 's'),
+            createPacket(0xFC, 'u', 'b'),
+            createPacket(0xFC, 't', 'i'),
+            createPacket(0xFC, 't', 'l'),
+            createPacket(0xFC, 'e', ','),
+            createPacket(0xFC, ' ', 's'),
+            createPacket(0xFC, 'p', 'a'));
+    byte[] sample2 =
+        Bytes.concat(
+            createPacket(0xFC, 'n', 's'),
+            createPacket(0xFC, ' ', '2'),
+            createPacket(0xFC, ' ', 's'),
+            createPacket(0xFC, 'a', 'm'),
+            createPacket(0xFC, 'p', 'l'),
+            createPacket(0xFC, 'e', 's'));
+    byte[] bothSamples = Bytes.concat(sample1, sample2);
+
+    CuesWithTiming firstCues =
+        checkNotNull(
+            parseSample(cea608Parser, bothSamples, /* offset= */ 0, /* length= */ sample1.length));
+    CuesWithTiming secondCues =
+        checkNotNull(
+            parseSample(
+                cea608Parser,
+                bothSamples,
+                /* offset= */ sample1.length,
+                /* length= */ sample2.length));
+
+    assertThat(Iterables.getOnlyElement(firstCues.cues).text.toString())
+        .isEqualTo("test subtitle, spa");
+    assertThat(Iterables.getOnlyElement(secondCues.cues).text.toString())
+        .isEqualTo("test subtitle, spans 2 samples");
+  }
+
+  @Test
   public void rollUpEmitsSubtitlesImmediately() throws Exception {
     Cea608Parser cea608Parser =
         new Cea608Parser(
@@ -335,8 +382,18 @@ public class Cea608ParserTest {
   @Nullable
   private static CuesWithTiming parseSample(Cea608Parser parser, byte[] sample)
       throws SubtitleDecoderException {
+    return parseSample(parser, sample, /* offset= */ 0, /* length= */ sample.length);
+  }
+
+  /**
+   * Passes {@code sample} to {@link Cea608Parser#parse} and returns either the emitted {@link
+   * CuesWithTiming} or null if none was emitted.
+   */
+  @Nullable
+  private static CuesWithTiming parseSample(
+      Cea608Parser parser, byte[] sample, int offset, int length) {
     List<CuesWithTiming> result = new ArrayList<>();
-    parser.parse(sample, OutputOptions.allCues(), result::add);
+    parser.parse(sample, offset, length, OutputOptions.allCues(), result::add);
     return result.isEmpty() ? null : Iterables.getOnlyElement(result);
   }
 }

@@ -439,7 +439,7 @@ public final class Cea608Parser implements SubtitleParser {
       int length,
       OutputOptions outputOptions,
       Consumer<CuesWithTiming> output) {
-    ccData.reset(data, length);
+    ccData.reset(data, offset + length);
     ccData.setPosition(offset);
     boolean captionDataProcessed = false;
     while (ccData.bytesLeft() >= packetLength) {

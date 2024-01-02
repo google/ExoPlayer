@@ -215,7 +215,7 @@ public final class Cea708Parser implements SubtitleParser {
       int length,
       OutputOptions outputOptions,
       Consumer<CuesWithTiming> output) {
-    ccData.reset(data, length);
+    ccData.reset(data, offset + length);
     ccData.setPosition(offset);
     while (ccData.bytesLeft() >= 3) {
       int ccTypeAndValid = (ccData.readUnsignedByte() & 0x07);
