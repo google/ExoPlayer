@@ -30,6 +30,7 @@ import com.google.common.primitives.Bytes;
 import com.google.common.primitives.UnsignedBytes;
 import java.util.ArrayList;
 import java.util.List;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -115,6 +116,45 @@ public class Cea608ParserTest {
                 bothSamples,
                 /* offset= */ sample1.length,
                 /* length= */ sample2.length));
+
+    assertThat(Iterables.getOnlyElement(firstCues.cues).text.toString())
+        .isEqualTo("test subtitle, spa");
+    assertThat(Iterables.getOnlyElement(secondCues.cues).text.toString())
+        .isEqualTo("test subtitle, spans 2 samples");
+  }
+
+  @Test
+  @Ignore("Out-of-order CEA-608 samples are not yet supported (internal b/317488646).")
+  public void paintOnEmitsSubtitlesImmediately_reordersOutOfOrderSamples() throws Exception {
+    Cea608Parser cea608Parser =
+        new Cea608Parser(
+            MimeTypes.APPLICATION_CEA608,
+            /* accessibilityChannel= */ 1,
+            Cea608Parser.MIN_DATA_CHANNEL_TIMEOUT_MS);
+    byte[] sample1 =
+        Bytes.concat(
+            // 'paint on' control character
+            createPacket(0xFC, 0x14, 0x29),
+            createPacket(0xFC, 't', 'e'),
+            createPacket(0xFC, 's', 't'),
+            createPacket(0xFC, ' ', 's'),
+            createPacket(0xFC, 'u', 'b'),
+            createPacket(0xFC, 't', 'i'),
+            createPacket(0xFC, 't', 'l'),
+            createPacket(0xFC, 'e', ','),
+            createPacket(0xFC, ' ', 's'),
+            createPacket(0xFC, 'p', 'a'));
+    byte[] sample2 =
+        Bytes.concat(
+            createPacket(0xFC, 'n', 's'),
+            createPacket(0xFC, ' ', '2'),
+            createPacket(0xFC, ' ', 's'),
+            createPacket(0xFC, 'a', 'm'),
+            createPacket(0xFC, 'p', 'l'),
+            createPacket(0xFC, 'e', 's'));
+
+    CuesWithTiming secondCues = checkNotNull(parseSample(cea608Parser, sample2));
+    CuesWithTiming firstCues = checkNotNull(parseSample(cea608Parser, sample1));
 
     assertThat(Iterables.getOnlyElement(firstCues.cues).text.toString())
         .isEqualTo("test subtitle, spa");
