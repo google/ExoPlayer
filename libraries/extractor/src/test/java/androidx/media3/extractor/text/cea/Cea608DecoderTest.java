@@ -71,8 +71,52 @@ public class Cea608DecoderTest {
             createPacket(0xFC, 'p', 'l'),
             createPacket(0xFC, 'e', 's'));
 
-    Subtitle firstSubtitle = checkNotNull(decodeSampleAndCopyResult(decoder, sample1));
-    Subtitle secondSubtitle = checkNotNull(decodeSampleAndCopyResult(decoder, sample2));
+    Subtitle firstSubtitle =
+        checkNotNull(decodeSampleAndCopyResult(decoder, /* timeUs= */ 123, sample1));
+    Subtitle secondSubtitle =
+        checkNotNull(decodeSampleAndCopyResult(decoder, /* timeUs= */ 456, sample2));
+
+    assertThat(getOnlyCue(firstSubtitle).text.toString()).isEqualTo("test subtitle, spa");
+    assertThat(getOnlyCue(secondSubtitle).text.toString())
+        .isEqualTo("test subtitle, spans 2 samples");
+  }
+
+  @Test
+  public void paintOnEmitsSubtitlesImmediately_reordersOutOfOrderSamples() throws Exception {
+    Cea608Decoder decoder =
+        new Cea608Decoder(
+            new Cea608Parser(
+                MimeTypes.APPLICATION_CEA608,
+                /* accessibilityChannel= */ 1,
+                Cea608Parser.MIN_DATA_CHANNEL_TIMEOUT_MS));
+    byte[] sample1 =
+        Bytes.concat(
+            // 'paint on' control character
+            createPacket(0xFC, 0x14, 0x29),
+            createPacket(0xFC, 't', 'e'),
+            createPacket(0xFC, 's', 't'),
+            createPacket(0xFC, ' ', 's'),
+            createPacket(0xFC, 'u', 'b'),
+            createPacket(0xFC, 't', 'i'),
+            createPacket(0xFC, 't', 'l'),
+            createPacket(0xFC, 'e', ','),
+            createPacket(0xFC, ' ', 's'),
+            createPacket(0xFC, 'p', 'a'));
+    byte[] sample2 =
+        Bytes.concat(
+            createPacket(0xFC, 'n', 's'),
+            createPacket(0xFC, ' ', '2'),
+            createPacket(0xFC, ' ', 's'),
+            createPacket(0xFC, 'a', 'm'),
+            createPacket(0xFC, 'p', 'l'),
+            createPacket(0xFC, 'e', 's'));
+
+    queueSample(decoder, /* timeUs= */ 456, sample2);
+    queueSample(decoder, /* timeUs= */ 123, sample1);
+    Subtitle firstSubtitle =
+        checkNotNull(decodeToPositionAndCopyResult(decoder, /* positionUs= */ 123));
+    Subtitle secondSubtitle =
+        checkNotNull(decodeToPositionAndCopyResult(decoder, /* positionUs= */ 456));
 
     assertThat(getOnlyCue(firstSubtitle).text.toString()).isEqualTo("test subtitle, spa");
     assertThat(getOnlyCue(secondSubtitle).text.toString())
@@ -120,9 +164,12 @@ public class Cea608DecoderTest {
             createPacket(0xFC, 'n', 'e'),
             createPacket(0xFC, 's', 0x0));
 
-    Subtitle firstSubtitle = checkNotNull(decodeSampleAndCopyResult(decoder, sample1));
-    Subtitle secondSubtitle = checkNotNull(decodeSampleAndCopyResult(decoder, sample2));
-    Subtitle thirdSubtitle = checkNotNull(decodeSampleAndCopyResult(decoder, sample3));
+    Subtitle firstSubtitle =
+        checkNotNull(decodeSampleAndCopyResult(decoder, /* timeUs= */ 123, sample1));
+    Subtitle secondSubtitle =
+        checkNotNull(decodeSampleAndCopyResult(decoder, /* timeUs= */ 456, sample2));
+    Subtitle thirdSubtitle =
+        checkNotNull(decodeSampleAndCopyResult(decoder, /* timeUs= */ 789, sample3));
 
     assertThat(getOnlyCue(firstSubtitle).text.toString()).isEqualTo("test subtitle, spa");
     assertThat(getOnlyCue(secondSubtitle).text.toString())
@@ -163,8 +210,10 @@ public class Cea608DecoderTest {
             createPacket(0xFC, 'e', 0x0),
             createPacket(0xFD, 0x0, 0x0));
 
-    Subtitle firstSubtitle = checkNotNull(decodeSampleAndCopyResult(decoder, sample1));
-    Subtitle secondSubtitle = checkNotNull(decodeSampleAndCopyResult(decoder, sample2));
+    Subtitle firstSubtitle =
+        checkNotNull(decodeSampleAndCopyResult(decoder, /* timeUs= */ 123, sample1));
+    Subtitle secondSubtitle =
+        checkNotNull(decodeSampleAndCopyResult(decoder, /* timeUs= */ 456, sample2));
 
     assertThat(getOnlyCue(firstSubtitle).text.toString()).isEqualTo("test sub");
     assertThat(getOnlyCue(secondSubtitle).text.toString()).isEqualTo("test subtitle");
@@ -246,11 +295,16 @@ public class Cea608DecoderTest {
             createPacket(0xFC, 'e', 0x0),
             createPacket(0xFD, 0x0, 0x0));
 
-    Subtitle firstSubtitle = /*checkNotNull(*/ decodeSampleAndCopyResult(decoder, sample1) /*)*/;
-    Subtitle secondSubtitle = checkNotNull(decodeSampleAndCopyResult(decoder, sample2));
-    Subtitle thirdSubtitle = checkNotNull(decodeSampleAndCopyResult(decoder, sample3));
-    Subtitle fourthSubtitle = checkNotNull(decodeSampleAndCopyResult(decoder, sample4));
-    Subtitle fifthSubtitle = checkNotNull(decodeSampleAndCopyResult(decoder, sample5));
+    Subtitle firstSubtitle = /*checkNotNull(*/
+        decodeSampleAndCopyResult(decoder, 123, sample1) /*)*/;
+    Subtitle secondSubtitle =
+        checkNotNull(decodeSampleAndCopyResult(decoder, /* timeUs= */ 456, sample2));
+    Subtitle thirdSubtitle =
+        checkNotNull(decodeSampleAndCopyResult(decoder, /* timeUs= */ 789, sample3));
+    Subtitle fourthSubtitle =
+        checkNotNull(decodeSampleAndCopyResult(decoder, /* timeUs= */ 1234, sample4));
+    Subtitle fifthSubtitle =
+        checkNotNull(decodeSampleAndCopyResult(decoder, /* timeUs= */ 5678, sample5));
 
     assertThat(getOnlyCue(firstSubtitle).text.toString()).isEqualTo("te");
     assertThat(getOnlyCue(secondSubtitle).text.toString()).isEqualTo("test");
@@ -284,7 +338,8 @@ public class Cea608DecoderTest {
             createPacket(0xFC, 'X', 'X'),
             createPacket(0xFD, 0x0, 0x0));
 
-    Subtitle firstSubtitle = checkNotNull(decodeSampleAndCopyResult(decoder, sample1));
+    Subtitle firstSubtitle =
+        checkNotNull(decodeSampleAndCopyResult(decoder, /* timeUs= */ 123, sample1));
 
     assertThat(getOnlyCue(firstSubtitle).text.toString()).isEqualTo("test");
   }
@@ -315,7 +370,8 @@ public class Cea608DecoderTest {
             createPacket(0xFC, 0x0, 0x0),
             createPacket(0xFD, 'X', 'X'));
 
-    Subtitle firstSubtitle = checkNotNull(decodeSampleAndCopyResult(decoder, sample1));
+    Subtitle firstSubtitle =
+        checkNotNull(decodeSampleAndCopyResult(decoder, /* timeUs= */ 123, sample1));
 
     assertThat(getOnlyCue(firstSubtitle).text.toString()).isEqualTo("test");
   }
@@ -336,17 +392,39 @@ public class Cea608DecoderTest {
   }
 
   /**
-   * Queues {@code sample} to {@code decoder} and dequeues the result, then copies and returns it if
-   * it's non-null.
+   * Queues {@code sample} to {@code decoder} with {@code timeUs}, sets {@link
+   * Cea608Decoder#setPositionUs(long)} to {@code timeUs} and dequeues the result, then copies and
+   * returns it if it's non-null.
    *
    * <p>Fails if {@link Cea608Decoder#dequeueInputBuffer()} returns {@code null}.
    */
   @Nullable
-  private static Subtitle decodeSampleAndCopyResult(Cea608Decoder decoder, byte[] sample)
+  private static Subtitle decodeSampleAndCopyResult(
+      Cea608Decoder decoder, long timeUs, byte[] sample) throws SubtitleDecoderException {
+    queueSample(decoder, timeUs, sample);
+    return decodeToPositionAndCopyResult(decoder, timeUs);
+  }
+
+  /**
+   * Queues {@code sample} to {@code decoder}. Fails if {@link Cea608Decoder#dequeueInputBuffer()}
+   * returns {@code null}.
+   */
+  private static void queueSample(Cea608Decoder decoder, long timeUs, byte[] sample)
       throws SubtitleDecoderException {
     SubtitleInputBuffer inputBuffer = checkNotNull(decoder.dequeueInputBuffer());
     inputBuffer.data = ByteBuffer.wrap(sample);
+    inputBuffer.timeUs = timeUs;
     decoder.queueInputBuffer(inputBuffer);
+  }
+
+  /**
+   * Sets {@link Cea608Decoder#setPositionUs(long)} then dequeues the result, and copies and returns
+   * it if it's non-null.
+   */
+  @Nullable
+  private static Subtitle decodeToPositionAndCopyResult(Cea608Decoder decoder, long positionUs)
+      throws SubtitleDecoderException {
+    decoder.setPositionUs(positionUs);
     @Nullable SubtitleOutputBuffer outputBuffer = decoder.dequeueOutputBuffer();
     if (outputBuffer == null) {
       return null;
