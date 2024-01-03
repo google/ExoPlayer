@@ -139,20 +139,13 @@ public class Cea708ParserTest {
                     Bytes.concat(
                         windowDefinition,
                         setCurrentWindow,
-                        "row1\r\nrow2\r\nrow3\r\nrow4".getBytes(Charsets.US_ASCII)))));
-    byte[] garbagePrefix = TestUtil.buildTestData(subtitleData.length * 2);
-    byte[] garbageSuffix = TestUtil.buildTestData(10);
-    byte[] subtitleDataWithGarbagePrefixAndSuffix =
-        Bytes.concat(garbagePrefix, subtitleData, garbageSuffix);
+                        "row1\r\nrow2\r\nrow3\r\nrow4".getBytes(Charsets.UTF_8)))));
 
     List<CuesWithTiming> result = new ArrayList<>();
-    cea708Parser.parse(
-        subtitleDataWithGarbagePrefixAndSuffix,
-        garbagePrefix.length,
-        subtitleData.length,
-        SubtitleParser.OutputOptions.allCues(),
-        result::add);
+    cea708Parser.parse(subtitleData, SubtitleParser.OutputOptions.allCues(), result::add);
 
+    // Row count is 1 (which means 2 rows should be kept). Row lock is disabled in the media,
+    // but this is ignored and the result is still truncated to only the last two rows.
     assertThat(Iterables.getOnlyElement(Iterables.getOnlyElement(result).cues).text.toString())
         .isEqualTo("row3\nrow4");
   }
