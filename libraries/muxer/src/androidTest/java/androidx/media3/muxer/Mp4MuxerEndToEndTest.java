@@ -101,6 +101,9 @@ public class Mp4MuxerEndToEndTest {
 
   @Test
   public void createMp4File_muxerNotClosed_createsPartiallyWrittenValidFile() throws IOException {
+    // Skip for all parameter values except when the input is a large file. The muxer writes samples
+    // in batches (and flushes data only when it's closed), so a large input file is needed to
+    // ensure some data has been written after taking all the inputs but before closing the muxer.
     assumeTrue(checkNotNull(inputFile).equals(H265_HDR10_MP4));
     Mp4Muxer mp4Muxer = new Mp4Muxer.Builder(checkNotNull(outputStream)).build();
     mp4Muxer.setModificationTime(/* timestampMs= */ 500_000_000L);
@@ -121,6 +124,8 @@ public class Mp4MuxerEndToEndTest {
 
   @Test
   public void createFragmentedMp4File_fromInputFileSampleData_matchesExpected() throws IOException {
+    // Test case doesn't need to be parameterized, so skip all but one input file to avoid creating
+    // many dump files.
     assumeTrue(checkNotNull(inputFile).equals(H265_HDR10_MP4));
     @Nullable Mp4Muxer mp4Muxer = null;
 
@@ -147,6 +152,8 @@ public class Mp4MuxerEndToEndTest {
   @Test
   public void createFragmentedMp4File_fromInputFileSampleData_matchesExpectedBoxStructure()
       throws IOException {
+    // Test case doesn't need to be parameterized, so skip all but one input file to avoid creating
+    // many dump files.
     assumeTrue(checkNotNull(inputFile).equals(H265_HDR10_MP4));
     @Nullable Mp4Muxer mp4Muxer = null;
 
