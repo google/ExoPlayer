@@ -785,7 +785,7 @@ public final class Cea708Parser implements SubtitleParser {
     boolean visible = captionChannelPacketData.readBit();
 
     // ANSI/CTA-708-E S-2023 spec (Section 8.4.7) indicates that rowLock and columnLock should be ignored and assumed to be lock
-    captionChannelPacketData.readBits(2);
+    captionChannelPacketData.skipBits(2);
     boolean rowLock = true;
     boolean columnLock = true;
 

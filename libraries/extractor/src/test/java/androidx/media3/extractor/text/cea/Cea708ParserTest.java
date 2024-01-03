@@ -42,6 +42,7 @@ public class Cea708ParserTest {
   private static final byte CHANNEL_PACKET_DATA = 0x6;
   private static final byte CHANNEL_PACKET_END = 0x2;
 
+
   @Test
   public void singleServiceAndWindowDefinition() throws Exception {
     Cea708Parser cea708Parser =
@@ -113,6 +114,47 @@ public class Cea708ParserTest {
 
     assertThat(Iterables.getOnlyElement(Iterables.getOnlyElement(result).cues).text.toString())
         .isEqualTo("test subtitle");
+  }
+
+  @Test
+  public void singleServiceAndWindowDefinition_ignoreRowLock() throws Exception {
+    Cea708Parser cea708Parser =
+        new Cea708Parser(
+            /* accessibilityChannel= */ Format.NO_VALUE, /* initializationData= */ null);
+    byte[] windowDefinition =
+        TestUtil.createByteArray(
+            0x98, // DF0 command (define window 0)
+            0b0010_0000, // visible=true, row lock and column lock disabled, priority=0
+            0xF0 | 50, // relative positioning, anchor vertical
+            50, // anchor horizontal
+            1, // anchor point = 0, row count = 10
+            30, // column count = 30
+            0b0000_1001); // window style = 1, pen style = 1
+    byte[] setCurrentWindow = TestUtil.createByteArray(0x80); // CW0 (set current window to 0)
+    byte[] subtitleData =
+        encodePacketIntoBytePairs(
+            createPacket(
+                /* sequenceNumber= */ 0,
+                createServiceBlock(
+                    Bytes.concat(
+                        windowDefinition,
+                        setCurrentWindow,
+                        "row1\r\nrow2\r\nrow3\r\nrow4".getBytes(Charsets.US_ASCII)))));
+    byte[] garbagePrefix = TestUtil.buildTestData(subtitleData.length * 2);
+    byte[] garbageSuffix = TestUtil.buildTestData(10);
+    byte[] subtitleDataWithGarbagePrefixAndSuffix =
+        Bytes.concat(garbagePrefix, subtitleData, garbageSuffix);
+
+    List<CuesWithTiming> result = new ArrayList<>();
+    cea708Parser.parse(
+        subtitleDataWithGarbagePrefixAndSuffix,
+        garbagePrefix.length,
+        subtitleData.length,
+        SubtitleParser.OutputOptions.allCues(),
+        result::add);
+
+    assertThat(Iterables.getOnlyElement(Iterables.getOnlyElement(result).cues).text.toString())
+        .isEqualTo("row3\nrow4");
   }
 
   /** See section 4.4.1 of the CEA-708-B spec. */
