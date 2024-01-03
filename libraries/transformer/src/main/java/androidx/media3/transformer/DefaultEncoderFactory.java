@@ -48,6 +48,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 // TODO(b/224949986) Split audio and video encoder factory.
 @UnstableApi
 public final class DefaultEncoderFactory implements Codec.EncoderFactory {
+  private static final int DEFAULT_AUDIO_BITRATE = 128 * 1024;
   private static final int DEFAULT_FRAME_RATE = 30;
 
   /** Best effort, or as-fast-as-possible priority setting for {@link MediaFormat#KEY_PRIORITY}. */
@@ -174,9 +175,11 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
 
   @Override
   public DefaultCodec createForAudioEncoding(Format format) throws ExportException {
+    if (format.bitrate == Format.NO_VALUE) {
+      format = format.buildUpon().setAverageBitrate(DEFAULT_AUDIO_BITRATE).build();
+    }
     checkNotNull(format.sampleMimeType);
     MediaFormat mediaFormat = createMediaFormatFromFormat(format);
-    @Nullable
     ImmutableList<MediaCodecInfo> mediaCodecInfos =
         EncoderUtil.getSupportedEncoders(format.sampleMimeType);
     if (mediaCodecInfos.isEmpty()) {
