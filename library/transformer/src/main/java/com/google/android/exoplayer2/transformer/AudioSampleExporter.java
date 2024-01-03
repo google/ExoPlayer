@@ -41,8 +41,6 @@ import org.checkerframework.dataflow.qual.Pure;
 @Deprecated
 /* package */ final class AudioSampleExporter extends SampleExporter {
 
-  private static final int DEFAULT_ENCODER_BITRATE = 128 * 1024;
-
   private final Codec encoder;
   private final AudioFormat encoderInputAudioFormat;
   private final DecoderInputBuffer encoderInputBuffer;
@@ -82,7 +80,6 @@ import org.checkerframework.dataflow.qual.Pure;
             .setChannelCount(encoderInputAudioFormat.channelCount)
             .setPcmEncoding(encoderInputAudioFormat.encoding)
             .setCodecs(firstInputFormat.codecs)
-            .setAverageBitrate(DEFAULT_ENCODER_BITRATE)
             .build();
 
     encoder =
