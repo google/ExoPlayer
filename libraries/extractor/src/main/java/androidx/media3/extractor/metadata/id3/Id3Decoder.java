@@ -435,8 +435,7 @@ public final class Id3Decoder extends SimpleMetadataDecoder {
       error = ",error=" + e.getMessage();
     } catch (OutOfMemoryError e) {
       error = ",error=" + e.getMessage();
-    }
-    finally {
+    } finally {
       id3Data.setPosition(nextFramePosition);
     }
     if (frame == null) {
