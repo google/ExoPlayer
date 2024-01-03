@@ -127,7 +127,7 @@ public class Cea708ParserTest {
             0b0010_0000, // visible=true, row lock and column lock disabled, priority=0
             0xF0 | 50, // relative positioning, anchor vertical
             50, // anchor horizontal
-            1, // anchor point = 0, row count = 10
+            1, // anchor point = 0, row count = 1
             30, // column count = 30
             0b0000_1001); // window style = 1, pen style = 1
     byte[] setCurrentWindow = TestUtil.createByteArray(0x80); // CW0 (set current window to 0)
