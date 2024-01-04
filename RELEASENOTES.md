@@ -123,6 +123,9 @@
     *   Fix a bug where setting a negative time for a disabled `setWhen` timer
         of the notification caused a crash on some devices
         ([#903](https://github.com/androidx/media/issues/903)).
+    *   Fix `IllegalStateException` when the media notification controller
+        hasn't completed connecting when the first notification update is
+        requested ([#917](https://github.com/androidx/media/issues/917)).
 *   UI:
     *   Fix issue where forward and rewind buttons are not visible when used
         with Material Design in a BottomSheetDialogFragment

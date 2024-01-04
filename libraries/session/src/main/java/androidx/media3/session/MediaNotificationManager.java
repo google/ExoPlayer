@@ -260,7 +260,7 @@ import java.util.concurrent.TimeoutException;
   @Nullable
   private MediaController getConnectedControllerForSession(MediaSession session) {
     ListenableFuture<MediaController> controller = controllerMap.get(session);
-    if (controller == null) {
+    if (controller == null || !controller.isDone()) {
       return null;
     }
     try {
