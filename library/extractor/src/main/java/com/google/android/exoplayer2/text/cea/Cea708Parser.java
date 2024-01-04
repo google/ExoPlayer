@@ -54,6 +54,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
  *     migration guide</a> for more details, including a script to help with the migration.
  */
+// TODO: b/317488646 - Either re-combine this with Cea708Decoder (if we decide that decoding this
+//  format must happen during rendering), or re-add it to DefaultSubtitleParserFactory (if we're
+//  able to solve the re-ordering issue during extraction).
 @Deprecated
 public final class Cea708Parser implements SubtitleParser {
 
