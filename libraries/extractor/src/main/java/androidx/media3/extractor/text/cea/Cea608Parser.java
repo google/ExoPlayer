@@ -47,6 +47,9 @@ import java.util.Collections;
 import java.util.List;
 
 /** A {@link SubtitleParser} for CEA-608 (also known as "line 21 captions" and "EIA-608"). */
+// TODO: b/317488646 - Either re-combine this with Cea608Decoder (if we decide that decoding this
+//  format must happen during rendering), or re-add it to DefaultSubtitleParserFactory (if we're
+//  able to solve the re-ordering issue during extraction).
 @UnstableApi
 public final class Cea608Parser implements SubtitleParser {
 

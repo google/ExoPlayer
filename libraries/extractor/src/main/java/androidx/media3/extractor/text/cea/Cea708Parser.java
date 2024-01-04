@@ -48,6 +48,9 @@ import java.util.List;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /** A {@link SubtitleParser} for CEA-708 (also known as "EIA-708"). */
+// TODO: b/317488646 - Either re-combine this with Cea708Decoder (if we decide that decoding this
+//  format must happen during rendering), or re-add it to DefaultSubtitleParserFactory (if we're
+//  able to solve the re-ordering issue during extraction).
 @UnstableApi
 public final class Cea708Parser implements SubtitleParser {
 
