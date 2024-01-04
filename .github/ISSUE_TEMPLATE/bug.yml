@@ -1,7 +1,7 @@
 name: This project is deprecated
 description: >
   Please file your issue in the Media3 issue tracker:
-  https://github.com/androidx/media/issues/new?template=bug.yml
+  https://github.com/androidx/media
 labels: ["won't fix: infeasible"]
 body:
 - type: markdown
@@ -9,12 +9,12 @@ body:
     value: |
       **This project is deprecated. Please do not file new issues in this repository. They will be closed with no response.**
 
-      All new bugs should be filed in the [Media3 issue tracker](https://github.com/androidx/media/issues/new?template=bug.yml).
+      All new issues should be filed in the [Media3 issue tracker](https://github.com/androidx/media/issues/new/choose).
 
       We will continue to update and reply to existing issues in this repository, and will keep existing feature requests active.
 - type: checkboxes
   attributes:
     label: This project is deprecated
     options:
-      - label: I understand this project is deprecated and this issue will be closed with no response.
+      - label: I understand this project is deprecated, that I should file my issue in the [Media3 issue tracker](https://github.com/androidx/media/issues/new/choose) instead of here, and this issue will be closed with no response.
         required: true
