@@ -97,6 +97,9 @@
     *   Fix bug where `MediaMetadata` was only populated from Vorbis comments
         with upper-case keys
         ([#876](https://github.com/androidx/media/issues/876)).
+    *   Catch `OutOfMemoryError` when parsing very large ID3 frames, meaning
+        playback can continue without the tag info instead of playback failing
+        completely.
 *   DRM:
     *   Extend workaround for spurious ClearKey `https://default.url` license
         URL to API 33+ (previously the workaround only applied on API 33
