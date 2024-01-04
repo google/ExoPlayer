@@ -15,6 +15,7 @@
  */
 package androidx.media3.extractor.ts;
 
+import static androidx.media3.common.util.Assertions.checkState;
 import static java.lang.Math.min;
 
 import androidx.annotation.Nullable;
@@ -155,9 +156,7 @@ public final class AdtsReader implements ElementaryStreamReader {
 
   @Override
   public void packetStarted(long pesTimeUs, @TsPayloadReader.Flags int flags) {
-    if (pesTimeUs != C.TIME_UNSET) {
-      timeUs = pesTimeUs;
-    }
+    timeUs = pesTimeUs;
   }
 
   @Override
@@ -537,10 +536,10 @@ public final class AdtsReader implements ElementaryStreamReader {
     currentOutput.sampleData(data, bytesToRead);
     bytesRead += bytesToRead;
     if (bytesRead == sampleSize) {
-      if (timeUs != C.TIME_UNSET) {
-        currentOutput.sampleMetadata(timeUs, C.BUFFER_FLAG_KEY_FRAME, sampleSize, 0, null);
-        timeUs += currentSampleDuration;
-      }
+      // packetStarted method must be called before reading samples.
+      checkState(timeUs != C.TIME_UNSET);
+      currentOutput.sampleMetadata(timeUs, C.BUFFER_FLAG_KEY_FRAME, sampleSize, 0, null);
+      timeUs += currentSampleDuration;
       setFindingSampleState();
     }
   }

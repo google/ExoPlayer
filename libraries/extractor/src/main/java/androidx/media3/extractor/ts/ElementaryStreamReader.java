@@ -21,7 +21,20 @@ import androidx.media3.common.util.UnstableApi;
 import androidx.media3.extractor.ExtractorOutput;
 import androidx.media3.extractor.TrackOutput;
 
-/** Extracts individual samples from an elementary media stream, preserving original order. */
+/**
+ * Extracts individual samples from an elementary media stream, preserving original order.
+ *
+ * <p>The expected sequence of method calls is as follows:
+ *
+ * <ol>
+ *   <li>{@link #createTracks(ExtractorOutput, PesReader.TrackIdGenerator)} (once at initialization)
+ *   <li>{@link #seek()} (optional, to reset the state)
+ *   <li>{@link #packetStarted(long, int)} (to signal the start of a new packet)
+ *   <li>{@link #consume(ParsableByteArray)} (zero or more times, to provide packet data)
+ *   <li>{@link #packetFinished(boolean)} (to signal the end of the current packet)
+ *   <li>Repeat steps 3-5 for subsequent packets
+ * </ol>
+ */
 @UnstableApi
 public interface ElementaryStreamReader {
 
