@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.extractor.ts;
 
 import static com.google.android.exoplayer2.extractor.ts.TsPayloadReader.FLAG_DATA_ALIGNMENT_INDICATOR;
+import static com.google.android.exoplayer2.util.Assertions.checkState;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -85,9 +86,7 @@ public final class DvbSubtitleReader implements ElementaryStreamReader {
       return;
     }
     writingSample = true;
-    if (pesTimeUs != C.TIME_UNSET) {
-      sampleTimeUs = pesTimeUs;
-    }
+    sampleTimeUs = pesTimeUs;
     sampleBytesWritten = 0;
     bytesToCheck = 2;
   }
@@ -95,10 +94,10 @@ public final class DvbSubtitleReader implements ElementaryStreamReader {
   @Override
   public void packetFinished(boolean isEndOfInput) {
     if (writingSample) {
-      if (sampleTimeUs != C.TIME_UNSET) {
-        for (TrackOutput output : outputs) {
-          output.sampleMetadata(sampleTimeUs, C.BUFFER_FLAG_KEY_FRAME, sampleBytesWritten, 0, null);
-        }
+      // packetStarted method must be called before reading sample.
+      checkState(sampleTimeUs != C.TIME_UNSET);
+      for (TrackOutput output : outputs) {
+        output.sampleMetadata(sampleTimeUs, C.BUFFER_FLAG_KEY_FRAME, sampleBytesWritten, 0, null);
       }
       writingSample = false;
     }

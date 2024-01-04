@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.extractor.ts;
 
 import static com.google.android.exoplayer2.extractor.ts.TsPayloadReader.FLAG_DATA_ALIGNMENT_INDICATOR;
 import static com.google.android.exoplayer2.metadata.id3.Id3Decoder.ID3_HEADER_LENGTH;
+import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static java.lang.Math.min;
 
 import com.google.android.exoplayer2.C;
@@ -83,9 +84,7 @@ public final class Id3Reader implements ElementaryStreamReader {
       return;
     }
     writingSample = true;
-    if (pesTimeUs != C.TIME_UNSET) {
-      sampleTimeUs = pesTimeUs;
-    }
+    sampleTimeUs = pesTimeUs;
     sampleSize = 0;
     sampleBytesRead = 0;
   }
@@ -132,9 +131,9 @@ public final class Id3Reader implements ElementaryStreamReader {
     if (!writingSample || sampleSize == 0 || sampleBytesRead != sampleSize) {
       return;
     }
-    if (sampleTimeUs != C.TIME_UNSET) {
-      output.sampleMetadata(sampleTimeUs, C.BUFFER_FLAG_KEY_FRAME, sampleSize, 0, null);
-    }
+    // packetStarted method must be called before consuming samples.
+    checkState(sampleTimeUs != C.TIME_UNSET);
+    output.sampleMetadata(sampleTimeUs, C.BUFFER_FLAG_KEY_FRAME, sampleSize, 0, null);
     writingSample = false;
   }
 }

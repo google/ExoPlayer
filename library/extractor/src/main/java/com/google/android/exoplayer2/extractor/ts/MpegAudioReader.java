@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.extractor.ts;
 
+import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static java.lang.Math.min;
 
 import androidx.annotation.Nullable;
@@ -98,9 +99,7 @@ public final class MpegAudioReader implements ElementaryStreamReader {
 
   @Override
   public void packetStarted(long pesTimeUs, @TsPayloadReader.Flags int flags) {
-    if (pesTimeUs != C.TIME_UNSET) {
-      timeUs = pesTimeUs;
-    }
+    timeUs = pesTimeUs;
   }
 
   @Override
@@ -239,10 +238,10 @@ public final class MpegAudioReader implements ElementaryStreamReader {
       return;
     }
 
-    if (timeUs != C.TIME_UNSET) {
-      output.sampleMetadata(timeUs, C.BUFFER_FLAG_KEY_FRAME, frameSize, 0, null);
-      timeUs += frameDurationUs;
-    }
+    // packetStarted method must be called before consuming samples.
+    checkState(timeUs != C.TIME_UNSET);
+    output.sampleMetadata(timeUs, C.BUFFER_FLAG_KEY_FRAME, frameSize, 0, null);
+    timeUs += frameDurationUs;
     frameBytesRead = 0;
     state = STATE_FINDING_HEADER;
   }

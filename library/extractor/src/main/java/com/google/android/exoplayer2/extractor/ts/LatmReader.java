@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.extractor.ts;
 
+import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static java.lang.Math.min;
 
 import androidx.annotation.Nullable;
@@ -107,9 +108,7 @@ public final class LatmReader implements ElementaryStreamReader {
 
   @Override
   public void packetStarted(long pesTimeUs, @TsPayloadReader.Flags int flags) {
-    if (pesTimeUs != C.TIME_UNSET) {
-      timeUs = pesTimeUs;
-    }
+    timeUs = pesTimeUs;
   }
 
   @Override
@@ -320,10 +319,10 @@ public final class LatmReader implements ElementaryStreamReader {
       sampleDataBuffer.setPosition(0);
     }
     output.sampleData(sampleDataBuffer, muxLengthBytes);
-    if (timeUs != C.TIME_UNSET) {
-      output.sampleMetadata(timeUs, C.BUFFER_FLAG_KEY_FRAME, muxLengthBytes, 0, null);
-      timeUs += sampleDurationUs;
-    }
+    // packetStarted method must be called before consuming samples.
+    checkState(timeUs != C.TIME_UNSET);
+    output.sampleMetadata(timeUs, C.BUFFER_FLAG_KEY_FRAME, muxLengthBytes, 0, null);
+    timeUs += sampleDurationUs;
   }
 
   private void resetBufferForSize(int newSize) {

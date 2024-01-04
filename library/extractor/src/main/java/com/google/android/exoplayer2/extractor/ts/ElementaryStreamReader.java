@@ -23,6 +23,17 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
 /**
  * Extracts individual samples from an elementary media stream, preserving original order.
  *
+ * <p>The expected sequence of method calls is as follows:
+ *
+ * <ol>
+ *   <li>{@link #createTracks(ExtractorOutput, PesReader.TrackIdGenerator)} (once at initialization)
+ *   <li>{@link #seek()} (optional, to reset the state)
+ *   <li>{@link #packetStarted(long, int)} (to signal the start of a new packet)
+ *   <li>{@link #consume(ParsableByteArray)} (zero or more times, to provide packet data)
+ *   <li>{@link #packetFinished(boolean)} (to signal the end of the current packet)
+ *   <li>Repeat steps 3-5 for subsequent packets
+ * </ol>
+ *
  * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
  *     contains the same ExoPlayer code). See <a
  *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the

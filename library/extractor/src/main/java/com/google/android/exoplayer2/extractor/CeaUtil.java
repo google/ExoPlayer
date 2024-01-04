@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.extractor;
 
+import static com.google.android.exoplayer2.util.Assertions.checkState;
+
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.ParsableByteArray;
@@ -110,14 +112,13 @@ public final class CeaUtil {
     for (TrackOutput output : outputs) {
       ccDataBuffer.setPosition(sampleStartPosition);
       output.sampleData(ccDataBuffer, sampleLength);
-      if (presentationTimeUs != C.TIME_UNSET) {
-        output.sampleMetadata(
-            presentationTimeUs,
-            C.BUFFER_FLAG_KEY_FRAME,
-            sampleLength,
-            /* offset= */ 0,
-            /* cryptoData= */ null);
-      }
+      checkState(presentationTimeUs != C.TIME_UNSET);
+      output.sampleMetadata(
+          presentationTimeUs,
+          C.BUFFER_FLAG_KEY_FRAME,
+          sampleLength,
+          /* offset= */ 0,
+          /* cryptoData= */ null);
     }
   }
 
