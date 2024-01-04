@@ -2162,6 +2162,9 @@ public interface Player {
    * Clears the playlist, adds the specified {@linkplain MediaItem media items} and resets the
    * position to the default position.
    *
+   * <p>To replace a span of media items (possibly seamlessly) without clearing the playlist, use
+   * {@link #replaceMediaItems}.
+   *
    * <p>This method must only be called if {@link #COMMAND_CHANGE_MEDIA_ITEMS} is {@linkplain
    * #getAvailableCommands() available}.
    *
@@ -2171,6 +2174,9 @@ public interface Player {
 
   /**
    * Clears the playlist and adds the specified {@linkplain MediaItem media items}.
+   *
+   * <p>To replace a span of media items (possibly seamlessly) without clearing the playlist, use
+   * {@link #replaceMediaItems}.
    *
    * <p>This method must only be called if {@link #COMMAND_CHANGE_MEDIA_ITEMS} is {@linkplain
    * #getAvailableCommands() available}.
@@ -2184,6 +2190,9 @@ public interface Player {
 
   /**
    * Clears the playlist and adds the specified {@linkplain MediaItem media items}.
+   *
+   * <p>To replace a span of media items (possibly seamlessly) without clearing the playlist, use
+   * {@link #replaceMediaItems}.
    *
    * <p>This method must only be called if {@link #COMMAND_CHANGE_MEDIA_ITEMS} is {@linkplain
    * #getAvailableCommands() available}.
@@ -2204,6 +2213,9 @@ public interface Player {
    * Clears the playlist, adds the specified {@link MediaItem} and resets the position to the
    * default position.
    *
+   * <p>To replace a media item (possibly seamlessly) without clearing the playlist, use {@link
+   * #replaceMediaItem}.
+   *
    * <p>This method must only be called if {@link #COMMAND_SET_MEDIA_ITEM} is {@linkplain
    * #getAvailableCommands() available}.
    *
@@ -2213,6 +2225,9 @@ public interface Player {
 
   /**
    * Clears the playlist and adds the specified {@link MediaItem}.
+   *
+   * <p>To replace a media item (possibly seamlessly) without clearing the playlist, use {@link
+   * #replaceMediaItem}.
    *
    * <p>This method must only be called if {@link #COMMAND_SET_MEDIA_ITEM} is {@linkplain
    * #getAvailableCommands() available}.
@@ -2225,6 +2240,9 @@ public interface Player {
 
   /**
    * Clears the playlist and adds the specified {@link MediaItem}.
+   *
+   * <p>To replace a media item (possibly seamlessly) without clearing the playlist, use {@link
+   * #replaceMediaItem}.
    *
    * <p>This method must only be called if {@link #COMMAND_SET_MEDIA_ITEM} is {@linkplain
    * #getAvailableCommands() available}.
@@ -2312,6 +2330,10 @@ public interface Player {
   /**
    * Replaces the media item at the given index of the playlist.
    *
+   * <p>Implementations of this method may attempt to seamlessly continue playback if the currently
+   * playing media item is replaced with a compatible one (e.g. same URL, only metadata has
+   * changed).
+   *
    * <p>This method must only be called if {@link #COMMAND_CHANGE_MEDIA_ITEMS} is {@linkplain
    * #getAvailableCommands() available}.
    *
@@ -2323,6 +2345,10 @@ public interface Player {
 
   /**
    * Replaces the media items at the given range of the playlist.
+   *
+   * <p>Implementations of this method may attempt to seamlessly continue playback if the currently
+   * playing media item is replaced with a compatible one (e.g. same URL, only metadata has
+   * changed).
    *
    * <p>This method must only be called if {@link #COMMAND_CHANGE_MEDIA_ITEMS} is {@linkplain
    * #getAvailableCommands() available}.
