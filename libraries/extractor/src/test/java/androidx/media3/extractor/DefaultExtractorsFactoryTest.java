@@ -89,7 +89,7 @@ public final class DefaultExtractorsFactoryTest {
   @Test
   public void createExtractors_withMediaInfo_startsWithExtractorsMatchingHeadersAndThenUri() {
     DefaultExtractorsFactory defaultExtractorsFactory = new DefaultExtractorsFactory();
-    Uri uri = Uri.parse("test.mp3");
+    Uri uri = Uri.parse("test-cbr-info-header.mp3");
     Map<String, List<String>> responseHeaders = new HashMap<>();
     responseHeaders.put("Content-Type", Collections.singletonList(MimeTypes.VIDEO_MP4));
 
@@ -104,7 +104,7 @@ public final class DefaultExtractorsFactoryTest {
   @Test
   public void createExtractors_withMediaInfo_optimizesSniffingOrder() {
     DefaultExtractorsFactory defaultExtractorsFactory = new DefaultExtractorsFactory();
-    Uri uri = Uri.parse("test.mp3");
+    Uri uri = Uri.parse("test-cbr-info-header.mp3");
     Map<String, List<String>> responseHeaders = new HashMap<>();
     responseHeaders.put("Content-Type", Collections.singletonList(MimeTypes.VIDEO_MP4));
 

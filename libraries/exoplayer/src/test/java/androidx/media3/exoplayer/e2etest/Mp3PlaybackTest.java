@@ -45,7 +45,7 @@ public final class Mp3PlaybackTest {
         "bear-vbr-no-seek-table.mp3",
         "bear-vbr-xing-header.mp3",
         "play-trimmed.mp3",
-        "test.mp3");
+        "test-cbr-info-header.mp3");
   }
 
   @ParameterizedRobolectricTestRunner.Parameter public String inputFile;
