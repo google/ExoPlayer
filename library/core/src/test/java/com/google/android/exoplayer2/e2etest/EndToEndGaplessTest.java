@@ -93,8 +93,8 @@ public class EndToEndGaplessTest {
 
     player.setMediaItems(
         ImmutableList.of(
-            MediaItem.fromUri("asset:///media/mp3/test.mp3"),
-            MediaItem.fromUri("asset:///media/mp3/test.mp3")));
+            MediaItem.fromUri("asset:///media/mp3/test-cbr-info-header.mp3"),
+            MediaItem.fromUri("asset:///media/mp3/test-cbr-info-header.mp3")));
     player.prepare();
     player.play();
     TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_ENDED);
