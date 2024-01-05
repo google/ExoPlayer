@@ -1461,6 +1461,9 @@ public final class DefaultAnalyticsCollectorTest {
                 DRM_SCHEME_UUID,
                 uuid -> new FakeExoMediaDrm.Builder().setEnforceValidKeyResponses(false).build())
             .setMultiSession(true)
+            // The fake samples are not encrypted, so this forces the test to block playback until
+            // keys are ready.
+            .setPlayClearSamplesWithoutKeys(false)
             .build(mediaDrmCallback);
     MediaSource mediaSource =
         new FakeMediaSource(SINGLE_PERIOD_TIMELINE, failingDrmSessionManager, VIDEO_FORMAT_DRM_1);
