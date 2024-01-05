@@ -98,17 +98,20 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
      *       FrameworkMediaDrm#DEFAULT_PROVIDER}.
      *   <li>{@link #setMultiSession multiSession}: {@code false}.
      *   <li>{@link #setUseDrmSessionsForClearContent useDrmSessionsForClearContent}: No tracks.
-     *   <li>{@link #setPlayClearSamplesWithoutKeys playClearSamplesWithoutKeys}: {@code false}.
+     *   <li>{@link #setPlayClearSamplesWithoutKeys playClearSamplesWithoutKeys}: {@code true}.
      *   <li>{@link #setLoadErrorHandlingPolicy LoadErrorHandlingPolicy}: {@link
      *       DefaultLoadErrorHandlingPolicy}.
+     *   <li>{@link #setSessionKeepaliveMs sessionKeepaliveMs}: {@link
+     *       #DEFAULT_SESSION_KEEPALIVE_MS}.
      * </ul>
      */
     public Builder() {
       keyRequestParameters = new HashMap<>();
       uuid = C.WIDEVINE_UUID;
       exoMediaDrmProvider = FrameworkMediaDrm.DEFAULT_PROVIDER;
-      loadErrorHandlingPolicy = new DefaultLoadErrorHandlingPolicy();
       useDrmSessionsForClearContentTrackTypes = new int[0];
+      playClearSamplesWithoutKeys = true;
+      loadErrorHandlingPolicy = new DefaultLoadErrorHandlingPolicy();
       sessionKeepaliveMs = DEFAULT_SESSION_KEEPALIVE_MS;
     }
 

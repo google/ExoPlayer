@@ -107,6 +107,15 @@
     *   Fix `ERROR_DRM_SESSION_NOT_OPENED` when switching from encrypted to
         clear content without a surface attached to the player. The error was
         due to incorrectly using a secure decoder to play the clear content.
+    *   Play 'clear lead' unencrypted samples in DRM content immediately by
+        default, even if the keys for the later encrypted samples aren't ready
+        yet. This may lead to mid-playback stalls if the keys still aren't ready
+        when the playback position reaches the encrypted samples (but previously
+        playback wouldn't have started at all by this point). This behavior can
+        be disabled with
+        [`MediaItem.DrmConfiguration.Builder.setPlayClearContentWithoutKey`](https://developer.android.com/reference/androidx/media3/common/MediaItem.DrmConfiguration.Builder#setPlayClearContentWithoutKey\(boolean\))
+        or
+        [`DefaultDrmSessionManager.Builder.setPlayClearSamplesWithoutKeys`](https://developer.android.com/reference/androidx/media3/exoplayer/drm/DefaultDrmSessionManager.Builder#setPlayClearSamplesWithoutKeys\(boolean\)).
 *   Effect:
 *   Muxers:
 *   IMA extension:

@@ -25,6 +25,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.BundleCollectionUtil;
 import androidx.media3.common.util.UnstableApi;
@@ -640,10 +641,10 @@ public final class MediaItem implements Bundleable {
        *
        * @param scheme The {@link UUID} of the protection scheme.
        */
+      @SuppressWarnings("deprecation") // Calling deprecated constructor to reduce code duplication.
       public Builder(UUID scheme) {
+        this();
         this.scheme = scheme;
-        this.licenseRequestHeaders = ImmutableMap.of();
-        this.forcedSessionTrackTypes = ImmutableList.of();
       }
 
       /**
@@ -653,6 +654,7 @@ public final class MediaItem implements Bundleable {
       @Deprecated
       private Builder() {
         this.licenseRequestHeaders = ImmutableMap.of();
+        this.playClearContentWithoutKey = true;
         this.forcedSessionTrackTypes = ImmutableList.of();
       }
 
@@ -706,7 +708,11 @@ public final class MediaItem implements Bundleable {
         return this;
       }
 
-      /** Sets whether multi session is enabled. */
+      /**
+       * Sets whether multi session is enabled.
+       *
+       * <p>The default is {@code false} (multi session disabled).
+       */
       @CanIgnoreReturnValue
       public Builder setMultiSession(boolean multiSession) {
         this.multiSession = multiSession;
@@ -716,6 +722,8 @@ public final class MediaItem implements Bundleable {
       /**
        * Sets whether to always use the default DRM license server URI even if the media specifies
        * its own DRM license server URI.
+       *
+       * <p>The default is {@code false}.
        */
       @CanIgnoreReturnValue
       public Builder setForceDefaultLicenseUri(boolean forceDefaultLicenseUri) {
@@ -726,6 +734,8 @@ public final class MediaItem implements Bundleable {
       /**
        * Sets whether clear samples within protected content should be played when keys for the
        * encrypted part of the content have yet to be loaded.
+       *
+       * <p>The default is {@code true}.
        */
       @CanIgnoreReturnValue
       public Builder setPlayClearContentWithoutKey(boolean playClearContentWithoutKey) {
@@ -753,6 +763,8 @@ public final class MediaItem implements Bundleable {
        *
        * <p>This method overrides what has been set by previously calling {@link
        * #setForcedSessionTrackTypes(List)}.
+       *
+       * <p>The default is {@code false}.
        */
       @CanIgnoreReturnValue
       public Builder setForceSessionsForAudioAndVideoTracks(
@@ -773,6 +785,8 @@ public final class MediaItem implements Bundleable {
        *
        * <p>This method overrides what has been set by previously calling {@link
        * #setForceSessionsForAudioAndVideoTracks(boolean)}.
+       *
+       * <p>The default is an empty list (i.e. DRM sessions are not forced for any track type).
        */
       @CanIgnoreReturnValue
       public Builder setForcedSessionTrackTypes(
@@ -917,7 +931,10 @@ public final class MediaItem implements Bundleable {
     private static final String FIELD_LICENSE_URI = Util.intToStringMaxRadix(1);
     private static final String FIELD_LICENSE_REQUEST_HEADERS = Util.intToStringMaxRadix(2);
     private static final String FIELD_MULTI_SESSION = Util.intToStringMaxRadix(3);
-    private static final String FIELD_PLAY_CLEAR_CONTENT_WITHOUT_KEY = Util.intToStringMaxRadix(4);
+
+    @VisibleForTesting
+    static final String FIELD_PLAY_CLEAR_CONTENT_WITHOUT_KEY = Util.intToStringMaxRadix(4);
+
     private static final String FIELD_FORCE_DEFAULT_LICENSE_URI = Util.intToStringMaxRadix(5);
     private static final String FIELD_FORCED_SESSION_TRACK_TYPES = Util.intToStringMaxRadix(6);
     private static final String FIELD_KEY_SET_ID = Util.intToStringMaxRadix(7);

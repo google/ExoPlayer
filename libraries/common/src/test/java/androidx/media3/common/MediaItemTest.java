@@ -101,7 +101,7 @@ public class MediaItemTest {
             .setDrmLicenseRequestHeaders(requestHeaders)
             .setDrmMultiSession(true)
             .setDrmForceDefaultLicenseUri(true)
-            .setDrmPlayClearContentWithoutKey(true)
+            .setDrmPlayClearContentWithoutKey(false)
             .setDrmSessionForClearTypes(ImmutableList.of(C.TRACK_TYPE_AUDIO))
             .setDrmKeySetId(keySetId)
             .setDrmUuid(C.WIDEVINE_UUID)
@@ -117,7 +117,7 @@ public class MediaItemTest {
         .isEqualTo(requestHeaders);
     assertThat(mediaItem.localConfiguration.drmConfiguration.multiSession).isTrue();
     assertThat(mediaItem.localConfiguration.drmConfiguration.forceDefaultLicenseUri).isTrue();
-    assertThat(mediaItem.localConfiguration.drmConfiguration.playClearContentWithoutKey).isTrue();
+    assertThat(mediaItem.localConfiguration.drmConfiguration.playClearContentWithoutKey).isFalse();
     assertThat(mediaItem.localConfiguration.drmConfiguration.sessionForClearTypes)
         .containsExactly(C.TRACK_TYPE_AUDIO);
     assertThat(mediaItem.localConfiguration.drmConfiguration.forcedSessionTrackTypes)
@@ -139,7 +139,7 @@ public class MediaItemTest {
             .setDrmLicenseRequestHeaders(requestHeaders)
             .setDrmMultiSession(true)
             .setDrmForceDefaultLicenseUri(true)
-            .setDrmPlayClearContentWithoutKey(true)
+            .setDrmPlayClearContentWithoutKey(false)
             .setDrmSessionForClearTypes(Collections.singletonList(C.TRACK_TYPE_AUDIO))
             .setDrmKeySetId(keySetId)
             .setDrmUuid(C.WIDEVINE_UUID)
@@ -154,7 +154,7 @@ public class MediaItemTest {
     assertThat(mediaItem.localConfiguration.drmConfiguration.licenseRequestHeaders).isEmpty();
     assertThat(mediaItem.localConfiguration.drmConfiguration.multiSession).isFalse();
     assertThat(mediaItem.localConfiguration.drmConfiguration.forceDefaultLicenseUri).isFalse();
-    assertThat(mediaItem.localConfiguration.drmConfiguration.playClearContentWithoutKey).isFalse();
+    assertThat(mediaItem.localConfiguration.drmConfiguration.playClearContentWithoutKey).isTrue();
     assertThat(mediaItem.localConfiguration.drmConfiguration.sessionForClearTypes).isEmpty();
     assertThat(mediaItem.localConfiguration.drmConfiguration.forcedSessionTrackTypes).isEmpty();
     assertThat(mediaItem.localConfiguration.drmConfiguration.getKeySetId()).isNull();
@@ -247,6 +247,35 @@ public class MediaItemTest {
                 // missing uuid
                 .setDrmLicenseUri(Uri.parse(URI_STRING))
                 .build());
+  }
+
+  @Test
+  public void createDefaultDrmConfigurationInstance_roundTripViaBundle_yieldsEqualInstance() {
+    MediaItem.DrmConfiguration drmConfiguration =
+        new MediaItem.DrmConfiguration.Builder(C.WIDEVINE_UUID).build();
+
+    MediaItem.DrmConfiguration drmConfigurationFromBundle =
+        MediaItem.DrmConfiguration.fromBundle(drmConfiguration.toBundle());
+
+    assertThat(drmConfigurationFromBundle).isEqualTo(drmConfiguration);
+  }
+
+  @Test
+  public void drmConfigurationFromOldBundle_yieldsIntendedInstance() {
+    MediaItem.DrmConfiguration drmConfiguration =
+        new MediaItem.DrmConfiguration.Builder(C.WIDEVINE_UUID).build();
+
+    Bundle bundle = drmConfiguration.toBundle();
+    // Remove the playClearSamplesWithoutKey field, to simulate a 'default' bundle from an old
+    // version of the library, and check the result is 'false' (as intended by the old library).
+    bundle.remove(MediaItem.DrmConfiguration.FIELD_PLAY_CLEAR_CONTENT_WITHOUT_KEY);
+
+    MediaItem.DrmConfiguration drmConfigurationFromBundle =
+        MediaItem.DrmConfiguration.fromBundle(bundle);
+
+    MediaItem.DrmConfiguration expectedDrmConfiguration =
+        drmConfiguration.buildUpon().setPlayClearContentWithoutKey(false).build();
+    assertThat(drmConfigurationFromBundle).isEqualTo(expectedDrmConfiguration);
   }
 
   @Test
