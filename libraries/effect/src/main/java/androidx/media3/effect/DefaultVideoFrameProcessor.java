@@ -310,8 +310,6 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
   private final boolean enableColorTransfers;
   private final ColorInfo outputColorInfo;
 
-  private @MonotonicNonNull ColorInfo firstInputColorInfo;
-
   private volatile @MonotonicNonNull FrameInfo nextInputFrameInfo;
   private volatile boolean inputStreamEnded;
 
@@ -438,6 +436,14 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
    * GLES30#GL_HALF_FLOAT}. Otherwise, textures will use {@link GLES20#GL_RGBA} and {@link
    * GLES20#GL_UNSIGNED_BYTE}.
    *
+   * <p>If {@linkplain FrameInfo#colorInfo input color} {@linkplain ColorInfo#isTransferHdr is HDR},
+   * but {@code outputColorInfo} is SDR, then HDR to SDR tone-mapping is applied, and {@code
+   * outputColorInfo}'s {@link ColorInfo#colorTransfer} must be {@link C#COLOR_TRANSFER_GAMMA_2_2}
+   * or {@link C#COLOR_TRANSFER_SDR}. In this case, the actual output transfer function will be in
+   * {@link C#COLOR_TRANSFER_GAMMA_2_2}, for consistency with other tone-mapping and color behavior
+   * in the Android ecosystem (for example, MediaFormat's COLOR_TRANSFER_SDR_VIDEO is defined as
+   * SMPTE 170M, but most OEMs process it as Gamma 2.2).
+   *
    * <p>If either {@link FrameInfo#colorInfo} or {@code outputColorInfo} {@linkplain
    * ColorInfo#isTransferHdr} are HDR}, color transfers must {@linkplain
    * Factory.Builder#setEnableColorTransfers be enabled}.
@@ -445,7 +451,8 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
    * <p>The {@link FrameInfo}'s {@link ColorInfo} must not change between different calls to this
    * method.
    */
-  // TODO: b/307952514: After FrameInfo.colorInfo may change between calls, remove relevant javadoc.
+  // TODO: b/307952514: After updating frameInfo.colorInfo works with flushing, remove relevant
+  // javadoc.
   @Override
   public void registerInputStream(
       @InputType int inputType, List<Effect> effects, FrameInfo frameInfo) {
@@ -805,14 +812,6 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
    */
   private void configureEffects(InputStreamInfo inputStreamInfo, boolean forceReconfigure)
       throws VideoFrameProcessingException {
-    // TODO: b/307952514 - Remove this color check, and reinitialize the InputSwitcher's
-    // samplingGlShaderProgram instead.
-    checkState(
-        firstInputColorInfo == null
-            || firstInputColorInfo.equals(inputStreamInfo.frameInfo.colorInfo));
-    if (inputStreamInfo.frameInfo.colorInfo != null) {
-      firstInputColorInfo = inputStreamInfo.frameInfo.colorInfo;
-    }
     checkColors(
         /* inputColorInfo= */ inputStreamInfo.frameInfo.colorInfo,
         outputColorInfo,
@@ -877,14 +876,13 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
 
     if (inputColorInfo.colorSpace != outputColorInfo.colorSpace
         || ColorInfo.isTransferHdr(inputColorInfo) != ColorInfo.isTransferHdr(outputColorInfo)) {
-      // OpenGL tone mapping is only implemented for BT2020 to BT709 and HDR to SDR (Gamma 2.2).
-      // Gamma 2.2 is used instead of SMPTE 170M for SDR, despite MediaFormat's
-      // COLOR_TRANSFER_SDR_VIDEO being defined as SMPTE 170M. This is to match
-      // other known tone-mapping behavior within the Android ecosystem.
+      // OpenGL tone mapping is only implemented for BT2020 to BT709 and HDR to SDR.
       checkArgument(inputColorInfo.colorSpace == C.COLOR_SPACE_BT2020);
       checkArgument(outputColorInfo.colorSpace != C.COLOR_SPACE_BT2020);
       checkArgument(ColorInfo.isTransferHdr(inputColorInfo));
-      checkArgument(outputColorInfo.colorTransfer == C.COLOR_TRANSFER_GAMMA_2_2);
+      checkArgument(
+          outputColorInfo.colorTransfer == C.COLOR_TRANSFER_GAMMA_2_2
+              || outputColorInfo.colorTransfer == C.COLOR_TRANSFER_SDR);
     }
   }
 

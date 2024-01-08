@@ -154,7 +154,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
    * @param inputFrameInfo The {@link FrameInfo} associated with the new input.
    */
   public void switchToInput(
-      @VideoFrameProcessor.InputType int newInputType, FrameInfo inputFrameInfo)
+      @VideoFrameProcessor.InputType int newInputType, FrameInfo newInputFrameInfo)
       throws VideoFrameProcessingException {
     checkStateNotNull(downstreamShaderProgram);
     checkState(contains(inputs, newInputType), "Input type not registered: " + newInputType);
@@ -163,11 +163,11 @@ import org.checkerframework.checker.nullness.qual.Nullable;
       @VideoFrameProcessor.InputType int inputType = inputs.keyAt(i);
       Input input = inputs.get(inputType);
       if (inputType == newInputType) {
-        if (input.getSamplingGlShaderProgram() == null) {
-          // TODO: b/307952514 - When switchToInput is called, and the inputColorInfo doesn't match
-          //  the prior inputColorInfo, recreate and reinitialize the input.samplingGlShaderProgram.
+        if (input.getInputColorInfo() == null
+            || !newInputFrameInfo.colorInfo.equals(input.getInputColorInfo())) {
           input.setSamplingGlShaderProgram(
-              createSamplingShaderProgram(inputFrameInfo.colorInfo, newInputType));
+              createSamplingShaderProgram(newInputFrameInfo.colorInfo, newInputType));
+          input.setInputColorInfo(newInputFrameInfo.colorInfo);
         }
         input.setChainingListener(
             new GatedChainingListenerWrapper(
@@ -182,7 +182,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
         input.setActive(false);
       }
     }
-    checkNotNull(activeTextureManager).setInputFrameInfo(inputFrameInfo);
+    checkNotNull(activeTextureManager).setInputFrameInfo(newInputFrameInfo);
   }
 
   /** Returns whether the {@code InputSwitcher} is connected to an active input. */
@@ -248,16 +248,25 @@ import org.checkerframework.checker.nullness.qual.Nullable;
     public final TextureManager textureManager;
 
     private @MonotonicNonNull ExternalShaderProgram samplingGlShaderProgram;
+    private @MonotonicNonNull ColorInfo inputColorInfo;
     private @MonotonicNonNull GatedChainingListenerWrapper gatedChainingListenerWrapper;
 
     public Input(TextureManager textureManager) {
       this.textureManager = textureManager;
     }
 
-    public void setSamplingGlShaderProgram(ExternalShaderProgram samplingGlShaderProgram) {
+    public void setSamplingGlShaderProgram(ExternalShaderProgram samplingGlShaderProgram)
+        throws VideoFrameProcessingException {
+      if (this.samplingGlShaderProgram != null) {
+        this.samplingGlShaderProgram.release();
+      }
       this.samplingGlShaderProgram = samplingGlShaderProgram;
       textureManager.setSamplingGlShaderProgram(samplingGlShaderProgram);
       samplingGlShaderProgram.setInputListener(textureManager);
+    }
+
+    public void setInputColorInfo(ColorInfo inputColorInfo) {
+      this.inputColorInfo = inputColorInfo;
     }
 
     public void setChainingListener(GatedChainingListenerWrapper gatedChainingListenerWrapper) {
@@ -267,6 +276,10 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
     public @Nullable ExternalShaderProgram getSamplingGlShaderProgram() {
       return samplingGlShaderProgram;
+    }
+
+    public @Nullable ColorInfo getInputColorInfo() {
+      return inputColorInfo;
     }
 
     public void setActive(boolean active) {
