@@ -383,8 +383,12 @@ import java.util.List;
       glProgram.setIntUniform(
           "uApplyHdrToSdrToneMapping",
           /* value= */ (outputColorInfo.colorSpace != C.COLOR_SPACE_BT2020) ? GL_TRUE : GL_FALSE);
-      checkArgument(
-          outputColorTransfer != Format.NO_VALUE && outputColorTransfer != C.COLOR_TRANSFER_SDR);
+      checkArgument(outputColorTransfer != Format.NO_VALUE);
+      if (outputColorTransfer == C.COLOR_TRANSFER_SDR) {
+        // When tone-mapping from HDR to SDR, COLOR_TRANSFER_SDR is interpreted as
+        // COLOR_TRANSFER_GAMMA_2_2.
+        outputColorTransfer = C.COLOR_TRANSFER_GAMMA_2_2;
+      }
       glProgram.setIntUniform("uOutputColorTransfer", outputColorTransfer);
     } else {
       glProgram.setIntUniform("uEnableColorTransfer", enableColorTransfers ? GL_TRUE : GL_FALSE);
