@@ -14,6 +14,7 @@ track 0:
     maxInputSize = 5776
     channelCount = 2
     sampleRate = 48000
+    pcmEncoding = 2
     metadata = entries=[VC: TITLE=test title, VC: ARTIST=test artist]
     initializationData:
       data = length 42, hash 83F6895
