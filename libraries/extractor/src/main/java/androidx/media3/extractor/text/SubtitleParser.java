@@ -37,6 +37,26 @@ public interface SubtitleParser {
   /** Factory for {@link SubtitleParser} instances. */
   interface Factory {
 
+    /** A subtitle parser factory that supports no formats. */
+    public static final Factory UNSUPPORTED =
+        new Factory() {
+          @Override
+          public boolean supportsFormat(Format format) {
+            return false;
+          }
+
+          @Override
+          public @CueReplacementBehavior int getCueReplacementBehavior(Format format) {
+            return Format.CUE_REPLACEMENT_BEHAVIOR_MERGE;
+          }
+
+          @Override
+          public SubtitleParser create(Format format) {
+            throw new IllegalStateException(
+                "This SubtitleParser.Factory doesn't support any formats.");
+          }
+        };
+
     /**
      * Returns whether the factory is able to instantiate a {@link SubtitleParser} for the given
      * {@link Format}.

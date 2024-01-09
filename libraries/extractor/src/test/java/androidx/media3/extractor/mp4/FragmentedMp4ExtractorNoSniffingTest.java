@@ -15,10 +15,15 @@
  */
 package androidx.media3.extractor.mp4;
 
+import static androidx.media3.extractor.mp4.FragmentedMp4Extractor.FLAG_EMIT_RAW_SUBTITLE_DATA;
+
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
+import androidx.media3.extractor.text.DefaultSubtitleParserFactory;
+import androidx.media3.extractor.text.SubtitleParser;
 import androidx.media3.test.utils.ExtractorAsserts;
+import com.google.common.collect.ImmutableList;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,6 +37,21 @@ import org.robolectric.ParameterizedRobolectricTestRunner.Parameters;
 @RunWith(ParameterizedRobolectricTestRunner.class)
 public class FragmentedMp4ExtractorNoSniffingTest {
 
+  private static final String FMP4_SIDELOADED = "media/mp4/sample_fragmented_sideloaded_track.mp4";
+  private static final Track SIDELOADED_TRACK =
+      new Track(
+          /* id= */ 1,
+          /* type= */ C.TRACK_TYPE_VIDEO,
+          /* timescale= */ 30_000,
+          /* movieTimescale= */ 1000,
+          /* durationUs= */ C.TIME_UNSET,
+          new Format.Builder().setSampleMimeType(MimeTypes.VIDEO_H264).build(),
+          /* sampleTransformation= */ Track.TRANSFORMATION_NONE,
+          /* sampleDescriptionEncryptionBoxes= */ null,
+          /* nalUnitLengthFieldLength= */ 4,
+          /* editListDurations= */ null,
+          /* editListMediaTimes= */ null);
+
   @Parameters(name = "{0}")
   public static List<Object[]> params() {
     return ExtractorAsserts.configsNoSniffing();
@@ -40,27 +60,35 @@ public class FragmentedMp4ExtractorNoSniffingTest {
   @Parameter public ExtractorAsserts.SimulationConfig simulationConfig;
 
   @Test
-  public void sampleWithSideLoadedTrack() throws Exception {
+  public void sampleWithSideLoadedTrack_subtitlesParsedDuringDecoding() throws Exception {
     // Sideloaded tracks are generally used in Smooth Streaming, where the MP4 files do not contain
     // any ftyp box and are not sniffed.
-    Track sideloadedTrack =
-        new Track(
-            /* id= */ 1,
-            /* type= */ C.TRACK_TYPE_VIDEO,
-            /* timescale= */ 30_000,
-            /* movieTimescale= */ 1000,
-            /* durationUs= */ C.TIME_UNSET,
-            new Format.Builder().setSampleMimeType(MimeTypes.VIDEO_H264).build(),
-            /* sampleTransformation= */ Track.TRANSFORMATION_NONE,
-            /* sampleDescriptionEncryptionBoxes= */ null,
-            /* nalUnitLengthFieldLength= */ 4,
-            /* editListDurations= */ null,
-            /* editListMediaTimes= */ null);
     ExtractorAsserts.assertBehavior(
         () ->
-            new FragmentedMp4Extractor(
-                /* flags= */ 0, /* timestampAdjuster= */ null, sideloadedTrack),
-        "media/mp4/sample_fragmented_sideloaded_track.mp4",
+            createFragmentedMp4Extractor(
+                SubtitleParser.Factory.UNSUPPORTED, FLAG_EMIT_RAW_SUBTITLE_DATA),
+        FMP4_SIDELOADED,
         simulationConfig);
+  }
+
+  @Test
+  public void sampleWithSideLoadedTrack_subtitlesParsedDuringExtraction() throws Exception {
+    // Sideloaded tracks are generally used in Smooth Streaming, where the MP4 files do not contain
+    // any ftyp box and are not sniffed.
+    ExtractorAsserts.assertBehavior(
+        () -> createFragmentedMp4Extractor(new DefaultSubtitleParserFactory(), /* flags= */ 0),
+        FMP4_SIDELOADED,
+        simulationConfig);
+  }
+
+  private FragmentedMp4Extractor createFragmentedMp4Extractor(
+      SubtitleParser.Factory subtitleParserFactory, @FragmentedMp4Extractor.Flags int flags) {
+    return new FragmentedMp4Extractor(
+        subtitleParserFactory,
+        flags,
+        /* timestampAdjuster= */ null,
+        SIDELOADED_TRACK,
+        /* closedCaptionFormats= */ ImmutableList.of(),
+        /* additionalEmsgTrackOutput= */ null);
   }
 }

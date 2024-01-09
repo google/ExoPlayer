@@ -38,7 +38,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * MimeTypes#APPLICATION_SUBRIP} to ExoPlayer's internal binary cue representation ({@link
  * MimeTypes#APPLICATION_MEDIA3_CUES}).
  */
-/* package */ class SubtitleTranscodingTrackOutput implements TrackOutput {
+/* package */ final class SubtitleTranscodingTrackOutput implements TrackOutput {
 
   private final TrackOutput delegate;
   private final SubtitleParser.Factory subtitleParserFactory;

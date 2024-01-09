@@ -105,19 +105,27 @@ public final class BundledChunkExtractor implements ExtractorOutput, ChunkExtrac
       } else if (Objects.equals(containerMimeType, MimeTypes.IMAGE_PNG)) {
         extractor = new PngExtractor();
       } else {
-        int flags = 0;
+        @FragmentedMp4Extractor.Flags int flags = 0;
         if (enableEventMessageTrack) {
           flags |= FragmentedMp4Extractor.FLAG_ENABLE_EMSG_TRACK;
         }
+        if (subtitleParserFactory == null) {
+          flags |= FragmentedMp4Extractor.FLAG_EMIT_RAW_SUBTITLE_DATA;
+        }
         extractor =
             new FragmentedMp4Extractor(
+                subtitleParserFactory != null
+                    ? subtitleParserFactory
+                    : SubtitleParser.Factory.UNSUPPORTED,
                 flags,
                 /* timestampAdjuster= */ null,
                 /* sideloadedTrack= */ null,
                 closedCaptionFormats,
                 playerEmsgTrackOutput);
       }
-      if (subtitleParserFactory != null && !MimeTypes.isText(containerMimeType)) {
+      if (subtitleParserFactory != null
+          && !MimeTypes.isText(containerMimeType)
+          && !(extractor.getUnderlyingImplementation() instanceof FragmentedMp4Extractor)) {
         extractor = new SubtitleTranscodingExtractor(extractor, subtitleParserFactory);
       }
       return new BundledChunkExtractor(extractor, primaryTrackType, representationFormat);

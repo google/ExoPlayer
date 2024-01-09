@@ -44,6 +44,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * SubtitleParser.Factory#supportsFormat(Format)} on the {@link SubtitleParser.Factory} passed to
  * the constructor of this class.
  */
+// TODO: b/318679808 - deprecate when all subtitle-related Extractors use
+// SubtitleTranscodingExtractorOutput instead.
 @UnstableApi
 public class SubtitleTranscodingExtractor implements Extractor {
 
