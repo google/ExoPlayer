@@ -30,6 +30,7 @@ import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
+import com.google.android.exoplayer2.transformer.PlayerTestListener;
 import com.google.android.exoplayer2.util.EventLogger;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
@@ -66,7 +67,7 @@ public class VideoEffectsPreviewPerformanceTest {
    */
   @Test
   public void exoplayerEffectsPreviewTest() throws PlaybackException, TimeoutException {
-    PerformanceTestListener listener = new PerformanceTestListener(TEST_TIMEOUT_MS);
+    PlayerTestListener listener = new PlayerTestListener(TEST_TIMEOUT_MS);
     instrumentation.runOnMainSync(
         () -> {
           player = new ExoPlayer.Builder(ApplicationProvider.getApplicationContext()).build();

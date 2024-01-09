@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.transformer.mh.performance;
+package com.google.android.exoplayer2.transformer;
 
 import android.os.ConditionVariable;
 import androidx.annotation.Nullable;
@@ -26,8 +26,8 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
-/** A listener for testing previewing performance. */
-/* package */ class PerformanceTestListener implements Player.Listener, AnalyticsListener {
+/** Utility {@link Player.Listener} for testing. */
+public final class PlayerTestListener implements Player.Listener, AnalyticsListener {
 
   private final ConditionVariable playerReady;
   private final ConditionVariable playerEnded;
@@ -41,7 +41,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @param testTimeoutMs The timeout value in milliseconds for which {@link
    *     #waitUntilPlayerReady()} and {@link #waitUntilPlayerEnded()} waits.
    */
-  public PerformanceTestListener(long testTimeoutMs) {
+  public PlayerTestListener(long testTimeoutMs) {
     playerReady = new ConditionVariable();
     playerEnded = new ConditionVariable();
     playbackException = new AtomicReference<>();
