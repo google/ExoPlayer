@@ -93,6 +93,10 @@
         that contained Binder objects` error when using
         `DefaultExtractorsFactory.setTextTrackTranscodingEnabled`
         ([#836](https://github.com/androidx/media/issues/836)).
+    *   CEA-708: Ignore `rowLock` value. The CEA-708-E S-2023 spec states that
+        `rowLock` and `columnLock` should both be assumed to be true, regardless
+        of the values present in the stream (`columnLock` support is not
+        implemented, so it's effectively assumed to always be false).
 *   Metadata:
     *   Fix bug where `MediaMetadata` was only populated from Vorbis comments
         with upper-case keys
