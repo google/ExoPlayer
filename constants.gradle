@@ -14,7 +14,7 @@
 project.ext {
     releaseVersion = '1.2.1'
     releaseVersionCode = 1_002_001_3_00
-    minSdkVersion = 16
+    minSdkVersion = 19
     // See https://developer.android.com/training/cars/media/automotive-os#automotive-module
     automotiveMinSdkVersion = 28
     appTargetSdkVersion = 34

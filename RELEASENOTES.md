@@ -11,6 +11,10 @@
         lower-case.
     *   Define ads with a full `MediaItem` instead of a single `Uri` in
         `AdPlaybackState`.
+    *   Increase `minSdk` to 19 (Android KitKat). This is
+        [aligned with all other AndroidX libraries](https://android-developers.googleblog.com/2023/10/androidx-minsdkversion-19.html),
+        and is required for us to upgrade to the latest versions of our AndroidX
+        dependencies.
 *   ExoPlayer:
     *   Add `PreloadMediaSource` and `PreloadMediaPeriod` that allows apps to
         preload the media source at a specific start position before playback,
