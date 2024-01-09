@@ -44,8 +44,6 @@ import org.junit.runner.RunWith;
 public class GaussianBlurTest {
   @Rule public final TestName testName = new TestName();
 
-  // Golden images were generated on an API 33 emulator. API 26 emulators have a different text
-  // rendering implementation that leads to a larger pixel difference.
   private static final String ASSET_PATH = "media/bitmap/GaussianBlurTest";
   private static final int BLANK_FRAME_WIDTH = 200;
   private static final int BLANK_FRAME_HEIGHT = 100;
@@ -83,6 +81,8 @@ public class GaussianBlurTest {
     testId = testName.getMethodName();
   }
 
+  // Golden images for these tests were generated on an API 33 emulator. API 26 emulators have a
+  // different text rendering implementation that leads to a larger pixel difference.
   @Test
   @RequiresNonNull({"textureBitmapReader", "testId"})
   public void gaussianBlur_blursFrame() throws Exception {
