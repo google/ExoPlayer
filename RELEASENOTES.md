@@ -24,22 +24,9 @@
         by default with null `ImageOutput` and `ImageDecoder.Factory.DEFAULT`.
     *   Emit `Player.Listener.onPositionDiscontinuity` event when silence is
         skipped ([#765](https://github.com/androidx/media/issues/765)).
-    *   Fix issue where manual seeks outside of the
-        `LiveConfiguration.min/maxOffset` range keep adjusting the offset back
-        to `min/maxOffset`.
     *   Add experimental support for parsing subtitles during extraction. You
         can enable this using
         `MediaSource.Factory.experimentalParseSubtitlesDuringExtraction()`.
-    *   Fix issue that OPUS and VORBIS channel layouts are wrong for 3, 5, 6, 7
-        and 8 channels
-        ([#8396](https://github.com/google/ExoPlayer/issues/8396)).
-    *   Fix issue where track selections after seek to zero in a live stream
-        incorrectly let the stream start at its default position
-        ([#9347](https://github.com/google/ExoPlayer/issues/9347)).
-    *   Fix the issue where new instances of `CmcdData.Factory` were receiving
-        negative values for `bufferedDurationUs` from chunk sources, resulting
-        in an `IllegalArgumentException`
-        ([#888](https://github.com/androidx/media/issues/888)).
     *   Support adaptive media sources with `PreloadMediaSource`.
     *   Implement `HttpEngineDataSource`, an `HttpDataSource` using the
         [HttpEngine](https://developer.android.com/reference/android/net/http/HttpEngine)
@@ -47,8 +34,6 @@
 *   Transformer:
     *   Add support for flattening H.265/HEVC SEF slow motion videos.
     *   Increase transmuxing speed, especially for 'remove video' edits.
-    *   Work around an issue where the encoder would throw at configuration time
-        due to setting a high operating rate.
     *   Add api to ensure that the output file starts on a video frame. This can
         make the output of trimming operations more compatible with player
         implementations that don't show the first video frame until its
@@ -66,21 +51,8 @@
         `ColorInfo.colorSpace`, `ColorInfo.colorTransfer`, and
         `ColorInfo.colorRange` values
         ([#692](https://github.com/androidx/media/pull/692)).
-    *   Mark secondary (unplayable) HEVC tracks in JPEG motion photos as
-        `ROLE_FLAG_ALTERNATE` to prevent them being automatically selected for
-        playback because of their higher resolution.
-    *   Fix wrong keyframe detection for TS H264 streams
-        ([#864](https://github.com/androidx/media/pull/864)).
-    *   Fix duration estimation of TS streams that are longer than 47721 seconds
-        ([#855](https://github.com/androidx/media/issues/855)).
 *   Audio:
-    *   Fix handling of EOS for `SilenceSkippingAudioProcessor` when called
-        multiple times ([#712](https://github.com/androidx/media/issues/712)).
 *   Video:
-    *   Add workaround for a device issue on Galaxy Tab S7 FE, Chromecast with
-        Google TV, and Lenovo M10 FHD Plus that causes 60fps AVC streams to be
-        marked as unsupported
-        ([#693](https://github.com/androidx/media/issues/693)).
     *   Change the `MediaCodecVideoRenderer` constructor that takes a
         `VideoFrameProcessor.Factory` argument and replace it with a constructor
         that takes a `VideoSinkProvider` argument. Apps that want to inject a
@@ -98,19 +70,7 @@
         of the values present in the stream (`columnLock` support is not
         implemented, so it's effectively assumed to always be false).
 *   Metadata:
-    *   Fix bug where `MediaMetadata` was only populated from Vorbis comments
-        with upper-case keys
-        ([#876](https://github.com/androidx/media/issues/876)).
-    *   Catch `OutOfMemoryError` when parsing very large ID3 frames, meaning
-        playback can continue without the tag info instead of playback failing
-        completely.
 *   DRM:
-    *   Extend workaround for spurious ClearKey `https://default.url` license
-        URL to API 33+ (previously the workaround only applied on API 33
-        exactly) ([#837](https://github.com/androidx/media/pull/837)).
-    *   Fix `ERROR_DRM_SESSION_NOT_OPENED` when switching from encrypted to
-        clear content without a surface attached to the player. The error was
-        due to incorrectly using a secure decoder to play the clear content.
     *   Play 'clear lead' unencrypted samples in DRM content immediately by
         default, even if the keys for the later encrypted samples aren't ready
         yet. This may lead to mid-playback stalls if the keys still aren't ready
@@ -125,6 +85,86 @@
 *   IMA extension:
     *   Fix issue where DASH and HLS ads without the appropriate file extension
         can't be played.
+*   Session:
+*   UI:
+*   Downloads:
+*   OkHttp Extension:
+*   Cronet Extension:
+*   RTMP Extension:
+*   HLS Extension:
+    *   Reduce `HlsMediaPeriod` to package-private visibility. This type
+        shouldn't be directly depended on from outside the HLS package.
+*   DASH Extension:
+*   Smooth Streaming Extension:
+*   RTSP Extension:
+*   Decoder Extensions (FFmpeg, VP9, AV1, MIDI, etc.):
+    *   MIDI decoder: Ignore SysEx event messages
+        ([#710](https://github.com/androidx/media/pull/710)).
+*   Leanback extension:
+*   Cast Extension:
+*   Test Utilities:
+    *   Don't pause playback in `TestPlayerRunHelper.playUntilPosition`. The
+        test keeps the playback in a playing state, but suspends progress until
+        the test is able to add assertions and further actions.
+*   Remove deprecated symbols:
+*   Demo app:
+    *   Add a shortform demo module to demo the usage of `PreloadMediaSource`
+        with the short-form content use case.
+
+## 1.2
+
+### 1.2.1 (2024-01-09)
+
+This release includes the following changes since the
+[1.2.0 release](#120-2023-11-15):
+
+*   ExoPlayer:
+    *   Fix issue where manual seeks outside of the
+        `LiveConfiguration.min/maxOffset` range keep adjusting the offset back
+        to `min/maxOffset`.
+    *   Fix issue that OPUS and VORBIS channel layouts are wrong for 3, 5, 6, 7
+        and 8 channels
+        ([#8396](https://github.com/google/ExoPlayer/issues/8396)).
+    *   Fix issue where track selections after seek to zero in a live stream
+        incorrectly let the stream start at its default position
+        ([#9347](https://github.com/google/ExoPlayer/issues/9347)).
+    *   Fix the issue where new instances of `CmcdData.Factory` were receiving
+        negative values for `bufferedDurationUs` from chunk sources, resulting
+        in an `IllegalArgumentException`
+        ([#888](https://github.com/androidx/media/issues/888)).
+*   Transformer:
+    *   Work around an issue where the encoder would throw at configuration time
+        due to setting a high operating rate.
+*   Extractors:
+    *   Mark secondary (unplayable) HEVC tracks in JPEG motion photos as
+        `ROLE_FLAG_ALTERNATE` to prevent them being automatically selected for
+        playback because of their higher resolution.
+    *   Fix wrong keyframe detection for TS H264 streams
+        ([#864](https://github.com/androidx/media/pull/864)).
+    *   Fix duration estimation of TS streams that are longer than 47721 seconds
+        ([#855](https://github.com/androidx/media/issues/855)).
+*   Audio:
+    *   Fix handling of EOS for `SilenceSkippingAudioProcessor` when called
+        multiple times ([#712](https://github.com/androidx/media/issues/712)).
+*   Video:
+    *   Add workaround for a device issue on Galaxy Tab S7 FE, Chromecast with
+        Google TV, and Lenovo M10 FHD Plus that causes 60fps AVC streams to be
+        marked as unsupported
+        ([#693](https://github.com/androidx/media/issues/693)).
+*   Metadata:
+    *   Fix bug where `MediaMetadata` was only populated from Vorbis comments
+        with upper-case keys
+        ([#876](https://github.com/androidx/media/issues/876)).
+    *   Catch `OutOfMemoryError` when parsing very large ID3 frames, meaning
+        playback can continue without the tag info instead of playback failing
+        completely.
+*   DRM:
+    *   Extend workaround for spurious ClearKey `https://default.url` license
+        URL to API 33+ (previously the workaround only applied on API 33
+        exactly) ([#837](https://github.com/androidx/media/pull/837)).
+    *   Fix `ERROR_DRM_SESSION_NOT_OPENED` when switching from encrypted to
+        clear content without a surface attached to the player. The error was
+        due to incorrectly using a secure decoder to play the clear content.
 *   Session:
     *   Put the custom keys and values in `MediaMetadataCompat` to
         `MediaMetadata.extras` and `MediaMetadata.extras` to
@@ -146,41 +186,19 @@
     *   Fix issue where the numbers in the fast forward button of the
         `PlayerControlView` were misaligned
         ([#547](https://github.com/androidx/media/issues/547)).
-*   Downloads:
-*   OkHttp Extension:
-*   Cronet Extension:
-*   RTMP Extension:
-*   HLS Extension:
-    *   Reduce `HlsMediaPeriod` to package-private visibility. This type
-        shouldn't be directly depended on from outside the HLS package.
 *   DASH Extension:
     *   Parse "f800" as channel count of 5 for Dolby in DASH manifest
         ([#688](https://github.com/androidx/media/issues/688)).
-*   Smooth Streaming Extension:
-*   RTSP Extension:
 *   Decoder Extensions (FFmpeg, VP9, AV1, MIDI, etc.):
-    *   MIDI decoder: Ignore SysEx event messages
-        ([#710](https://github.com/androidx/media/pull/710)).
     *   MIDI: Fix issue where seeking forward skips the Program Change events
         ([#704](https://github.com/androidx/media/issues/704).
     *   Migrate to FFmpeg 6.0 and update supported NDK to `r26b`
         ([#707](https://github.com/androidx/media/pull/707),
         [#867](https://github.com/androidx/media/pull/867)).
-*   Leanback extension:
 *   Cast Extension:
     *   Sanitize creation of a `Timeline` to not crash the app when loading
         media fails on the cast device
         ([#708](https://github.com/androidx/media/issues/708)).
-*   Test Utilities:
-    *   Don't pause playback in `TestPlayerRunHelper.playUntilPosition`. The
-        test keeps the playback in a playing state, but suspends progress until
-        the test is able to add assertions and further actions.
-*   Remove deprecated symbols:
-*   Demo app:
-    *   Add a shortform demo module to demo the usage of `PreloadMediaSource`
-        with the short-form content use case.
-
-## 1.2
 
 ### 1.2.0 (2023-11-15)
 
