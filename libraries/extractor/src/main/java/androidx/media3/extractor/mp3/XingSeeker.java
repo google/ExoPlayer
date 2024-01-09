@@ -57,8 +57,9 @@ import androidx.media3.extractor.SeekPoint;
       // If the frame count is missing/invalid, the header can't be used to determine the duration.
       return null;
     }
-    long durationUs =
-        Util.scaleLargeTimestamp(frameCount, samplesPerFrame * C.MICROS_PER_SECOND, sampleRate);
+    // Audio requires both a start and end PCM sample, so subtract one from the sample count before
+    // calculating the duration.
+    long durationUs = Util.sampleCountToDurationUs((frameCount * samplesPerFrame) - 1, sampleRate);
     if ((flags & 0x06) != 0x06) {
       // If the size in bytes or table of contents is missing, the stream is not seekable.
       return new XingSeeker(position, mpegAudioHeader.frameSize, durationUs);
