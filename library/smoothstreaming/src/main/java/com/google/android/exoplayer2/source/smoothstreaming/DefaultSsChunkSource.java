@@ -41,7 +41,6 @@ import com.google.android.exoplayer2.source.chunk.MediaChunkIterator;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest.StreamElement;
 import com.google.android.exoplayer2.text.SubtitleParser;
-import com.google.android.exoplayer2.text.SubtitleTranscodingExtractor;
 import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.upstream.CmcdConfiguration;
 import com.google.android.exoplayer2.upstream.CmcdData;
@@ -53,6 +52,7 @@ import com.google.android.exoplayer2.upstream.LoaderErrorThrower;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.UriUtil;
+import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.util.List;
 
@@ -179,15 +179,22 @@ public class DefaultSsChunkSource implements SsChunkSource {
               nalUnitLengthFieldLength,
               null,
               null);
+      @FragmentedMp4Extractor.Flags
+      int flags =
+          FragmentedMp4Extractor.FLAG_WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME
+              | FragmentedMp4Extractor.FLAG_WORKAROUND_IGNORE_TFDT_BOX;
       Extractor extractor =
           new FragmentedMp4Extractor(
-              FragmentedMp4Extractor.FLAG_WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME
-                  | FragmentedMp4Extractor.FLAG_WORKAROUND_IGNORE_TFDT_BOX,
+              subtitleParserFactory == null
+                  ? SubtitleParser.Factory.UNSUPPORTED
+                  : subtitleParserFactory,
+              subtitleParserFactory == null
+                  ? flags | FragmentedMp4Extractor.FLAG_EMIT_RAW_SUBTITLE_DATA
+                  : flags,
               /* timestampAdjuster= */ null,
-              track);
-      if (subtitleParserFactory != null) {
-        extractor = new SubtitleTranscodingExtractor(extractor, subtitleParserFactory);
-      }
+              track,
+              /* closedCaptionFormats= */ ImmutableList.of(),
+              /* additionalEmsgTrackOutput= */ null);
       chunkExtractors[i] = new BundledChunkExtractor(extractor, streamElement.type, format);
     }
   }

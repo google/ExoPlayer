@@ -38,6 +38,7 @@ import com.google.android.exoplayer2.text.SubtitleTranscodingExtractor;
 import com.google.android.exoplayer2.util.FileTypes;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
+import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Ints;
 import java.io.EOFException;
 import java.io.IOException;
@@ -207,11 +208,8 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
       case FileTypes.MP3:
         return new Mp3Extractor(/* flags= */ 0, /* forcedFirstSampleTimestampUs= */ 0);
       case FileTypes.MP4:
-        Extractor mp4Extractor =
-            createFragmentedMp4Extractor(timestampAdjuster, format, muxedCaptionFormats);
-        return subtitleParserFactory != null
-            ? new SubtitleTranscodingExtractor(mp4Extractor, subtitleParserFactory)
-            : mp4Extractor;
+        return createFragmentedMp4Extractor(
+            subtitleParserFactory, timestampAdjuster, format, muxedCaptionFormats);
       case FileTypes.TS:
         Extractor tsExtractor =
             createTsExtractor(
@@ -270,16 +268,25 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
   }
 
   private static FragmentedMp4Extractor createFragmentedMp4Extractor(
+      @Nullable SubtitleParser.Factory subtitleParserFactory,
       TimestampAdjuster timestampAdjuster,
       Format format,
       @Nullable List<Format> muxedCaptionFormats) {
     // Only enable the EMSG TrackOutput if this is the 'variant' track (i.e. the main one) to avoid
     // creating a separate EMSG track for every audio track in a video stream.
+    @FragmentedMp4Extractor.Flags
+    int flags = isFmp4Variant(format) ? FragmentedMp4Extractor.FLAG_ENABLE_EMSG_TRACK : 0;
+    if (subtitleParserFactory == null) {
+      subtitleParserFactory = SubtitleParser.Factory.UNSUPPORTED;
+      flags |= FragmentedMp4Extractor.FLAG_EMIT_RAW_SUBTITLE_DATA;
+    }
     return new FragmentedMp4Extractor(
-        /* flags= */ isFmp4Variant(format) ? FragmentedMp4Extractor.FLAG_ENABLE_EMSG_TRACK : 0,
+        subtitleParserFactory,
+        flags,
         timestampAdjuster,
         /* sideloadedTrack= */ null,
-        muxedCaptionFormats != null ? muxedCaptionFormats : Collections.emptyList());
+        muxedCaptionFormats != null ? muxedCaptionFormats : ImmutableList.of(),
+        /* additionalEmsgTrackOutput= */ null);
   }
 
   /** Returns true if this {@code format} represents a 'variant' track (i.e. the main one). */

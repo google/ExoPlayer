@@ -18,12 +18,25 @@ package com.google.android.exoplayer2.text;
 
 import android.util.SparseArray;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.TrackOutput;
+import com.google.android.exoplayer2.util.MimeTypes;
 
 /**
- * A wrapping {@link ExtractorOutput} for use by {@link SubtitleTranscodingExtractor}.
+ * A wrapping {@link ExtractorOutput} that transcodes {@linkplain C#TRACK_TYPE_TEXT text samples}
+ * from supported subtitle formats to {@link MimeTypes#APPLICATION_MEDIA3_CUES}.
+ *
+ * <p>The resulting {@link MimeTypes#APPLICATION_MEDIA3_CUES} samples are emitted to the underlying
+ * {@link TrackOutput}.
+ *
+ * <p>For non-text tracks (i.e. where {@link C.TrackType} is not {@code C.TRACK_TYPE_TEXT}), samples
+ * are passed through to the underlying {@link TrackOutput} without modification.
+ *
+ * <p>Support for subtitle formats is determined by {@link
+ * SubtitleParser.Factory#supportsFormat(Format)} on the {@link SubtitleParser.Factory} passed to
+ * the constructor of this class.
  *
  * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
  *     contains the same ExoPlayer code). See <a
@@ -31,7 +44,7 @@ import com.google.android.exoplayer2.extractor.TrackOutput;
  *     migration guide</a> for more details, including a script to help with the migration.
  */
 @Deprecated
-/* package */ class SubtitleTranscodingExtractorOutput implements ExtractorOutput {
+public final class SubtitleTranscodingExtractorOutput implements ExtractorOutput {
 
   private final ExtractorOutput delegate;
   private final SubtitleParser.Factory subtitleParserFactory;

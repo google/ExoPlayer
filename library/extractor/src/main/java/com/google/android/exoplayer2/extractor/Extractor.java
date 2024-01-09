@@ -24,6 +24,7 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import org.checkerframework.dataflow.qual.SideEffectFree;
 
 /**
  * Extracts media data from a container format.
@@ -136,6 +137,7 @@ public interface Extractor {
    * <p>{@code Extractor} implementations that operate by delegating to another {@code Extractor}
    * should override this method to return that delegate.
    */
+  @SideEffectFree
   default Extractor getUnderlyingImplementation() {
     return this;
   }

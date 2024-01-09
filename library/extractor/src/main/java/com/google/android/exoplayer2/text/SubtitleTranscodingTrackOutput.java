@@ -44,7 +44,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  *     migration guide</a> for more details, including a script to help with the migration.
  */
 @Deprecated
-/* package */ class SubtitleTranscodingTrackOutput implements TrackOutput {
+/* package */ final class SubtitleTranscodingTrackOutput implements TrackOutput {
 
   private final TrackOutput delegate;
   private final SubtitleParser.Factory subtitleParserFactory;
