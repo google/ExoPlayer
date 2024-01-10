@@ -50,8 +50,8 @@ public final class GaussianBlur extends SeparableConvolution {
    * @param sigma The half-width of 1 standard deviation, in pixels.
    */
   public GaussianBlur(float sigma) {
-    this.sigma = sigma;
-    this.numStandardDeviations = 2.0f;
+    this(sigma, /* numStandardDeviations= */ 2.0f);
+    ;
   }
 
   @Override

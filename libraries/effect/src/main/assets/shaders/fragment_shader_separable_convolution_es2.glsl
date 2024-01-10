@@ -15,7 +15,10 @@
 
 precision highp float;
 varying vec2 vTexSamplingCoord;
+// Center position of the function in the lookup texture.
+uniform vec2 uFunctionLookupCenter;
 uniform sampler2D uTexSampler;
+uniform sampler2D uFunctionLookupSampler;
 // 1D function LUT, only 2D due to OpenGL ES 2.0 limitations.
 uniform int uIsHorizontal;
 // Size of one texel in the source image, along the axis of interest.
@@ -32,9 +35,6 @@ uniform float uConvWidthTexels;
 // Need to be able convert steps in source texels to steps in the function
 // lookup texture.
 uniform float uFunctionLookupStepSize;
-// Center position of the function in the lookup texture.
-uniform vec2 uFunctionLookupCenter;
-uniform sampler2D uFunctionLookupSampler;
 
 // Reference Implementation:
 void main() {
