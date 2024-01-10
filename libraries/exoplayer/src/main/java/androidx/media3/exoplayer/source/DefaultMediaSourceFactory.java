@@ -190,12 +190,6 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
     liveMaxSpeed = C.RATE_UNSET;
   }
 
-  /**
-   * {@inheritDoc}
-   *
-   * <p>The current limitation is that this method will have no effect when progressive media with
-   * muxed subtitles is {@linkplain #createMediaSource created}.
-   */
   @CanIgnoreReturnValue
   @UnstableApi
   @Override
@@ -664,6 +658,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
 
     public void setParseSubtitlesDuringExtraction(boolean parseSubtitlesDuringExtraction) {
       this.parseSubtitlesDuringExtraction = parseSubtitlesDuringExtraction;
+      extractorsFactory.experimentalSetTextTrackTranscodingEnabled(parseSubtitlesDuringExtraction);
       for (MediaSource.Factory mediaSourceFactory : mediaSourceFactories.values()) {
         mediaSourceFactory.experimentalParseSubtitlesDuringExtraction(
             parseSubtitlesDuringExtraction);

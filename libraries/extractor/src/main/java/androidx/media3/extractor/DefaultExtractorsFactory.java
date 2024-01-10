@@ -25,7 +25,6 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
 import androidx.media3.common.FileTypes;
 import androidx.media3.common.Format;
-import androidx.media3.common.MimeTypes;
 import androidx.media3.common.PlaybackException;
 import androidx.media3.common.Player;
 import androidx.media3.common.util.TimestampAdjuster;
@@ -359,17 +358,17 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
   }
 
   /**
-   * Enables transcoding of text track samples to {@link MimeTypes#APPLICATION_MEDIA3_CUES} before
-   * the data is emitted to {@link TrackOutput}.
-   *
-   * <p>Transcoding is disabled by default.
-   *
-   * @param textTrackTranscodingEnabled Whether to enable transcoding.
-   * @return The factory, for convenience.
+   * @deprecated Use {@link #experimentalSetTextTrackTranscodingEnabled(boolean)} instead.
    */
-  // TODO: b/289916598 - Flip this to default to enabled and deprecate it.
+  @Deprecated
   @CanIgnoreReturnValue
   public synchronized DefaultExtractorsFactory setTextTrackTranscodingEnabled(
+      boolean textTrackTranscodingEnabled) {
+    return experimentalSetTextTrackTranscodingEnabled(textTrackTranscodingEnabled);
+  }
+
+  @Override
+  public DefaultExtractorsFactory experimentalSetTextTrackTranscodingEnabled(
       boolean textTrackTranscodingEnabled) {
     this.textTrackTranscodingEnabled = textTrackTranscodingEnabled;
     return this;

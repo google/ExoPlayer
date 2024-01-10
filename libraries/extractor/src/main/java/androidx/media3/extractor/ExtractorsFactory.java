@@ -16,7 +16,9 @@
 package androidx.media3.extractor;
 
 import android.net.Uri;
+import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.UnstableApi;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.List;
 import java.util.Map;
 
@@ -29,6 +31,24 @@ public interface ExtractorsFactory {
    * Extractor Extractors} are not required.
    */
   ExtractorsFactory EMPTY = () -> new Extractor[] {};
+
+  /**
+   * Enables transcoding of text track samples to {@link MimeTypes#APPLICATION_MEDIA3_CUES} before
+   * the data is emitted to {@link TrackOutput}.
+   *
+   * <p>Transcoding is disabled by default.
+   *
+   * <p>This method is experimental and will be renamed or removed in a future release.
+   *
+   * @param textTrackTranscodingEnabled Whether to enable transcoding.
+   * @return The factory, for convenience.
+   */
+  // TODO: b/289916598 - Flip this to default to enabled and deprecate it.
+  @CanIgnoreReturnValue
+  default ExtractorsFactory experimentalSetTextTrackTranscodingEnabled(
+      boolean textTrackTranscodingEnabled) {
+    return this;
+  }
 
   /** Returns an array of new {@link Extractor} instances. */
   Extractor[] createExtractors();
