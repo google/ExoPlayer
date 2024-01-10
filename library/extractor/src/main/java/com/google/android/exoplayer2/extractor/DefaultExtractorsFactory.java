@@ -52,7 +52,6 @@ import com.google.android.exoplayer2.text.DefaultSubtitleParserFactory;
 import com.google.android.exoplayer2.text.SubtitleParser;
 import com.google.android.exoplayer2.text.SubtitleTranscodingExtractor;
 import com.google.android.exoplayer2.util.FileTypes;
-import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
 import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
@@ -363,17 +362,17 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
   }
 
   /**
-   * Enables transcoding of text track samples to {@link MimeTypes#APPLICATION_MEDIA3_CUES} before
-   * the data is emitted to {@link TrackOutput}.
-   *
-   * <p>Transcoding is disabled by default.
-   *
-   * @param textTrackTranscodingEnabled Whether to enable transcoding.
-   * @return The factory, for convenience.
+   * @deprecated Use {@link #experimentalSetTextTrackTranscodingEnabled(boolean)} instead.
    */
-  // TODO: b/289916598 - Flip this to default to enabled and deprecate it.
+  @Deprecated
   @CanIgnoreReturnValue
   public synchronized DefaultExtractorsFactory setTextTrackTranscodingEnabled(
+      boolean textTrackTranscodingEnabled) {
+    return experimentalSetTextTrackTranscodingEnabled(textTrackTranscodingEnabled);
+  }
+
+  @Override
+  public DefaultExtractorsFactory experimentalSetTextTrackTranscodingEnabled(
       boolean textTrackTranscodingEnabled) {
     this.textTrackTranscodingEnabled = textTrackTranscodingEnabled;
     return this;
