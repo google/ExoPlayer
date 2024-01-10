@@ -81,6 +81,7 @@ import com.google.android.exoplayer2.transformer.Effects;
 import com.google.android.exoplayer2.transformer.ExportException;
 import com.google.android.exoplayer2.transformer.ExportResult;
 import com.google.android.exoplayer2.transformer.InAppMuxer;
+import com.google.android.exoplayer2.transformer.JsonUtil;
 import com.google.android.exoplayer2.transformer.Muxer;
 import com.google.android.exoplayer2.transformer.ProgressHolder;
 import com.google.android.exoplayer2.transformer.Transformer;
@@ -93,6 +94,7 @@ import com.google.android.exoplayer2.util.DebugTextViewHelper;
 import com.google.android.exoplayer2.util.DebugViewProvider;
 import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.Log;
+import com.google.android.exoplayer2.util.Util;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.common.base.Stopwatch;
@@ -110,6 +112,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * An {@link Activity} that exports and plays media using {@link Transformer}.
@@ -355,7 +359,7 @@ public final class TransformerActivity extends AppCompatActivity {
             new Transformer.Listener() {
               @Override
               public void onCompleted(Composition composition, ExportResult exportResult) {
-                TransformerActivity.this.onCompleted(inputUri, filePath);
+                TransformerActivity.this.onCompleted(inputUri, filePath, exportResult);
               }
 
               @Override
@@ -714,13 +718,11 @@ public final class TransformerActivity extends AppCompatActivity {
     "debugFrame",
     "exportStopwatch",
   })
-  private void onCompleted(Uri inputUri, String filePath) {
+  private void onCompleted(Uri inputUri, String filePath, ExportResult exportResult) {
     exportStopwatch.stop();
+    long elapsedTimeMs = exportStopwatch.elapsed(TimeUnit.MILLISECONDS);
     informationTextView.setText(
-        getString(
-            R.string.export_completed,
-            exportStopwatch.elapsed(TimeUnit.MILLISECONDS) / 1000.f,
-            filePath));
+        getString(R.string.export_completed, elapsedTimeMs / 1000.f, filePath));
     progressViewGroup.setVisibility(View.GONE);
     debugFrame.removeAllViews();
     inputCardView.setVisibility(View.VISIBLE);
@@ -738,6 +740,17 @@ public final class TransformerActivity extends AppCompatActivity {
     }
     playMediaItems(MediaItem.fromUri(inputUri), MediaItem.fromUri("file://" + filePath));
     Log.d(TAG, "Output file path: file://" + filePath);
+    try {
+      JSONObject resultJson =
+          JsonUtil.exportResultAsJsonObject(exportResult)
+              .put("elapsedTimeMs", elapsedTimeMs)
+              .put("device", JsonUtil.getDeviceDetailsAsJsonObject());
+      for (String line : Util.split(resultJson.toString(2), "\n")) {
+        Log.d(TAG, line);
+      }
+    } catch (JSONException e) {
+      Log.d(TAG, "Unable to convert exportResult to JSON", e);
+    }
   }
 
   @RequiresNonNull({

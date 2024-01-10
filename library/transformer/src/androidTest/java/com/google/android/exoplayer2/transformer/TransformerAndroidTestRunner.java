@@ -221,13 +221,11 @@ public class TransformerAndroidTestRunner {
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
       resultJson.put(
-          "exportResult",
-          new JSONObject().put("testException", AndroidTestUtil.exceptionAsJsonObject(e)));
+          "exportResult", new JSONObject().put("testException", JsonUtil.exceptionAsJsonObject(e)));
       throw e;
     } catch (IOException | TimeoutException | UnsupportedOperationException e) {
       resultJson.put(
-          "exportResult",
-          new JSONObject().put("testException", AndroidTestUtil.exceptionAsJsonObject(e)));
+          "exportResult", new JSONObject().put("testException", JsonUtil.exceptionAsJsonObject(e)));
       throw e;
     } finally {
       AndroidTestUtil.writeTestSummaryToFile(context, testId, resultJson);

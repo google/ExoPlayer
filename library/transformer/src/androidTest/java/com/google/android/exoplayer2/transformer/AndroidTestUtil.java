@@ -30,12 +30,10 @@ import android.media.Image;
 import android.media.MediaFormat;
 import android.opengl.EGLContext;
 import android.opengl.EGLDisplay;
-import android.os.Build;
 import android.util.Pair;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.effect.DefaultGlObjectsProvider;
 import com.google.android.exoplayer2.effect.ScaleAndRotateTransformation;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
@@ -53,7 +51,6 @@ import com.google.common.collect.ImmutableList;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -668,68 +665,6 @@ public final class AndroidTestUtil {
   }
 
   /**
-   * Returns a {@link JSONObject} containing device specific details from {@link Build}, including
-   * manufacturer, model, SDK version and build fingerprint.
-   */
-  public static JSONObject getDeviceDetailsAsJsonObject() throws JSONException {
-    return new JSONObject()
-        .put("manufacturer", Build.MANUFACTURER)
-        .put("model", Build.MODEL)
-        .put("sdkVersion", Build.VERSION.SDK_INT)
-        .put("fingerprint", Build.FINGERPRINT);
-  }
-
-  /**
-   * Creates a {@link JSONArray} from {@link ExportResult.ProcessedInput processed inputs}.
-   *
-   * @param processedInputs The list of {@link ExportResult.ProcessedInput} instances.
-   * @return A {@link JSONArray} containing {@link JSONObject} instances representing the {@link
-   *     ExportResult.ProcessedInput} instances.
-   */
-  public static JSONArray processedInputsAsJsonArray(
-      ImmutableList<ExportResult.ProcessedInput> processedInputs) throws JSONException {
-    JSONArray jsonArray = new JSONArray();
-    for (int i = 0; i < processedInputs.size(); i++) {
-      ExportResult.ProcessedInput processedInput = processedInputs.get(i);
-      JSONObject jsonObject = new JSONObject();
-      @Nullable
-      MediaItem.LocalConfiguration localConfiguration = processedInput.mediaItem.localConfiguration;
-      if (localConfiguration != null) {
-        jsonObject.put("mediaItemUri", localConfiguration.uri);
-      }
-      jsonObject.putOpt("audioDecoderName", processedInput.audioDecoderName);
-      jsonObject.putOpt("videoDecoderName", processedInput.videoDecoderName);
-      jsonArray.put(jsonObject);
-    }
-    return jsonArray;
-  }
-
-  /**
-   * Creates a {@link JSONObject} from the {@link Exception}.
-   *
-   * <p>If the exception is an {@link ExportException}, {@code errorCode} is included.
-   *
-   * @param exception The {@link Exception}.
-   * @return The {@link JSONObject} containing the exception details, or {@code null} if the
-   *     exception was {@code null}.
-   */
-  @Nullable
-  public static JSONObject exceptionAsJsonObject(@Nullable Exception exception)
-      throws JSONException {
-    if (exception == null) {
-      return null;
-    }
-    JSONObject exceptionJson = new JSONObject();
-    exceptionJson.put("message", exception.getMessage());
-    exceptionJson.put("type", exception.getClass());
-    if (exception instanceof ExportException) {
-      exceptionJson.put("errorCode", ((ExportException) exception).errorCode);
-    }
-    exceptionJson.put("stackTrace", Log.getThrowableString(exception));
-    return exceptionJson;
-  }
-
-  /**
    * Writes the summary of a test run to the application cache file.
    *
    * <p>The cache filename follows the pattern {@code <testId>-result.txt}.
@@ -740,7 +675,7 @@ public final class AndroidTestUtil {
    */
   public static void writeTestSummaryToFile(Context context, String testId, JSONObject testJson)
       throws IOException, JSONException {
-    testJson.put("testId", testId).put("device", getDeviceDetailsAsJsonObject());
+    testJson.put("testId", testId).put("device", JsonUtil.getDeviceDetailsAsJsonObject());
 
     String analysisContents = testJson.toString(/* indentSpaces= */ 2);
 
