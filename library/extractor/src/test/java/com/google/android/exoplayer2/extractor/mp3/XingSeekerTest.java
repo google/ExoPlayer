@@ -64,15 +64,13 @@ public final class XingSeekerTest {
     seeker =
         XingSeeker.create(
             C.LENGTH_UNSET,
-            XING_FRAME_POSITION,
-            xingFrameHeader,
-            new ParsableByteArray(XING_FRAME_PAYLOAD));
+            XingFrame.parse(xingFrameHeader, new ParsableByteArray(XING_FRAME_PAYLOAD)),
+            XING_FRAME_POSITION);
     seekerWithInputLength =
         XingSeeker.create(
-            STREAM_LENGTH,
-            XING_FRAME_POSITION,
-            xingFrameHeader,
-            new ParsableByteArray(XING_FRAME_PAYLOAD));
+            C.LENGTH_UNSET,
+            XingFrame.parse(xingFrameHeader, new ParsableByteArray(XING_FRAME_PAYLOAD)),
+            XING_FRAME_POSITION);
     xingFrameSize = xingFrameHeader.frameSize;
   }
 
