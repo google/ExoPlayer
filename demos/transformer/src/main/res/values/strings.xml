@@ -83,4 +83,5 @@
   <string name="preview" translatable="false">Preview</string>
   <string name="preview_single_sequence" translatable="false">Single sequence preview</string>
   <string name="single_sequence_items" translatable="false">Single sequence items:</string>
+  <string name="edit">Edit</string>
 </resources>
