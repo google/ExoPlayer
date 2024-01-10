@@ -517,16 +517,14 @@ public final class Mp3Extractor implements Extractor {
     switch (seekHeader) {
       case SEEK_HEADER_XING:
       case SEEK_HEADER_INFO:
-        seeker =
-            XingSeeker.create(input.getLength(), input.getPosition(), synchronizedHeader, frame);
-        if (seeker != null && !gaplessInfoHolder.hasGaplessInfo()) {
-          // If there is a Xing header, read gapless playback metadata at a fixed offset.
-          input.resetPeekPosition();
-          input.advancePeekPosition(xingBase + 141);
-          input.peekFully(scratch.getData(), 0, 3);
-          scratch.setPosition(0);
-          gaplessInfoHolder.setFromXingHeaderValue(scratch.readUnsignedInt24());
+        XingFrame xingFrame = XingFrame.parse(synchronizedHeader, frame);
+        if (!gaplessInfoHolder.hasGaplessInfo()
+            && xingFrame.encoderDelay != C.LENGTH_UNSET
+            && xingFrame.encoderPadding != C.LENGTH_UNSET) {
+          gaplessInfoHolder.encoderDelay = xingFrame.encoderDelay;
+          gaplessInfoHolder.encoderPadding = xingFrame.encoderPadding;
         }
+        seeker = XingSeeker.create(input.getLength(), xingFrame, input.getPosition());
         input.skipFully(synchronizedHeader.frameSize);
         if (seeker != null && !seeker.isSeekable() && seekHeader == SEEK_HEADER_INFO) {
           // Fall back to constant bitrate seeking for Info headers missing a table of contents.

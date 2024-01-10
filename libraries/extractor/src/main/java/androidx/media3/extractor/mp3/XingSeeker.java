@@ -19,9 +19,7 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.Log;
-import androidx.media3.common.util.ParsableByteArray;
 import androidx.media3.common.util.Util;
-import androidx.media3.extractor.MpegAudioUtil;
 import androidx.media3.extractor.SeekPoint;
 
 /** MP3 seeker that uses metadata from a Xing header. */
@@ -43,43 +41,33 @@ import androidx.media3.extractor.SeekPoint;
    *     information is not present.
    */
   @Nullable
-  public static XingSeeker create(
-      long inputLength,
-      long position,
-      MpegAudioUtil.Header mpegAudioHeader,
-      ParsableByteArray frame) {
-    int samplesPerFrame = mpegAudioHeader.samplesPerFrame;
-    int sampleRate = mpegAudioHeader.sampleRate;
-
-    int flags = frame.readInt();
-    int frameCount;
-    if ((flags & 0x01) != 0x01 || (frameCount = frame.readUnsignedIntToInt()) == 0) {
+  public static XingSeeker create(long inputLength, XingFrame xingFrame, long position) {
+    if (xingFrame.frameCount == C.LENGTH_UNSET && xingFrame.frameCount == 0) {
       // If the frame count is missing/invalid, the header can't be used to determine the duration.
       return null;
     }
+    // TODO: b/319235116 - Handle encoder delay and padding when calculating duration.
     // Audio requires both a start and end PCM sample, so subtract one from the sample count before
     // calculating the duration.
-    long durationUs = Util.sampleCountToDurationUs((frameCount * samplesPerFrame) - 1, sampleRate);
-    if ((flags & 0x06) != 0x06) {
+    long durationUs =
+        Util.sampleCountToDurationUs(
+            (xingFrame.frameCount * xingFrame.header.samplesPerFrame) - 1,
+            xingFrame.header.sampleRate);
+    if (xingFrame.dataSize == C.LENGTH_UNSET || xingFrame.tableOfContents == null) {
       // If the size in bytes or table of contents is missing, the stream is not seekable.
-      return new XingSeeker(position, mpegAudioHeader.frameSize, durationUs);
+      return new XingSeeker(position, xingFrame.header.frameSize, durationUs);
     }
 
-    long dataSize = frame.readUnsignedInt();
-    long[] tableOfContents = new long[100];
-    for (int i = 0; i < 100; i++) {
-      tableOfContents[i] = frame.readUnsignedByte();
-    }
-
-    // TODO: Handle encoder delay and padding in 3 bytes offset by xingBase + 213 bytes:
-    // delay = (frame.readUnsignedByte() << 4) + (frame.readUnsignedByte() >> 4);
-    // padding = ((frame.readUnsignedByte() & 0x0F) << 8) + frame.readUnsignedByte();
-
-    if (inputLength != C.LENGTH_UNSET && inputLength != position + dataSize) {
-      Log.w(TAG, "XING data size mismatch: " + inputLength + ", " + (position + dataSize));
+    if (inputLength != C.LENGTH_UNSET && inputLength != position + xingFrame.dataSize) {
+      Log.w(
+          TAG, "XING data size mismatch: " + inputLength + ", " + (position + xingFrame.dataSize));
     }
     return new XingSeeker(
-        position, mpegAudioHeader.frameSize, durationUs, dataSize, tableOfContents);
+        position,
+        xingFrame.header.frameSize,
+        durationUs,
+        xingFrame.dataSize,
+        xingFrame.tableOfContents);
   }
 
   private final long dataStartPosition;
