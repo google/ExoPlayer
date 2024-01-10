@@ -45,6 +45,8 @@ import com.google.android.exoplayer2.extractor.mp4.Atom.ContainerAtom;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.mp4.MotionPhotoMetadata;
 import com.google.android.exoplayer2.metadata.mp4.SlowMotionData;
+import com.google.android.exoplayer2.text.SubtitleParser;
+import com.google.android.exoplayer2.text.SubtitleTranscodingExtractorOutput;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.NalUnitUtil;
@@ -70,8 +72,19 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 @Deprecated
 public final class Mp4Extractor implements Extractor, SeekMap {
 
-  /** Factory for {@link Mp4Extractor} instances. */
+  /**
+   * @deprecated Use {@link #newFactory(SubtitleParser.Factory)} instead.
+   */
+  @Deprecated
   public static final ExtractorsFactory FACTORY = () -> new Extractor[] {new Mp4Extractor()};
+
+  /**
+   * Creates a factory for {@link Mp4Extractor} instances with the provided {@link
+   * SubtitleParser.Factory}.
+   */
+  public static ExtractorsFactory newFactory(SubtitleParser.Factory subtitleParserFactory) {
+    return () -> new Extractor[] {new Mp4Extractor(subtitleParserFactory)};
+  }
 
   /**
    * Flags controlling the behavior of the extractor. Possible flag values are {@link
@@ -87,7 +100,8 @@ public final class Mp4Extractor implements Extractor, SeekMap {
         FLAG_WORKAROUND_IGNORE_EDIT_LISTS,
         FLAG_READ_MOTION_PHOTO_METADATA,
         FLAG_READ_SEF_DATA,
-        FLAG_MARK_FIRST_VIDEO_TRACK_WITH_MAIN_ROLE
+        FLAG_MARK_FIRST_VIDEO_TRACK_WITH_MAIN_ROLE,
+        FLAG_EMIT_RAW_SUBTITLE_DATA
       })
   public @interface Flags {}
 
@@ -114,6 +128,8 @@ public final class Mp4Extractor implements Extractor, SeekMap {
    * video tracks as {@link C#ROLE_FLAG_ALTERNATE}.
    */
   public static final int FLAG_MARK_FIRST_VIDEO_TRACK_WITH_MAIN_ROLE = 1 << 3;
+
+  public static final int FLAG_EMIT_RAW_SUBTITLE_DATA = 1 << 4;
 
   /** Parser states. */
   @Documented
@@ -155,6 +171,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
    */
   private static final long MAXIMUM_READ_AHEAD_BYTES_STREAM = 10 * 1024 * 1024;
 
+  private final SubtitleParser.Factory subtitleParserFactory;
   private final @Flags int flags;
 
   // Temporary arrays.
@@ -189,18 +206,42 @@ public final class Mp4Extractor implements Extractor, SeekMap {
   private @FileType int fileType;
   @Nullable private MotionPhotoMetadata motionPhotoMetadata;
 
-  /** Creates a new extractor for unfragmented MP4 streams. */
+  /**
+   * @deprecated Use {@link #Mp4Extractor(SubtitleParser.Factory)} instead
+   */
+  @Deprecated
   public Mp4Extractor() {
-    this(/* flags= */ 0);
+    this(SubtitleParser.Factory.UNSUPPORTED, /* flags= */ FLAG_EMIT_RAW_SUBTITLE_DATA);
+  }
+
+  /**
+   * Creates a new extractor for unfragmented MP4 streams.
+   *
+   * @param subtitleParserFactory The {@link SubtitleParser.Factory} for parsing subtitles during
+   *     extraction.
+   */
+  public Mp4Extractor(SubtitleParser.Factory subtitleParserFactory) {
+    this(subtitleParserFactory, /* flags= */ 0);
+  }
+
+  /**
+   * @deprecated Use {@link #Mp4Extractor(SubtitleParser.Factory, int)} instead
+   */
+  @Deprecated
+  public Mp4Extractor(@Flags int flags) {
+    this(SubtitleParser.Factory.UNSUPPORTED, flags);
   }
 
   /**
    * Creates a new extractor for unfragmented MP4 streams, using the specified flags to control the
    * extractor's behavior.
    *
+   * @param subtitleParserFactory The {@link SubtitleParser.Factory} for parsing subtitles during
+   *     extraction.
    * @param flags Flags that control the extractor's behavior.
    */
-  public Mp4Extractor(@Flags int flags) {
+  public Mp4Extractor(SubtitleParser.Factory subtitleParserFactory, @Flags int flags) {
+    this.subtitleParserFactory = subtitleParserFactory;
     this.flags = flags;
     parserState =
         ((flags & FLAG_READ_SEF_DATA) != 0) ? STATE_READING_SEF : STATE_READING_ATOM_HEADER;
@@ -224,7 +265,10 @@ public final class Mp4Extractor implements Extractor, SeekMap {
 
   @Override
   public void init(ExtractorOutput output) {
-    extractorOutput = output;
+    extractorOutput =
+        (flags & FLAG_EMIT_RAW_SUBTITLE_DATA) == 0
+            ? new SubtitleTranscodingExtractorOutput(output, subtitleParserFactory)
+            : output;
   }
 
   @Override

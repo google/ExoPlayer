@@ -33,6 +33,7 @@ import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.extractor.mp4.Mp4Extractor;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.mp4.MotionPhotoMetadata;
+import com.google.android.exoplayer2.text.SubtitleParser;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.io.IOException;
@@ -251,7 +252,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     } else {
       input.resetPeekPosition();
       if (mp4Extractor == null) {
-        mp4Extractor = new Mp4Extractor(FLAG_MARK_FIRST_VIDEO_TRACK_WITH_MAIN_ROLE);
+        mp4Extractor =
+            new Mp4Extractor(
+                SubtitleParser.Factory.UNSUPPORTED, FLAG_MARK_FIRST_VIDEO_TRACK_WITH_MAIN_ROLE);
       }
       mp4ExtractorStartOffsetExtractorInput =
           new StartOffsetExtractorInput(input, mp4StartPosition);
