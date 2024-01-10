@@ -31,6 +31,7 @@ import android.os.Handler;
 import androidx.annotation.DoNotInline;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.media3.common.AudioAttributes;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 
@@ -59,17 +60,21 @@ public final class AudioCapabilitiesReceiver {
   @Nullable private final BroadcastReceiver hdmiAudioPlugBroadcastReceiver;
   @Nullable private final ExternalSurroundSoundSettingObserver externalSurroundSoundSettingObserver;
 
-  @Nullable /* package */ AudioCapabilities audioCapabilities;
+  @Nullable private AudioCapabilities audioCapabilities;
+  private AudioAttributes audioAttributes;
   private boolean registered;
 
   /**
    * @param context A context for registering the receiver.
    * @param listener The listener to notify when audio capabilities change.
+   * @param audioAttributes The {@link AudioAttributes}.
    */
-  public AudioCapabilitiesReceiver(Context context, Listener listener) {
+  public AudioCapabilitiesReceiver(
+      Context context, Listener listener, AudioAttributes audioAttributes) {
     context = context.getApplicationContext();
     this.context = context;
     this.listener = checkNotNull(listener);
+    this.audioAttributes = audioAttributes;
     handler = Util.createHandlerForCurrentOrMainLooper();
     audioDeviceCallback = Util.SDK_INT >= 23 ? new AudioDeviceCallbackV23() : null;
     hdmiAudioPlugBroadcastReceiver =
@@ -80,6 +85,16 @@ public final class AudioCapabilitiesReceiver {
             ? new ExternalSurroundSoundSettingObserver(
                 handler, context.getContentResolver(), externalSurroundSoundUri)
             : null;
+  }
+
+  /**
+   * Updates the {@link AudioAttributes} used by this instance.
+   *
+   * @param audioAttributes The {@link AudioAttributes}.
+   */
+  public void setAudioAttributes(AudioAttributes audioAttributes) {
+    this.audioAttributes = audioAttributes;
+    onNewAudioCapabilities(AudioCapabilities.getCapabilities(context, audioAttributes));
   }
 
   /**
@@ -111,7 +126,7 @@ public final class AudioCapabilitiesReceiver {
               /* broadcastPermission= */ null,
               handler);
     }
-    audioCapabilities = AudioCapabilities.getCapabilities(context, stickyIntent);
+    audioCapabilities = AudioCapabilities.getCapabilities(context, stickyIntent, audioAttributes);
     return audioCapabilities;
   }
 
@@ -148,7 +163,7 @@ public final class AudioCapabilitiesReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
       if (!isInitialStickyBroadcast()) {
-        onNewAudioCapabilities(AudioCapabilities.getCapabilities(context, intent));
+        onNewAudioCapabilities(AudioCapabilities.getCapabilities(context, intent, audioAttributes));
       }
     }
   }
@@ -175,7 +190,7 @@ public final class AudioCapabilitiesReceiver {
 
     @Override
     public void onChange(boolean selfChange) {
-      onNewAudioCapabilities(AudioCapabilities.getCapabilities(context));
+      onNewAudioCapabilities(AudioCapabilities.getCapabilities(context, audioAttributes));
     }
   }
 
@@ -183,12 +198,12 @@ public final class AudioCapabilitiesReceiver {
   private final class AudioDeviceCallbackV23 extends AudioDeviceCallback {
     @Override
     public void onAudioDevicesAdded(AudioDeviceInfo[] addedDevices) {
-      onNewAudioCapabilities(AudioCapabilities.getCapabilities(context));
+      onNewAudioCapabilities(AudioCapabilities.getCapabilities(context, audioAttributes));
     }
 
     @Override
     public void onAudioDevicesRemoved(AudioDeviceInfo[] removedDevices) {
-      onNewAudioCapabilities(AudioCapabilities.getCapabilities(context));
+      onNewAudioCapabilities(AudioCapabilities.getCapabilities(context, audioAttributes));
     }
   }
 

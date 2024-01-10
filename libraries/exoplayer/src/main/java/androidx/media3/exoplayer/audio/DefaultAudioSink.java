@@ -559,7 +559,9 @@ public final class DefaultAudioSink implements AudioSink {
   @RequiresNonNull("#1.audioProcessorChain")
   private DefaultAudioSink(Builder builder) {
     context = builder.context;
-    audioCapabilities = context != null ? getCapabilities(context) : builder.audioCapabilities;
+    audioAttributes = AudioAttributes.DEFAULT;
+    audioCapabilities =
+        context != null ? getCapabilities(context, audioAttributes) : builder.audioCapabilities;
     audioProcessorChain = builder.audioProcessorChain;
     enableFloatOutput = Util.SDK_INT >= 21 && builder.enableFloatOutput;
     preferAudioTrackPlaybackParams = Util.SDK_INT >= 23 && builder.enableAudioTrackPlaybackParams;
@@ -576,7 +578,6 @@ public final class DefaultAudioSink implements AudioSink {
             new ToInt16PcmAudioProcessor(), channelMappingAudioProcessor, trimmingAudioProcessor);
     toFloatPcmAvailableAudioProcessors = ImmutableList.of(new ToFloatPcmAudioProcessor());
     volume = 1f;
-    audioAttributes = AudioAttributes.DEFAULT;
     audioSessionId = C.AUDIO_SESSION_ID_UNSET;
     auxEffectInfo = new AuxEffectInfo(AuxEffectInfo.NO_AUX_EFFECT_ID, 0f);
     mediaPositionParameters =
@@ -630,7 +631,7 @@ public final class DefaultAudioSink implements AudioSink {
       // guaranteed to support.
       return SINK_FORMAT_SUPPORTED_WITH_TRANSCODING;
     }
-    if (audioCapabilities.isPassthroughPlaybackSupported(format)) {
+    if (audioCapabilities.isPassthroughPlaybackSupported(format, audioAttributes)) {
       return SINK_FORMAT_SUPPORTED_DIRECTLY;
     }
     return SINK_FORMAT_UNSUPPORTED;
@@ -736,7 +737,8 @@ public final class DefaultAudioSink implements AudioSink {
         outputMode = OUTPUT_MODE_PASSTHROUGH;
         @Nullable
         Pair<Integer, Integer> encodingAndChannelConfig =
-            audioCapabilities.getEncodingAndChannelConfigForPassthrough(inputFormat);
+            audioCapabilities.getEncodingAndChannelConfigForPassthrough(
+                inputFormat, audioAttributes);
         if (encodingAndChannelConfig == null) {
           throw new ConfigurationException(
               "Unable to configure passthrough for: " + inputFormat, inputFormat);
@@ -1320,6 +1322,9 @@ public final class DefaultAudioSink implements AudioSink {
       // The audio attributes are ignored in tunneling mode, so no need to reset.
       return;
     }
+    if (audioCapabilitiesReceiver != null) {
+      audioCapabilitiesReceiver.setAudioAttributes(audioAttributes);
+    }
     flush();
   }
 
@@ -1711,7 +1716,7 @@ public final class DefaultAudioSink implements AudioSink {
       // current (playback) thread as the constructor is not called in the playback thread.
       playbackLooper = Looper.myLooper();
       audioCapabilitiesReceiver =
-          new AudioCapabilitiesReceiver(context, this::onAudioCapabilitiesChanged);
+          new AudioCapabilitiesReceiver(context, this::onAudioCapabilitiesChanged, audioAttributes);
       audioCapabilities = audioCapabilitiesReceiver.register();
     }
   }
