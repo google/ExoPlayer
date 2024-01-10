@@ -264,7 +264,7 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
   /**
    * Sets flags for {@link Mp4Extractor} instances created by the factory.
    *
-   * @see Mp4Extractor#Mp4Extractor(int)
+   * @see Mp4Extractor#Mp4Extractor(SubtitleParser.Factory, int)
    * @param flags The flags to use.
    * @return The factory, for convenience.
    */
@@ -440,6 +440,7 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
       result[i] =
           textTrackTranscodingEnabled
                   && !(extractor.getUnderlyingImplementation() instanceof FragmentedMp4Extractor)
+                  && !(extractor.getUnderlyingImplementation() instanceof Mp4Extractor)
               ? new SubtitleTranscodingExtractor(extractor, subtitleParserFactory)
               : extractor;
     }
@@ -509,7 +510,13 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
                     | (textTrackTranscodingEnabled
                         ? 0
                         : FragmentedMp4Extractor.FLAG_EMIT_RAW_SUBTITLE_DATA)));
-        extractors.add(new Mp4Extractor(mp4Flags));
+        extractors.add(
+            new Mp4Extractor(
+                subtitleParserFactory,
+                mp4Flags
+                    | (textTrackTranscodingEnabled
+                        ? 0
+                        : Mp4Extractor.FLAG_EMIT_RAW_SUBTITLE_DATA)));
         break;
       case FileTypes.OGG:
         extractors.add(new OggExtractor());
