@@ -16,7 +16,6 @@ android {
     namespace 'com.google.android.exoplayer2.effect'
 
     defaultConfig {
-        minSdkVersion 18
         // The following argument makes the Android Test Orchestrator run its
         // "pm clear" command after each test invocation. This command ensures
         // that the app's state is completely cleared between tests.
