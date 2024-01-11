@@ -56,7 +56,6 @@ class MediaSourceManager(
     preloadMediaSourceFactory =
       PreloadMediaSource.Factory(
         mediaSourceFactory,
-        PlayerId.UNSET,
         PreloadControlImpl(targetPreloadPositionUs = 5_000_000L),
         trackSelector,
         bandwidthMeter,
