@@ -24,6 +24,7 @@ import androidx.media3.extractor.Extractor;
 import androidx.media3.extractor.ExtractorInput;
 import androidx.media3.extractor.PositionHolder;
 import androidx.media3.extractor.SeekMap;
+import androidx.media3.extractor.text.DefaultSubtitleParserFactory;
 import androidx.media3.test.utils.FakeExtractorOutput;
 import androidx.media3.test.utils.FakeTrackOutput;
 import androidx.media3.test.utils.TestUtil;
@@ -56,7 +57,9 @@ public final class TsExtractorSeekTest {
     positionHolder = new PositionHolder();
     expectedTrackOutput =
         TestUtil.extractAllSamplesFromFile(
-                new TsExtractor(), ApplicationProvider.getApplicationContext(), TEST_FILE)
+                new TsExtractor(new DefaultSubtitleParserFactory()),
+                ApplicationProvider.getApplicationContext(),
+                TEST_FILE)
             .trackOutputs
             .get(AUDIO_TRACK_ID);
 
@@ -68,7 +71,7 @@ public final class TsExtractorSeekTest {
   @Test
   public void tsExtractorReads_nonSeekTableFile_returnSeekableSeekMap() throws IOException {
     Uri fileUri = TestUtil.buildAssetUri(TEST_FILE);
-    TsExtractor extractor = new TsExtractor();
+    TsExtractor extractor = new TsExtractor(new DefaultSubtitleParserFactory());
 
     SeekMap seekMap =
         TestUtil.extractSeekMap(extractor, new FakeExtractorOutput(), dataSource, fileUri);
@@ -81,7 +84,7 @@ public final class TsExtractorSeekTest {
   @Test
   public void handlePendingSeek_handlesSeekingToPositionInFile_extractsCorrectFrame()
       throws IOException {
-    TsExtractor extractor = new TsExtractor();
+    TsExtractor extractor = new TsExtractor(new DefaultSubtitleParserFactory());
     Uri fileUri = TestUtil.buildAssetUri(TEST_FILE);
 
     FakeExtractorOutput extractorOutput = new FakeExtractorOutput();
@@ -100,7 +103,7 @@ public final class TsExtractorSeekTest {
 
   @Test
   public void handlePendingSeek_handlesSeekToEoF_extractsLastFrame() throws IOException {
-    TsExtractor extractor = new TsExtractor();
+    TsExtractor extractor = new TsExtractor(new DefaultSubtitleParserFactory());
     Uri fileUri = TestUtil.buildAssetUri(TEST_FILE);
 
     FakeExtractorOutput extractorOutput = new FakeExtractorOutput();
@@ -120,7 +123,7 @@ public final class TsExtractorSeekTest {
 
   @Test
   public void handlePendingSeek_handlesSeekingBackward_extractsCorrectFrame() throws IOException {
-    TsExtractor extractor = new TsExtractor();
+    TsExtractor extractor = new TsExtractor(new DefaultSubtitleParserFactory());
     Uri fileUri = TestUtil.buildAssetUri(TEST_FILE);
 
     FakeExtractorOutput extractorOutput = new FakeExtractorOutput();
@@ -142,7 +145,7 @@ public final class TsExtractorSeekTest {
 
   @Test
   public void handlePendingSeek_handlesSeekingForward_extractsCorrectFrame() throws IOException {
-    TsExtractor extractor = new TsExtractor();
+    TsExtractor extractor = new TsExtractor(new DefaultSubtitleParserFactory());
     Uri fileUri = TestUtil.buildAssetUri(TEST_FILE);
 
     FakeExtractorOutput extractorOutput = new FakeExtractorOutput();
@@ -164,7 +167,7 @@ public final class TsExtractorSeekTest {
 
   @Test
   public void handlePendingSeek_handlesRandomSeeks_extractsCorrectFrame() throws IOException {
-    TsExtractor extractor = new TsExtractor();
+    TsExtractor extractor = new TsExtractor(new DefaultSubtitleParserFactory());
     Uri fileUri = TestUtil.buildAssetUri(TEST_FILE);
 
     FakeExtractorOutput extractorOutput = new FakeExtractorOutput();
@@ -187,7 +190,7 @@ public final class TsExtractorSeekTest {
   @Test
   public void handlePendingSeek_handlesRandomSeeksAfterReadingFileOnce_extractsCorrectFrame()
       throws IOException {
-    TsExtractor extractor = new TsExtractor();
+    TsExtractor extractor = new TsExtractor(new DefaultSubtitleParserFactory());
     Uri fileUri = TestUtil.buildAssetUri(TEST_FILE);
 
     FakeExtractorOutput extractorOutput = new FakeExtractorOutput();
