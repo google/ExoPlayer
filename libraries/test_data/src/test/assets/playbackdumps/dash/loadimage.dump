@@ -1,5 +1,194 @@
 ImageOutput:
-  rendered image count = 1
+  rendered image count = 64
   image output #1:
     presentationTimeUs = 0
-    bitmap hash = 90169190
+    bitmap hash = 1662699756
+  image output #2:
+    presentationTimeUs = 937500
+    bitmap hash = -1574796305
+  image output #3:
+    presentationTimeUs = 1875000
+    bitmap hash = 113939771
+  image output #4:
+    presentationTimeUs = 2812500
+    bitmap hash = -1947261277
+  image output #5:
+    presentationTimeUs = 3750000
+    bitmap hash = 516207300
+  image output #6:
+    presentationTimeUs = 4687500
+    bitmap hash = -1362626860
+  image output #7:
+    presentationTimeUs = 5625000
+    bitmap hash = 1681263366
+  image output #8:
+    presentationTimeUs = 6562500
+    bitmap hash = -2107026381
+  image output #9:
+    presentationTimeUs = 7500000
+    bitmap hash = -1582997950
+  image output #10:
+    presentationTimeUs = 8437500
+    bitmap hash = -1077263789
+  image output #11:
+    presentationTimeUs = 9375000
+    bitmap hash = 1900793242
+  image output #12:
+    presentationTimeUs = 10312500
+    bitmap hash = -310799297
+  image output #13:
+    presentationTimeUs = 11250000
+    bitmap hash = 1499050092
+  image output #14:
+    presentationTimeUs = 12187500
+    bitmap hash = -889397582
+  image output #15:
+    presentationTimeUs = 13125000
+    bitmap hash = -522250446
+  image output #16:
+    presentationTimeUs = 14062500
+    bitmap hash = -581506812
+  image output #17:
+    presentationTimeUs = 15000000
+    bitmap hash = -767045995
+  image output #18:
+    presentationTimeUs = 15937500
+    bitmap hash = -1205030348
+  image output #19:
+    presentationTimeUs = 16875000
+    bitmap hash = 1338041318
+  image output #20:
+    presentationTimeUs = 17812500
+    bitmap hash = 1352738203
+  image output #21:
+    presentationTimeUs = 18750000
+    bitmap hash = 883432223
+  image output #22:
+    presentationTimeUs = 19687500
+    bitmap hash = -535832768
+  image output #23:
+    presentationTimeUs = 20625000
+    bitmap hash = -1338903762
+  image output #24:
+    presentationTimeUs = 21562500
+    bitmap hash = -125811797
+  image output #25:
+    presentationTimeUs = 22500000
+    bitmap hash = 549453620
+  image output #26:
+    presentationTimeUs = 23437500
+    bitmap hash = 1677558048
+  image output #27:
+    presentationTimeUs = 24375000
+    bitmap hash = -256549269
+  image output #28:
+    presentationTimeUs = 25312500
+    bitmap hash = -630960808
+  image output #29:
+    presentationTimeUs = 26250000
+    bitmap hash = 1015145670
+  image output #30:
+    presentationTimeUs = 27187500
+    bitmap hash = -1795307136
+  image output #31:
+    presentationTimeUs = 28125000
+    bitmap hash = 1272159394
+  image output #32:
+    presentationTimeUs = 29062500
+    bitmap hash = -93678600
+  image output #33:
+    presentationTimeUs = 30000000
+    bitmap hash = -600076145
+  image output #34:
+    presentationTimeUs = 30937500
+    bitmap hash = -97251290
+  image output #35:
+    presentationTimeUs = 31875000
+    bitmap hash = 1281484249
+  image output #36:
+    presentationTimeUs = 32812500
+    bitmap hash = -1728867849
+  image output #37:
+    presentationTimeUs = 33750000
+    bitmap hash = 380034424
+  image output #38:
+    presentationTimeUs = 34687500
+    bitmap hash = 1913328953
+  image output #39:
+    presentationTimeUs = 35625000
+    bitmap hash = 1616828465
+  image output #40:
+    presentationTimeUs = 36562500
+    bitmap hash = 1579225474
+  image output #41:
+    presentationTimeUs = 37500000
+    bitmap hash = -1263537508
+  image output #42:
+    presentationTimeUs = 38437500
+    bitmap hash = 1469560805
+  image output #43:
+    presentationTimeUs = 39375000
+    bitmap hash = -1949117971
+  image output #44:
+    presentationTimeUs = 40312500
+    bitmap hash = 1890332461
+  image output #45:
+    presentationTimeUs = 41250000
+    bitmap hash = 381486112
+  image output #46:
+    presentationTimeUs = 42187500
+    bitmap hash = 943544370
+  image output #47:
+    presentationTimeUs = 43125000
+    bitmap hash = -449507486
+  image output #48:
+    presentationTimeUs = 44062500
+    bitmap hash = -1456959112
+  image output #49:
+    presentationTimeUs = 45000000
+    bitmap hash = -919717716
+  image output #50:
+    presentationTimeUs = 45937500
+    bitmap hash = -1852787702
+  image output #51:
+    presentationTimeUs = 46875000
+    bitmap hash = 2000481270
+  image output #52:
+    presentationTimeUs = 47812500
+    bitmap hash = 1399518428
+  image output #53:
+    presentationTimeUs = 48750000
+    bitmap hash = -158658633
+  image output #54:
+    presentationTimeUs = 49687500
+    bitmap hash = 587265344
+  image output #55:
+    presentationTimeUs = 50625000
+    bitmap hash = -1857190760
+  image output #56:
+    presentationTimeUs = 51562500
+    bitmap hash = -392855012
+  image output #57:
+    presentationTimeUs = 52500000
+    bitmap hash = -1222466861
+  image output #58:
+    presentationTimeUs = 53437500
+    bitmap hash = 2060648653
+  image output #59:
+    presentationTimeUs = 54375000
+    bitmap hash = 1407821609
+  image output #60:
+    presentationTimeUs = 55312500
+    bitmap hash = -1744072926
+  image output #61:
+    presentationTimeUs = 56250000
+    bitmap hash = -1355216794
+  image output #62:
+    presentationTimeUs = 57187500
+    bitmap hash = -7610058
+  image output #63:
+    presentationTimeUs = 58125000
+    bitmap hash = 1362483058
+  image output #64:
+    presentationTimeUs = 59062500
+    bitmap hash = 442567684

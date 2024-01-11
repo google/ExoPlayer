@@ -15,8 +15,6 @@
  */
 package androidx.media3.exoplayer.source.chunk;
 
-import static androidx.media3.common.C.BUFFER_FLAG_KEY_FRAME;
-
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
@@ -171,11 +169,7 @@ public class ContainerMediaChunk extends BaseMediaChunk {
       long tileStartTimeUs = i * tileDurationUs;
       trackOutput.sampleData(new ParsableByteArray(), /* length= */ 0);
       trackOutput.sampleMetadata(
-          tileStartTimeUs,
-          /* flags= */ BUFFER_FLAG_KEY_FRAME,
-          /* size= */ 0,
-          /* offset= */ 0,
-          /* cryptoData= */ null);
+          tileStartTimeUs, /* flags= */ 0, /* size= */ 0, /* offset= */ 0, /* cryptoData= */ null);
     }
   }
 }

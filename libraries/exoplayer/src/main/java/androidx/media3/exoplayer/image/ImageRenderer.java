@@ -46,6 +46,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
@@ -83,6 +84,11 @@ public class ImageRenderer extends BaseRenderer {
    */
   private static final int REINITIALIZATION_STATE_WAIT_END_OF_STREAM = 3;
 
+  /**
+   * A time threshold, in microseconds, for the window during which an image should be presented.
+   */
+  private static final long IMAGE_PRESENTATION_WINDOW_THRESHOLD_US = 30_000;
+
   private final ImageDecoder.Factory decoderFactory;
   private final DecoderInputBuffer flagsOnlyBuffer;
   private final LongArrayQueue offsetQueue;
@@ -94,8 +100,12 @@ public class ImageRenderer extends BaseRenderer {
   private @Nullable Format inputFormat;
   private @Nullable ImageDecoder decoder;
   private @Nullable DecoderInputBuffer inputBuffer;
-  private @Nullable ImageOutputBuffer outputBuffer;
   private ImageOutput imageOutput;
+  private @Nullable Bitmap outputBitmap;
+  private boolean readyToOutputTiles;
+  private @Nullable TileInfo tileInfo;
+  private @Nullable TileInfo nextTileInfo;
+  private int currentTileIndex;
 
   /**
    * Creates an instance.
@@ -156,8 +166,8 @@ public class ImageRenderer extends BaseRenderer {
     try {
       // Rendering loop.
       TraceUtil.beginSection("drainAndFeedDecoder");
-      while (drainOutputBuffer(positionUs, elapsedRealtimeUs)) {}
-      while (feedInputBuffer()) {}
+      while (drainOutput(positionUs, elapsedRealtimeUs)) {}
+      while (feedInputBuffer(positionUs)) {}
       TraceUtil.endSection();
     } catch (ImageDecoderException e) {
       throw createRendererException(e, null, PlaybackException.ERROR_CODE_DECODING_FAILED);
@@ -168,7 +178,7 @@ public class ImageRenderer extends BaseRenderer {
   public boolean isReady() {
     return firstFrameState == FIRST_FRAME_RENDERED
         || (firstFrameState == FIRST_FRAME_NOT_RENDERED_ONLY_ALLOWED_IF_STARTED
-            && outputBuffer != null);
+            && readyToOutputTiles);
   }
 
   @Override
@@ -198,8 +208,18 @@ public class ImageRenderer extends BaseRenderer {
   }
 
   @Override
-  protected void onPositionReset(long positionUs, boolean joining) {
+  protected void onPositionReset(long positionUs, boolean joining) throws ExoPlaybackException {
     lowerFirstFrameState(FIRST_FRAME_NOT_RENDERED);
+    outputStreamEnded = false;
+    inputStreamEnded = false;
+    outputBitmap = null;
+    tileInfo = null;
+    nextTileInfo = null;
+    readyToOutputTiles = false;
+    inputBuffer = null;
+    if (decoder != null) {
+      decoder.flush();
+    }
   }
 
   @Override
@@ -238,63 +258,108 @@ public class ImageRenderer extends BaseRenderer {
   }
 
   /**
-   * Attempts to dequeue an output buffer from the decoder and, if successful and permitted to,
-   * renders it.
+   * Checks if there is data to output. If there is no data to output, it attempts dequeuing the
+   * output buffer from the decoder. If there is data to output, it attempts to render it.
    *
    * @param positionUs The player's current position.
    * @param elapsedRealtimeUs {@link android.os.SystemClock#elapsedRealtime()} in microseconds,
    *     measured at the start of the current iteration of the rendering loop.
-   * @return Whether it may be possible to drain more output data.
+   * @return Whether it may be possible to output more data.
    * @throws ImageDecoderException If an error occurs draining the output buffer.
    */
-  private boolean drainOutputBuffer(long positionUs, long elapsedRealtimeUs)
+  private boolean drainOutput(long positionUs, long elapsedRealtimeUs)
       throws ImageDecoderException, ExoPlaybackException {
-    if (outputBuffer == null) {
-      checkStateNotNull(decoder);
-      outputBuffer = decoder.dequeueOutputBuffer();
-      if (outputBuffer == null) {
-        return false;
-      }
+    // If tileInfo and outputBitmap are both null, we must not return early. The EOS may have been
+    // queued to the decoder, and we must stay in this method to deque it further down.
+    if (outputBitmap != null && tileInfo == null) {
+      return false;
     }
     if (firstFrameState == FIRST_FRAME_NOT_RENDERED_ONLY_ALLOWED_IF_STARTED
         && getState() != STATE_STARTED) {
       return false;
     }
-    if (checkStateNotNull(outputBuffer).isEndOfStream()) {
-      offsetQueue.remove();
-      if (decoderReinitializationState == REINITIALIZATION_STATE_WAIT_END_OF_STREAM) {
-        // We're waiting to re-initialize the decoder, and have now processed all final buffers.
-        releaseDecoderResources();
-        checkStateNotNull(inputFormat);
-        initDecoder();
-      } else {
-        checkStateNotNull(outputBuffer).release();
-        outputBuffer = null;
-        if (offsetQueue.isEmpty()) {
-          outputStreamEnded = true;
-        }
+    if (outputBitmap == null) {
+      checkStateNotNull(decoder);
+      ImageOutputBuffer outputBuffer = decoder.dequeueOutputBuffer();
+      if (outputBuffer == null) {
+        return false;
       }
-      return false;
+      if (checkStateNotNull(outputBuffer).isEndOfStream()) {
+        offsetQueue.remove();
+        if (decoderReinitializationState == REINITIALIZATION_STATE_WAIT_END_OF_STREAM) {
+          // We're waiting to re-initialize the decoder, and have now processed all final buffers.
+          releaseDecoderResources();
+          checkStateNotNull(inputFormat);
+          initDecoder();
+        } else {
+          checkStateNotNull(outputBuffer).release();
+          if (offsetQueue.isEmpty()) {
+            outputStreamEnded = true;
+          }
+        }
+        return false;
+      }
+      checkStateNotNull(
+          outputBuffer.bitmap, "Non-EOS buffer came back from the decoder without bitmap.");
+      outputBitmap = outputBuffer.bitmap;
+      checkStateNotNull(outputBuffer).release();
     }
 
-    ImageOutputBuffer imageOutputBuffer = checkStateNotNull(outputBuffer);
-    checkStateNotNull(
-        imageOutputBuffer.bitmap, "Non-EOS buffer came back from the decoder without bitmap.");
-    if (!processOutputBuffer(
-        positionUs, elapsedRealtimeUs, imageOutputBuffer.bitmap, imageOutputBuffer.timeUs)) {
-      return false;
+    if (readyToOutputTiles && outputBitmap != null && tileInfo != null) {
+      checkStateNotNull(inputFormat);
+      boolean isThumbnailGrid =
+          (inputFormat.tileCountHorizontal != 1 || inputFormat.tileCountVertical != 1)
+              && inputFormat.tileCountHorizontal != Format.NO_VALUE
+              && inputFormat.tileCountVertical != Format.NO_VALUE;
+      // Lazily crop and store the bitmap to ensure we only have one tile in memory rather than
+      // proactively storing a tile whenever creating TileInfos.
+      if (!tileInfo.hasTileBitmap()) {
+        tileInfo.setTileBitmap(
+            isThumbnailGrid
+                ? cropTileFromImageGrid(tileInfo.getTileIndex())
+                : checkStateNotNull(outputBitmap));
+      }
+      if (!processOutputBuffer(
+          positionUs,
+          elapsedRealtimeUs,
+          checkStateNotNull(tileInfo.getTileBitmap()),
+          tileInfo.getPresentationTimeUs())) {
+        return false;
+      }
+      firstFrameState = FIRST_FRAME_RENDERED;
+      if (!isThumbnailGrid
+          || checkStateNotNull(tileInfo).getTileIndex()
+              == checkStateNotNull(inputFormat).tileCountVertical
+                      * checkStateNotNull(inputFormat).tileCountHorizontal
+                  - 1) {
+        outputBitmap = null;
+      }
+      tileInfo = nextTileInfo;
+      nextTileInfo = null;
+      return true;
     }
-    checkStateNotNull(outputBuffer).release();
-    outputBuffer = null;
-    firstFrameState = FIRST_FRAME_RENDERED;
-    return true;
+    return false;
+  }
+
+  private boolean shouldForceRender() {
+    boolean isStarted = getState() == STATE_STARTED;
+    switch (firstFrameState) {
+      case C.FIRST_FRAME_NOT_RENDERED_ONLY_ALLOWED_IF_STARTED:
+        return isStarted;
+      case C.FIRST_FRAME_NOT_RENDERED:
+        return true;
+      case C.FIRST_FRAME_RENDERED:
+        return false;
+      default:
+        throw new IllegalStateException();
+    }
   }
 
   /**
    * Processes an output image.
    *
-   * @param positionUs The current media time in microseconds, measured at the start of the current
-   *     iteration of the rendering loop.
+   * @param positionUs The current playback position in microseconds, measured at the start of the
+   *     current iteration of the rendering loop.
    * @param elapsedRealtimeUs {@link SystemClock#elapsedRealtime()} in microseconds, measured at the
    *     start of the current iteration of the rendering loop.
    * @param outputBitmap The {@link Bitmap}.
@@ -305,18 +370,25 @@ public class ImageRenderer extends BaseRenderer {
   protected boolean processOutputBuffer(
       long positionUs, long elapsedRealtimeUs, Bitmap outputBitmap, long bufferPresentationTimeUs)
       throws ExoPlaybackException {
-    if (positionUs < bufferPresentationTimeUs) {
-      // It's too early to render the buffer.
-      return false;
+    // TODO: b/319484746 - ImageRenderer should consider startPositionUs when choosing to output an
+    // image.
+    long earlyUs = bufferPresentationTimeUs - positionUs;
+    if (shouldForceRender() || earlyUs < IMAGE_PRESENTATION_WINDOW_THRESHOLD_US) {
+      imageOutput.onImageAvailable(bufferPresentationTimeUs - offsetQueue.element(), outputBitmap);
+      return true;
     }
-    imageOutput.onImageAvailable(bufferPresentationTimeUs - offsetQueue.element(), outputBitmap);
-    return true;
+    return false;
   }
 
   /**
+   * @param positionUs The current playback position in microseconds, measured at the start of the
+   *     current iteration of the rendering loop.
    * @return Whether we can feed more input data to the decoder.
    */
-  private boolean feedInputBuffer() throws ImageDecoderException {
+  private boolean feedInputBuffer(long positionUs) throws ImageDecoderException {
+    if (readyToOutputTiles && tileInfo != null) {
+      return false;
+    }
     FormatHolder formatHolder = getFormatHolder();
     if (decoder == null
         || decoderReinitializationState == REINITIALIZATION_STATE_WAIT_END_OF_STREAM
@@ -349,8 +421,12 @@ public class ImageRenderer extends BaseRenderer {
             checkStateNotNull(inputBuffer.data).remaining() > 0
                 || checkStateNotNull(inputBuffer).isEndOfStream();
         if (shouldQueueBuffer) {
+          // TODO: b/318696449 - Don't use the deprecated BUFFER_FLAG_DECODE_ONLY with image chunks.
+          checkStateNotNull(inputBuffer).clearFlag(C.BUFFER_FLAG_DECODE_ONLY);
           checkStateNotNull(decoder).queueInputBuffer(checkStateNotNull(inputBuffer));
+          currentTileIndex = 0;
         }
+        maybeAdvanceTileInfo(positionUs, checkStateNotNull(inputBuffer));
         if (checkStateNotNull(inputBuffer).isEndOfStream()) {
           inputStreamEnded = true;
           inputBuffer = null;
@@ -363,7 +439,7 @@ public class ImageRenderer extends BaseRenderer {
         } else {
           checkStateNotNull(inputBuffer).clear();
         }
-        return true;
+        return !readyToOutputTiles;
       case C.RESULT_FORMAT_READ:
         inputFormat = checkStateNotNull(formatHolder.format);
         decoderReinitializationState = REINITIALIZATION_STATE_SIGNAL_END_OF_STREAM_THEN_WAIT;
@@ -401,10 +477,6 @@ public class ImageRenderer extends BaseRenderer {
 
   private void releaseDecoderResources() {
     inputBuffer = null;
-    if (outputBuffer != null) {
-      outputBuffer.release();
-    }
-    outputBuffer = null;
     decoderReinitializationState = REINITIALIZATION_STATE_NONE;
     if (decoder != null) {
       decoder.release();
@@ -416,7 +488,72 @@ public class ImageRenderer extends BaseRenderer {
     this.imageOutput = getImageOutput(imageOutput);
   }
 
+  private void maybeAdvanceTileInfo(long positionUs, DecoderInputBuffer inputBuffer) {
+    if (inputBuffer.isEndOfStream()) {
+      readyToOutputTiles = true;
+      return;
+    }
+    nextTileInfo = new TileInfo(currentTileIndex, inputBuffer.timeUs);
+    currentTileIndex++;
+    // TODO: b/319484746 - ImageRenderer should consider startPositionUs when choosing to output an
+    // image.
+    if (nextTileInfo.getPresentationTimeUs() - IMAGE_PRESENTATION_WINDOW_THRESHOLD_US <= positionUs
+        && positionUs
+            <= nextTileInfo.getPresentationTimeUs() + IMAGE_PRESENTATION_WINDOW_THRESHOLD_US) {
+      readyToOutputTiles = true;
+    } else if (tileInfo != null
+        && nextTileInfo != null
+        && tileInfo.getPresentationTimeUs() <= positionUs
+        && positionUs < checkStateNotNull(nextTileInfo).getPresentationTimeUs()) {
+      readyToOutputTiles = true;
+      return;
+    }
+    tileInfo = nextTileInfo;
+    nextTileInfo = null;
+  }
+
+  private Bitmap cropTileFromImageGrid(int tileIndex) {
+    checkStateNotNull(outputBitmap);
+    int tileWidth = outputBitmap.getWidth() / checkStateNotNull(inputFormat).tileCountHorizontal;
+    int tileHeight = outputBitmap.getHeight() / checkStateNotNull(inputFormat).tileCountVertical;
+    int tileStartXCoordinate = tileWidth * (tileIndex % inputFormat.tileCountVertical);
+    int tileStartYCoordinate = tileHeight * (tileIndex / inputFormat.tileCountHorizontal);
+    return Bitmap.createBitmap(
+        outputBitmap, tileStartXCoordinate, tileStartYCoordinate, tileWidth, tileHeight);
+  }
+
   private static ImageOutput getImageOutput(@Nullable ImageOutput imageOutput) {
     return imageOutput == null ? ImageOutput.NO_OP : imageOutput;
+  }
+
+  private static class TileInfo {
+    private final int tileIndex;
+    private final long presentationTimeUs;
+    private @MonotonicNonNull Bitmap tileBitmap;
+
+    public TileInfo(int tileIndex, long presentationTimeUs) {
+      this.tileIndex = tileIndex;
+      this.presentationTimeUs = presentationTimeUs;
+    }
+
+    public int getTileIndex() {
+      return this.tileIndex;
+    }
+
+    public long getPresentationTimeUs() {
+      return presentationTimeUs;
+    }
+
+    public @Nullable Bitmap getTileBitmap() {
+      return tileBitmap;
+    }
+
+    public void setTileBitmap(Bitmap tileBitmap) {
+      this.tileBitmap = tileBitmap;
+    }
+
+    public boolean hasTileBitmap() {
+      return tileBitmap != null;
+    }
   }
 }

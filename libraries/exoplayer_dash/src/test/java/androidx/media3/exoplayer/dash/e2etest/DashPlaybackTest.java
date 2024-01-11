@@ -322,6 +322,11 @@ public final class DashPlaybackTest {
         applicationContext, playbackOutput, "playbackdumps/dash/metadata_from_early_output.dump");
   }
 
+  /**
+   * This test might be flaky. The {@link ExoPlayer} instantiated in this test uses a {@link
+   * FakeClock} that runs much faster than real time. This might cause the {@link ExoPlayer} to skip
+   * and not present some images. That will cause the test to fail.
+   */
   @Test
   public void playThumbnailGrid() throws Exception {
     Context applicationContext = ApplicationProvider.getApplicationContext();

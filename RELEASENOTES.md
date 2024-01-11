@@ -162,6 +162,10 @@ This release includes the following changes since the
     *   Catch `OutOfMemoryError` when parsing very large ID3 frames, meaning
         playback can continue without the tag info instead of playback failing
         completely.
+*   Image:
+    *   Add support for DASH thumbnails. Grid images are cropped and individual
+        thumbnails are provided to `ImageOutput` close to their presentation
+        times.
 *   DRM:
     *   Extend workaround for spurious ClearKey `https://default.url` license
         URL to API 33+ (previously the workaround only applied on API 33
