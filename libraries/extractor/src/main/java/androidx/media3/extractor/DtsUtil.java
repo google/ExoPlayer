@@ -60,21 +60,22 @@ public final class DtsUtil {
   private static final byte FIRST_BYTE_LE = (byte) (SYNC_VALUE_LE >>> 24);
   private static final byte FIRST_BYTE_14B_LE = (byte) (SYNC_VALUE_14B_LE >>> 24);
 
-  /** Maps AMODE to the number of channels. See ETSI TS 102 114 table 5.4. */
+  /** Maps AMODE to the number of channels. See ETSI TS 102 114 table 5-4. */
   private static final int[] CHANNELS_BY_AMODE =
       new int[] {1, 2, 2, 2, 2, 3, 3, 4, 4, 5, 6, 6, 6, 7, 8, 8};
 
-  /** Maps SFREQ to the sampling frequency in Hz. See ETSI TS 102 144 table 5.5. */
+  /** Maps SFREQ to the sampling frequency in Hz. See ETSI TS 102 114 table 5-5. */
   private static final int[] SAMPLE_RATE_BY_SFREQ =
       new int[] {
-        -1, 8000, 16000, 32000, -1, -1, 11025, 22050, 44100, -1, -1, 12000, 24000, 48000, -1, -1
+        -1, 8_000, 16_000, 32_000, -1, -1, 11_025, 22_050, 44_100, -1, -1, 12_000, 24_000, 48_000,
+        -1, -1
       };
 
-  /** Maps RATE to 2 * bitrate in kbit/s. See ETSI TS 102 144 table 5.7. */
+  /** Maps RATE to 2 * bitrate in kbit/s. See ETSI TS 102 114 table 5-7. */
   private static final int[] TWICE_BITRATE_KBPS_BY_RATE =
       new int[] {
-        64, 112, 128, 192, 224, 256, 384, 448, 512, 640, 768, 896, 1024, 1152, 1280, 1536, 1920,
-        2048, 2304, 2560, 2688, 2816, 2823, 2944, 3072, 3840, 4096, 6144, 7680
+        64, 112, 128, 192, 224, 256, 384, 448, 512, 640, 768, 896, 1_024, 1_152, 1_280, 1_536,
+        1_920, 2_048, 2_304, 2_560, 2_688, 2_816, 2_823, 2_944, 3_072, 3_840, 4_096, 6_144, 7_680
       };
 
   /**
