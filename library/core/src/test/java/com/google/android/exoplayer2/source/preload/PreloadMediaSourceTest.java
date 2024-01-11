@@ -77,14 +77,13 @@ public final class PreloadMediaSourceTest {
   private static final int LOADING_CHECK_INTERVAL_BYTES = 10 * 1024;
   private static final int TARGET_PRELOAD_POSITION_US = 10000;
 
-  private PlayerId playerId;
   private Allocator allocator;
   private BandwidthMeter bandwidthMeter;
   private RenderersFactory renderersFactory;
+  private PlayerId playerId;
 
   @Before
   public void setUp() {
-    playerId = new PlayerId();
     allocator = new DefaultAllocator(/* trimOnReset= */ true, C.DEFAULT_BUFFER_SEGMENT_SIZE);
     bandwidthMeter =
         new DefaultBandwidthMeter.Builder(ApplicationProvider.getApplicationContext()).build();
@@ -98,6 +97,7 @@ public final class PreloadMediaSourceTest {
                   SystemClock.DEFAULT.createHandler(handler.getLooper(), /* callback= */ null),
                   audioListener)
             };
+    playerId = new PlayerId();
   }
 
   @Test
@@ -141,7 +141,6 @@ public final class PreloadMediaSourceTest {
     PreloadMediaSource.Factory preloadMediaSourceFactory =
         new PreloadMediaSource.Factory(
             mediaSourceFactory,
-            playerId,
             preloadControl,
             trackSelector,
             bandwidthMeter,
@@ -200,7 +199,6 @@ public final class PreloadMediaSourceTest {
     PreloadMediaSource.Factory preloadMediaSourceFactory =
         new PreloadMediaSource.Factory(
             mediaSourceFactory,
-            playerId,
             preloadControl,
             trackSelector,
             bandwidthMeter,
@@ -258,7 +256,6 @@ public final class PreloadMediaSourceTest {
     PreloadMediaSource.Factory preloadMediaSourceFactory =
         new PreloadMediaSource.Factory(
             mediaSourceFactory,
-            playerId,
             preloadControl,
             trackSelector,
             bandwidthMeter,
@@ -308,7 +305,6 @@ public final class PreloadMediaSourceTest {
     PreloadMediaSource.Factory preloadMediaSourceFactory =
         new PreloadMediaSource.Factory(
             new FakeMediaSourceFactory(),
-            playerId,
             preloadControl,
             trackSelector,
             bandwidthMeter,
@@ -371,7 +367,6 @@ public final class PreloadMediaSourceTest {
     PreloadMediaSource.Factory preloadMediaSourceFactory =
         new PreloadMediaSource.Factory(
             mediaSourceFactory,
-            playerId,
             preloadControl,
             trackSelector,
             bandwidthMeter,
@@ -435,7 +430,6 @@ public final class PreloadMediaSourceTest {
     PreloadMediaSource.Factory preloadMediaSourceFactory =
         new PreloadMediaSource.Factory(
             mediaSourceFactory,
-            playerId,
             preloadControl,
             trackSelector,
             bandwidthMeter,
@@ -534,7 +528,6 @@ public final class PreloadMediaSourceTest {
     PreloadMediaSource.Factory preloadMediaSourceFactory =
         new PreloadMediaSource.Factory(
             mockMediaSourceFactory,
-            playerId,
             preloadControl,
             mockTrackSelector,
             bandwidthMeter,
@@ -642,7 +635,6 @@ public final class PreloadMediaSourceTest {
     PreloadMediaSource.Factory preloadMediaSourceFactory =
         new PreloadMediaSource.Factory(
             mockMediaSourceFactory,
-            playerId,
             preloadControl,
             mockTrackSelector,
             bandwidthMeter,
@@ -728,7 +720,6 @@ public final class PreloadMediaSourceTest {
     PreloadMediaSource.Factory preloadMediaSourceFactory =
         new PreloadMediaSource.Factory(
             mockMediaSourceFactory,
-            playerId,
             preloadControl,
             trackSelector,
             bandwidthMeter,
@@ -806,7 +797,6 @@ public final class PreloadMediaSourceTest {
     PreloadMediaSource.Factory preloadMediaSourceFactory =
         new PreloadMediaSource.Factory(
             mockMediaSourceFactory,
-            playerId,
             preloadControl,
             trackSelector,
             bandwidthMeter,
@@ -885,7 +875,6 @@ public final class PreloadMediaSourceTest {
     PreloadMediaSource.Factory preloadMediaSourceFactory =
         new PreloadMediaSource.Factory(
             mockMediaSourceFactory,
-            playerId,
             preloadControl,
             trackSelector,
             bandwidthMeter,
@@ -974,7 +963,6 @@ public final class PreloadMediaSourceTest {
     PreloadMediaSource.Factory preloadMediaSourceFactory =
         new PreloadMediaSource.Factory(
             mockMediaSourceFactory,
-            playerId,
             preloadControl,
             trackSelector,
             bandwidthMeter,
@@ -1044,7 +1032,6 @@ public final class PreloadMediaSourceTest {
     PreloadMediaSource.Factory preloadMediaSourceFactory =
         new PreloadMediaSource.Factory(
             mockMediaSourceFactory,
-            playerId,
             preloadControl,
             trackSelector,
             bandwidthMeter,

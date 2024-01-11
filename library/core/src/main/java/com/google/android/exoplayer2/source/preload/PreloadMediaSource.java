@@ -95,7 +95,6 @@ public final class PreloadMediaSource extends WrappingMediaSource {
   /** Factory for {@link PreloadMediaSource}. */
   public static final class Factory implements MediaSource.Factory {
     private final MediaSource.Factory mediaSourceFactory;
-    private final PlayerId playerId;
     private final Looper preloadLooper;
     private final Allocator allocator;
     private final TrackSelector trackSelector;
@@ -107,8 +106,6 @@ public final class PreloadMediaSource extends WrappingMediaSource {
      * Creates a new factory for {@link PreloadMediaSource}.
      *
      * @param mediaSourceFactory The underlying {@link MediaSource.Factory}.
-     * @param playerId The {@link PlayerId} of the {@link ExoPlayer} that will play the created
-     *     {@link PreloadMediaSource} instances.
      * @param preloadControl The {@link PreloadControl} that will control the progress of preloading
      *     the created {@link PreloadMediaSource} instances.
      * @param trackSelector The {@link TrackSelector}. The instance passed should be {@link
@@ -127,7 +124,6 @@ public final class PreloadMediaSource extends WrappingMediaSource {
      */
     public Factory(
         MediaSource.Factory mediaSourceFactory,
-        PlayerId playerId,
         PreloadControl preloadControl,
         TrackSelector trackSelector,
         BandwidthMeter bandwidthMeter,
@@ -135,7 +131,6 @@ public final class PreloadMediaSource extends WrappingMediaSource {
         Allocator allocator,
         Looper preloadLooper) {
       this.mediaSourceFactory = mediaSourceFactory;
-      this.playerId = playerId;
       this.preloadControl = preloadControl;
       this.trackSelector = trackSelector;
       this.bandwidthMeter = bandwidthMeter;
@@ -172,7 +167,6 @@ public final class PreloadMediaSource extends WrappingMediaSource {
     public PreloadMediaSource createMediaSource(MediaItem mediaItem) {
       return new PreloadMediaSource(
           mediaSourceFactory.createMediaSource(mediaItem),
-          playerId,
           preloadControl,
           trackSelector,
           bandwidthMeter,
@@ -184,7 +178,6 @@ public final class PreloadMediaSource extends WrappingMediaSource {
 
   private static final String TAG = "PreloadMediaSource";
 
-  private final PlayerId playerId;
   private final PreloadControl preloadControl;
   private final TrackSelector trackSelector;
   private final BandwidthMeter bandwidthMeter;
@@ -200,7 +193,6 @@ public final class PreloadMediaSource extends WrappingMediaSource {
 
   private PreloadMediaSource(
       MediaSource mediaSource,
-      PlayerId playerId,
       PreloadControl preloadControl,
       TrackSelector trackSelector,
       BandwidthMeter bandwidthMeter,
@@ -208,7 +200,6 @@ public final class PreloadMediaSource extends WrappingMediaSource {
       Allocator allocator,
       Looper preloadLooper) {
     super(mediaSource);
-    this.playerId = playerId;
     this.preloadControl = preloadControl;
     this.trackSelector = trackSelector;
     this.bandwidthMeter = bandwidthMeter;
@@ -233,7 +224,7 @@ public final class PreloadMediaSource extends WrappingMediaSource {
           preloadCalled = true;
           this.startPositionUs = startPositionUs;
           if (!isUsedByPlayer()) {
-            setPlayerId(playerId);
+            setPlayerId(PlayerId.UNSET); // Set to PlayerId.UNSET as there is no ongoing playback.
             prepareSourceInternal(bandwidthMeter.getTransferListener());
           }
         });

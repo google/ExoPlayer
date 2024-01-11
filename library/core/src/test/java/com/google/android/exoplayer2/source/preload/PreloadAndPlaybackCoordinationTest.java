@@ -123,7 +123,6 @@ public class PreloadAndPlaybackCoordinationTest {
     PreloadMediaSource.Factory preloadMediaSourceFactory =
         new PreloadMediaSource.Factory(
             mediaSourceFactory,
-            playerId,
             preloadControl,
             trackSelector,
             bandwidthMeter,
