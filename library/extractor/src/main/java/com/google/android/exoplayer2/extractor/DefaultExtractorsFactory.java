@@ -444,6 +444,7 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
           textTrackTranscodingEnabled
                   && !(extractor.getUnderlyingImplementation() instanceof FragmentedMp4Extractor)
                   && !(extractor.getUnderlyingImplementation() instanceof Mp4Extractor)
+                  && !(extractor.getUnderlyingImplementation() instanceof TsExtractor)
               ? new SubtitleTranscodingExtractor(extractor, subtitleParserFactory)
               : extractor;
     }
@@ -534,6 +535,8 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
         extractors.add(
             new TsExtractor(
                 tsMode,
+                (textTrackTranscodingEnabled ? 0 : TsExtractor.FLAG_EMIT_RAW_SUBTITLE_DATA),
+                subtitleParserFactory,
                 new TimestampAdjuster(0),
                 new DefaultTsPayloadReaderFactory(tsFlags, tsSubtitleFormats),
                 tsTimestampSearchBytes));

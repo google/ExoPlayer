@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source.hls;
 
+import static com.google.android.exoplayer2.extractor.ts.TsExtractor.DEFAULT_TIMESTAMP_SEARCH_BYTES;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 
 import android.annotation.SuppressLint;
@@ -211,16 +212,13 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
         return createFragmentedMp4Extractor(
             subtitleParserFactory, timestampAdjuster, format, muxedCaptionFormats);
       case FileTypes.TS:
-        Extractor tsExtractor =
-            createTsExtractor(
-                payloadReaderFactoryFlags,
-                exposeCea608WhenMissingDeclarations,
-                format,
-                muxedCaptionFormats,
-                timestampAdjuster);
-        return subtitleParserFactory != null
-            ? new SubtitleTranscodingExtractor(tsExtractor, subtitleParserFactory)
-            : tsExtractor;
+        return createTsExtractor(
+            payloadReaderFactoryFlags,
+            exposeCea608WhenMissingDeclarations,
+            format,
+            muxedCaptionFormats,
+            timestampAdjuster,
+            subtitleParserFactory);
       default:
         return null;
     }
@@ -231,7 +229,8 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
       boolean exposeCea608WhenMissingDeclarations,
       Format format,
       @Nullable List<Format> muxedCaptionFormats,
-      TimestampAdjuster timestampAdjuster) {
+      TimestampAdjuster timestampAdjuster,
+      @Nullable SubtitleParser.Factory subtitleParserFactory) {
     @DefaultTsPayloadReaderFactory.Flags
     int payloadReaderFactoryFlags =
         DefaultTsPayloadReaderFactory.FLAG_IGNORE_SPLICE_INFO_STREAM
@@ -260,11 +259,18 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
         payloadReaderFactoryFlags |= DefaultTsPayloadReaderFactory.FLAG_IGNORE_H264_STREAM;
       }
     }
-
+    @TsExtractor.Flags int extractorFlags = 0;
+    if (subtitleParserFactory == null) {
+      subtitleParserFactory = SubtitleParser.Factory.UNSUPPORTED;
+      extractorFlags |= TsExtractor.FLAG_EMIT_RAW_SUBTITLE_DATA;
+    }
     return new TsExtractor(
         TsExtractor.MODE_HLS,
+        extractorFlags,
+        subtitleParserFactory,
         timestampAdjuster,
-        new DefaultTsPayloadReaderFactory(payloadReaderFactoryFlags, muxedCaptionFormats));
+        new DefaultTsPayloadReaderFactory(payloadReaderFactoryFlags, muxedCaptionFormats),
+        DEFAULT_TIMESTAMP_SEARCH_BYTES);
   }
 
   private static FragmentedMp4Extractor createFragmentedMp4Extractor(
