@@ -19,6 +19,7 @@ package androidx.media3.transformer;
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
+import static androidx.media3.extractor.AacUtil.AAC_LC_AUDIO_SAMPLE_COUNT;
 import static androidx.media3.transformer.Composition.HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR;
 import static androidx.media3.transformer.ExportResult.OPTIMIZATION_ABANDONED_KEYFRAME_PLACEMENT_OPTIMAL_FOR_TRIM;
 import static androidx.media3.transformer.ExportResult.OPTIMIZATION_ABANDONED_OTHER;
@@ -744,9 +745,6 @@ public final class Transformer {
   private static final int TRANSFORMER_STATE_COPY_OUTPUT = 4;
   private static final int TRANSFORMER_STATE_PROCESS_MEDIA_START = 5;
   private static final int TRANSFORMER_STATE_REMUX_REMAINING_MEDIA = 6;
-
-  // TODO: b/304476154 - Calculate duration based on sample rate from audio format.
-  private static final int MAX_ENCODED_AUDIO_BUFFER_DURATION_US = 25_000;
   private final Context context;
   private final TransformationRequest transformationRequest;
   private final ImmutableList<AudioProcessor> audioProcessors;
@@ -1336,10 +1334,16 @@ public final class Transformer {
               processFullInput();
               return;
             }
-            // Ensure there is an audio sample to mux between the two clip times to prevent
-            // Transformer from hanging because it received an audio track but no audio samples.
+            long maxEncodedAudioBufferDurationUs = 0;
+            if (mp4Info.audioFormat != null && mp4Info.audioFormat.sampleRate != Format.NO_VALUE) {
+              // Ensure there is an audio sample to mux between the two clip times to prevent
+              // Transformer from hanging because it received an audio track but no audio samples.
+              maxEncodedAudioBufferDurationUs =
+                  Util.sampleCountToDurationUs(
+                      AAC_LC_AUDIO_SAMPLE_COUNT, mp4Info.audioFormat.sampleRate);
+            }
             if (mp4Info.firstSyncSampleTimestampUsAfterTimeUs - trimStartTimeUs
-                < MAX_ENCODED_AUDIO_BUFFER_DURATION_US) {
+                <= maxEncodedAudioBufferDurationUs) {
               Transformer.this.composition =
                   buildNewCompositionWithClipTimes(
                       composition,
