@@ -151,7 +151,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
    * {@link GlShaderProgram} is created for the {@code newInputType}.
    *
    * @param newInputType The new {@link VideoFrameProcessor.InputType} to switch to.
-   * @param inputFrameInfo The {@link FrameInfo} associated with the new input.
+   * @param newInputFrameInfo The {@link FrameInfo} associated with the new input.
    */
   public void switchToInput(
       @VideoFrameProcessor.InputType int newInputType, FrameInfo newInputFrameInfo)
