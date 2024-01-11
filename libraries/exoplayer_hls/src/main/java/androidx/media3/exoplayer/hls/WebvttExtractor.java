@@ -31,6 +31,8 @@ import androidx.media3.extractor.ExtractorOutput;
 import androidx.media3.extractor.PositionHolder;
 import androidx.media3.extractor.SeekMap;
 import androidx.media3.extractor.TrackOutput;
+import androidx.media3.extractor.text.SubtitleParser;
+import androidx.media3.extractor.text.SubtitleTranscodingExtractorOutput;
 import androidx.media3.extractor.text.webvtt.WebvttParserUtil;
 import java.io.IOException;
 import java.util.Arrays;
@@ -58,17 +60,38 @@ public final class WebvttExtractor implements Extractor {
   @Nullable private final String language;
   private final TimestampAdjuster timestampAdjuster;
   private final ParsableByteArray sampleDataWrapper;
+  private final SubtitleParser.Factory subtitleParserFactory;
+  private final boolean parseSubtitlesDuringExtraction;
 
   private @MonotonicNonNull ExtractorOutput output;
 
   private byte[] sampleData;
   private int sampleSize;
 
+  /**
+   * @deprecated Use {@link #WebvttExtractor(String, TimestampAdjuster, SubtitleParser.Factory,
+   *     boolean)} instead.
+   */
+  @Deprecated
   public WebvttExtractor(@Nullable String language, TimestampAdjuster timestampAdjuster) {
+    this(
+        language,
+        timestampAdjuster,
+        SubtitleParser.Factory.UNSUPPORTED,
+        /* parseSubtitlesDuringExtraction= */ false);
+  }
+
+  public WebvttExtractor(
+      @Nullable String language,
+      TimestampAdjuster timestampAdjuster,
+      SubtitleParser.Factory subtitleParserFactory,
+      boolean parseSubtitlesDuringExtraction) {
     this.language = language;
     this.timestampAdjuster = timestampAdjuster;
     this.sampleDataWrapper = new ParsableByteArray();
     sampleData = new byte[1024];
+    this.subtitleParserFactory = subtitleParserFactory;
+    this.parseSubtitlesDuringExtraction = parseSubtitlesDuringExtraction;
   }
 
   // Extractor implementation.
@@ -94,7 +117,10 @@ public final class WebvttExtractor implements Extractor {
 
   @Override
   public void init(ExtractorOutput output) {
-    this.output = output;
+    this.output =
+        parseSubtitlesDuringExtraction
+            ? new SubtitleTranscodingExtractorOutput(output, subtitleParserFactory)
+            : output;
     output.seekMap(new SeekMap.Unseekable(C.TIME_UNSET));
   }
 

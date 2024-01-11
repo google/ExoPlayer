@@ -29,7 +29,6 @@ import androidx.media3.extractor.PositionHolder;
 import androidx.media3.extractor.mp3.Mp3Extractor;
 import androidx.media3.extractor.mp4.FragmentedMp4Extractor;
 import androidx.media3.extractor.text.SubtitleParser;
-import androidx.media3.extractor.text.SubtitleTranscodingExtractor;
 import androidx.media3.extractor.ts.Ac3Extractor;
 import androidx.media3.extractor.ts.Ac4Extractor;
 import androidx.media3.extractor.ts.AdtsExtractor;
@@ -125,13 +124,19 @@ public final class BundledHlsMediaChunkExtractor implements HlsMediaChunkExtract
     Extractor newExtractorInstance;
     // LINT.IfChange(extractor_instantiation)
     if (extractor instanceof WebvttExtractor) {
-      newExtractorInstance =
-          new WebvttExtractor(multivariantPlaylistFormat.language, timestampAdjuster);
+      SubtitleParser.Factory webvttSubtitleParserFactory = SubtitleParser.Factory.UNSUPPORTED;
+      boolean parseSubtitlesDuringExtraction = false;
       if (subtitleParserFactory != null
           && subtitleParserFactory.supportsFormat(multivariantPlaylistFormat)) {
-        newExtractorInstance =
-            new SubtitleTranscodingExtractor(newExtractorInstance, subtitleParserFactory);
+        webvttSubtitleParserFactory = subtitleParserFactory;
+        parseSubtitlesDuringExtraction = true;
       }
+      newExtractorInstance =
+          new WebvttExtractor(
+              multivariantPlaylistFormat.language,
+              timestampAdjuster,
+              webvttSubtitleParserFactory,
+              parseSubtitlesDuringExtraction);
     } else if (extractor instanceof AdtsExtractor) {
       newExtractorInstance = new AdtsExtractor();
     } else if (extractor instanceof Ac3Extractor) {

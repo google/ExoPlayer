@@ -34,7 +34,6 @@ import androidx.media3.extractor.ExtractorInput;
 import androidx.media3.extractor.mp3.Mp3Extractor;
 import androidx.media3.extractor.mp4.FragmentedMp4Extractor;
 import androidx.media3.extractor.text.SubtitleParser;
-import androidx.media3.extractor.text.SubtitleTranscodingExtractor;
 import androidx.media3.extractor.ts.Ac3Extractor;
 import androidx.media3.extractor.ts.Ac4Extractor;
 import androidx.media3.extractor.ts.AdtsExtractor;
@@ -188,12 +187,17 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
     // LINT.IfChange(extractor_instantiation)
     switch (fileType) {
       case FileTypes.WEBVTT:
+        SubtitleParser.Factory webvttSubtitleParserFactory = SubtitleParser.Factory.UNSUPPORTED;
+        boolean parseSubtitlesDuringExtraction = false;
         if (subtitleParserFactory != null && subtitleParserFactory.supportsFormat(format)) {
-          return new SubtitleTranscodingExtractor(
-              new WebvttExtractor(format.language, timestampAdjuster), subtitleParserFactory);
-        } else {
-          return new WebvttExtractor(format.language, timestampAdjuster);
+          webvttSubtitleParserFactory = subtitleParserFactory;
+          parseSubtitlesDuringExtraction = true;
         }
+        return new WebvttExtractor(
+            format.language,
+            timestampAdjuster,
+            webvttSubtitleParserFactory,
+            parseSubtitlesDuringExtraction);
       case FileTypes.ADTS:
         return new AdtsExtractor();
       case FileTypes.AC3:

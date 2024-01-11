@@ -1,0 +1,20 @@
+seekMap:
+  isSeekable = false
+  duration = UNSET TIME
+  getPosition(0) = [[timeUs=0, position=0]]
+numberOfTracks = 1
+track 0:
+  total output bytes = 2248
+  sample count = 2
+  format 0:
+    sampleMimeType = application/x-media3-cues
+    codecs = text/vtt
+  sample 0:
+    time = 5000155
+    flags = 1
+    data = length 1124, hash E87709B3
+  sample 1:
+    time = 6754155
+    flags = 1
+    data = length 1124, hash 5C8A8288
+tracksEnded = true
