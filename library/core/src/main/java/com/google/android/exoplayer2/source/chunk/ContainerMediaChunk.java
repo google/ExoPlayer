@@ -15,8 +15,6 @@
  */
 package com.google.android.exoplayer2.source.chunk;
 
-import static com.google.android.exoplayer2.C.BUFFER_FLAG_KEY_FRAME;
-
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -177,11 +175,7 @@ public class ContainerMediaChunk extends BaseMediaChunk {
       long tileStartTimeUs = i * tileDurationUs;
       trackOutput.sampleData(new ParsableByteArray(), /* length= */ 0);
       trackOutput.sampleMetadata(
-          tileStartTimeUs,
-          /* flags= */ BUFFER_FLAG_KEY_FRAME,
-          /* size= */ 0,
-          /* offset= */ 0,
-          /* cryptoData= */ null);
+          tileStartTimeUs, /* flags= */ 0, /* size= */ 0, /* offset= */ 0, /* cryptoData= */ null);
     }
   }
 }

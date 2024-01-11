@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.ext.image;
 
 import static com.google.android.exoplayer2.testutil.FakeSampleStream.FakeSampleStreamItem.END_OF_STREAM_ITEM;
 import static com.google.android.exoplayer2.testutil.FakeSampleStream.FakeSampleStreamItem.oneByteSample;
+import static com.google.android.exoplayer2.testutil.FakeSampleStream.FakeSampleStreamItem.sample;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.graphics.Bitmap;
@@ -65,12 +66,18 @@ public class ImageRendererTest {
           .setTileCountVertical(1)
           .setTileCountHorizontal(1)
           .build();
+  private static final Format JPEG_FORMAT_WITH_FOUR_TILES =
+      new Format.Builder()
+          .setContainerMimeType(MimeTypes.IMAGE_JPEG)
+          .setTileCountVertical(2)
+          .setTileCountHorizontal(2)
+          .build();
 
   private final List<Pair<Long, Bitmap>> renderedBitmaps = new ArrayList<>();
   private final Bitmap fakeDecodedBitmap1 =
-      Bitmap.createBitmap(/* width= */ 1, /* height= */ 1, Bitmap.Config.ARGB_8888);
-  private final Bitmap fakeDecodedBitmap2 =
       Bitmap.createBitmap(/* width= */ 2, /* height= */ 2, Bitmap.Config.ARGB_8888);
+  private final Bitmap fakeDecodedBitmap2 =
+      Bitmap.createBitmap(/* width= */ 4, /* height= */ 4, Bitmap.Config.ARGB_8888);
 
   private ImageRenderer renderer;
   private int decodeCallCount;
@@ -256,6 +263,285 @@ public class ImageRendererTest {
     assertThat(renderedBitmaps.get(1).second).isSameInstanceAs(fakeDecodedBitmap2);
   }
 
+  @Test
+  public void render_tiledImage_cropsAndRendersToImageOutput() throws Exception {
+    FakeSampleStream fakeSampleStream =
+        createSampleStream(
+            JPEG_FORMAT_WITH_FOUR_TILES,
+            ImmutableList.of(
+                oneByteSample(/* timeUs= */ 0L, /* flags= */ C.BUFFER_FLAG_KEY_FRAME),
+                emptySample(/* timeUs= */ 100_000L, /* flags= */ 0),
+                emptySample(/* timeUs= */ 200_000L, /* flags= */ 0),
+                emptySample(/* timeUs= */ 300_000L, /* flags= */ 0),
+                END_OF_STREAM_ITEM));
+    fakeSampleStream.writeData(/* startPositionUs= */ 0);
+    renderer.enable(
+        RendererConfiguration.DEFAULT,
+        new Format[] {JPEG_FORMAT_WITH_FOUR_TILES},
+        fakeSampleStream,
+        /* positionUs= */ 0,
+        /* joining= */ false,
+        /* mayRenderStartOfStream= */ true,
+        /* startPositionUs= */ 0,
+        /* offsetUs= */ 0,
+        new MediaSource.MediaPeriodId(new Object()));
+    renderer.setCurrentStreamFinal();
+
+    StopWatch isReadyStopWatch = new StopWatch(IS_READY_TIMEOUT_MESSAGE);
+    while (!renderer.isReady() && isReadyStopWatch.ensureNotExpired()) {
+      renderer.render(
+          /* positionUs= */ 0,
+          /* elapsedRealtimeUs= */ SystemClock.DEFAULT.elapsedRealtime() * 1000);
+    }
+    StopWatch isEndedStopWatch = new StopWatch(IS_ENDED_TIMEOUT_MESSAGE);
+    long positionUs = 0;
+    while (!renderer.isEnded() && isEndedStopWatch.ensureNotExpired()) {
+      renderer.render(
+          positionUs, /* elapsedRealtimeUs= */ SystemClock.DEFAULT.elapsedRealtime() * 1000);
+      positionUs += 100_000;
+    }
+
+    assertThat(renderedBitmaps).hasSize(4);
+    assertThat(renderedBitmaps.get(0).first).isEqualTo(0L);
+    assertThat(renderedBitmaps.get(0).second.getHeight()).isEqualTo(1);
+    assertThat(renderedBitmaps.get(0).second.getWidth()).isEqualTo(1);
+    assertThat(renderedBitmaps.get(1).first).isEqualTo(100_000L);
+    assertThat(renderedBitmaps.get(1).second.getHeight()).isEqualTo(1);
+    assertThat(renderedBitmaps.get(1).second.getWidth()).isEqualTo(1);
+    assertThat(renderedBitmaps.get(2).first).isEqualTo(200_000L);
+    assertThat(renderedBitmaps.get(2).second.getHeight()).isEqualTo(1);
+    assertThat(renderedBitmaps.get(2).second.getWidth()).isEqualTo(1);
+    assertThat(renderedBitmaps.get(3).first).isEqualTo(300_000L);
+    assertThat(renderedBitmaps.get(3).second.getHeight()).isEqualTo(1);
+    assertThat(renderedBitmaps.get(3).second.getWidth()).isEqualTo(1);
+  }
+
+  @Test
+  public void render_tiledImageWithNonZeroStartPosition_rendersToImageOutput() throws Exception {
+    FakeSampleStream fakeSampleStream =
+        createSampleStream(
+            JPEG_FORMAT_WITH_FOUR_TILES,
+            ImmutableList.of(
+                oneByteSample(/* timeUs= */ 0L, /* flags= */ C.BUFFER_FLAG_KEY_FRAME),
+                emptySample(/* timeUs= */ 100_000L, /* flags= */ 0),
+                emptySample(/* timeUs= */ 200_000L, /* flags= */ 0),
+                emptySample(/* timeUs= */ 300_000L, /* flags= */ 0),
+                END_OF_STREAM_ITEM));
+    fakeSampleStream.writeData(/* startPositionUs= */ 0);
+    renderer.enable(
+        RendererConfiguration.DEFAULT,
+        new Format[] {JPEG_FORMAT_WITH_FOUR_TILES},
+        fakeSampleStream,
+        /* positionUs= */ 200_000,
+        /* joining= */ false,
+        /* mayRenderStartOfStream= */ true,
+        /* startPositionUs= */ 0,
+        /* offsetUs= */ 0,
+        new MediaSource.MediaPeriodId(new Object()));
+    renderer.setCurrentStreamFinal();
+
+    StopWatch isReadyStopWatch = new StopWatch(IS_READY_TIMEOUT_MESSAGE);
+    while (!renderer.isReady() && isReadyStopWatch.ensureNotExpired()) {
+      renderer.render(
+          /* positionUs= */ 200_000,
+          /* elapsedRealtimeUs= */ SystemClock.DEFAULT.elapsedRealtime() * 1000);
+    }
+    StopWatch isEndedStopWatch = new StopWatch(IS_ENDED_TIMEOUT_MESSAGE);
+    long positionUs = 200_000;
+    while (!renderer.isEnded() && isEndedStopWatch.ensureNotExpired()) {
+      renderer.render(
+          positionUs, /* elapsedRealtimeUs= */ SystemClock.DEFAULT.elapsedRealtime() * 1000);
+      positionUs += 100_000;
+    }
+
+    assertThat(renderedBitmaps).hasSize(2);
+    assertThat(renderedBitmaps.get(0).first).isEqualTo(200_000L);
+    assertThat(renderedBitmaps.get(1).first).isEqualTo(300_000L);
+  }
+
+  @Test
+  public void render_tiledImageStartPositionIsAfterLastTile_rendersToImageOutput()
+      throws Exception {
+    FakeSampleStream fakeSampleStream =
+        createSampleStream(
+            JPEG_FORMAT_WITH_FOUR_TILES,
+            ImmutableList.of(
+                oneByteSample(/* timeUs= */ 0L, /* flags= */ C.BUFFER_FLAG_KEY_FRAME),
+                emptySample(/* timeUs= */ 100_000L, /* flags= */ 0),
+                emptySample(/* timeUs= */ 200_000L, /* flags= */ 0),
+                emptySample(/* timeUs= */ 300_000L, /* flags= */ 0),
+                END_OF_STREAM_ITEM));
+    fakeSampleStream.writeData(/* startPositionUs= */ 0);
+    renderer.enable(
+        RendererConfiguration.DEFAULT,
+        new Format[] {JPEG_FORMAT_WITH_FOUR_TILES},
+        fakeSampleStream,
+        /* positionUs= */ 0,
+        /* joining= */ false,
+        /* mayRenderStartOfStream= */ true,
+        /* startPositionUs= */ 0,
+        /* offsetUs= */ 0,
+        new MediaSource.MediaPeriodId(new Object()));
+    renderer.setCurrentStreamFinal();
+
+    StopWatch isReadyStopWatch = new StopWatch(IS_READY_TIMEOUT_MESSAGE);
+    while (!renderer.isReady() && isReadyStopWatch.ensureNotExpired()) {
+      renderer.render(
+          /* positionUs= */ 350_000,
+          /* elapsedRealtimeUs= */ SystemClock.DEFAULT.elapsedRealtime() * 1000);
+    }
+    StopWatch isEndedStopWatch = new StopWatch(IS_ENDED_TIMEOUT_MESSAGE);
+    long positionUs = 350_000;
+    while (!renderer.isEnded() && isEndedStopWatch.ensureNotExpired()) {
+      renderer.render(
+          positionUs, /* elapsedRealtimeUs= */ SystemClock.DEFAULT.elapsedRealtime() * 1000);
+      positionUs += 100_000;
+    }
+
+    assertThat(renderedBitmaps).hasSize(1);
+    assertThat(renderedBitmaps.get(0).first).isEqualTo(300_000L);
+  }
+
+  @Test
+  public void
+      render_tiledImageStartPositionBeforePresentationTimeAndWithinThreshold_rendersIncomingTile()
+          throws Exception {
+    FakeSampleStream fakeSampleStream =
+        createSampleStream(
+            JPEG_FORMAT_WITH_FOUR_TILES,
+            ImmutableList.of(
+                oneByteSample(/* timeUs= */ 0L, /* flags= */ C.BUFFER_FLAG_KEY_FRAME),
+                emptySample(/* timeUs= */ 100_000L, /* flags= */ 0),
+                emptySample(/* timeUs= */ 200_000L, /* flags= */ 0),
+                emptySample(/* timeUs= */ 300_000L, /* flags= */ 0),
+                END_OF_STREAM_ITEM));
+    fakeSampleStream.writeData(/* startPositionUs= */ 0);
+    renderer.enable(
+        RendererConfiguration.DEFAULT,
+        new Format[] {JPEG_FORMAT_WITH_FOUR_TILES},
+        fakeSampleStream,
+        /* positionUs= */ 0,
+        /* joining= */ false,
+        /* mayRenderStartOfStream= */ true,
+        /* startPositionUs= */ 0,
+        /* offsetUs= */ 0,
+        new MediaSource.MediaPeriodId(new Object()));
+    renderer.setCurrentStreamFinal();
+
+    StopWatch isReadyStopWatch = new StopWatch(IS_READY_TIMEOUT_MESSAGE);
+    while (!renderer.isReady() && isReadyStopWatch.ensureNotExpired()) {
+      renderer.render(
+          /* positionUs= */ 70_000,
+          /* elapsedRealtimeUs= */ SystemClock.DEFAULT.elapsedRealtime() * 1000);
+    }
+    StopWatch isEndedStopWatch = new StopWatch(IS_ENDED_TIMEOUT_MESSAGE);
+    long positionUs = 70_000;
+    while (!renderer.isEnded() && isEndedStopWatch.ensureNotExpired()) {
+      renderer.render(
+          positionUs, /* elapsedRealtimeUs= */ SystemClock.DEFAULT.elapsedRealtime() * 1000);
+      positionUs += 100_000;
+    }
+
+    assertThat(renderedBitmaps).hasSize(3);
+    assertThat(renderedBitmaps.get(0).first).isEqualTo(100_000L);
+    assertThat(renderedBitmaps.get(1).first).isEqualTo(200_000L);
+    assertThat(renderedBitmaps.get(2).first).isEqualTo(300_000L);
+  }
+
+  @Test
+  public void
+      render_tiledImageStartPositionAfterPresentationTimeAndWithinThreshold_rendersLastReadTile()
+          throws Exception {
+    FakeSampleStream fakeSampleStream =
+        createSampleStream(
+            JPEG_FORMAT_WITH_FOUR_TILES,
+            ImmutableList.of(
+                oneByteSample(/* timeUs= */ 0L, /* flags= */ C.BUFFER_FLAG_KEY_FRAME),
+                emptySample(/* timeUs= */ 100_000L, /* flags= */ 0),
+                emptySample(/* timeUs= */ 200_000L, /* flags= */ 0),
+                emptySample(/* timeUs= */ 300_000L, /* flags= */ 0),
+                END_OF_STREAM_ITEM));
+    fakeSampleStream.writeData(/* startPositionUs= */ 0);
+    renderer.enable(
+        RendererConfiguration.DEFAULT,
+        new Format[] {JPEG_FORMAT_WITH_FOUR_TILES},
+        fakeSampleStream,
+        /* positionUs= */ 0,
+        /* joining= */ false,
+        /* mayRenderStartOfStream= */ true,
+        /* startPositionUs= */ 0,
+        /* offsetUs= */ 0,
+        new MediaSource.MediaPeriodId(new Object()));
+    renderer.setCurrentStreamFinal();
+
+    StopWatch isReadyStopWatch = new StopWatch(IS_READY_TIMEOUT_MESSAGE);
+    while (!renderer.isReady() && isReadyStopWatch.ensureNotExpired()) {
+      renderer.render(
+          /* positionUs= */ 130_000,
+          /* elapsedRealtimeUs= */ SystemClock.DEFAULT.elapsedRealtime() * 1000);
+    }
+    StopWatch isEndedStopWatch = new StopWatch(IS_ENDED_TIMEOUT_MESSAGE);
+    long positionUs = 130_000;
+    while (!renderer.isEnded() && isEndedStopWatch.ensureNotExpired()) {
+      renderer.render(
+          positionUs, /* elapsedRealtimeUs= */ SystemClock.DEFAULT.elapsedRealtime() * 1000);
+      positionUs += 100_000;
+    }
+
+    assertThat(renderedBitmaps).hasSize(3);
+    assertThat(renderedBitmaps.get(0).first).isEqualTo(100_000L);
+    assertThat(renderedBitmaps.get(1).first).isEqualTo(200_000L);
+    assertThat(renderedBitmaps.get(2).first).isEqualTo(300_000L);
+  }
+
+  @Test
+  public void render_tiledImageStartPositionRightBeforeEOSAndWithinThreshold_rendersLastTileInGrid()
+      throws Exception {
+    FakeSampleStream fakeSampleStream =
+        createSampleStream(
+            JPEG_FORMAT_WITH_FOUR_TILES,
+            ImmutableList.of(
+                oneByteSample(/* timeUs= */ 0L, /* flags= */ C.BUFFER_FLAG_KEY_FRAME),
+                emptySample(/* timeUs= */ 100_000L, /* flags= */ 0),
+                emptySample(/* timeUs= */ 200_000L, /* flags= */ 0),
+                emptySample(/* timeUs= */ 300_000L, /* flags= */ 0),
+                END_OF_STREAM_ITEM));
+    fakeSampleStream.writeData(/* startPositionUs= */ 0);
+    renderer.enable(
+        RendererConfiguration.DEFAULT,
+        new Format[] {JPEG_FORMAT_WITH_FOUR_TILES},
+        fakeSampleStream,
+        /* positionUs= */ 0,
+        /* joining= */ false,
+        /* mayRenderStartOfStream= */ true,
+        /* startPositionUs= */ 0,
+        /* offsetUs= */ 0,
+        new MediaSource.MediaPeriodId(new Object()));
+    renderer.setCurrentStreamFinal();
+
+    StopWatch isReadyStopWatch = new StopWatch(IS_READY_TIMEOUT_MESSAGE);
+    while (!renderer.isReady() && isReadyStopWatch.ensureNotExpired()) {
+      renderer.render(
+          /* positionUs= */ 330_000,
+          /* elapsedRealtimeUs= */ SystemClock.DEFAULT.elapsedRealtime() * 1000);
+    }
+    StopWatch isEndedStopWatch = new StopWatch(IS_ENDED_TIMEOUT_MESSAGE);
+    long positionUs = 330_000;
+    while (!renderer.isEnded() && isEndedStopWatch.ensureNotExpired()) {
+      renderer.render(
+          positionUs, /* elapsedRealtimeUs= */ SystemClock.DEFAULT.elapsedRealtime() * 1000);
+      positionUs += 100_000;
+    }
+
+    assertThat(renderedBitmaps).hasSize(1);
+    assertThat(renderedBitmaps.get(0).first).isEqualTo(300_000L);
+  }
+
+  private static FakeSampleStream.FakeSampleStreamItem emptySample(
+      long timeUs, @C.BufferFlags int flags) {
+    return sample(timeUs, flags, new byte[] {});
+  }
+
   private static FakeSampleStream createSampleStream(long timeUs) {
     return new FakeSampleStream(
         new DefaultAllocator(/* trimOnReset= */ true, /* individualAllocationSize= */ 1024),
@@ -264,6 +550,17 @@ public class ImageRendererTest {
         new DrmSessionEventListener.EventDispatcher(),
         PNG_FORMAT,
         ImmutableList.of(oneByteSample(timeUs, C.BUFFER_FLAG_KEY_FRAME), END_OF_STREAM_ITEM));
+  }
+
+  private static FakeSampleStream createSampleStream(
+      Format format, List<FakeSampleStream.FakeSampleStreamItem> fakeSampleStreamItems) {
+    return new FakeSampleStream(
+        new DefaultAllocator(/* trimOnReset= */ true, /* individualAllocationSize= */ 1024),
+        /* mediaSourceEventDispatcher= */ null,
+        DrmSessionManager.DRM_UNSUPPORTED,
+        new DrmSessionEventListener.EventDispatcher(),
+        format,
+        fakeSampleStreamItems);
   }
 
   private static final class StopWatch {
