@@ -36,7 +36,6 @@ import com.google.android.exoplayer2.util.OnInputFrameProcessedListener;
 import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 import com.google.android.exoplayer2.util.VideoFrameProcessor;
 import com.google.android.exoplayer2.video.ColorInfo;
-import com.google.common.collect.ImmutableList;
 import java.util.concurrent.Executor;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -103,12 +102,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
       case INPUT_TYPE_SURFACE:
         samplingShaderProgram =
             DefaultShaderProgram.createWithExternalSampler(
-                context,
-                /* matrixTransformations= */ ImmutableList.of(),
-                /* rgbMatrices= */ ImmutableList.of(),
-                inputColorInfo,
-                outputColorInfo,
-                enableColorTransfers);
+                context, inputColorInfo, outputColorInfo, enableColorTransfers);
         break;
       case INPUT_TYPE_BITMAP:
         // HDR bitmap input is not supported. Bitmaps are always sRGB/Full range/BT.709.
@@ -116,26 +110,14 @@ import org.checkerframework.checker.nullness.qual.Nullable;
         ColorInfo bitmapColorInfo = ColorInfo.SRGB_BT709_FULL;
         samplingShaderProgram =
             DefaultShaderProgram.createWithInternalSampler(
-                context,
-                /* matrixTransformations= */ ImmutableList.of(),
-                /* rgbMatrices= */ ImmutableList.of(),
-                bitmapColorInfo,
-                outputColorInfo,
-                enableColorTransfers,
-                inputType);
+                context, bitmapColorInfo, outputColorInfo, enableColorTransfers, inputType);
         break;
       case INPUT_TYPE_TEXTURE_ID:
         // Image and textureId concatenation not supported.
         checkState(inputColorInfo.colorTransfer != C.COLOR_TRANSFER_SRGB);
         samplingShaderProgram =
             DefaultShaderProgram.createWithInternalSampler(
-                context,
-                /* matrixTransformations= */ ImmutableList.of(),
-                /* rgbMatrices= */ ImmutableList.of(),
-                inputColorInfo,
-                outputColorInfo,
-                enableColorTransfers,
-                inputType);
+                context, inputColorInfo, outputColorInfo, enableColorTransfers, inputType);
         break;
       default:
         throw new VideoFrameProcessingException("Unsupported input type " + inputType);

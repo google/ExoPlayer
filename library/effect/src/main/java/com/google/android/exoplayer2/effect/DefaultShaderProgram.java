@@ -189,16 +189,11 @@ import java.util.List;
    * <p>Input will be sampled from an internal (i.e. regular) texture.
    *
    * <p>Applies the {@linkplain ColorInfo#colorTransfer inputColorInfo EOTF} to convert from
-   * electrical color input, to intermediate optical {@link GlShaderProgram} color output, before
-   * {@code matrixTransformations} and {@code rgbMatrices} are applied. Also applies the {@linkplain
-   * ColorInfo#colorTransfer outputColorInfo OETF}, if needed, to convert back to an electrical
-   * color output.
+   * electrical color input, to intermediate optical {@link GlShaderProgram} color output. Also
+   * applies the {@linkplain ColorInfo#colorTransfer outputColorInfo OETF}, if needed, to convert
+   * back to an electrical color output.
    *
    * @param context The {@link Context}.
-   * @param matrixTransformations The {@link GlMatrixTransformation GlMatrixTransformations} to
-   *     apply to each frame in order. Can be empty to apply no vertex transformations.
-   * @param rgbMatrices The {@link RgbMatrix RgbMatrices} to apply to each frame in order. Can be
-   *     empty to apply no color transformations.
    * @param inputColorInfo The input electrical (nonlinear) {@link ColorInfo}.
    * @param outputColorInfo The output electrical (nonlinear) or optical (linear) {@link ColorInfo}.
    *     If this is an optical color, it must be BT.2020 if {@code inputColorInfo} is {@linkplain
@@ -210,8 +205,6 @@ import java.util.List;
    */
   public static DefaultShaderProgram createWithInternalSampler(
       Context context,
-      List<GlMatrixTransformation> matrixTransformations,
-      List<RgbMatrix> rgbMatrices,
       ColorInfo inputColorInfo,
       ColorInfo outputColorInfo,
       boolean enableColorTransfers,
@@ -230,13 +223,7 @@ import java.util.List;
             : FRAGMENT_SHADER_TRANSFORMATION_SDR_INTERNAL_PATH;
     GlProgram glProgram = createGlProgram(context, vertexShaderFilePath, fragmentShaderFilePath);
     glProgram.setIntUniform("uInputColorTransfer", inputColorInfo.colorTransfer);
-    return createWithSampler(
-        glProgram,
-        matrixTransformations,
-        rgbMatrices,
-        inputColorInfo,
-        outputColorInfo,
-        enableColorTransfers);
+    return createWithSampler(glProgram, inputColorInfo, outputColorInfo, enableColorTransfers);
   }
 
   /**
@@ -247,16 +234,11 @@ import java.util.List;
    * external texture.
    *
    * <p>Applies the {@linkplain ColorInfo#colorTransfer inputColorInfo EOTF} to convert from
-   * electrical color input, to intermediate optical {@link GlShaderProgram} color output, before
-   * {@code matrixTransformations} and {@code rgbMatrices} are applied. Also applies the {@linkplain
-   * ColorInfo#colorTransfer outputColorInfo OETF}, if needed, to convert back to an electrical
-   * color output.
+   * electrical color input, to intermediate optical {@link GlShaderProgram} color output. Also
+   * applies the {@linkplain ColorInfo#colorTransfer outputColorInfo OETF}, if needed, to convert
+   * back to an electrical color output.
    *
    * @param context The {@link Context}.
-   * @param matrixTransformations The {@link GlMatrixTransformation GlMatrixTransformations} to
-   *     apply to each frame in order. Can be empty to apply no vertex transformations.
-   * @param rgbMatrices The {@link RgbMatrix RgbMatrices} to apply to each frame in order. Can be
-   *     empty to apply no color transformations.
    * @param inputColorInfo The input electrical (nonlinear) {@link ColorInfo}.
    * @param outputColorInfo The output electrical (nonlinear) or optical (linear) {@link ColorInfo}.
    *     If this is an optical color, it must be BT.2020 if {@code inputColorInfo} is {@linkplain
@@ -268,8 +250,6 @@ import java.util.List;
    */
   public static DefaultShaderProgram createWithExternalSampler(
       Context context,
-      List<GlMatrixTransformation> matrixTransformations,
-      List<RgbMatrix> rgbMatrices,
       ColorInfo inputColorInfo,
       ColorInfo outputColorInfo,
       boolean enableColorTransfers)
@@ -298,13 +278,7 @@ import java.util.List;
       glProgram.setIntUniform("uInputColorTransfer", inputColorInfo.colorTransfer);
     }
 
-    return createWithSampler(
-        glProgram,
-        matrixTransformations,
-        rgbMatrices,
-        inputColorInfo,
-        outputColorInfo,
-        enableColorTransfers);
+    return createWithSampler(glProgram, inputColorInfo, outputColorInfo, enableColorTransfers);
   }
 
   /**
@@ -369,8 +343,6 @@ import java.util.List;
 
   private static DefaultShaderProgram createWithSampler(
       GlProgram glProgram,
-      List<GlMatrixTransformation> matrixTransformations,
-      List<RgbMatrix> rgbMatrices,
       ColorInfo inputColorInfo,
       ColorInfo outputColorInfo,
       boolean enableColorTransfers) {
@@ -401,8 +373,8 @@ import java.util.List;
 
     return new DefaultShaderProgram(
         glProgram,
-        ImmutableList.copyOf(matrixTransformations),
-        ImmutableList.copyOf(rgbMatrices),
+        /* matrixTransformations= */ ImmutableList.of(),
+        /* rgbMatrices= */ ImmutableList.of(),
         outputColorInfo.colorTransfer,
         isInputTransferHdr);
   }
