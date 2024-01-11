@@ -26,6 +26,8 @@ import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.TrackOutput;
+import com.google.android.exoplayer2.text.SubtitleParser;
+import com.google.android.exoplayer2.text.SubtitleTranscodingExtractorOutput;
 import com.google.android.exoplayer2.text.webvtt.WebvttParserUtil;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -62,17 +64,38 @@ public final class WebvttExtractor implements Extractor {
   @Nullable private final String language;
   private final TimestampAdjuster timestampAdjuster;
   private final ParsableByteArray sampleDataWrapper;
+  private final SubtitleParser.Factory subtitleParserFactory;
+  private final boolean parseSubtitlesDuringExtraction;
 
   private @MonotonicNonNull ExtractorOutput output;
 
   private byte[] sampleData;
   private int sampleSize;
 
+  /**
+   * @deprecated Use {@link #WebvttExtractor(String, TimestampAdjuster, SubtitleParser.Factory,
+   *     boolean)} instead.
+   */
+  @Deprecated
   public WebvttExtractor(@Nullable String language, TimestampAdjuster timestampAdjuster) {
+    this(
+        language,
+        timestampAdjuster,
+        SubtitleParser.Factory.UNSUPPORTED,
+        /* parseSubtitlesDuringExtraction= */ false);
+  }
+
+  public WebvttExtractor(
+      @Nullable String language,
+      TimestampAdjuster timestampAdjuster,
+      SubtitleParser.Factory subtitleParserFactory,
+      boolean parseSubtitlesDuringExtraction) {
     this.language = language;
     this.timestampAdjuster = timestampAdjuster;
     this.sampleDataWrapper = new ParsableByteArray();
     sampleData = new byte[1024];
+    this.subtitleParserFactory = subtitleParserFactory;
+    this.parseSubtitlesDuringExtraction = parseSubtitlesDuringExtraction;
   }
 
   // Extractor implementation.
@@ -98,7 +121,10 @@ public final class WebvttExtractor implements Extractor {
 
   @Override
   public void init(ExtractorOutput output) {
-    this.output = output;
+    this.output =
+        parseSubtitlesDuringExtraction
+            ? new SubtitleTranscodingExtractorOutput(output, subtitleParserFactory)
+            : output;
     output.seekMap(new SeekMap.Unseekable(C.TIME_UNSET));
   }
 

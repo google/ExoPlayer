@@ -24,6 +24,8 @@ import com.google.android.exoplayer2.testutil.DumpFileAsserts;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput;
 import com.google.android.exoplayer2.testutil.FakeExtractorOutput;
 import com.google.android.exoplayer2.testutil.TestUtil;
+import com.google.android.exoplayer2.text.DefaultSubtitleParserFactory;
+import com.google.android.exoplayer2.text.SubtitleParser;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
 import java.io.EOFException;
 import java.io.IOException;
@@ -72,7 +74,12 @@ public class WebvttExtractorTest {
     TimestampAdjuster timestampAdjuster = new TimestampAdjuster(/* firstSampleTimestampUs= */ 0);
     // Prime the TimestampAdjuster with a close-ish timestamp (5s before the first cue).
     timestampAdjuster.adjustTsTimestamp(384615190);
-    WebvttExtractor extractor = new WebvttExtractor(/* language= */ null, timestampAdjuster);
+    WebvttExtractor extractor =
+        new WebvttExtractor(
+            /* language= */ null,
+            timestampAdjuster,
+            SubtitleParser.Factory.UNSUPPORTED,
+            /* parseSubtitlesDuringExtraction= */ false);
     // We can't use ExtractorAsserts because WebvttExtractor doesn't fulfill the whole Extractor
     // interface (e.g. throws an exception from seek()).
     FakeExtractorOutput output =
@@ -90,10 +97,42 @@ public class WebvttExtractorTest {
         "extractordumps/webvtt/with_x-timestamp-map_header.dump");
   }
 
+  @Test
+  public void read_handlesLargeCueTimestamps_withSubtitleParsingDuringExtraction()
+      throws Exception {
+    TimestampAdjuster timestampAdjuster = new TimestampAdjuster(/* firstSampleTimestampUs= */ 0);
+    // Prime the TimestampAdjuster with a close-ish timestamp (5s before the first cue).
+    timestampAdjuster.adjustTsTimestamp(384615190);
+    WebvttExtractor extractor =
+        new WebvttExtractor(
+            /* language= */ null,
+            timestampAdjuster,
+            new DefaultSubtitleParserFactory(),
+            /* parseSubtitlesDuringExtraction= */ true);
+
+    FakeExtractorOutput output =
+        TestUtil.extractAllSamplesFromFile(
+            extractor,
+            ApplicationProvider.getApplicationContext(),
+            "media/webvtt/with_x-timestamp-map_header");
+
+    // There are 2 cues in the file which are fed into 2 different samples during extraction
+    // This is different to the parsing-during-decoding flow where the whole file becomes a sample
+    DumpFileAsserts.assertOutput(
+        ApplicationProvider.getApplicationContext(),
+        output,
+        "extractordumps/webvtt/with_x-timestamp-map_header_parsed_during_extraction.dump");
+  }
+
   private static boolean sniffData(byte[] data) throws IOException {
     ExtractorInput input = new FakeExtractorInput.Builder().setData(data).build();
     try {
-      return new WebvttExtractor(/* language= */ null, new TimestampAdjuster(0)).sniff(input);
+      return new WebvttExtractor(
+              /* language= */ null,
+              new TimestampAdjuster(0),
+              SubtitleParser.Factory.UNSUPPORTED,
+              /* parseSubtitlesDuringExtraction= */ false)
+          .sniff(input);
     } catch (EOFException e) {
       return false;
     }

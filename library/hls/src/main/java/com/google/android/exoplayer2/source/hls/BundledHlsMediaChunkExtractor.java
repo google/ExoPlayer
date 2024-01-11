@@ -31,7 +31,6 @@ import com.google.android.exoplayer2.extractor.ts.Ac4Extractor;
 import com.google.android.exoplayer2.extractor.ts.AdtsExtractor;
 import com.google.android.exoplayer2.extractor.ts.TsExtractor;
 import com.google.android.exoplayer2.text.SubtitleParser;
-import com.google.android.exoplayer2.text.SubtitleTranscodingExtractor;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
 import java.io.IOException;
 
@@ -129,13 +128,19 @@ public final class BundledHlsMediaChunkExtractor implements HlsMediaChunkExtract
     Extractor newExtractorInstance;
     // LINT.IfChange(extractor_instantiation)
     if (extractor instanceof WebvttExtractor) {
-      newExtractorInstance =
-          new WebvttExtractor(multivariantPlaylistFormat.language, timestampAdjuster);
+      SubtitleParser.Factory webvttSubtitleParserFactory = SubtitleParser.Factory.UNSUPPORTED;
+      boolean parseSubtitlesDuringExtraction = false;
       if (subtitleParserFactory != null
           && subtitleParserFactory.supportsFormat(multivariantPlaylistFormat)) {
-        newExtractorInstance =
-            new SubtitleTranscodingExtractor(newExtractorInstance, subtitleParserFactory);
+        webvttSubtitleParserFactory = subtitleParserFactory;
+        parseSubtitlesDuringExtraction = true;
       }
+      newExtractorInstance =
+          new WebvttExtractor(
+              multivariantPlaylistFormat.language,
+              timestampAdjuster,
+              webvttSubtitleParserFactory,
+              parseSubtitlesDuringExtraction);
     } else if (extractor instanceof AdtsExtractor) {
       newExtractorInstance = new AdtsExtractor();
     } else if (extractor instanceof Ac3Extractor) {

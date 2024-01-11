@@ -35,7 +35,6 @@ import com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory;
 import com.google.android.exoplayer2.extractor.ts.TsExtractor;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.text.SubtitleParser;
-import com.google.android.exoplayer2.text.SubtitleTranscodingExtractor;
 import com.google.android.exoplayer2.util.FileTypes;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
@@ -194,12 +193,17 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
     // LINT.IfChange(extractor_instantiation)
     switch (fileType) {
       case FileTypes.WEBVTT:
+        SubtitleParser.Factory webvttSubtitleParserFactory = SubtitleParser.Factory.UNSUPPORTED;
+        boolean parseSubtitlesDuringExtraction = false;
         if (subtitleParserFactory != null && subtitleParserFactory.supportsFormat(format)) {
-          return new SubtitleTranscodingExtractor(
-              new WebvttExtractor(format.language, timestampAdjuster), subtitleParserFactory);
-        } else {
-          return new WebvttExtractor(format.language, timestampAdjuster);
+          webvttSubtitleParserFactory = subtitleParserFactory;
+          parseSubtitlesDuringExtraction = true;
         }
+        return new WebvttExtractor(
+            format.language,
+            timestampAdjuster,
+            webvttSubtitleParserFactory,
+            parseSubtitlesDuringExtraction);
       case FileTypes.ADTS:
         return new AdtsExtractor();
       case FileTypes.AC3:
