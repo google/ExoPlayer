@@ -22,6 +22,7 @@ import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.LoadingInfo;
 import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
+import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.source.ClippingMediaSource.IllegalClippingException;
 import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.util.Assertions;
@@ -29,6 +30,7 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.NullableType;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Wraps a {@link MediaPeriod} and clips its {@link SampleStream}s to provide a subsequence of their
@@ -109,6 +111,11 @@ public final class ClippingMediaPeriod implements MediaPeriod, MediaPeriod.Callb
       throw clippingError;
     }
     mediaPeriod.maybeThrowPrepareError();
+  }
+
+  @Override
+  public List<StreamKey> getStreamKeys(List<ExoTrackSelection> trackSelections) {
+    return mediaPeriod.getStreamKeys(trackSelections);
   }
 
   @Override
