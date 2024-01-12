@@ -288,13 +288,6 @@ public final class CompositingVideoSinkProvider
       }
       videoSinkImpl =
           new VideoSinkImpl(context, /* compositingVideoSinkProvider= */ this, videoGraph);
-      if (currentSurfaceAndSize != null) {
-        Surface outputSurface = currentSurfaceAndSize.first;
-        Size outputSize = currentSurfaceAndSize.second;
-        checkStateNotNull(videoGraph)
-            .setOutputSurfaceInfo(
-                new SurfaceInfo(outputSurface, outputSize.getWidth(), outputSize.getHeight()));
-      }
     } catch (VideoFrameProcessingException e) {
       throw new VideoSink.VideoSinkException(e, sourceFormat);
     }

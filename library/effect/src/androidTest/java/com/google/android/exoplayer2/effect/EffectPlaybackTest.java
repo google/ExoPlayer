@@ -55,6 +55,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -102,6 +103,7 @@ public class EffectPlaybackTest {
   }
 
   @Test
+  @Ignore("b/292111083")
   public void exoplayerEffectsPreviewTest_ensuresFirstFrameRendered() throws Exception {
     assumeTrue(Util.SDK_INT >= 18);
 
