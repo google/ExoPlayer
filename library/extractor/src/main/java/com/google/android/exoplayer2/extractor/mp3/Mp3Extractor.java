@@ -530,11 +530,23 @@ public final class Mp3Extractor implements Extractor {
           gaplessInfoHolder.encoderDelay = xingFrame.encoderDelay;
           gaplessInfoHolder.encoderPadding = xingFrame.encoderPadding;
         }
-        seeker = XingSeeker.create(input.getLength(), xingFrame, input.getPosition());
+        long startPosition = input.getPosition();
         input.skipFully(synchronizedHeader.frameSize);
-        if (seeker != null && !seeker.isSeekable() && seekHeader == SEEK_HEADER_INFO) {
-          // Fall back to constant bitrate seeking for Info headers missing a table of contents.
-          return getConstantBitrateSeeker(input, /* allowSeeksIfLengthUnknown= */ false);
+        // An Xing frame indicates the file is VBR (so we have to use the seek header for seeking)
+        // while an Info header indicates the file is CBR, in which case ConstantBitrateSeeker will
+        // give more accurate seeking than the low-resolution seek table in the Info header. We can
+        // still use the length from the Info frame if we don't know the stream length directly.
+        if (seekHeader == SEEK_HEADER_XING) {
+          seeker = XingSeeker.create(input.getLength(), xingFrame, startPosition);
+        } else { // seekHeader == SEEK_HEADER_INFO
+          long streamLength =
+              xingFrame.dataSize != C.LENGTH_UNSET
+                  ? startPosition + xingFrame.dataSize
+                  : C.LENGTH_UNSET;
+          // TODO: b/319235116 - Consider using the duration derived from the Xing/Info frame when
+          // it considers encoding delay and padding.
+          seeker =
+              getConstantBitrateSeeker(input, streamLength, /* allowSeeksIfLengthUnknown= */ false);
         }
         break;
       case SEEK_HEADER_VBRI:
@@ -554,11 +566,26 @@ public final class Mp3Extractor implements Extractor {
   /** Peeks the next frame and returns a {@link ConstantBitrateSeeker} based on its bitrate. */
   private Seeker getConstantBitrateSeeker(ExtractorInput input, boolean allowSeeksIfLengthUnknown)
       throws IOException {
+    return getConstantBitrateSeeker(input, C.LENGTH_UNSET, allowSeeksIfLengthUnknown);
+  }
+
+  /**
+   * Peeks the next frame and returns a {@link ConstantBitrateSeeker} based on its bitrate. {@code
+   * streamLengthFallback} is used if {@link ExtractorInput#getLength() input.getLength()} is {@link
+   * C#LENGTH_UNSET}. {@code streamLengthFallback} may also be {@link C#LENGTH_UNSET} to indicate
+   * the length is unknown.
+   */
+  private Seeker getConstantBitrateSeeker(
+      ExtractorInput input, long streamLengthFallback, boolean allowSeeksIfLengthUnknown)
+      throws IOException {
     input.peekFully(scratch.getData(), 0, 4);
     scratch.setPosition(0);
     synchronizedHeader.setForHeaderData(scratch.readInt());
     return new ConstantBitrateSeeker(
-        input.getLength(), input.getPosition(), synchronizedHeader, allowSeeksIfLengthUnknown);
+        input.getLength() != C.LENGTH_UNSET ? input.getLength() : streamLengthFallback,
+        input.getPosition(),
+        synchronizedHeader,
+        allowSeeksIfLengthUnknown);
   }
 
   @EnsuresNonNull({"extractorOutput", "realTrackOutput"})
