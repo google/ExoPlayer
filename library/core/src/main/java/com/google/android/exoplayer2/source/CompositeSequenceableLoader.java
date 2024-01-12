@@ -29,16 +29,16 @@ import com.google.android.exoplayer2.LoadingInfo;
  *     migration guide</a> for more details, including a script to help with the migration.
  */
 @Deprecated
-public class CompositeSequenceableLoader implements SequenceableLoader {
+public final class CompositeSequenceableLoader implements SequenceableLoader {
 
-  protected final SequenceableLoader[] loaders;
+  private final SequenceableLoader[] loaders;
 
   public CompositeSequenceableLoader(SequenceableLoader[] loaders) {
     this.loaders = loaders;
   }
 
   @Override
-  public final long getBufferedPositionUs() {
+  public long getBufferedPositionUs() {
     long bufferedPositionUs = Long.MAX_VALUE;
     for (SequenceableLoader loader : loaders) {
       long loaderBufferedPositionUs = loader.getBufferedPositionUs();
@@ -50,7 +50,7 @@ public class CompositeSequenceableLoader implements SequenceableLoader {
   }
 
   @Override
-  public final long getNextLoadPositionUs() {
+  public long getNextLoadPositionUs() {
     long nextLoadPositionUs = Long.MAX_VALUE;
     for (SequenceableLoader loader : loaders) {
       long loaderNextLoadPositionUs = loader.getNextLoadPositionUs();
@@ -62,7 +62,7 @@ public class CompositeSequenceableLoader implements SequenceableLoader {
   }
 
   @Override
-  public final void reevaluateBuffer(long positionUs) {
+  public void reevaluateBuffer(long positionUs) {
     for (SequenceableLoader loader : loaders) {
       loader.reevaluateBuffer(positionUs);
     }
