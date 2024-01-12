@@ -34,6 +34,7 @@ import com.google.common.util.concurrent.MoreExecutors;
 import java.io.IOException;
 import java.nio.ShortBuffer;
 import java.util.concurrent.Executor;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * A {@link GlShaderProgram} for performing separable convolutions.
@@ -87,6 +88,7 @@ import java.util.concurrent.Executor;
   private float functionLutCenterX;
   private float functionLutDomainStart;
   private float functionLutWidth;
+  private @MonotonicNonNull ConvolutionFunction1D lastConvolutionFunction;
 
   /**
    * Creates an instance.
@@ -108,11 +110,12 @@ import java.util.concurrent.Executor;
     inputListener = new InputListener() {};
     outputListener = new OutputListener() {};
     errorListener = (frameProcessingException) -> {};
-
     errorListenerExecutor = MoreExecutors.directExecutor();
     lastInputSize = Size.ZERO;
     intermediateSize = Size.ZERO;
     outputSize = Size.ZERO;
+    lastConvolutionFunction = null;
+
     try {
       glProgram = new GlProgram(context, VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH);
       sharpTransformGlProgram =
@@ -160,7 +163,7 @@ import java.util.concurrent.Executor;
             + " first.");
     try {
       ensureTexturesAreConfigured(
-          glObjectsProvider, new Size(inputTexture.width, inputTexture.height));
+          glObjectsProvider, new Size(inputTexture.width, inputTexture.height), presentationTimeUs);
       outputTextureInUse = true;
       renderHorizontal(inputTexture);
       renderVertical();
@@ -269,10 +272,15 @@ import java.util.concurrent.Executor;
     renderOnePass(intermediateTexture.texId, /* isHorizontal= */ false);
   }
 
-  private void ensureTexturesAreConfigured(GlObjectsProvider glObjectsProvider, Size inputSize)
+  private void ensureTexturesAreConfigured(
+      GlObjectsProvider glObjectsProvider, Size inputSize, long presentationTimeUs)
       throws GlUtil.GlException {
-    // Always update the function texture, as it could change on each render cycle.
-    updateFunctionTexture(glObjectsProvider);
+    ConvolutionFunction1D currentConvolutionFunction =
+        convolution.getConvolution(presentationTimeUs);
+    if (!currentConvolutionFunction.equals(lastConvolutionFunction)) {
+      updateFunctionTexture(glObjectsProvider, currentConvolutionFunction);
+      lastConvolutionFunction = currentConvolutionFunction;
+    }
 
     // Only update intermediate and output textures if the size changes.
     if (inputSize.equals(lastInputSize)) {
@@ -295,10 +303,9 @@ import java.util.concurrent.Executor;
    * Creates a function lookup table for the convolution, and stores it in a 16b floating point
    * texture for GPU access.
    */
-  private void updateFunctionTexture(GlObjectsProvider glObjectsProvider)
+  private void updateFunctionTexture(
+      GlObjectsProvider glObjectsProvider, ConvolutionFunction1D convolutionFunction)
       throws GlUtil.GlException {
-
-    ConvolutionFunction1D convolutionFunction = convolution.getConvolution();
 
     int lutRasterSize =
         (int)
