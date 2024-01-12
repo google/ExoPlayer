@@ -205,13 +205,13 @@ public class DataSourceBitmapLoaderTest {
     File file = tempFolder.newFile();
     Files.write(Paths.get(file.getAbsolutePath()), imageData);
     Uri uri = Uri.fromFile(file);
-    DataSourceBitmapLoader bitmapLoader =
-        new DataSourceBitmapLoader(MoreExecutors.newDirectExecutorService(), dataSourceFactory);
-
     BitmapFactory.Options options = new BitmapFactory.Options();
     options.inMutable = true;
+    DataSourceBitmapLoader bitmapLoader =
+        new DataSourceBitmapLoader(
+            MoreExecutors.newDirectExecutorService(), dataSourceFactory, options);
 
-    Bitmap bitmap = bitmapLoader.loadBitmap(uri, options).get();
+    Bitmap bitmap = bitmapLoader.loadBitmap(uri).get();
 
     assertThat(bitmap.isMutable()).isTrue();
   }

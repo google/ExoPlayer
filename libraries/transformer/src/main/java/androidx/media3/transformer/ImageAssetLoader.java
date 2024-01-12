@@ -112,17 +112,18 @@ public final class ImageAssetLoader implements AssetLoader {
     progressState = PROGRESS_STATE_AVAILABLE;
     listener.onDurationUs(editedMediaItem.durationUs);
     listener.onTrackCount(1);
-    BitmapLoader bitmapLoader =
-        new DataSourceBitmapLoader(
-            MoreExecutors.listeningDecorator(scheduledExecutorService), dataSourceFactory);
-    MediaItem.LocalConfiguration localConfiguration =
-        checkNotNull(editedMediaItem.mediaItem.localConfiguration);
     @Nullable BitmapFactory.Options options = null;
     if (Util.SDK_INT >= 26) {
       options = new BitmapFactory.Options();
       options.inPreferredColorSpace = ColorSpace.get(ColorSpace.Named.SRGB);
     }
-    ListenableFuture<Bitmap> future = bitmapLoader.loadBitmap(localConfiguration.uri, options);
+    BitmapLoader bitmapLoader =
+        new DataSourceBitmapLoader(
+            MoreExecutors.listeningDecorator(scheduledExecutorService), dataSourceFactory, options);
+    MediaItem.LocalConfiguration localConfiguration =
+        checkNotNull(editedMediaItem.mediaItem.localConfiguration);
+
+    ListenableFuture<Bitmap> future = bitmapLoader.loadBitmap(localConfiguration.uri);
     Futures.addCallback(
         future,
         new FutureCallback<Bitmap>() {

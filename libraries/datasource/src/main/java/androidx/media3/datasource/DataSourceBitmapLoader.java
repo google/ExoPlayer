@@ -39,7 +39,7 @@ import java.util.concurrent.Executors;
 
 /**
  * A {@link BitmapLoader} implementation that uses a {@link DataSource} to support fetching images
- * from URIs.
+ * from URIs and {@link BitmapFactory} to load them into {@link Bitmap}.
  *
  * <p>Loading tasks are delegated to a {@link ListeningExecutorService} defined during construction.
  * If no executor service is passed, all tasks are delegated to a single-thread executor service
@@ -54,6 +54,7 @@ public final class DataSourceBitmapLoader implements BitmapLoader {
 
   private final ListeningExecutorService listeningExecutorService;
   private final DataSource.Factory dataSourceFactory;
+  @Nullable private final BitmapFactory.Options options;
 
   /**
    * Creates an instance that uses a {@link DefaultHttpDataSource} for image loading and delegates
@@ -72,17 +73,33 @@ public final class DataSourceBitmapLoader implements BitmapLoader {
    */
   public DataSourceBitmapLoader(
       ListeningExecutorService listeningExecutorService, DataSource.Factory dataSourceFactory) {
+    this(listeningExecutorService, dataSourceFactory, /* options= */ null);
+  }
+
+  /**
+   * Creates an instance that delegates loading tasks to the {@link ListeningExecutorService}.
+   *
+   * @param listeningExecutorService The {@link ListeningExecutorService}.
+   * @param dataSourceFactory The {@link DataSource.Factory} that creates the {@link DataSource}
+   *     used to load the image.
+   * @param options The {@link BitmapFactory.Options} the image should be loaded with.
+   */
+  public DataSourceBitmapLoader(
+      ListeningExecutorService listeningExecutorService,
+      DataSource.Factory dataSourceFactory,
+      @Nullable BitmapFactory.Options options) {
     this.listeningExecutorService = listeningExecutorService;
     this.dataSourceFactory = dataSourceFactory;
+    this.options = options;
   }
 
   @Override
   public ListenableFuture<Bitmap> decodeBitmap(byte[] data) {
-    return listeningExecutorService.submit(() -> decode(data, /* options= */ null));
+    return listeningExecutorService.submit(() -> decode(data, options));
   }
 
   @Override
-  public ListenableFuture<Bitmap> loadBitmap(Uri uri, @Nullable BitmapFactory.Options options) {
+  public ListenableFuture<Bitmap> loadBitmap(Uri uri) {
     return listeningExecutorService.submit(
         () -> load(dataSourceFactory.createDataSource(), uri, options));
   }
