@@ -50,8 +50,12 @@ public abstract class SeparableConvolution implements GlEffect {
     this.scaleFactor = scaleFactor;
   }
 
-  /** Returns a {@linkplain ConvolutionFunction1D 1D convolution function}. */
-  public abstract ConvolutionFunction1D getConvolution();
+  /**
+   * Returns a {@linkplain ConvolutionFunction1D 1D convolution function}.
+   *
+   * @param presentationTimeUs The presentation timestamp of the input frame, in microseconds.
+   */
+  public abstract ConvolutionFunction1D getConvolution(long presentationTimeUs);
 
   @Override
   public GlShaderProgram toGlShaderProgram(Context context, boolean useHdr)

@@ -21,6 +21,8 @@ import static java.lang.Math.exp;
 import static java.lang.Math.sqrt;
 
 import androidx.annotation.FloatRange;
+import androidx.annotation.Nullable;
+import java.util.Objects;
 
 /**
  * Implementation of a symmetric Gaussian function with a limited domain.
@@ -71,5 +73,22 @@ public final class GaussianFunction implements ConvolutionFunction1D {
     float samplePositionOverSigma = samplePosition / sigma;
     return (float)
         (exp(-samplePositionOverSigma * samplePositionOverSigma / 2) / sqrt(2 * PI) / sigma);
+  }
+
+  @Override
+  public boolean equals(@Nullable Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof GaussianFunction)) {
+      return false;
+    }
+    GaussianFunction that = (GaussianFunction) o;
+    return Float.compare(that.sigma, sigma) == 0 && Float.compare(that.numStdDev, numStdDev) == 0;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(sigma, numStdDev);
   }
 }

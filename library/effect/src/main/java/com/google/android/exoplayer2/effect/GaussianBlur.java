@@ -55,11 +55,10 @@ public final class GaussianBlur extends SeparableConvolution {
    */
   public GaussianBlur(float sigma) {
     this(sigma, /* numStandardDeviations= */ 2.0f);
-    ;
   }
 
   @Override
-  public ConvolutionFunction1D getConvolution() {
+  public ConvolutionFunction1D getConvolution(long presentationTimeUs) {
     return new GaussianFunction(sigma, numStandardDeviations);
   }
 }

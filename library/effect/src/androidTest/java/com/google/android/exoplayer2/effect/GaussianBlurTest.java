@@ -99,4 +99,28 @@ public class GaussianBlurTest {
     assertThat(actualPresentationTimesUs).containsExactly(32_000L);
     getAndAssertOutputBitmaps(textureBitmapReader, actualPresentationTimesUs, testId, ASSET_PATH);
   }
+
+  @Test
+  @RequiresNonNull({"textureBitmapReader", "testId"})
+  public void gaussianBlur_sigmaChangesWithTime_differentFramesHaveDifferentBlurs()
+      throws Exception {
+    ImmutableList<Long> frameTimesUs = ImmutableList.of(32_000L, 71_000L);
+    ImmutableList<Long> actualPresentationTimesUs =
+        generateAndProcessFrames(
+            BLANK_FRAME_WIDTH,
+            BLANK_FRAME_HEIGHT,
+            frameTimesUs,
+            new SeparableConvolution() {
+              @Override
+              public ConvolutionFunction1D getConvolution(long presentationTimeUs) {
+                return new GaussianFunction(
+                    presentationTimeUs < 40_000L ? 5f : 20f, /* numStandardDeviations= */ 2.0f);
+              }
+            },
+            textureBitmapReader,
+            TEXT_SPAN_CONSUMER);
+
+    assertThat(actualPresentationTimesUs).containsExactly(32_000L, 71_000L);
+    getAndAssertOutputBitmaps(textureBitmapReader, actualPresentationTimesUs, testId, ASSET_PATH);
+  }
 }
