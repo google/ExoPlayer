@@ -55,6 +55,10 @@
         `ColorInfo.colorSpace`, `ColorInfo.colorTransfer`, and
         `ColorInfo.colorRange` values
         ([#692](https://github.com/androidx/media/pull/692)).
+    *   MP3: Use constant bitrate (CBR) seeking for files with an `Info` header
+        (the CBR equivalent of the `Xing` header). Previously we used the seek
+        table from the `Info` header, but this results in less precise seeking
+        than if we ignore it and assume the file is CBR.
 *   Audio:
 *   Video:
     *   Change the `MediaCodecVideoRenderer` constructor that takes a

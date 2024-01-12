@@ -2,13 +2,13 @@ seekMap:
   isSeekable = true
   duration = 1044875
   getPosition(0) = [[timeUs=0, position=227]]
-  getPosition(1) = [[timeUs=1, position=227]]
-  getPosition(522437) = [[timeUs=522437, position=4582]]
-  getPosition(1044875) = [[timeUs=1044875, position=8585]]
+  getPosition(1) = [[timeUs=0, position=227], [timeUs=26000, position=435]]
+  getPosition(522437) = [[timeUs=520000, position=4387], [timeUs=546000, position=4595]]
+  getPosition(1044875) = [[timeUs=1018875, position=8378]]
 numberOfTracks = 1
 track 0:
-  total output bytes = 2717
-  sample count = 13
+  total output bytes = 2926
+  sample count = 14
   format 0:
     sampleMimeType = audio/mpeg
     maxInputSize = 4096
@@ -18,55 +18,59 @@ track 0:
     encoderPadding = 1404
     metadata = entries=[TSSE: description=null: values=[Lavf58.45.100]]
   sample 0:
-    time = 679168
+    time = 679125
+    flags = 1
+    data = length 209, hash 3EB1A364
+  sample 1:
+    time = 705247
     flags = 1
     data = length 209, hash 30962500
-  sample 1:
-    time = 705290
+  sample 2:
+    time = 731369
     flags = 1
     data = length 209, hash 2C5CCBB7
-  sample 2:
-    time = 731412
+  sample 3:
+    time = 757492
     flags = 1
     data = length 209, hash F9CB9E37
-  sample 3:
-    time = 757535
+  sample 4:
+    time = 783614
     flags = 1
     data = length 209, hash F75BC8C0
-  sample 4:
-    time = 783657
+  sample 5:
+    time = 809737
     flags = 1
     data = length 209, hash D00ED607
-  sample 5:
-    time = 809780
+  sample 6:
+    time = 835859
     flags = 1
     data = length 209, hash B4338395
-  sample 6:
-    time = 835902
+  sample 7:
+    time = 861982
     flags = 1
     data = length 209, hash E3E838A0
-  sample 7:
-    time = 862025
+  sample 8:
+    time = 888104
     flags = 1
     data = length 209, hash 2B0CF78
-  sample 8:
-    time = 888147
+  sample 9:
+    time = 914227
     flags = 1
     data = length 209, hash 31906FA9
-  sample 9:
-    time = 914270
+  sample 10:
+    time = 940349
     flags = 1
     data = length 209, hash C92FC08F
-  sample 10:
-    time = 940392
+  sample 11:
+    time = 966471
     flags = 1
     data = length 209, hash 7C89994
-  sample 11:
-    time = 966514
+  sample 12:
+    time = 992594
     flags = 1
     data = length 209, hash EC37743B
-  sample 12:
-    time = 992637
+  sample 13:
+    time = 1018716
     flags = 1
     data = length 209, hash C974F6FB
 tracksEnded = true
