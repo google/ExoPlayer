@@ -49,6 +49,11 @@ public final class CacheBitmapLoader implements BitmapLoader {
   }
 
   @Override
+  public boolean supportsMimeType(String mimeType) {
+    return bitmapLoader.supportsMimeType(mimeType);
+  }
+
+  @Override
   public ListenableFuture<Bitmap> decodeBitmap(byte[] data) {
     if (lastBitmapLoadRequest != null && lastBitmapLoadRequest.matches(data)) {
       return lastBitmapLoadRequest.getFuture();

@@ -17,6 +17,7 @@ package androidx.media3.datasource;
 
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
+import static androidx.media3.common.util.Util.isBitmapFactorySupportedMimeType;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -91,6 +92,11 @@ public final class DataSourceBitmapLoader implements BitmapLoader {
     this.listeningExecutorService = listeningExecutorService;
     this.dataSourceFactory = dataSourceFactory;
     this.options = options;
+  }
+
+  @Override
+  public boolean supportsMimeType(String mimeType) {
+    return isBitmapFactorySupportedMimeType(mimeType);
   }
 
   @Override

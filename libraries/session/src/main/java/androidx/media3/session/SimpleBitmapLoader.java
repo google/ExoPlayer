@@ -17,6 +17,7 @@ package androidx.media3.session;
 
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
+import static androidx.media3.common.util.Util.isBitmapFactorySupportedMimeType;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -64,6 +65,11 @@ public final class SimpleBitmapLoader implements BitmapLoader {
   /** Creates an instance that delegates loading tasks to the {@code executorService}. */
   public SimpleBitmapLoader(ExecutorService executorService) {
     this.executorService = MoreExecutors.listeningDecorator(executorService);
+  }
+
+  @Override
+  public boolean supportsMimeType(String mimeType) {
+    return isBitmapFactorySupportedMimeType(mimeType);
   }
 
   @Override

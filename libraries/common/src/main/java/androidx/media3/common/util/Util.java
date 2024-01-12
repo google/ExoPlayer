@@ -3150,6 +3150,25 @@ public final class Util {
   }
 
   /**
+   * Returns the image MIME types that can be decoded and loaded by {@link
+   * android.graphics.BitmapFactory} that Media3 aims to support.
+   */
+  @UnstableApi
+  public static boolean isBitmapFactorySupportedMimeType(String mimeType) {
+    switch (mimeType) {
+      case MimeTypes.IMAGE_PNG:
+      case MimeTypes.IMAGE_JPEG:
+      case MimeTypes.IMAGE_BMP:
+      case MimeTypes.IMAGE_WEBP:
+        return true;
+      case MimeTypes.IMAGE_HEIF:
+        return Util.SDK_INT >= 26;
+      default:
+        return false;
+    }
+  }
+
+  /**
    * Returns a list of strings representing the {@link C.SelectionFlags} values present in {@code
    * selectionFlags}.
    */
