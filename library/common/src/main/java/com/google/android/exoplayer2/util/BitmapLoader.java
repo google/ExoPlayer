@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.util;
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.MediaMetadata;
@@ -36,12 +35,7 @@ public interface BitmapLoader {
   ListenableFuture<Bitmap> decodeBitmap(byte[] data);
 
   /** Loads an image from {@code uri}. */
-  default ListenableFuture<Bitmap> loadBitmap(Uri uri) {
-    return loadBitmap(uri, /* options= */ null);
-  }
-
-  /** Loads an image from {@code uri} with the given {@link BitmapFactory.Options}. */
-  ListenableFuture<Bitmap> loadBitmap(Uri uri, @Nullable BitmapFactory.Options options);
+  ListenableFuture<Bitmap> loadBitmap(Uri uri);
 
   /**
    * Loads an image from {@link MediaMetadata}. Returns null if {@code metadata} doesn't contain
