@@ -31,6 +31,10 @@ import com.google.common.util.concurrent.ListenableFuture;
  */
 @Deprecated
 public interface BitmapLoader {
+
+  /** Returns whether the given {@code mimeType} is supported. */
+  boolean supportsMimeType(String mimeType);
+
   /** Decodes an image from compressed binary data. */
   ListenableFuture<Bitmap> decodeBitmap(byte[] data);
 

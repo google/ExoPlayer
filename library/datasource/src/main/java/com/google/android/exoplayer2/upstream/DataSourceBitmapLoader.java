@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.upstream;
 
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
+import static com.google.android.exoplayer2.util.Util.isBitmapFactorySupportedMimeType;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -95,6 +96,11 @@ public final class DataSourceBitmapLoader implements BitmapLoader {
     this.listeningExecutorService = listeningExecutorService;
     this.dataSourceFactory = dataSourceFactory;
     this.options = options;
+  }
+
+  @Override
+  public boolean supportsMimeType(String mimeType) {
+    return isBitmapFactorySupportedMimeType(mimeType);
   }
 
   @Override
