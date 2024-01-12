@@ -35,6 +35,12 @@
     *   Implement `HttpEngineDataSource`, an `HttpDataSource` using the
         [HttpEngine](https://developer.android.com/reference/android/net/http/HttpEngine)
         API.
+    *   Prevent subclassing `CompositeSequenceableLoader`. This component was
+        [previously made extensible](https://github.com/androidx/media/commit/0de57cbfae7165dd3bb829e323d089cd312b4b1b)
+        but was never subclassed within the library. Customizations can be done
+        by wrapping an instance using the
+        [decorator pattern](https://en.wikipedia.org/wiki/Decorator_pattern) and
+        implementing a custom `CompositeSequenceableLoaderFactory`.
 *   Transformer:
     *   Add support for flattening H.265/HEVC SEF slow motion videos.
     *   Increase transmuxing speed, especially for 'remove video' edits.
