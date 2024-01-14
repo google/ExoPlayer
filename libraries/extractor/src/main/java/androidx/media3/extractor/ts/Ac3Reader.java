@@ -60,6 +60,7 @@ public final class Ac3Reader implements ElementaryStreamReader {
   private final ParsableBitArray headerScratchBits;
   private final ParsableByteArray headerScratchBytes;
   @Nullable private final String language;
+  @C.AudioType private final int audioType;
 
   private @MonotonicNonNull String formatId;
   private @MonotonicNonNull TrackOutput output;
@@ -80,20 +81,22 @@ public final class Ac3Reader implements ElementaryStreamReader {
 
   /** Constructs a new reader for (E-)AC-3 elementary streams. */
   public Ac3Reader() {
-    this(null);
+    this(null, C.AUDIO_TYPE_UNDEFINED);
   }
 
   /**
    * Constructs a new reader for (E-)AC-3 elementary streams.
    *
    * @param language Track language.
+   * @param audioType Track audio type.
    */
-  public Ac3Reader(@Nullable String language) {
+  public Ac3Reader(@Nullable String language, @C.AudioType int audioType) {
     headerScratchBits = new ParsableBitArray(new byte[HEADER_SIZE]);
     headerScratchBytes = new ParsableByteArray(headerScratchBits.data);
     state = STATE_FINDING_SYNC;
     timeUs = C.TIME_UNSET;
     this.language = language;
+    this.audioType = audioType;
   }
 
   @Override
@@ -216,6 +219,7 @@ public final class Ac3Reader implements ElementaryStreamReader {
               .setChannelCount(frameInfo.channelCount)
               .setSampleRate(frameInfo.sampleRate)
               .setLanguage(language)
+              .setRoleFlags(C.parseRoleFlagsFromAudioType(audioType))
               .setPeakBitrate(frameInfo.bitrate);
       // AC3 has constant bitrate, so averageBitrate = peakBitrate
       if (MimeTypes.AUDIO_AC3.equals(frameInfo.mimeType)) {

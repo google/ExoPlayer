@@ -57,6 +57,7 @@ public final class Ac4Reader implements ElementaryStreamReader {
   private final ParsableBitArray headerScratchBits;
   private final ParsableByteArray headerScratchBytes;
   @Nullable private final String language;
+  @C.AudioType private final int audioType;
 
   private @MonotonicNonNull String formatId;
   private @MonotonicNonNull TrackOutput output;
@@ -78,15 +79,16 @@ public final class Ac4Reader implements ElementaryStreamReader {
 
   /** Constructs a new reader for AC-4 elementary streams. */
   public Ac4Reader() {
-    this(null);
+    this(null, C.AUDIO_TYPE_UNDEFINED);
   }
 
   /**
    * Constructs a new reader for AC-4 elementary streams.
    *
    * @param language Track language.
+   * @param audioType Track audio type.
    */
-  public Ac4Reader(@Nullable String language) {
+  public Ac4Reader(@Nullable String language, @C.AudioType int audioType) {
     headerScratchBits = new ParsableBitArray(new byte[Ac4Util.HEADER_SIZE_FOR_PARSER]);
     headerScratchBytes = new ParsableByteArray(headerScratchBits.data);
     state = STATE_FINDING_SYNC;
@@ -95,6 +97,7 @@ public final class Ac4Reader implements ElementaryStreamReader {
     hasCRC = false;
     timeUs = C.TIME_UNSET;
     this.language = language;
+    this.audioType = audioType;
   }
 
   @Override
@@ -217,6 +220,7 @@ public final class Ac4Reader implements ElementaryStreamReader {
               .setChannelCount(frameInfo.channelCount)
               .setSampleRate(frameInfo.sampleRate)
               .setLanguage(language)
+              .setRoleFlags(C.parseRoleFlagsFromAudioType(audioType))
               .build();
       output.format(format);
     }
