@@ -576,7 +576,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
           }
           PlayerWrapper player = sessionImpl.getPlayerWrapper();
           if (!player.isCommandAvailable(Player.COMMAND_GET_TIMELINE)) {
-            Log.w(TAG, "Can't remove item by id without availabe COMMAND_GET_TIMELINE");
+            Log.w(TAG, "Can't remove item by ID without COMMAND_GET_TIMELINE being available");
             return;
           }
           Timeline timeline = player.getCurrentTimeline();
