@@ -441,6 +441,7 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
                   && !(extractor.getUnderlyingImplementation() instanceof FragmentedMp4Extractor)
                   && !(extractor.getUnderlyingImplementation() instanceof Mp4Extractor)
                   && !(extractor.getUnderlyingImplementation() instanceof TsExtractor)
+                  && !(extractor.getUnderlyingImplementation() instanceof AviExtractor)
               ? new SubtitleTranscodingExtractor(extractor, subtitleParserFactory)
               : extractor;
     }
@@ -550,7 +551,10 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
         }
         break;
       case FileTypes.AVI:
-        extractors.add(new AviExtractor());
+        extractors.add(
+            new AviExtractor(
+                (textTrackTranscodingEnabled ? 0 : AviExtractor.FLAG_EMIT_RAW_SUBTITLE_DATA),
+                subtitleParserFactory));
         break;
       case FileTypes.PNG:
         extractors.add(new PngExtractor());

@@ -175,7 +175,7 @@ public final class DefaultExtractorsFactoryTest {
         tsExtractor = extractor;
       }
     }
-    assertThat(aviExtractor).isInstanceOf(SubtitleTranscodingExtractor.class);
+    assertThat(aviExtractor).isNotInstanceOf(SubtitleTranscodingExtractor.class);
     assertThat(matroskaExtractor).isInstanceOf(SubtitleTranscodingExtractor.class);
     assertThat(mp4Extractor).isNotInstanceOf(SubtitleTranscodingExtractor.class);
     assertThat(fragmentedMp4Extractor).isNotInstanceOf(SubtitleTranscodingExtractor.class);
