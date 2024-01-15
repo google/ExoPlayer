@@ -36,6 +36,7 @@ import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.testutil.CapturingAudioSink;
 import com.google.android.exoplayer2.testutil.DumpFileAsserts;
+import com.google.android.exoplayer2.text.DefaultSubtitleParserFactory;
 import com.google.android.exoplayer2.upstream.DefaultDataSource;
 import org.junit.Before;
 import org.junit.Test;
@@ -126,7 +127,8 @@ public class OpusPlaybackTest {
       player.addListener(this);
       MediaSource mediaSource =
           new ProgressiveMediaSource.Factory(
-                  new DefaultDataSource.Factory(context), MatroskaExtractor.FACTORY)
+                  new DefaultDataSource.Factory(context),
+                  MatroskaExtractor.newFactory(new DefaultSubtitleParserFactory()))
               .createMediaSource(MediaItem.fromUri(uri));
       player.setMediaSource(mediaSource);
       player.prepare();

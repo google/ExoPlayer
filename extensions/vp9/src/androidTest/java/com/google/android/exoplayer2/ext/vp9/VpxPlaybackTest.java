@@ -33,6 +33,7 @@ import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.extractor.mkv.MatroskaExtractor;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
+import com.google.android.exoplayer2.text.DefaultSubtitleParserFactory;
 import com.google.android.exoplayer2.upstream.DefaultDataSource;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.video.VideoDecoderGLSurfaceView;
@@ -134,7 +135,8 @@ public class VpxPlaybackTest {
       player.addListener(this);
       MediaSource mediaSource =
           new ProgressiveMediaSource.Factory(
-                  new DefaultDataSource.Factory(context), MatroskaExtractor.FACTORY)
+                  new DefaultDataSource.Factory(context),
+                  MatroskaExtractor.newFactory(new DefaultSubtitleParserFactory()))
               .createMediaSource(MediaItem.fromUri(uri));
       player.setVideoSurfaceView(new VideoDecoderGLSurfaceView(context));
       player.setMediaSource(mediaSource);

@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.extractor;
 
-import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.net.Uri;
@@ -142,44 +141,6 @@ public final class DefaultExtractorsFactoryTest {
     for (Extractor extractor : extractors) {
       assertThat(extractor.getClass()).isNotEqualTo(SubtitleTranscodingExtractor.class);
     }
-  }
-
-  @Test
-  public void subtitleTranscoding_ifEnabled_wrapsExtractorsThatSupportMuxedSubtitles() {
-    DefaultExtractorsFactory defaultExtractorsFactory =
-        new DefaultExtractorsFactory().setTextTrackTranscodingEnabled(true);
-
-    Extractor[] extractors = defaultExtractorsFactory.createExtractors();
-
-    Extractor aviExtractor = null;
-    Extractor matroskaExtractor = null;
-    Extractor mp4Extractor = null;
-    Extractor fragmentedMp4Extractor = null;
-    Extractor tsExtractor = null;
-
-    for (Extractor extractor : extractors) {
-      if (extractor.getUnderlyingImplementation() instanceof AviExtractor) {
-        checkState(aviExtractor == null);
-        aviExtractor = extractor;
-      } else if (extractor.getUnderlyingImplementation() instanceof MatroskaExtractor) {
-        checkState(matroskaExtractor == null);
-        matroskaExtractor = extractor;
-      } else if (extractor.getUnderlyingImplementation() instanceof Mp4Extractor) {
-        checkState(mp4Extractor == null);
-        mp4Extractor = extractor;
-      } else if (extractor.getUnderlyingImplementation() instanceof FragmentedMp4Extractor) {
-        checkState(fragmentedMp4Extractor == null);
-        fragmentedMp4Extractor = extractor;
-      } else if (extractor.getUnderlyingImplementation() instanceof TsExtractor) {
-        checkState(tsExtractor == null);
-        tsExtractor = extractor;
-      }
-    }
-    assertThat(aviExtractor).isNotInstanceOf(SubtitleTranscodingExtractor.class);
-    assertThat(matroskaExtractor).isInstanceOf(SubtitleTranscodingExtractor.class);
-    assertThat(mp4Extractor).isNotInstanceOf(SubtitleTranscodingExtractor.class);
-    assertThat(fragmentedMp4Extractor).isNotInstanceOf(SubtitleTranscodingExtractor.class);
-    assertThat(tsExtractor).isNotInstanceOf(SubtitleTranscodingExtractor.class);
   }
 
   private static List<Class<? extends Extractor>> getUnderlyingExtractorClasses(

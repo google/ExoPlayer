@@ -103,7 +103,16 @@ public final class BundledChunkExtractor implements ExtractorOutput, ChunkExtrac
                   subtitleParserFactory.create(representationFormat), representationFormat);
         }
       } else if (MimeTypes.isMatroska(containerMimeType)) {
-        extractor = new MatroskaExtractor(MatroskaExtractor.FLAG_DISABLE_SEEK_FOR_CUES);
+        @MatroskaExtractor.Flags int flags = MatroskaExtractor.FLAG_DISABLE_SEEK_FOR_CUES;
+        if (subtitleParserFactory == null) {
+          flags |= MatroskaExtractor.FLAG_EMIT_RAW_SUBTITLE_DATA;
+        }
+        extractor =
+            new MatroskaExtractor(
+                subtitleParserFactory != null
+                    ? subtitleParserFactory
+                    : SubtitleParser.Factory.UNSUPPORTED,
+                flags);
       } else if (Objects.equals(containerMimeType, MimeTypes.IMAGE_JPEG)) {
         extractor = new JpegExtractor(JpegExtractor.FLAG_READ_IMAGE);
       } else if (Objects.equals(containerMimeType, MimeTypes.IMAGE_PNG)) {
@@ -129,7 +138,8 @@ public final class BundledChunkExtractor implements ExtractorOutput, ChunkExtrac
       }
       if (subtitleParserFactory != null
           && !MimeTypes.isText(containerMimeType)
-          && !(extractor.getUnderlyingImplementation() instanceof FragmentedMp4Extractor)) {
+          && !(extractor.getUnderlyingImplementation() instanceof FragmentedMp4Extractor)
+          && !(extractor.getUnderlyingImplementation() instanceof MatroskaExtractor)) {
         extractor = new SubtitleTranscodingExtractor(extractor, subtitleParserFactory);
       }
       return new BundledChunkExtractor(extractor, primaryTrackType, representationFormat);

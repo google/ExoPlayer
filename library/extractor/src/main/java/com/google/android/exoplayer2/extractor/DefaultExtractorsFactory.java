@@ -253,7 +253,7 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
   /**
    * Sets flags for {@link MatroskaExtractor} instances created by the factory.
    *
-   * @see MatroskaExtractor#MatroskaExtractor(int)
+   * @see MatroskaExtractor#MatroskaExtractor(SubtitleParser.Factory, int)
    * @param flags The flags to use.
    * @return The factory, for convenience.
    */
@@ -446,6 +446,7 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
                   && !(extractor.getUnderlyingImplementation() instanceof Mp4Extractor)
                   && !(extractor.getUnderlyingImplementation() instanceof TsExtractor)
                   && !(extractor.getUnderlyingImplementation() instanceof AviExtractor)
+                  && !(extractor.getUnderlyingImplementation() instanceof MatroskaExtractor)
               ? new SubtitleTranscodingExtractor(extractor, subtitleParserFactory)
               : extractor;
     }
@@ -494,7 +495,13 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
         extractors.add(new FlvExtractor());
         break;
       case FileTypes.MATROSKA:
-        extractors.add(new MatroskaExtractor(matroskaFlags));
+        extractors.add(
+            new MatroskaExtractor(
+                subtitleParserFactory,
+                matroskaFlags
+                    | (textTrackTranscodingEnabled
+                        ? 0
+                        : MatroskaExtractor.FLAG_EMIT_RAW_SUBTITLE_DATA)));
         break;
       case FileTypes.MP3:
         extractors.add(
