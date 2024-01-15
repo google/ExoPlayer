@@ -1,0 +1,30 @@
+seekMap:
+  isSeekable = true
+  duration = 8901000
+  getPosition(0) = [[timeUs=0, position=5401]]
+  getPosition(1) = [[timeUs=0, position=5401], [timeUs=2345000, position=5401]]
+  getPosition(4450500) = [[timeUs=2345000, position=5401], [timeUs=4567000, position=5401]]
+  getPosition(8901000) = [[timeUs=4567000, position=5401]]
+numberOfTracks = 1
+track 1:
+  total output bytes = 2951
+  sample count = 3
+  format 0:
+    id = 1
+    sampleMimeType = application/x-media3-cues
+    codecs = application/x-subrip
+    selectionFlags = [default]
+    language = und
+  sample 0:
+    time = 0
+    flags = 1
+    data = length 972, hash 8E8A2E4B
+  sample 1:
+    time = 2345000
+    flags = 1
+    data = length 1007, hash 87030429
+  sample 2:
+    time = 4567000
+    flags = 1
+    data = length 972, hash C2C47517
+tracksEnded = true
