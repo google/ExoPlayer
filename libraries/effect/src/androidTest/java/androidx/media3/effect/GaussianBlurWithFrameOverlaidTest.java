@@ -19,6 +19,7 @@ import static androidx.media3.effect.EffectsTestUtil.generateAndProcessFrames;
 import static androidx.media3.effect.EffectsTestUtil.getAndAssertOutputBitmaps;
 import static com.google.common.truth.Truth.assertThat;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -26,6 +27,7 @@ import android.text.style.AbsoluteSizeSpan;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.TypefaceSpan;
+import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.util.Consumer;
 import androidx.media3.test.utils.TextureBitmapReader;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -41,10 +43,10 @@ import org.junit.runner.RunWith;
 
 /** Tests for {@link GaussianBlur}. */
 @RunWith(AndroidJUnit4.class)
-public class GaussianBlurTest {
+public class GaussianBlurWithFrameOverlaidTest {
   @Rule public final TestName testName = new TestName();
 
-  private static final String ASSET_PATH = "media/bitmap/GaussianBlurTest";
+  private static final String ASSET_PATH = "media/bitmap/GaussianBlurWithFrameOverlaidTest";
   private static final int BLANK_FRAME_WIDTH = 200;
   private static final int BLANK_FRAME_HEIGHT = 100;
   private static final Consumer<SpannableString> TEXT_SPAN_CONSUMER =
@@ -86,18 +88,55 @@ public class GaussianBlurTest {
 
   @Test
   @RequiresNonNull({"textureBitmapReader", "testId"})
-  public void gaussianBlur_blursFrame() throws Exception {
-    ImmutableList<Long> frameTimesUs = ImmutableList.of(22_000L);
+  public void gaussianBlurWithFrameOverlaid_blursFrameAndOverlaysSharpImage() throws Exception {
+    ImmutableList<Long> frameTimesUs = ImmutableList.of(32_000L);
     ImmutableList<Long> actualPresentationTimesUs =
         generateAndProcessFrames(
             BLANK_FRAME_WIDTH,
             BLANK_FRAME_HEIGHT,
             frameTimesUs,
-            new GaussianBlur(/* sigma= */ 5f),
+            new GaussianBlurWithFrameOverlaid(
+                /* sigma= */ 5f, /* scaleSharpX= */ 0.5f, /* scaleSharpY= */ 1f),
             textureBitmapReader,
             TEXT_SPAN_CONSUMER);
 
-    assertThat(actualPresentationTimesUs).containsExactly(22_000L);
+    assertThat(actualPresentationTimesUs).containsExactly(32_000L);
+    getAndAssertOutputBitmaps(textureBitmapReader, actualPresentationTimesUs, testId, ASSET_PATH);
+  }
+
+  @Test
+  @RequiresNonNull({"textureBitmapReader", "testId"})
+  public void gaussianBlurWithFrameOverlaid_sigmaChangesWithTime_differentFramesHaveDifferentBlurs()
+      throws Exception {
+    ImmutableList<Long> frameTimesUs = ImmutableList.of(32_000L, 71_000L);
+    ImmutableList<Long> actualPresentationTimesUs =
+        generateAndProcessFrames(
+            BLANK_FRAME_WIDTH,
+            BLANK_FRAME_HEIGHT,
+            frameTimesUs,
+            new SeparableConvolution() {
+              @Override
+              public ConvolutionFunction1D getConvolution(long presentationTimeUs) {
+                return new GaussianFunction(
+                    presentationTimeUs < 40_000L ? 5f : 20f, /* numStandardDeviations= */ 2.0f);
+              }
+
+              @Override
+              public GlShaderProgram toGlShaderProgram(Context context, boolean useHdr)
+                  throws VideoFrameProcessingException {
+                return new SharpSeparableConvolutionShaderProgram(
+                    context,
+                    useHdr,
+                    /* convolution= */ this,
+                    /* scaleFactor= */
+                    /* scaleSharpX= */ 0.5f,
+                    /* scaleSharpY= */ 1f);
+              }
+            },
+            textureBitmapReader,
+            TEXT_SPAN_CONSUMER);
+
+    assertThat(actualPresentationTimesUs).containsExactly(32_000L, 71_000L);
     getAndAssertOutputBitmaps(textureBitmapReader, actualPresentationTimesUs, testId, ASSET_PATH);
   }
 }
