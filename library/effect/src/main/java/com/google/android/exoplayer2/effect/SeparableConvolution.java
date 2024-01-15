@@ -33,21 +33,25 @@ import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 @RequiresApi(26) // See SeparableConvolutionShaderProgram.
 @Deprecated
 public abstract class SeparableConvolution implements GlEffect {
-  private final float scaleFactor;
+  private final float scaleWidth;
+  private final float scaleHeight;
 
-  /** Creates an instance with a {@code scaleFactor} of {@code 1}. */
+  /** Creates an instance with {@code scaleWidth} and {@code scaleHeight} set to {@code 1.0f}. */
   public SeparableConvolution() {
-    this(/* scaleFactor= */ 1.0f);
+    this(/* scaleWidth= */ 1.0f, /* scaleHeight= */ 1.0f);
   }
 
   /**
    * Creates an instance.
    *
-   * @param scaleFactor The scaling factor used to determine the size of the output relative to the
-   *     input. The aspect ratio remains constant.
+   * @param scaleWidth The scaling factor used to determine the width of the output relative to the
+   *     input.
+   * @param scaleHeight The scaling factor used to determine the height of the output relative to
+   *     the input.
    */
-  public SeparableConvolution(float scaleFactor) {
-    this.scaleFactor = scaleFactor;
+  public SeparableConvolution(float scaleWidth, float scaleHeight) {
+    this.scaleWidth = scaleWidth;
+    this.scaleHeight = scaleHeight;
   }
 
   /**
@@ -60,6 +64,7 @@ public abstract class SeparableConvolution implements GlEffect {
   @Override
   public GlShaderProgram toGlShaderProgram(Context context, boolean useHdr)
       throws VideoFrameProcessingException {
-    return new SeparableConvolutionShaderProgram(context, useHdr, this, scaleFactor);
+    return new SeparableConvolutionShaderProgram(
+        context, useHdr, /* convolution= */ this, scaleWidth, scaleHeight);
   }
 }

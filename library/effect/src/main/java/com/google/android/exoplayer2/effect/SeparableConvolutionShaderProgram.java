@@ -15,13 +15,11 @@
  */
 package com.google.android.exoplayer2.effect;
 
-import static com.google.android.exoplayer2.effect.MatrixUtils.getGlMatrixArray;
-
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.Matrix;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
+import androidx.annotation.CallSuper;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.GlObjectsProvider;
@@ -49,7 +47,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  */
 @RequiresApi(26) // Uses Bitmap.Config.RGBA_F16.
 @Deprecated
-/* package */ final class SeparableConvolutionShaderProgram implements GlShaderProgram {
+public class SeparableConvolutionShaderProgram implements GlShaderProgram {
   private static final String VERTEX_SHADER_PATH = "shaders/vertex_shader_transformation_es2.glsl";
   private static final String FRAGMENT_SHADER_PATH =
       "shaders/fragment_shader_separable_convolution_es2.glsl";
@@ -73,27 +71,26 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   // END FP16 copied code.
 
   private final GlProgram glProgram;
-  private final GlProgram sharpTransformGlProgram;
-  private final float[] sharpTransformMatrixValues;
   private final boolean useHdr;
   private final SeparableConvolution convolution;
-  private final float scaleFactor;
+  private final float scaleWidth;
+  private final float scaleHeight;
 
   private GlShaderProgram.InputListener inputListener;
   private GlShaderProgram.OutputListener outputListener;
   private GlShaderProgram.ErrorListener errorListener;
   private Executor errorListenerExecutor;
-  private Size outputSize;
-  private Size lastInputSize;
-  private Size intermediateSize;
-  private GlTextureInfo outputTexture;
   private boolean outputTextureInUse;
+  private GlTextureInfo outputTexture;
   private GlTextureInfo intermediateTexture;
   private GlTextureInfo functionLutTexture; // Values for the function LUT as a texture.
   private float functionLutTexelStep;
   private float functionLutCenterX;
   private float functionLutDomainStart;
   private float functionLutWidth;
+  private Size outputSize;
+  private Size lastInputSize;
+  private Size intermediateSize;
   private @MonotonicNonNull ConvolutionFunction1D lastConvolutionFunction;
 
   /**
@@ -103,20 +100,30 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @param useHdr Whether input textures come from an HDR source. If {@code true}, colors will be
    *     in linear RGB BT.2020. If {@code false}, colors will be in linear RGB BT.709.
    * @param convolution The {@link SeparableConvolution} to apply in each direction.
-   * @param scaleFactor The scaling factor used to determine the size of the output relative to the
-   *     input. The aspect ratio remains constant.
+   * @param scaleWidth The scaling factor used to determine the width of the output relative to the
+   *     input.
+   * @param scaleHeight The scaling factor used to determine the height of the output relative to
+   *     the input.
    * @throws VideoFrameProcessingException If a problem occurs while reading shader files.
    */
   public SeparableConvolutionShaderProgram(
-      Context context, boolean useHdr, SeparableConvolution convolution, float scaleFactor)
+      Context context,
+      boolean useHdr,
+      SeparableConvolution convolution,
+      float scaleWidth,
+      float scaleHeight)
       throws VideoFrameProcessingException {
     this.useHdr = useHdr;
     this.convolution = convolution;
-    this.scaleFactor = scaleFactor;
+    this.scaleWidth = scaleWidth;
+    this.scaleHeight = scaleHeight;
     inputListener = new InputListener() {};
     outputListener = new OutputListener() {};
     errorListener = (frameProcessingException) -> {};
     errorListenerExecutor = MoreExecutors.directExecutor();
+    functionLutTexture = GlTextureInfo.UNSET;
+    intermediateTexture = GlTextureInfo.UNSET;
+    outputTexture = GlTextureInfo.UNSET;
     lastInputSize = Size.ZERO;
     intermediateSize = Size.ZERO;
     outputSize = Size.ZERO;
@@ -124,25 +131,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     try {
       glProgram = new GlProgram(context, VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH);
-      sharpTransformGlProgram =
-          new GlProgram(
-              context,
-              "shaders/vertex_shader_transformation_es2.glsl",
-              "shaders/fragment_shader_copy_es2.glsl");
     } catch (IOException | GlUtil.GlException e) {
       throw new VideoFrameProcessingException(e);
     }
-
-    Matrix sharpTransformMatrix = new Matrix();
-    sharpTransformMatrix.setScale(/* sx= */ .5f, /* sy= */ 1f);
-    sharpTransformMatrixValues = getGlMatrixArray(sharpTransformMatrix);
-    functionLutTexture = GlTextureInfo.UNSET;
-    intermediateTexture = GlTextureInfo.UNSET;
-    outputTexture = GlTextureInfo.UNSET;
   }
 
   @Override
-  public void setInputListener(InputListener inputListener) {
+  public final void setInputListener(InputListener inputListener) {
     this.inputListener = inputListener;
     if (!outputTextureInUse) {
       inputListener.onReadyToAcceptInputFrame();
@@ -150,18 +145,18 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   @Override
-  public void setOutputListener(OutputListener outputListener) {
+  public final void setOutputListener(OutputListener outputListener) {
     this.outputListener = outputListener;
   }
 
   @Override
-  public void setErrorListener(Executor errorListenerExecutor, ErrorListener errorListener) {
+  public final void setErrorListener(Executor errorListenerExecutor, ErrorListener errorListener) {
     this.errorListenerExecutor = errorListenerExecutor;
     this.errorListener = errorListener;
   }
 
   @Override
-  public void queueInputFrame(
+  public final void queueInputFrame(
       GlObjectsProvider glObjectsProvider, GlTextureInfo inputTexture, long presentationTimeUs) {
     Assertions.checkState(
         !outputTextureInUse,
@@ -173,17 +168,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       outputTextureInUse = true;
       renderHorizontal(inputTexture);
       renderVertical();
-      float[] identityMatrix = GlUtil.create4x4IdentityMatrix();
-      sharpTransformGlProgram.use();
-      sharpTransformGlProgram.setSamplerTexIdUniform(
-          "uTexSampler", inputTexture.texId, /* texUnitIndex= */ 0);
-      sharpTransformGlProgram.setFloatsUniform("uTexTransformationMatrix", identityMatrix);
-      sharpTransformGlProgram.setFloatsUniform("uTransformationMatrix", sharpTransformMatrixValues);
-      sharpTransformGlProgram.setBufferAttribute(
-          "aFramePosition",
-          GlUtil.getNormalizedCoordinateBounds(),
-          GlUtil.HOMOGENEOUS_COORDINATE_VECTOR_SIZE);
-      sharpTransformGlProgram.bindAttributesAndUniforms();
+
+      onBlurRendered(inputTexture);
 
       // The four-vertex triangle strip forms a quad.
       GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, /* i1= */ 0, /* i2= */ 4);
@@ -197,34 +183,46 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   @Override
-  public void releaseOutputFrame(GlTextureInfo outputTexture) {
+  public final void releaseOutputFrame(GlTextureInfo outputTexture) {
     outputTextureInUse = false;
     inputListener.onReadyToAcceptInputFrame();
   }
 
   @Override
-  public void signalEndOfCurrentInputStream() {
+  public final void signalEndOfCurrentInputStream() {
     outputListener.onCurrentOutputStreamEnded();
   }
 
   @Override
-  public void flush() {
+  public final void flush() {
     outputTextureInUse = false;
     inputListener.onFlush();
     inputListener.onReadyToAcceptInputFrame();
   }
 
   @Override
+  @CallSuper
   public void release() throws VideoFrameProcessingException {
     try {
       outputTexture.release();
       intermediateTexture.release();
       functionLutTexture.release();
       glProgram.delete();
-      sharpTransformGlProgram.delete();
     } catch (GlUtil.GlException e) {
       throw new VideoFrameProcessingException(e);
     }
+  }
+
+  /**
+   * Called when the blur has been rendered onto the frame.
+   *
+   * <p>The default implementation is a no-op.
+   *
+   * @param inputTexture The input texture.
+   * @throws GlUtil.GlException If an error occurs.
+   */
+  protected void onBlurRendered(GlTextureInfo inputTexture) throws GlUtil.GlException {
+    // Do nothing.
   }
 
   private void renderOnePass(int inputTexId, boolean isHorizontal) throws GlUtil.GlException {
@@ -258,8 +256,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     glProgram.setFloatsUniform("uTexTransformationMatrix", identityMatrix);
 
     return new Size(
-        (int) (inputSize.getWidth() * scaleFactor * 2),
-        (int) (inputSize.getHeight() * scaleFactor));
+        (int) (inputSize.getWidth() * scaleWidth), (int) (inputSize.getHeight() * scaleHeight));
   }
 
   private void renderHorizontal(GlTextureInfo inputTexture) throws GlUtil.GlException {
