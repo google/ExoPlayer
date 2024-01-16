@@ -85,7 +85,7 @@ import java.util.List;
     public final List<Integer> writtenChunkSampleCounts;
     public final Deque<BufferInfo> pendingSamplesBufferInfo;
     public final Deque<ByteBuffer> pendingSamplesByteBuffer;
-    public boolean hadKeyframe = false;
+    public boolean hadKeyframe;
 
     private long lastSamplePresentationTimeUs;
 
