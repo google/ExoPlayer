@@ -27,10 +27,7 @@ import static androidx.media3.transformer.Transformer.PROGRESS_STATE_AVAILABLE;
 import static androidx.media3.transformer.Transformer.PROGRESS_STATE_NOT_STARTED;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
-import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.ColorSpace;
 import android.os.Looper;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
@@ -41,16 +38,11 @@ import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.BitmapLoader;
 import androidx.media3.common.util.ConstantRateTimestampIterator;
 import androidx.media3.common.util.UnstableApi;
-import androidx.media3.common.util.Util;
-import androidx.media3.datasource.DataSource;
-import androidx.media3.datasource.DataSourceBitmapLoader;
-import androidx.media3.datasource.DefaultDataSource;
 import androidx.media3.transformer.SampleConsumer.InputResult;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.MoreExecutors;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -67,16 +59,21 @@ public final class ImageAssetLoader implements AssetLoader {
   /** An {@link AssetLoader.Factory} for {@link ImageAssetLoader} instances. */
   public static final class Factory implements AssetLoader.Factory {
 
-    private final Context context;
+    private final BitmapLoader bitmapLoader;
 
-    public Factory(Context context) {
-      this.context = context.getApplicationContext();
+    /**
+     * Creates an instance.
+     *
+     * @param bitmapLoader The {@link BitmapLoader} to use to load and decode images.
+     */
+    public Factory(BitmapLoader bitmapLoader) {
+      this.bitmapLoader = bitmapLoader;
     }
 
     @Override
     public AssetLoader createAssetLoader(
         EditedMediaItem editedMediaItem, Looper looper, Listener listener) {
-      return new ImageAssetLoader(context, editedMediaItem, listener);
+      return new ImageAssetLoader(editedMediaItem, listener, bitmapLoader);
     }
   }
 
@@ -85,7 +82,7 @@ public final class ImageAssetLoader implements AssetLoader {
   private static final int QUEUE_BITMAP_INTERVAL_MS = 10;
 
   private final EditedMediaItem editedMediaItem;
-  private final DataSource.Factory dataSourceFactory;
+  private final BitmapLoader bitmapLoader;
   private final Listener listener;
   private final ScheduledExecutorService scheduledExecutorService;
 
@@ -94,12 +91,13 @@ public final class ImageAssetLoader implements AssetLoader {
 
   private volatile int progress;
 
-  private ImageAssetLoader(Context context, EditedMediaItem editedMediaItem, Listener listener) {
+  private ImageAssetLoader(
+      EditedMediaItem editedMediaItem, Listener listener, BitmapLoader bitmapLoader) {
     checkState(editedMediaItem.durationUs != C.TIME_UNSET);
     checkState(editedMediaItem.frameRate != C.RATE_UNSET_INT);
     this.editedMediaItem = editedMediaItem;
-    dataSourceFactory = new DefaultDataSource.Factory(context);
     this.listener = listener;
+    this.bitmapLoader = bitmapLoader;
     scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
     progressState = PROGRESS_STATE_NOT_STARTED;
   }
@@ -112,18 +110,11 @@ public final class ImageAssetLoader implements AssetLoader {
     progressState = PROGRESS_STATE_AVAILABLE;
     listener.onDurationUs(editedMediaItem.durationUs);
     listener.onTrackCount(1);
-    @Nullable BitmapFactory.Options options = null;
-    if (Util.SDK_INT >= 26) {
-      options = new BitmapFactory.Options();
-      options.inPreferredColorSpace = ColorSpace.get(ColorSpace.Named.SRGB);
-    }
-    BitmapLoader bitmapLoader =
-        new DataSourceBitmapLoader(
-            MoreExecutors.listeningDecorator(scheduledExecutorService), dataSourceFactory, options);
     MediaItem.LocalConfiguration localConfiguration =
         checkNotNull(editedMediaItem.mediaItem.localConfiguration);
 
     ListenableFuture<Bitmap> future = bitmapLoader.loadBitmap(localConfiguration.uri);
+
     Futures.addCallback(
         future,
         new FutureCallback<Bitmap>() {

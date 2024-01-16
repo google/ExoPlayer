@@ -16,18 +16,28 @@
 
 package androidx.media3.transformer;
 
-import static androidx.media3.common.util.Assertions.checkNotNull;
+import static androidx.media3.common.util.Assertions.checkState;
 
+import android.content.ContentResolver;
 import android.content.Context;
+import android.graphics.BitmapFactory;
+import android.graphics.ColorSpace;
 import android.os.Looper;
 import androidx.annotation.Nullable;
+import androidx.media3.common.FileTypes;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MimeTypes;
+import androidx.media3.common.util.BitmapLoader;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.common.util.Util;
+import androidx.media3.datasource.DataSourceBitmapLoader;
+import androidx.media3.datasource.DefaultDataSource;
 import androidx.media3.exoplayer.source.MediaSource;
 import com.google.common.base.Ascii;
-import com.google.common.collect.ImmutableList;
+import com.google.common.util.concurrent.MoreExecutors;
+import java.util.Objects;
+import java.util.concurrent.Executors;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** The default {@link AssetLoader.Factory} implementation. */
@@ -39,12 +49,17 @@ public final class DefaultAssetLoaderFactory implements AssetLoader.Factory {
   private final boolean forceInterpretHdrAsSdr;
   private final Clock clock;
   private final MediaSource.@MonotonicNonNull Factory mediaSourceFactory;
+  private final BitmapLoader bitmapLoader;
 
   private AssetLoader.@MonotonicNonNull Factory imageAssetLoaderFactory;
   private AssetLoader.@MonotonicNonNull Factory exoPlayerAssetLoaderFactory;
 
   /**
    * Creates an instance.
+   *
+   * <p>Uses {@link DataSourceBitmapLoader} to load images, setting the {@link
+   * android.graphics.BitmapFactory.Options#inPreferredColorSpace} to {@link
+   * android.graphics.ColorSpace.Named#SRGB} when possible.
    *
    * @param context The {@link Context}.
    * @param decoderFactory The {@link Codec.DecoderFactory} to use to decode the samples (if
@@ -64,6 +79,37 @@ public final class DefaultAssetLoaderFactory implements AssetLoader.Factory {
     this.forceInterpretHdrAsSdr = forceInterpretHdrAsSdr;
     this.clock = clock;
     this.mediaSourceFactory = null;
+    @Nullable BitmapFactory.Options options = null;
+    if (Util.SDK_INT >= 26) {
+      options = new BitmapFactory.Options();
+      options.inPreferredColorSpace = ColorSpace.get(ColorSpace.Named.SRGB);
+    }
+    this.bitmapLoader =
+        new DataSourceBitmapLoader(
+            MoreExecutors.listeningDecorator(Executors.newSingleThreadExecutor()),
+            new DefaultDataSource.Factory(context),
+            options);
+  }
+
+  /**
+   * Creates an instance with the default {@link Clock} and {@link Codec.DecoderFactory}.
+   *
+   * <p>For multi-picture formats (e.g. gifs), a single image frame from the container is loaded.
+   * The frame loaded is determined by the {@link BitmapLoader} implementation.
+   *
+   * @param context The {@link Context}.
+   * @param forceInterpretHdrAsSdr Whether to apply {@link
+   *     Composition#HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR}.
+   * @param bitmapLoader The {@link BitmapLoader} to use to load and decode images.
+   */
+  public DefaultAssetLoaderFactory(
+      Context context, boolean forceInterpretHdrAsSdr, BitmapLoader bitmapLoader) {
+    this.context = context.getApplicationContext();
+    this.decoderFactory = new DefaultDecoderFactory(context);
+    this.forceInterpretHdrAsSdr = forceInterpretHdrAsSdr;
+    this.clock = Clock.DEFAULT;
+    this.mediaSourceFactory = null;
+    this.bitmapLoader = bitmapLoader;
   }
 
   /**
@@ -78,18 +124,21 @@ public final class DefaultAssetLoaderFactory implements AssetLoader.Factory {
    *     testing.
    * @param mediaSourceFactory The {@link MediaSource.Factory} to use to retrieve the samples to
    *     transform when an {@link ExoPlayerAssetLoader} is used.
+   * @param bitmapLoader The {@link BitmapLoader} to use to load and decode images.
    */
   public DefaultAssetLoaderFactory(
       Context context,
       Codec.DecoderFactory decoderFactory,
       boolean forceInterpretHdrAsSdr,
       Clock clock,
-      MediaSource.Factory mediaSourceFactory) {
+      MediaSource.Factory mediaSourceFactory,
+      BitmapLoader bitmapLoader) {
     this.context = context.getApplicationContext();
     this.decoderFactory = decoderFactory;
     this.forceInterpretHdrAsSdr = forceInterpretHdrAsSdr;
     this.clock = clock;
     this.mediaSourceFactory = mediaSourceFactory;
+    this.bitmapLoader = bitmapLoader;
   }
 
   @Override
@@ -98,7 +147,7 @@ public final class DefaultAssetLoaderFactory implements AssetLoader.Factory {
     MediaItem mediaItem = editedMediaItem.mediaItem;
     if (isImage(mediaItem.localConfiguration)) {
       if (imageAssetLoaderFactory == null) {
-        imageAssetLoaderFactory = new ImageAssetLoader.Factory(context);
+        imageAssetLoaderFactory = new ImageAssetLoader.Factory(bitmapLoader);
       }
       return imageAssetLoaderFactory.createAssetLoader(editedMediaItem, looper, listener);
     }
@@ -113,21 +162,71 @@ public final class DefaultAssetLoaderFactory implements AssetLoader.Factory {
     return exoPlayerAssetLoaderFactory.createAssetLoader(editedMediaItem, looper, listener);
   }
 
-  private static boolean isImage(@Nullable MediaItem.LocalConfiguration localConfiguration) {
+  private boolean isImage(@Nullable MediaItem.LocalConfiguration localConfiguration) {
     if (localConfiguration == null) {
       return false;
     }
-    if (localConfiguration.mimeType != null) {
-      return MimeTypes.isImage(localConfiguration.mimeType);
+    @Nullable String mimeType = localConfiguration.mimeType;
+    if (mimeType == null) {
+      if (Objects.equals(localConfiguration.uri.getScheme(), ContentResolver.SCHEME_CONTENT)) {
+        ContentResolver cr = context.getContentResolver();
+        mimeType = cr.getType(localConfiguration.uri);
+      } else {
+        String fileExtension = FileTypes.getFileExtensionFromUri(localConfiguration.uri);
+        mimeType = getCommonImageMimeTypeFromExtension(Ascii.toLowerCase(fileExtension));
+      }
     }
-    ImmutableList<String> supportedImageTypes =
-        ImmutableList.of(".png", ".webp", ".jpg", ".jpeg", ".heic", ".heif", ".bmp");
-    String uriPath = checkNotNull(localConfiguration.uri.getPath());
-    int fileExtensionStart = uriPath.lastIndexOf(".");
-    if (fileExtensionStart < 0) {
+    if (mimeType == null) {
       return false;
     }
-    String extension = Ascii.toLowerCase(uriPath.substring(fileExtensionStart));
-    return supportedImageTypes.contains(extension);
+    if (!MimeTypes.isImage(mimeType)) {
+      return false;
+    }
+    checkState(
+        bitmapLoader.supportsMimeType(mimeType),
+        "Image format not supported by given bitmapLoader");
+    return true;
+  }
+
+  @Nullable
+  private static String getCommonImageMimeTypeFromExtension(String extension) {
+    switch (extension) {
+      case "bmp":
+      case "dib":
+        return MimeTypes.IMAGE_BMP;
+      case "heif":
+      case "heic":
+        return MimeTypes.IMAGE_HEIF;
+      case "jpg":
+      case "jpeg":
+      case "jpe":
+      case "jif":
+      case "jfif":
+      case "jfi":
+        return MimeTypes.IMAGE_JPEG;
+      case "png":
+        return MimeTypes.IMAGE_PNG;
+      case "webp":
+        return MimeTypes.IMAGE_WEBP;
+      case "gif":
+        return "image/gif";
+      case "tiff":
+      case "tif":
+        return "image/tiff";
+      case "raw":
+      case "arw":
+      case "cr2":
+      case "k25":
+        return "image/raw";
+      case "svg":
+      case "svgz":
+        return "image/svg+xml";
+      case "ico":
+        return "image/x-icon";
+      case "avif":
+        return "image/avif";
+      default:
+        return null;
+    }
   }
 }
