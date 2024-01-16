@@ -1496,14 +1496,19 @@ public interface ExoPlayer extends Player {
    * Sets a {@link List} of {@linkplain Effect video effects} that will be applied to each video
    * frame.
    *
+   * <p>If {@linkplain #setVideoSurface passing a surface to the player directly}, the output
+   * resolution needs to be signaled by passing a renderer message with type {@link
+   * Renderer#MSG_SET_VIDEO_OUTPUT_RESOLUTION} after calling this method. For {@link SurfaceView},
+   * {@link TextureView} and {@link SurfaceHolder} output this happens automatically.
+   *
    * <p>The following limitations exist for using {@linkplain Effect video effects}:
    *
    * <ul>
    *   <li>This feature works only with the default {@link MediaCodecVideoRenderer} and not custom
    *       or extension {@linkplain Renderer video renderers}.
    *   <li>This feature does not work with {@linkplain Effect effects} updating the timestamps.
-   *   <li>This feature does not work with DRM-protected contents.
-   *   <li>This method should be called before calling {@link #prepare}.
+   *   <li>This feature does not work with DRM-protected content.
+   *   <li>This method should be called before calling {@link #prepare()}.
    * </ul>
    *
    * @param videoEffects The {@link List} of {@linkplain Effect video effects} to apply.
