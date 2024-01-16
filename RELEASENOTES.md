@@ -32,6 +32,8 @@
 *   Muxers:
 *   IMA extension:
 *   Session:
+    *   Disable double-click detection for TV apps
+        ([#962](https://github.com/androidx/media/issues/962)).
 *   UI:
 *   Downloads:
 *   OkHttp Extension:
