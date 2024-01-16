@@ -3210,7 +3210,7 @@ public final class Util {
     if (SDK_INT >= 23) {
       getDisplaySizeV23(display, displaySize);
     } else {
-      getDisplaySizeV17(display, displaySize);
+      display.getRealSize(displaySize);
     }
     return displaySize;
   }
@@ -3694,10 +3694,6 @@ public final class Util {
     Display.Mode mode = display.getMode();
     outSize.x = mode.getPhysicalWidth();
     outSize.y = mode.getPhysicalHeight();
-  }
-
-  private static void getDisplaySizeV17(Display display, Point outSize) {
-    display.getRealSize(outSize);
   }
 
   private static String[] getSystemLocales() {

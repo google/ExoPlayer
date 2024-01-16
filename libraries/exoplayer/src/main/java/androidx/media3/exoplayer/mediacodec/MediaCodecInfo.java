@@ -695,10 +695,6 @@ public final class MediaCodecInfo {
   }
 
   private static boolean isAdaptive(CodecCapabilities capabilities) {
-    return isAdaptiveV19(capabilities);
-  }
-
-  private static boolean isAdaptiveV19(CodecCapabilities capabilities) {
     return capabilities.isFeatureSupported(CodecCapabilities.FEATURE_AdaptivePlayback);
   }
 
