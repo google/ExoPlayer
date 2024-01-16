@@ -28,6 +28,8 @@ import android.view.Surface;
 import androidx.annotation.FloatRange;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo.Scope;
 import androidx.media3.common.C;
 import androidx.media3.common.ColorInfo;
 import androidx.media3.common.DebugViewProvider;
@@ -68,6 +70,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** Handles composition of video sinks. */
 @UnstableApi
+@RestrictTo({Scope.LIBRARY_GROUP})
 public final class CompositingVideoSinkProvider
     implements VideoSinkProvider, VideoGraph.Listener, VideoFrameRenderControl.FrameRenderer {
 
