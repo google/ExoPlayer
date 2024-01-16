@@ -133,6 +133,8 @@ public final class TsExtractor implements Extractor {
   public static final int TS_STREAM_TYPE_ID3 = 0x15;
   public static final int TS_STREAM_TYPE_SPLICE_INFO = 0x86;
   public static final int TS_STREAM_TYPE_DVBSUBS = 0x59;
+  public static final int TS_STREAM_TYPE_DTS_HD = 0x88; // As per ATSC Code Point Registry
+  public static final int TS_STREAM_TYPE_DTS_UHD = 0x8B;
 
   // Stream types that aren't defined by the MPEG-2 TS specification.
   public static final int TS_STREAM_TYPE_DC2_H262 = 0x80;
@@ -679,6 +681,8 @@ public final class TsExtractor implements Extractor {
     private static final int TS_PMT_DESC_DVBSUBS = 0x59;
 
     private static final int TS_PMT_DESC_DVB_EXT_AC4 = 0x15;
+    private static final int TS_PMT_DESC_DVB_EXT_DTS_HD = 0x0E;
+    private static final int TS_PMT_DESC_DVB_EXT_DTS_UHD = 0x21;
 
     private final ParsableBitArray pmtScratch;
     private final SparseArray<@NullableType TsPayloadReader> trackIdToReaderScratch;
@@ -868,6 +872,12 @@ public final class TsExtractor implements Extractor {
           if (descriptorTagExt == TS_PMT_DESC_DVB_EXT_AC4) {
             // AC-4_descriptor in DVB (ETSI EN 300 468).
             streamType = TS_STREAM_TYPE_AC4;
+          } else if (descriptorTagExt == TS_PMT_DESC_DVB_EXT_DTS_HD) {
+            // DTS-HD descriptor in DVB (ETSI EN 300 468).
+            streamType = TS_STREAM_TYPE_DTS_HD;
+          } else if (descriptorTagExt == TS_PMT_DESC_DVB_EXT_DTS_UHD) {
+            // DTS-UHD descriptor in DVB (ETSI EN 300 468).
+            streamType = TS_STREAM_TYPE_DTS_UHD;
           }
         } else if (descriptorTag == TS_PMT_DESC_DTS) { // DTS_descriptor
           streamType = TS_STREAM_TYPE_DTS;

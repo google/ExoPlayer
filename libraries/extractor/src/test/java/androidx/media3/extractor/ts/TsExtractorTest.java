@@ -166,6 +166,30 @@ public final class TsExtractorTest {
   }
 
   @Test
+  public void sampleWithDts() throws Exception {
+    ExtractorAsserts.assertBehavior(
+        getExtractorFactory(subtitlesParsedDuringExtraction),
+        "media/ts/sample_dts.ts",
+        simulationConfig);
+  }
+
+  @Test
+  public void sampleWithDtsHd() throws Exception {
+    ExtractorAsserts.assertBehavior(
+        getExtractorFactory(subtitlesParsedDuringExtraction),
+        "media/ts/sample_dts_hd.ts",
+        simulationConfig);
+  }
+
+  @Test
+  public void sampleWithDtsUhd() throws Exception {
+    ExtractorAsserts.assertBehavior(
+        getExtractorFactory(subtitlesParsedDuringExtraction),
+        "media/ts/sample_dts_uhd.ts",
+        simulationConfig);
+  }
+
+  @Test
   public void sampleWithAc3() throws Exception {
     ExtractorAsserts.assertBehavior(
         getExtractorFactory(subtitlesParsedDuringExtraction),

@@ -17,6 +17,8 @@
         (the CBR equivalent of the `Xing` header). Previously we used the seek
         table from the `Info` header, but this results in less precise seeking
         than if we ignore it and assume the file is CBR.
+    *   MPEG2-TS: Add DTS, DTS-LBR and DTS:X Profile2 support
+        ([#275](https://github.com/androidx/media/pull/275)).
 *   Audio:
 *   Video:
 *   Text:
