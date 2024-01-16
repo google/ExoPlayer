@@ -97,7 +97,9 @@ import java.util.concurrent.atomic.AtomicInteger;
   private boolean decodeVideo;
   private int sequenceLoopCount;
   private int processedInputsSize;
-  private boolean released;
+
+  // Accessed when switching asset loader.
+  private volatile boolean released;
 
   private volatile long currentAssetDurationUs;
   private volatile long maxSequenceDurationUs;
