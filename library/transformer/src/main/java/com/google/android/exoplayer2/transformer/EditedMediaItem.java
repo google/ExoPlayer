@@ -51,7 +51,9 @@ public final class EditedMediaItem {
      * Creates an instance.
      *
      * <p>For image inputs, the values passed into {@link #setRemoveAudio}, {@link #setRemoveVideo}
-     * and {@link #setFlattenForSlowMotion} will be ignored.
+     * and {@link #setFlattenForSlowMotion} will be ignored. For multi-picture formats (e.g. gifs),
+     * a single image frame from the container is displayed if the {@link DefaultAssetLoaderFactory}
+     * is used.
      *
      * @param mediaItem The {@link MediaItem} on which transformations are applied.
      */

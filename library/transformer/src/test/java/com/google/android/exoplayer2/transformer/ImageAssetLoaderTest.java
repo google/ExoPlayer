@@ -24,6 +24,7 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.upstream.DataSourceBitmapLoader;
 import com.google.android.exoplayer2.util.TimestampIterator;
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -120,7 +121,8 @@ public class ImageAssetLoaderTest {
             .setDurationUs(1_000_000)
             .setFrameRate(30)
             .build();
-    return new ImageAssetLoader.Factory(ApplicationProvider.getApplicationContext())
+    return new ImageAssetLoader.Factory(
+            new DataSourceBitmapLoader(ApplicationProvider.getApplicationContext()))
         .createAssetLoader(editedMediaItem, Looper.myLooper(), listener);
   }
 
