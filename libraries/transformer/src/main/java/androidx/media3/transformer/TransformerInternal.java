@@ -128,16 +128,34 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final AssetLoaderInputTracker assetLoaderInputTracker;
 
   private final List<SampleExporter> sampleExporters;
-  private final Object setMaxSequenceDurationUsLock;
   private final MuxerWrapper muxerWrapper;
   private final ConditionVariable transformerConditionVariable;
+  private final Object setMaxSequenceDurationUsLock;
 
   private boolean isDrainingExporters;
+
+  @GuardedBy("setMaxSequenceDurationUsLock")
   private long currentMaxSequenceDurationUs;
+
+  @GuardedBy("setMaxSequenceDurationUsLock")
   private int nonLoopingSequencesWithNonFinalDuration;
-  private @Transformer.ProgressState int progressState;
+
   private @MonotonicNonNull RuntimeException cancelException;
 
+  /**
+   * The current {@link Transformer.ProgressState}.
+   *
+   * <p>Modified on the internal thread. Accessed on the application thread (in {@link
+   * #getProgress}).
+   */
+  private volatile @Transformer.ProgressState int progressState;
+
+  /**
+   * The boolean tracking if this component has been released.
+   *
+   * <p>Modified on the internal thread. Accessed on the application thread (in {@link #getProgress}
+   * and {@link #cancel()}).
+   */
   private volatile boolean released;
 
   public TransformerInternal(
@@ -196,8 +214,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
     compositionHasLoopingSequence =
         nonLoopingSequencesWithNonFinalDuration != composition.sequences.size();
-    sampleExporters = new ArrayList<>();
     setMaxSequenceDurationUsLock = new Object();
+    sampleExporters = new ArrayList<>();
     transformerConditionVariable = new ConditionVariable();
     // It's safe to use "this" because we don't send a message before exiting the constructor.
     @SuppressWarnings("nullness:methodref.receiver.bound")
