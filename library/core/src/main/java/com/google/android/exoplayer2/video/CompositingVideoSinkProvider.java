@@ -28,6 +28,8 @@ import android.view.Surface;
 import androidx.annotation.FloatRange;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo.Scope;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
@@ -69,6 +71,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
  *     migration guide</a> for more details, including a script to help with the migration.
  */
+@RestrictTo({Scope.LIBRARY_GROUP})
 @Deprecated
 public final class CompositingVideoSinkProvider
     implements VideoSinkProvider, VideoGraph.Listener, VideoFrameRenderControl.FrameRenderer {
