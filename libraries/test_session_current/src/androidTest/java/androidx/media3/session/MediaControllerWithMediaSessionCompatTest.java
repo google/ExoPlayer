@@ -371,10 +371,7 @@ public class MediaControllerWithMediaSessionCompatTest {
     MediaController controller = controllerTestRule.createController(session.getSessionToken());
     PendingIntent sessionActivityOut = controller.getSessionActivity();
     assertThat(sessionActivityOut).isNotNull();
-    if (Util.SDK_INT >= 17) {
-      // PendingIntent#getCreatorPackage() is added in API 17.
-      assertThat(sessionActivityOut.getCreatorPackage()).isEqualTo(context.getPackageName());
-    }
+    assertThat(sessionActivityOut.getCreatorPackage()).isEqualTo(context.getPackageName());
   }
 
   @Test

@@ -24,7 +24,6 @@ import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.media3.common.C;
-import androidx.media3.common.util.Util;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -105,16 +104,11 @@ import java.lang.annotation.Target;
   /**
    * Creates a new audio timestamp poller.
    *
-   * @param audioTrack The audio track that will provide timestamps, if the platform supports it.
+   * @param audioTrack The audio track that will provide timestamps.
    */
   public AudioTimestampPoller(AudioTrack audioTrack) {
-    if (Util.SDK_INT >= 19) {
-      audioTimestamp = new AudioTimestampV19(audioTrack);
-      reset();
-    } else {
-      audioTimestamp = null;
-      updateState(STATE_NO_TIMESTAMP);
-    }
+    audioTimestamp = new AudioTimestampV19(audioTrack);
+    reset();
   }
 
   /**

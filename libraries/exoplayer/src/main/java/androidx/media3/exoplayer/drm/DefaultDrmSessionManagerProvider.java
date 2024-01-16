@@ -75,7 +75,7 @@ public final class DefaultDrmSessionManagerProvider implements DrmSessionManager
     checkNotNull(mediaItem.localConfiguration);
     @Nullable
     MediaItem.DrmConfiguration drmConfiguration = mediaItem.localConfiguration.drmConfiguration;
-    if (drmConfiguration == null || Util.SDK_INT < 18) {
+    if (drmConfiguration == null) {
       return DrmSessionManager.DRM_UNSUPPORTED;
     }
 

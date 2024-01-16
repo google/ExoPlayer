@@ -32,7 +32,7 @@ public final class TraceUtil {
    *     Unicode code units long.
    */
   public static void beginSection(String sectionName) {
-    if (MediaLibraryInfo.TRACE_ENABLED && Util.SDK_INT >= 18) {
+    if (MediaLibraryInfo.TRACE_ENABLED) {
       beginSectionV18(sectionName);
     }
   }
@@ -43,7 +43,7 @@ public final class TraceUtil {
    * @see android.os.Trace#endSection()
    */
   public static void endSection() {
-    if (MediaLibraryInfo.TRACE_ENABLED && Util.SDK_INT >= 18) {
+    if (MediaLibraryInfo.TRACE_ENABLED) {
       endSectionV18();
     }
   }

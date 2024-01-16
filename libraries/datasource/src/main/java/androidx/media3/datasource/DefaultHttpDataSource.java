@@ -822,7 +822,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
    */
   private static void maybeTerminateInputStream(
       @Nullable HttpURLConnection connection, long bytesRemaining) {
-    if (connection == null || Util.SDK_INT < 19 || Util.SDK_INT > 20) {
+    if (connection == null || Util.SDK_INT > 20) {
       return;
     }
 

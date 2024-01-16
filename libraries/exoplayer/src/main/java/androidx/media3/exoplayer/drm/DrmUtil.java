@@ -80,13 +80,13 @@ public final class DrmUtil {
       return Api21.mediaDrmStateExceptionToErrorCode(exception);
     } else if (Util.SDK_INT >= 23 && Api23.isMediaDrmResetException(exception)) {
       return PlaybackException.ERROR_CODE_DRM_SYSTEM_ERROR;
-    } else if (Util.SDK_INT >= 18 && Api18.isNotProvisionedException(exception)) {
+    } else if (Api18.isNotProvisionedException(exception)) {
       return PlaybackException.ERROR_CODE_DRM_PROVISIONING_FAILED;
-    } else if (Util.SDK_INT >= 18 && Api18.isDeniedByServerException(exception)) {
+    } else if (Api18.isDeniedByServerException(exception)) {
       return PlaybackException.ERROR_CODE_DRM_DEVICE_REVOKED;
     } else if (exception instanceof UnsupportedDrmException) {
       return PlaybackException.ERROR_CODE_DRM_SCHEME_UNSUPPORTED;
-    } else if (Util.SDK_INT >= 18 && Api18.isMissingSchemeDataException(exception)) {
+    } else if (Api18.isMissingSchemeDataException(exception)) {
       return PlaybackException.ERROR_CODE_DRM_CONTENT_ERROR;
     } else if (exception instanceof KeysExpiredException) {
       return PlaybackException.ERROR_CODE_DRM_LICENSE_EXPIRED;

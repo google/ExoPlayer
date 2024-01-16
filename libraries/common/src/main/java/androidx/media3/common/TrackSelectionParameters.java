@@ -623,7 +623,7 @@ public class TrackSelectionParameters implements Bundleable {
      * Sets the preferred language and role flags for text tracks based on the accessibility
      * settings of {@link CaptioningManager}.
      *
-     * <p>Does nothing for API levels &lt; 19 or when the {@link CaptioningManager} is disabled.
+     * <p>Does nothing when the {@link CaptioningManager} is disabled.
      *
      * @param context A {@link Context}.
      * @return This builder.
@@ -631,9 +631,7 @@ public class TrackSelectionParameters implements Bundleable {
     @CanIgnoreReturnValue
     public Builder setPreferredTextLanguageAndRoleFlagsToCaptioningManagerSettings(
         Context context) {
-      if (Util.SDK_INT >= 19) {
-        setPreferredTextLanguageAndRoleFlagsToCaptioningManagerSettingsV19(context);
-      }
+      setPreferredTextLanguageAndRoleFlagsToCaptioningManagerSettingsV19(context);
       return this;
     }
 

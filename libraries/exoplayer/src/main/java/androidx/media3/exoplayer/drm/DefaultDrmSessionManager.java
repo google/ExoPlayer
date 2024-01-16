@@ -657,11 +657,8 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
   }
 
   private static boolean acquisitionFailedIndicatingResourceShortage(DrmSession session) {
-    // ResourceBusyException is only available at API 19, so on earlier versions we
-    // assume any error indicates resource shortage (ensuring we retry).
     return session.getState() == DrmSession.STATE_ERROR
-        && (Util.SDK_INT < 19
-            || checkNotNull(session.getError()).getCause() instanceof ResourceBusyException);
+        && checkNotNull(session.getError()).getCause() instanceof ResourceBusyException;
   }
 
   /**

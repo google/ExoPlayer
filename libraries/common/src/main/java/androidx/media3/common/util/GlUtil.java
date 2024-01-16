@@ -192,7 +192,7 @@ public final class GlUtil {
    * EGLContext)}.
    */
   public static boolean isSurfacelessContextExtensionSupported() {
-    return Util.SDK_INT >= 17 && Api17.isExtensionSupported(EXTENSION_SURFACELESS_CONTEXT);
+    return Api17.isExtensionSupported(EXTENSION_SURFACELESS_CONTEXT);
   }
 
   /**
@@ -202,9 +202,6 @@ public final class GlUtil {
    * for HDR input.
    */
   public static boolean isYuvTargetExtensionSupported() {
-    if (Util.SDK_INT < 17) {
-      return false;
-    }
     @Nullable String glExtensions;
     if (Util.areEqual(Api17.getCurrentContext(), EGL14.EGL_NO_CONTEXT)) {
       // Create a placeholder context and make it current to allow calling GLES20.glGetString().
@@ -226,7 +223,7 @@ public final class GlUtil {
 
   /** Returns whether {@link #EXTENSION_COLORSPACE_BT2020_PQ} is supported. */
   public static boolean isBt2020PqExtensionSupported() {
-    return Util.SDK_INT >= 17 && Api17.isExtensionSupported(EXTENSION_COLORSPACE_BT2020_PQ);
+    return Api17.isExtensionSupported(EXTENSION_COLORSPACE_BT2020_PQ);
   }
 
   /** Returns an initialized default {@link EGLDisplay}. */
@@ -396,21 +393,16 @@ public final class GlUtil {
    * <p>The {@code syncObject} must not be used after deletion.
    */
   public static void deleteSyncObject(long syncObject) throws GlException {
-    // If the sync object is set, we must be running API 18 or later.
-    if (Util.SDK_INT >= 18) {
-      Api18.deleteSyncObject(syncObject);
-    }
+    Api18.deleteSyncObject(syncObject);
   }
 
   /** Releases the GL sync object if set, suppressing any error. */
   public static void deleteSyncObjectQuietly(long syncObject) {
-    if (Util.SDK_INT >= 18) {
-      try {
-        // glDeleteSync ignores a 0-valued sync object.
-        Api18.deleteSyncObject(syncObject);
-      } catch (GlException unused) {
-        // Suppress exceptions.
-      }
+    try {
+      // glDeleteSync ignores a 0-valued sync object.
+      Api18.deleteSyncObject(syncObject);
+    } catch (GlException unused) {
+      // Suppress exceptions.
     }
   }
 
@@ -614,7 +606,6 @@ public final class GlUtil {
     // TODO(b/227624622): Implement a pixel test that confirms 16f has less posterization.
     // TODO - b/309459038: Consider renaming the method, as the created textures are uninitialized.
     if (useHighPrecisionColorComponents) {
-      checkState(Util.SDK_INT >= 18, "GLES30 extensions are not supported below API 18.");
       return createTextureUninitialized(width, height, GLES30.GL_RGBA16F, GLES30.GL_HALF_FLOAT);
     }
     return createTextureUninitialized(width, height, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE);

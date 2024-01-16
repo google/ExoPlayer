@@ -299,11 +299,7 @@ public class MediaSessionTest {
             });
       }
 
-      if (Util.SDK_INT >= 18) {
-        testThread.quitSafely();
-      } else {
-        testThread.quit();
-      }
+      testThread.quitSafely();
     }
   }
 

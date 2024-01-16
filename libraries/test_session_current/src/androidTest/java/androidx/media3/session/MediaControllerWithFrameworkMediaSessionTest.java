@@ -71,11 +71,7 @@ public class MediaControllerWithFrameworkMediaSessionTest {
   @After
   public void cleanUp() {
     if (handler != null) {
-      if (Util.SDK_INT >= 18) {
-        handler.getLooper().quitSafely();
-      } else {
-        handler.getLooper().quit();
-      }
+      handler.getLooper().quitSafely();
       handler = null;
     }
   }
