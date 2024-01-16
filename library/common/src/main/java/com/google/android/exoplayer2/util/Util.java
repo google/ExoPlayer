@@ -93,6 +93,7 @@ import com.google.common.base.Ascii;
 import com.google.common.base.Charsets;
 import com.google.common.math.DoubleMath;
 import com.google.common.math.LongMath;
+import com.google.common.primitives.UnsignedBytes;
 import com.google.common.util.concurrent.AsyncFunction;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -2717,6 +2718,49 @@ public final class Util {
   }
 
   /**
+   * Returns the result of updating a CRC-16 with the specified bytes in a "most significant bit
+   * first" order.
+   *
+   * @param bytes Array containing the bytes to update the crc value with.
+   * @param start The start index (inclusive) of the byte range to update the crc with.
+   * @param end The end index (exclusive) of the byte range to update the crc with.
+   * @param initialValue The initial value for the crc calculation. The lower 16 bits of this 32-bit
+   *     integer are used for the CRC computation.
+   * @return The result of updating the initial value with the specified bytes.
+   */
+  public static int crc16(byte[] bytes, int start, int end, int initialValue) {
+    for (int i = start; i < end; i++) {
+      int value = UnsignedBytes.toInt(bytes[i]);
+      // Process one message byte to update the current CRC-16 value.
+      initialValue = crc16UpdateFourBits(value >> 4, initialValue); // High nibble first.
+      initialValue = crc16UpdateFourBits(value & 0x0F, initialValue); // Low nibble.
+    }
+    return initialValue;
+  }
+
+  /**
+   * Process 4 bits of the message to update the CRC Value. Note that the data will be in the low
+   * nibble of value.
+   *
+   * @param value The 4-bit message data to be processed.
+   * @param crc16Register The current CRC-16 register to be updated. Only the lower 16 bits of this
+   *     32-bit integer are used for the CRC computation.
+   * @return The result of updating the CRC-16 register with the specified 4-bit message data.
+   */
+  private static int crc16UpdateFourBits(int value, int crc16Register) {
+    // Step one, extract the most significant 4 bits of the CRC register.
+    int mostSignificant4Bits = (crc16Register >> 12) & 0xFF;
+    // XOR in the Message Data into the extracted bits.
+    mostSignificant4Bits = (mostSignificant4Bits ^ value) & 0xFF;
+    // Shift the CRC register left 4 bits.
+    crc16Register = (crc16Register << 4) & 0xFFFF; // Handle as 16 bit, discard any sign extension.
+    // Do the table look-ups and XOR the result into the CRC tables.
+    crc16Register = (crc16Register ^ CRC16_BYTES_MSBF[mostSignificant4Bits]) & 0xFFFF;
+
+    return crc16Register;
+  }
+
+  /**
    * Returns the result of updating a CRC-8 with the specified bytes in a "most significant bit
    * first" order.
    *
@@ -3670,6 +3714,16 @@ public final class Util {
     0X9E7D9662, 0X933EB0BB, 0X97FFAD0C, 0XAFB010B1, 0XAB710D06, 0XA6322BDF, 0XA2F33668,
     0XBCB4666D, 0XB8757BDA, 0XB5365D03, 0XB1F740B4
   };
+
+  /**
+   * Allows the CRC-16 calculation to be done byte by byte instead of bit per bit in the order "most
+   * significant bit first".
+   */
+  private static final int[] CRC16_BYTES_MSBF =
+      new int[] {
+        0x0000, 0x01021, 0x2042, 0x3063, 0x4084, 0x50A5, 0x60C6, 0x70E7,
+        0x8108, 0x9129, 0xA14A, 0xB16B, 0xC18C, 0xD1AD, 0xE1CE, 0xF1EF
+      };
 
   /**
    * Allows the CRC-8 calculation to be done byte by byte instead of bit per bit in the order "most
