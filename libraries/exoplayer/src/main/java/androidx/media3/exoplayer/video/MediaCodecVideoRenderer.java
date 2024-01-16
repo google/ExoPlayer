@@ -715,7 +715,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer
     }
   }
 
-  @TargetApi(17) // Needed for placeholderSurface usage, as it is always null on API level 16.
   @Override
   protected void onReset() {
     try {
@@ -866,7 +865,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer
     return tunneling && Util.SDK_INT < 23;
   }
 
-  @TargetApi(17) // Needed for placeHolderSurface usage, as it is always null on API level 16.
   @Override
   protected MediaCodecAdapter.Configuration getMediaCodecConfiguration(
       MediaCodecInfo codecInfo,
