@@ -19,7 +19,6 @@ package androidx.media3.test.utils;
 import static androidx.media3.test.utils.WebServerDispatcher.getRequestPath;
 
 import android.net.Uri;
-import androidx.annotation.RequiresApi;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.datasource.HttpDataSource;
 import com.google.common.collect.ImmutableList;
@@ -32,7 +31,6 @@ import org.junit.Rule;
 import org.junit.rules.ExternalResource;
 
 /** A JUnit {@link Rule} that creates test resources for {@link HttpDataSource} contract tests. */
-@RequiresApi(19)
 @UnstableApi
 public class HttpDataSourceTestEnv extends ExternalResource {
   private static int seed = 0;

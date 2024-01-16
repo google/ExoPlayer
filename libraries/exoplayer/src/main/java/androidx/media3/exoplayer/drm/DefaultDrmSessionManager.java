@@ -29,7 +29,6 @@ import android.os.Message;
 import android.os.SystemClock;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.media3.common.C;
 import androidx.media3.common.DrmInitData;
 import androidx.media3.common.DrmInitData.SchemeData;
@@ -68,7 +67,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * <p>This implementation supports pre-acquisition of sessions using {@link
  * #preacquireSession(DrmSessionEventListener.EventDispatcher, Format)}.
  */
-@RequiresApi(18)
 @UnstableApi
 public class DefaultDrmSessionManager implements DrmSessionManager {
 

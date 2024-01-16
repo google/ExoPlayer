@@ -499,7 +499,6 @@ public final class VideoFrameReleaseHelper {
     }
   }
 
-  @RequiresApi(17)
   private static final class DisplayHelperV17
       implements DisplayHelper, DisplayManager.DisplayListener {
 
@@ -652,7 +651,6 @@ public final class VideoFrameReleaseHelper {
     }
   }
 
-  @RequiresApi(17)
   private static final class Api17 {
 
     @DoNotInline

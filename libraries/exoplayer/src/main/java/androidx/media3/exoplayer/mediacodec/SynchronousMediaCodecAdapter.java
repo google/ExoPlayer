@@ -192,7 +192,6 @@ public final class SynchronousMediaCodecAdapter implements MediaCodecAdapter {
   }
 
   @Override
-  @RequiresApi(19)
   public void setParameters(Bundle params) {
     codec.setParameters(params);
   }

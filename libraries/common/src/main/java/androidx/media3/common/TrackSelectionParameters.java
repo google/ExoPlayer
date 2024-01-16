@@ -28,7 +28,6 @@ import android.os.Looper;
 import android.view.accessibility.CaptioningManager;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.media3.common.util.BundleCollectionUtil;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
@@ -830,7 +829,6 @@ public class TrackSelectionParameters implements Bundleable {
       return new TrackSelectionParameters(this);
     }
 
-    @RequiresApi(19)
     private void setPreferredTextLanguageAndRoleFlagsToCaptioningManagerSettingsV19(
         Context context) {
       if (Util.SDK_INT < 23 && Looper.myLooper() == null) {

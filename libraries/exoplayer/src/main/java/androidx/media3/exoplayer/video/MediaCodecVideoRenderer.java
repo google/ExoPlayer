@@ -1682,7 +1682,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer
         && (!codecInfo.secure || PlaceholderSurface.isSecureSupported(context));
   }
 
-  @RequiresApi(17)
   private void releasePlaceholderSurface() {
     if (displaySurface == placeholderSurface) {
       displaySurface = null;

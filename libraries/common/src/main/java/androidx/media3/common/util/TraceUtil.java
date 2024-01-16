@@ -15,7 +15,6 @@
  */
 package androidx.media3.common.util;
 
-import androidx.annotation.RequiresApi;
 import androidx.media3.common.MediaLibraryInfo;
 
 /** Calls through to {@link android.os.Trace} methods on supported API levels. */
@@ -33,7 +32,7 @@ public final class TraceUtil {
    */
   public static void beginSection(String sectionName) {
     if (MediaLibraryInfo.TRACE_ENABLED) {
-      beginSectionV18(sectionName);
+      android.os.Trace.beginSection(sectionName);
     }
   }
 
@@ -44,17 +43,7 @@ public final class TraceUtil {
    */
   public static void endSection() {
     if (MediaLibraryInfo.TRACE_ENABLED) {
-      endSectionV18();
+      android.os.Trace.endSection();
     }
-  }
-
-  @RequiresApi(18)
-  private static void beginSectionV18(String sectionName) {
-    android.os.Trace.beginSection(sectionName);
-  }
-
-  @RequiresApi(18)
-  private static void endSectionV18() {
-    android.os.Trace.endSection();
   }
 }

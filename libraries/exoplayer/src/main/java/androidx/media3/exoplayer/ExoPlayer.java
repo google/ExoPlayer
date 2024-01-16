@@ -1586,7 +1586,6 @@ public interface ExoPlayer extends Player {
    *
    * @param videoEffects The {@link List} of {@linkplain Effect video effects} to apply.
    */
-  @RequiresApi(18)
   @UnstableApi
   void setVideoEffects(List<Effect> videoEffects);
 

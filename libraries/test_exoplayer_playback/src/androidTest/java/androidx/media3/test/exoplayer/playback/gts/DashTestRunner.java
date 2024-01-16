@@ -21,7 +21,6 @@ import android.media.MediaDrm;
 import android.media.UnsupportedSchemeException;
 import android.view.Surface;
 import android.widget.FrameLayout;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.Size;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
@@ -509,7 +508,6 @@ import java.util.List;
    * Creates a new {@code MediaDrm} object. The encapsulation ensures that the tests can be executed
    * for API level < 18.
    */
-  @RequiresApi(18)
   private static final class MediaDrmBuilder {
 
     public static MediaDrm build() {

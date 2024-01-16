@@ -22,7 +22,6 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.util.Pair;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.media3.common.DrmInitData;
 import androidx.media3.common.Format;
 import androidx.media3.common.util.Assertions;
@@ -38,7 +37,6 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 /** Helper class to download, renew and release offline licenses. */
-@RequiresApi(18)
 @UnstableApi
 public final class OfflineLicenseHelper {
 

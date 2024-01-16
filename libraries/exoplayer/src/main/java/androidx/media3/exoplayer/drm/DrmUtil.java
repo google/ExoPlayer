@@ -106,7 +106,6 @@ public final class DrmUtil {
 
   // Internal classes.
 
-  @RequiresApi(18)
   private static final class Api18 {
 
     @DoNotInline

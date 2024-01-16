@@ -1560,7 +1560,6 @@ public final class Util {
    * @throws NoSuchElementException If the array is empty.
    */
   @UnstableApi
-  @RequiresApi(18)
   public static long minValue(SparseLongArray sparseLongArray) {
     if (sparseLongArray.size() == 0) {
       throw new NoSuchElementException();
@@ -1580,7 +1579,6 @@ public final class Util {
    * @throws NoSuchElementException If the array is empty.
    */
   @UnstableApi
-  @RequiresApi(18)
   public static long maxValue(SparseLongArray sparseLongArray) {
     if (sparseLongArray.size() == 0) {
       throw new NoSuchElementException();
@@ -3698,7 +3696,6 @@ public final class Util {
     outSize.y = mode.getPhysicalHeight();
   }
 
-  @RequiresApi(17)
   private static void getDisplaySizeV17(Display display, Point outSize) {
     display.getRealSize(outSize);
   }

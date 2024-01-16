@@ -26,7 +26,6 @@ import android.os.HandlerThread;
 import android.os.Message;
 import android.view.Surface;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.EGLSurfaceTexture;
 import androidx.media3.common.util.EGLSurfaceTexture.SecureMode;
@@ -37,7 +36,6 @@ import androidx.media3.common.util.Util;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** A placeholder {@link Surface}. */
-@RequiresApi(17)
 @UnstableApi
 public final class PlaceholderSurface extends Surface {
 

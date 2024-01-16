@@ -37,7 +37,6 @@ import android.opengl.Matrix;
 import androidx.annotation.DoNotInline;
 import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.media3.common.C;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -227,7 +226,6 @@ public final class GlUtil {
   }
 
   /** Returns an initialized default {@link EGLDisplay}. */
-  @RequiresApi(17)
   public static EGLDisplay getDefaultEglDisplay() throws GlException {
     return Api17.getDefaultEglDisplay();
   }
@@ -240,7 +238,6 @@ public final class GlUtil {
    *
    * @param eglDisplay The {@link EGLDisplay} to create an {@link EGLContext} for.
    */
-  @RequiresApi(17)
   public static EGLContext createEglContext(EGLDisplay eglDisplay) throws GlException {
     return createEglContext(
         EGL14.EGL_NO_CONTEXT, eglDisplay, /* openGlVersion= */ 2, EGL_CONFIG_ATTRIBUTES_RGBA_8888);
@@ -256,7 +253,6 @@ public final class GlUtil {
    * @param configAttributes The attributes to configure EGL with. Accepts either {@link
    *     #EGL_CONFIG_ATTRIBUTES_RGBA_1010102}, or {@link #EGL_CONFIG_ATTRIBUTES_RGBA_8888}.
    */
-  @RequiresApi(17)
   public static EGLContext createEglContext(
       EGLContext sharedContext,
       EGLDisplay eglDisplay,
@@ -282,7 +278,6 @@ public final class GlUtil {
    *     C#COLOR_TRANSFER_SDR}, {@link C#COLOR_TRANSFER_HLG} and {@link C#COLOR_TRANSFER_ST2084}.
    * @param isEncoderInputSurface Whether the {@code surface} is the input surface of an encoder.
    */
-  @RequiresApi(17)
   public static EGLSurface createEglSurface(
       EGLDisplay eglDisplay,
       Object surface,
@@ -325,7 +320,6 @@ public final class GlUtil {
    * @param configAttributes EGL configuration attributes. Valid arguments include {@link
    *     #EGL_CONFIG_ATTRIBUTES_RGBA_8888} and {@link #EGL_CONFIG_ATTRIBUTES_RGBA_1010102}.
    */
-  @RequiresApi(17)
   private static EGLSurface createPbufferSurface(
       EGLDisplay eglDisplay, int width, int height, int[] configAttributes) throws GlException {
     int[] pbufferAttributes =
@@ -347,7 +341,6 @@ public final class GlUtil {
    * @param eglDisplay The {@link EGLDisplay} to attach the surface to.
    * @return {@link EGL14#EGL_NO_SURFACE} if supported and a 1x1 pixel buffer surface otherwise.
    */
-  @RequiresApi(17)
   public static EGLSurface createFocusedPlaceholderEglSurface(
       EGLContext eglContext, EGLDisplay eglDisplay) throws GlException {
     // EGL_CONFIG_ATTRIBUTES_RGBA_1010102 could be used for HDR input, but EGL14.EGL_NO_SURFACE
@@ -369,7 +362,6 @@ public final class GlUtil {
    * <p>Returns {@code 0} if no {@link EGLContext} {@linkplain #createFocusedPlaceholderEglSurface
    * is focused}.
    */
-  @RequiresApi(17)
   public static long getContextMajorVersion() throws GlException {
     return Api17.getContextMajorVersion();
   }
@@ -381,7 +373,6 @@ public final class GlUtil {
    * #createFocusedPlaceholderEglSurface is focused}, or the focused {@link EGLContext} version is
    * less than 3.0.
    */
-  @RequiresApi(17)
   public static long createGlSyncFence() throws GlException {
     // If the context is an OpenGL 3.0 context, we must be running API 18 or later.
     return Api17.getContextMajorVersion() >= 3 ? Api18.createSyncFence() : 0;
@@ -422,7 +413,6 @@ public final class GlUtil {
   }
 
   /** Gets the current {@link EGLContext context}. */
-  @RequiresApi(17)
   public static EGLContext getCurrentContext() {
     return Api17.getCurrentContext();
   }
@@ -498,7 +488,6 @@ public final class GlUtil {
    * Makes the specified {@code eglSurface} the render target, using a viewport of {@code width} by
    * {@code height} pixels.
    */
-  @RequiresApi(17)
   public static void focusEglSurface(
       EGLDisplay eglDisplay, EGLContext eglContext, EGLSurface eglSurface, int width, int height)
       throws GlException {
@@ -510,7 +499,6 @@ public final class GlUtil {
    * Makes the specified {@code framebuffer} the render target, using a viewport of {@code width} by
    * {@code height} pixels.
    */
-  @RequiresApi(17)
   public static void focusFramebuffer(
       EGLDisplay eglDisplay,
       EGLContext eglContext,
@@ -712,7 +700,6 @@ public final class GlUtil {
    * <p>This is a no-op if called on already-destroyed {@link EGLDisplay} and {@link EGLContext}
    * instances.
    */
-  @RequiresApi(17)
   public static void destroyEglContext(
       @Nullable EGLDisplay eglDisplay, @Nullable EGLContext eglContext) throws GlException {
     Api17.destroyEglContext(eglDisplay, eglContext);
@@ -722,7 +709,6 @@ public final class GlUtil {
    * Destroys the {@link EGLSurface} identified by the provided {@link EGLDisplay} and {@link
    * EGLSurface}.
    */
-  @RequiresApi(17)
   public static void destroyEglSurface(
       @Nullable EGLDisplay eglDisplay, @Nullable EGLSurface eglSurface) throws GlException {
     Api17.destroyEglSurface(eglDisplay, eglSurface);
@@ -751,7 +737,6 @@ public final class GlUtil {
     }
   }
 
-  @RequiresApi(17)
   private static final class Api17 {
     private Api17() {}
 
@@ -921,7 +906,6 @@ public final class GlUtil {
     }
   }
 
-  @RequiresApi(18)
   private static final class Api18 {
     private Api18() {}
 

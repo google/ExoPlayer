@@ -22,7 +22,6 @@ import android.media.AudioTimestamp;
 import android.media.AudioTrack;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.media3.common.C;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -266,7 +265,6 @@ import java.lang.annotation.Target;
     }
   }
 
-  @RequiresApi(19)
   private static final class AudioTimestampV19 {
 
     private final AudioTrack audioTrack;
