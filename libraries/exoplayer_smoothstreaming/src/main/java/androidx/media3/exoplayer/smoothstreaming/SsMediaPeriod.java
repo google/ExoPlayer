@@ -43,6 +43,8 @@ import androidx.media3.exoplayer.upstream.CmcdConfiguration;
 import androidx.media3.exoplayer.upstream.LoadErrorHandlingPolicy;
 import androidx.media3.exoplayer.upstream.LoaderErrorThrower;
 import androidx.media3.extractor.text.SubtitleParser;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -94,8 +96,7 @@ import java.util.List;
     this.compositeSequenceableLoaderFactory = compositeSequenceableLoaderFactory;
     trackGroups = buildTrackGroups(manifest, drmSessionManager, subtitleParserFactory);
     sampleStreams = newSampleStreamArray(0);
-    compositeSequenceableLoader =
-        compositeSequenceableLoaderFactory.createCompositeSequenceableLoader(sampleStreams);
+    compositeSequenceableLoader = compositeSequenceableLoaderFactory.empty();
   }
 
   public void updateManifest(SsManifest manifest) {
@@ -161,7 +162,9 @@ import java.util.List;
     sampleStreams = newSampleStreamArray(sampleStreamsList.size());
     sampleStreamsList.toArray(sampleStreams);
     compositeSequenceableLoader =
-        compositeSequenceableLoaderFactory.createCompositeSequenceableLoader(sampleStreams);
+        compositeSequenceableLoaderFactory.create(
+            sampleStreamsList,
+            Lists.transform(sampleStreamsList, s -> ImmutableList.of(s.primaryTrackType)));
     return positionUs;
   }
 

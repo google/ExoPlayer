@@ -44,7 +44,9 @@ import androidx.media3.exoplayer.source.chunk.ChunkSampleStream;
 import androidx.media3.exoplayer.trackselection.ExoTrackSelection;
 import androidx.media3.exoplayer.upstream.Allocator;
 import androidx.media3.exoplayer.upstream.DefaultLoadErrorHandlingPolicy;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -86,7 +88,9 @@ public class FakeAdaptiveMediaPeriod
     this.durationUs = durationUs;
     this.transferListener = transferListener;
     sampleStreams = new ArrayList<>();
-    sequenceableLoader = new CompositeSequenceableLoader(new SequenceableLoader[0]);
+    sequenceableLoader =
+        new CompositeSequenceableLoader(
+            /* loaders= */ ImmutableList.of(), /* loaderTrackTypes= */ ImmutableList.of());
     fakePreparationLoadTaskId = LoadEventInfo.getNewId();
   }
 
@@ -97,7 +101,9 @@ public class FakeAdaptiveMediaPeriod
       sampleStream.release();
     }
     sampleStreams.clear();
-    sequenceableLoader = new CompositeSequenceableLoader(new SequenceableLoader[0]);
+    sequenceableLoader =
+        new CompositeSequenceableLoader(
+            /* loaders= */ ImmutableList.of(), /* loaderTrackTypes= */ ImmutableList.of());
   }
 
   @Override
@@ -143,7 +149,7 @@ public class FakeAdaptiveMediaPeriod
     return trackGroupArray;
   }
 
-  @SuppressWarnings({"unchecked", "rawtypes"}) // Casting sample streams created by this class.
+  @SuppressWarnings({"unchecked"}) // Casting sample streams created by this class.
   @Override
   public long selectTracks(
       @NullableType ExoTrackSelection[] selections,
@@ -188,7 +194,9 @@ public class FakeAdaptiveMediaPeriod
       }
     }
     sequenceableLoader =
-        new CompositeSequenceableLoader(sampleStreams.toArray(new ChunkSampleStream[0]));
+        new CompositeSequenceableLoader(
+            sampleStreams,
+            Lists.transform(sampleStreams, s -> ImmutableList.of(s.primaryTrackType)));
     return seekToUs(positionUs);
   }
 
