@@ -23,6 +23,7 @@ import com.google.android.exoplayer2.util.BundleCollectionUtil;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import java.util.List;
 
 /**
@@ -91,6 +92,11 @@ public final class TrackGroupArray implements Bundleable {
   /** Returns whether this track group array is empty. */
   public boolean isEmpty() {
     return length == 0;
+  }
+
+  /** Returns the {@link TrackGroup#type} of each track group in this array. */
+  public ImmutableList<@C.TrackType Integer> getTrackTypes() {
+    return ImmutableList.copyOf(Lists.transform(trackGroups, t -> t.type));
   }
 
   @Override

@@ -60,6 +60,7 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.NullableType;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.primitives.Ints;
 import java.io.IOException;
@@ -162,8 +163,7 @@ import java.util.regex.Pattern;
     sampleStreams = newSampleStreamArray(0);
     eventSampleStreams = new EventSampleStream[0];
     trackEmsgHandlerBySampleStream = new IdentityHashMap<>();
-    compositeSequenceableLoader =
-        compositeSequenceableLoaderFactory.createCompositeSequenceableLoader(sampleStreams);
+    compositeSequenceableLoader = compositeSequenceableLoaderFactory.empty();
     Period period = manifest.getPeriod(periodIndex);
     eventStreams = period.eventStreams;
     Pair<TrackGroupArray, TrackGroupInfo[]> result =
@@ -312,7 +312,9 @@ import java.util.regex.Pattern;
     eventSampleStreamList.toArray(eventSampleStreams);
 
     compositeSequenceableLoader =
-        compositeSequenceableLoaderFactory.createCompositeSequenceableLoader(sampleStreams);
+        compositeSequenceableLoaderFactory.create(
+            sampleStreamList,
+            Lists.transform(sampleStreamList, s -> ImmutableList.of(s.primaryTrackType)));
     return positionUs;
   }
 
