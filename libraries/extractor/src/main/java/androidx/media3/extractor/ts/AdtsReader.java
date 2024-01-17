@@ -71,7 +71,7 @@ public final class AdtsReader implements ElementaryStreamReader {
   private final ParsableBitArray adtsScratch;
   private final ParsableByteArray id3HeaderBuffer;
   @Nullable private final String language;
-  @C.AudioType private final int audioType;
+  @TsUtil.AudioType private final int audioType;
 
   private @MonotonicNonNull String formatId;
   private @MonotonicNonNull TrackOutput output;
@@ -106,7 +106,7 @@ public final class AdtsReader implements ElementaryStreamReader {
    * @param exposeId3 True if the reader should expose ID3 information.
    */
   public AdtsReader(boolean exposeId3) {
-    this(exposeId3, null, C.AUDIO_TYPE_UNDEFINED);
+    this(exposeId3, null, TsUtil.AUDIO_TYPE_UNDEFINED);
   }
 
   /**
@@ -114,7 +114,7 @@ public final class AdtsReader implements ElementaryStreamReader {
    * @param language Track language.
    * @param audioType Track audio type.
    */
-  public AdtsReader(boolean exposeId3, @Nullable String language, @C.AudioType int audioType) {
+  public AdtsReader(boolean exposeId3, @Nullable String language, @TsUtil.AudioType int audioType) {
     adtsScratch = new ParsableBitArray(new byte[HEADER_SIZE + CRC_SIZE]);
     id3HeaderBuffer = new ParsableByteArray(Arrays.copyOf(ID3_IDENTIFIER, ID3_HEADER_SIZE));
     setFindingSampleState();
@@ -513,7 +513,7 @@ public final class AdtsReader implements ElementaryStreamReader {
               .setSampleRate(aacConfig.sampleRateHz)
               .setInitializationData(Collections.singletonList(audioSpecificConfig))
               .setLanguage(language)
-              .setRoleFlags(C.parseRoleFlagsFromAudioType(audioType))
+              .setRoleFlags(TsUtil.parseRoleFlagsFromAudioType(audioType))
               .build();
       // In this class a sample is an access unit, but the MediaFormat sample rate specifies the
       // number of PCM audio samples per second.

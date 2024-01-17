@@ -44,7 +44,7 @@ public final class MpegAudioReader implements ElementaryStreamReader {
   private final ParsableByteArray headerScratch;
   private final MpegAudioUtil.Header header;
   @Nullable private final String language;
-  @C.AudioType private final int audioType;
+  @TsUtil.AudioType private final int audioType;
 
   private @MonotonicNonNull TrackOutput output;
   private @MonotonicNonNull String formatId;
@@ -64,10 +64,10 @@ public final class MpegAudioReader implements ElementaryStreamReader {
   private long timeUs;
 
   public MpegAudioReader() {
-    this(null, C.AUDIO_TYPE_UNDEFINED);
+    this(null, TsUtil.AUDIO_TYPE_UNDEFINED);
   }
 
-  public MpegAudioReader(@Nullable String language, @C.AudioType int audioType) {
+  public MpegAudioReader(@Nullable String language, @TsUtil.AudioType int audioType) {
     state = STATE_FINDING_HEADER;
     // The first byte of an MPEG Audio frame header is always 0xFF.
     headerScratch = new ParsableByteArray(4);
@@ -202,7 +202,7 @@ public final class MpegAudioReader implements ElementaryStreamReader {
               .setChannelCount(header.channels)
               .setSampleRate(header.sampleRate)
               .setLanguage(language)
-              .setRoleFlags(C.parseRoleFlagsFromAudioType(audioType))
+              .setRoleFlags(TsUtil.parseRoleFlagsFromAudioType(audioType))
               .build();
       output.format(format);
       hasOutputFormat = true;

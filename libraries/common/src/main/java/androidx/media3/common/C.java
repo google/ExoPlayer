@@ -1548,31 +1548,6 @@ public final class C {
   @UnstableApi public static final int FIRST_FRAME_RENDERED = 3;
 
   /**
-   * The audio type of the stream, as defined by ISO/IEC 13818-1, section 2.6.18.
-   *
-   * <p>One of {@link #AUDIO_TYPE_UNDEFINED}, {@link #AUDIO_TYPE_CLEAN_EFFECTS},
-   * {@link #AUDIO_TYPE_HEARING_IMPAIRED} or {@link #AUDIO_TYPE_VISUAL_IMPAIRED_COMMENTARY}.
-   */
-  @Documented
-  @Retention(RetentionPolicy.SOURCE)
-  @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
-  @IntDef({
-      AUDIO_TYPE_UNDEFINED,
-      AUDIO_TYPE_CLEAN_EFFECTS,
-      AUDIO_TYPE_HEARING_IMPAIRED,
-      AUDIO_TYPE_VISUAL_IMPAIRED_COMMENTARY
-  })
-  public @interface AudioType {}
-
-  public static final int AUDIO_TYPE_UNDEFINED = 0;
-  /** Indicates the track has no language. */
-  public static final int AUDIO_TYPE_CLEAN_EFFECTS = 1;
-  /** Indicates the track is prepared for the hearing impaired. */
-  public static final int AUDIO_TYPE_HEARING_IMPAIRED = 2;
-  /** Indicates the track is prepared for the visually impaired viewer. */
-  public static final int AUDIO_TYPE_VISUAL_IMPAIRED_COMMENTARY = 3;
-
-  /**
    * @deprecated Use {@link Util#usToMs(long)}.
    */
   @UnstableApi
@@ -1632,16 +1607,5 @@ public final class C {
   public static @PlaybackException.ErrorCode int getErrorCodeForMediaDrmErrorCode(
       int mediaDrmErrorCode) {
     return Util.getErrorCodeForMediaDrmErrorCode(mediaDrmErrorCode);
-  }
-
-  public static @C.RoleFlags int parseRoleFlagsFromAudioType(@AudioType int audioType) {
-    switch (audioType) {
-      case C.AUDIO_TYPE_HEARING_IMPAIRED:
-        return C.ROLE_FLAG_ENHANCED_DIALOG_INTELLIGIBILITY;
-      case C.AUDIO_TYPE_VISUAL_IMPAIRED_COMMENTARY:
-        return C.ROLE_FLAG_DESCRIBES_VIDEO;
-      default:
-        return 0;
-    }
   }
 }

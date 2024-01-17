@@ -49,7 +49,7 @@ public final class LatmReader implements ElementaryStreamReader {
   private static final int SYNC_BYTE_SECOND = 0xE0;
 
   @Nullable private final String language;
-  @C.AudioType private final int audioType;
+  @TsUtil.AudioType private final int audioType;
   private final ParsableByteArray sampleDataBuffer;
   private final ParsableBitArray sampleBitArray;
 
@@ -81,7 +81,7 @@ public final class LatmReader implements ElementaryStreamReader {
    * @param language Track language.
    * @param audioType Track audio type.
    */
-  public LatmReader(@Nullable String language, @C.AudioType int audioType) {
+  public LatmReader(@Nullable String language, @TsUtil.AudioType int audioType) {
     this.language = language;
     this.audioType = audioType;
     sampleDataBuffer = new ParsableByteArray(INITIAL_BUFFER_SIZE);
@@ -220,7 +220,7 @@ public final class LatmReader implements ElementaryStreamReader {
                 .setSampleRate(sampleRateHz)
                 .setInitializationData(Collections.singletonList(initData))
                 .setLanguage(language)
-                .setRoleFlags(C.parseRoleFlagsFromAudioType(audioType))
+                .setRoleFlags(TsUtil.parseRoleFlagsFromAudioType(audioType))
                 .build();
         if (!format.equals(this.format)) {
           this.format = format;

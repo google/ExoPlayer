@@ -172,9 +172,11 @@ public final class DefaultTsPayloadReaderFactory implements TsPayloadReader.Fact
         // Fall through.
       case TsExtractor.TS_STREAM_TYPE_DTS:
       case TsExtractor.TS_STREAM_TYPE_DTS_HD:
-        return new PesReader(new DtsReader(esInfo.language, DtsReader.EXTSS_HEADER_SIZE_MAX, esInfo.audioType));
+        return new PesReader(
+            new DtsReader(esInfo.language, DtsReader.EXTSS_HEADER_SIZE_MAX, esInfo.audioType));
       case TsExtractor.TS_STREAM_TYPE_DTS_UHD:
-        return new PesReader(new DtsReader(esInfo.language, DtsReader.FTOC_MAX_HEADER_SIZE, esInfo.audioType));
+        return new PesReader(
+            new DtsReader(esInfo.language, DtsReader.FTOC_MAX_HEADER_SIZE, esInfo.audioType));
       case TsExtractor.TS_STREAM_TYPE_H262:
       case TsExtractor.TS_STREAM_TYPE_DC2_H262:
         return new PesReader(new H262Reader(buildUserDataReader(esInfo)));

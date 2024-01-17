@@ -20,7 +20,6 @@ import static java.lang.annotation.ElementType.TYPE_USE;
 import android.util.SparseArray;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
-import androidx.media3.common.C;
 import androidx.media3.common.ParserException;
 import androidx.media3.common.util.ParsableByteArray;
 import androidx.media3.common.util.TimestampAdjuster;
@@ -68,7 +67,7 @@ public interface TsPayloadReader {
 
     public final int streamType;
     @Nullable public final String language;
-    @C.AudioType public final int audioType;
+    @TsUtil.AudioType public final int audioType;
     public final List<DvbSubtitleInfo> dvbSubtitleInfos;
     public final byte[] descriptorBytes;
 
@@ -83,7 +82,7 @@ public interface TsPayloadReader {
     public EsInfo(
         int streamType,
         @Nullable String language,
-        @C.AudioType int audioType,
+        @TsUtil.AudioType int audioType,
         @Nullable List<DvbSubtitleInfo> dvbSubtitleInfos,
         byte[] descriptorBytes) {
       this.streamType = streamType;
