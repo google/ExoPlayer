@@ -25,6 +25,9 @@ package androidx.media3.muxer;
    */
   public static final int MAX_FIXED_LEAF_BOX_SIZE = 200;
 
+  /** The maximum value of a 32-bit unsigned int. */
+  public static final long UNSIGNED_INT_MAX_VALUE = 4_294_967_295L;
+
   /**
    * The per-video timebase, used for durations in MVHD and TKHD even if the per-track timebase is
    * different (e.g. typically the sample rate for audio).

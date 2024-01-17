@@ -71,7 +71,7 @@ moof (2852 bytes):
       Data = length 8, hash 94446F03
     trun (1684 bytes):
       Data = length 1676, hash 46E974DC
-mdat (5712395 bytes):
+mdat (5712387 bytes):
   Data = length 5712379, hash 86B2819D
 moof (1220 bytes):
   mfhd (16 bytes):
@@ -86,5 +86,5 @@ moof (1220 bytes):
       Data = length 8, hash 94446F03
     trun (688 bytes):
       Data = length 680, hash 4E3D2F16
-mdat (2364929 bytes):
+mdat (2364921 bytes):
   Data = length 2364913, hash D363A845
