@@ -121,6 +121,7 @@ public final class TextRenderer extends BaseRenderer implements Callback {
   private long outputStreamOffsetUs;
   private long lastRendererPositionUs;
   private long finalStreamEndPositionUs;
+  private boolean legacyDecodingEnabled;
 
   /**
    * @param output The output.
@@ -159,6 +160,7 @@ public final class TextRenderer extends BaseRenderer implements Callback {
     finalStreamEndPositionUs = C.TIME_UNSET;
     outputStreamOffsetUs = C.TIME_UNSET;
     lastRendererPositionUs = C.TIME_UNSET;
+    legacyDecodingEnabled = true;
   }
 
   @Override
@@ -168,6 +170,10 @@ public final class TextRenderer extends BaseRenderer implements Callback {
 
   @Override
   public @Capabilities int supportsFormat(Format format) {
+    // TODO: b/289983417 - Return UNSUPPORTED for non-media3-queues once we stop supporting them
+    //   completely. In the meantime, we return SUPPORTED here and then throw later  if
+    //   legacyDecodingEnabled is false (when receiving the first Format or sample). This ensures
+    //   apps are aware (via the playback failure) they're using a legacy/deprecated code path.
     if (isCuesWithTiming(format) || subtitleDecoderFactory.supportsFormat(format)) {
       return RendererCapabilities.create(
           format.cryptoType == C.CRYPTO_TYPE_NONE ? C.FORMAT_HANDLED : C.FORMAT_UNSUPPORTED_DRM);
@@ -202,6 +208,7 @@ public final class TextRenderer extends BaseRenderer implements Callback {
     outputStreamOffsetUs = offsetUs;
     streamFormat = formats[0];
     if (!isCuesWithTiming(streamFormat)) {
+      assertLegacyDecodingEnabledIfRequired();
       if (subtitleDecoder != null) {
         decoderReplacementState = REPLACEMENT_STATE_SIGNAL_END_OF_STREAM;
       } else {
@@ -254,8 +261,28 @@ public final class TextRenderer extends BaseRenderer implements Callback {
       checkNotNull(cuesResolver);
       renderFromCuesWithTiming(positionUs);
     } else {
+      assertLegacyDecodingEnabledIfRequired();
       renderFromSubtitles(positionUs);
     }
+  }
+
+  /**
+   * Sets whether to decode subtitle data during rendering.
+   *
+   * <p>If this is enabled, then the {@link SubtitleDecoderFactory} passed to the constructor is
+   * used to decode subtitle data during rendering.
+   *
+   * <p>If this is disabled this text renderer can only handle tracks with MIME type {@link
+   * MimeTypes#APPLICATION_MEDIA3_CUES} (which have been parsed from their original format during
+   * extraction), and will throw an exception if passed data of a different type.
+   *
+   * <p>This is enabled by default.
+   *
+   * <p>This method is experimental. It may change behavior, be renamed, or removed in a future
+   * release.
+   */
+  public void experimentalSetLegacyDecodingEnabled(boolean legacyDecodingEnabled) {
+    this.legacyDecodingEnabled = legacyDecodingEnabled;
   }
 
   @RequiresNonNull("this.cuesResolver")
@@ -554,7 +581,22 @@ public final class TextRenderer extends BaseRenderer implements Callback {
     return positionUs - outputStreamOffsetUs;
   }
 
+  @RequiresNonNull("streamFormat")
+  private void assertLegacyDecodingEnabledIfRequired() {
+    checkState(
+        legacyDecodingEnabled
+            || Objects.equals(streamFormat.sampleMimeType, MimeTypes.APPLICATION_CEA608)
+            || Objects.equals(streamFormat.sampleMimeType, MimeTypes.APPLICATION_MP4CEA608)
+            || Objects.equals(streamFormat.sampleMimeType, MimeTypes.APPLICATION_CEA708),
+        "Legacy decoding is disabled, can't handle "
+            + streamFormat.sampleMimeType
+            + " samples (expected "
+            + MimeTypes.APPLICATION_MEDIA3_CUES
+            + ").");
+  }
+
   /** Returns whether {@link Format#sampleMimeType} is {@link MimeTypes#APPLICATION_MEDIA3_CUES}. */
+  @SideEffectFree
   private static boolean isCuesWithTiming(Format format) {
     return Objects.equals(format.sampleMimeType, MimeTypes.APPLICATION_MEDIA3_CUES);
   }
