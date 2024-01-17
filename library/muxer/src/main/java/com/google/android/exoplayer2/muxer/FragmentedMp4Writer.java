@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.muxer;
 
+import static com.google.android.exoplayer2.muxer.Mp4Utils.UNSIGNED_INT_MAX_VALUE;
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static java.lang.Math.max;
@@ -180,13 +181,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   private void writeMdatBox() throws IOException {
     long mdatStartPosition = output.position();
-    // 4 bytes (indicating a 64-bit length field) + 4 bytes (box name) + 8 bytes (the actual length)
-    ByteBuffer header = ByteBuffer.allocate(16);
-    // This 32-bit integer in general contains the total length of the box. Here value 1 indicates
-    // that the actual length is stored as 64-bit integer after the box name.
-    header.putInt(1);
+    int mdatHeaderSize = 8; // 4 bytes (box size) + 4 bytes (box name)
+    ByteBuffer header = ByteBuffer.allocate(mdatHeaderSize);
+    header.putInt(mdatHeaderSize); // The total box size so far.
     header.put(Util.getUtf8Bytes("mdat"));
-    header.putLong(16); // The total box length so far.
     header.flip();
     output.write(header);
 
@@ -207,13 +205,15 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     long currentPosition = output.position();
 
-    // Skip 4 bytes (64-bit length indication) + 4 bytes (box name).
-    output.position(mdatStartPosition + 8);
-    ByteBuffer mdatSize = ByteBuffer.allocate(8); // 64-bit length.
-    // Additional 4 bytes (64-bit length indication) + 4 bytes (box name) + 8 bytes (actual length).
-    mdatSize.putLong(bytesWritten + 16);
-    mdatSize.flip();
-    output.write(mdatSize);
+    output.position(mdatStartPosition);
+    ByteBuffer mdatSizeByteBuffer = ByteBuffer.allocate(4);
+    long mdatSize = bytesWritten + mdatHeaderSize;
+    checkArgument(
+        mdatSize <= UNSIGNED_INT_MAX_VALUE,
+        "Only 32-bit long mdat size supported in the fragmented MP4");
+    mdatSizeByteBuffer.putInt((int) mdatSize);
+    mdatSizeByteBuffer.flip();
+    output.write(mdatSizeByteBuffer);
     output.position(currentPosition);
   }
 
