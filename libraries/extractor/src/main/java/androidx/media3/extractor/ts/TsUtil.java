@@ -16,59 +16,14 @@
 
 package androidx.media3.extractor.ts;
 
-import static java.lang.annotation.ElementType.TYPE_USE;
-import static java.lang.annotation.RetentionPolicy.SOURCE;
 
-import androidx.annotation.IntDef;
 import androidx.media3.common.C;
 import androidx.media3.common.util.ParsableByteArray;
 import androidx.media3.common.util.UnstableApi;
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
 
 /** Utilities method for extracting MPEG-TS streams. */
 @UnstableApi
 public final class TsUtil {
-
-  /**
-   * The audio type of the stream, as defined by ISO/IEC 13818-1, section 2.6.18.
-   *
-   * <p>One of {@link #AUDIO_TYPE_UNDEFINED}, {@link #AUDIO_TYPE_CLEAN_EFFECTS}, {@link
-   * #AUDIO_TYPE_HEARING_IMPAIRED} or {@link #AUDIO_TYPE_VISUAL_IMPAIRED_COMMENTARY}.
-   */
-  @Documented
-  @Retention(SOURCE)
-  @Target(TYPE_USE)
-  @IntDef({
-    AUDIO_TYPE_UNDEFINED,
-    AUDIO_TYPE_CLEAN_EFFECTS,
-    AUDIO_TYPE_HEARING_IMPAIRED,
-    AUDIO_TYPE_VISUAL_IMPAIRED_COMMENTARY
-  })
-  public @interface AudioType {}
-
-  public static final int AUDIO_TYPE_UNDEFINED = 0;
-
-  /** Indicates the track has no language. */
-  public static final int AUDIO_TYPE_CLEAN_EFFECTS = 1;
-
-  /** Indicates the track is prepared for the hearing impaired. */
-  public static final int AUDIO_TYPE_HEARING_IMPAIRED = 2;
-
-  /** Indicates the track is prepared for the visually impaired viewer. */
-  public static final int AUDIO_TYPE_VISUAL_IMPAIRED_COMMENTARY = 3;
-
-  public static @C.RoleFlags int parseRoleFlagsFromAudioType(@AudioType int audioType) {
-    switch (audioType) {
-      case AUDIO_TYPE_HEARING_IMPAIRED:
-        return C.ROLE_FLAG_ENHANCED_DIALOG_INTELLIGIBILITY;
-      case AUDIO_TYPE_VISUAL_IMPAIRED_COMMENTARY:
-        return C.ROLE_FLAG_DESCRIBES_VIDEO;
-      default:
-        return 0;
-    }
-  }
 
   /**
    * Returns whether a TS packet starts at {@code searchPosition} according to the MPEG-TS

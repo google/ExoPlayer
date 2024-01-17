@@ -71,7 +71,7 @@ public final class AdtsReader implements ElementaryStreamReader {
   private final ParsableBitArray adtsScratch;
   private final ParsableByteArray id3HeaderBuffer;
   @Nullable private final String language;
-  @TsUtil.AudioType private final int audioType;
+  private final @C.RoleFlags int roleFlags;
 
   private @MonotonicNonNull String formatId;
   private @MonotonicNonNull TrackOutput output;
@@ -106,15 +106,15 @@ public final class AdtsReader implements ElementaryStreamReader {
    * @param exposeId3 True if the reader should expose ID3 information.
    */
   public AdtsReader(boolean exposeId3) {
-    this(exposeId3, null, TsUtil.AUDIO_TYPE_UNDEFINED);
+    this(exposeId3, null, /* roleFlags= */ 0);
   }
 
   /**
    * @param exposeId3 True if the reader should expose ID3 information.
    * @param language Track language.
-   * @param audioType Track audio type.
+   * @param roleFlags Track role flags.
    */
-  public AdtsReader(boolean exposeId3, @Nullable String language, @TsUtil.AudioType int audioType) {
+  public AdtsReader(boolean exposeId3, @Nullable String language, @C.RoleFlags int roleFlags) {
     adtsScratch = new ParsableBitArray(new byte[HEADER_SIZE + CRC_SIZE]);
     id3HeaderBuffer = new ParsableByteArray(Arrays.copyOf(ID3_IDENTIFIER, ID3_HEADER_SIZE));
     setFindingSampleState();
@@ -124,7 +124,7 @@ public final class AdtsReader implements ElementaryStreamReader {
     timeUs = C.TIME_UNSET;
     this.exposeId3 = exposeId3;
     this.language = language;
-    this.audioType = audioType;
+    this.roleFlags = roleFlags;
   }
 
   /** Returns whether an integer matches an ADTS SYNC word. */
@@ -513,7 +513,7 @@ public final class AdtsReader implements ElementaryStreamReader {
               .setSampleRate(aacConfig.sampleRateHz)
               .setInitializationData(Collections.singletonList(audioSpecificConfig))
               .setLanguage(language)
-              .setRoleFlags(TsUtil.parseRoleFlagsFromAudioType(audioType))
+              .setRoleFlags(roleFlags)
               .build();
       // In this class a sample is an access unit, but the MediaFormat sample rate specifies the
       // number of PCM audio samples per second.

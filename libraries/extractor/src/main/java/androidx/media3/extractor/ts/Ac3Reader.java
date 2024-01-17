@@ -60,7 +60,7 @@ public final class Ac3Reader implements ElementaryStreamReader {
   private final ParsableBitArray headerScratchBits;
   private final ParsableByteArray headerScratchBytes;
   @Nullable private final String language;
-  @TsUtil.AudioType private final int audioType;
+  private final @C.RoleFlags int roleFlags;
 
   private @MonotonicNonNull String formatId;
   private @MonotonicNonNull TrackOutput output;
@@ -81,22 +81,22 @@ public final class Ac3Reader implements ElementaryStreamReader {
 
   /** Constructs a new reader for (E-)AC-3 elementary streams. */
   public Ac3Reader() {
-    this(null, TsUtil.AUDIO_TYPE_UNDEFINED);
+    this(null, /* roleFlags= */ 0);
   }
 
   /**
    * Constructs a new reader for (E-)AC-3 elementary streams.
    *
    * @param language Track language.
-   * @param audioType Track audio type.
+   * @param roleFlags Track role flags.
    */
-  public Ac3Reader(@Nullable String language, @TsUtil.AudioType int audioType) {
+  public Ac3Reader(@Nullable String language, @C.RoleFlags int roleFlags) {
     headerScratchBits = new ParsableBitArray(new byte[HEADER_SIZE]);
     headerScratchBytes = new ParsableByteArray(headerScratchBits.data);
     state = STATE_FINDING_SYNC;
     timeUs = C.TIME_UNSET;
     this.language = language;
-    this.audioType = audioType;
+    this.roleFlags = roleFlags;
   }
 
   @Override
@@ -219,7 +219,7 @@ public final class Ac3Reader implements ElementaryStreamReader {
               .setChannelCount(frameInfo.channelCount)
               .setSampleRate(frameInfo.sampleRate)
               .setLanguage(language)
-              .setRoleFlags(TsUtil.parseRoleFlagsFromAudioType(audioType))
+              .setRoleFlags(roleFlags)
               .setPeakBitrate(frameInfo.bitrate);
       // AC3 has constant bitrate, so averageBitrate = peakBitrate
       if (MimeTypes.AUDIO_AC3.equals(frameInfo.mimeType)) {
