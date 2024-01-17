@@ -15,17 +15,26 @@
  */
 package androidx.media3.exoplayer.e2etest;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.net.Uri;
+import android.os.Looper;
 import android.view.Surface;
 import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.Player;
+import androidx.media3.exoplayer.DefaultRenderersFactory;
+import androidx.media3.exoplayer.ExoPlaybackException;
 import androidx.media3.exoplayer.ExoPlayer;
+import androidx.media3.exoplayer.Renderer;
+import androidx.media3.exoplayer.RenderersFactory;
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory;
 import androidx.media3.exoplayer.source.MediaSource;
+import androidx.media3.exoplayer.text.TextOutput;
+import androidx.media3.exoplayer.text.TextRenderer;
 import androidx.media3.test.utils.CapturingRenderersFactory;
 import androidx.media3.test.utils.DumpFileAsserts;
 import androidx.media3.test.utils.FakeClock;
@@ -34,6 +43,8 @@ import androidx.media3.test.utils.robolectric.ShadowMediaCodecConfig;
 import androidx.media3.test.utils.robolectric.TestPlayerRunHelper;
 import androidx.test.core.app.ApplicationProvider;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
+import java.util.ArrayList;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -91,5 +102,56 @@ public class WebvttPlaybackTest {
 
     DumpFileAsserts.assertOutput(
         applicationContext, playbackOutput, "playbackdumps/webvtt/" + inputFile + ".dump");
+  }
+
+  @Test
+  public void textRendererDoesntSupportLegacyDecoding_playbackFails() throws Exception {
+    Context applicationContext = ApplicationProvider.getApplicationContext();
+    RenderersFactory renderersFactory =
+        new DefaultRenderersFactory(applicationContext) {
+          @Override
+          protected void buildTextRenderers(
+              Context context,
+              TextOutput output,
+              Looper outputLooper,
+              @ExtensionRendererMode int extensionRendererMode,
+              ArrayList<Renderer> out) {
+            super.buildTextRenderers(context, output, outputLooper, extensionRendererMode, out);
+            ((TextRenderer) Iterables.getLast(out)).experimentalSetLegacyDecodingEnabled(false);
+          }
+        };
+    MediaSource.Factory mediaSourceFactory =
+        new DefaultMediaSourceFactory(applicationContext)
+            .experimentalParseSubtitlesDuringExtraction(false);
+    ExoPlayer player =
+        new ExoPlayer.Builder(applicationContext, renderersFactory)
+            .setClock(new FakeClock(/* isAutoAdvancing= */ true))
+            .setMediaSourceFactory(mediaSourceFactory)
+            .build();
+    Surface surface = new Surface(new SurfaceTexture(/* texName= */ 1));
+    player.setVideoSurface(surface);
+    MediaItem mediaItem =
+        new MediaItem.Builder()
+            .setUri("asset:///media/mp4/preroll-5s.mp4")
+            .setSubtitleConfigurations(
+                ImmutableList.of(
+                    new MediaItem.SubtitleConfiguration.Builder(
+                            Uri.parse("asset:///media/webvtt/" + inputFile))
+                        .setMimeType(MimeTypes.TEXT_VTT)
+                        .setLanguage("en")
+                        .setSelectionFlags(C.SELECTION_FLAG_DEFAULT)
+                        .build()))
+            .build();
+
+    player.setMediaItem(mediaItem);
+    player.prepare();
+    player.play();
+    ExoPlaybackException playbackException = TestPlayerRunHelper.runUntilError(player);
+    assertThat(playbackException)
+        .hasCauseThat()
+        .hasMessageThat()
+        .contains("Legacy decoding is disabled");
+    player.release();
+    surface.release();
   }
 }
