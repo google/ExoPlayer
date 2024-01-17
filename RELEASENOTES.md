@@ -19,6 +19,9 @@
         than if we ignore it and assume the file is CBR.
     *   MPEG2-TS: Add DTS, DTS-LBR and DTS:X Profile2 support
         ([#275](https://github.com/androidx/media/pull/275)).
+    *   Extract audio types from TS descriptors and map them to role flags,
+        allowing users to make better-informed audio track selections
+        ([#973](https://github.com/androidx/media/pull/973)).
 *   Audio:
 *   Video:
 *   Text:
