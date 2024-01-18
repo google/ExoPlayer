@@ -136,6 +136,7 @@ import java.util.zip.Inflater;
 import org.checkerframework.checker.initialization.qual.UnknownInitialization;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.PolyNull;
 
 /**
@@ -3183,8 +3184,7 @@ public final class Util {
    * @param toIndex The index up to which elements should be moved (exclusive).
    * @param newFromIndex The new from index.
    */
-  @SuppressWarnings("ExtendsObject")
-  public static <T extends Object> void moveItems(
+  public static <T extends @NonNull Object> void moveItems(
       List<T> items, int fromIndex, int toIndex, int newFromIndex) {
     ArrayDeque<T> removedItems = new ArrayDeque<>();
     int removedItemsLength = toIndex - fromIndex;
