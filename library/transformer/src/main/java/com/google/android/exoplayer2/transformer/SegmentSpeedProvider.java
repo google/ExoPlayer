@@ -44,10 +44,6 @@ import java.util.TreeMap;
 @Deprecated
 /* package */ class SegmentSpeedProvider implements SpeedProvider {
 
-  /**
-   * Input frame rate of Samsung Slow motion videos is always 30. See
-   * go/exoplayer-sef-slomo-video-flattening.
-   */
   private static final int INPUT_FRAME_RATE = 30;
 
   private final ImmutableSortedMap<Long, Float> speedsByStartTimeUs;
