@@ -391,7 +391,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
   }
 
   @Override
-  public boolean queueInputBitmap(Bitmap inputBitmap, TimestampIterator inStreamOffsetsUs) {
+  public boolean queueInputBitmap(Bitmap inputBitmap, TimestampIterator timestampIterator) {
     if (!inputStreamRegisteredCondition.isOpen()) {
       return false;
     }
@@ -401,7 +401,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
         .queueInputBitmap(
             inputBitmap,
             new FrameInfo.Builder(frameInfo).setOffsetToAddUs(frameInfo.offsetToAddUs).build(),
-            inStreamOffsetsUs,
+            timestampIterator,
             /* useHdr= */ false);
     return true;
   }

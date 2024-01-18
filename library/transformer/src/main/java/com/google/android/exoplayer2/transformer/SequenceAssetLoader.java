@@ -408,11 +408,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 
     @Override
     public @InputResult int queueInputBitmap(
-        Bitmap inputBitmap, TimestampIterator inStreamOffsetsUs) {
+        Bitmap inputBitmap, TimestampIterator timestampIterator) {
       if (isLooping) {
         long lastOffsetUs = C.TIME_UNSET;
-        while (inStreamOffsetsUs.hasNext()) {
-          long offsetUs = inStreamOffsetsUs.next();
+        while (timestampIterator.hasNext()) {
+          long offsetUs = timestampIterator.next();
           if (totalDurationUs + offsetUs > maxSequenceDurationUs) {
             if (!isMaxSequenceDurationUsFinal) {
               return INPUT_RESULT_TRY_AGAIN_LATER;
@@ -425,14 +425,14 @@ import java.util.concurrent.atomic.AtomicInteger;
               }
               return INPUT_RESULT_TRY_AGAIN_LATER;
             }
-            inStreamOffsetsUs = new ClippingIterator(inStreamOffsetsUs.copyOf(), lastOffsetUs);
+            timestampIterator = new ClippingIterator(timestampIterator.copyOf(), lastOffsetUs);
             videoLoopingEnded = true;
             break;
           }
           lastOffsetUs = offsetUs;
         }
       }
-      return sampleConsumer.queueInputBitmap(inputBitmap, inStreamOffsetsUs.copyOf());
+      return sampleConsumer.queueInputBitmap(inputBitmap, timestampIterator.copyOf());
     }
 
     @Override

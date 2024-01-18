@@ -89,8 +89,8 @@ import java.util.concurrent.atomic.AtomicLong;
 
   @Override
   public @InputResult int queueInputBitmap(
-      Bitmap inputBitmap, TimestampIterator inStreamOffsetsUs) {
-    return videoFrameProcessor.queueInputBitmap(inputBitmap, inStreamOffsetsUs)
+      Bitmap inputBitmap, TimestampIterator timestampIterator) {
+    return videoFrameProcessor.queueInputBitmap(inputBitmap, timestampIterator)
         ? INPUT_RESULT_SUCCESS
         : INPUT_RESULT_TRY_AGAIN_LATER;
   }
