@@ -140,6 +140,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Override
   public void setSamplingGlShaderProgram(GlShaderProgram samplingGlShaderProgram) {
     checkState(samplingGlShaderProgram instanceof ExternalShaderProgram);
+    externalShaderProgramInputCapacity.set(0);
     this.externalShaderProgram = (ExternalShaderProgram) samplingGlShaderProgram;
   }
 

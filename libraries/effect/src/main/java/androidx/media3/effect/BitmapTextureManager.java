@@ -76,6 +76,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   @Override
   public void setSamplingGlShaderProgram(GlShaderProgram samplingGlShaderProgram) {
+    downstreamShaderProgramCapacity = 0;
     this.shaderProgram = samplingGlShaderProgram;
   }
 

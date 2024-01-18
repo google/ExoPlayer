@@ -69,8 +69,6 @@ import androidx.media3.common.util.TimestampIterator;
    *
    * <p>Must be called before any method that queues input or {@link
    * #signalEndOfCurrentInputStream()}.
-   *
-   * <p>This must only be called once.
    */
   public abstract void setSamplingGlShaderProgram(GlShaderProgram samplingGlShaderProgram);
 

@@ -447,12 +447,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
    * <p>If either {@link FrameInfo#colorInfo} or {@code outputColorInfo} {@linkplain
    * ColorInfo#isTransferHdr} are HDR}, color transfers must {@linkplain
    * Factory.Builder#setEnableColorTransfers be enabled}.
-   *
-   * <p>The {@link FrameInfo}'s {@link ColorInfo} must not change between different calls to this
-   * method.
    */
-  // TODO: b/307952514: After updating frameInfo.colorInfo works with flushing, remove relevant
-  // javadoc.
   @Override
   public void registerInputStream(
       @InputType int inputType, List<Effect> effects, FrameInfo frameInfo) {

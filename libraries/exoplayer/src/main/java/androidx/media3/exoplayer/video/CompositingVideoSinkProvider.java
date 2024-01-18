@@ -560,7 +560,6 @@ public final class CompositingVideoSinkProvider
     @Nullable private Effect rotationEffect;
 
     @Nullable private Format inputFormat;
-    private @MonotonicNonNull ColorInfo firstInputColorInfo;
     private @InputType int inputType;
     private long inputStreamOffsetUs;
     private boolean pendingInputStreamOffsetChange;
@@ -778,15 +777,13 @@ public final class CompositingVideoSinkProvider
       }
       effects.addAll(videoEffects);
       Format inputFormat = checkNotNull(this.inputFormat);
-      if (firstInputColorInfo == null) {
-        // TODO: b/307952514 - Get inputColorInfo from inputFormat for each stream, after this value
-        // can change per-stream.
-        firstInputColorInfo = getAdjustedInputColorInfo(inputFormat.colorInfo);
-      }
       videoFrameProcessor.registerInputStream(
           inputType,
           effects,
-          new FrameInfo.Builder(firstInputColorInfo, inputFormat.width, inputFormat.height)
+          new FrameInfo.Builder(
+                  getAdjustedInputColorInfo(inputFormat.colorInfo),
+                  inputFormat.width,
+                  inputFormat.height)
               .setPixelWidthHeightRatio(inputFormat.pixelWidthHeightRatio)
               .build());
     }

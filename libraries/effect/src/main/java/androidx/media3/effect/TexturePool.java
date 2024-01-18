@@ -105,6 +105,11 @@ import java.util.Queue;
     freeTextures.add(textureInfo);
   }
 
+  /** Returns whether the texture represented by {@code textureInfo} is in use. */
+  public boolean isUsingTexture(GlTextureInfo textureInfo) {
+    return inUseTextures.contains(textureInfo);
+  }
+
   /**
    * Frees the oldest in-use texture.
    *
