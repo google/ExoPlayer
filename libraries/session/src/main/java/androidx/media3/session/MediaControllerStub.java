@@ -47,7 +47,10 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   }
 
   @Override
-  public void onSessionResult(int sequenceNum, Bundle sessionResultBundle) {
+  public void onSessionResult(int sequenceNum, @Nullable Bundle sessionResultBundle) {
+    if (sessionResultBundle == null) {
+      return;
+    }
     SessionResult result;
     try {
       result = SessionResult.fromBundle(sessionResultBundle);
@@ -62,7 +65,10 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   }
 
   @Override
-  public void onLibraryResult(int sequenceNum, Bundle libraryResultBundle) {
+  public void onLibraryResult(int sequenceNum, @Nullable Bundle libraryResultBundle) {
+    if (libraryResultBundle == null) {
+      return;
+    }
     LibraryResult<?> result;
     try {
       result = LibraryResult.fromUnknownBundle(libraryResultBundle);
@@ -77,7 +83,10 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   }
 
   @Override
-  public void onConnected(int seq, Bundle connectionResultBundle) {
+  public void onConnected(int seq, @Nullable Bundle connectionResultBundle) {
+    if (connectionResultBundle == null) {
+      return;
+    }
     ConnectionState connectionState;
     try {
       connectionState = ConnectionState.fromBundle(connectionResultBundle);
@@ -97,7 +106,10 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   }
 
   @Override
-  public void onSetCustomLayout(int seq, List<Bundle> commandButtonBundleList) {
+  public void onSetCustomLayout(int seq, @Nullable List<Bundle> commandButtonBundleList) {
+    if (commandButtonBundleList == null) {
+      return;
+    }
     List<CommandButton> layout;
     try {
       layout =
@@ -111,7 +123,10 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   @Override
   public void onAvailableCommandsChangedFromSession(
-      int seq, Bundle sessionCommandsBundle, Bundle playerCommandsBundle) {
+      int seq, @Nullable Bundle sessionCommandsBundle, @Nullable Bundle playerCommandsBundle) {
+    if (sessionCommandsBundle == null || playerCommandsBundle == null) {
+      return;
+    }
     SessionCommands sessionCommands;
     try {
       sessionCommands = SessionCommands.fromBundle(sessionCommandsBundle);
@@ -132,7 +147,10 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   }
 
   @Override
-  public void onAvailableCommandsChangedFromPlayer(int seq, Bundle commandsBundle) {
+  public void onAvailableCommandsChangedFromPlayer(int seq, @Nullable Bundle commandsBundle) {
+    if (commandsBundle == null) {
+      return;
+    }
     Commands commandsFromPlayer;
     try {
       commandsFromPlayer = Commands.fromBundle(commandsBundle);
@@ -145,8 +163,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   }
 
   @Override
-  public void onCustomCommand(int seq, Bundle commandBundle, Bundle args) {
-    if (args == null) {
+  public void onCustomCommand(int seq, @Nullable Bundle commandBundle, @Nullable Bundle args) {
+    if (commandBundle == null || args == null) {
       Log.w(TAG, "Ignoring custom command with null args.");
       return;
     }
@@ -161,14 +179,22 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   }
 
   @Override
-  public void onSessionActivityChanged(int seq, PendingIntent sessionActivity)
+  public void onSessionActivityChanged(int seq, @Nullable PendingIntent sessionActivity)
       throws RemoteException {
+    if (sessionActivity == null) {
+      Log.w(TAG, "Ignoring null session activity intent");
+      return;
+    }
     dispatchControllerTaskOnHandler(
         controller -> controller.onSetSessionActivity(seq, sessionActivity));
   }
 
   @Override
-  public void onPeriodicSessionPositionInfoChanged(int seq, Bundle sessionPositionInfoBundle) {
+  public void onPeriodicSessionPositionInfoChanged(
+      int seq, @Nullable Bundle sessionPositionInfoBundle) {
+    if (sessionPositionInfoBundle == null) {
+      return;
+    }
     SessionPositionInfo sessionPositionInfo;
     try {
       sessionPositionInfo = SessionPositionInfo.fromBundle(sessionPositionInfoBundle);
@@ -185,7 +211,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
    */
   @Override
   @Deprecated
-  public void onPlayerInfoChanged(int seq, Bundle playerInfoBundle, boolean isTimelineExcluded) {
+  public void onPlayerInfoChanged(
+      int seq, @Nullable Bundle playerInfoBundle, boolean isTimelineExcluded) {
     onPlayerInfoChangedWithExclusions(
         seq,
         playerInfoBundle,
@@ -196,7 +223,10 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   /** Added in {@link #VERSION_INT} 2. */
   @Override
   public void onPlayerInfoChangedWithExclusions(
-      int seq, Bundle playerInfoBundle, Bundle playerInfoExclusions) {
+      int seq, @Nullable Bundle playerInfoBundle, @Nullable Bundle playerInfoExclusions) {
+    if (playerInfoBundle == null || playerInfoExclusions == null) {
+      return;
+    }
     PlayerInfo playerInfo;
     try {
       playerInfo = PlayerInfo.fromBundle(playerInfoBundle);
@@ -216,7 +246,11 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   }
 
   @Override
-  public void onExtrasChanged(int seq, Bundle extras) {
+  public void onExtrasChanged(int seq, @Nullable Bundle extras) {
+    if (extras == null) {
+      Log.w(TAG, "Ignoring null Bundle for extras");
+      return;
+    }
     dispatchControllerTaskOnHandler(controller -> controller.onExtrasChanged(extras));
   }
 
@@ -230,7 +264,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   ////////////////////////////////////////////////////////////////////////////////////////////
   @Override
   public void onSearchResultChanged(
-      int seq, String query, int itemCount, @Nullable Bundle libraryParams)
+      int seq, @Nullable String query, int itemCount, @Nullable Bundle libraryParamsBundle)
       throws RuntimeException {
     if (TextUtils.isEmpty(query)) {
       Log.w(TAG, "onSearchResultChanged(): Ignoring empty query");
@@ -240,18 +274,22 @@ import org.checkerframework.checker.nullness.qual.NonNull;
       Log.w(TAG, "onSearchResultChanged(): Ignoring negative itemCount: " + itemCount);
       return;
     }
+    @Nullable LibraryParams libraryParams;
+    try {
+      libraryParams =
+          libraryParamsBundle == null ? null : LibraryParams.fromBundle(libraryParamsBundle);
+    } catch (RuntimeException e) {
+      Log.w(TAG, "Ignoring malformed Bundle for LibraryParams", e);
+      return;
+    }
     dispatchControllerTaskOnHandler(
         (ControllerTask<MediaBrowserImplBase>)
-            browser ->
-                browser.notifySearchResultChanged(
-                    query,
-                    itemCount,
-                    libraryParams == null ? null : LibraryParams.fromBundle(libraryParams)));
+            browser -> browser.notifySearchResultChanged(query, itemCount, libraryParams));
   }
 
   @Override
   public void onChildrenChanged(
-      int seq, String parentId, int itemCount, @Nullable Bundle libraryParams) {
+      int seq, @Nullable String parentId, int itemCount, @Nullable Bundle libraryParamsBundle) {
     if (TextUtils.isEmpty(parentId)) {
       Log.w(TAG, "onChildrenChanged(): Ignoring empty parentId");
       return;
@@ -260,13 +298,17 @@ import org.checkerframework.checker.nullness.qual.NonNull;
       Log.w(TAG, "onChildrenChanged(): Ignoring negative itemCount: " + itemCount);
       return;
     }
+    @Nullable LibraryParams libraryParams;
+    try {
+      libraryParams =
+          libraryParamsBundle == null ? null : LibraryParams.fromBundle(libraryParamsBundle);
+    } catch (RuntimeException e) {
+      Log.w(TAG, "Ignoring malformed Bundle for LibraryParams", e);
+      return;
+    }
     dispatchControllerTaskOnHandler(
         (ControllerTask<MediaBrowserImplBase>)
-            browser ->
-                browser.notifyChildrenChanged(
-                    parentId,
-                    itemCount,
-                    libraryParams == null ? null : LibraryParams.fromBundle(libraryParams)));
+            browser -> browser.notifyChildrenChanged(parentId, itemCount, libraryParams));
   }
 
   public void destroy() {

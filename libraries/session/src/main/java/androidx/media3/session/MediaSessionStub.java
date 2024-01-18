@@ -454,7 +454,10 @@ import java.util.concurrent.ExecutionException;
   }
 
   @SuppressWarnings("UngroupedOverloads") // Overload belongs to AIDL interface that is separated.
-  public void connect(IMediaController caller, ControllerInfo controllerInfo) {
+  public void connect(@Nullable IMediaController caller, @Nullable ControllerInfo controllerInfo) {
+    if (caller == null || controllerInfo == null) {
+      return;
+    }
     @Nullable MediaSessionImpl sessionImpl = this.sessionImpl.get();
     if (sessionImpl == null || sessionImpl.isReleased()) {
       try {
@@ -507,8 +510,11 @@ import java.util.concurrent.ExecutionException;
                 connectionResult.availableSessionCommands,
                 connectionResult.availablePlayerCommands);
             sequencedFutureManager =
-                checkStateNotNull(
-                    connectedControllersManager.getSequencedFutureManager(controllerInfo));
+                connectedControllersManager.getSequencedFutureManager(controllerInfo);
+            if (sequencedFutureManager == null) {
+              Log.w(TAG, "Ignoring connection request from unknown controller info");
+              return;
+            }
             // If connection is accepted, notify the current state to the controller.
             // It's needed because we cannot call synchronous calls between
             // session/controller.
@@ -596,8 +602,7 @@ import java.util.concurrent.ExecutionException;
   public void connect(
       @Nullable IMediaController caller,
       int sequenceNumber,
-      @Nullable Bundle connectionRequestBundle)
-      throws RuntimeException {
+      @Nullable Bundle connectionRequestBundle) {
     if (caller == null || connectionRequestBundle == null) {
       return;
     }
@@ -633,7 +638,7 @@ import java.util.concurrent.ExecutionException;
   }
 
   @Override
-  public void stop(@Nullable IMediaController caller, int sequenceNumber) throws RemoteException {
+  public void stop(@Nullable IMediaController caller, int sequenceNumber) {
     if (caller == null) {
       return;
     }
@@ -653,8 +658,7 @@ import java.util.concurrent.ExecutionException;
   }
 
   @Override
-  public void release(@Nullable IMediaController caller, int sequenceNumber)
-      throws RemoteException {
+  public void release(@Nullable IMediaController caller, int sequenceNumber) {
     if (caller == null) {
       return;
     }
@@ -700,7 +704,7 @@ import java.util.concurrent.ExecutionException;
   }
 
   @Override
-  public void play(@Nullable IMediaController caller, int sequenceNumber) throws RuntimeException {
+  public void play(@Nullable IMediaController caller, int sequenceNumber) {
     if (caller == null) {
       return;
     }
@@ -727,7 +731,7 @@ import java.util.concurrent.ExecutionException;
   }
 
   @Override
-  public void pause(@Nullable IMediaController caller, int sequenceNumber) throws RuntimeException {
+  public void pause(@Nullable IMediaController caller, int sequenceNumber) {
     if (caller == null) {
       return;
     }
@@ -744,8 +748,7 @@ import java.util.concurrent.ExecutionException;
   }
 
   @Override
-  public void prepare(@Nullable IMediaController caller, int sequenceNumber)
-      throws RuntimeException {
+  public void prepare(@Nullable IMediaController caller, int sequenceNumber) {
     if (caller == null) {
       return;
     }
@@ -754,7 +757,7 @@ import java.util.concurrent.ExecutionException;
   }
 
   @Override
-  public void seekToDefaultPosition(IMediaController caller, int sequenceNumber) {
+  public void seekToDefaultPosition(@Nullable IMediaController caller, int sequenceNumber) {
     if (caller == null) {
       return;
     }
@@ -767,7 +770,7 @@ import java.util.concurrent.ExecutionException;
 
   @Override
   public void seekToDefaultPositionWithMediaItemIndex(
-      IMediaController caller, int sequenceNumber, int mediaItemIndex) throws RemoteException {
+      @Nullable IMediaController caller, int sequenceNumber, int mediaItemIndex) {
     if (caller == null) {
       return;
     }
@@ -782,8 +785,7 @@ import java.util.concurrent.ExecutionException;
   }
 
   @Override
-  public void seekTo(@Nullable IMediaController caller, int sequenceNumber, long positionMs)
-      throws RuntimeException {
+  public void seekTo(@Nullable IMediaController caller, int sequenceNumber, long positionMs) {
     if (caller == null) {
       return;
     }
@@ -796,8 +798,7 @@ import java.util.concurrent.ExecutionException;
 
   @Override
   public void seekToWithMediaItemIndex(
-      IMediaController caller, int sequenceNumber, int mediaItemIndex, long positionMs)
-      throws RemoteException {
+      @Nullable IMediaController caller, int sequenceNumber, int mediaItemIndex, long positionMs) {
     if (caller == null) {
       return;
     }
@@ -812,7 +813,7 @@ import java.util.concurrent.ExecutionException;
   }
 
   @Override
-  public void seekBack(IMediaController caller, int sequenceNumber) {
+  public void seekBack(@Nullable IMediaController caller, int sequenceNumber) {
     if (caller == null) {
       return;
     }
@@ -880,9 +881,9 @@ import java.util.concurrent.ExecutionException;
   public void setRatingWithMediaId(
       @Nullable IMediaController caller,
       int sequenceNumber,
-      String mediaId,
+      @Nullable String mediaId,
       @Nullable Bundle ratingBundle) {
-    if (caller == null || ratingBundle == null) {
+    if (caller == null || mediaId == null || ratingBundle == null) {
       return;
     }
     if (TextUtils.isEmpty(mediaId)) {
@@ -941,11 +942,19 @@ import java.util.concurrent.ExecutionException;
 
   @Override
   public void setPlaybackParameters(
-      @Nullable IMediaController caller, int sequenceNumber, Bundle playbackParametersBundle) {
+      @Nullable IMediaController caller,
+      int sequenceNumber,
+      @Nullable Bundle playbackParametersBundle) {
     if (caller == null || playbackParametersBundle == null) {
       return;
     }
-    PlaybackParameters playbackParameters = PlaybackParameters.fromBundle(playbackParametersBundle);
+    PlaybackParameters playbackParameters;
+    try {
+      playbackParameters = PlaybackParameters.fromBundle(playbackParametersBundle);
+    } catch (RuntimeException e) {
+      Log.w(TAG, "Ignoring malformed Bundle for PlaybackParameters", e);
+      return;
+    }
     queueSessionTaskWithPlayerCommand(
         caller,
         sequenceNumber,
@@ -1134,7 +1143,7 @@ import java.util.concurrent.ExecutionException;
 
   @Override
   public void addMediaItem(
-      @Nullable IMediaController caller, int sequenceNumber, Bundle mediaItemBundle) {
+      @Nullable IMediaController caller, int sequenceNumber, @Nullable Bundle mediaItemBundle) {
     if (caller == null || mediaItemBundle == null) {
       return;
     }
@@ -1159,7 +1168,10 @@ import java.util.concurrent.ExecutionException;
 
   @Override
   public void addMediaItemWithIndex(
-      @Nullable IMediaController caller, int sequenceNumber, int index, Bundle mediaItemBundle) {
+      @Nullable IMediaController caller,
+      int sequenceNumber,
+      int index,
+      @Nullable Bundle mediaItemBundle) {
     if (caller == null || mediaItemBundle == null) {
       return;
     }
@@ -1317,7 +1329,10 @@ import java.util.concurrent.ExecutionException;
 
   @Override
   public void replaceMediaItem(
-      IMediaController caller, int sequenceNumber, int index, Bundle mediaItemBundle) {
+      @Nullable IMediaController caller,
+      int sequenceNumber,
+      int index,
+      @Nullable Bundle mediaItemBundle) {
     if (caller == null || mediaItemBundle == null) {
       return;
     }
@@ -1351,11 +1366,11 @@ import java.util.concurrent.ExecutionException;
 
   @Override
   public void replaceMediaItems(
-      IMediaController caller,
+      @Nullable IMediaController caller,
       int sequenceNumber,
       int fromIndex,
       int toIndex,
-      IBinder mediaItemsRetriever) {
+      @Nullable IBinder mediaItemsRetriever) {
     if (caller == null || mediaItemsRetriever == null) {
       return;
     }
@@ -1606,9 +1621,16 @@ import java.util.concurrent.ExecutionException;
   public void setAudioAttributes(
       @Nullable IMediaController caller,
       int sequenceNumber,
-      Bundle audioAttributes,
+      @Nullable Bundle audioAttributes,
       boolean handleAudioFocus) {
-    if (caller == null) {
+    if (caller == null || audioAttributes == null) {
+      return;
+    }
+    AudioAttributes attributes;
+    try {
+      attributes = AudioAttributes.fromBundle(audioAttributes);
+    } catch (RuntimeException e) {
+      Log.w(TAG, "Ignoring malformed Bundle for AudioAttributes", e);
       return;
     }
     queueSessionTaskWithPlayerCommand(
@@ -1616,9 +1638,7 @@ import java.util.concurrent.ExecutionException;
         sequenceNumber,
         COMMAND_SET_AUDIO_ATTRIBUTES,
         sendSessionResultSuccess(
-            player ->
-                player.setAudioAttributes(
-                    AudioAttributes.fromBundle(audioAttributes), handleAudioFocus)));
+            player -> player.setAudioAttributes(attributes, handleAudioFocus)));
   }
 
   @Override
@@ -1658,9 +1678,10 @@ import java.util.concurrent.ExecutionException;
 
   @Override
   public void setTrackSelectionParameters(
-      @Nullable IMediaController caller, int sequenceNumber, Bundle trackSelectionParametersBundle)
-      throws RemoteException {
-    if (caller == null) {
+      @Nullable IMediaController caller,
+      int sequenceNumber,
+      @Nullable Bundle trackSelectionParametersBundle) {
+    if (caller == null || trackSelectionParametersBundle == null) {
       return;
     }
     TrackSelectionParameters trackSelectionParameters;
@@ -1689,14 +1710,18 @@ import java.util.concurrent.ExecutionException;
 
   @Override
   public void getLibraryRoot(
-      @Nullable IMediaController caller, int sequenceNumber, @Nullable Bundle libraryParamsBundle)
-      throws RuntimeException {
+      @Nullable IMediaController caller, int sequenceNumber, @Nullable Bundle libraryParamsBundle) {
     if (caller == null) {
       return;
     }
-    @Nullable
-    LibraryParams libraryParams =
-        libraryParamsBundle == null ? null : LibraryParams.fromBundle(libraryParamsBundle);
+    @Nullable LibraryParams libraryParams;
+    try {
+      libraryParams =
+          libraryParamsBundle == null ? null : LibraryParams.fromBundle(libraryParamsBundle);
+    } catch (RuntimeException e) {
+      Log.w(TAG, "Ignoring malformed Bundle for LibraryParams", e);
+      return;
+    }
     dispatchSessionTaskWithSessionCommand(
         caller,
         sequenceNumber,
@@ -1708,8 +1733,7 @@ import java.util.concurrent.ExecutionException;
 
   @Override
   public void getItem(
-      @Nullable IMediaController caller, int sequenceNumber, @Nullable String mediaId)
-      throws RuntimeException {
+      @Nullable IMediaController caller, int sequenceNumber, @Nullable String mediaId) {
     if (caller == null) {
       return;
     }
@@ -1730,11 +1754,10 @@ import java.util.concurrent.ExecutionException;
   public void getChildren(
       @Nullable IMediaController caller,
       int sequenceNumber,
-      String parentId,
+      @Nullable String parentId,
       int page,
       int pageSize,
-      @Nullable Bundle libraryParamsBundle)
-      throws RuntimeException {
+      @Nullable Bundle libraryParamsBundle) {
     if (caller == null) {
       return;
     }
@@ -1750,9 +1773,14 @@ import java.util.concurrent.ExecutionException;
       Log.w(TAG, "getChildren(): Ignoring pageSize less than 1");
       return;
     }
-    @Nullable
-    LibraryParams libraryParams =
-        libraryParamsBundle == null ? null : LibraryParams.fromBundle(libraryParamsBundle);
+    @Nullable LibraryParams libraryParams;
+    try {
+      libraryParams =
+          libraryParamsBundle == null ? null : LibraryParams.fromBundle(libraryParamsBundle);
+    } catch (RuntimeException e) {
+      Log.w(TAG, "Ignoring malformed Bundle for LibraryParams", e);
+      return;
+    }
     dispatchSessionTaskWithSessionCommand(
         caller,
         sequenceNumber,
@@ -1767,7 +1795,7 @@ import java.util.concurrent.ExecutionException;
   public void search(
       @Nullable IMediaController caller,
       int sequenceNumber,
-      String query,
+      @Nullable String query,
       @Nullable Bundle libraryParamsBundle) {
     if (caller == null) {
       return;
@@ -1776,9 +1804,14 @@ import java.util.concurrent.ExecutionException;
       Log.w(TAG, "search(): Ignoring empty query");
       return;
     }
-    @Nullable
-    LibraryParams libraryParams =
-        libraryParamsBundle == null ? null : LibraryParams.fromBundle(libraryParamsBundle);
+    @Nullable LibraryParams libraryParams;
+    try {
+      libraryParams =
+          libraryParamsBundle == null ? null : LibraryParams.fromBundle(libraryParamsBundle);
+    } catch (RuntimeException e) {
+      Log.w(TAG, "Ignoring malformed Bundle for LibraryParams", e);
+      return;
+    }
     dispatchSessionTaskWithSessionCommand(
         caller,
         sequenceNumber,
@@ -1792,7 +1825,7 @@ import java.util.concurrent.ExecutionException;
   public void getSearchResult(
       @Nullable IMediaController caller,
       int sequenceNumber,
-      String query,
+      @Nullable String query,
       int page,
       int pageSize,
       @Nullable Bundle libraryParamsBundle) {
@@ -1811,9 +1844,14 @@ import java.util.concurrent.ExecutionException;
       Log.w(TAG, "getSearchResult(): Ignoring pageSize less than 1");
       return;
     }
-    @Nullable
-    LibraryParams libraryParams =
-        libraryParamsBundle == null ? null : LibraryParams.fromBundle(libraryParamsBundle);
+    @Nullable LibraryParams libraryParams;
+    try {
+      libraryParams =
+          libraryParamsBundle == null ? null : LibraryParams.fromBundle(libraryParamsBundle);
+    } catch (RuntimeException e) {
+      Log.w(TAG, "Ignoring malformed Bundle for LibraryParams", e);
+      return;
+    }
     dispatchSessionTaskWithSessionCommand(
         caller,
         sequenceNumber,
@@ -1828,7 +1866,7 @@ import java.util.concurrent.ExecutionException;
   public void subscribe(
       @Nullable IMediaController caller,
       int sequenceNumber,
-      String parentId,
+      @Nullable String parentId,
       @Nullable Bundle libraryParamsBundle) {
     if (caller == null) {
       return;
@@ -1837,9 +1875,14 @@ import java.util.concurrent.ExecutionException;
       Log.w(TAG, "subscribe(): Ignoring empty parentId");
       return;
     }
-    @Nullable
-    LibraryParams libraryParams =
-        libraryParamsBundle == null ? null : LibraryParams.fromBundle(libraryParamsBundle);
+    @Nullable LibraryParams libraryParams;
+    try {
+      libraryParams =
+          libraryParamsBundle == null ? null : LibraryParams.fromBundle(libraryParamsBundle);
+    } catch (RuntimeException e) {
+      Log.w(TAG, "Ignoring malformed Bundle for LibraryParams", e);
+      return;
+    }
     dispatchSessionTaskWithSessionCommand(
         caller,
         sequenceNumber,
@@ -1850,7 +1893,8 @@ import java.util.concurrent.ExecutionException;
   }
 
   @Override
-  public void unsubscribe(@Nullable IMediaController caller, int sequenceNumber, String parentId) {
+  public void unsubscribe(
+      @Nullable IMediaController caller, int sequenceNumber, @Nullable String parentId) {
     if (caller == null) {
       return;
     }

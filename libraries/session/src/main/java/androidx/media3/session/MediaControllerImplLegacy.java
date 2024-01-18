@@ -1316,6 +1316,12 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
     return browserCompat;
   }
 
+  @Nullable
+  @Override
+  public IMediaController getBinder() {
+    return null;
+  }
+
   void onConnected() {
     if (released || connected) {
       return;

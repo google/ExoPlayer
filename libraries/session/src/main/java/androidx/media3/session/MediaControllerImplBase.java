@@ -1929,6 +1929,11 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     return null;
   }
 
+  @Override
+  public IMediaController getBinder() {
+    return controllerStub;
+  }
+
   private static Timeline createMaskingTimeline(List<Window> windows, List<Period> periods) {
     return new RemotableTimeline(
         new ImmutableList.Builder<Window>().addAll(windows).build(),

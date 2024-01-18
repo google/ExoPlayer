@@ -1970,6 +1970,13 @@ public class MediaController implements Player {
     connectionCallback.onAccepted();
   }
 
+  /** Returns the binder object used to connect to the session. */
+  @Nullable
+  @VisibleForTesting(otherwise = NONE)
+  /* package */ final IMediaController getBinder() {
+    return impl.getBinder();
+  }
+
   private void verifyApplicationThread() {
     checkState(Looper.myLooper() == getApplicationLooper(), WRONG_THREAD_ERROR_MESSAGE);
   }
@@ -2215,5 +2222,8 @@ public class MediaController implements Player {
 
     @Nullable
     MediaBrowserCompat getBrowserCompat();
+
+    @Nullable
+    IMediaController getBinder();
   }
 }
