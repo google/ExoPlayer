@@ -738,11 +738,59 @@ public final class Transformer {
   })
   private @interface TransformerState {}
 
+  /** The default Transformer state. */
   private static final int TRANSFORMER_STATE_PROCESS_FULL_INPUT = 0;
+
+  /**
+   * The first state of a {@link #resume(Composition composition, String outputFilePath, String
+   * oldFilePath)} export.
+   *
+   * <p>In this state, the paused export file's encoded video track is muxed into a video-only file,
+   * stored at {@code oldFilePath}.
+   *
+   * <p>The video-only file is kept open to allow the {@link
+   * #TRANSFORMER_STATE_PROCESS_REMAINING_VIDEO} to continue writing to the same file & video track.
+   *
+   * <p>A successful operation in this state moves the Transformer to the {@link
+   * #TRANSFORMER_STATE_PROCESS_REMAINING_VIDEO} state.
+   */
   private static final int TRANSFORMER_STATE_REMUX_PROCESSED_VIDEO = 1;
+
+  /**
+   * The second state of a {@link #resume(Composition composition, String outputFilePath, String
+   * oldFilePath)} export.
+   *
+   * <p>In this state, the remaining {@link Composition} video data is processed and muxed into the
+   * same video-only file, stored at {@code oldFilePath}.
+   *
+   * <p>A successful operation in this state moves the Transformer to the {@link
+   * #TRANSFORMER_STATE_PROCESS_AUDIO} state.
+   */
   private static final int TRANSFORMER_STATE_PROCESS_REMAINING_VIDEO = 2;
+
+  /**
+   * The third state of a {@link #resume(Composition composition, String outputFilePath, String
+   * oldFilePath)} resumed export.
+   *
+   * <p>In this state, the entire {@link Composition} audio is processed and muxed. This same
+   * operation also transmuxes the video-only file produced by {@link
+   * #TRANSFORMER_STATE_PROCESS_REMAINING_VIDEO}, interleaving of the audio and video tracks. The
+   * output is stored at {@code oldFilePath}.
+   *
+   * <p>A successful operation in this state moves the Transformer to the {@link
+   * #TRANSFORMER_STATE_COPY_OUTPUT} state.
+   */
   private static final int TRANSFORMER_STATE_PROCESS_AUDIO = 3;
+
+  /**
+   * The final state of a {@link #resume(Composition composition, String outputFilePath, String
+   * oldFilePath)} export.
+   *
+   * <p>In this state, the successful exported file (stored at {@code oldFilePath}) is copied to the
+   * {@code outputFilePath}.
+   */
   private static final int TRANSFORMER_STATE_COPY_OUTPUT = 4;
+
   private static final int TRANSFORMER_STATE_PROCESS_MEDIA_START = 5;
   private static final int TRANSFORMER_STATE_REMUX_REMAINING_MEDIA = 6;
   private final Context context;
@@ -1066,16 +1114,18 @@ public final class Transformer {
    */
   public @ProgressState int getProgress(ProgressHolder progressHolder) {
     verifyApplicationThread();
-    if (transformerState == TRANSFORMER_STATE_PROCESS_FULL_INPUT) {
-      return transformerInternal == null
-          ? PROGRESS_STATE_NOT_STARTED
-          : transformerInternal.getProgress(progressHolder);
-    }
     if (isExportResumed()) {
+      // Progress updates are unavailable for resumed exports.
       return PROGRESS_STATE_UNAVAILABLE;
     }
 
-    return getTrimOptimizationProgress(progressHolder);
+    if (transformerState != TRANSFORMER_STATE_PROCESS_FULL_INPUT) {
+      return getTrimOptimizationProgress(progressHolder);
+    }
+
+    return transformerInternal == null
+        ? PROGRESS_STATE_NOT_STARTED
+        : transformerInternal.getProgress(progressHolder);
   }
 
   private boolean isExportResumed() {
