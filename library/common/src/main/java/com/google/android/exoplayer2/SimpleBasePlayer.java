@@ -1475,7 +1475,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
        * playback, in microseconds.
        *
        * <p>The default position must be less or equal to the {@linkplain #setDurationUs duration},
-       * is set.
+       * if set.
        *
        * @param defaultPositionUs The default position relative to the start of the media item at
        *     which to begin playback, in microseconds.
