@@ -15,10 +15,6 @@
  */
 package com.google.android.exoplayer2.source;
 
-import com.google.android.exoplayer2.C;
-import com.google.common.collect.ImmutableList;
-import java.util.List;
-
 /**
  * Default implementation of {@link CompositeSequenceableLoaderFactory}.
  *
@@ -32,21 +28,7 @@ public final class DefaultCompositeSequenceableLoaderFactory
     implements CompositeSequenceableLoaderFactory {
 
   @Override
-  public SequenceableLoader empty() {
-    return new CompositeSequenceableLoader(ImmutableList.of(), ImmutableList.of());
-  }
-
-  @Deprecated
-  @Override
-  @SuppressWarnings("deprecation") // Calling deprecated constructor
   public SequenceableLoader createCompositeSequenceableLoader(SequenceableLoader... loaders) {
     return new CompositeSequenceableLoader(loaders);
-  }
-
-  @Override
-  public SequenceableLoader create(
-      List<? extends SequenceableLoader> loaders,
-      List<List<@C.TrackType Integer>> loaderTrackTypes) {
-    return new CompositeSequenceableLoader(loaders, loaderTrackTypes);
   }
 }
