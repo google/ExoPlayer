@@ -170,8 +170,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     for (int i = 0; i < tracks.size(); i++) {
       Track currentTrack = tracks.get(i);
       if (!currentTrack.pendingSamplesBufferInfo.isEmpty()) {
-        List<SampleMetadata> samplesMetadata =
-            processPendingSamplesBufferInfo(currentTrack, currentFragmentSequenceNumber);
+        List<SampleMetadata> samplesMetadata = processPendingSamplesBufferInfo(currentTrack);
         ByteBuffer trun = Boxes.trun(samplesMetadata);
         trafBoxes.add(Boxes.traf(Boxes.tfhd(/* trackId= */ i + 1), trun));
       }
@@ -217,14 +216,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     output.position(currentPosition);
   }
 
-  private List<SampleMetadata> processPendingSamplesBufferInfo(
-      Track track, int fragmentSequenceNumber) {
+  private List<SampleMetadata> processPendingSamplesBufferInfo(Track track) {
     List<BufferInfo> sampleBufferInfos = new ArrayList<>(track.pendingSamplesBufferInfo);
 
     List<Long> sampleDurations =
         Boxes.convertPresentationTimestampsToDurationsVu(
             sampleBufferInfos,
-            /* firstSamplePresentationTimeUs= */ fragmentSequenceNumber == 1
+            /* firstSamplePresentationTimeUs= */ currentFragmentSequenceNumber == 1
                 ? minInputPresentationTimeUs
                 : sampleBufferInfos.get(0).presentationTimeUs,
             track.videoUnitTimebase(),
