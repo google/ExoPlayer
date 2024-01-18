@@ -264,6 +264,7 @@ public final class DtsUtil {
    * @param frame The DTS Core frame to parse.
    * @param trackId The track identifier to set on the format.
    * @param language The language to set on the format.
+   * @param roleFlags The role flags to set on the format.
    * @param drmInitData {@link DrmInitData} to be included in the format.
    * @return The DTS format parsed from data in the header.
    */
@@ -271,6 +272,7 @@ public final class DtsUtil {
       byte[] frame,
       @Nullable String trackId,
       @Nullable String language,
+      @C.RoleFlags int roleFlags,
       @Nullable DrmInitData drmInitData) {
     ParsableBitArray frameBits = getNormalizedFrame(frame);
     frameBits.skipBits(32 + 1 + 5 + 1 + 7 + 14); // SYNC, FTYPE, SHORT, CPF, NBLKS, FSIZE
@@ -293,6 +295,7 @@ public final class DtsUtil {
         .setSampleRate(sampleRate)
         .setDrmInitData(drmInitData)
         .setLanguage(language)
+        .setRoleFlags(roleFlags)
         .build();
   }
 

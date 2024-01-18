@@ -63,6 +63,7 @@ public final class Ac4Reader implements ElementaryStreamReader {
   private final ParsableBitArray headerScratchBits;
   private final ParsableByteArray headerScratchBytes;
   @Nullable private final String language;
+  private final @C.RoleFlags int roleFlags;
 
   private @MonotonicNonNull String formatId;
   private @MonotonicNonNull TrackOutput output;
@@ -84,15 +85,16 @@ public final class Ac4Reader implements ElementaryStreamReader {
 
   /** Constructs a new reader for AC-4 elementary streams. */
   public Ac4Reader() {
-    this(null);
+    this(null, /* roleFlags= */ 0);
   }
 
   /**
    * Constructs a new reader for AC-4 elementary streams.
    *
    * @param language Track language.
+   * @param roleFlags Track role flags.
    */
-  public Ac4Reader(@Nullable String language) {
+  public Ac4Reader(@Nullable String language, @C.RoleFlags int roleFlags) {
     headerScratchBits = new ParsableBitArray(new byte[Ac4Util.HEADER_SIZE_FOR_PARSER]);
     headerScratchBytes = new ParsableByteArray(headerScratchBits.data);
     state = STATE_FINDING_SYNC;
@@ -101,6 +103,7 @@ public final class Ac4Reader implements ElementaryStreamReader {
     hasCRC = false;
     timeUs = C.TIME_UNSET;
     this.language = language;
+    this.roleFlags = roleFlags;
   }
 
   @Override
@@ -223,6 +226,7 @@ public final class Ac4Reader implements ElementaryStreamReader {
               .setChannelCount(frameInfo.channelCount)
               .setSampleRate(frameInfo.sampleRate)
               .setLanguage(language)
+              .setRoleFlags(roleFlags)
               .build();
       output.format(format);
     }

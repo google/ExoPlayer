@@ -55,6 +55,7 @@ public final class LatmReader implements ElementaryStreamReader {
   private static final int SYNC_BYTE_SECOND = 0xE0;
 
   @Nullable private final String language;
+  private final @C.RoleFlags int roleFlags;
   private final ParsableByteArray sampleDataBuffer;
   private final ParsableBitArray sampleBitArray;
 
@@ -84,9 +85,11 @@ public final class LatmReader implements ElementaryStreamReader {
 
   /**
    * @param language Track language.
+   * @param roleFlags Track role flags.
    */
-  public LatmReader(@Nullable String language) {
+  public LatmReader(@Nullable String language, @C.RoleFlags int roleFlags) {
     this.language = language;
+    this.roleFlags = roleFlags;
     sampleDataBuffer = new ParsableByteArray(INITIAL_BUFFER_SIZE);
     sampleBitArray = new ParsableBitArray(sampleDataBuffer.getData());
     timeUs = C.TIME_UNSET;
@@ -223,6 +226,7 @@ public final class LatmReader implements ElementaryStreamReader {
                 .setSampleRate(sampleRateHz)
                 .setInitializationData(Collections.singletonList(initData))
                 .setLanguage(language)
+                .setRoleFlags(roleFlags)
                 .build();
         if (!format.equals(this.format)) {
           this.format = format;

@@ -238,6 +238,14 @@ public final class TsExtractorTest {
   }
 
   @Test
+  public void streamWithAudioTypeOfMpegAudio() throws Exception {
+    ExtractorAsserts.assertBehavior(
+        getExtractorFactory(subtitlesParsedDuringExtraction),
+        "media/ts/sample_mpeg_audio_with_audio_type.ts",
+        simulationConfig);
+  }
+
+  @Test
   public void customPesReader() throws Exception {
     CustomTsPayloadReaderFactory factory = new CustomTsPayloadReaderFactory(true, false);
     TsExtractor tsExtractor =
