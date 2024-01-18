@@ -169,6 +169,14 @@ public abstract class BaseGlShaderProgram implements GlShaderProgram {
 
   @Override
   public void releaseOutputFrame(GlTextureInfo outputTexture) {
+    if (!outputTexturePool.isUsingTexture(outputTexture)) {
+      // This allows us to ignore outputTexture instances not associated with this
+      // BaseGlShaderProgram instance. This may happen if a BaseGlShaderProgram is introduced into
+      // the GlShaderProgram chain after frames already exist in the pipeline.
+      // TODO - b/320481157: Consider removing this if condition and disallowing disconnecting a
+      //  GlShaderProgram while it still has in-use frames.
+      return;
+    }
     outputTexturePool.freeTexture(outputTexture);
     inputListener.onReadyToAcceptInputFrame();
   }

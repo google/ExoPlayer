@@ -75,8 +75,6 @@ import com.google.android.exoplayer2.util.VideoFrameProcessor;
    *
    * <p>Must be called before any method that queues input or {@link
    * #signalEndOfCurrentInputStream()}.
-   *
-   * <p>This must only be called once.
    */
   public abstract void setSamplingGlShaderProgram(GlShaderProgram samplingGlShaderProgram);
 
