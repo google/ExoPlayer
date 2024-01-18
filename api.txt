@@ -763,7 +763,7 @@ package androidx.media3.common {
     method @Deprecated public void setDeviceMuted(boolean);
     method public void setDeviceMuted(boolean, @androidx.media3.common.C.VolumeFlags int);
     method @Deprecated public void setDeviceVolume(@IntRange(from=0) int);
-    method public void setDeviceVolume(@IntRange(from=0) int, int);
+    method public void setDeviceVolume(@IntRange(from=0) int, @androidx.media3.common.C.VolumeFlags int);
     method public void setMediaItem(androidx.media3.common.MediaItem);
     method public void setMediaItem(androidx.media3.common.MediaItem, boolean);
     method public void setMediaItem(androidx.media3.common.MediaItem, long);

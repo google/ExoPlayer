@@ -3462,7 +3462,7 @@ public interface Player {
    * @param volume The volume to set.
    * @param flags Either 0 or a bitwise combination of one or more {@link C.VolumeFlags}.
    */
-  void setDeviceVolume(@IntRange(from = 0) int volume, int flags);
+  void setDeviceVolume(@IntRange(from = 0) int volume, @C.VolumeFlags int flags);
 
   /**
    * @deprecated Use {@link #increaseDeviceVolume(int)} instead.
