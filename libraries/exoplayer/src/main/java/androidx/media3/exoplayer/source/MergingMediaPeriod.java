@@ -29,7 +29,6 @@ import androidx.media3.exoplayer.source.chunk.Chunk;
 import androidx.media3.exoplayer.source.chunk.MediaChunk;
 import androidx.media3.exoplayer.source.chunk.MediaChunkIterator;
 import androidx.media3.exoplayer.trackselection.ExoTrackSelection;
-import com.google.common.collect.Lists;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -59,7 +58,8 @@ import java.util.List;
     this.periods = periods;
     childrenPendingPreparation = new ArrayList<>();
     childTrackGroupByMergedTrackGroup = new HashMap<>();
-    compositeSequenceableLoader = compositeSequenceableLoaderFactory.empty();
+    compositeSequenceableLoader =
+        compositeSequenceableLoaderFactory.createCompositeSequenceableLoader();
     streamPeriodIndices = new IdentityHashMap<>();
     enabledPeriods = new MediaPeriod[0];
     for (int i = 0; i < periods.length; i++) {
@@ -172,9 +172,7 @@ import java.util.List;
     // Update the local state.
     enabledPeriods = enabledPeriodsList.toArray(new MediaPeriod[0]);
     compositeSequenceableLoader =
-        compositeSequenceableLoaderFactory.create(
-            enabledPeriodsList,
-            Lists.transform(enabledPeriodsList, period -> period.getTrackGroups().getTrackTypes()));
+        compositeSequenceableLoaderFactory.createCompositeSequenceableLoader(enabledPeriods);
     return positionUs;
   }
 
