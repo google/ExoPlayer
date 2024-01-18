@@ -158,12 +158,12 @@ public interface VideoSink {
    * Provides an input {@link Bitmap} to the video sink.
    *
    * @param inputBitmap The {@link Bitmap} queued to the video sink.
-   * @param inStreamOffsetsUs The times within the current stream that the bitmap should be shown
+   * @param timestampIterator The times within the current stream that the bitmap should be shown
    *     at. The timestamps should be monotonically increasing.
    * @return Whether the bitmap was queued successfully. A {@code false} value indicates the caller
    *     must try again later.
    */
-  boolean queueBitmap(Bitmap inputBitmap, TimestampIterator inStreamOffsetsUs);
+  boolean queueBitmap(Bitmap inputBitmap, TimestampIterator timestampIterator);
 
   /**
    * Incrementally renders processed video frames.
