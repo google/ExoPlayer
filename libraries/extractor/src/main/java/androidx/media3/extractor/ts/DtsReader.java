@@ -68,6 +68,7 @@ public final class DtsReader implements ElementaryStreamReader {
   private final AtomicInteger uhdAudioChunkId;
 
   @Nullable private final String language;
+  private final @C.RoleFlags int roleFlags;
 
   private @MonotonicNonNull String formatId;
   private @MonotonicNonNull TrackOutput output;
@@ -93,9 +94,10 @@ public final class DtsReader implements ElementaryStreamReader {
    * Constructs a new reader for DTS elementary streams.
    *
    * @param language Track language.
+   * @param roleFlags Track role flags.
    * @param maxHeaderSize Maximum size of the header in a frame.
    */
-  public DtsReader(@Nullable String language, int maxHeaderSize) {
+  public DtsReader(@Nullable String language, @C.RoleFlags int roleFlags, int maxHeaderSize) {
     headerScratchBytes = new ParsableByteArray(new byte[maxHeaderSize]);
     state = STATE_FINDING_SYNC;
     timeUs = C.TIME_UNSET;
@@ -103,6 +105,7 @@ public final class DtsReader implements ElementaryStreamReader {
     extensionSubstreamHeaderSize = C.LENGTH_UNSET;
     uhdHeaderSize = C.LENGTH_UNSET;
     this.language = language;
+    this.roleFlags = roleFlags;
   }
 
   @Override
@@ -263,7 +266,7 @@ public final class DtsReader implements ElementaryStreamReader {
   private void parseCoreHeader() {
     byte[] frameData = headerScratchBytes.getData();
     if (format == null) {
-      format = DtsUtil.parseDtsFormat(frameData, formatId, language, null);
+      format = DtsUtil.parseDtsFormat(frameData, formatId, language, roleFlags, null);
       output.format(format);
     }
     sampleSize = DtsUtil.getDtsFrameSize(frameData);
@@ -314,6 +317,7 @@ public final class DtsReader implements ElementaryStreamReader {
               .setChannelCount(dtsHeader.channelCount)
               .setSampleRate(dtsHeader.sampleRate)
               .setLanguage(language)
+              .setRoleFlags(roleFlags)
               .build();
       output.format(format);
     }

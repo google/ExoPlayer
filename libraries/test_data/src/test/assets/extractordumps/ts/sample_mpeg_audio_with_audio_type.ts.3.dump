@@ -1,0 +1,20 @@
+seekMap:
+  isSeekable = true
+  duration = 720000
+  getPosition(0) = [[timeUs=0, position=0]]
+  getPosition(1) = [[timeUs=1, position=0]]
+  getPosition(360000) = [[timeUs=360000, position=4544]]
+  getPosition(720000) = [[timeUs=720000, position=9277]]
+numberOfTracks = 1
+track 256:
+  total output bytes = 0
+  sample count = 0
+  format 0:
+    id = 1/256
+    sampleMimeType = audio/mpeg-L2
+    maxInputSize = 4096
+    channelCount = 1
+    sampleRate = 48000
+    roleFlags = [describes-video]
+    language = en
+tracksEnded = true

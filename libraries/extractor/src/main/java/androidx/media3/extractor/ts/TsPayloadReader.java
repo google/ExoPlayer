@@ -16,10 +16,12 @@
 package androidx.media3.extractor.ts;
 
 import static java.lang.annotation.ElementType.TYPE_USE;
+import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import android.util.SparseArray;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
+import androidx.media3.common.C;
 import androidx.media3.common.ParserException;
 import androidx.media3.common.util.ParsableByteArray;
 import androidx.media3.common.util.TimestampAdjuster;
@@ -65,8 +67,48 @@ public interface TsPayloadReader {
   /** Holds information associated with a PMT entry. */
   final class EsInfo {
 
+    /**
+     * The audio type of the stream, as defined by ISO/IEC 13818-1, section 2.6.18.
+     *
+     * <p>One of {@link #AUDIO_TYPE_UNDEFINED}, {@link #AUDIO_TYPE_CLEAN_EFFECTS}, {@link
+     * #AUDIO_TYPE_HEARING_IMPAIRED} or {@link #AUDIO_TYPE_VISUAL_IMPAIRED_COMMENTARY}.
+     */
+    @Documented
+    @Retention(SOURCE)
+    @Target(TYPE_USE)
+    @IntDef({
+      AUDIO_TYPE_UNDEFINED,
+      AUDIO_TYPE_CLEAN_EFFECTS,
+      AUDIO_TYPE_HEARING_IMPAIRED,
+      AUDIO_TYPE_VISUAL_IMPAIRED_COMMENTARY
+    })
+    public @interface AudioType {}
+
+    public static final int AUDIO_TYPE_UNDEFINED = 0;
+
+    /** Indicates the track has no language. */
+    public static final int AUDIO_TYPE_CLEAN_EFFECTS = 1;
+
+    /** Indicates the track is prepared for the hearing impaired. */
+    public static final int AUDIO_TYPE_HEARING_IMPAIRED = 2;
+
+    /** Indicates the track is prepared for the visually impaired viewer. */
+    public static final int AUDIO_TYPE_VISUAL_IMPAIRED_COMMENTARY = 3;
+
+    public @C.RoleFlags int getRoleFlags() {
+      switch (audioType) {
+        case AUDIO_TYPE_HEARING_IMPAIRED:
+          return C.ROLE_FLAG_ENHANCED_DIALOG_INTELLIGIBILITY;
+        case AUDIO_TYPE_VISUAL_IMPAIRED_COMMENTARY:
+          return C.ROLE_FLAG_DESCRIBES_VIDEO;
+        default:
+          return 0;
+      }
+    }
+
     public final int streamType;
     @Nullable public final String language;
+    public final @AudioType int audioType;
     public final List<DvbSubtitleInfo> dvbSubtitleInfos;
     public final byte[] descriptorBytes;
 
@@ -74,16 +116,19 @@ public interface TsPayloadReader {
      * @param streamType The type of the stream as defined by the {@link TsExtractor}{@code
      *     .TS_STREAM_TYPE_*}.
      * @param language The language of the stream, as defined by ISO/IEC 13818-1, section 2.6.18.
+     * @param audioType The audio type of the stream, as defined by ISO/IEC 13818-1, section 2.6.18.
      * @param dvbSubtitleInfos Information about DVB subtitles associated to the stream.
      * @param descriptorBytes The descriptor bytes associated to the stream.
      */
     public EsInfo(
         int streamType,
         @Nullable String language,
+        @AudioType int audioType,
         @Nullable List<DvbSubtitleInfo> dvbSubtitleInfos,
         byte[] descriptorBytes) {
       this.streamType = streamType;
       this.language = language;
+      this.audioType = audioType;
       this.dvbSubtitleInfos =
           dvbSubtitleInfos == null
               ? Collections.emptyList()

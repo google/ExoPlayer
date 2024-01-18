@@ -1,0 +1,128 @@
+seekMap:
+  isSeekable = true
+  duration = 720000
+  getPosition(0) = [[timeUs=0, position=0]]
+  getPosition(1) = [[timeUs=1, position=0]]
+  getPosition(360000) = [[timeUs=360000, position=4544]]
+  getPosition(720000) = [[timeUs=720000, position=9277]]
+numberOfTracks = 1
+track 256:
+  total output bytes = 5184
+  sample count = 27
+  format 0:
+    id = 1/256
+    sampleMimeType = audio/mpeg-L2
+    maxInputSize = 4096
+    channelCount = 1
+    sampleRate = 48000
+    roleFlags = [describes-video]
+    language = en
+  sample 0:
+    time = 360000
+    flags = 1
+    data = length 192, hash 6EF2DD4B
+  sample 1:
+    time = 384000
+    flags = 1
+    data = length 192, hash 6EF2DD4B
+  sample 2:
+    time = 408000
+    flags = 1
+    data = length 192, hash 6EF2DD4B
+  sample 3:
+    time = 432000
+    flags = 1
+    data = length 192, hash 6EF2DD4B
+  sample 4:
+    time = 456000
+    flags = 1
+    data = length 192, hash 6EF2DD4B
+  sample 5:
+    time = 480000
+    flags = 1
+    data = length 192, hash 6EF2DD4B
+  sample 6:
+    time = 504000
+    flags = 1
+    data = length 192, hash 6EF2DD4B
+  sample 7:
+    time = 528000
+    flags = 1
+    data = length 192, hash 6EF2DD4B
+  sample 8:
+    time = 552000
+    flags = 1
+    data = length 192, hash 6EF2DD4B
+  sample 9:
+    time = 576000
+    flags = 1
+    data = length 192, hash 6EF2DD4B
+  sample 10:
+    time = 600000
+    flags = 1
+    data = length 192, hash 6EF2DD4B
+  sample 11:
+    time = 624000
+    flags = 1
+    data = length 192, hash 6EF2DD4B
+  sample 12:
+    time = 648000
+    flags = 1
+    data = length 192, hash 6EF2DD4B
+  sample 13:
+    time = 672000
+    flags = 1
+    data = length 192, hash 6EF2DD4B
+  sample 14:
+    time = 696000
+    flags = 1
+    data = length 192, hash 6EF2DD4B
+  sample 15:
+    time = 720000
+    flags = 1
+    data = length 192, hash 6EF2DD4B
+  sample 16:
+    time = 744000
+    flags = 1
+    data = length 192, hash 6EF2DD4B
+  sample 17:
+    time = 768000
+    flags = 1
+    data = length 192, hash 6EF2DD4B
+  sample 18:
+    time = 792000
+    flags = 1
+    data = length 192, hash 6EF2DD4B
+  sample 19:
+    time = 816000
+    flags = 1
+    data = length 192, hash 6EF2DD4B
+  sample 20:
+    time = 840000
+    flags = 1
+    data = length 192, hash 6EF2DD4B
+  sample 21:
+    time = 864000
+    flags = 1
+    data = length 192, hash 6EF2DD4B
+  sample 22:
+    time = 888000
+    flags = 1
+    data = length 192, hash 6EF2DD4B
+  sample 23:
+    time = 912000
+    flags = 1
+    data = length 192, hash 6EF2DD4B
+  sample 24:
+    time = 936000
+    flags = 1
+    data = length 192, hash 6EF2DD4B
+  sample 25:
+    time = 960000
+    flags = 1
+    data = length 192, hash 6EF2DD4B
+  sample 26:
+    time = 984000
+    flags = 1
+    data = length 192, hash 6EF2DD4B
+tracksEnded = true

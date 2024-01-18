@@ -151,20 +151,20 @@ public final class DefaultTsPayloadReaderFactory implements TsPayloadReader.Fact
     switch (streamType) {
       case TsExtractor.TS_STREAM_TYPE_MPA:
       case TsExtractor.TS_STREAM_TYPE_MPA_LSF:
-        return new PesReader(new MpegAudioReader(esInfo.language));
+        return new PesReader(new MpegAudioReader(esInfo.language, esInfo.getRoleFlags()));
       case TsExtractor.TS_STREAM_TYPE_AAC_ADTS:
         return isSet(FLAG_IGNORE_AAC_STREAM)
             ? null
-            : new PesReader(new AdtsReader(false, esInfo.language));
+            : new PesReader(new AdtsReader(false, esInfo.language, esInfo.getRoleFlags()));
       case TsExtractor.TS_STREAM_TYPE_AAC_LATM:
         return isSet(FLAG_IGNORE_AAC_STREAM)
             ? null
-            : new PesReader(new LatmReader(esInfo.language));
+            : new PesReader(new LatmReader(esInfo.language, esInfo.getRoleFlags()));
       case TsExtractor.TS_STREAM_TYPE_AC3:
       case TsExtractor.TS_STREAM_TYPE_E_AC3:
-        return new PesReader(new Ac3Reader(esInfo.language));
+        return new PesReader(new Ac3Reader(esInfo.language, esInfo.getRoleFlags()));
       case TsExtractor.TS_STREAM_TYPE_AC4:
-        return new PesReader(new Ac4Reader(esInfo.language));
+        return new PesReader(new Ac4Reader(esInfo.language, esInfo.getRoleFlags()));
       case TsExtractor.TS_STREAM_TYPE_HDMV_DTS:
         if (!isSet(FLAG_ENABLE_HDMV_DTS_AUDIO_STREAMS)) {
           return null;
@@ -172,9 +172,11 @@ public final class DefaultTsPayloadReaderFactory implements TsPayloadReader.Fact
         // Fall through.
       case TsExtractor.TS_STREAM_TYPE_DTS:
       case TsExtractor.TS_STREAM_TYPE_DTS_HD:
-        return new PesReader(new DtsReader(esInfo.language, DtsReader.EXTSS_HEADER_SIZE_MAX));
+        return new PesReader(
+            new DtsReader(esInfo.language, esInfo.getRoleFlags(), DtsReader.EXTSS_HEADER_SIZE_MAX));
       case TsExtractor.TS_STREAM_TYPE_DTS_UHD:
-        return new PesReader(new DtsReader(esInfo.language, DtsReader.FTOC_MAX_HEADER_SIZE));
+        return new PesReader(
+            new DtsReader(esInfo.language, esInfo.getRoleFlags(), DtsReader.FTOC_MAX_HEADER_SIZE));
       case TsExtractor.TS_STREAM_TYPE_H262:
       case TsExtractor.TS_STREAM_TYPE_DC2_H262:
         return new PesReader(new H262Reader(buildUserDataReader(esInfo)));
