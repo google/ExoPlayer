@@ -72,11 +72,13 @@ This release includes the following changes since the
         dependencies.
 *   ExoPlayer:
     *   Add `PreloadMediaSource` and `PreloadMediaPeriod` that allows apps to
-        preload the media source at a specific start position before playback,
-        where the efforts include preparing the source for a `Timeline`,
-        preparing and caching the period, selecting tracks and loading the data
-        on the period. Apps are able to control the preload progress by
-        implementing `PreloadMediaSource.PreloadControl`.
+        preload a content media source at a specific start position before
+        playback. `PreloadMediaSource` takes care of preparing the content media
+        source to receive the `Timeline`, preparing and caching the period at
+        the given start position, selecting tracks and loading media data for
+        the period. Apps control the preload progress by implementing
+        `PreloadMediaSource.PreloadControl` and set the preloaded source to the
+        player for playback.
     *   Add `ExoPlayer.setImageOutput` that allows apps to set
         `ImageRenderer.ImageOutput`.
     *   `DefaultRenderersFactory` now provides an `ImageRenderer` to the player
@@ -93,7 +95,7 @@ This release includes the following changes since the
 *   Transformer:
     *   Add support for flattening H.265/HEVC SEF slow motion videos.
     *   Increase transmuxing speed, especially for 'remove video' edits.
-    *   Add api to ensure that the output file starts on a video frame. This can
+    *   Add API to ensure that the output file starts on a video frame. This can
         make the output of trimming operations more compatible with player
         implementations that don't show the first video frame until its
         presentation timestamp
