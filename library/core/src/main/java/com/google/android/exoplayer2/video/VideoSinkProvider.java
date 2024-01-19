@@ -22,6 +22,7 @@ import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.Size;
 import java.util.List;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * A provider of {@link VideoSink VideoSinks}.
@@ -77,6 +78,15 @@ public interface VideoSinkProvider {
   void setOutputSurfaceInfo(Surface outputSurface, Size outputResolution);
 
   /**
+   * Sets the {@link VideoFrameReleaseControl} that will be used for releasing of video frames
+   * during rendering.
+   *
+   * <p>Must be called before, not after, the sink provider is {@linkplain #initialize(Format)
+   * initialized}.
+   */
+  void setVideoFrameReleaseControl(VideoFrameReleaseControl videoFrameReleaseControl);
+
+  /**
    * Clears the set output surface info.
    *
    * <p>Must be called after the sink provider is {@linkplain #initialize(Format) initialized}.
@@ -89,8 +99,11 @@ public interface VideoSinkProvider {
   /**
    * Returns the {@link VideoFrameReleaseControl} that will be used for releasing of video frames
    * during rendering.
+   *
+   * <p>If this value is {@code null}, it must be {@linkplain #setVideoFrameReleaseControl set} to a
+   * non-null value before rendering begins.
    */
-  VideoFrameReleaseControl getVideoFrameReleaseControl();
+  @Nullable VideoFrameReleaseControl getVideoFrameReleaseControl();
 
   /**
    * Sets the {@link Clock} that the provider should use internally.

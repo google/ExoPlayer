@@ -396,17 +396,18 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer
     this.context = context.getApplicationContext();
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
     if (videoSinkProvider == null) {
+      videoSinkProvider = new CompositingVideoSinkProvider.Builder(this.context).build();
+    }
+    if (videoSinkProvider.getVideoFrameReleaseControl() == null) {
       @SuppressWarnings("nullness:assignment")
       VideoFrameReleaseControl.@Initialized FrameTimingEvaluator thisRef = this;
-      videoSinkProvider =
-          new CompositingVideoSinkProvider.Builder(this.context)
-              .setVideoFrameReleaseControl(
-                  new VideoFrameReleaseControl(
-                      this.context, /* frameTimingEvaluator= */ thisRef, allowedJoiningTimeMs))
-              .build();
+      videoSinkProvider.setVideoFrameReleaseControl(
+          new VideoFrameReleaseControl(
+              this.context, /* frameTimingEvaluator= */ thisRef, allowedJoiningTimeMs));
     }
     this.videoSinkProvider = videoSinkProvider;
-    this.videoFrameReleaseControl = this.videoSinkProvider.getVideoFrameReleaseControl();
+    this.videoFrameReleaseControl =
+        checkStateNotNull(this.videoSinkProvider.getVideoFrameReleaseControl());
     videoFrameReleaseInfo = new VideoFrameReleaseControl.FrameReleaseInfo();
     deviceNeedsNoPostProcessWorkaround = deviceNeedsNoPostProcessWorkaround();
     scalingMode = C.VIDEO_SCALING_MODE_DEFAULT;

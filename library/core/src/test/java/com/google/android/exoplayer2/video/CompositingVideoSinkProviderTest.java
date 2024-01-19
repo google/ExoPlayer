@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.video;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import android.content.Context;
@@ -42,12 +41,7 @@ public final class CompositingVideoSinkProviderTest {
   @Test
   public void builder_calledMultipleTimes_throws() {
     CompositingVideoSinkProvider.Builder builder =
-        new CompositingVideoSinkProvider.Builder(ApplicationProvider.getApplicationContext())
-            .setVideoFrameReleaseControl(
-                new VideoFrameReleaseControl(
-                    ApplicationProvider.getApplicationContext(),
-                    mock(VideoFrameReleaseControl.FrameTimingEvaluator.class),
-                    /* allowedJoiningTimeMs= */ 0));
+        new CompositingVideoSinkProvider.Builder(ApplicationProvider.getApplicationContext());
 
     builder.build();
 
@@ -166,12 +160,13 @@ public final class CompositingVideoSinkProviderTest {
             return false;
           }
         };
-    VideoFrameReleaseControl releaseControl =
-        new VideoFrameReleaseControl(context, frameTimingEvaluator, /* allowedJoiningTimeMs= */ 0);
-    return new CompositingVideoSinkProvider.Builder(context)
-        .setPreviewingVideoGraphFactory(new TestPreviewingVideoGraphFactory())
-        .setVideoFrameReleaseControl(releaseControl)
-        .build();
+    CompositingVideoSinkProvider compositingVideoSinkProvider =
+        new CompositingVideoSinkProvider.Builder(context)
+            .setPreviewingVideoGraphFactory(new TestPreviewingVideoGraphFactory())
+            .build();
+    compositingVideoSinkProvider.setVideoFrameReleaseControl(
+        new VideoFrameReleaseControl(context, frameTimingEvaluator, /* allowedJoiningTimeMs= */ 0));
+    return compositingVideoSinkProvider;
   }
 
   private static class TestPreviewingVideoGraphFactory implements PreviewingVideoGraph.Factory {

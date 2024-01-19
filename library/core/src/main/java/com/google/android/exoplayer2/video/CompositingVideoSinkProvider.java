@@ -45,7 +45,6 @@ import com.google.android.exoplayer2.util.TimestampIterator;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 import com.google.android.exoplayer2.util.VideoFrameProcessor;
-import com.google.android.exoplayer2.video.VideoFrameReleaseControl.FrameTimingEvaluator;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableList;
@@ -82,7 +81,6 @@ public final class CompositingVideoSinkProvider
 
     private VideoFrameProcessor.@MonotonicNonNull Factory videoFrameProcessorFactory;
     private PreviewingVideoGraph.@MonotonicNonNull Factory previewingVideoGraphFactory;
-    private @MonotonicNonNull VideoFrameReleaseControl videoFrameReleaseControl;
     private boolean built;
 
     /** Creates a builder with the supplied {@linkplain Context application context}. */
@@ -122,32 +120,6 @@ public final class CompositingVideoSinkProvider
     }
 
     /**
-     * Sets the {@link VideoFrameReleaseControl} that will be used.
-     *
-     * <p>By default, a {@link VideoFrameReleaseControl} will be used with a {@link
-     * FrameTimingEvaluator} implementation which:
-     *
-     * <ul>
-     *   <li>Signals to {@linkplain FrameTimingEvaluator#shouldForceReleaseFrame(long, long) force
-     *       release} a frame if the frame is late by more than {@link #FRAME_LATE_THRESHOLD_US} and
-     *       the elapsed time since the previous frame release is greater than {@link
-     *       #FRAME_RELEASE_THRESHOLD_US}.
-     *   <li>Signals to {@linkplain FrameTimingEvaluator#shouldDropFrame(long, long, boolean) drop a
-     *       frame} if the frame is late by more than {@link #FRAME_LATE_THRESHOLD_US} and the frame
-     *       is not marked as the last one.
-     *   <li>Signals to never {@linkplain FrameTimingEvaluator#shouldIgnoreFrame(long, long, long,
-     *       boolean, boolean) ignore} a frame.
-     * </ul>
-     *
-     * @param videoFrameReleaseControl The {@link VideoFrameReleaseControl}.
-     * @return This builder, for convenience.
-     */
-    public Builder setVideoFrameReleaseControl(VideoFrameReleaseControl videoFrameReleaseControl) {
-      this.videoFrameReleaseControl = videoFrameReleaseControl;
-      return this;
-    }
-
-    /**
      * Builds the {@link CompositingVideoSinkProvider}.
      *
      * <p>This method must be called at most once and will throw an {@link IllegalStateException} if
@@ -163,50 +135,10 @@ public final class CompositingVideoSinkProvider
         previewingVideoGraphFactory =
             new ReflectivePreviewingSingleInputVideoGraphFactory(videoFrameProcessorFactory);
       }
-      if (videoFrameReleaseControl == null) {
-        videoFrameReleaseControl =
-            new VideoFrameReleaseControl(
-                context, new CompositionFrameTimingEvaluator(), /* allowedJoiningTimeMs= */ 0);
-      }
       CompositingVideoSinkProvider compositingVideoSinkProvider =
           new CompositingVideoSinkProvider(this);
       built = true;
       return compositingVideoSinkProvider;
-    }
-  }
-
-  /** The time threshold, in microseconds, after which a frame is considered late. */
-  public static final long FRAME_LATE_THRESHOLD_US = -30_000;
-
-  /**
-   * The maximum elapsed time threshold, in microseconds, since last releasing a frame after which a
-   * frame can be force released.
-   */
-  public static final long FRAME_RELEASE_THRESHOLD_US = 100_000;
-
-  /** A {@link FrameTimingEvaluator} for composition frames. */
-  private static final class CompositionFrameTimingEvaluator implements FrameTimingEvaluator {
-
-    @Override
-    public boolean shouldForceReleaseFrame(long earlyUs, long elapsedSinceLastReleaseUs) {
-      return earlyUs < FRAME_LATE_THRESHOLD_US
-          && elapsedSinceLastReleaseUs > FRAME_RELEASE_THRESHOLD_US;
-    }
-
-    @Override
-    public boolean shouldDropFrame(long earlyUs, long elapsedRealtimeUs, boolean isLastFrame) {
-      return earlyUs < FRAME_LATE_THRESHOLD_US && !isLastFrame;
-    }
-
-    @Override
-    public boolean shouldIgnoreFrame(
-        long earlyUs,
-        long positionUs,
-        long elapsedRealtimeUs,
-        boolean isLastFrame,
-        boolean treatDroppedBuffersAsSkipped) {
-      // TODO b/293873191 - Handle very late buffers and drop to key frame.
-      return false;
     }
   }
 
@@ -224,10 +156,10 @@ public final class CompositingVideoSinkProvider
 
   private final Context context;
   private final PreviewingVideoGraph.Factory previewingVideoGraphFactory;
-  private final VideoFrameReleaseControl videoFrameReleaseControl;
-  private final VideoFrameRenderControl videoFrameRenderControl;
 
   private Clock clock;
+  private @MonotonicNonNull VideoFrameReleaseControl videoFrameReleaseControl;
+  private @MonotonicNonNull VideoFrameRenderControl videoFrameRenderControl;
   private @MonotonicNonNull Format outputFormat;
   private @MonotonicNonNull VideoFrameMetadataListener videoFrameMetadataListener;
   private @MonotonicNonNull HandlerWrapper handler;
@@ -243,11 +175,6 @@ public final class CompositingVideoSinkProvider
   private CompositingVideoSinkProvider(Builder builder) {
     this.context = builder.context;
     this.previewingVideoGraphFactory = checkStateNotNull(builder.previewingVideoGraphFactory);
-    videoFrameReleaseControl = checkStateNotNull(builder.videoFrameReleaseControl);
-    @SuppressWarnings("nullness:assignment")
-    VideoFrameRenderControl.@Initialized FrameRenderer thisRef = this;
-    videoFrameRenderControl =
-        new VideoFrameRenderControl(/* frameRenderer= */ thisRef, videoFrameReleaseControl);
     clock = Clock.DEFAULT;
     listener = VideoSink.Listener.NO_OP;
     listenerExecutor = NO_OP_EXECUTOR;
@@ -260,6 +187,7 @@ public final class CompositingVideoSinkProvider
   public void initialize(Format sourceFormat) throws VideoSink.VideoSinkException {
     checkState(state == STATE_CREATED);
     checkStateNotNull(videoEffects);
+    checkState(videoFrameRenderControl != null && videoFrameReleaseControl != null);
 
     // Lazily initialize the handler here so it's initialized on the playback looper.
     handler = clock.createHandler(checkStateNotNull(Looper.myLooper()), /* callback= */ null);
@@ -359,6 +287,14 @@ public final class CompositingVideoSinkProvider
   }
 
   @Override
+  public void setVideoFrameReleaseControl(VideoFrameReleaseControl videoFrameReleaseControl) {
+    checkState(!isInitialized());
+    this.videoFrameReleaseControl = videoFrameReleaseControl;
+    videoFrameRenderControl =
+        new VideoFrameRenderControl(/* frameRenderer= */ this, videoFrameReleaseControl);
+  }
+
+  @Override
   public void clearOutputSurfaceInfo() {
     maybeSetOutputSurfaceInfo(
         /* surface= */ null,
@@ -373,6 +309,7 @@ public final class CompositingVideoSinkProvider
   }
 
   @Override
+  @Nullable
   public VideoFrameReleaseControl getVideoFrameReleaseControl() {
     return videoFrameReleaseControl;
   }
@@ -388,7 +325,7 @@ public final class CompositingVideoSinkProvider
   @Override
   public void onOutputSizeChanged(int width, int height) {
     // We forward output size changes to render control even if we are still flushing.
-    videoFrameRenderControl.onOutputSizeChanged(width, height);
+    checkStateNotNull(videoFrameRenderControl).onOutputSizeChanged(width, height);
   }
 
   @Override
@@ -397,7 +334,8 @@ public final class CompositingVideoSinkProvider
       // Ignore available frames while the sink provider is flushing
       return;
     }
-    videoFrameRenderControl.onOutputFrameAvailableForRendering(presentationTimeUs);
+    checkStateNotNull(videoFrameRenderControl)
+        .onOutputFrameAvailableForRendering(presentationTimeUs);
   }
 
   @Override
@@ -473,7 +411,7 @@ public final class CompositingVideoSinkProvider
    */
   public void render(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
     if (pendingFlushCount == 0) {
-      videoFrameRenderControl.render(positionUs, elapsedRealtimeUs);
+      checkStateNotNull(videoFrameRenderControl).render(positionUs, elapsedRealtimeUs);
     }
   }
 
@@ -504,23 +442,24 @@ public final class CompositingVideoSinkProvider
       // Update the surface on the video graph and the video frame release control together.
       SurfaceInfo surfaceInfo = surface != null ? new SurfaceInfo(surface, width, height) : null;
       videoGraph.setOutputSurfaceInfo(surfaceInfo);
-      videoFrameReleaseControl.setOutputSurface(surface);
+      checkNotNull(videoFrameReleaseControl).setOutputSurface(surface);
     }
   }
 
   private boolean isReady() {
-    return pendingFlushCount == 0 && videoFrameRenderControl.isReady();
+    return pendingFlushCount == 0 && checkStateNotNull(videoFrameRenderControl).isReady();
   }
 
   private boolean hasReleasedFrame(long presentationTimeUs) {
-    return pendingFlushCount == 0 && videoFrameRenderControl.hasReleasedFrame(presentationTimeUs);
+    return pendingFlushCount == 0
+        && checkStateNotNull(videoFrameRenderControl).hasReleasedFrame(presentationTimeUs);
   }
 
   private void flush() {
     pendingFlushCount++;
     // Flush the render control now to ensure it has no data, eg calling isReady() must return false
     // and render() should not render any frames.
-    videoFrameRenderControl.flush();
+    checkStateNotNull(videoFrameRenderControl).flush();
     // Finish flushing after handling pending video graph callbacks to ensure video size changes
     // reach the video render control.
     checkStateNotNull(handler).post(this::flushInternal);
@@ -535,15 +474,16 @@ public final class CompositingVideoSinkProvider
       throw new IllegalStateException(String.valueOf(pendingFlushCount));
     }
     // Flush the render control again.
-    videoFrameRenderControl.flush();
+    checkStateNotNull(videoFrameRenderControl).flush();
   }
 
   private void setPlaybackSpeed(float speed) {
-    videoFrameRenderControl.setPlaybackSpeed(speed);
+    checkStateNotNull(videoFrameRenderControl).setPlaybackSpeed(speed);
   }
 
   private void onStreamOffsetChange(long bufferPresentationTimeUs, long streamOffsetUs) {
-    videoFrameRenderControl.onStreamOffsetChange(bufferPresentationTimeUs, streamOffsetUs);
+    checkStateNotNull(videoFrameRenderControl)
+        .onStreamOffsetChange(bufferPresentationTimeUs, streamOffsetUs);
   }
 
   private static ColorInfo getAdjustedInputColorInfo(@Nullable ColorInfo inputColorInfo) {
