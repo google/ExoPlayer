@@ -10,6 +10,8 @@
         by wrapping an instance using the
         [decorator pattern](https://en.wikipedia.org/wiki/Decorator_pattern) and
         implementing a custom `CompositeSequenceableLoaderFactory`.
+    *   Fix issue where repeating the same time causes metadata from this item
+        to be cleared ([#1007](https://github.com/androidx/media/issues/1007)).
 *   Transformer:
 *   Track Selection:
 *   Extractors:

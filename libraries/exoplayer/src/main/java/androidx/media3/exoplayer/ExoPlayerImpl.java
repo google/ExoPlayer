@@ -2019,7 +2019,8 @@ import java.util.concurrent.TimeoutException;
       }
       staticAndDynamicMediaMetadata = MediaMetadata.EMPTY;
     }
-    if (!previousPlaybackInfo.staticMetadata.equals(newPlaybackInfo.staticMetadata)) {
+    if (mediaItemTransitioned
+        || !previousPlaybackInfo.staticMetadata.equals(newPlaybackInfo.staticMetadata)) {
       staticAndDynamicMediaMetadata =
           staticAndDynamicMediaMetadata
               .buildUpon()
