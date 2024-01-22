@@ -576,7 +576,7 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
         mediaFormat.setInteger(MediaFormat.KEY_PROFILE, expectedEncodingProfile);
         mediaFormat.setInteger(MediaFormat.KEY_LEVEL, supportedEncodingLevel);
       }
-    } else if (Util.SDK_INT >= 26) {
+    } else if (Util.SDK_INT >= 26 && !deviceNeedsNoH264HighProfileWorkaround()) {
       int expectedEncodingProfile = MediaCodecInfo.CodecProfileLevel.AVCProfileHigh;
       int supportedEncodingLevel =
           EncoderUtil.findHighestSupportedEncodingLevel(
@@ -587,8 +587,8 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
         // system versions.
         mediaFormat.setInteger(MediaFormat.KEY_PROFILE, expectedEncodingProfile);
         mediaFormat.setInteger(MediaFormat.KEY_LEVEL, supportedEncodingLevel);
-        // TODO(b/210593256): Set KEY_LATENCY to 2 to enable B-frame production after switching to
-        // in-app muxing.
+        // TODO(b/210593256): Set KEY_LATENCY to 2 to enable B-frame production after in-app muxing
+        // is the default and it supports B-frames.
         mediaFormat.setInteger(MediaFormat.KEY_LATENCY, 1);
       }
     } else if (Util.SDK_INT >= 24) {
@@ -683,5 +683,12 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
   private static boolean deviceNeedsDefaultFrameRateWorkaround() {
     // Redmi Note 9 Pro fails if KEY_FRAME_RATE is set too high (see b/278076311).
     return SDK_INT < 30 && Util.DEVICE.equals("joyeuse");
+  }
+
+  private static boolean deviceNeedsNoH264HighProfileWorkaround() {
+    // The H.264/AVC encoder produces B-frames when high profile is chosen despite configuration to
+    // turn them off, so force not using high profile on these devices (see b/306617392).
+    // TODO(b/229420356): Remove once the in-app muxer is the default and B-frames are supported.
+    return Util.SDK_INT == 27 && (Util.DEVICE.equals("ASUS_X00T_3") || Util.DEVICE.equals("TC77"));
   }
 }
