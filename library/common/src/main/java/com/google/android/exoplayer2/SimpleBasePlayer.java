@@ -3363,6 +3363,25 @@ public abstract class SimpleBasePlayer extends BasePlayer {
     throw new IllegalStateException("Missing implementation to handle one of the COMMAND_SEEK_*");
   }
 
+  /**
+   * Throws an {@link IllegalStateException} if the the thread calling this method does not match
+   * the {@link Looper} thread that was specified upon construction of this instance.
+   *
+   * <p>Subclasses can use this method to verify that their own defined methods are also accessed by
+   * the correct thread.
+   */
+  protected final void verifyApplicationThread() {
+    if (Thread.currentThread() != applicationLooper.getThread()) {
+      String message =
+          Util.formatInvariant(
+              "Player is accessed on the wrong thread.\n"
+                  + "Current thread: '%s'\n"
+                  + "Expected thread: '%s'\n",
+              Thread.currentThread().getName(), applicationLooper.getThread().getName());
+      throw new IllegalStateException(message);
+    }
+  }
+
   @RequiresNonNull("state")
   private boolean shouldHandleCommand(@Player.Command int commandCode) {
     return !released && state.availableCommands.contains(commandCode);
@@ -3591,17 +3610,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
 
   @EnsuresNonNull("state")
   private void verifyApplicationThreadAndInitState() {
-    if (Thread.currentThread() != applicationLooper.getThread()) {
-      String message =
-          Util.formatInvariant(
-              "Player is accessed on the wrong thread.\n"
-                  + "Current thread: '%s'\n"
-                  + "Expected thread: '%s'\n"
-                  + "See https://developer.android.com/guide/topics/media/issues/"
-                  + "player-accessed-on-wrong-thread",
-              Thread.currentThread().getName(), applicationLooper.getThread().getName());
-      throw new IllegalStateException(message);
-    }
+    verifyApplicationThread();
     if (state == null) {
       // First time accessing state.
       state = getState();
