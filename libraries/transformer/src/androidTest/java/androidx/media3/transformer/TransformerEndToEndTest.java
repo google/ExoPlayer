@@ -24,6 +24,7 @@ import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_URI_STRING;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_320W_240H_15S_FORMAT;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_320W_240H_15S_URI_STRING;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING;
+import static androidx.media3.transformer.AndroidTestUtil.MP4_TRIM_OPTIMIZATION_URI_STRING;
 import static androidx.media3.transformer.AndroidTestUtil.PNG_ASSET_URI_STRING;
 import static androidx.media3.transformer.AndroidTestUtil.createOpenGlObjects;
 import static androidx.media3.transformer.AndroidTestUtil.generateTextureFromBitmap;
@@ -567,7 +568,7 @@ public class TransformerEndToEndTest {
         new Transformer.Builder(context).experimentalSetTrimOptimizationEnabled(true).build();
     MediaItem mediaItem =
         new MediaItem.Builder()
-            .setUri("asset:///media/mp4/internal_emulator_transformer_output.mp4")
+            .setUri(MP4_TRIM_OPTIMIZATION_URI_STRING)
             .setClippingConfiguration(
                 new MediaItem.ClippingConfiguration.Builder()
                     .setStartPositionMs(500)
@@ -575,6 +576,39 @@ public class TransformerEndToEndTest {
                     .build())
             .build();
     EditedMediaItem editedMediaItem = new EditedMediaItem.Builder(mediaItem).build();
+
+    ExportTestResult result =
+        new TransformerAndroidTestRunner.Builder(context, transformer)
+            .build()
+            .run(testId, editedMediaItem);
+
+    assertThat(result.exportResult.optimizationResult).isEqualTo(OPTIMIZATION_SUCCEEDED);
+    assertThat(result.exportResult.durationMs).isAtMost(2000);
+  }
+
+  @Test
+  public void clippedMedia_trimOptimizationEnabled_audioRemoved_completesWithOptimizationApplied()
+      throws Exception {
+    String testId = "clippedMedia_trimOptimizationEnabled_completesWithOptimizationApplied";
+    if (!isRunningOnEmulator() || Util.SDK_INT != 33) {
+      // The trim optimization is only guaranteed to work on emulator for this (emulator-transcoded)
+      // file.
+      recordTestSkipped(context, testId, /* reason= */ "SDK 33 Emulator only test");
+      assumeTrue(false);
+    }
+    Transformer transformer =
+        new Transformer.Builder(context).experimentalSetTrimOptimizationEnabled(true).build();
+    MediaItem mediaItem =
+        new MediaItem.Builder()
+            .setUri(MP4_TRIM_OPTIMIZATION_URI_STRING)
+            .setClippingConfiguration(
+                new MediaItem.ClippingConfiguration.Builder()
+                    .setStartPositionMs(500)
+                    .setEndPositionMs(2500)
+                    .build())
+            .build();
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem.Builder(mediaItem).setRemoveAudio(true).build();
 
     ExportTestResult result =
         new TransformerAndroidTestRunner.Builder(context, transformer)
@@ -598,7 +632,7 @@ public class TransformerEndToEndTest {
     }
     MediaItem mediaItem =
         new MediaItem.Builder()
-            .setUri("asset:///media/mp4/internal_emulator_transformer_output.mp4")
+            .setUri(MP4_TRIM_OPTIMIZATION_URI_STRING)
             .setClippingConfiguration(
                 new MediaItem.ClippingConfiguration.Builder()
                     .setStartPositionMs(500)
