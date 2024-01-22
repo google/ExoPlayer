@@ -291,6 +291,13 @@ import java.util.ArrayList;
       return false;
     }
 
+    // TODO: b/321230611 - Remove this override when 'late' buffers that result in identical release
+    //  timestamps are reported as 'dropped' instead of 'skipped'.
+    @Override
+    protected boolean shouldSkipBuffersWithIdenticalReleaseTime() {
+      return false;
+    }
+
     private void clearTimestamps() {
       startIndex = 0;
       queueSize = 0;
