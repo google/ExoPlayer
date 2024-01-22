@@ -75,6 +75,9 @@ import org.checkerframework.checker.nullness.qual.PolyNull;
     long videoDurationUs = 0L;
     for (int i = 0; i < tracks.size(); i++) {
       TrackMetadataProvider track = tracks.get(i);
+      if (!isFragmentedMp4 && track.writtenSamples().isEmpty()) {
+        continue;
+      }
       Format format = track.format();
       String languageCode = bcp47LanguageTagToIso3(format.language);
 
