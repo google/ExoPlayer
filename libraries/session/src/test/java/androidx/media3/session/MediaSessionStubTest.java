@@ -411,6 +411,73 @@ public class MediaSessionStubTest {
         /* libraryParams= */ getThrowingBundle());
     binder.subscribe(
         caller, /* seq= */ 0, /* parentId= */ "", /* libraryParams= */ getThrowingBundle());
+
+    // Pass invalid int or float values.
+    binder.setVolume(/* caller= */ null, /* seq= */ 0, /* volume= */ -0.00001f);
+    binder.setVolume(/* caller= */ null, /* seq= */ 0, /* volume= */ 1.00001f);
+    binder.setVolume(/* caller= */ null, /* seq= */ 0, /* volume= */ Float.NaN);
+    binder.setDeviceVolume(/* caller= */ null, /* seq= */ 0, /* volume= */ -1);
+    binder.setDeviceVolumeWithFlags(
+        /* caller= */ null, /* seq= */ 0, /* volume= */ -1, /* flags= */ 0);
+    binder.setMediaItemsWithStartIndex(
+        /* caller= */ null,
+        /* seq= */ 0,
+        /* mediaItems= */ new BundleListRetriever(
+            ImmutableList.of(new MediaItem.Builder().build().toBundle())),
+        /* startIndex= */ -1,
+        /* startPositionMs= */ 0);
+    binder.setRepeatMode(/* caller= */ null, /* seq= */ 0, /* repeatMode= */ -1);
+    binder.setRepeatMode(/* caller= */ null, /* seq= */ 0, /* repeatMode= */ 3);
+    binder.removeMediaItem(/* caller= */ null, /* seq= */ 0, /* index= */ -1);
+    binder.removeMediaItems(
+        /* caller= */ null, /* seq= */ 0, /* fromIndex= */ -1, /* toIndex= */ 0);
+    binder.removeMediaItems(/* caller= */ null, /* seq= */ 0, /* fromIndex= */ 1, /* toIndex= */ 0);
+    binder.moveMediaItem(
+        /* caller= */ null, /* seq= */ 0, /* currentIndex= */ -1, /* newIndex= */ 0);
+    binder.moveMediaItem(
+        /* caller= */ null, /* seq= */ 0, /* currentIndex= */ 0, /* newIndex= */ -1);
+    binder.moveMediaItems(
+        /* caller= */ null, /* seq= */ 0, /* fromIndex= */ -1, /* toIndex= */ 0, /* newIndex= */ 0);
+    binder.moveMediaItems(
+        /* caller= */ null, /* seq= */ 0, /* fromIndex= */ 1, /* toIndex= */ 0, /* newIndex= */ 0);
+    binder.moveMediaItems(
+        /* caller= */ null, /* seq= */ 0, /* fromIndex= */ 0, /* toIndex= */ 0, /* newIndex= */ -1);
+    binder.replaceMediaItem(
+        /* caller= */ null,
+        /* seq= */ 0,
+        /* index= */ -1,
+        /* mediaItemBundle= */ new MediaItem.Builder().build().toBundle());
+    binder.replaceMediaItems(
+        /* caller= */ null,
+        /* seq= */ 0,
+        /* fromIndex= */ -1,
+        /* toIndex= */ 0,
+        /* mediaItems= */ new BundleListRetriever(
+            ImmutableList.of(new MediaItem.Builder().build().toBundle())));
+    binder.replaceMediaItems(
+        /* caller= */ null,
+        /* seq= */ 0,
+        /* fromIndex= */ 1,
+        /* toIndex= */ 0,
+        /* mediaItems= */ new BundleListRetriever(
+            ImmutableList.of(new MediaItem.Builder().build().toBundle())));
+    binder.setPlaybackSpeed(/* caller= */ null, /* seq= */ 0, /* speed= */ -0.0001f);
+    binder.setPlaybackSpeed(/* caller= */ null, /* seq= */ 0, /* speed= */ Float.NaN);
+    binder.addMediaItemWithIndex(
+        /* caller= */ null,
+        /* seq= */ 0,
+        /* index= */ -1,
+        /* mediaItemBundle= */ new MediaItem.Builder().build().toBundle());
+    binder.addMediaItemsWithIndex(
+        /* caller= */ null,
+        /* seq= */ 0,
+        /* index= */ -1,
+        /* mediaItems= */ new BundleListRetriever(
+            ImmutableList.of(new MediaItem.Builder().build().toBundle())));
+    binder.seekToDefaultPositionWithMediaItemIndex(
+        /* caller= */ null, /* seq= */ 0, /* mediaItemIndex= */ -1);
+    binder.seekToWithMediaItemIndex(
+        /* caller= */ null, /* seq= */ 0, /* mediaItemIndex= */ -1, /* positionMs= */ 0);
   }
 
   @Test
@@ -430,7 +497,7 @@ public class MediaSessionStubTest {
         caller,
         /* seq= */ 0,
         /* connectionRequest= */ new ConnectionRequest(
-                /* packageName= */ "invalud", /* pid= */ 9999, /* connectionHints= */ new Bundle())
+                /* packageName= */ "invalid", /* pid= */ 9999, /* connectionHints= */ new Bundle())
             .toBundle());
   }
 }

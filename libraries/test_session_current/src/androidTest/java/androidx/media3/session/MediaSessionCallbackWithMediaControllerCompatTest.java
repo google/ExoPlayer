@@ -398,6 +398,25 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
   }
 
   @Test
+  public void setPlaybackSpeed_withInvalidSpeed_doesNotCrashSession() throws Exception {
+    session =
+        new MediaSession.Builder(context, player)
+            .setId("setPlaybackSpeed")
+            .setCallback(new TestSessionCallback())
+            .build();
+    controller =
+        new RemoteMediaControllerCompat(
+            context, session.getSessionCompat().getSessionToken(), /* waitForConnection= */ true);
+
+    controller.getTransportControls().setPlaybackSpeed(-0.0001f);
+    controller.getTransportControls().setPlaybackSpeed(Float.NaN);
+    controller.getTransportControls().setPlaybackSpeed(0.5f); // Add a valid action to wait for.
+    player.awaitMethodCalled(MockPlayer.METHOD_SET_PLAYBACK_SPEED, TIMEOUT_MS);
+
+    assertThat(player.playbackParameters.speed).isEqualTo(0.5f);
+  }
+
+  @Test
   public void addQueueItem() throws Exception {
     AtomicReference<List<MediaItem>> requestedMediaItems = new AtomicReference<>();
     MediaItem resolvedMediaItem = MediaItem.fromUri(TEST_URI);
@@ -489,6 +508,48 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
     assertThat(player.index).isEqualTo(testIndex);
     assertThat(player.mediaItems).hasSize(11);
     assertThat(player.mediaItems.get(1)).isEqualTo(resolvedMediaItem);
+  }
+
+  @Test
+  public void addQueueItemWithIndex_withInvalidIndex_doesNotCrashSession() throws Exception {
+    MediaItem resolvedMediaItem = MediaItem.fromUri(TEST_URI);
+    MediaSession.Callback callback =
+        new MediaSession.Callback() {
+          @Override
+          public ListenableFuture<List<MediaItem>> onAddMediaItems(
+              MediaSession mediaSession, ControllerInfo controller, List<MediaItem> mediaItems) {
+            // Resolve MediaItem asynchronously to test correct threading logic.
+            return executorService.submit(() -> ImmutableList.of(resolvedMediaItem));
+          }
+        };
+    session =
+        new MediaSession.Builder(context, player)
+            .setId("addQueueItemWithIndex_invalidIndex")
+            .setCallback(callback)
+            .build();
+    controller =
+        new RemoteMediaControllerCompat(
+            context, session.getSessionCompat().getSessionToken(), /* waitForConnection= */ true);
+
+    handler.postAndSync(
+        () -> {
+          List<MediaItem> mediaItems = MediaTestUtils.createMediaItems(/* size= */ 10);
+          player.setMediaItems(mediaItems);
+          player.timeline = MediaTestUtils.createTimeline(mediaItems);
+          player.notifyTimelineChanged(Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+        });
+    // Prepare an item to add.
+    MediaDescriptionCompat desc =
+        new MediaDescriptionCompat.Builder()
+            .setMediaId("media_id")
+            .setMediaUri(Uri.parse("https://test.test"))
+            .build();
+
+    controller.addQueueItem(desc, /* index= */ -1);
+    controller.addQueueItem(desc, /* index= */ 1); // Add valid call to wait for.
+    player.awaitMethodCalled(MockPlayer.METHOD_ADD_MEDIA_ITEMS_WITH_INDEX, TIMEOUT_MS);
+
+    assertThat(player.index).isEqualTo(1);
   }
 
   @Test
@@ -615,6 +676,30 @@ public class MediaSessionCallbackWithMediaControllerCompatTest {
         MockPlayer.METHOD_SEEK_TO_DEFAULT_POSITION_WITH_MEDIA_ITEM_INDEX, TIMEOUT_MS);
 
     assertThat(player.seekMediaItemIndex).isEqualTo(targetIndex);
+  }
+
+  @Test
+  public void skipToQueueItem_withInvalidValue_doesNotCrashSession() throws Exception {
+    session =
+        new MediaSession.Builder(context, player)
+            .setId("skipToQueueItem_invalidValues")
+            .setCallback(new TestSessionCallback())
+            .build();
+    controller =
+        new RemoteMediaControllerCompat(
+            context, session.getSessionCompat().getSessionToken(), /* waitForConnection= */ true);
+    handler.postAndSync(
+        () -> {
+          player.timeline = MediaTestUtils.createTimeline(/* windowCount= */ 10);
+          player.notifyTimelineChanged(Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+        });
+
+    controller.getTransportControls().skipToQueueItem(-1);
+    controller.getTransportControls().skipToQueueItem(1); // Add valid call to wait for.
+    player.awaitMethodCalled(
+        MockPlayer.METHOD_SEEK_TO_DEFAULT_POSITION_WITH_MEDIA_ITEM_INDEX, TIMEOUT_MS);
+
+    assertThat(player.seekMediaItemIndex).isEqualTo(1);
   }
 
   @Test

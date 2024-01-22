@@ -15,6 +15,7 @@
  */
 package androidx.media3.session;
 
+import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
@@ -431,6 +432,7 @@ public class MockPlayer implements Player {
 
   @Override
   public void seekToDefaultPosition(int mediaItemIndex) {
+    checkArgument(mediaItemIndex >= 0);
     seekMediaItemIndex = mediaItemIndex;
     checkNotNull(conditionVariables.get(METHOD_SEEK_TO_DEFAULT_POSITION_WITH_MEDIA_ITEM_INDEX))
         .open();
@@ -444,6 +446,7 @@ public class MockPlayer implements Player {
 
   @Override
   public void seekTo(int mediaItemIndex, long positionMs) {
+    checkArgument(mediaItemIndex >= 0);
     seekMediaItemIndex = mediaItemIndex;
     seekPositionMs = positionMs;
     checkNotNull(conditionVariables.get(METHOD_SEEK_TO_WITH_MEDIA_ITEM_INDEX)).open();

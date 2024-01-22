@@ -462,6 +462,9 @@ import org.checkerframework.checker.initialization.qual.Initialized;
 
   @Override
   public void onSetPlaybackSpeed(float speed) {
+    if (!(speed > 0f)) {
+      return;
+    }
     dispatchSessionTaskWithPlayerCommand(
         COMMAND_SET_SPEED_AND_PITCH,
         controller -> sessionImpl.getPlayerWrapper().setPlaybackSpeed(speed),
@@ -470,6 +473,9 @@ import org.checkerframework.checker.initialization.qual.Initialized;
 
   @Override
   public void onSkipToQueueItem(long queueId) {
+    if (queueId < 0) {
+      return;
+    }
     dispatchSessionTaskWithPlayerCommand(
         COMMAND_SEEK_TO_MEDIA_ITEM,
         controller -> {
@@ -851,7 +857,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
   }
 
   private void handleOnAddQueueItem(@Nullable MediaDescriptionCompat description, int index) {
-    if (description == null) {
+    if (description == null || (index != C.INDEX_UNSET && index < 0)) {
       return;
     }
     dispatchSessionTaskWithPlayerCommand(

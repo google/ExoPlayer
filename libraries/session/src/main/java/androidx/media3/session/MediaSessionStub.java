@@ -771,7 +771,7 @@ import java.util.concurrent.ExecutionException;
   @Override
   public void seekToDefaultPositionWithMediaItemIndex(
       @Nullable IMediaController caller, int sequenceNumber, int mediaItemIndex) {
-    if (caller == null) {
+    if (caller == null || mediaItemIndex < 0) {
       return;
     }
     queueSessionTaskWithPlayerCommand(
@@ -799,7 +799,7 @@ import java.util.concurrent.ExecutionException;
   @Override
   public void seekToWithMediaItemIndex(
       @Nullable IMediaController caller, int sequenceNumber, int mediaItemIndex, long positionMs) {
-    if (caller == null) {
+    if (caller == null || mediaItemIndex < 0) {
       return;
     }
     queueSessionTaskWithPlayerCommand(
@@ -930,7 +930,7 @@ import java.util.concurrent.ExecutionException;
 
   @Override
   public void setPlaybackSpeed(@Nullable IMediaController caller, int sequenceNumber, float speed) {
-    if (caller == null) {
+    if (caller == null || !(speed > 0f)) {
       return;
     }
     queueSessionTaskWithPlayerCommand(
@@ -1088,7 +1088,9 @@ import java.util.concurrent.ExecutionException;
       @Nullable IBinder mediaItemsRetriever,
       int startIndex,
       long startPositionMs) {
-    if (caller == null || mediaItemsRetriever == null) {
+    if (caller == null
+        || mediaItemsRetriever == null
+        || (startIndex != C.INDEX_UNSET && startIndex < 0)) {
       return;
     }
     List<MediaItem> mediaItemList;
@@ -1172,7 +1174,7 @@ import java.util.concurrent.ExecutionException;
       int sequenceNumber,
       int index,
       @Nullable Bundle mediaItemBundle) {
-    if (caller == null || mediaItemBundle == null) {
+    if (caller == null || mediaItemBundle == null || index < 0) {
       return;
     }
     MediaItem mediaItem;
@@ -1229,7 +1231,7 @@ import java.util.concurrent.ExecutionException;
       int sequenceNumber,
       int index,
       @Nullable IBinder mediaItemsRetriever) {
-    if (caller == null || mediaItemsRetriever == null) {
+    if (caller == null || mediaItemsRetriever == null || index < 0) {
       return;
     }
     List<MediaItem> mediaItems;
@@ -1256,7 +1258,7 @@ import java.util.concurrent.ExecutionException;
 
   @Override
   public void removeMediaItem(@Nullable IMediaController caller, int sequenceNumber, int index) {
-    if (caller == null) {
+    if (caller == null || index < 0) {
       return;
     }
     queueSessionTaskWithPlayerCommand(
@@ -1271,7 +1273,7 @@ import java.util.concurrent.ExecutionException;
   @Override
   public void removeMediaItems(
       @Nullable IMediaController caller, int sequenceNumber, int fromIndex, int toIndex) {
-    if (caller == null) {
+    if (caller == null || fromIndex < 0 || toIndex < fromIndex) {
       return;
     }
     queueSessionTaskWithPlayerCommand(
@@ -1300,7 +1302,7 @@ import java.util.concurrent.ExecutionException;
   @Override
   public void moveMediaItem(
       @Nullable IMediaController caller, int sequenceNumber, int currentIndex, int newIndex) {
-    if (caller == null) {
+    if (caller == null || currentIndex < 0 || newIndex < 0) {
       return;
     }
     queueSessionTaskWithPlayerCommand(
@@ -1317,7 +1319,7 @@ import java.util.concurrent.ExecutionException;
       int fromIndex,
       int toIndex,
       int newIndex) {
-    if (caller == null) {
+    if (caller == null || fromIndex < 0 || toIndex < fromIndex || newIndex < 0) {
       return;
     }
     queueSessionTaskWithPlayerCommand(
@@ -1333,7 +1335,7 @@ import java.util.concurrent.ExecutionException;
       int sequenceNumber,
       int index,
       @Nullable Bundle mediaItemBundle) {
-    if (caller == null || mediaItemBundle == null) {
+    if (caller == null || mediaItemBundle == null || index < 0) {
       return;
     }
     MediaItem mediaItem;
@@ -1371,7 +1373,7 @@ import java.util.concurrent.ExecutionException;
       int fromIndex,
       int toIndex,
       @Nullable IBinder mediaItemsRetriever) {
-    if (caller == null || mediaItemsRetriever == null) {
+    if (caller == null || mediaItemsRetriever == null || fromIndex < 0 || toIndex < fromIndex) {
       return;
     }
     ImmutableList<MediaItem> mediaItems;
@@ -1468,6 +1470,11 @@ import java.util.concurrent.ExecutionException;
     if (caller == null) {
       return;
     }
+    if (repeatMode != Player.REPEAT_MODE_ALL
+        && repeatMode != Player.REPEAT_MODE_OFF
+        && repeatMode != Player.REPEAT_MODE_ONE) {
+      return;
+    }
     queueSessionTaskWithPlayerCommand(
         caller,
         sequenceNumber,
@@ -1503,7 +1510,7 @@ import java.util.concurrent.ExecutionException;
 
   @Override
   public void setVolume(@Nullable IMediaController caller, int sequenceNumber, float volume) {
-    if (caller == null) {
+    if (caller == null || !(volume >= 0f && volume <= 1f)) {
       return;
     }
     queueSessionTaskWithPlayerCommand(
@@ -1516,7 +1523,7 @@ import java.util.concurrent.ExecutionException;
   @SuppressWarnings("deprecation") // Backwards compatibility a for flag-less method
   @Override
   public void setDeviceVolume(@Nullable IMediaController caller, int sequenceNumber, int volume) {
-    if (caller == null) {
+    if (caller == null || volume < 0) {
       return;
     }
     queueSessionTaskWithPlayerCommand(
@@ -1529,7 +1536,7 @@ import java.util.concurrent.ExecutionException;
   @Override
   public void setDeviceVolumeWithFlags(
       @Nullable IMediaController caller, int sequenceNumber, int volume, int flags) {
-    if (caller == null) {
+    if (caller == null || volume < 0) {
       return;
     }
     queueSessionTaskWithPlayerCommand(
