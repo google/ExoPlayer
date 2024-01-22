@@ -41,6 +41,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.primitives.Ints;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Represents the set of audio formats that a device is capable of playing.
@@ -88,11 +89,11 @@ public final class AudioCapabilities {
   private static final String EXTERNAL_SURROUND_SOUND_KEY = "external_surround_sound_enabled";
 
   /**
-   * @deprecated Use {@link #getCapabilities(Context, AudioAttributes)} instead.
+   * @deprecated Use {@link #getCapabilities(Context, AudioAttributes, AudioDeviceInfo)} instead.
    */
   @Deprecated
   public static AudioCapabilities getCapabilities(Context context) {
-    return getCapabilities(context, AudioAttributes.DEFAULT);
+    return getCapabilities(context, AudioAttributes.DEFAULT, /* routedDevice= */ null);
   }
 
   /**
@@ -100,28 +101,52 @@ public final class AudioCapabilities {
    *
    * @param context A context for obtaining the current audio capabilities.
    * @param audioAttributes The {@link AudioAttributes} to obtain capabilities for.
+   * @param routedDevice The {@link AudioDeviceInfo} audio will be routed to if known, or null to
+   *     assume the default route.
    * @return The current audio capabilities for the device.
    */
+  public static AudioCapabilities getCapabilities(
+      Context context, AudioAttributes audioAttributes, @Nullable AudioDeviceInfo routedDevice) {
+    @Nullable
+    AudioDeviceInfoApi23 routedDeviceApi23 =
+        Util.SDK_INT >= 23 && routedDevice != null ? new AudioDeviceInfoApi23(routedDevice) : null;
+    return getCapabilitiesInternal(context, audioAttributes, routedDeviceApi23);
+  }
+
   @SuppressWarnings("InlinedApi")
   @SuppressLint("UnprotectedReceiver") // ACTION_HDMI_AUDIO_PLUG is protected since API 16
-  public static AudioCapabilities getCapabilities(
-      Context context, AudioAttributes audioAttributes) {
+  /* package */ static AudioCapabilities getCapabilitiesInternal(
+      Context context,
+      AudioAttributes audioAttributes,
+      @Nullable AudioDeviceInfoApi23 routedDevice) {
     Intent intent =
         context.registerReceiver(
             /* receiver= */ null, new IntentFilter(AudioManager.ACTION_HDMI_AUDIO_PLUG));
-    return getCapabilities(context, intent, audioAttributes);
+    return getCapabilitiesInternal(context, intent, audioAttributes, routedDevice);
   }
 
   @SuppressLint("InlinedApi")
-  /* package */ static AudioCapabilities getCapabilities(
-      Context context, @Nullable Intent intent, AudioAttributes audioAttributes) {
+  /* package */ static AudioCapabilities getCapabilitiesInternal(
+      Context context,
+      @Nullable Intent intent,
+      AudioAttributes audioAttributes,
+      @Nullable AudioDeviceInfoApi23 routedDevice) {
+    AudioManager audioManager =
+        (AudioManager) checkNotNull(context.getSystemService(Context.AUDIO_SERVICE));
+    AudioDeviceInfoApi23 currentDevice =
+        routedDevice != null
+            ? routedDevice
+            : Util.SDK_INT >= 33
+                ? Api33.getDefaultRoutedDeviceForAttributes(audioManager, audioAttributes)
+                : null;
     // If a connection to Bluetooth device is detected, we only return the minimum capabilities that
     // is supported by all the devices.
-    if (Util.SDK_INT >= 23 && Api23.isBluetoothConnected(context)) {
+    if (Util.SDK_INT >= 23 && Api23.isBluetoothConnected(audioManager, currentDevice)) {
       return DEFAULT_AUDIO_CAPABILITIES;
     }
 
     ImmutableSet.Builder<Integer> supportedEncodings = new ImmutableSet.Builder<>();
+    supportedEncodings.add(C.ENCODING_PCM_16BIT);
     if (deviceMaySetExternalSurroundSoundGlobalSetting()
         && Global.getInt(context.getContentResolver(), EXTERNAL_SURROUND_SOUND_KEY, 0) == 1) {
       supportedEncodings.addAll(EXTERNAL_SURROUND_SOUND_ENCODINGS);
@@ -147,12 +172,8 @@ public final class AudioCapabilities {
               AudioManager.EXTRA_MAX_CHANNEL_COUNT, /* defaultValue= */ DEFAULT_MAX_CHANNEL_COUNT));
     }
 
-    ImmutableSet<Integer> supportedEncodingsSet = supportedEncodings.build();
-    if (!supportedEncodingsSet.isEmpty()) {
-      return new AudioCapabilities(
-          Ints.toArray(supportedEncodingsSet), /* maxChannelCount= */ DEFAULT_MAX_CHANNEL_COUNT);
-    }
-    return DEFAULT_AUDIO_CAPABILITIES;
+    return new AudioCapabilities(
+        Ints.toArray(supportedEncodings.build()), /* maxChannelCount= */ DEFAULT_MAX_CHANNEL_COUNT);
   }
 
   /**
@@ -173,9 +194,9 @@ public final class AudioCapabilities {
    * Constructs new audio capabilities based on a set of supported encodings and a maximum channel
    * count.
    *
-   * <p>Applications should generally call {@link #getCapabilities(Context, AudioAttributes)} to
-   * obtain an instance based on the capabilities advertised by the platform, rather than calling
-   * this constructor.
+   * <p>Applications should generally call {@link #getCapabilities(Context, AudioAttributes,
+   * AudioDeviceInfo)} to obtain an instance based on the capabilities advertised by the platform,
+   * rather than calling this constructor.
    *
    * @param supportedEncodings Supported audio encodings from {@link android.media.AudioFormat}'s
    *     {@code ENCODING_*} constants. Passing {@code null} indicates that no encodings are
@@ -365,10 +386,13 @@ public final class AudioCapabilities {
     private Api23() {}
 
     @DoNotInline
-    public static boolean isBluetoothConnected(Context context) {
-      AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+    public static boolean isBluetoothConnected(
+        AudioManager audioManager, @Nullable AudioDeviceInfoApi23 currentDevice) {
+      // Check the current device if known or all devices otherwise.
       AudioDeviceInfo[] audioDeviceInfos =
-          checkNotNull(audioManager).getDevices(AudioManager.GET_DEVICES_OUTPUTS);
+          currentDevice == null
+              ? checkNotNull(audioManager).getDevices(AudioManager.GET_DEVICES_OUTPUTS)
+              : new AudioDeviceInfo[] {currentDevice.audioDeviceInfo};
       ImmutableSet<Integer> allBluetoothDeviceTypesSet = getAllBluetoothDeviceTypes();
       for (AudioDeviceInfo audioDeviceInfo : audioDeviceInfos) {
         if (allBluetoothDeviceTypesSet.contains(audioDeviceInfo.getType())) {
@@ -457,6 +481,27 @@ public final class AudioCapabilities {
         }
       }
       return 0;
+    }
+  }
+
+  @RequiresApi(33)
+  private static final class Api33 {
+
+    @Nullable
+    @DoNotInline
+    public static AudioDeviceInfoApi23 getDefaultRoutedDeviceForAttributes(
+        AudioManager audioManager, AudioAttributes audioAttributes) {
+      List<AudioDeviceInfo> audioDevices =
+          checkNotNull(audioManager)
+              .getAudioDevicesForAttributes(
+                  audioAttributes.getAudioAttributesV21().audioAttributes);
+      if (audioDevices.isEmpty()) {
+        // Can't find current device.
+        return null;
+      }
+      // List only has more than one element if output devices are duplicated, so we assume the
+      // first device in the list has all the information we need.
+      return new AudioDeviceInfoApi23(audioDevices.get(0));
     }
   }
 }
