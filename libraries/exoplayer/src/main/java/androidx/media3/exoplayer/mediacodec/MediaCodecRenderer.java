@@ -15,6 +15,7 @@
  */
 package androidx.media3.exoplayer.mediacodec;
 
+import static androidx.media3.common.Format.NO_VALUE;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
@@ -79,6 +80,7 @@ import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.exoplayer.source.SampleStream;
 import androidx.media3.exoplayer.source.SampleStream.ReadDataResult;
 import androidx.media3.exoplayer.source.SampleStream.ReadFlags;
+import androidx.media3.extractor.DtsUtil;
 import androidx.media3.extractor.OpusUtil;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -2398,6 +2400,20 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
                   checkNotNull(outputFormat)
                       .buildUpon()
                       .setEncoderDelay(numberPreSkipSamples)
+                      .build();
+            }
+            // For HLS-fMP4 and HLS-TS, the bit-rate of the DTS Express stream is not in the
+            // manifest file. The bit-rate has no value at the point of AudioTrack Initialisation.
+            // This will lead to a computed direct passthrough playback buffer size of 2250000
+            // bytes. Some TVs (E.g. Xiaomi A Pro and Q2) do not support such a big buffer for
+            // direct passthrough playback. It will crash at the point of AudioTrack Initialisation.
+            // Here we set the unknown bit-rate to a known peak bit-rate for DTS Express streams.
+            if (Objects.equals(outputFormat.sampleMimeType, MimeTypes.AUDIO_DTS_EXPRESS)
+                && (outputFormat.bitrate == NO_VALUE)) {
+              outputFormat =
+                  checkNotNull(outputFormat)
+                      .buildUpon()
+                      .setPeakBitrate(DtsUtil.DTS_EXPRESS_MAX_RATE_BITS_PER_SECOND)
                       .build();
             }
             onOutputFormatChanged(outputFormat, /* mediaFormat= */ null);
