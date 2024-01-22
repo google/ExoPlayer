@@ -1464,19 +1464,19 @@ public final class Transformer {
   }
 
   private void remuxRemainingMedia() {
-    Mp4Info mediaItemInfo = checkNotNull(this.mediaItemInfo);
     transformerState = TRANSFORMER_STATE_REMUX_REMAINING_MEDIA;
-    if (!doesFormatsMatch()) {
+    EditedMediaItem firstEditedMediaItem =
+        checkNotNull(composition).sequences.get(0).editedMediaItems.get(0);
+    Mp4Info mediaItemInfo = checkNotNull(this.mediaItemInfo);
+    if (!doesFormatsMatch(mediaItemInfo, firstEditedMediaItem)) {
       remuxingMuxerWrapper = null;
       transformerInternal = null;
       exportResultBuilder.setOptimizationResult(OPTIMIZATION_FAILED_FORMAT_MISMATCH);
       processFullInput();
       return;
     }
-    MediaItem firstMediaItem =
-        checkNotNull(composition).sequences.get(0).editedMediaItems.get(0).mediaItem;
-    long trimStartTimeUs = firstMediaItem.clippingConfiguration.startPositionUs;
-    long trimEndTimeUs = firstMediaItem.clippingConfiguration.endPositionUs;
+    long trimStartTimeUs = firstEditedMediaItem.mediaItem.clippingConfiguration.startPositionUs;
+    long trimEndTimeUs = firstEditedMediaItem.mediaItem.clippingConfiguration.endPositionUs;
     Composition transmuxComposition =
         buildNewCompositionWithClipTimes(
             composition,
@@ -1494,14 +1494,14 @@ public final class Transformer {
             - trimStartTimeUs);
   }
 
-  private boolean doesFormatsMatch() {
-    Mp4Info mediaItemInfo = checkNotNull(this.mediaItemInfo);
+  private boolean doesFormatsMatch(Mp4Info mediaItemInfo, EditedMediaItem firstMediaItem) {
     boolean videoFormatMatches =
         checkNotNull(remuxingMuxerWrapper)
             .getTrackFormat(C.TRACK_TYPE_VIDEO)
             .initializationDataEquals(checkNotNull(mediaItemInfo.videoFormat));
     boolean audioFormatMatches =
         mediaItemInfo.audioFormat == null
+            || firstMediaItem.removeAudio
             || mediaItemInfo.audioFormat.initializationDataEquals(
                 checkNotNull(remuxingMuxerWrapper).getTrackFormat(C.TRACK_TYPE_AUDIO));
     return videoFormatMatches && audioFormatMatches;

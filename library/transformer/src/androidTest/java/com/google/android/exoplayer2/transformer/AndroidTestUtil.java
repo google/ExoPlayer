@@ -71,6 +71,9 @@ public final class AndroidTestUtil {
   public static final String JPG_PORTRAIT_ASSET_URI_STRING =
       "asset:///media/bitmap/input_images/tokyo.jpg";
 
+  public static final String MP4_TRIM_OPTIMIZATION_URI_STRING =
+      "asset:///media/mp4/internal_emulator_transformer_output.mp4";
+
   public static final String MP4_ASSET_URI_STRING = "asset:///media/mp4/sample.mp4";
   public static final Format MP4_ASSET_FORMAT =
       new Format.Builder()

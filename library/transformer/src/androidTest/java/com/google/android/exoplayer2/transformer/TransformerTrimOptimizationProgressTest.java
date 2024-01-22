@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.transformer;
 
+import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_TRIM_OPTIMIZATION_URI_STRING;
 import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STATE_AVAILABLE;
 import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STATE_NOT_STARTED;
 import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STATE_UNAVAILABLE;
@@ -78,7 +79,7 @@ public class TransformerTrimOptimizationProgressTest {
         new Transformer.Builder(context).experimentalSetTrimOptimizationEnabled(true).build();
     MediaItem mediaItem =
         new MediaItem.Builder()
-            .setUri("asset:///media/mp4/internal_emulator_transformer_output.mp4")
+            .setUri(MP4_TRIM_OPTIMIZATION_URI_STRING)
             .setClippingConfiguration(
                 new MediaItem.ClippingConfiguration.Builder()
                     .setStartPositionMs(500)
@@ -158,7 +159,7 @@ public class TransformerTrimOptimizationProgressTest {
         new Transformer.Builder(context).experimentalSetTrimOptimizationEnabled(true).build();
     MediaItem mediaItem =
         new MediaItem.Builder()
-            .setUri("asset:///media/mp4/internal_emulator_transformer_output.mp4")
+            .setUri(MP4_TRIM_OPTIMIZATION_URI_STRING)
             .setClippingConfiguration(
                 new MediaItem.ClippingConfiguration.Builder()
                     .setStartPositionMs(500)
