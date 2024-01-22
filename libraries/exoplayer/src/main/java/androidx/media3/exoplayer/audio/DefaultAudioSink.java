@@ -28,6 +28,8 @@ import static java.lang.annotation.ElementType.TYPE_USE;
 import android.content.Context;
 import android.media.AudioDeviceInfo;
 import android.media.AudioFormat;
+import android.media.AudioRouting;
+import android.media.AudioRouting.OnRoutingChangedListener;
 import android.media.AudioTrack;
 import android.media.PlaybackParams;
 import android.media.metrics.LogSessionId;
@@ -513,6 +515,7 @@ public final class DefaultAudioSink implements AudioSink {
   @Nullable private AudioTrack audioTrack;
   private AudioCapabilities audioCapabilities;
   private @MonotonicNonNull AudioCapabilitiesReceiver audioCapabilitiesReceiver;
+  @Nullable private OnRoutingChangedListenerApi24 onRoutingChangedListener;
 
   private AudioAttributes audioAttributes;
   @Nullable private MediaPositionParameters afterDrainParameters;
@@ -561,7 +564,9 @@ public final class DefaultAudioSink implements AudioSink {
     context = builder.context;
     audioAttributes = AudioAttributes.DEFAULT;
     audioCapabilities =
-        context != null ? getCapabilities(context, audioAttributes) : builder.audioCapabilities;
+        context != null
+            ? getCapabilities(context, audioAttributes, /* routedDevice= */ null)
+            : builder.audioCapabilities;
     audioProcessorChain = builder.audioProcessorChain;
     enableFloatOutput = Util.SDK_INT >= 21 && builder.enableFloatOutput;
     preferAudioTrackPlaybackParams = Util.SDK_INT >= 23 && builder.enableAudioTrackPlaybackParams;
@@ -834,6 +839,13 @@ public final class DefaultAudioSink implements AudioSink {
     }
     if (preferredDevice != null && Util.SDK_INT >= 23) {
       Api23.setPreferredDeviceOnAudioTrack(audioTrack, preferredDevice);
+      if (audioCapabilitiesReceiver != null) {
+        audioCapabilitiesReceiver.setRoutedDevice(preferredDevice.audioDeviceInfo);
+      }
+    }
+    if (Util.SDK_INT >= 24 && audioCapabilitiesReceiver != null) {
+      onRoutingChangedListener =
+          new OnRoutingChangedListenerApi24(audioTrack, audioCapabilitiesReceiver);
     }
     startMediaTimeUsNeedsInit = true;
 
@@ -1365,6 +1377,9 @@ public final class DefaultAudioSink implements AudioSink {
   public void setPreferredDevice(@Nullable AudioDeviceInfo audioDeviceInfo) {
     this.preferredDevice =
         audioDeviceInfo == null ? null : new AudioDeviceInfoApi23(audioDeviceInfo);
+    if (audioCapabilitiesReceiver != null) {
+      audioCapabilitiesReceiver.setRoutedDevice(audioDeviceInfo);
+    }
     if (audioTrack != null) {
       Api23.setPreferredDeviceOnAudioTrack(audioTrack, this.preferredDevice);
     }
@@ -1458,6 +1473,10 @@ public final class DefaultAudioSink implements AudioSink {
         pendingConfiguration = null;
       }
       audioTrackPositionTracker.reset();
+      if (Util.SDK_INT >= 24 && onRoutingChangedListener != null) {
+        onRoutingChangedListener.release();
+        onRoutingChangedListener = null;
+      }
       releaseAudioTrackAsync(audioTrack, releasingConditionVariable, listener, oldAudioTrackConfig);
       audioTrack = null;
     }
@@ -1716,7 +1735,8 @@ public final class DefaultAudioSink implements AudioSink {
       // current (playback) thread as the constructor is not called in the playback thread.
       playbackLooper = Looper.myLooper();
       audioCapabilitiesReceiver =
-          new AudioCapabilitiesReceiver(context, this::onAudioCapabilitiesChanged, audioAttributes);
+          new AudioCapabilitiesReceiver(
+              context, this::onAudioCapabilitiesChanged, audioAttributes, preferredDevice);
       audioCapabilities = audioCapabilitiesReceiver.register();
     }
   }
@@ -1876,6 +1896,42 @@ public final class DefaultAudioSink implements AudioSink {
     }
   }
 
+  @RequiresApi(24)
+  private static final class OnRoutingChangedListenerApi24 {
+
+    private final AudioTrack audioTrack;
+    private final AudioCapabilitiesReceiver capabilitiesReceiver;
+
+    @Nullable private OnRoutingChangedListener listener;
+
+    public OnRoutingChangedListenerApi24(
+        AudioTrack audioTrack, AudioCapabilitiesReceiver capabilitiesReceiver) {
+      this.audioTrack = audioTrack;
+      this.capabilitiesReceiver = capabilitiesReceiver;
+      this.listener = this::onRoutingChanged;
+      Handler handler = new Handler(Looper.myLooper());
+      audioTrack.addOnRoutingChangedListener(listener, handler);
+    }
+
+    @DoNotInline
+    public void release() {
+      audioTrack.removeOnRoutingChangedListener(checkNotNull(listener));
+      listener = null;
+    }
+
+    @DoNotInline
+    private void onRoutingChanged(AudioRouting router) {
+      if (listener == null) {
+        // Stale event.
+        return;
+      }
+      @Nullable AudioDeviceInfo routedDevice = router.getRoutedDevice();
+      if (routedDevice != null) {
+        capabilitiesReceiver.setRoutedDevice(router.getRoutedDevice());
+      }
+    }
+  }
+
   @RequiresApi(29)
   private final class StreamEventCallbackV29 {
     private final Handler handler;
@@ -1918,10 +1974,12 @@ public final class DefaultAudioSink implements AudioSink {
           };
     }
 
+    @DoNotInline
     public void register(AudioTrack audioTrack) {
       audioTrack.registerStreamEventCallback(handler::post, callback);
     }
 
+    @DoNotInline
     public void unregister(AudioTrack audioTrack) {
       audioTrack.unregisterStreamEventCallback(callback);
       handler.removeCallbacksAndMessages(/* token= */ null);
@@ -2277,16 +2335,6 @@ public final class DefaultAudioSink implements AudioSink {
     // Reset the accumulated silence anyway as the later silences are far from the current one
     // and should be treated separately.
     accumulatedSkippedSilenceDurationUs = 0;
-  }
-
-  @RequiresApi(23)
-  private static final class AudioDeviceInfoApi23 {
-
-    public final AudioDeviceInfo audioDeviceInfo;
-
-    public AudioDeviceInfoApi23(AudioDeviceInfo audioDeviceInfo) {
-      this.audioDeviceInfo = audioDeviceInfo;
-    }
   }
 
   @RequiresApi(23)
