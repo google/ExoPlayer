@@ -52,9 +52,12 @@ public final class TranscodeQualityTest {
         /* outputFormat= */ AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_FORMAT)) {
       return;
     }
+    // Skip on specific pre-API 34 devices where calculating SSIM fails.
     assumeFalse(
         (Util.SDK_INT < 33 && (Util.MODEL.equals("SM-F711U1") || Util.MODEL.equals("SM-F926U1")))
             || (Util.SDK_INT == 33 && Util.MODEL.equals("LE2121")));
+    // Skip on specific API 21 devices that aren't able to decode and encode at this resolution.
+    assumeFalse(Util.SDK_INT == 21 && Util.MODEL.equals("Nexus 7"));
     Transformer transformer =
         new Transformer.Builder(context)
             .setVideoMimeType(MimeTypes.VIDEO_H264)
