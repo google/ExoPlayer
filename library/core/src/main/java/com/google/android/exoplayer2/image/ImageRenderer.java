@@ -207,6 +207,7 @@ public class ImageRenderer extends BaseRenderer {
       long offsetUs,
       MediaSource.MediaPeriodId mediaPeriodId)
       throws ExoPlaybackException {
+    // TODO: b/319484746 - Take startPositionUs into account to not output images too early.
     super.onStreamChanged(formats, startPositionUs, offsetUs, mediaPeriodId);
     offsetQueue.add(offsetUs);
     inputStreamEnded = false;
