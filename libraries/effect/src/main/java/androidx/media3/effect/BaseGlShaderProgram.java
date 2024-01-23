@@ -24,7 +24,6 @@ import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.Size;
 import androidx.media3.common.util.UnstableApi;
 import com.google.common.util.concurrent.MoreExecutors;
-import java.util.NoSuchElementException;
 import java.util.concurrent.Executor;
 
 /**
@@ -157,7 +156,7 @@ public abstract class BaseGlShaderProgram implements GlShaderProgram {
       drawFrame(inputTexture.texId, presentationTimeUs);
       inputListener.onInputFrameProcessed(inputTexture);
       outputListener.onOutputFrameAvailable(outputTexture, presentationTimeUs);
-    } catch (VideoFrameProcessingException | GlUtil.GlException | NoSuchElementException e) {
+    } catch (VideoFrameProcessingException | GlUtil.GlException e) {
       errorListenerExecutor.execute(
           () -> errorListener.onError(VideoFrameProcessingException.from(e)));
     }
