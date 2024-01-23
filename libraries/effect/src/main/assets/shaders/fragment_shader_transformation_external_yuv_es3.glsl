@@ -156,7 +156,7 @@ highp vec3 applyPqBt2020ToBt709Ootf(highp vec3 linearRgbBt2020) {
   const float maxInputLuminance = maxMasteringLuminance;
   const float maxOutputLuminance = sdrMaxLuminance;
 
-  highp vec3 color = linearRgbBt2020 * pqMaxLuminance; // Scale luminance.
+  highp vec3 color = linearRgbBt2020 * pqMaxLuminance;  // Scale luminance.
   float nits = color.y;
 
   nits = clamp(nits, 0.0, maxInputLuminance);
@@ -182,19 +182,20 @@ highp vec3 applyPqBt2020ToBt709Ootf(highp vec3 linearRgbBt2020) {
   } else if (nits < x2) {
     // Scale [x1, x2] to [y1, y2] using Hermite interpolation.
     float t = (nits - x1) / h12;
-    nits = (y1 * (1.0 + 2.0 * t) + h12 * m1 * t) * (1.0 - t) * (1.0 - t)
-      + (y2 * (3.0 - 2.0 * t) + h12 * m2 * (t - 1.0)) * t * t;
+    nits = (y1 * (1.0 + 2.0 * t) + h12 * m1 * t) * (1.0 - t) * (1.0 - t) +
+           (y2 * (3.0 - 2.0 * t) + h12 * m2 * (t - 1.0)) * t * t;
   } else {
     // Scale [x2, maxInputLuminance] to [y2, maxOutputLuminance] using
     // Hermite interpolation.
     float t = (nits - x2) / h23;
-    nits = (y2 * (1.0 + 2.0 * t) + h23 * m2 * t) * (1.0 - t) * (1.0 - t)
-      + (maxOutputLuminance * (3.0 - 2.0 * t) + h23 * m3 * (t - 1.0)) * t * t;
+    nits =
+        (y2 * (1.0 + 2.0 * t) + h23 * m2 * t) * (1.0 - t) * (1.0 - t) +
+        (maxOutputLuminance * (3.0 - 2.0 * t) + h23 * m3 * (t - 1.0)) * t * t;
   }
 
   // color.y is greater than 0 and is thus non-zero.
   color = color * (nits / color.y);
-  return color / sdrMaxLuminance; // Normalize luminance.
+  return color / sdrMaxLuminance;  // Normalize luminance.
 }
 
 highp vec3 applyBt2020ToBt709Ootf(highp vec3 linearRgbBt2020) {
