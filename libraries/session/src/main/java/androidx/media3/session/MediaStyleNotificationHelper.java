@@ -73,9 +73,8 @@ public class MediaStyleNotificationHelper {
    *     .setSmallIcon(androidx.media.R.drawable.ic_stat_player)
    *     .setContentTitle(&quot;Track title&quot;)
    *     .setContentText(&quot;Artist - Album&quot;)
-   *     .setLargeIcon(albumArtBitmap))
-   *     .setStyle(<b>new NotificationCompat.MediaStyle()</b>
-   *         .setMediaSession(mySession))
+   *     .setLargeIcon(albumArtBitmap)
+   *     .setStyle(<b>new MediaStyleNotificationHelper.MediaStyle(mySession)</b>)
    *     .build();
    * </pre>
    *

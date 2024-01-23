@@ -188,8 +188,8 @@ public final class MediaNotification {
    *     a service in the <a
    *     href="https://developer.android.com/guide/components/foreground-services">foreground</a>.
    *     It's highly recommended to use a {@linkplain
-   *     androidx.media.app.NotificationCompat.MediaStyle media style} {@linkplain Notification
-   *     notification}.
+   *     androidx.media3.session.MediaStyleNotificationHelper.MediaStyle media style} {@linkplain
+   *     Notification notification}.
    */
   public MediaNotification(@IntRange(from = 1) int notificationId, Notification notification) {
     this.notificationId = notificationId;

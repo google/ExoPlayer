@@ -39,13 +39,13 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.StringRes;
 import androidx.core.app.NotificationCompat;
 import androidx.core.graphics.drawable.IconCompat;
-import androidx.media.app.NotificationCompat.MediaStyle;
 import androidx.media3.common.C;
 import androidx.media3.common.MediaMetadata;
 import androidx.media3.common.Player;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
+import androidx.media3.session.MediaStyleNotificationHelper.MediaStyle;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -319,7 +319,7 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
     NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelId);
     int notificationId = notificationIdProvider.getNotificationId(mediaSession);
 
-    MediaStyle mediaStyle = new MediaStyle();
+    MediaStyle mediaStyle = new MediaStyle(mediaSession);
     int[] compactViewIndices =
         addNotificationActions(
             mediaSession,
