@@ -174,6 +174,17 @@ public final class PreloadMediaSource extends WrappingMediaSource {
           allocator,
           preloadLooper);
     }
+
+    public PreloadMediaSource createMediaSource(MediaSource mediaSource) {
+      return new PreloadMediaSource(
+          mediaSource,
+          preloadControl,
+          trackSelector,
+          bandwidthMeter,
+          rendererCapabilities,
+          allocator,
+          preloadLooper);
+    }
   }
 
   private static final String TAG = "PreloadMediaSource";
@@ -381,7 +392,7 @@ public final class PreloadMediaSource extends WrappingMediaSource {
     }
   }
 
-  private boolean isUsedByPlayer() {
+  /* package */ boolean isUsedByPlayer() {
     return prepareSourceCalled();
   }
 
