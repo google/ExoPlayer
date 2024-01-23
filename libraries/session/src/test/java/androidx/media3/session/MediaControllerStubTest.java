@@ -139,5 +139,8 @@ public class MediaControllerStubTest {
         /* query= */ "",
         /* itemCount= */ 1,
         /* libraryParams= */ getThrowingBundle());
+
+    session.release();
+    player.release();
   }
 }
