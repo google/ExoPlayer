@@ -89,7 +89,7 @@ public class MediaMetadataTest {
   }
 
   @Test
-  public void builderSetArworkUri_setsArtworkUri() {
+  public void builderSetArtworkUri_setsArtworkUri() {
     Uri uri = Uri.parse("https://www.google.com");
     MediaMetadata mediaMetadata = new MediaMetadata.Builder().setArtworkUri(uri).build();
 
@@ -105,6 +105,35 @@ public class MediaMetadataTest {
     // MediaMetadata.Builder#populate(MediaMetadata).
     assertThat(populated).isEqualTo(mediaMetadata);
     assertThat(populated.extras.getString(EXTRAS_KEY)).isEqualTo(EXTRAS_VALUE);
+  }
+
+  @Test
+  public void populate_withArtworkUriOnly_updatesBothArtWorkUriAndArtworkData() {
+    Uri artWorkUri = Uri.parse("https://www.test.com");
+    MediaMetadata mediaMetadata = new MediaMetadata.Builder().setArtworkUri(artWorkUri).build();
+    MediaMetadata originalMediaMetadata = getFullyPopulatedMediaMetadata();
+
+    MediaMetadata populatedMediaMetadata =
+        originalMediaMetadata.buildUpon().populate(mediaMetadata).build();
+
+    assertThat(populatedMediaMetadata.artworkUri).isEqualTo(artWorkUri);
+    assertThat(populatedMediaMetadata.artworkData).isNull();
+  }
+
+  @Test
+  public void populate_withArtworkDataOnly_updatesBothArtWorkUriAndArtworkData() {
+    byte[] artworkData = new byte[] {35, 12, 6, 77};
+    MediaMetadata mediaMetadata =
+        new MediaMetadata.Builder()
+            .setArtworkData(artworkData, MediaMetadata.PICTURE_TYPE_MEDIA)
+            .build();
+    MediaMetadata originalMediaMetadata = getFullyPopulatedMediaMetadata();
+
+    MediaMetadata populatedMediaMetadata =
+        originalMediaMetadata.buildUpon().populate(mediaMetadata).build();
+
+    assertThat(populatedMediaMetadata.artworkData).isEqualTo(artworkData);
+    assertThat(populatedMediaMetadata.artworkUri).isNull();
   }
 
   @Test
