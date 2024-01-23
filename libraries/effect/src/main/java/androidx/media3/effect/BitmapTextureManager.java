@@ -139,11 +139,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       throws VideoFrameProcessingException {
     if (Util.SDK_INT >= 26) {
       checkState(
-          !bitmap.getConfig().equals(Bitmap.Config.RGBA_F16), UNSUPPORTED_IMAGE_CONFIGURATION);
+          !checkNotNull(bitmap.getConfig()).equals(Bitmap.Config.RGBA_F16),
+          UNSUPPORTED_IMAGE_CONFIGURATION);
     }
     if (Util.SDK_INT >= 33) {
       checkState(
-          !bitmap.getConfig().equals(Bitmap.Config.RGBA_1010102), UNSUPPORTED_IMAGE_CONFIGURATION);
+          !checkNotNull(bitmap.getConfig()).equals(Bitmap.Config.RGBA_1010102),
+          UNSUPPORTED_IMAGE_CONFIGURATION);
     }
     this.useHdr = useHdr;
     checkArgument(inStreamOffsetsUs.hasNext(), "Bitmap queued but no timestamps provided.");
