@@ -203,6 +203,9 @@ import java.util.concurrent.TimeoutException;
     }
   }
 
+  // POST_NOTIFICATIONS permission is not required for media session related notifications.
+  // https://developer.android.com/develop/ui/views/notifications/notification-permission#exemptions-media-sessions
+  @SuppressLint("MissingPermission")
   private void updateNotificationInternal(
       MediaSession session,
       MediaNotification mediaNotification,
