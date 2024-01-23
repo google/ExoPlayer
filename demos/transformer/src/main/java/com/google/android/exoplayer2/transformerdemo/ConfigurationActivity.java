@@ -288,7 +288,8 @@ public final class ConfigurationActivity extends AppCompatActivity {
     selectLocalFileButton.setOnClickListener(
         view ->
             selectLocalFile(
-                view, checkNotNull(videoLocalFilePickerLauncher), /* mimeType= */ "video/*"));
+                checkNotNull(videoLocalFilePickerLauncher),
+                /* mimeTypes= */ new String[] {"image/*", "video/*", "audio/*"}));
 
     selectedFileTextView = findViewById(R.id.selected_file_text_view);
     selectedFileTextView.setText(PRESET_FILE_URI_DESCRIPTIONS[inputUriPosition]);
@@ -515,22 +516,23 @@ public final class ConfigurationActivity extends AppCompatActivity {
   }
 
   private void selectLocalFile(
-      View view, ActivityResultLauncher<Intent> localFilePickerLauncher, String mimeType) {
+      ActivityResultLauncher<Intent> localFilePickerLauncher, String[] mimeTypes) {
     String permission = SDK_INT >= 33 ? READ_MEDIA_VIDEO : READ_EXTERNAL_STORAGE;
     if (ActivityCompat.checkSelfPermission(/* context= */ this, permission)
         != PackageManager.PERMISSION_GRANTED) {
-      onPermissionsGranted = () -> launchLocalFilePicker(localFilePickerLauncher, mimeType);
+      onPermissionsGranted = () -> launchLocalFilePicker(localFilePickerLauncher, mimeTypes);
       ActivityCompat.requestPermissions(
           /* activity= */ this, new String[] {permission}, FILE_PERMISSION_REQUEST_CODE);
     } else {
-      launchLocalFilePicker(localFilePickerLauncher, mimeType);
+      launchLocalFilePicker(localFilePickerLauncher, mimeTypes);
     }
   }
 
   private void launchLocalFilePicker(
-      ActivityResultLauncher<Intent> localFilePickerLauncher, String mimeType) {
+      ActivityResultLauncher<Intent> localFilePickerLauncher, String[] mimeTypes) {
     Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-    intent.setType(mimeType);
+    intent.setType("*/*");
+    intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
     checkNotNull(localFilePickerLauncher).launch(intent);
   }
 
@@ -746,7 +748,8 @@ public final class ConfigurationActivity extends AppCompatActivity {
     uriButton.setOnClickListener(
         (view ->
             selectLocalFile(
-                view, checkNotNull(overlayLocalFilePickerLauncher), /* mimeType= */ "image/*")));
+                checkNotNull(overlayLocalFilePickerLauncher),
+                /* mimeTypes= */ new String[] {"image/*"})));
     Slider alphaSlider = checkNotNull(dialogView.findViewById(R.id.bitmap_overlay_alpha_slider));
     new AlertDialog.Builder(/* context= */ this)
         .setTitle(R.string.bitmap_overlay_settings)
