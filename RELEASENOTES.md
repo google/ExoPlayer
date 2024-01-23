@@ -3,6 +3,9 @@
 ### Unreleased changes
 
 *   Common Library:
+    *   Populate both `artworkUri` and `artworkData` in
+        `MediaMetadata.Builder.populate(MediaMetadata)` when at least one of
+        them is non-null ([#964](https://github.com/androidx/media/issues/964)).
 *   ExoPlayer:
     *   Prevent subclassing `CompositeSequenceableLoader`. This component was
         [previously made extensible](https://github.com/androidx/media/commit/0de57cbfae7165dd3bb829e323d089cd312b4b1b)

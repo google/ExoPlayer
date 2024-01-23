@@ -462,7 +462,12 @@ public final class MediaMetadata implements Bundleable {
       return this;
     }
 
-    /** Populates all the fields from {@code mediaMetadata}, provided they are non-null. */
+    /**
+     * Populates all the fields from {@code mediaMetadata}.
+     *
+     * <p>Fields are populated when they are non-null with an exception that both {@code artworkUri}
+     * and {@code artworkData} are populated, when at least one of them is non-null.
+     */
     @SuppressWarnings("deprecation") // Populating deprecated fields.
     @CanIgnoreReturnValue
     @UnstableApi
@@ -497,11 +502,9 @@ public final class MediaMetadata implements Bundleable {
       if (mediaMetadata.overallRating != null) {
         setOverallRating(mediaMetadata.overallRating);
       }
-      if (mediaMetadata.artworkData != null) {
-        setArtworkData(mediaMetadata.artworkData, mediaMetadata.artworkDataType);
-      }
-      if (mediaMetadata.artworkUri != null) {
+      if (mediaMetadata.artworkUri != null || mediaMetadata.artworkData != null) {
         setArtworkUri(mediaMetadata.artworkUri);
+        setArtworkData(mediaMetadata.artworkData, mediaMetadata.artworkDataType);
       }
       if (mediaMetadata.trackNumber != null) {
         setTrackNumber(mediaMetadata.trackNumber);
