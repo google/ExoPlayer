@@ -1651,9 +1651,8 @@ public class MediaSession {
        * session commands}.
        */
       @CanIgnoreReturnValue
-      public AcceptedResultBuilder setCustomLayout(
-          @Nullable ImmutableList<CommandButton> customLayout) {
-        this.customLayout = customLayout;
+      public AcceptedResultBuilder setCustomLayout(@Nullable List<CommandButton> customLayout) {
+        this.customLayout = customLayout == null ? null : ImmutableList.copyOf(customLayout);
         return this;
       }
 
