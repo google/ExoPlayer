@@ -21,15 +21,15 @@ uniform int uCount;
 varying vec2 vTexSamplingCoord;
 
 void main() {
-    // Translate the coordinates from -1,+1 to 0,+2.
-    float x = aFramePosition.x + 1.0;
-    // Offset the frame by its index times its width (2).
-    x += float(uIndex) * 2.0;
-    // Shrink the frame to fit the thumbnail strip.
-    x /= float(uCount);
-    // Translate the coordinates back to -1,+1.
-    x -= 1.0;
+  // Translate the coordinates from -1,+1 to 0,+2.
+  float x = aFramePosition.x + 1.0;
+  // Offset the frame by its index times its width (2).
+  x += float(uIndex) * 2.0;
+  // Shrink the frame to fit the thumbnail strip.
+  x /= float(uCount);
+  // Translate the coordinates back to -1,+1.
+  x -= 1.0;
 
-    gl_Position = vec4(x, aFramePosition.yzw);
-    vTexSamplingCoord = aFramePosition.xy * 0.5 + 0.5;
+  gl_Position = vec4(x, aFramePosition.yzw);
+  vTexSamplingCoord = aFramePosition.xy * 0.5 + 0.5;
 }
