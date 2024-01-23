@@ -36,6 +36,7 @@ import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.PendingIntent;
@@ -164,12 +165,16 @@ import java.util.Map;
  *   <li><b>{@code exo_notification_stop}</b> - The stop icon.
  * </ul>
  *
- * <p>Alternatively, the action icons can be set programatically by using the {@link Builder}.
+ * <p>Alternatively, the action icons can be set programmatically by using the {@link Builder}.
  *
  * <p>Unlike the drawables above, the large icon (i.e. the icon passed to {@link
  * NotificationCompat.Builder#setLargeIcon(Bitmap)} cannot be overridden in this way. Instead, the
  * large icon is obtained from the {@link MediaDescriptionAdapter} passed to {@link
  * Builder#Builder(Context, int, String, MediaDescriptionAdapter)}.
+ *
+ * <p>Note: This class would require {@link android.Manifest.permission#POST_NOTIFICATIONS}
+ * permission if used without a {@linkplain #setMediaSessionToken(MediaSessionCompat.Token) media
+ * session}.
  *
  * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
  *     contains the same ExoPlayer code). See <a
@@ -1188,6 +1193,10 @@ public class PlayerNotificationManager {
     }
   }
 
+  // This class is generally used with a media session which does not require notification
+  // permission.
+  // https://developer.android.com/develop/ui/views/notifications/notification-permission#exemptions-media-sessions
+  @SuppressLint("MissingPermission")
   private void startOrUpdateNotification(Player player, @Nullable Bitmap bitmap) {
     boolean ongoing = getOngoing(player);
     builder = createNotification(player, builder, ongoing, bitmap);
