@@ -27,6 +27,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.muxer.Mp4Muxer.TrackToken;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.collect.ImmutableList;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -121,6 +122,16 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
   }
 
+  private static ImmutableList<ByteBuffer> createTrafBoxes(List<ProcessedTrackInfo> trackInfos) {
+    ImmutableList.Builder<ByteBuffer> trafBoxes = new ImmutableList.Builder<>();
+    for (int i = 0; i < trackInfos.size(); i++) {
+      ProcessedTrackInfo currentTrackInfo = trackInfos.get(i);
+      ByteBuffer trun = Boxes.trun(currentTrackInfo.pendingSamplesMetadata);
+      trafBoxes.add(Boxes.traf(Boxes.tfhd(currentTrackInfo.trackId), trun));
+    }
+    return trafBoxes.build();
+  }
+
   private void createHeader() throws IOException {
     output.position(0L);
     output.write(Boxes.ftyp());
@@ -153,8 +164,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   private void createFragment() throws IOException {
+    ImmutableList<ProcessedTrackInfo> trackInfos = processAllTracks();
     // Write moof box.
-    List<ByteBuffer> trafBoxes = createTrafBoxes();
+    ImmutableList<ByteBuffer> trafBoxes = createTrafBoxes(trackInfos);
     if (trafBoxes.isEmpty()) {
       return;
     }
@@ -163,19 +175,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     writeMdatBox();
 
     currentFragmentSequenceNumber++;
-  }
-
-  private List<ByteBuffer> createTrafBoxes() {
-    List<ByteBuffer> trafBoxes = new ArrayList<>();
-    for (int i = 0; i < tracks.size(); i++) {
-      Track currentTrack = tracks.get(i);
-      if (!currentTrack.pendingSamplesBufferInfo.isEmpty()) {
-        List<SampleMetadata> samplesMetadata = processPendingSamplesBufferInfo(currentTrack);
-        ByteBuffer trun = Boxes.trun(samplesMetadata);
-        trafBoxes.add(Boxes.traf(Boxes.tfhd(/* trackId= */ i + 1), trun));
-      }
-    }
-    return trafBoxes;
   }
 
   private void writeMdatBox() throws IOException {
@@ -216,7 +215,17 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     output.position(currentPosition);
   }
 
-  private List<SampleMetadata> processPendingSamplesBufferInfo(Track track) {
+  private ImmutableList<ProcessedTrackInfo> processAllTracks() {
+    ImmutableList.Builder<ProcessedTrackInfo> trackInfos = new ImmutableList.Builder<>();
+    for (int i = 0; i < tracks.size(); i++) {
+      if (!tracks.get(i).pendingSamplesBufferInfo.isEmpty()) {
+        trackInfos.add(processTrack(/* trackId= */ i + 1, tracks.get(i)));
+      }
+    }
+    return trackInfos.build();
+  }
+
+  private ProcessedTrackInfo processTrack(int trackId, Track track) {
     List<BufferInfo> sampleBufferInfos = new ArrayList<>(track.pendingSamplesBufferInfo);
 
     List<Long> sampleDurations =
@@ -228,7 +237,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             track.videoUnitTimebase(),
             Mp4Muxer.LAST_FRAME_DURATION_BEHAVIOR_DUPLICATE_PREV_DURATION);
 
-    List<SampleMetadata> pendingSamplesMetadata = new ArrayList<>(sampleBufferInfos.size());
+    ImmutableList.Builder<SampleMetadata> pendingSamplesMetadata = new ImmutableList.Builder<>();
     for (int i = 0; i < sampleBufferInfos.size(); i++) {
       pendingSamplesMetadata.add(
           new SampleMetadata(
@@ -239,6 +248,16 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     // Clear the queue.
     track.pendingSamplesBufferInfo.clear();
-    return pendingSamplesMetadata;
+    return new ProcessedTrackInfo(trackId, pendingSamplesMetadata.build());
+  }
+
+  private static class ProcessedTrackInfo {
+    public final int trackId;
+    public final ImmutableList<SampleMetadata> pendingSamplesMetadata;
+
+    public ProcessedTrackInfo(int trackId, ImmutableList<SampleMetadata> pendingSamplesMetadata) {
+      this.trackId = trackId;
+      this.pendingSamplesMetadata = pendingSamplesMetadata;
+    }
   }
 }
