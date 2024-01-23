@@ -18,10 +18,11 @@ package com.google.android.exoplayer2;
 import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
 import static com.google.common.truth.Truth.assertThat;
 
+import android.content.Context;
 import android.net.Uri;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.MediaItem.SubtitleConfiguration;
 import com.google.android.exoplayer2.source.ClippingMediaSource;
+import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.CueGroup;
 import com.google.android.exoplayer2.util.ConditionVariable;
@@ -33,13 +34,30 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameter;
+import org.junit.runners.Parameterized.Parameters;
 
 /**
  * Instrumentation tests for playback of clipped items using {@link MediaItem#clippingConfiguration}
  * or {@link ClippingMediaSource} directly.
  */
-@RunWith(AndroidJUnit4.class)
+@RunWith(Parameterized.class)
 public final class ClippedPlaybackTest {
+
+  @Parameters(name = "parseSubtitlesDuringExtraction={0}")
+  public static ImmutableList<Boolean> params() {
+    return ImmutableList.of(true, false);
+  }
+
+  /**
+   * We deliberately test both forms of subtitle parsing, to ensure that both work correctly with
+   * clipping configurations. Parsing during rendering (i.e. not during extraction) can be a little
+   * bit flaky, because playback can complete before the rendering/parsing is finished, and there is
+   * no easy way to delay the completion of playback in this case. The parse-during-rendering flow
+   * will be removed in a later release (b/289983417), which will resolve this flakiness.
+   */
+  @Parameter public boolean parseSubtitlesDuringExtraction;
 
   @Test
   public void subtitlesRespectClipping_singlePeriod() throws Exception {
@@ -62,7 +80,14 @@ public final class ClippedPlaybackTest {
     getInstrumentation()
         .runOnMainSync(
             () -> {
-              player.set(new ExoPlayer.Builder(getInstrumentation().getContext()).build());
+              Context context = getInstrumentation().getContext();
+              player.set(
+                  new ExoPlayer.Builder(context)
+                      .setMediaSourceFactory(
+                          new DefaultMediaSourceFactory(context)
+                              .experimentalParseSubtitlesDuringExtraction(
+                                  parseSubtitlesDuringExtraction))
+                      .build());
               player.get().addListener(textCapturer);
               player.get().setMediaItem(mediaItem);
               player.get().prepare();
@@ -107,7 +132,14 @@ public final class ClippedPlaybackTest {
     getInstrumentation()
         .runOnMainSync(
             () -> {
-              player.set(new ExoPlayer.Builder(getInstrumentation().getContext()).build());
+              Context context = getInstrumentation().getContext();
+              player.set(
+                  new ExoPlayer.Builder(context)
+                      .setMediaSourceFactory(
+                          new DefaultMediaSourceFactory(context)
+                              .experimentalParseSubtitlesDuringExtraction(
+                                  parseSubtitlesDuringExtraction))
+                      .build());
               player.get().addListener(textCapturer);
               player.get().setMediaItems(mediaItems);
               player.get().prepare();
