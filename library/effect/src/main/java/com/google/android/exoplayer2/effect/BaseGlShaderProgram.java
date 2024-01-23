@@ -23,7 +23,6 @@ import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.Size;
 import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 import com.google.common.util.concurrent.MoreExecutors;
-import java.util.NoSuchElementException;
 import java.util.concurrent.Executor;
 
 /**
@@ -161,7 +160,7 @@ public abstract class BaseGlShaderProgram implements GlShaderProgram {
       drawFrame(inputTexture.texId, presentationTimeUs);
       inputListener.onInputFrameProcessed(inputTexture);
       outputListener.onOutputFrameAvailable(outputTexture, presentationTimeUs);
-    } catch (VideoFrameProcessingException | GlUtil.GlException | NoSuchElementException e) {
+    } catch (VideoFrameProcessingException | GlUtil.GlException e) {
       errorListenerExecutor.execute(
           () -> errorListener.onError(VideoFrameProcessingException.from(e)));
     }
