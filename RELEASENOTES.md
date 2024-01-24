@@ -20,6 +20,9 @@
         `setSubtitleParserFactory` and disallow passing `null`. Use the new
         `experimentalParseSubtitlesDuringExtraction(boolean)` methods to control
         parsing behaviour.
+    *   Add support for customising the `SubtitleParser.Factory` used during
+        extraction. This can be achieved with
+        `MediaSource.Factory.setSubtitleParserFactory()`.
 *   Transformer:
 *   Track Selection:
 *   Extractors:

@@ -368,23 +368,14 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
   }
 
   @Override
-  public DefaultExtractorsFactory experimentalSetTextTrackTranscodingEnabled(
+  public synchronized DefaultExtractorsFactory experimentalSetTextTrackTranscodingEnabled(
       boolean textTrackTranscodingEnabled) {
     this.textTrackTranscodingEnabled = textTrackTranscodingEnabled;
     return this;
   }
 
-  /**
-   * Sets a {@link SubtitleParser.Factory} to use when transcoding text tracks.
-   *
-   * <p>This is only used if {@link #setTextTrackTranscodingEnabled(boolean)} is enabled.
-   *
-   * <p>The default value is {@link DefaultSubtitleParserFactory}.
-   *
-   * @param subtitleParserFactory The factory for {@link SubtitleParser} instances.
-   * @return The factory, for convenience.
-   */
   @CanIgnoreReturnValue
+  @Override
   public synchronized DefaultExtractorsFactory setSubtitleParserFactory(
       SubtitleParser.Factory subtitleParserFactory) {
     this.subtitleParserFactory = subtitleParserFactory;

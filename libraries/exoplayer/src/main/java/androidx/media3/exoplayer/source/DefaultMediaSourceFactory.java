@@ -52,6 +52,7 @@ import androidx.media3.extractor.TrackOutput;
 import androidx.media3.extractor.jpeg.JpegExtractor;
 import androidx.media3.extractor.text.DefaultSubtitleParserFactory;
 import androidx.media3.extractor.text.SubtitleExtractor;
+import androidx.media3.extractor.text.SubtitleParser;
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Ints;
@@ -115,6 +116,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
   private final DelegateFactoryLoader delegateFactoryLoader;
 
   private DataSource.Factory dataSourceFactory;
+  private SubtitleParser.Factory subtitleParserFactory;
   @Nullable private MediaSource.Factory serverSideAdInsertionMediaSourceFactory;
   @Nullable private ExternalLoader externalImageLoader;
   @Nullable private AdsLoader.Provider adsLoaderProvider;
@@ -181,7 +183,8 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
   public DefaultMediaSourceFactory(
       DataSource.Factory dataSourceFactory, ExtractorsFactory extractorsFactory) {
     this.dataSourceFactory = dataSourceFactory;
-    delegateFactoryLoader = new DelegateFactoryLoader(extractorsFactory);
+    this.subtitleParserFactory = new DefaultSubtitleParserFactory();
+    delegateFactoryLoader = new DelegateFactoryLoader(extractorsFactory, subtitleParserFactory);
     delegateFactoryLoader.setDataSourceFactory(dataSourceFactory);
     liveTargetOffsetMs = C.TIME_UNSET;
     liveMinOffsetMs = C.TIME_UNSET;
@@ -197,6 +200,16 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
       boolean parseSubtitlesDuringExtraction) {
     this.parseSubtitlesDuringExtraction = parseSubtitlesDuringExtraction;
     delegateFactoryLoader.setParseSubtitlesDuringExtraction(parseSubtitlesDuringExtraction);
+    return this;
+  }
+
+  @CanIgnoreReturnValue
+  @Override
+  @UnstableApi
+  public DefaultMediaSourceFactory setSubtitleParserFactory(
+      SubtitleParser.Factory subtitleParserFactory) {
+    this.subtitleParserFactory = checkNotNull(subtitleParserFactory);
+    delegateFactoryLoader.setSubtitleParserFactory(subtitleParserFactory);
     return this;
   }
 
@@ -509,7 +522,6 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
                   .setLabel(subtitleConfigurations.get(i).label)
                   .setId(subtitleConfigurations.get(i).id)
                   .build();
-          DefaultSubtitleParserFactory subtitleParserFactory = new DefaultSubtitleParserFactory();
           ExtractorsFactory extractorsFactory =
               () ->
                   new Extractor[] {
@@ -602,12 +614,15 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
 
     private DataSource.@MonotonicNonNull Factory dataSourceFactory;
     private boolean parseSubtitlesDuringExtraction;
+    private SubtitleParser.Factory subtitleParserFactory;
     @Nullable private CmcdConfiguration.Factory cmcdConfigurationFactory;
     @Nullable private DrmSessionManagerProvider drmSessionManagerProvider;
     @Nullable private LoadErrorHandlingPolicy loadErrorHandlingPolicy;
 
-    public DelegateFactoryLoader(ExtractorsFactory extractorsFactory) {
+    public DelegateFactoryLoader(
+        ExtractorsFactory extractorsFactory, SubtitleParser.Factory subtitleParserFactory) {
       this.extractorsFactory = extractorsFactory;
+      this.subtitleParserFactory = subtitleParserFactory;
       mediaSourceFactorySuppliers = new HashMap<>();
       supportedTypes = new HashSet<>();
       mediaSourceFactories = new HashMap<>();
@@ -641,6 +656,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
       if (loadErrorHandlingPolicy != null) {
         mediaSourceFactory.setLoadErrorHandlingPolicy(loadErrorHandlingPolicy);
       }
+      mediaSourceFactory.setSubtitleParserFactory(subtitleParserFactory);
       mediaSourceFactory.experimentalParseSubtitlesDuringExtraction(parseSubtitlesDuringExtraction);
       mediaSourceFactories.put(contentType, mediaSourceFactory);
       return mediaSourceFactory;
@@ -662,6 +678,14 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
       for (MediaSource.Factory mediaSourceFactory : mediaSourceFactories.values()) {
         mediaSourceFactory.experimentalParseSubtitlesDuringExtraction(
             parseSubtitlesDuringExtraction);
+      }
+    }
+
+    public void setSubtitleParserFactory(SubtitleParser.Factory subtitleParserFactory) {
+      this.subtitleParserFactory = subtitleParserFactory;
+      extractorsFactory.setSubtitleParserFactory(subtitleParserFactory);
+      for (MediaSource.Factory mediaSourceFactory : mediaSourceFactories.values()) {
+        mediaSourceFactory.setSubtitleParserFactory(subtitleParserFactory);
       }
     }
 
@@ -736,7 +760,6 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
             mediaSourceFactorySupplier = () -> newInstance(clazz);
             break;
           case C.CONTENT_TYPE_OTHER:
-            // TODO(181312195): potential setter on Default/ExtractorsFactory for subtitles
             mediaSourceFactorySupplier =
                 () -> new ProgressiveMediaSource.Factory(dataSourceFactory, extractorsFactory);
             break;
