@@ -33,6 +33,7 @@ import androidx.media3.exoplayer.trackselection.AdaptiveTrackSelection;
 import androidx.media3.exoplayer.upstream.CmcdConfiguration;
 import androidx.media3.exoplayer.upstream.DefaultBandwidthMeter;
 import androidx.media3.exoplayer.upstream.LoaderErrorThrower;
+import androidx.media3.extractor.text.SubtitleParser;
 import androidx.media3.test.utils.FakeDataSource;
 import androidx.media3.test.utils.TestUtil;
 import androidx.test.core.app.ApplicationProvider;
@@ -315,6 +316,7 @@ public class DefaultSsChunkSourceTest {
         adaptiveTrackSelection,
         new FakeDataSource(),
         cmcdConfiguration,
-        /* subtitleParserFactory= */ null);
+        SubtitleParser.Factory.UNSUPPORTED,
+        /* parseSubtitlesDuringExtraction= */ false);
   }
 }

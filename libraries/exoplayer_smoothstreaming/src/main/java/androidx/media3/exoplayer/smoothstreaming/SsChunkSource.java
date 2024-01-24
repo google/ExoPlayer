@@ -27,6 +27,8 @@ import androidx.media3.exoplayer.trackselection.ExoTrackSelection;
 import androidx.media3.exoplayer.upstream.CmcdConfiguration;
 import androidx.media3.exoplayer.upstream.LoaderErrorThrower;
 import androidx.media3.extractor.Extractor;
+import androidx.media3.extractor.text.SubtitleParser;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
 /** A {@link ChunkSource} for SmoothStreaming. */
 @UnstableApi
@@ -54,6 +56,36 @@ public interface SsChunkSource extends ChunkSource {
         ExoTrackSelection trackSelection,
         @Nullable TransferListener transferListener,
         @Nullable CmcdConfiguration cmcdConfiguration);
+
+    /**
+     * Sets the {@link SubtitleParser.Factory} to use for parsing subtitles during extraction. The
+     * default factory value is implementation dependent.
+     *
+     * @param subtitleParserFactory The {@link SubtitleParser.Factory} for parsing subtitles during
+     *     extraction.
+     * @return This factory, for convenience.
+     */
+    @CanIgnoreReturnValue
+    default Factory setSubtitleParserFactory(SubtitleParser.Factory subtitleParserFactory) {
+      return this;
+    }
+
+    /**
+     * Sets whether subtitles should be parsed as part of extraction (before being added to the
+     * sample queue) or as part of rendering (when being taken from the sample queue). Defaults to
+     * {@code false} (i.e. subtitles will be parsed as part of rendering).
+     *
+     * <p>This method is experimental and will be renamed or removed in a future release.
+     *
+     * @param parseSubtitlesDuringExtraction Whether to parse subtitles during extraction or
+     *     rendering.
+     * @return This factory, for convenience.
+     */
+    @CanIgnoreReturnValue
+    default Factory experimentalParseSubtitlesDuringExtraction(
+        boolean parseSubtitlesDuringExtraction) {
+      return this;
+    }
 
     /**
      * Returns the output {@link Format} of emitted {@linkplain C#TRACK_TYPE_TEXT text samples}

@@ -77,8 +77,6 @@ import androidx.media3.exoplayer.upstream.Loader.LoadErrorAction;
 import androidx.media3.exoplayer.upstream.LoaderErrorThrower;
 import androidx.media3.exoplayer.upstream.ParsingLoadable;
 import androidx.media3.exoplayer.util.SntpClient;
-import androidx.media3.extractor.text.DefaultSubtitleParserFactory;
-import androidx.media3.extractor.text.SubtitleParser;
 import com.google.common.base.Charsets;
 import com.google.common.math.LongMath;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
@@ -114,7 +112,6 @@ public final class DashMediaSource extends BaseMediaSource {
     private DrmSessionManagerProvider drmSessionManagerProvider;
     private CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
     private LoadErrorHandlingPolicy loadErrorHandlingPolicy;
-    @Nullable private SubtitleParser.Factory subtitleParserFactory;
     private long fallbackTargetLiveOffsetMs;
     private long minLiveStartPositionUs;
     @Nullable private ParsingLoadable.Parser<? extends DashManifest> manifestParser;
@@ -199,33 +196,11 @@ public final class DashMediaSource extends BaseMediaSource {
       return this;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>This method may only be used with {@link DefaultDashChunkSource.Factory}.
-     *
-     * @param parseSubtitlesDuringExtraction Whether to parse subtitles during extraction or
-     *     rendering.
-     * @return This factory, for convenience.
-     */
-    // TODO: b/289916598 - Flip the default of this to true.
     @Override
     @CanIgnoreReturnValue
     public Factory experimentalParseSubtitlesDuringExtraction(
         boolean parseSubtitlesDuringExtraction) {
-      if (parseSubtitlesDuringExtraction) {
-        if (subtitleParserFactory == null) {
-          this.subtitleParserFactory = new DefaultSubtitleParserFactory();
-        }
-      } else {
-        this.subtitleParserFactory = null;
-      }
-      if (chunkSourceFactory instanceof DefaultDashChunkSource.Factory) {
-        ((DefaultDashChunkSource.Factory) chunkSourceFactory)
-            .setSubtitleParserFactory(subtitleParserFactory);
-      } else {
-        throw new IllegalStateException();
-      }
+      chunkSourceFactory.experimentalParseSubtitlesDuringExtraction(parseSubtitlesDuringExtraction);
       return this;
     }
 

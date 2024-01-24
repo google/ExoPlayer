@@ -16,7 +16,6 @@
 package androidx.media3.exoplayer.smoothstreaming;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.fail;
 
 import androidx.annotation.Nullable;
@@ -33,6 +32,7 @@ import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.exoplayer.trackselection.ExoTrackSelection;
 import androidx.media3.exoplayer.upstream.CmcdConfiguration;
 import androidx.media3.exoplayer.upstream.LoaderErrorThrower;
+import androidx.media3.extractor.text.SubtitleParser;
 import androidx.media3.test.utils.FakeDataSource;
 import androidx.media3.test.utils.TestUtil;
 import androidx.media3.test.utils.robolectric.RobolectricUtil;
@@ -104,14 +104,12 @@ public class SsMediaSourceTest {
 
   @Test
   public void
-      setExperimentalParseSubtitlesDuringExtraction_withNonDefaultChunkSourceFactory_setThrows() {
+      setExperimentalParseSubtitlesDuringExtraction_withNonDefaultChunkSourceFactory_setSucceeds() {
     SsMediaSource.Factory ssMediaSourceFactory =
         new SsMediaSource.Factory(
             /* chunkSourceFactory= */ this::createSampleSsChunkSource,
             /* manifestDataSourceFactory= */ () -> createSampleDataSource(SAMPLE_MANIFEST));
-    assertThrows(
-        IllegalStateException.class,
-        () -> ssMediaSourceFactory.experimentalParseSubtitlesDuringExtraction(false));
+    ssMediaSourceFactory.experimentalParseSubtitlesDuringExtraction(false);
   }
 
   @Test
@@ -219,6 +217,7 @@ public class SsMediaSourceTest {
         trackSelection,
         new FakeDataSource(),
         cmcdConfiguration,
-        /* subtitleParserFactory= */ null);
+        SubtitleParser.Factory.UNSUPPORTED,
+        /* parseSubtitlesDuringExtraction= */ false);
   }
 }

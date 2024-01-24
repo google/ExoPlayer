@@ -15,6 +15,7 @@
  */
 package androidx.media3.exoplayer.source.chunk;
 
+import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Util.castNonNull;
 
 import android.util.SparseArray;
@@ -39,9 +40,11 @@ import androidx.media3.extractor.jpeg.JpegExtractor;
 import androidx.media3.extractor.mkv.MatroskaExtractor;
 import androidx.media3.extractor.mp4.FragmentedMp4Extractor;
 import androidx.media3.extractor.png.PngExtractor;
+import androidx.media3.extractor.text.DefaultSubtitleParserFactory;
 import androidx.media3.extractor.text.SubtitleExtractor;
 import androidx.media3.extractor.text.SubtitleParser;
 import androidx.media3.extractor.text.SubtitleTranscodingExtractor;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
@@ -57,24 +60,25 @@ public final class BundledChunkExtractor implements ExtractorOutput, ChunkExtrac
   /** {@link ChunkExtractor.Factory} for {@link BundledChunkExtractor}. */
   public static final class Factory implements ChunkExtractor.Factory {
 
-    /** Non-null if subtitles should be parsed during extraction, null otherwise. */
-    @Nullable private SubtitleParser.Factory subtitleParserFactory;
+    private SubtitleParser.Factory subtitleParserFactory;
+    private boolean parseSubtitlesDuringExtraction;
 
-    /**
-     * Sets the {@link SubtitleParser.Factory} to use for parsing subtitles during extraction, or
-     * null to parse subtitles during decoding. The default is null (subtitles parsed after
-     * decoding).
-     *
-     * <p>This method is experimental. Its default value may change, or it may be renamed or removed
-     * in a future release.
-     *
-     * @param subtitleParserFactory The {@link SubtitleParser.Factory} for parsing subtitles during
-     *     extraction.
-     * @return This factory, for convenience.
-     */
-    public Factory experimentalSetSubtitleParserFactory(
-        @Nullable SubtitleParser.Factory subtitleParserFactory) {
-      this.subtitleParserFactory = subtitleParserFactory;
+    public Factory() {
+      subtitleParserFactory = new DefaultSubtitleParserFactory();
+    }
+
+    @CanIgnoreReturnValue
+    @Override
+    public Factory setSubtitleParserFactory(SubtitleParser.Factory subtitleParserFactory) {
+      this.subtitleParserFactory = checkNotNull(subtitleParserFactory);
+      return this;
+    }
+
+    @CanIgnoreReturnValue
+    @Override
+    public Factory experimentalParseSubtitlesDuringExtraction(
+        boolean parseSubtitlesDuringExtraction) {
+      this.parseSubtitlesDuringExtraction = parseSubtitlesDuringExtraction;
       return this;
     }
 
@@ -85,18 +89,16 @@ public final class BundledChunkExtractor implements ExtractorOutput, ChunkExtrac
      * MimeTypes#APPLICATION_MEDIA3_CUES} if it is supported by {@link SubtitleParser.Factory}.
      *
      * <p>To modify the support behavior, you can {@linkplain
-     * #experimentalSetSubtitleParserFactory(SubtitleParser.Factory) set your own subtitle parser
-     * factory}.
+     * #setSubtitleParserFactory(SubtitleParser.Factory) set your own subtitle parser factory}.
      */
     @Override
     public Format getOutputTextFormat(Format sourceFormat) {
-      if (subtitleParserFactory != null && subtitleParserFactory.supportsFormat(sourceFormat)) {
-        @Format.CueReplacementBehavior
-        int cueReplacementBehavior = subtitleParserFactory.getCueReplacementBehavior(sourceFormat);
+      if (parseSubtitlesDuringExtraction && subtitleParserFactory.supportsFormat(sourceFormat)) {
         return sourceFormat
             .buildUpon()
             .setSampleMimeType(MimeTypes.APPLICATION_MEDIA3_CUES)
-            .setCueReplacementBehavior(cueReplacementBehavior)
+            .setCueReplacementBehavior(
+                subtitleParserFactory.getCueReplacementBehavior(sourceFormat))
             .setCodecs(
                 sourceFormat.sampleMimeType
                     + (sourceFormat.codecs != null ? " " + sourceFormat.codecs : ""))
@@ -119,7 +121,7 @@ public final class BundledChunkExtractor implements ExtractorOutput, ChunkExtrac
       @Nullable String containerMimeType = representationFormat.containerMimeType;
       Extractor extractor;
       if (MimeTypes.isText(containerMimeType)) {
-        if (subtitleParserFactory == null) {
+        if (!parseSubtitlesDuringExtraction) {
           // Subtitles will be parsed after decoding
           return null;
         } else {
@@ -129,15 +131,10 @@ public final class BundledChunkExtractor implements ExtractorOutput, ChunkExtrac
         }
       } else if (MimeTypes.isMatroska(containerMimeType)) {
         @MatroskaExtractor.Flags int flags = MatroskaExtractor.FLAG_DISABLE_SEEK_FOR_CUES;
-        if (subtitleParserFactory == null) {
+        if (!parseSubtitlesDuringExtraction) {
           flags |= MatroskaExtractor.FLAG_EMIT_RAW_SUBTITLE_DATA;
         }
-        extractor =
-            new MatroskaExtractor(
-                subtitleParserFactory != null
-                    ? subtitleParserFactory
-                    : SubtitleParser.Factory.UNSUPPORTED,
-                flags);
+        extractor = new MatroskaExtractor(subtitleParserFactory, flags);
       } else if (Objects.equals(containerMimeType, MimeTypes.IMAGE_JPEG)) {
         extractor = new JpegExtractor(JpegExtractor.FLAG_READ_IMAGE);
       } else if (Objects.equals(containerMimeType, MimeTypes.IMAGE_PNG)) {
@@ -147,21 +144,19 @@ public final class BundledChunkExtractor implements ExtractorOutput, ChunkExtrac
         if (enableEventMessageTrack) {
           flags |= FragmentedMp4Extractor.FLAG_ENABLE_EMSG_TRACK;
         }
-        if (subtitleParserFactory == null) {
+        if (!parseSubtitlesDuringExtraction) {
           flags |= FragmentedMp4Extractor.FLAG_EMIT_RAW_SUBTITLE_DATA;
         }
         extractor =
             new FragmentedMp4Extractor(
-                subtitleParserFactory != null
-                    ? subtitleParserFactory
-                    : SubtitleParser.Factory.UNSUPPORTED,
+                subtitleParserFactory,
                 flags,
                 /* timestampAdjuster= */ null,
                 /* sideloadedTrack= */ null,
                 closedCaptionFormats,
                 playerEmsgTrackOutput);
       }
-      if (subtitleParserFactory != null
+      if (parseSubtitlesDuringExtraction
           && !MimeTypes.isText(containerMimeType)
           && !(extractor.getUnderlyingImplementation() instanceof FragmentedMp4Extractor)
           && !(extractor.getUnderlyingImplementation() instanceof MatroskaExtractor)) {
