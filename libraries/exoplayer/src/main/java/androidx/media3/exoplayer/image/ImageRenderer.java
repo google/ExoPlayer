@@ -21,6 +21,7 @@ import static androidx.media3.common.C.FIRST_FRAME_RENDERED;
 import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static androidx.media3.exoplayer.source.SampleStream.FLAG_REQUIRE_FORMAT;
+import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
@@ -30,7 +31,6 @@ import androidx.annotation.IntDef;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.PlaybackException;
-import androidx.media3.common.util.LongArrayQueue;
 import androidx.media3.common.util.TraceUtil;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.decoder.DecoderInputBuffer;
@@ -45,6 +45,7 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.ArrayDeque;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -91,10 +92,20 @@ public class ImageRenderer extends BaseRenderer {
 
   private final ImageDecoder.Factory decoderFactory;
   private final DecoderInputBuffer flagsOnlyBuffer;
-  private final LongArrayQueue offsetQueue;
+
+  /**
+   * Pending {@link OutputStreamInfo} for following streams. All {@code OutputStreamInfo} added to
+   * this list will have {@linkplain OutputStreamInfo#previousStreamLastBufferTimeUs
+   * previousStreamLastBufferTimeUs} and {@linkplain OutputStreamInfo#streamOffsetUs streamOffsetUs}
+   * set.
+   */
+  private final ArrayDeque<OutputStreamInfo> pendingOutputStreamChanges;
 
   private boolean inputStreamEnded;
   private boolean outputStreamEnded;
+  private OutputStreamInfo outputStreamInfo;
+  private long lastProcessedOutputBufferTimeUs;
+  private long largestQueuedPresentationTimeUs;
   private @ReinitializationState int decoderReinitializationState;
   private @C.FirstFrameState int firstFrameState;
   private @Nullable Format inputFormat;
@@ -120,7 +131,10 @@ public class ImageRenderer extends BaseRenderer {
     this.decoderFactory = decoderFactory;
     this.imageOutput = getImageOutput(imageOutput);
     flagsOnlyBuffer = DecoderInputBuffer.newNoDataInstance();
-    offsetQueue = new LongArrayQueue();
+    outputStreamInfo = OutputStreamInfo.UNSET;
+    pendingOutputStreamChanges = new ArrayDeque<>();
+    largestQueuedPresentationTimeUs = C.TIME_UNSET;
+    lastProcessedOutputBufferTimeUs = C.TIME_UNSET;
     decoderReinitializationState = REINITIALIZATION_STATE_NONE;
     firstFrameState = FIRST_FRAME_NOT_RENDERED;
   }
@@ -140,8 +154,7 @@ public class ImageRenderer extends BaseRenderer {
     if (outputStreamEnded) {
       return;
     }
-    // If the offsetQueue is empty, we haven't been given a stream to render.
-    checkState(!offsetQueue.isEmpty());
+
     if (inputFormat == null) {
       // We don't have a format yet, so try and read one.
       FormatHolder formatHolder = getFormatHolder();
@@ -203,9 +216,20 @@ public class ImageRenderer extends BaseRenderer {
       throws ExoPlaybackException {
     // TODO: b/319484746 - Take startPositionUs into account to not output images too early.
     super.onStreamChanged(formats, startPositionUs, offsetUs, mediaPeriodId);
-    offsetQueue.add(offsetUs);
-    inputStreamEnded = false;
-    outputStreamEnded = false;
+    if (outputStreamInfo.streamOffsetUs == C.TIME_UNSET
+        || (pendingOutputStreamChanges.isEmpty()
+            && (largestQueuedPresentationTimeUs == C.TIME_UNSET
+                || (lastProcessedOutputBufferTimeUs != C.TIME_UNSET
+                    && lastProcessedOutputBufferTimeUs >= largestQueuedPresentationTimeUs)))) {
+      // Either the first stream, or all previous streams have never queued any samples or have been
+      // fully output already.
+      outputStreamInfo =
+          new OutputStreamInfo(/* previousStreamLastBufferTimeUs= */ C.TIME_UNSET, offsetUs);
+    } else {
+      pendingOutputStreamChanges.add(
+          new OutputStreamInfo(
+              /* previousStreamLastBufferTimeUs= */ largestQueuedPresentationTimeUs, offsetUs));
+    }
   }
 
   @Override
@@ -221,26 +245,26 @@ public class ImageRenderer extends BaseRenderer {
     if (decoder != null) {
       decoder.flush();
     }
+    pendingOutputStreamChanges.clear();
   }
 
   @Override
   protected void onDisabled() {
-    offsetQueue.clear();
     inputFormat = null;
+    outputStreamInfo = OutputStreamInfo.UNSET;
+    pendingOutputStreamChanges.clear();
     releaseDecoderResources();
     imageOutput.onDisabled();
   }
 
   @Override
   protected void onReset() {
-    offsetQueue.clear();
     releaseDecoderResources();
     lowerFirstFrameState(FIRST_FRAME_NOT_RENDERED);
   }
 
   @Override
   protected void onRelease() {
-    offsetQueue.clear();
     releaseDecoderResources();
   }
 
@@ -286,7 +310,6 @@ public class ImageRenderer extends BaseRenderer {
         return false;
       }
       if (checkStateNotNull(outputBuffer).isEndOfStream()) {
-        offsetQueue.remove();
         if (decoderReinitializationState == REINITIALIZATION_STATE_WAIT_END_OF_STREAM) {
           // We're waiting to re-initialize the decoder, and have now processed all final buffers.
           releaseDecoderResources();
@@ -294,7 +317,7 @@ public class ImageRenderer extends BaseRenderer {
           initDecoder();
         } else {
           checkStateNotNull(outputBuffer).release();
-          if (offsetQueue.isEmpty()) {
+          if (pendingOutputStreamChanges.isEmpty()) {
             outputStreamEnded = true;
           }
         }
@@ -327,6 +350,7 @@ public class ImageRenderer extends BaseRenderer {
           tileInfo.getPresentationTimeUs())) {
         return false;
       }
+      onProcessedOutputBuffer(checkStateNotNull(tileInfo).getPresentationTimeUs());
       firstFrameState = FIRST_FRAME_RENDERED;
       if (!isThumbnailGrid
           || checkStateNotNull(tileInfo).getTileIndex()
@@ -375,10 +399,24 @@ public class ImageRenderer extends BaseRenderer {
     // image.
     long earlyUs = bufferPresentationTimeUs - positionUs;
     if (shouldForceRender() || earlyUs < IMAGE_PRESENTATION_WINDOW_THRESHOLD_US) {
-      imageOutput.onImageAvailable(bufferPresentationTimeUs - offsetQueue.element(), outputBitmap);
+      imageOutput.onImageAvailable(
+          bufferPresentationTimeUs - outputStreamInfo.streamOffsetUs, outputBitmap);
       return true;
     }
     return false;
+  }
+
+  /**
+   * Called when an output buffer is successfully processed.
+   *
+   * @param presentationTimeUs The timestamp associated with the output buffer.
+   */
+  private void onProcessedOutputBuffer(long presentationTimeUs) {
+    lastProcessedOutputBufferTimeUs = presentationTimeUs;
+    while (!pendingOutputStreamChanges.isEmpty()
+        && presentationTimeUs >= pendingOutputStreamChanges.peek().previousStreamLastBufferTimeUs) {
+      outputStreamInfo = pendingOutputStreamChanges.removeFirst();
+    }
   }
 
   /**
@@ -432,6 +470,9 @@ public class ImageRenderer extends BaseRenderer {
           inputStreamEnded = true;
           inputBuffer = null;
           return false;
+        } else {
+          largestQueuedPresentationTimeUs =
+              max(largestQueuedPresentationTimeUs, checkStateNotNull(inputBuffer).timeUs);
         }
         // If inputBuffer was queued, the decoder already cleared it. Otherwise, inputBuffer is
         // cleared here.
@@ -479,6 +520,7 @@ public class ImageRenderer extends BaseRenderer {
   private void releaseDecoderResources() {
     inputBuffer = null;
     decoderReinitializationState = REINITIALIZATION_STATE_NONE;
+    largestQueuedPresentationTimeUs = C.TIME_UNSET;
     if (decoder != null) {
       decoder.release();
       decoder = null;
@@ -555,6 +597,21 @@ public class ImageRenderer extends BaseRenderer {
 
     public boolean hasTileBitmap() {
       return tileBitmap != null;
+    }
+  }
+
+  private static final class OutputStreamInfo {
+
+    public static final OutputStreamInfo UNSET =
+        new OutputStreamInfo(
+            /* previousStreamLastBufferTimeUs= */ C.TIME_UNSET, /* streamOffsetUs= */ C.TIME_UNSET);
+
+    public final long previousStreamLastBufferTimeUs;
+    public final long streamOffsetUs;
+
+    public OutputStreamInfo(long previousStreamLastBufferTimeUs, long streamOffsetUs) {
+      this.previousStreamLastBufferTimeUs = previousStreamLastBufferTimeUs;
+      this.streamOffsetUs = streamOffsetUs;
     }
   }
 }

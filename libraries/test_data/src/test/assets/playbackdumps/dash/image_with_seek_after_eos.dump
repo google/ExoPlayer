@@ -1,0 +1,38 @@
+ImageOutput:
+  rendered image count = 12
+  image output #1:
+    presentationTimeUs = 54375000
+    bitmap hash = 1407821609
+  image output #2:
+    presentationTimeUs = 55312500
+    bitmap hash = -1744072926
+  image output #3:
+    presentationTimeUs = 56250000
+    bitmap hash = -1355216794
+  image output #4:
+    presentationTimeUs = 57187500
+    bitmap hash = -7610058
+  image output #5:
+    presentationTimeUs = 58125000
+    bitmap hash = 1362483058
+  image output #6:
+    presentationTimeUs = 59062500
+    bitmap hash = 442567684
+  image output #7:
+    presentationTimeUs = 54375000
+    bitmap hash = 1407821609
+  image output #8:
+    presentationTimeUs = 55312500
+    bitmap hash = -1744072926
+  image output #9:
+    presentationTimeUs = 56250000
+    bitmap hash = -1355216794
+  image output #10:
+    presentationTimeUs = 57187500
+    bitmap hash = -7610058
+  image output #11:
+    presentationTimeUs = 58125000
+    bitmap hash = 1362483058
+  image output #12:
+    presentationTimeUs = 59062500
+    bitmap hash = 442567684
