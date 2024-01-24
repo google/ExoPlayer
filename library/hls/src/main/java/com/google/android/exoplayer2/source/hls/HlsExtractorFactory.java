@@ -23,8 +23,10 @@ import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.PositionHolder;
+import com.google.android.exoplayer2.text.SubtitleParser;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -68,6 +70,37 @@ public interface HlsExtractorFactory {
       ExtractorInput sniffingExtractorInput,
       PlayerId playerId)
       throws IOException;
+
+  /**
+   * Sets the {@link SubtitleParser.Factory} to use for parsing subtitles during extraction. The
+   * default factory value is implementation dependent.
+   *
+   * @param subtitleParserFactory The {@link SubtitleParser.Factory} for parsing subtitles during
+   *     extraction.
+   * @return This factory, for convenience.
+   */
+  @CanIgnoreReturnValue
+  default HlsExtractorFactory setSubtitleParserFactory(
+      SubtitleParser.Factory subtitleParserFactory) {
+    return this;
+  }
+
+  /**
+   * Sets whether subtitles should be parsed as part of extraction (before being added to the sample
+   * queue) or as part of rendering (when being taken from the sample queue). Defaults to {@code
+   * false} (i.e. subtitles will be parsed as part of rendering).
+   *
+   * <p>This method is experimental and will be renamed or removed in a future release.
+   *
+   * @param parseSubtitlesDuringExtraction Whether to parse subtitles during extraction or
+   *     rendering.
+   * @return This factory, for convenience.
+   */
+  @CanIgnoreReturnValue
+  default HlsExtractorFactory experimentalParseSubtitlesDuringExtraction(
+      boolean parseSubtitlesDuringExtraction) {
+    return this;
+  }
 
   /**
    * Returns the output {@link Format} of emitted {@linkplain C#TRACK_TYPE_TEXT text samples} which

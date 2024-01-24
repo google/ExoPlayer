@@ -62,6 +62,7 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.UriUtil;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableMap;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -119,18 +120,19 @@ public class DefaultDashChunkSource implements DashChunkSource {
       this.maxSegmentsPerLoad = maxSegmentsPerLoad;
     }
 
-    /**
-     * Sets the {@link SubtitleParser.Factory} to be used for parsing subtitles during extraction,
-     * or null to parse subtitles during decoding.
-     *
-     * <p>This may only be used with {@link BundledChunkExtractor.Factory}.
-     */
-    /* package */ Factory setSubtitleParserFactory(
-        @Nullable SubtitleParser.Factory subtitleParserFactory) {
-      if (chunkExtractorFactory instanceof BundledChunkExtractor.Factory) {
-        ((BundledChunkExtractor.Factory) chunkExtractorFactory)
-            .experimentalSetSubtitleParserFactory(subtitleParserFactory);
-      }
+    @CanIgnoreReturnValue
+    @Override
+    public Factory setSubtitleParserFactory(SubtitleParser.Factory subtitleParserFactory) {
+      chunkExtractorFactory.setSubtitleParserFactory(subtitleParserFactory);
+      return this;
+    }
+
+    @CanIgnoreReturnValue
+    @Override
+    public Factory experimentalParseSubtitlesDuringExtraction(
+        boolean parseSubtitlesDuringExtraction) {
+      chunkExtractorFactory.experimentalParseSubtitlesDuringExtraction(
+          parseSubtitlesDuringExtraction);
       return this;
     }
 

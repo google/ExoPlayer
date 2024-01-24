@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.source.hls;
 
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 
-import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.Extractor;
@@ -51,7 +50,8 @@ public final class BundledHlsMediaChunkExtractor implements HlsMediaChunkExtract
   @VisibleForTesting /* package */ final Extractor extractor;
   private final Format multivariantPlaylistFormat;
   private final TimestampAdjuster timestampAdjuster;
-  @Nullable private final SubtitleParser.Factory subtitleParserFactory;
+  private final SubtitleParser.Factory subtitleParserFactory;
+  private final boolean parseSubtitlesDuringExtraction;
 
   /**
    * Creates a new instance.
@@ -66,7 +66,8 @@ public final class BundledHlsMediaChunkExtractor implements HlsMediaChunkExtract
         extractor,
         multivariantPlaylistFormat,
         timestampAdjuster,
-        /* subtitleParserFactory= */ null);
+        SubtitleParser.Factory.UNSUPPORTED,
+        /* parseSubtitlesDuringExtraction= */ false);
   }
 
   /**
@@ -81,16 +82,18 @@ public final class BundledHlsMediaChunkExtractor implements HlsMediaChunkExtract
    *     multivariantPlaylistFormat.
    */
   // TODO(b/289983417): Once the subtitle-parsing-during-extraction is the only available flow, make
-  // this constructor public and remove @Nullable from subtitleParserFactory
+  // this constructor public and remove parseSubtitlesDuringExtraction parameter
   /* package */ BundledHlsMediaChunkExtractor(
       Extractor extractor,
       Format multivariantPlaylistFormat,
       TimestampAdjuster timestampAdjuster,
-      @Nullable SubtitleParser.Factory subtitleParserFactory) {
+      SubtitleParser.Factory subtitleParserFactory,
+      boolean parseSubtitlesDuringExtraction) {
     this.extractor = extractor;
     this.multivariantPlaylistFormat = multivariantPlaylistFormat;
     this.timestampAdjuster = timestampAdjuster;
     this.subtitleParserFactory = subtitleParserFactory;
+    this.parseSubtitlesDuringExtraction = parseSubtitlesDuringExtraction;
   }
 
   @Override
@@ -128,18 +131,11 @@ public final class BundledHlsMediaChunkExtractor implements HlsMediaChunkExtract
     Extractor newExtractorInstance;
     // LINT.IfChange(extractor_instantiation)
     if (extractor instanceof WebvttExtractor) {
-      SubtitleParser.Factory webvttSubtitleParserFactory = SubtitleParser.Factory.UNSUPPORTED;
-      boolean parseSubtitlesDuringExtraction = false;
-      if (subtitleParserFactory != null
-          && subtitleParserFactory.supportsFormat(multivariantPlaylistFormat)) {
-        webvttSubtitleParserFactory = subtitleParserFactory;
-        parseSubtitlesDuringExtraction = true;
-      }
       newExtractorInstance =
           new WebvttExtractor(
               multivariantPlaylistFormat.language,
               timestampAdjuster,
-              webvttSubtitleParserFactory,
+              subtitleParserFactory,
               parseSubtitlesDuringExtraction);
     } else if (extractor instanceof AdtsExtractor) {
       newExtractorInstance = new AdtsExtractor();
@@ -154,7 +150,11 @@ public final class BundledHlsMediaChunkExtractor implements HlsMediaChunkExtract
           "Unexpected extractor type for recreation: " + extractor.getClass().getSimpleName());
     }
     return new BundledHlsMediaChunkExtractor(
-        newExtractorInstance, multivariantPlaylistFormat, timestampAdjuster, subtitleParserFactory);
+        newExtractorInstance,
+        multivariantPlaylistFormat,
+        timestampAdjuster,
+        subtitleParserFactory,
+        parseSubtitlesDuringExtraction);
   }
 
   @Override

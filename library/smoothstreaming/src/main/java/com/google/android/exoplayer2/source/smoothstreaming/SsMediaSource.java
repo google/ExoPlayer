@@ -50,8 +50,6 @@ import com.google.android.exoplayer2.source.SinglePeriodTimeline;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest.StreamElement;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifestParser;
-import com.google.android.exoplayer2.text.DefaultSubtitleParserFactory;
-import com.google.android.exoplayer2.text.SubtitleParser;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.CmcdConfiguration;
 import com.google.android.exoplayer2.upstream.DataSource;
@@ -99,7 +97,6 @@ public final class SsMediaSource extends BaseMediaSource
     @Nullable private CmcdConfiguration.Factory cmcdConfigurationFactory;
     private DrmSessionManagerProvider drmSessionManagerProvider;
     private LoadErrorHandlingPolicy loadErrorHandlingPolicy;
-    @Nullable private SubtitleParser.Factory subtitleParserFactory;
     private long livePresentationDelayMs;
     @Nullable private ParsingLoadable.Parser<? extends SsManifest> manifestParser;
 
@@ -161,32 +158,11 @@ public final class SsMediaSource extends BaseMediaSource
       return this;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>This method may only be used with {@link DefaultSsChunkSource.Factory}.
-     *
-     * @param parseSubtitlesDuringExtraction Whether to parse subtitles during extraction or
-     *     rendering.
-     * @return This factory, for convenience.
-     */
-    // TODO: b/289916598 - Flip the default of this to true.
     @Override
+    @CanIgnoreReturnValue
     public Factory experimentalParseSubtitlesDuringExtraction(
         boolean parseSubtitlesDuringExtraction) {
-      if (parseSubtitlesDuringExtraction) {
-        if (subtitleParserFactory == null) {
-          this.subtitleParserFactory = new DefaultSubtitleParserFactory();
-        }
-      } else {
-        this.subtitleParserFactory = null;
-      }
-      if (chunkSourceFactory instanceof DefaultSsChunkSource.Factory) {
-        ((DefaultSsChunkSource.Factory) chunkSourceFactory)
-            .setSubtitleParserFactory(subtitleParserFactory);
-      } else {
-        throw new IllegalStateException();
-      }
+      chunkSourceFactory.experimentalParseSubtitlesDuringExtraction(parseSubtitlesDuringExtraction);
       return this;
     }
 

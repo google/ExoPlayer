@@ -23,7 +23,9 @@ import com.google.android.exoplayer2.extractor.ChunkIndex;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
+import com.google.android.exoplayer2.text.SubtitleParser;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.io.IOException;
 import java.util.List;
 
@@ -45,24 +47,34 @@ public interface ChunkExtractor {
   interface Factory {
 
     /**
-     * Returns a new {@link ChunkExtractor} instance.
+     * Sets the {@link SubtitleParser.Factory} to use for parsing subtitles during extraction. The
+     * default factory value is implementation dependent.
      *
-     * @param primaryTrackType The {@link C.TrackType type} of the primary track.
-     * @param representationFormat The format of the representation to extract from.
-     * @param enableEventMessageTrack Whether to enable the event message track.
-     * @param closedCaptionFormats The {@link Format Formats} of the Closed-Caption tracks.
-     * @param playerEmsgTrackOutput The {@link TrackOutput} for extracted EMSG messages, or null.
-     * @param playerId The {@link PlayerId} of the player using this chunk extractor.
-     * @return A new {@link ChunkExtractor} instance, or null if not applicable.
+     * @param subtitleParserFactory The {@link SubtitleParser.Factory} for parsing subtitles during
+     *     extraction.
+     * @return This factory, for convenience.
      */
-    @Nullable
-    ChunkExtractor createProgressiveMediaExtractor(
-        @C.TrackType int primaryTrackType,
-        Format representationFormat,
-        boolean enableEventMessageTrack,
-        List<Format> closedCaptionFormats,
-        @Nullable TrackOutput playerEmsgTrackOutput,
-        PlayerId playerId);
+    @CanIgnoreReturnValue
+    default Factory setSubtitleParserFactory(SubtitleParser.Factory subtitleParserFactory) {
+      return this;
+    }
+
+    /**
+     * Sets whether subtitles should be parsed as part of extraction (before being added to the
+     * sample queue) or as part of rendering (when being taken from the sample queue). Defaults to
+     * {@code false} (i.e. subtitles will be parsed as part of rendering).
+     *
+     * <p>This method is experimental and will be renamed or removed in a future release.
+     *
+     * @param parseSubtitlesDuringExtraction Whether to parse subtitles during extraction or
+     *     rendering.
+     * @return This factory, for convenience.
+     */
+    @CanIgnoreReturnValue
+    default Factory experimentalParseSubtitlesDuringExtraction(
+        boolean parseSubtitlesDuringExtraction) {
+      return this;
+    }
 
     /**
      * Returns the output {@link Format} of emitted {@linkplain C#TRACK_TYPE_TEXT text samples}
@@ -83,6 +95,26 @@ public interface ChunkExtractor {
     default Format getOutputTextFormat(Format sourceFormat) {
       return sourceFormat;
     }
+
+    /**
+     * Returns a new {@link ChunkExtractor} instance.
+     *
+     * @param primaryTrackType The {@link C.TrackType type} of the primary track.
+     * @param representationFormat The format of the representation to extract from.
+     * @param enableEventMessageTrack Whether to enable the event message track.
+     * @param closedCaptionFormats The {@link Format Formats} of the Closed-Caption tracks.
+     * @param playerEmsgTrackOutput The {@link TrackOutput} for extracted EMSG messages, or null.
+     * @param playerId The {@link PlayerId} of the player using this chunk extractor.
+     * @return A new {@link ChunkExtractor} instance, or null if not applicable.
+     */
+    @Nullable
+    ChunkExtractor createProgressiveMediaExtractor(
+        @C.TrackType int primaryTrackType,
+        Format representationFormat,
+        boolean enableEventMessageTrack,
+        List<Format> closedCaptionFormats,
+        @Nullable TrackOutput playerEmsgTrackOutput,
+        PlayerId playerId);
   }
 
   /** Provides {@link TrackOutput} instances to be written to during extraction. */
