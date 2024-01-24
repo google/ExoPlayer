@@ -41,7 +41,6 @@ import com.google.android.exoplayer2.source.hls.playlist.HlsMultivariantPlaylist
 import com.google.android.exoplayer2.source.hls.playlist.HlsMultivariantPlaylist.Rendition;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMultivariantPlaylist.Variant;
 import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker;
-import com.google.android.exoplayer2.text.SubtitleParser;
 import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.CmcdConfiguration;
@@ -94,7 +93,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final PlayerId playerId;
   private final HlsSampleStreamWrapper.Callback sampleStreamWrapperCallback;
   private final long timestampAdjusterInitializationTimeoutMs;
-  @Nullable private final SubtitleParser.Factory subtitleParserFactory;
 
   @Nullable private MediaPeriod.Callback mediaPeriodCallback;
   private int pendingPrepareCount;
@@ -149,8 +147,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       @HlsMediaSource.MetadataType int metadataType,
       boolean useSessionKeys,
       PlayerId playerId,
-      long timestampAdjusterInitializationTimeoutMs,
-      @Nullable SubtitleParser.Factory subtitleParserFactory) {
+      long timestampAdjusterInitializationTimeoutMs) {
     this.extractorFactory = extractorFactory;
     this.playlistTracker = playlistTracker;
     this.dataSourceFactory = dataSourceFactory;
@@ -175,7 +172,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     sampleStreamWrappers = new HlsSampleStreamWrapper[0];
     enabledSampleStreamWrappers = new HlsSampleStreamWrapper[0];
     manifestUrlIndicesPerWrapper = new int[0][];
-    this.subtitleParserFactory = subtitleParserFactory;
   }
 
   public void release() {
@@ -546,7 +542,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       sampleStreamWrapper.prepareWithMultivariantPlaylistInfo(
           new TrackGroup[] {
             new TrackGroup(
-                sampleStreamWrapperUid, maybeUpdateFormatForParsedText(originalSubtitleFormat))
+                sampleStreamWrapperUid,
+                extractorFactory.getOutputTextFormat(originalSubtitleFormat))
           },
           /* primaryTrackGroupIndex= */ 0);
     }
@@ -694,7 +691,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           for (int i = 0; i < ccFormats.size(); i++) {
             String ccId = sampleStreamWrapperUid + ":cc:" + i;
             muxedTrackGroups.add(
-                new TrackGroup(ccId, maybeUpdateFormatForParsedText(ccFormats.get(i))));
+                new TrackGroup(ccId, extractorFactory.getOutputTextFormat(ccFormats.get(i))));
           }
         }
       } else /* numberOfAudioCodecs > 0 */ {
@@ -915,23 +912,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         .setSelectionFlags(selectionFlags)
         .setRoleFlags(roleFlags)
         .setLanguage(language)
-        .build();
-  }
-
-  /**
-   * Returns a modified {@link Format} if subtitle/caption parsing is configured to happen during
-   * extraction.
-   */
-  private Format maybeUpdateFormatForParsedText(Format format) {
-    if (subtitleParserFactory == null || !subtitleParserFactory.supportsFormat(format)) {
-      return format;
-    }
-    return format
-        .buildUpon()
-        .setSampleMimeType(MimeTypes.APPLICATION_MEDIA3_CUES)
-        .setCueReplacementBehavior(subtitleParserFactory.getCueReplacementBehavior(format))
-        .setCodecs(format.sampleMimeType + (format.codecs != null ? " " + format.codecs : ""))
-        .setSubsampleOffsetUs(Format.OFFSET_SAMPLE_RELATIVE)
         .build();
   }
 

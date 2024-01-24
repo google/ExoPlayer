@@ -20,6 +20,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.analytics.PlayerId;
+import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.source.chunk.ChunkSource;
 import com.google.android.exoplayer2.source.dash.PlayerEmsgHandler.PlayerTrackEmsgHandler;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
@@ -27,6 +28,7 @@ import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.upstream.CmcdConfiguration;
 import com.google.android.exoplayer2.upstream.LoaderErrorThrower;
 import com.google.android.exoplayer2.upstream.TransferListener;
+import com.google.android.exoplayer2.util.MimeTypes;
 import java.util.List;
 
 /**
@@ -80,6 +82,26 @@ public interface DashChunkSource extends ChunkSource {
         @Nullable TransferListener transferListener,
         PlayerId playerId,
         @Nullable CmcdConfiguration cmcdConfiguration);
+
+    /**
+     * Returns the output {@link Format} of emitted {@linkplain C#TRACK_TYPE_TEXT text samples}
+     * which were originally in {@code sourceFormat}.
+     *
+     * <p>In many cases, where an {@link Extractor} emits samples from the source without mutation,
+     * this method simply returns {@code sourceFormat}. In other cases, such as an {@link Extractor}
+     * that transcodes subtitles from the {@code sourceFormat} to {@link
+     * MimeTypes#APPLICATION_MEDIA3_CUES}, the format is updated to indicate the transcoding that is
+     * taking place.
+     *
+     * <p>Non-text source formats are always returned without mutation.
+     *
+     * @param sourceFormat The original text-based format.
+     * @return The {@link Format} that will be associated with a {@linkplain C#TRACK_TYPE_TEXT text
+     *     track}.
+     */
+    default Format getOutputTextFormat(Format sourceFormat) {
+      return sourceFormat;
+    }
   }
 
   /**

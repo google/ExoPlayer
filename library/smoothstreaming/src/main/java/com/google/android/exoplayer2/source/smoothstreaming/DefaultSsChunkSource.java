@@ -51,6 +51,7 @@ import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy.FallbackSe
 import com.google.android.exoplayer2.upstream.LoaderErrorThrower;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.UriUtil;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
@@ -86,6 +87,31 @@ public class DefaultSsChunkSource implements SsChunkSource {
         @Nullable SubtitleParser.Factory subtitleParserFactory) {
       this.subtitleParserFactory = subtitleParserFactory;
       return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>This implementation performs transcoding of the original format to {@link
+     * MimeTypes#APPLICATION_MEDIA3_CUES} if it is supported by {@link SubtitleParser.Factory}.
+     */
+    @Override
+    public Format getOutputTextFormat(Format sourceFormat) {
+      if (subtitleParserFactory != null && subtitleParserFactory.supportsFormat(sourceFormat)) {
+        @Format.CueReplacementBehavior
+        int cueReplacementBehavior = subtitleParserFactory.getCueReplacementBehavior(sourceFormat);
+        return sourceFormat
+            .buildUpon()
+            .setSampleMimeType(MimeTypes.APPLICATION_MEDIA3_CUES)
+            .setCueReplacementBehavior(cueReplacementBehavior)
+            .setCodecs(
+                sourceFormat.sampleMimeType
+                    + (sourceFormat.codecs != null ? " " + sourceFormat.codecs : ""))
+            .setSubsampleOffsetUs(Format.OFFSET_SAMPLE_RELATIVE)
+            .build();
+      } else {
+        return sourceFormat;
+      }
     }
 
     @Override

@@ -172,6 +172,17 @@ public class DefaultDashChunkSource implements DashChunkSource {
           playerId,
           cmcdConfiguration);
     }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>This implementation delegates determining of the output format to the {@link
+     * ChunkExtractor.Factory} passed to the constructor of this class.
+     */
+    @Override
+    public Format getOutputTextFormat(Format sourceFormat) {
+      return chunkExtractorFactory.getOutputTextFormat(sourceFormat);
+    }
   }
 
   private final LoaderErrorThrower manifestLoaderErrorThrower;

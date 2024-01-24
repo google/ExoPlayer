@@ -18,7 +18,9 @@ package com.google.android.exoplayer2.source.smoothstreaming;
 import static com.google.android.exoplayer2.source.smoothstreaming.SsTestUtils.createSsManifest;
 import static com.google.android.exoplayer2.source.smoothstreaming.SsTestUtils.createStreamElement;
 import static com.google.common.truth.Truth.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
@@ -63,24 +65,13 @@ public class SsMediaPeriodTest {
                 createAudioFormat(/* bitrate= */ 96000)),
             createStreamElement(
                 /* name= */ "text", C.TRACK_TYPE_TEXT, createTextFormat(/* language= */ "eng")));
+    SsChunkSource.Factory chunkSourceFactory = mock(SsChunkSource.Factory.class);
+    when(chunkSourceFactory.getOutputTextFormat(any())).thenCallRealMethod();
+
     FilterableManifestMediaPeriodFactory<SsManifest> mediaPeriodFactory =
         (manifest, periodIndex) -> {
           MediaPeriodId mediaPeriodId = new MediaPeriodId(/* periodUid= */ new Object());
-          return new SsMediaPeriod(
-              manifest,
-              mock(SsChunkSource.Factory.class),
-              mock(TransferListener.class),
-              mock(CompositeSequenceableLoaderFactory.class),
-              /* cmcdConfiguration= */ null,
-              mock(DrmSessionManager.class),
-              new DrmSessionEventListener.EventDispatcher()
-                  .withParameters(/* windowIndex= */ 0, mediaPeriodId),
-              mock(LoadErrorHandlingPolicy.class),
-              new MediaSourceEventListener.EventDispatcher()
-                  .withParameters(/* windowIndex= */ 0, mediaPeriodId),
-              mock(LoaderErrorThrower.class),
-              mock(Allocator.class),
-              /* subtitleParserFactory= */ null);
+          return createSsMediaPeriod(manifest, mediaPeriodId, chunkSourceFactory);
         };
 
     MediaPeriodAsserts.assertGetStreamKeysAndManifestFilterIntegration(
@@ -127,25 +118,32 @@ public class SsMediaPeriodTest {
             new FakeTimeline(/* windowCount= */ 2).getUidOfPeriod(/* periodIndex= */ 0),
             /* windowSequenceNumber= */ 0);
 
-    SsMediaPeriod period =
-        new SsMediaPeriod(
-            testManifest,
-            mock(SsChunkSource.Factory.class),
-            mock(TransferListener.class),
-            mock(CompositeSequenceableLoaderFactory.class),
-            /* cmcdConfiguration= */ null,
-            mock(DrmSessionManager.class),
-            new DrmSessionEventListener.EventDispatcher()
-                .withParameters(/* windowIndex= */ 0, mediaPeriodId),
-            mock(LoadErrorHandlingPolicy.class),
-            new MediaSourceEventListener.EventDispatcher()
-                .withParameters(/* windowIndex= */ 0, mediaPeriodId),
-            mock(LoaderErrorThrower.class),
-            mock(Allocator.class),
-            subtitleParserFactory);
+    SsChunkSource.Factory chunkSourceFactory = mock(SsChunkSource.Factory.class);
+    // Default implementation of SsChunkSource.Factory.getOutputTextFormat doesn't transcode
+    // DefaultSsChunkSource.Factory is final (not mockable) and has a null SubtitleParser.Factory
+    when(chunkSourceFactory.getOutputTextFormat(any())).thenReturn(expectedSubtitleFormat);
+    SsMediaPeriod period = createSsMediaPeriod(testManifest, mediaPeriodId, chunkSourceFactory);
 
     Format subtitleFormat = period.getTrackGroups().get(2).getFormat(0);
     assertThat(subtitleFormat).isEqualTo(expectedSubtitleFormat);
+  }
+
+  private static SsMediaPeriod createSsMediaPeriod(
+      SsManifest manifest, MediaPeriodId mediaPeriodId, SsChunkSource.Factory chunkSourceFactory) {
+    return new SsMediaPeriod(
+        manifest,
+        chunkSourceFactory,
+        mock(TransferListener.class),
+        mock(CompositeSequenceableLoaderFactory.class),
+        /* cmcdConfiguration= */ null,
+        mock(DrmSessionManager.class),
+        new DrmSessionEventListener.EventDispatcher()
+            .withParameters(/* windowIndex= */ 0, mediaPeriodId),
+        mock(LoadErrorHandlingPolicy.class),
+        new MediaSourceEventListener.EventDispatcher()
+            .withParameters(/* windowIndex= */ 0, mediaPeriodId),
+        mock(LoaderErrorThrower.class),
+        mock(Allocator.class));
   }
 
   private static Format createVideoFormat(int bitrate) {

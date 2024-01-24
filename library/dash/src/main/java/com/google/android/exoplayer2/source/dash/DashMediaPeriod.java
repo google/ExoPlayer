@@ -49,7 +49,6 @@ import com.google.android.exoplayer2.source.dash.manifest.Descriptor;
 import com.google.android.exoplayer2.source.dash.manifest.EventStream;
 import com.google.android.exoplayer2.source.dash.manifest.Period;
 import com.google.android.exoplayer2.source.dash.manifest.Representation;
-import com.google.android.exoplayer2.text.SubtitleParser;
 import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.CmcdConfiguration;
@@ -140,8 +139,7 @@ import java.util.regex.Pattern;
       Allocator allocator,
       CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory,
       PlayerEmsgCallback playerEmsgCallback,
-      PlayerId playerId,
-      @Nullable SubtitleParser.Factory subtitleParserFactory) {
+      PlayerId playerId) {
     this.id = id;
     this.manifest = manifest;
     this.baseUrlExclusionList = baseUrlExclusionList;
@@ -168,7 +166,7 @@ import java.util.regex.Pattern;
     eventStreams = period.eventStreams;
     Pair<TrackGroupArray, TrackGroupInfo[]> result =
         buildTrackGroups(
-            drmSessionManager, subtitleParserFactory, period.adaptationSets, eventStreams);
+            drmSessionManager, chunkSourceFactory, period.adaptationSets, eventStreams);
     trackGroups = result.first;
     trackGroupInfos = result.second;
   }
@@ -513,7 +511,7 @@ import java.util.regex.Pattern;
 
   private static Pair<TrackGroupArray, TrackGroupInfo[]> buildTrackGroups(
       DrmSessionManager drmSessionManager,
-      @Nullable SubtitleParser.Factory subtitleParserFactory,
+      DashChunkSource.Factory chunkSourceFactory,
       List<AdaptationSet> adaptationSets,
       List<EventStream> eventStreams) {
     int[][] groupedAdaptationSetIndices = getGroupedAdaptationSetIndices(adaptationSets);
@@ -536,7 +534,7 @@ import java.util.regex.Pattern;
     int trackGroupCount =
         buildPrimaryAndEmbeddedTrackGroupInfos(
             drmSessionManager,
-            subtitleParserFactory,
+            chunkSourceFactory,
             adaptationSets,
             groupedAdaptationSetIndices,
             primaryGroupCount,
@@ -676,7 +674,7 @@ import java.util.regex.Pattern;
 
   private static int buildPrimaryAndEmbeddedTrackGroupInfos(
       DrmSessionManager drmSessionManager,
-      @Nullable SubtitleParser.Factory subtitleParserFactory,
+      DashChunkSource.Factory chunkSourceFactory,
       List<AdaptationSet> adaptationSets,
       int[][] groupedAdaptationSetIndices,
       int primaryGroupCount,
@@ -712,7 +710,7 @@ import java.util.regex.Pattern;
       int closedCaptionTrackGroupIndex =
           primaryGroupClosedCaptionTrackFormats[i].length != 0 ? trackGroupCount++ : C.INDEX_UNSET;
 
-      maybeUpdateFormatsForParsedText(subtitleParserFactory, formats);
+      maybeUpdateFormatsForParsedText(chunkSourceFactory, formats);
       trackGroups[primaryTrackGroupIndex] = new TrackGroup(trackGroupId, formats);
       trackGroupInfos[primaryTrackGroupIndex] =
           TrackGroupInfo.primaryTrack(
@@ -740,7 +738,7 @@ import java.util.regex.Pattern;
                 primaryTrackGroupIndex,
                 ImmutableList.copyOf(primaryGroupClosedCaptionTrackFormats[i]));
         maybeUpdateFormatsForParsedText(
-            subtitleParserFactory, primaryGroupClosedCaptionTrackFormats[i]);
+            chunkSourceFactory, primaryGroupClosedCaptionTrackFormats[i]);
         trackGroups[closedCaptionTrackGroupIndex] =
             new TrackGroup(closedCaptionTrackGroupId, primaryGroupClosedCaptionTrackFormats[i]);
       }
@@ -936,22 +934,9 @@ import java.util.regex.Pattern;
    * during extraction.
    */
   private static void maybeUpdateFormatsForParsedText(
-      SubtitleParser.Factory subtitleParserFactory, Format[] formats) {
+      DashChunkSource.Factory chunkSourceFactory, Format[] formats) {
     for (int i = 0; i < formats.length; i++) {
-      if (subtitleParserFactory == null || !subtitleParserFactory.supportsFormat(formats[i])) {
-        continue;
-      }
-      formats[i] =
-          formats[i]
-              .buildUpon()
-              .setSampleMimeType(MimeTypes.APPLICATION_MEDIA3_CUES)
-              .setCueReplacementBehavior(
-                  subtitleParserFactory.getCueReplacementBehavior(formats[i]))
-              .setCodecs(
-                  formats[i].sampleMimeType
-                      + (formats[i].codecs != null ? " " + formats[i].codecs : ""))
-              .setSubsampleOffsetUs(Format.OFFSET_SAMPLE_RELATIVE)
-              .build();
+      formats[i] = chunkSourceFactory.getOutputTextFormat(formats[i]);
     }
   }
 

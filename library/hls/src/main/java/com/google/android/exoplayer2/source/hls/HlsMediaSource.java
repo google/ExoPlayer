@@ -419,7 +419,6 @@ public final class HlsMediaSource extends BaseMediaSource
           mediaItem,
           hlsDataSourceFactory,
           extractorFactory,
-          subtitleParserFactory,
           compositeSequenceableLoaderFactory,
           cmcdConfiguration,
           drmSessionManagerProvider.get(mediaItem),
@@ -451,7 +450,6 @@ public final class HlsMediaSource extends BaseMediaSource
   private final HlsPlaylistTracker playlistTracker;
   private final long elapsedRealTimeOffsetMs;
   private final long timestampAdjusterInitializationTimeoutMs;
-  @Nullable private final SubtitleParser.Factory subtitleParserFactory;
 
   private MediaItem.LiveConfiguration liveConfiguration;
   @Nullable private TransferListener mediaTransferListener;
@@ -463,7 +461,6 @@ public final class HlsMediaSource extends BaseMediaSource
       MediaItem mediaItem,
       HlsDataSourceFactory dataSourceFactory,
       HlsExtractorFactory extractorFactory,
-      @Nullable SubtitleParser.Factory subtitleParserFactory,
       CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory,
       @Nullable CmcdConfiguration cmcdConfiguration,
       DrmSessionManager drmSessionManager,
@@ -478,7 +475,6 @@ public final class HlsMediaSource extends BaseMediaSource
     this.liveConfiguration = mediaItem.liveConfiguration;
     this.dataSourceFactory = dataSourceFactory;
     this.extractorFactory = extractorFactory;
-    this.subtitleParserFactory = subtitleParserFactory;
     this.compositeSequenceableLoaderFactory = compositeSequenceableLoaderFactory;
     this.cmcdConfiguration = cmcdConfiguration;
     this.drmSessionManager = drmSessionManager;
@@ -553,8 +549,7 @@ public final class HlsMediaSource extends BaseMediaSource
         metadataType,
         useSessionKeys,
         getPlayerId(),
-        timestampAdjusterInitializationTimeoutMs,
-        subtitleParserFactory);
+        timestampAdjusterInitializationTimeoutMs);
   }
 
   @Override

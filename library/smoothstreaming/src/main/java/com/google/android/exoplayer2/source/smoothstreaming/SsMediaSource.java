@@ -311,7 +311,6 @@ public final class SsMediaSource extends BaseMediaSource
           cmcdConfiguration,
           drmSessionManagerProvider.get(mediaItem),
           loadErrorHandlingPolicy,
-          subtitleParserFactory,
           livePresentationDelayMs);
     }
 
@@ -349,7 +348,6 @@ public final class SsMediaSource extends BaseMediaSource
           cmcdConfiguration,
           drmSessionManagerProvider.get(mediaItem),
           loadErrorHandlingPolicy,
-          subtitleParserFactory,
           livePresentationDelayMs);
     }
 
@@ -393,7 +391,6 @@ public final class SsMediaSource extends BaseMediaSource
   private long manifestLoadStartTimestamp;
   private SsManifest manifest;
   private Handler manifestRefreshHandler;
-  @Nullable private final SubtitleParser.Factory subtitleParserFactory;
 
   @GuardedBy("this")
   private MediaItem mediaItem;
@@ -408,7 +405,6 @@ public final class SsMediaSource extends BaseMediaSource
       @Nullable CmcdConfiguration cmcdConfiguration,
       DrmSessionManager drmSessionManager,
       LoadErrorHandlingPolicy loadErrorHandlingPolicy,
-      @Nullable SubtitleParser.Factory subtitleParserFactory,
       long livePresentationDelayMs) {
     Assertions.checkState(manifest == null || !manifest.isLive);
     this.mediaItem = mediaItem;
@@ -425,7 +421,6 @@ public final class SsMediaSource extends BaseMediaSource
     this.cmcdConfiguration = cmcdConfiguration;
     this.drmSessionManager = drmSessionManager;
     this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
-    this.subtitleParserFactory = subtitleParserFactory;
     this.livePresentationDelayMs = livePresentationDelayMs;
     this.manifestEventDispatcher = createEventDispatcher(/* mediaPeriodId= */ null);
     sideloadedManifest = manifest != null;
@@ -493,8 +488,7 @@ public final class SsMediaSource extends BaseMediaSource
             loadErrorHandlingPolicy,
             mediaSourceEventDispatcher,
             manifestLoaderErrorThrower,
-            allocator,
-            subtitleParserFactory);
+            allocator);
     mediaPeriods.add(period);
     return period;
   }
