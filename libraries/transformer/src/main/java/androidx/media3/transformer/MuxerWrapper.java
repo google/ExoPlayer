@@ -174,7 +174,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    */
   public void setAdditionalRotationDegrees(int additionalRotationDegrees) {
     checkState(
-        trackTypeToInfo.size() == 0,
+        trackTypeToInfo.size() == 0 || this.additionalRotationDegrees == additionalRotationDegrees,
         "The additional rotation cannot be changed after adding track formats.");
     this.additionalRotationDegrees = additionalRotationDegrees;
   }

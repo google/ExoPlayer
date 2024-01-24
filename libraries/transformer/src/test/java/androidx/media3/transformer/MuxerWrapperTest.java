@@ -73,6 +73,41 @@ public class MuxerWrapperTest {
   }
 
   @Test
+  public void setAdditionalRotationDegrees_sameRotationSetAfterTracksAdded_doesNotThrow()
+      throws Exception {
+    muxerWrapper =
+        new MuxerWrapper(
+            temporaryFolder.newFile().getPath(),
+            new DefaultMuxer.Factory(),
+            new NoOpMuxerListenerImpl(),
+            MUXER_MODE_DEFAULT,
+            /* dropSamplesBeforeFirstVideoSample= */ false);
+    muxerWrapper.setAdditionalRotationDegrees(90);
+    muxerWrapper.setTrackCount(1);
+    muxerWrapper.setAdditionalRotationDegrees(180);
+    muxerWrapper.addTrackFormat(FAKE_AUDIO_TRACK_FORMAT);
+    muxerWrapper.setAdditionalRotationDegrees(180);
+  }
+
+  @Test
+  public void setAdditionalRotationDegrees_differentRotationSetAfterTracksAdded_throws()
+      throws Exception {
+    muxerWrapper =
+        new MuxerWrapper(
+            temporaryFolder.newFile().getPath(),
+            new DefaultMuxer.Factory(),
+            new NoOpMuxerListenerImpl(),
+            MUXER_MODE_DEFAULT,
+            /* dropSamplesBeforeFirstVideoSample= */ false);
+    muxerWrapper.setAdditionalRotationDegrees(90);
+    muxerWrapper.setTrackCount(1);
+    muxerWrapper.setAdditionalRotationDegrees(180);
+    muxerWrapper.addTrackFormat(FAKE_AUDIO_TRACK_FORMAT);
+
+    assertThrows(IllegalStateException.class, () -> muxerWrapper.setAdditionalRotationDegrees(90));
+  }
+
+  @Test
   public void changeToAppendMode_afterDefaultMode_throws() throws Exception {
     muxerWrapper =
         new MuxerWrapper(

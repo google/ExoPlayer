@@ -65,6 +65,7 @@ import androidx.media3.effect.DefaultVideoFrameProcessor;
 import androidx.media3.effect.FrameCache;
 import androidx.media3.effect.Presentation;
 import androidx.media3.effect.RgbFilter;
+import androidx.media3.effect.ScaleAndRotateTransformation;
 import androidx.media3.effect.TimestampWrapper;
 import androidx.media3.exoplayer.audio.TeeAudioProcessor;
 import androidx.test.core.app.ApplicationProvider;
@@ -587,8 +588,9 @@ public class TransformerEndToEndTest {
   }
 
   @Test
-  public void clippedMedia_trimOptimizationEnabled_audioRemoved_completesWithOptimizationApplied()
-      throws Exception {
+  public void
+      clippedMedia_trimOptimizationEnabled_audioRemovedAndRotated_completesWithOptimizationApplied()
+          throws Exception {
     String testId = "clippedMedia_trimOptimizationEnabled_completesWithOptimizationApplied";
     if (!isRunningOnEmulator() || Util.SDK_INT != 33) {
       // The trim optimization is only guaranteed to work on emulator for this (emulator-transcoded)
@@ -607,8 +609,13 @@ public class TransformerEndToEndTest {
                     .setEndPositionMs(2500)
                     .build())
             .build();
+    Effects effects =
+        new Effects(
+            /* audioProcessors= */ ImmutableList.of(),
+            ImmutableList.of(
+                new ScaleAndRotateTransformation.Builder().setRotationDegrees(90).build()));
     EditedMediaItem editedMediaItem =
-        new EditedMediaItem.Builder(mediaItem).setRemoveAudio(true).build();
+        new EditedMediaItem.Builder(mediaItem).setRemoveAudio(true).setEffects(effects).build();
 
     ExportTestResult result =
         new TransformerAndroidTestRunner.Builder(context, transformer)
