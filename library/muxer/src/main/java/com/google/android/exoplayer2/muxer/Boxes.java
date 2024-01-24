@@ -19,6 +19,7 @@ import static com.google.android.exoplayer2.muxer.ColorUtils.MEDIAFORMAT_STANDAR
 import static com.google.android.exoplayer2.muxer.ColorUtils.MEDIAFORMAT_TRANSFER_TO_MP4_TRANSFER;
 import static com.google.android.exoplayer2.muxer.Mp4Utils.BYTES_PER_INTEGER;
 import static com.google.android.exoplayer2.muxer.Mp4Utils.MVHD_TIMEBASE;
+import static com.google.android.exoplayer2.muxer.Mp4Utils.UNSIGNED_INT_MAX_VALUE;
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
@@ -742,16 +743,35 @@ import java.util.Locale;
     return BoxUtils.wrapIntoBox("stsc", contents);
   }
 
-  /** Returns the co64 (chunk offset) box. */
-  public static ByteBuffer co64(List<Long> writtenChunkOffsets) {
+  /** Returns the stco (32-bit chunk offset) box. */
+  public static ByteBuffer stco(List<Long> writtenChunkOffsets) {
     ByteBuffer contents =
-        ByteBuffer.allocate(writtenChunkOffsets.size() * 8 + Mp4Utils.MAX_FIXED_LEAF_BOX_SIZE);
+        ByteBuffer.allocate(2 * BYTES_PER_INTEGER + writtenChunkOffsets.size() * BYTES_PER_INTEGER);
 
-    contents.putInt(0x0); // version.
-    contents.putInt(writtenChunkOffsets.size()); // entry_count.
+    contents.putInt(0x0); // version and flags
+    contents.putInt(writtenChunkOffsets.size()); // entry_count; unsigned int(32)
 
     for (int i = 0; i < writtenChunkOffsets.size(); i++) {
-      contents.putLong(writtenChunkOffsets.get(i)); // chunk_offset.
+      long chunkOffset = writtenChunkOffsets.get(i);
+      checkState(chunkOffset <= UNSIGNED_INT_MAX_VALUE, "Only 32-bit offset is allowed");
+      contents.putInt((int) chunkOffset); // chunk_offset; unsigned int(32)
+    }
+
+    contents.flip();
+    return BoxUtils.wrapIntoBox("stco", contents);
+  }
+
+  /** Returns the co64 (64-bit chunk offset) box. */
+  public static ByteBuffer co64(List<Long> writtenChunkOffsets) {
+    ByteBuffer contents =
+        ByteBuffer.allocate(
+            2 * BYTES_PER_INTEGER + 2 * writtenChunkOffsets.size() * BYTES_PER_INTEGER);
+
+    contents.putInt(0x0); // version and flags
+    contents.putInt(writtenChunkOffsets.size()); // entry_count; unsigned int(32)
+
+    for (int i = 0; i < writtenChunkOffsets.size(); i++) {
+      contents.putLong(writtenChunkOffsets.get(i)); // chunk_offset; unsigned int(64)
     }
 
     contents.flip();
