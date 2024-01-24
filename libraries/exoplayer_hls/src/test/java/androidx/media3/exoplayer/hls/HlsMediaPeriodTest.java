@@ -15,6 +15,7 @@
  */
 package androidx.media3.exoplayer.hls;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -73,6 +74,8 @@ public final class HlsMediaPeriodTest {
                 createSubtitleFormat("eng"), createSubtitleFormat("gsw")));
     FilterableManifestMediaPeriodFactory<HlsPlaylist> mediaPeriodFactory =
         (playlist, periodIndex) -> {
+          HlsExtractorFactory mockHlsExtractorFactory = mock(HlsExtractorFactory.class);
+          when(mockHlsExtractorFactory.getOutputTextFormat(any())).thenCallRealMethod();
           HlsDataSourceFactory mockDataSourceFactory = mock(HlsDataSourceFactory.class);
           when(mockDataSourceFactory.createDataSource(anyInt())).thenReturn(mock(DataSource.class));
           HlsPlaylistTracker mockPlaylistTracker = mock(HlsPlaylistTracker.class);
@@ -80,7 +83,7 @@ public final class HlsMediaPeriodTest {
               .thenReturn((HlsMultivariantPlaylist) playlist);
           MediaPeriodId mediaPeriodId = new MediaPeriodId(/* periodUid= */ new Object());
           return new HlsMediaPeriod(
-              mock(HlsExtractorFactory.class),
+              mockHlsExtractorFactory,
               mockPlaylistTracker,
               mockDataSourceFactory,
               mock(TransferListener.class),
@@ -97,8 +100,7 @@ public final class HlsMediaPeriodTest {
               HlsMediaSource.METADATA_TYPE_ID3,
               /* useSessionKeys= */ false,
               PlayerId.UNSET,
-              /* timestampAdjusterInitializationTimeoutMs= */ 0,
-              /* subtitleParserFactory= */ null);
+              /* timestampAdjusterInitializationTimeoutMs= */ 0);
         };
 
     MediaPeriodAsserts.assertGetStreamKeysAndManifestFilterIntegration(

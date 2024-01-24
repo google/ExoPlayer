@@ -210,6 +210,7 @@ public final class DashMediaSource extends BaseMediaSource {
      */
     // TODO: b/289916598 - Flip the default of this to true.
     @Override
+    @CanIgnoreReturnValue
     public Factory experimentalParseSubtitlesDuringExtraction(
         boolean parseSubtitlesDuringExtraction) {
       if (parseSubtitlesDuringExtraction) {
@@ -347,7 +348,6 @@ public final class DashMediaSource extends BaseMediaSource {
           cmcdConfiguration,
           drmSessionManagerProvider.get(mediaItem),
           loadErrorHandlingPolicy,
-          subtitleParserFactory,
           fallbackTargetLiveOffsetMs,
           minLiveStartPositionUs);
     }
@@ -386,7 +386,6 @@ public final class DashMediaSource extends BaseMediaSource {
           cmcdConfiguration,
           drmSessionManagerProvider.get(mediaItem),
           loadErrorHandlingPolicy,
-          subtitleParserFactory,
           fallbackTargetLiveOffsetMs,
           minLiveStartPositionUs);
     }
@@ -445,7 +444,6 @@ public final class DashMediaSource extends BaseMediaSource {
   private final Runnable simulateManifestRefreshRunnable;
   private final PlayerEmsgCallback playerEmsgCallback;
   private final LoaderErrorThrower manifestLoadErrorThrower;
-  @Nullable private final SubtitleParser.Factory subtitleParserFactory;
 
   private DataSource dataSource;
   private Loader loader;
@@ -481,7 +479,6 @@ public final class DashMediaSource extends BaseMediaSource {
       @Nullable CmcdConfiguration cmcdConfiguration,
       DrmSessionManager drmSessionManager,
       LoadErrorHandlingPolicy loadErrorHandlingPolicy,
-      @Nullable SubtitleParser.Factory subtitleParserFactory,
       long fallbackTargetLiveOffsetMs,
       long minLiveStartPositionUs) {
     this.mediaItem = mediaItem;
@@ -495,7 +492,6 @@ public final class DashMediaSource extends BaseMediaSource {
     this.cmcdConfiguration = cmcdConfiguration;
     this.drmSessionManager = drmSessionManager;
     this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
-    this.subtitleParserFactory = subtitleParserFactory;
     this.fallbackTargetLiveOffsetMs = fallbackTargetLiveOffsetMs;
     this.minLiveStartPositionUs = minLiveStartPositionUs;
     this.compositeSequenceableLoaderFactory = compositeSequenceableLoaderFactory;
@@ -601,8 +597,7 @@ public final class DashMediaSource extends BaseMediaSource {
             allocator,
             compositeSequenceableLoaderFactory,
             playerEmsgCallback,
-            getPlayerId(),
-            subtitleParserFactory);
+            getPlayerId());
     periodsById.put(mediaPeriod.id, mediaPeriod);
     return mediaPeriod;
   }

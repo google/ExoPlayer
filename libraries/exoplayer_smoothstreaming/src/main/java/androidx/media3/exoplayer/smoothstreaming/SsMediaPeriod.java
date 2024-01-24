@@ -20,7 +20,6 @@ import static androidx.media3.common.util.Assertions.checkNotNull;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
-import androidx.media3.common.MimeTypes;
 import androidx.media3.common.StreamKey;
 import androidx.media3.common.TrackGroup;
 import androidx.media3.common.util.NullableType;
@@ -42,7 +41,6 @@ import androidx.media3.exoplayer.upstream.Allocator;
 import androidx.media3.exoplayer.upstream.CmcdConfiguration;
 import androidx.media3.exoplayer.upstream.LoadErrorHandlingPolicy;
 import androidx.media3.exoplayer.upstream.LoaderErrorThrower;
-import androidx.media3.extractor.text.SubtitleParser;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -79,8 +77,7 @@ import java.util.List;
       LoadErrorHandlingPolicy loadErrorHandlingPolicy,
       MediaSourceEventListener.EventDispatcher mediaSourceEventDispatcher,
       LoaderErrorThrower manifestLoaderErrorThrower,
-      Allocator allocator,
-      @Nullable SubtitleParser.Factory subtitleParserFactory) {
+      Allocator allocator) {
     this.manifest = manifest;
     this.chunkSourceFactory = chunkSourceFactory;
     this.transferListener = transferListener;
@@ -92,7 +89,7 @@ import java.util.List;
     this.mediaSourceEventDispatcher = mediaSourceEventDispatcher;
     this.allocator = allocator;
     this.compositeSequenceableLoaderFactory = compositeSequenceableLoaderFactory;
-    trackGroups = buildTrackGroups(manifest, drmSessionManager, subtitleParserFactory);
+    trackGroups = buildTrackGroups(manifest, drmSessionManager, chunkSourceFactory);
     sampleStreams = newSampleStreamArray(0);
     compositeSequenceableLoader =
         compositeSequenceableLoaderFactory.createCompositeSequenceableLoader(sampleStreams);
@@ -270,30 +267,19 @@ import java.util.List;
   private static TrackGroupArray buildTrackGroups(
       SsManifest manifest,
       DrmSessionManager drmSessionManager,
-      @Nullable SubtitleParser.Factory subtitleParserFactory) {
+      SsChunkSource.Factory chunkSourceFactory) {
     TrackGroup[] trackGroups = new TrackGroup[manifest.streamElements.length];
     for (int i = 0; i < manifest.streamElements.length; i++) {
       Format[] manifestFormats = manifest.streamElements[i].formats;
       Format[] exposedFormats = new Format[manifestFormats.length];
       for (int j = 0; j < manifestFormats.length; j++) {
         Format manifestFormat = manifestFormats[j];
-        Format.Builder updatedFormat =
+        Format updatedFormatWithDrm =
             manifestFormat
                 .buildUpon()
-                .setCryptoType(drmSessionManager.getCryptoType(manifestFormat));
-        if (subtitleParserFactory != null && subtitleParserFactory.supportsFormat(manifestFormat)) {
-          updatedFormat
-              .setSampleMimeType(MimeTypes.APPLICATION_MEDIA3_CUES)
-              .setCueReplacementBehavior(
-                  subtitleParserFactory.getCueReplacementBehavior(manifestFormat))
-              .setCodecs(
-                  manifestFormat.sampleMimeType
-                      + (manifestFormat.codecs != null ? " " + manifestFormat.codecs : ""))
-              // Reset this value to the default. All non-default timestamp adjustments are done
-              // by SubtitleTranscodingExtractor and there are no 'subsamples' after transcoding.
-              .setSubsampleOffsetUs(Format.OFFSET_SAMPLE_RELATIVE);
-        }
-        exposedFormats[j] = updatedFormat.build();
+                .setCryptoType(drmSessionManager.getCryptoType(manifestFormat))
+                .build();
+        exposedFormats[j] = chunkSourceFactory.getOutputTextFormat(updatedFormatWithDrm);
       }
       trackGroups[i] = new TrackGroup(/* id= */ Integer.toString(i), exposedFormats);
     }

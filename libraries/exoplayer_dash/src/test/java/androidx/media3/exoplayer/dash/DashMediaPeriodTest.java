@@ -15,7 +15,9 @@
  */
 package androidx.media3.exoplayer.dash;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import android.net.Uri;
 import androidx.media3.common.Format;
@@ -205,12 +207,14 @@ public final class DashMediaPeriodTest {
 
   private static DashMediaPeriod createDashMediaPeriod(DashManifest manifest, int periodIndex) {
     MediaPeriodId mediaPeriodId = new MediaPeriodId(/* periodUid= */ new Object());
+    DashChunkSource.Factory chunkSourceFactory = mock(DashChunkSource.Factory.class);
+    when(chunkSourceFactory.getOutputTextFormat(any())).thenCallRealMethod();
     return new DashMediaPeriod(
         /* id= */ periodIndex,
         manifest,
         new BaseUrlExclusionList(),
         periodIndex,
-        mock(DashChunkSource.Factory.class),
+        chunkSourceFactory,
         mock(TransferListener.class),
         /* cmcdConfiguration= */ null,
         DrmSessionManager.DRM_UNSUPPORTED,
@@ -224,8 +228,7 @@ public final class DashMediaPeriodTest {
         mock(Allocator.class),
         mock(CompositeSequenceableLoaderFactory.class),
         mock(PlayerEmsgCallback.class),
-        PlayerId.UNSET,
-        /* subtitleParserFactory= */ null);
+        PlayerId.UNSET);
   }
 
   private static DashManifest parseManifest(String fileName) throws IOException {
