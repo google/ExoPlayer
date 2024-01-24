@@ -61,3 +61,13 @@
 -keepclasseswithmembers class com.google.android.exoplayer2.source.rtsp.RtspMediaSource$Factory {
   <init>();
 }
+
+# Constructors and methods accessed via reflection in CompositingVideoSinkProvider
+-dontnote com.google.android.exoplayer2.effect.PreviewingSingleInputVideoGraph$Factory
+-keepclasseswithmembers class com.google.android.exoplayer2.effect.PreviewingSingleInputVideoGraph$Factory {
+  <init>(com.google.android.exoplayer2.util.VideoFrameProcessor$Factory);
+}
+-dontnote com.google.android.exoplayer2.effect.DefaultVideoFrameProcessor$Factory$Builder
+-keepclasseswithmembers class com.google.android.exoplayer2.effect.DefaultVideoFrameProcessor$Factory$Builder {
+  build();
+}

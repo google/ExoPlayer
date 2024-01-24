@@ -831,7 +831,6 @@ public final class CompositingVideoSinkProvider
             Suppliers.memoize(
                 () -> {
                   try {
-                    // TODO: b/284964524- Add LINT and proguard checks for media3.effect reflection.
                     Class<?> defaultVideoFrameProcessorFactoryBuilderClass =
                         Class.forName(
                             "com.google.android.exoplayer2.effect.DefaultVideoFrameProcessor$Factory$Builder");
