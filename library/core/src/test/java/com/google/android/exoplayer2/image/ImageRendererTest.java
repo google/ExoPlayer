@@ -218,6 +218,136 @@ public class ImageRendererTest {
   }
 
   @Test
+  public void
+      renderTwoStreams_withReplaceStreamPriorToFinishingFirstStreamOutput_rendersWithCorrectPosition()
+          throws Exception {
+    FakeSampleStream fakeSampleStream1 =
+        createSampleStream(
+            JPEG_FORMAT_WITH_FOUR_TILES,
+            ImmutableList.of(
+                oneByteSample(/* timeUs= */ 0L, /* flags= */ C.BUFFER_FLAG_KEY_FRAME),
+                emptySample(/* timeUs= */ 100_000L, /* flags= */ 0),
+                emptySample(/* timeUs= */ 200_000L, /* flags= */ 0),
+                emptySample(/* timeUs= */ 300_000L, /* flags= */ 0)));
+    fakeSampleStream1.writeData(/* startPositionUs= */ 0);
+    FakeSampleStream fakeSampleStream2 =
+        createSampleStream(
+            JPEG_FORMAT_WITH_FOUR_TILES,
+            ImmutableList.of(
+                oneByteSample(/* timeUs= */ 10L, /* flags= */ C.BUFFER_FLAG_KEY_FRAME),
+                END_OF_STREAM_ITEM));
+    fakeSampleStream2.writeData(/* startPositionUs= */ 10L);
+    renderer.enable(
+        RendererConfiguration.DEFAULT,
+        new Format[] {PNG_FORMAT},
+        fakeSampleStream1,
+        /* positionUs= */ 0,
+        /* joining= */ false,
+        /* mayRenderStartOfStream= */ true,
+        /* startPositionUs= */ 0,
+        /* offsetUs= */ 100_000L,
+        new MediaSource.MediaPeriodId(new Object()));
+    StopWatch isReadyStopWatch = new StopWatch(IS_READY_TIMEOUT_MESSAGE);
+    while (!renderer.isReady() && isReadyStopWatch.ensureNotExpired()) {
+      renderer.render(/* positionUs= */ 100_000L, /* elapsedRealtimeUs= */ 0);
+    }
+    renderer.start();
+    renderer.render(/* positionUs= */ 200_000L, /* elapsedRealtimeUs= */ 0);
+    renderer.render(/* positionUs= */ 300_000L, /* elapsedRealtimeUs= */ 0);
+
+    renderer.replaceStream(
+        new Format[] {PNG_FORMAT},
+        fakeSampleStream2,
+        /* startPositionUs= */ 10,
+        /* offsetUs= */ 450_000L,
+        new MediaSource.MediaPeriodId(new Object()));
+    renderer.setCurrentStreamFinal();
+    // Render last sample of first stream
+    renderer.render(/* positionUs= */ 400_000L, /* elapsedRealtimeUs= */ 0);
+    StopWatch hasReadStreamToEndStopWatch = new StopWatch(HAS_READ_STREAM_TO_END_TIMEOUT_MESSAGE);
+    while (!renderer.hasReadStreamToEnd() && hasReadStreamToEndStopWatch.ensureNotExpired()) {
+      renderer.render(/* positionUs= */ 450_010L, /* elapsedRealtimeUs= */ 0L);
+    }
+    renderer.stop();
+
+    assertThat(renderedBitmaps).hasSize(5);
+    assertThat(renderedBitmaps.get(0).first).isEqualTo(0);
+    assertThat(renderedBitmaps.get(4).first).isEqualTo(10L);
+  }
+
+  @Test
+  public void renderTwoStreams_withDisableandEnablePostReplaceStream_rendersWithCorrectPosition()
+      throws Exception {
+    FakeSampleStream fakeSampleStream1 =
+        createSampleStream(
+            JPEG_FORMAT_WITH_FOUR_TILES,
+            ImmutableList.of(
+                oneByteSample(/* timeUs= */ 0L, /* flags= */ C.BUFFER_FLAG_KEY_FRAME),
+                emptySample(/* timeUs= */ 100_000L, /* flags= */ 0),
+                emptySample(/* timeUs= */ 200_000L, /* flags= */ 0),
+                emptySample(/* timeUs= */ 300_000L, /* flags= */ 0)));
+    fakeSampleStream1.writeData(/* startPositionUs= */ 0);
+    FakeSampleStream fakeSampleStream2 =
+        createSampleStream(
+            JPEG_FORMAT_WITH_FOUR_TILES,
+            ImmutableList.of(
+                oneByteSample(/* timeUs= */ 10L, /* flags= */ C.BUFFER_FLAG_KEY_FRAME),
+                END_OF_STREAM_ITEM));
+    fakeSampleStream2.writeData(/* startPositionUs= */ 10L);
+    renderer.enable(
+        RendererConfiguration.DEFAULT,
+        new Format[] {PNG_FORMAT},
+        fakeSampleStream1,
+        /* positionUs= */ 0,
+        /* joining= */ false,
+        /* mayRenderStartOfStream= */ true,
+        /* startPositionUs= */ 0,
+        /* offsetUs= */ 100_000L,
+        new MediaSource.MediaPeriodId(new Object()));
+    StopWatch isReadyStopWatch = new StopWatch(IS_READY_TIMEOUT_MESSAGE);
+    while (!renderer.isReady() && isReadyStopWatch.ensureNotExpired()) {
+      renderer.render(/* positionUs= */ 100_000L, /* elapsedRealtimeUs= */ 0);
+    }
+    renderer.start();
+    renderer.render(/* positionUs= */ 200_000L, /* elapsedRealtimeUs= */ 0);
+    renderer.render(/* positionUs= */ 300_000L, /* elapsedRealtimeUs= */ 0);
+    renderer.replaceStream(
+        new Format[] {PNG_FORMAT},
+        fakeSampleStream2,
+        /* startPositionUs= */ 10,
+        /* offsetUs= */ 400_000L,
+        new MediaSource.MediaPeriodId(new Object()));
+
+    // Reset and enable renderer as if application changed playlist to just the second stream.
+    renderer.stop();
+    renderer.disable();
+    renderer.enable(
+        RendererConfiguration.DEFAULT,
+        new Format[] {PNG_FORMAT},
+        fakeSampleStream2,
+        /* positionUs= */ 0,
+        /* joining= */ false,
+        /* mayRenderStartOfStream= */ true,
+        /* startPositionUs= */ 0,
+        /* offsetUs= */ 0,
+        new MediaSource.MediaPeriodId(new Object()));
+    isReadyStopWatch = new StopWatch(IS_READY_TIMEOUT_MESSAGE);
+    while (!renderer.isReady() && isReadyStopWatch.ensureNotExpired()) {
+      renderer.render(/* positionUs= */ 0L, /* elapsedRealtimeUs= */ 0);
+    }
+    renderer.start();
+    StopWatch hasReadStreamToEndStopWatch = new StopWatch(HAS_READ_STREAM_TO_END_TIMEOUT_MESSAGE);
+    while (!renderer.hasReadStreamToEnd() && hasReadStreamToEndStopWatch.ensureNotExpired()) {
+      renderer.render(/* positionUs= */ 0L, /* elapsedRealtimeUs= */ 0L);
+    }
+    renderer.stop();
+
+    assertThat(renderedBitmaps).hasSize(4);
+    assertThat(renderedBitmaps.get(0).first).isEqualTo(0);
+    assertThat(renderedBitmaps.get(3).first).isEqualTo(10L);
+  }
+
+  @Test
   public void renderTwoStreams_differentFormat_rendersToImageOutput() throws Exception {
     FakeSampleStream fakeSampleStream1 = createSampleStream(/* timeUs= */ 0);
     fakeSampleStream1.writeData(/* startPositionUs= */ 0);

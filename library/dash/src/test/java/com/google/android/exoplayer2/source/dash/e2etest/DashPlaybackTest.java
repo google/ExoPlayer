@@ -347,4 +347,28 @@ public final class DashPlaybackTest {
     DumpFileAsserts.assertOutput(
         applicationContext, playbackOutput, "playbackdumps/dash/loadimage.dump");
   }
+
+  @Test
+  public void playThumbnailGrid_withSeekAfterEoS() throws Exception {
+    Context applicationContext = ApplicationProvider.getApplicationContext();
+    CapturingRenderersFactory capturingRenderersFactory =
+        new CapturingRenderersFactory(applicationContext);
+    ExoPlayer player =
+        new ExoPlayer.Builder(applicationContext, capturingRenderersFactory)
+            .setClock(new FakeClock(/* isAutoAdvancing= */ true))
+            .build();
+    PlaybackOutput playbackOutput = PlaybackOutput.register(player, capturingRenderersFactory);
+    player.setMediaItem(MediaItem.fromUri("asset:///media/dash/thumbnails/sample.mpd"));
+    player.seekTo(55_000L);
+    player.prepare();
+    player.play();
+    TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_ENDED);
+
+    player.seekTo(55_000L);
+    TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_ENDED);
+    player.release();
+
+    DumpFileAsserts.assertOutput(
+        applicationContext, playbackOutput, "playbackdumps/dash/image_with_seek_after_eos.dump");
+  }
 }
