@@ -15,6 +15,10 @@
  */
 package com.google.android.exoplayer2.muxer;
 
+import static com.google.android.exoplayer2.muxer.Boxes.BOX_HEADER_SIZE;
+import static com.google.android.exoplayer2.muxer.Boxes.MFHD_BOX_CONTENT_SIZE;
+import static com.google.android.exoplayer2.muxer.Boxes.TFHD_BOX_CONTENT_SIZE;
+import static com.google.android.exoplayer2.muxer.Boxes.getTrunBoxContentSize;
 import static com.google.android.exoplayer2.muxer.Mp4Utils.UNSIGNED_INT_MAX_VALUE;
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
@@ -122,14 +126,50 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
   }
 
-  private static ImmutableList<ByteBuffer> createTrafBoxes(List<ProcessedTrackInfo> trackInfos) {
+  private static ImmutableList<ByteBuffer> createTrafBoxes(
+      List<ProcessedTrackInfo> trackInfos, long moofBoxStartPosition) {
     ImmutableList.Builder<ByteBuffer> trafBoxes = new ImmutableList.Builder<>();
+    int moofBoxSize = calculateMoofBoxSize(trackInfos);
+    int mdatBoxHeaderSize = BOX_HEADER_SIZE;
+    // dataOffset denotes the relative position of the first sample of the track from the
+    // moofBoxStartPosition.
+    int dataOffset = moofBoxSize + mdatBoxHeaderSize;
     for (int i = 0; i < trackInfos.size(); i++) {
       ProcessedTrackInfo currentTrackInfo = trackInfos.get(i);
-      ByteBuffer trun = Boxes.trun(currentTrackInfo.pendingSamplesMetadata);
-      trafBoxes.add(Boxes.traf(Boxes.tfhd(currentTrackInfo.trackId), trun));
+      trafBoxes.add(
+          Boxes.traf(
+              Boxes.tfhd(currentTrackInfo.trackId, /* baseDataOffset= */ moofBoxStartPosition),
+              Boxes.trun(currentTrackInfo.pendingSamplesMetadata, dataOffset)));
+      dataOffset += currentTrackInfo.totalSamplesSize;
     }
     return trafBoxes.build();
+  }
+
+  private static int calculateMoofBoxSize(List<ProcessedTrackInfo> trackInfos) {
+    /* moof box looks like:
+    moof
+        mfhd
+        traf
+           tfhd
+           trun
+        traf
+           tfhd
+           trun
+     */
+    int moofBoxHeaderSize = BOX_HEADER_SIZE;
+    int mfhdBoxSize = BOX_HEADER_SIZE + MFHD_BOX_CONTENT_SIZE;
+    int trafBoxHeaderSize = BOX_HEADER_SIZE;
+    int tfhdBoxSize = BOX_HEADER_SIZE + TFHD_BOX_CONTENT_SIZE;
+    int trunBoxHeaderFixedSize = BOX_HEADER_SIZE;
+    int trafBoxesSize = 0;
+    for (int i = 0; i < trackInfos.size(); i++) {
+      ProcessedTrackInfo trackInfo = trackInfos.get(i);
+      int trunBoxSize =
+          trunBoxHeaderFixedSize + getTrunBoxContentSize(trackInfo.pendingSamplesMetadata.size());
+      trafBoxesSize += trafBoxHeaderSize + tfhdBoxSize + trunBoxSize;
+    }
+
+    return moofBoxHeaderSize + mfhdBoxSize + trafBoxesSize;
   }
 
   private void createHeader() throws IOException {
@@ -164,9 +204,20 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   private void createFragment() throws IOException {
+    /* Each fragment looks like:
+    moof
+        mfhd
+        traf
+           tfhd
+           trun
+        traf
+           tfhd
+           trun
+     mdat
+     */
     ImmutableList<ProcessedTrackInfo> trackInfos = processAllTracks();
-    // Write moof box.
-    ImmutableList<ByteBuffer> trafBoxes = createTrafBoxes(trackInfos);
+    ImmutableList<ByteBuffer> trafBoxes =
+        createTrafBoxes(trackInfos, /* moofBoxStartPosition= */ output.position());
     if (trafBoxes.isEmpty()) {
       return;
     }
@@ -238,7 +289,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             Mp4Muxer.LAST_FRAME_DURATION_BEHAVIOR_DUPLICATE_PREV_DURATION);
 
     ImmutableList.Builder<SampleMetadata> pendingSamplesMetadata = new ImmutableList.Builder<>();
+    int totalSamplesSize = 0;
     for (int i = 0; i < sampleBufferInfos.size(); i++) {
+      totalSamplesSize += sampleBufferInfos.get(i).size;
       pendingSamplesMetadata.add(
           new SampleMetadata(
               sampleDurations.get(i),
@@ -248,15 +301,18 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     // Clear the queue.
     track.pendingSamplesBufferInfo.clear();
-    return new ProcessedTrackInfo(trackId, pendingSamplesMetadata.build());
+    return new ProcessedTrackInfo(trackId, totalSamplesSize, pendingSamplesMetadata.build());
   }
 
   private static class ProcessedTrackInfo {
     public final int trackId;
+    public final int totalSamplesSize;
     public final ImmutableList<SampleMetadata> pendingSamplesMetadata;
 
-    public ProcessedTrackInfo(int trackId, ImmutableList<SampleMetadata> pendingSamplesMetadata) {
+    public ProcessedTrackInfo(
+        int trackId, int totalSamplesSize, ImmutableList<SampleMetadata> pendingSamplesMetadata) {
       this.trackId = trackId;
+      this.totalSamplesSize = totalSamplesSize;
       this.pendingSamplesMetadata = pendingSamplesMetadata;
     }
   }

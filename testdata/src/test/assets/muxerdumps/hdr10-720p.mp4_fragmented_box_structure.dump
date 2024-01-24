@@ -58,33 +58,33 @@ moov (1209 bytes):
       Data = length 24, hash C35D3183
     trex (32 bytes):
       Data = length 24, hash 14070F84
-moof (2852 bytes):
+moof (2876 bytes):
   mfhd (16 bytes):
     Data = length 8, hash 94446F02
-  traf (1120 bytes):
-    tfhd (16 bytes):
-      Data = length 8, hash 94446F02
-    trun (1096 bytes):
-      Data = length 1088, hash 1F7B824F
-  traf (1708 bytes):
-    tfhd (16 bytes):
-      Data = length 8, hash 94446F03
-    trun (1684 bytes):
-      Data = length 1676, hash 46E974DC
+  traf (1132 bytes):
+    tfhd (24 bytes):
+      Data = length 16, hash D37153D4
+    trun (1100 bytes):
+      Data = length 1092, hash BA1962E9
+  traf (1720 bytes):
+    tfhd (24 bytes):
+      Data = length 16, hash 67B5C2D5
+    trun (1688 bytes):
+      Data = length 1680, hash 2EDF9B97
 mdat (5712387 bytes):
   Data = length 5712379, hash 86B2819D
-moof (1220 bytes):
+moof (1244 bytes):
   mfhd (16 bytes):
     Data = length 8, hash 94446F03
-  traf (484 bytes):
-    tfhd (16 bytes):
-      Data = length 8, hash 94446F02
-    trun (460 bytes):
-      Data = length 452, hash 36E6F796
-  traf (712 bytes):
-    tfhd (16 bytes):
-      Data = length 8, hash 94446F03
-    trun (688 bytes):
-      Data = length 680, hash 4E3D2F16
+  traf (496 bytes):
+    tfhd (24 bytes):
+      Data = length 16, hash D372A134
+    trun (464 bytes):
+      Data = length 456, hash E01BEFF7
+  traf (724 bytes):
+    tfhd (24 bytes):
+      Data = length 16, hash 67B71035
+    trun (692 bytes):
+      Data = length 684, hash 73BBFD29
 mdat (2364921 bytes):
   Data = length 2364913, hash D363A845
