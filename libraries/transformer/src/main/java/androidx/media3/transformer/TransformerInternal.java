@@ -41,6 +41,7 @@ import android.util.Log;
 import android.util.SparseArray;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.IntDef;
+import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.DebugViewProvider;
@@ -100,7 +101,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private static final int MSG_REGISTER_SAMPLE_EXPORTER = 1;
   private static final int MSG_DRAIN_EXPORTERS = 2;
   private static final int MSG_END = 3;
-  private static final int MSG_UPDATE_PROGRESS = 4;
 
   private static final String TAG = "TransformerInternal";
   private static final int DRAIN_EXPORTERS_DELAY_MS = 10;
@@ -129,8 +129,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   private final List<SampleExporter> sampleExporters;
   private final MuxerWrapper muxerWrapper;
-  private final ConditionVariable transformerConditionVariable;
+  private final ConditionVariable canceledConditionVariable;
   private final Object setMaxSequenceDurationUsLock;
+  private final Object progressLock;
+  private final ProgressHolder internalProgressHolder;
 
   private boolean isDrainingExporters;
 
@@ -145,10 +147,19 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   /**
    * The current {@link Transformer.ProgressState}.
    *
-   * <p>Modified on the internal thread. Accessed on the application thread (in {@link
-   * #getProgress}).
+   * <p>Accessed and modified on the application and internal thread.
    */
-  private volatile @Transformer.ProgressState int progressState;
+  @GuardedBy("progressLock")
+  private @Transformer.ProgressState int progressState;
+
+  /**
+   * The current progress value, from 0 to 100.
+   *
+   * <p>Accessed and modified on the application and internal thread.
+   */
+  @GuardedBy("progressLock")
+  @IntRange(from = 0, to = 100)
+  private int progressValue;
 
   /**
    * The boolean tracking if this component has been released.
@@ -215,8 +226,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     compositionHasLoopingSequence =
         nonLoopingSequencesWithNonFinalDuration != composition.sequences.size();
     setMaxSequenceDurationUsLock = new Object();
+    canceledConditionVariable = new ConditionVariable();
+    progressLock = new Object();
+    internalProgressHolder = new ProgressHolder();
     sampleExporters = new ArrayList<>();
-    transformerConditionVariable = new ConditionVariable();
+
     // It's safe to use "this" because we don't send a message before exiting the constructor.
     @SuppressWarnings("nullness:methodref.receiver.bound")
     HandlerWrapper internalHandler =
@@ -227,18 +241,23 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   public void start() {
     verifyInternalThreadAlive();
     internalHandler.sendEmptyMessage(MSG_START);
+    synchronized (progressLock) {
+      progressState = Transformer.PROGRESS_STATE_WAITING_FOR_AVAILABILITY;
+      progressValue = 0;
+    }
   }
 
   public @Transformer.ProgressState int getProgress(ProgressHolder progressHolder) {
     if (released) {
       return PROGRESS_STATE_NOT_STARTED;
     }
-    verifyInternalThreadAlive();
-    internalHandler.obtainMessage(MSG_UPDATE_PROGRESS, progressHolder).sendToTarget();
-    // TODO: figure out why calling clock.onThreadBlocked() here makes the tests fail.
-    transformerConditionVariable.blockUninterruptible();
-    transformerConditionVariable.close();
-    return progressState;
+
+    synchronized (progressLock) {
+      if (progressState == PROGRESS_STATE_AVAILABLE) {
+        progressHolder.progress = progressValue;
+      }
+      return progressState;
+    }
   }
 
   public void cancel() {
@@ -250,8 +269,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         .obtainMessage(MSG_END, END_REASON_CANCELLED, /* unused */ 0, /* exportException */ null)
         .sendToTarget();
     clock.onThreadBlocked();
-    transformerConditionVariable.blockUninterruptible();
-    transformerConditionVariable.close();
+    canceledConditionVariable.blockUninterruptible();
+    canceledConditionVariable.close();
     if (cancelException != null) {
       throw cancelException;
     }
@@ -282,7 +301,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     // handled to report release timeouts and to unblock the transformer condition variable in case
     // of cancellation. Progress update messages must be handled to unblock the transformer
     // condition variable.
-    if (released && msg.what != MSG_END && msg.what != MSG_UPDATE_PROGRESS) {
+    if (released && msg.what != MSG_END) {
       return true;
     }
     try {
@@ -298,9 +317,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           break;
         case MSG_END:
           endInternal(/* endReason= */ msg.arg1, /* exportException= */ (ExportException) msg.obj);
-          break;
-        case MSG_UPDATE_PROGRESS:
-          updateProgressInternal(/* progressHolder= */ (ProgressHolder) msg.obj);
           break;
         default:
           return false;
@@ -332,6 +348,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       while (sampleExporters.get(i).processData()) {}
     }
 
+    updateProgressInternal();
+
     if (!muxerWrapper.isEnded()) {
       internalHandler.sendEmptyMessageDelayed(MSG_DRAIN_EXPORTERS, DRAIN_EXPORTERS_DELAY_MS);
     }
@@ -349,6 +367,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     boolean releasedPreviously = released;
     if (!released) {
       released = true;
+      synchronized (progressLock) {
+        progressState = PROGRESS_STATE_NOT_STARTED;
+        progressValue = 0;
+      }
+
       // VideoSampleExporter can hold buffers from the asset loader's decoder in a surface texture,
       // so we release the VideoSampleExporter first to avoid releasing the codec while its buffers
       // are pending processing.
@@ -391,12 +414,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       internalHandler.post(internalHandlerThread::quitSafely);
     }
 
-    // Update progress before opening variable to avoid getProgress returning an invalid combination
-    // of state and progress.
-    progressState = PROGRESS_STATE_NOT_STARTED;
-    transformerConditionVariable.open();
-
     if (forCancellation) {
+      canceledConditionVariable.open();
       return;
     }
 
@@ -437,25 +456,37 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
   }
 
-  private void updateProgressInternal(ProgressHolder progressHolder) {
+  private void updateProgressInternal() {
+    if (released) {
+      return;
+    }
+
     int progressSum = 0;
     int progressCount = 0;
-    ProgressHolder individualProgressHolder = new ProgressHolder();
     for (int i = 0; i < sequenceAssetLoaders.size(); i++) {
       if (composition.sequences.get(i).isLooping) {
         // Looping sequence progress is always unavailable. Skip it.
         continue;
       }
-      progressState = sequenceAssetLoaders.get(i).getProgress(individualProgressHolder);
-      if (progressState != PROGRESS_STATE_AVAILABLE) {
-        transformerConditionVariable.open();
+      internalProgressHolder.progress = 0;
+      @Transformer.ProgressState
+      int assetLoaderProgressState =
+          sequenceAssetLoaders.get(i).getProgress(internalProgressHolder);
+      if (assetLoaderProgressState != PROGRESS_STATE_AVAILABLE) {
+        // TODO - b/322136131 : Check for inconsistent state transitions.
+        synchronized (progressLock) {
+          progressState = assetLoaderProgressState;
+          progressValue = 0;
+        }
         return;
       }
-      progressSum += individualProgressHolder.progress;
+      progressSum += internalProgressHolder.progress;
       progressCount++;
     }
-    progressHolder.progress = progressSum / progressCount;
-    transformerConditionVariable.open();
+    synchronized (progressLock) {
+      progressState = PROGRESS_STATE_AVAILABLE;
+      progressValue = progressSum / progressCount;
+    }
   }
 
   private final class SequenceAssetLoaderListener implements AssetLoader.Listener {
