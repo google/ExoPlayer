@@ -17,6 +17,9 @@ package androidx.media3.muxer;
 
 /** Utilities for MP4 files. */
 /* package */ final class Mp4Utils {
+  /* Total number of bytes in an integer. */
+  public static final int BYTES_PER_INTEGER = 4;
+
   /**
    * The maximum length of boxes which have fixed sizes.
    *

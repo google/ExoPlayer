@@ -539,7 +539,7 @@ public class BoxesTest {
 
   @Test
   public void createTfhdBox_matchesExpected() throws IOException {
-    ByteBuffer tfhdBox = Boxes.tfhd(/* trackId= */ 1);
+    ByteBuffer tfhdBox = Boxes.tfhd(/* trackId= */ 1, /* baseDataOffset= */ 1_000L);
 
     DumpableMp4Box dumpableBox = new DumpableMp4Box(tfhdBox);
     DumpFileAsserts.assertOutput(
@@ -558,7 +558,7 @@ public class BoxesTest {
               /* flags= */ i == 0 ? MediaCodec.BUFFER_FLAG_KEY_FRAME : 0));
     }
 
-    ByteBuffer trunBox = Boxes.trun(samplesMetadata);
+    ByteBuffer trunBox = Boxes.trun(samplesMetadata, /* dataOffset= */ 1_000);
 
     DumpableMp4Box dumpableBox = new DumpableMp4Box(trunBox);
     DumpFileAsserts.assertOutput(
