@@ -25,6 +25,7 @@ import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.DrmSessionManagerProvider;
+import com.google.android.exoplayer2.text.SubtitleParser;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.CmcdConfiguration;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
@@ -113,6 +114,18 @@ public interface MediaSource {
     // TODO: b/289916598 - Flip the default of this to true.
     default Factory experimentalParseSubtitlesDuringExtraction(
         boolean parseSubtitlesDuringExtraction) {
+      return this;
+    }
+
+    /**
+     * Sets the {@link SubtitleParser.Factory} to be used for parsing subtitles during extraction if
+     * {@link #experimentalParseSubtitlesDuringExtraction} is enabled.
+     *
+     * @param subtitleParserFactory The {@link SubtitleParser.Factory} for parsing subtitles during
+     *     extraction.
+     * @return This factory, for convenience.
+     */
+    default Factory setSubtitleParserFactory(SubtitleParser.Factory subtitleParserFactory) {
       return this;
     }
 

@@ -50,6 +50,7 @@ import com.google.android.exoplayer2.source.SinglePeriodTimeline;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest.StreamElement;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifestParser;
+import com.google.android.exoplayer2.text.SubtitleParser;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.CmcdConfiguration;
 import com.google.android.exoplayer2.upstream.DataSource;
@@ -155,6 +156,13 @@ public final class SsMediaSource extends BaseMediaSource
               "MediaSource.Factory#setLoadErrorHandlingPolicy no longer handles null by"
                   + " instantiating a new DefaultLoadErrorHandlingPolicy. Explicitly construct and"
                   + " pass an instance in order to retain the old behavior.");
+      return this;
+    }
+
+    @Override
+    @CanIgnoreReturnValue
+    public Factory setSubtitleParserFactory(SubtitleParser.Factory subtitleParserFactory) {
+      chunkSourceFactory.setSubtitleParserFactory(checkNotNull(subtitleParserFactory));
       return this;
     }
 

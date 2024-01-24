@@ -60,6 +60,7 @@ import com.google.android.exoplayer2.source.dash.manifest.DashManifestParser;
 import com.google.android.exoplayer2.source.dash.manifest.Period;
 import com.google.android.exoplayer2.source.dash.manifest.Representation;
 import com.google.android.exoplayer2.source.dash.manifest.UtcTimingElement;
+import com.google.android.exoplayer2.text.SubtitleParser;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.CmcdConfiguration;
 import com.google.android.exoplayer2.upstream.DataSource;
@@ -199,6 +200,13 @@ public final class DashMediaSource extends BaseMediaSource {
               "MediaSource.Factory#setLoadErrorHandlingPolicy no longer handles null by"
                   + " instantiating a new DefaultLoadErrorHandlingPolicy. Explicitly construct and"
                   + " pass an instance in order to retain the old behavior.");
+      return this;
+    }
+
+    @Override
+    @CanIgnoreReturnValue
+    public Factory setSubtitleParserFactory(SubtitleParser.Factory subtitleParserFactory) {
+      chunkSourceFactory.setSubtitleParserFactory(checkNotNull(subtitleParserFactory));
       return this;
     }
 

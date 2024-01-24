@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.extractor;
 
 import android.net.Uri;
+import com.google.android.exoplayer2.text.SubtitleParser;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.List;
@@ -53,6 +54,19 @@ public interface ExtractorsFactory {
   @CanIgnoreReturnValue
   default ExtractorsFactory experimentalSetTextTrackTranscodingEnabled(
       boolean textTrackTranscodingEnabled) {
+    return this;
+  }
+
+  /**
+   * Sets a {@link SubtitleParser.Factory} to use when transcoding text tracks.
+   *
+   * <p>This is only works if {@link #experimentalSetTextTrackTranscodingEnabled(boolean)} is
+   * enabled.
+   *
+   * @param subtitleParserFactory The factory for {@link SubtitleParser} instances.
+   * @return The factory, for convenience.
+   */
+  default ExtractorsFactory setSubtitleParserFactory(SubtitleParser.Factory subtitleParserFactory) {
     return this;
   }
 

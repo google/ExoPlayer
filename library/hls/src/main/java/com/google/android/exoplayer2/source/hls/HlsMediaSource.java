@@ -50,6 +50,7 @@ import com.google.android.exoplayer2.source.hls.playlist.FilteringHlsPlaylistPar
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist;
 import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistParserFactory;
 import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker;
+import com.google.android.exoplayer2.text.SubtitleParser;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.CmcdConfiguration;
 import com.google.android.exoplayer2.upstream.DataSource;
@@ -200,6 +201,13 @@ public final class HlsMediaSource extends BaseMediaSource
               "MediaSource.Factory#setLoadErrorHandlingPolicy no longer handles null by"
                   + " instantiating a new DefaultLoadErrorHandlingPolicy. Explicitly construct and"
                   + " pass an instance in order to retain the old behavior.");
+      return this;
+    }
+
+    @CanIgnoreReturnValue
+    @Override
+    public Factory setSubtitleParserFactory(SubtitleParser.Factory subtitleParserFactory) {
+      extractorFactory.setSubtitleParserFactory(checkNotNull(subtitleParserFactory));
       return this;
     }
 
