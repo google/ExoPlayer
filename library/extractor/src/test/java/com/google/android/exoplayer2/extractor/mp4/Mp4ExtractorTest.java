@@ -218,6 +218,14 @@ public final class Mp4ExtractorTest {
         simulationConfig);
   }
 
+  @Test
+  public void mp4SampleWithEditList() throws Exception {
+    ExtractorAsserts.assertBehavior(
+        getExtractorFactory(subtitlesParsedDuringExtraction),
+        "media/mp4/sample_edit_list.mp4",
+        simulationConfig);
+  }
+
   private static ExtractorAsserts.ExtractorFactory getExtractorFactory(
       boolean subtitlesParsedDuringExtraction) {
     SubtitleParser.Factory subtitleParserFactory;
