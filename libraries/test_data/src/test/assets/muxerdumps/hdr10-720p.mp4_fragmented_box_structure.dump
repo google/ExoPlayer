@@ -25,7 +25,7 @@ moov (1209 bytes):
             Data = length 12, hash EE830681
           stsc (16 bytes):
             Data = length 8, hash 94446F01
-          co64 (16 bytes):
+          stco (16 bytes):
             Data = length 8, hash 94446F01
           stss (16 bytes):
             Data = length 8, hash 94446F01
@@ -51,7 +51,7 @@ moov (1209 bytes):
             Data = length 12, hash EE830681
           stsc (16 bytes):
             Data = length 8, hash 94446F01
-          co64 (16 bytes):
+          stco (16 bytes):
             Data = length 8, hash 94446F01
   mvex (72 bytes):
     trex (32 bytes):

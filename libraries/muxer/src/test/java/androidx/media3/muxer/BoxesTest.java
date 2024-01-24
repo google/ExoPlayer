@@ -498,6 +498,17 @@ public class BoxesTest {
   }
 
   @Test
+  public void createStcoBox_matchesExpected() throws IOException {
+    ImmutableList<Long> chunkOffsets = ImmutableList.of(1_000L, 5_000L, 7_000L, 10_000L);
+
+    ByteBuffer stcoBox = Boxes.stco(chunkOffsets);
+
+    DumpableMp4Box dumpableBox = new DumpableMp4Box(stcoBox);
+    DumpFileAsserts.assertOutput(
+        context, dumpableBox, MuxerTestUtil.getExpectedDumpFilePath("stco_box"));
+  }
+
+  @Test
   public void createCo64Box_matchesExpected() throws IOException {
     ImmutableList<Long> chunkOffsets = ImmutableList.of(1_000L, 5_000L, 7_000L, 10_000L);
 
