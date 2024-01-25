@@ -327,7 +327,10 @@ public class TransformerEndToEndTest {
                 new DefaultEncoderFactory.Builder(context).setEnableFallback(false).build())
             .build();
     MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_ASSET_URI_STRING));
-    ImmutableList<Effect> videoEffects = ImmutableList.of(Presentation.createForHeight(480));
+    ImmutableList<Effect> videoEffects =
+        ImmutableList.of(
+            new ScaleAndRotateTransformation.Builder().setRotationDegrees(90).build(),
+            Presentation.createForHeight(MP4_ASSET_FORMAT.height));
     Effects effects = new Effects(/* audioProcessors= */ ImmutableList.of(), videoEffects);
     EditedMediaItem editedMediaItem =
         new EditedMediaItem.Builder(mediaItem).setEffects(effects).build();
