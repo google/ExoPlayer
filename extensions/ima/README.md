@@ -54,6 +54,8 @@ player position when backgrounded during ad playback.
 
 * [ExoPlayer documentation on ad insertion][]
 * [Javadoc][]
+* [Supported platforms][]
 
 [ExoPlayer documentation on ad insertion]: https://exoplayer.dev/ad-insertion.html
 [Javadoc]: https://exoplayer.dev/doc/reference/index.html
+[Supported platforms]: https://developers.google.com/interactive-media-ads/docs/sdks/other
