@@ -1573,6 +1573,10 @@ public interface ExoPlayer extends Player {
    * <p>The following limitations exist for using {@linkplain Effect video effects}:
    *
    * <ul>
+   *   <li>The {@code androidx.media3:media3-effect} module must be available on the runtime
+   *       classpath. {@code androidx.media3:media3-exoplayer} does not explicitly depend on the
+   *       effect module, so apps must make sure it's available themselves. It must be the same
+   *       version as the rest of the {@code androidx.media3} modules being used by the app.
    *   <li>This feature works only with the default {@link MediaCodecVideoRenderer} and not custom
    *       or extension {@linkplain Renderer video renderers}.
    *   <li>This feature does not work with {@linkplain Effect effects} updating the timestamps.
