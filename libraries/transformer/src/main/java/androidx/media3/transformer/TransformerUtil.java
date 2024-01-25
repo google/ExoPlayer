@@ -144,20 +144,24 @@ import com.google.common.collect.ImmutableList;
     }
     ImmutableList<Effect> videoEffects = firstEditedMediaItem.effects.videoEffects;
     return !videoEffects.isEmpty()
-        && !areVideoEffectsAllNoOp(videoEffects, inputFormat)
-        && !hasOnlyRegularRotationEffect(videoEffects, muxerWrapper);
+        && !areVideoEffectsAllRegularRotationsOrNoOp(videoEffects, inputFormat, muxerWrapper);
   }
 
   /**
-   * Returns whether the collection of {@code videoEffects} would be a {@linkplain
-   * GlEffect#isNoOp(int, int) no-op}, if queued samples of this {@link Format}.
+   * Returns whether the effects, applied in the list ordering, would result in a noOp or regular
+   * rotation.
+   *
+   * <p>If {@code true}, sets the regular rotation on the {@linkplain
+   * MuxerWrapper#setAdditionalRotationDegrees}.
    */
-  public static boolean areVideoEffectsAllNoOp(
-      ImmutableList<Effect> videoEffects, Format inputFormat) {
+  private static boolean areVideoEffectsAllRegularRotationsOrNoOp(
+      ImmutableList<Effect> videoEffects, Format inputFormat, MuxerWrapper muxerWrapper) {
     int decodedWidth =
         (inputFormat.rotationDegrees % 180 == 0) ? inputFormat.width : inputFormat.height;
     int decodedHeight =
         (inputFormat.rotationDegrees % 180 == 0) ? inputFormat.height : inputFormat.width;
+    boolean widthHeightFlipped = false;
+    float totalRotationDegrees = 0;
     for (int i = 0; i < videoEffects.size(); i++) {
       Effect videoEffect = videoEffects.get(i);
       if (!(videoEffect instanceof GlEffect)) {
@@ -166,32 +170,42 @@ import com.google.common.collect.ImmutableList;
         return false;
       }
       GlEffect glEffect = (GlEffect) videoEffect;
+      if (videoEffect instanceof ScaleAndRotateTransformation) {
+        ScaleAndRotateTransformation scaleAndRotateTransformation =
+            (ScaleAndRotateTransformation) videoEffect;
+        if (scaleAndRotateTransformation.scaleX != 1f
+            || scaleAndRotateTransformation.scaleY != 1f) {
+          return false;
+        }
+        float rotationDegrees = scaleAndRotateTransformation.rotationDegrees;
+        totalRotationDegrees += rotationDegrees;
+        if (totalRotationDegrees % 90 == 0 && !widthHeightFlipped) {
+          int temp = decodedWidth;
+          decodedWidth = decodedHeight;
+          decodedHeight = temp;
+          widthHeightFlipped = true;
+        } else if (totalRotationDegrees % 180 == 0 && widthHeightFlipped) {
+          int temp = decodedWidth;
+          decodedWidth = decodedHeight;
+          decodedHeight = temp;
+          widthHeightFlipped = false;
+        }
+        continue;
+      }
       if (!glEffect.isNoOp(decodedWidth, decodedHeight)) {
         return false;
       }
     }
-    return true;
-  }
-
-  private static boolean hasOnlyRegularRotationEffect(
-      ImmutableList<Effect> videoEffects, MuxerWrapper muxerWrapper) {
-    if (videoEffects.size() != 1) {
-      return false;
+    totalRotationDegrees %= 360;
+    if (totalRotationDegrees == 0) {
+      return true;
     }
-    Effect videoEffect = videoEffects.get(0);
-    if (!(videoEffect instanceof ScaleAndRotateTransformation)) {
-      return false;
-    }
-    ScaleAndRotateTransformation scaleAndRotateTransformation =
-        (ScaleAndRotateTransformation) videoEffect;
-    if (scaleAndRotateTransformation.scaleX != 1f || scaleAndRotateTransformation.scaleY != 1f) {
-      return false;
-    }
-    float rotationDegrees = scaleAndRotateTransformation.rotationDegrees;
-    if (rotationDegrees == 90f || rotationDegrees == 180f || rotationDegrees == 270f) {
+    if (totalRotationDegrees == 90f
+        || totalRotationDegrees == 180f
+        || totalRotationDegrees == 270f) {
       // The MuxerWrapper rotation is clockwise while the ScaleAndRotateTransformation rotation
       // is counterclockwise.
-      muxerWrapper.setAdditionalRotationDegrees(360 - Math.round(rotationDegrees));
+      muxerWrapper.setAdditionalRotationDegrees(360 - Math.round(totalRotationDegrees));
       return true;
     }
     return false;
