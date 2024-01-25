@@ -38,7 +38,7 @@
 ### 1.3.0-beta01 (2024-02-07)
 
 This release includes the following changes since the
-[1.3.0-alpha01 release](#130-2024-01-15):
+[1.3.0-alpha01 release](#130-alpha01-2024-01-15):
 
 *   Common Library:
     *   Populate both `artworkUri` and `artworkData` in
