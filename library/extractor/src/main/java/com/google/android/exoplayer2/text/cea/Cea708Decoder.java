@@ -19,14 +19,17 @@ import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.text.CuesWithTiming;
 import com.google.android.exoplayer2.text.CuesWithTimingSubtitle;
 import com.google.android.exoplayer2.text.Subtitle;
 import com.google.android.exoplayer2.text.SubtitleDecoder;
 import com.google.android.exoplayer2.text.SubtitleInputBuffer;
 import com.google.android.exoplayer2.text.SubtitleParser.OutputOptions;
+import com.google.android.exoplayer2.util.CodecSpecificDataUtil;
 import com.google.common.collect.ImmutableList;
 import java.nio.ByteBuffer;
+import java.util.List;
 
 /**
  * A {@link SubtitleDecoder} for CEA-708 (also known as "EIA-708").
@@ -46,10 +49,13 @@ public final class Cea708Decoder extends CeaDecoder {
   /**
    * Constructs an instance.
    *
-   * @param parser A {@link Cea708Parser} to parse the subtitle data.
+   * @param accessibilityChannel The accessibility channel, or {@link Format#NO_VALUE} if unknown.
+   * @param initializationData Optional initialization data for the decoder. If present, it must
+   *     conform to the structure created by {@link
+   *     CodecSpecificDataUtil#buildCea708InitializationData}.
    */
-  public Cea708Decoder(Cea708Parser parser) {
-    this.cea708Parser = parser;
+  public Cea708Decoder(int accessibilityChannel, @Nullable List<byte[]> initializationData) {
+    this.cea708Parser = new Cea708Parser(accessibilityChannel, initializationData);
   }
 
   @Override

@@ -18,9 +18,7 @@ package com.google.android.exoplayer2.text;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.text.cea.Cea608Decoder;
-import com.google.android.exoplayer2.text.cea.Cea608Parser;
 import com.google.android.exoplayer2.text.cea.Cea708Decoder;
-import com.google.android.exoplayer2.text.cea.Cea708Parser;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.util.Objects;
 
@@ -85,13 +83,11 @@ public interface SubtitleDecoderFactory {
               case MimeTypes.APPLICATION_CEA608:
               case MimeTypes.APPLICATION_MP4CEA608:
                 return new Cea608Decoder(
-                    new Cea608Parser(
-                        mimeType,
-                        format.accessibilityChannel,
-                        Cea608Parser.MIN_DATA_CHANNEL_TIMEOUT_MS));
+                    mimeType,
+                    format.accessibilityChannel,
+                    Cea608Decoder.MIN_DATA_CHANNEL_TIMEOUT_MS);
               case MimeTypes.APPLICATION_CEA708:
-                return new Cea708Decoder(
-                    new Cea708Parser(format.accessibilityChannel, format.initializationData));
+                return new Cea708Decoder(format.accessibilityChannel, format.initializationData);
               default:
                 break;
             }

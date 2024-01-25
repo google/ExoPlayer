@@ -45,10 +45,9 @@ public class Cea608DecoderTest {
   public void paintOnEmitsSubtitlesImmediately() throws Exception {
     Cea608Decoder decoder =
         new Cea608Decoder(
-            new Cea608Parser(
-                MimeTypes.APPLICATION_CEA608,
-                /* accessibilityChannel= */ 1,
-                Cea608Parser.MIN_DATA_CHANNEL_TIMEOUT_MS));
+            MimeTypes.APPLICATION_CEA608,
+            /* accessibilityChannel= */ 1,
+            Cea608Parser.MIN_DATA_CHANNEL_TIMEOUT_MS);
     byte[] sample1 =
         Bytes.concat(
             // 'paint on' control character
@@ -85,10 +84,9 @@ public class Cea608DecoderTest {
   public void paintOnEmitsSubtitlesImmediately_reordersOutOfOrderSamples() throws Exception {
     Cea608Decoder decoder =
         new Cea608Decoder(
-            new Cea608Parser(
-                MimeTypes.APPLICATION_CEA608,
-                /* accessibilityChannel= */ 1,
-                Cea608Parser.MIN_DATA_CHANNEL_TIMEOUT_MS));
+            MimeTypes.APPLICATION_CEA608,
+            /* accessibilityChannel= */ 1,
+            Cea608Parser.MIN_DATA_CHANNEL_TIMEOUT_MS);
     byte[] sample1 =
         Bytes.concat(
             // 'paint on' control character
@@ -127,10 +125,9 @@ public class Cea608DecoderTest {
   public void rollUpEmitsSubtitlesImmediately() throws Exception {
     Cea608Decoder decoder =
         new Cea608Decoder(
-            new Cea608Parser(
-                MimeTypes.APPLICATION_CEA608,
-                /* accessibilityChannel= */ 1, // field 1, channel 1
-                Cea608Parser.MIN_DATA_CHANNEL_TIMEOUT_MS));
+            MimeTypes.APPLICATION_CEA608,
+            /* accessibilityChannel= */ 1, // field 1, channel 1
+            Cea608Parser.MIN_DATA_CHANNEL_TIMEOUT_MS);
     byte[] sample1 =
         Bytes.concat(
             // 'roll up 2 rows' control character
@@ -182,10 +179,9 @@ public class Cea608DecoderTest {
   public void onlySelectedFieldIsUsed() throws Exception {
     Cea608Decoder decoder =
         new Cea608Decoder(
-            new Cea608Parser(
-                MimeTypes.APPLICATION_CEA608,
-                /* accessibilityChannel= */ 1, // field 1, channel 1
-                Cea608Parser.MIN_DATA_CHANNEL_TIMEOUT_MS));
+            MimeTypes.APPLICATION_CEA608,
+            /* accessibilityChannel= */ 1, // field 1, channel 1
+            Cea608Parser.MIN_DATA_CHANNEL_TIMEOUT_MS);
     // field 1 (0xFC header): 'test subtitle'
     // field 2 (0xFD header): 'wrong field!'
     byte[] sample1 =
@@ -223,10 +219,9 @@ public class Cea608DecoderTest {
   public void onlySelectedChannelIsUsed() throws Exception {
     Cea608Decoder decoder =
         new Cea608Decoder(
-            new Cea608Parser(
-                MimeTypes.APPLICATION_CEA608,
-                /* accessibilityChannel= */ 2, // field 1, channel 2
-                Cea608Parser.MIN_DATA_CHANNEL_TIMEOUT_MS));
+            MimeTypes.APPLICATION_CEA608,
+            /* accessibilityChannel= */ 2, // field 1, channel 2
+            Cea608Parser.MIN_DATA_CHANNEL_TIMEOUT_MS);
     // field 1 (0xFC header), channel 1: 'wrong channel'
     // field 1 (0xFC header), channel 2: 'test subtitle'
     // field 2 (0xFD header), channel 1: 'wrong field!'
@@ -317,10 +312,9 @@ public class Cea608DecoderTest {
   public void serviceSwitchOnField1Handled() throws Exception {
     Cea608Decoder decoder =
         new Cea608Decoder(
-            new Cea608Parser(
-                MimeTypes.APPLICATION_CEA608,
-                /* accessibilityChannel= */ 1, // field 1, channel 1
-                Cea608Parser.MIN_DATA_CHANNEL_TIMEOUT_MS));
+            MimeTypes.APPLICATION_CEA608,
+            /* accessibilityChannel= */ 1, // field 1, channel 1
+            Cea608Parser.MIN_DATA_CHANNEL_TIMEOUT_MS);
     // field 1 (0xFC header): 'test' then service switch
     // field 2 (0xFD header): 'wrong!'
     byte[] sample1 =
@@ -349,10 +343,9 @@ public class Cea608DecoderTest {
   public void serviceSwitchOnField2Handled() throws Exception {
     Cea608Decoder decoder =
         new Cea608Decoder(
-            new Cea608Parser(
-                MimeTypes.APPLICATION_CEA608,
-                /* accessibilityChannel= */ 3, // field 2, channel 1
-                Cea608Parser.MIN_DATA_CHANNEL_TIMEOUT_MS));
+            MimeTypes.APPLICATION_CEA608,
+            /* accessibilityChannel= */ 3, // field 2, channel 1
+            Cea608Parser.MIN_DATA_CHANNEL_TIMEOUT_MS);
     // field 1 (0xFC header): 'wrong!'
     // field 2 (0xFD header): 'test' then service switch
     byte[] sample1 =

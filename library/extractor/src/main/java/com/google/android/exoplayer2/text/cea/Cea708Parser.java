@@ -58,7 +58,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 //  format must happen during rendering), or re-add it to DefaultSubtitleParserFactory (if we're
 //  able to solve the re-ordering issue during extraction).
 @Deprecated
-public final class Cea708Parser implements SubtitleParser {
+/* package */ final class Cea708Parser implements SubtitleParser {
 
   /**
    * The {@link CueReplacementBehavior} for consecutive {@link CuesWithTiming} emitted by this
