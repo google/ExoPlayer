@@ -60,8 +60,8 @@ public class Cea708DecoderTest {
   public void singleServiceAndWindowDefinition() throws Exception {
     Cea708Decoder cea708Decoder =
         new Cea708Decoder(
-            new Cea708Parser(
-                /* accessibilityChannel= */ Format.NO_VALUE, /* initializationData= */ null));
+
+            /* accessibilityChannel= */ Format.NO_VALUE, /* initializationData= */ null);
     byte[] windowDefinition =
         TestUtil.createByteArray(
             0x98, // DF0 command (define window 0)

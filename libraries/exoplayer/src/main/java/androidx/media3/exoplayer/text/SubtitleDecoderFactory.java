@@ -23,9 +23,7 @@ import androidx.media3.extractor.text.DefaultSubtitleParserFactory;
 import androidx.media3.extractor.text.SubtitleDecoder;
 import androidx.media3.extractor.text.SubtitleParser;
 import androidx.media3.extractor.text.cea.Cea608Decoder;
-import androidx.media3.extractor.text.cea.Cea608Parser;
 import androidx.media3.extractor.text.cea.Cea708Decoder;
-import androidx.media3.extractor.text.cea.Cea708Parser;
 import java.util.Objects;
 
 /** A factory for {@link SubtitleDecoder} instances. */
@@ -82,13 +80,11 @@ public interface SubtitleDecoderFactory {
               case MimeTypes.APPLICATION_CEA608:
               case MimeTypes.APPLICATION_MP4CEA608:
                 return new Cea608Decoder(
-                    new Cea608Parser(
-                        mimeType,
-                        format.accessibilityChannel,
-                        Cea608Parser.MIN_DATA_CHANNEL_TIMEOUT_MS));
+                    mimeType,
+                    format.accessibilityChannel,
+                    Cea608Decoder.MIN_DATA_CHANNEL_TIMEOUT_MS);
               case MimeTypes.APPLICATION_CEA708:
-                return new Cea708Decoder(
-                    new Cea708Parser(format.accessibilityChannel, format.initializationData));
+                return new Cea708Decoder(format.accessibilityChannel, format.initializationData);
               default:
                 break;
             }

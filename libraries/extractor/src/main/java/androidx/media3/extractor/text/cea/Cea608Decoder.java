@@ -36,6 +36,12 @@ import java.nio.ByteBuffer;
 @UnstableApi
 public final class Cea608Decoder extends CeaDecoder {
 
+  /**
+   * The minimum value for the {@code validDataChannelTimeoutMs} constructor parameter permitted by
+   * ANSI/CTA-608-E R-2014 Annex C.9.
+   */
+  public static final long MIN_DATA_CHANNEL_TIMEOUT_MS = Cea608Parser.MIN_DATA_CHANNEL_TIMEOUT_MS;
+
   private static final CuesWithTiming EMPTY_CUES =
       new CuesWithTiming(
           ImmutableList.of(), /* startTimeUs= */ C.TIME_UNSET, /* durationUs= */ C.TIME_UNSET);
@@ -49,10 +55,15 @@ public final class Cea608Decoder extends CeaDecoder {
   /**
    * Constructs an instance.
    *
-   * @param parser A {@link Cea608Parser} to parse the subtitle data.
+   * @param mimeType The MIME type of the CEA-608 data.
+   * @param accessibilityChannel The Accessibility channel, or {@link Format#NO_VALUE} if unknown.
+   * @param validDataChannelTimeoutMs The timeout (in milliseconds) permitted by ANSI/CTA-608-E
+   *     R-2014 Annex C.9 to clear "stuck" captions where no removal control code is received. The
+   *     timeout should be at least {@link #MIN_DATA_CHANNEL_TIMEOUT_MS} or {@link C#TIME_UNSET} for
+   *     no timeout. This applies an upper-bound on the duration of a single caption.
    */
-  public Cea608Decoder(Cea608Parser parser) {
-    this.cea608Parser = parser;
+  public Cea608Decoder(String mimeType, int accessibilityChannel, long validDataChannelTimeoutMs) {
+    this.cea608Parser = new Cea608Parser(mimeType, accessibilityChannel, validDataChannelTimeoutMs);
     lastCueUpdateUs = C.TIME_UNSET;
   }
 
