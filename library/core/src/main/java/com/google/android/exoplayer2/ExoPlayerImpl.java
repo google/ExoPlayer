@@ -102,6 +102,7 @@ import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.PriorityTaskManager;
 import com.google.android.exoplayer2.util.Size;
 import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.util.VideoFrameProcessor;
 import com.google.android.exoplayer2.video.VideoDecoderOutputBufferRenderer;
 import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
@@ -1274,6 +1275,13 @@ import java.util.concurrent.TimeoutException;
   @Override
   public void setVideoEffects(List<Effect> videoEffects) {
     verifyApplicationThread();
+    try {
+      // LINT.IfChange(set_video_effects)
+      Class.forName("com.google.android.exoplayer2.effect.PreviewingSingleInputVideoGraph$Factory")
+          .getConstructor(VideoFrameProcessor.Factory.class);
+    } catch (ClassNotFoundException | NoSuchMethodException e) {
+      throw new IllegalStateException("Could not find required lib-effect dependencies.", e);
+    }
     sendRendererMessage(TRACK_TYPE_VIDEO, MSG_SET_VIDEO_EFFECTS, videoEffects);
   }
 

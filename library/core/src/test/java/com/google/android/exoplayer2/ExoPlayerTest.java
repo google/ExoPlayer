@@ -14244,6 +14244,14 @@ public final class ExoPlayerTest {
     assertThat(metadataAfterTransition.title).isEqualTo("title");
   }
 
+  @Test
+  public void setVideoEffects_failsWithoutLibEffectsDep() {
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    IllegalStateException expected =
+        assertThrows(IllegalStateException.class, () -> player.setVideoEffects(ImmutableList.of()));
+    assertThat(expected).hasMessageThat().contains("lib-effect dependencies");
+  }
+
   // Internal methods.
 
   private void addWatchAsSystemFeature() {
