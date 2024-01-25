@@ -3,6 +3,44 @@
 ### Unreleased changes
 
 *   Common Library:
+*   ExoPlayer:
+*   Transformer:
+*   Track Selection:
+*   Extractors:
+*   Audio:
+*   Video:
+*   Text:
+*   Metadata:
+*   Image:
+*   DRM:
+*   Effect:
+*   Muxers:
+*   IMA extension:
+*   Session:
+*   UI:
+*   Downloads:
+*   OkHttp Extension:
+*   Cronet Extension:
+*   RTMP Extension:
+*   HLS Extension:
+*   DASH Extension:
+*   Smooth Streaming Extension:
+*   RTSP Extension:
+*   Decoder Extensions (FFmpeg, VP9, AV1, MIDI, etc.):
+*   Leanback extension:
+*   Cast Extension:
+*   Test Utilities:
+*   Remove deprecated symbols:
+*   Demo app:
+
+## 1.3
+
+### 1.3.0-beta01 (2024-02-07)
+
+This release includes the following changes since the
+[1.3.0-alpha01 release](#130-2024-01-15):
+
+*   Common Library:
     *   Populate both `artworkUri` and `artworkData` in
         `MediaMetadata.Builder.populate(MediaMetadata)` when at least one of
         them is non-null ([#964](https://github.com/androidx/media/issues/964)).
@@ -23,8 +61,6 @@
     *   Add support for customising the `SubtitleParser.Factory` used during
         extraction. This can be achieved with
         `MediaSource.Factory.setSubtitleParserFactory()`.
-*   Transformer:
-*   Track Selection:
 *   Extractors:
     *   MP3: Use constant bitrate (CBR) seeking for files with an `Info` header
         (the CBR equivalent of the `Xing` header). Previously we used the seek
@@ -35,38 +71,13 @@
     *   Extract audio types from TS descriptors and map them to role flags,
         allowing users to make better-informed audio track selections
         ([#973](https://github.com/androidx/media/pull/973)).
-*   Audio:
-*   Video:
-*   Text:
-*   Metadata:
 *   Image:
     *   Add support for DASH thumbnails. Grid images are cropped and individual
         thumbnails are provided to `ImageOutput` close to their presentation
         times.
-*   DRM:
-*   Effect:
-*   Muxers:
-*   IMA extension:
 *   Session:
     *   Disable double-click detection for TV apps
         ([#962](https://github.com/androidx/media/issues/962)).
-*   UI:
-*   Downloads:
-*   OkHttp Extension:
-*   Cronet Extension:
-*   RTMP Extension:
-*   HLS Extension:
-*   DASH Extension:
-*   Smooth Streaming Extension:
-*   RTSP Extension:
-*   Decoder Extensions (FFmpeg, VP9, AV1, MIDI, etc.):
-*   Leanback extension:
-*   Cast Extension:
-*   Test Utilities:
-*   Remove deprecated symbols:
-*   Demo app:
-
-## 1.3
 
 ### 1.3.0-alpha01 (2024-01-15)
 
