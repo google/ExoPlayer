@@ -3208,10 +3208,9 @@ public final class Util {
    * <p>For example: android.media.MediaCodec.error_1 or android.media.MediaDrm.error_neg_2.
    *
    * @param diagnosticsInfo A string from which to parse the error code.
-   * @return The parser error code, or 0 if an error code could not be parsed.
+   * @return The parsed error code, or 0 if an error code could not be parsed.
    */
   public static int getErrorCodeFromPlatformDiagnosticsInfo(@Nullable String diagnosticsInfo) {
-    // TODO (internal b/192337376): Change 0 for ERROR_UNKNOWN once available.
     if (diagnosticsInfo == null) {
       return 0;
     }
@@ -3223,7 +3222,7 @@ public final class Util {
     String digitsSection = strings[length - 1];
     boolean isNegative = length >= 3 && "neg".equals(strings[length - 2]);
     try {
-      int errorCode = Integer.parseInt(Assertions.checkNotNull(digitsSection));
+      int errorCode = Integer.parseInt(checkNotNull(digitsSection));
       return isNegative ? -errorCode : errorCode;
     } catch (NumberFormatException e) {
       return 0;

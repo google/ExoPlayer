@@ -1258,7 +1258,6 @@ public class UtilTest {
 
   @Test
   public void getErrorCodeFromPlatformDiagnosticsInfo_withInvalidInput_returnsZero() {
-    // TODO (internal b/192337376): Change 0 for ERROR_UNKNOWN once available.
     assertThat(Util.getErrorCodeFromPlatformDiagnosticsInfo("")).isEqualTo(0);
     assertThat(Util.getErrorCodeFromPlatformDiagnosticsInfo("android.media.MediaDrm.empty"))
         .isEqualTo(0);
