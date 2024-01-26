@@ -27,7 +27,7 @@ import static androidx.media3.transformer.ExportResult.OPTIMIZATION_FAILED_EXTRA
 import static androidx.media3.transformer.ExportResult.OPTIMIZATION_FAILED_FORMAT_MISMATCH;
 import static androidx.media3.transformer.TransformerUtil.shouldTranscodeAudio;
 import static androidx.media3.transformer.TransformerUtil.shouldTranscodeVideo;
-import static androidx.media3.transformer.TransmuxTranscodeHelper.buildNewCompositionWithClipTimes;
+import static androidx.media3.transformer.TransmuxTranscodeHelper.buildUponCompositionForTrimOptimization;
 import static java.lang.Math.round;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
@@ -1397,7 +1397,7 @@ public final class Transformer {
             if (mp4Info.firstSyncSampleTimestampUsAfterTimeUs - trimStartTimeUs
                 <= maxEncodedAudioBufferDurationUs) {
               Transformer.this.composition =
-                  buildNewCompositionWithClipTimes(
+                  buildUponCompositionForTrimOptimization(
                       composition,
                       mp4Info.firstSyncSampleTimestampUsAfterTimeUs,
                       firstMediaItem.clippingConfiguration.endPositionUs,
@@ -1438,7 +1438,7 @@ public final class Transformer {
             }
             Transformer.this.mediaItemInfo = mp4Info;
             Composition trancodeComposition =
-                buildNewCompositionWithClipTimes(
+                buildUponCompositionForTrimOptimization(
                     composition,
                     trimStartTimeUs,
                     mp4Info.firstSyncSampleTimestampUsAfterTimeUs,
@@ -1476,7 +1476,7 @@ public final class Transformer {
     long trimStartTimeUs = firstEditedMediaItem.mediaItem.clippingConfiguration.startPositionUs;
     long trimEndTimeUs = firstEditedMediaItem.mediaItem.clippingConfiguration.endPositionUs;
     Composition transmuxComposition =
-        buildNewCompositionWithClipTimes(
+        buildUponCompositionForTrimOptimization(
             composition,
             mediaItemInfo.firstSyncSampleTimestampUsAfterTimeUs,
             trimEndTimeUs,
