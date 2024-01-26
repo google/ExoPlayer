@@ -872,7 +872,7 @@ public final class MediaItemExportTest {
         new ExoPlayerAssetLoader.Factory(
             context,
             decoderFactory,
-            /* forceInterpretHdrAsSdr= */ false,
+            Composition.HDR_MODE_KEEP_HDR,
             new FakeClock(/* isAutoAdvancing= */ true),
             mediaSourceFactory);
     CapturingMuxer.Factory muxerFactory =

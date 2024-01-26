@@ -118,7 +118,7 @@ public class ForceEndOfStreamTest {
             new DefaultAssetLoaderFactory(
                 context,
                 new FrameDroppingDecoderFactory(context, MP4_ASSET_FRAME_COUNT, framesToSkip),
-                /* forceInterpretHdrAsSdr= */ false,
+                Composition.HDR_MODE_KEEP_HDR,
                 Clock.DEFAULT))
         .build();
   }
