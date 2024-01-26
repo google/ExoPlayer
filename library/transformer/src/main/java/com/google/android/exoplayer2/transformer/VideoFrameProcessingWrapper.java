@@ -76,10 +76,14 @@ import java.util.concurrent.atomic.AtomicLong;
       boolean isLast) {
     if (trackFormat != null) {
       Size decodedSize = getDecodedSize(trackFormat);
+      ColorInfo colorInfo =
+          trackFormat.colorInfo == null || !trackFormat.colorInfo.isDataSpaceValid()
+              ? inputColorInfo
+              : trackFormat.colorInfo;
       videoFrameProcessor.registerInputStream(
           getInputType(checkNotNull(trackFormat.sampleMimeType)),
           createEffectListWithPresentation(editedMediaItem.effects.videoEffects, presentation),
-          new FrameInfo.Builder(inputColorInfo, decodedSize.getWidth(), decodedSize.getHeight())
+          new FrameInfo.Builder(colorInfo, decodedSize.getWidth(), decodedSize.getHeight())
               .setPixelWidthHeightRatio(trackFormat.pixelWidthHeightRatio)
               .setOffsetToAddUs(initialTimestampOffsetUs + mediaItemOffsetUs.get())
               .build());

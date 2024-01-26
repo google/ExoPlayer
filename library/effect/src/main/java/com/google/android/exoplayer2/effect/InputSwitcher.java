@@ -28,7 +28,6 @@ import static com.google.android.exoplayer2.util.VideoFrameProcessor.INPUT_TYPE_
 import android.content.Context;
 import android.util.SparseArray;
 import android.view.Surface;
-import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.FrameInfo;
 import com.google.android.exoplayer2.util.GlObjectsProvider;
 import com.google.android.exoplayer2.util.GlTextureInfo;
@@ -105,16 +104,13 @@ import org.checkerframework.checker.nullness.qual.Nullable;
                 context, inputColorInfo, outputColorInfo, enableColorTransfers);
         break;
       case INPUT_TYPE_BITMAP:
-        // HDR bitmap input is not supported. Bitmaps are always sRGB/Full range/BT.709.
+        // HDR bitmap input is not supported.
         checkState(!ColorInfo.isTransferHdr(inputColorInfo));
-        ColorInfo bitmapColorInfo = ColorInfo.SRGB_BT709_FULL;
         samplingShaderProgram =
             DefaultShaderProgram.createWithInternalSampler(
-                context, bitmapColorInfo, outputColorInfo, enableColorTransfers, inputType);
+                context, inputColorInfo, outputColorInfo, enableColorTransfers, inputType);
         break;
       case INPUT_TYPE_TEXTURE_ID:
-        // Image and textureId concatenation not supported.
-        checkState(inputColorInfo.colorTransfer != C.COLOR_TRANSFER_SRGB);
         samplingShaderProgram =
             DefaultShaderProgram.createWithInternalSampler(
                 context, inputColorInfo, outputColorInfo, enableColorTransfers, inputType);
