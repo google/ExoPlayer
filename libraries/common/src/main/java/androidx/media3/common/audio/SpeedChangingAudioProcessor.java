@@ -21,7 +21,6 @@ import static java.lang.Math.min;
 import androidx.media3.common.C;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
-import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.nio.ByteBuffer;
 
 /**
@@ -53,7 +52,6 @@ public final class SpeedChangingAudioProcessor extends BaseAudioProcessor {
   }
 
   @Override
-  @CanIgnoreReturnValue
   public AudioFormat onConfigure(AudioFormat inputAudioFormat)
       throws UnhandledAudioFormatException {
     return sonicAudioProcessor.configure(inputAudioFormat);
