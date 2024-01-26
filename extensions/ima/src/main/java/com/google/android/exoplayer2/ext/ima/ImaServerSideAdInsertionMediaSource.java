@@ -829,6 +829,7 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
 
   // Static methods.
 
+  @SuppressWarnings("deprecation") // b/192231683 prevents using non-deprecated method
   private static AdPlaybackState setVodAdGroupPlaceholders(
       List<CuePoint> cuePoints, AdPlaybackState adPlaybackState) {
     // TODO(b/192231683) Use getEndTimeMs()/getStartTimeMs() after jar target was removed

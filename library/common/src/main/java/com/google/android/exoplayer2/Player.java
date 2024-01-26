@@ -520,6 +520,7 @@ public interface Player {
     /** A builder for {@link Commands} instances. */
     public static final class Builder {
 
+      @SuppressWarnings("deprecation") // Includes deprecated commands
       private static final @Command int[] SUPPORTED_COMMANDS = {
         COMMAND_PLAY_PAUSE,
         COMMAND_PREPARE,
@@ -1305,6 +1306,7 @@ public interface Player {
    */
   // @Target list includes both 'default' targets and TYPE_USE, to ensure backwards compatibility
   // with Kotlin usages from before TYPE_USE was added.
+  @SuppressWarnings("deprecation") // Includes deprecated command
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})

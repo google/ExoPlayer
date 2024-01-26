@@ -27,6 +27,7 @@ import com.google.common.base.Ascii;
 /**
  * @deprecated Use {@link com.google.android.exoplayer2.metadata.vorbis.VorbisComment} instead.
  */
+@SuppressWarnings("deprecation") // Internal references to own class
 @Deprecated
 public class VorbisComment implements Metadata.Entry {
 

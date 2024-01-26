@@ -144,8 +144,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  *       {@code video_decoder_gl_surface_view} and {@code none}. Using {@code none} is recommended
  *       for audio only applications, since creating the surface can be expensive. Using {@code
  *       surface_view} is recommended for video applications. See <a
- *       href="https://developer.android.com/guide/topics/media/ui/playerview#surfacetype">Choosing
- *       a surface type</a> for more information.
+ *       href="https://developer.android.com/media/media3/ui/playerview#surfacetype">Choosing a
+ *       surface type</a> for more information.
  *       <ul>
  *         <li>Corresponding method: None
  *         <li>Default: {@code surface_view}
@@ -307,7 +307,8 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
     this(context, attrs, /* defStyleAttr= */ 0);
   }
 
-  @SuppressWarnings({"nullness:argument", "nullness:method.invocation"})
+  // Using deprecated StyledPlayerControlView.VisibilityListener internally
+  @SuppressWarnings({"nullness:argument", "nullness:method.invocation", "deprecation"})
   public StyledPlayerView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
     super(context, attrs, defStyleAttr);
 
@@ -1005,6 +1006,7 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
    * @deprecated Use {@link #setFullscreenButtonClickListener(FullscreenButtonClickListener)}
    *     instead.
    */
+  @SuppressWarnings("deprecation") // Forwarding deprecated call
   @Deprecated
   public void setControllerOnFullScreenModeChangedListener(
       @Nullable StyledPlayerControlView.OnFullScreenModeChangedListener listener) {
@@ -1259,13 +1261,13 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
     List<AdOverlayInfo> overlayViews = new ArrayList<>();
     if (overlayFrameLayout != null) {
       overlayViews.add(
-          new AdOverlayInfo(
-              overlayFrameLayout,
-              AdOverlayInfo.PURPOSE_NOT_VISIBLE,
-              /* detailedReason= */ "Transparent overlay does not impact viewability"));
+          new AdOverlayInfo.Builder(overlayFrameLayout, AdOverlayInfo.PURPOSE_NOT_VISIBLE)
+              .setDetailedReason("Transparent overlay does not impact viewability")
+              .build());
     }
     if (controller != null) {
-      overlayViews.add(new AdOverlayInfo(controller, AdOverlayInfo.PURPOSE_CONTROLS));
+      overlayViews.add(
+          new AdOverlayInfo.Builder(controller, AdOverlayInfo.PURPOSE_CONTROLS).build());
     }
     return ImmutableList.copyOf(overlayViews);
   }

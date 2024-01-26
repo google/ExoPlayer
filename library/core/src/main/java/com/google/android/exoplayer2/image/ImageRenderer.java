@@ -430,6 +430,7 @@ public class ImageRenderer extends BaseRenderer {
    *     current iteration of the rendering loop.
    * @return Whether we can feed more input data to the decoder.
    */
+  @SuppressWarnings("deprecation") // Clearing C.BUFFER_FLAG_DECODE_ONLY for compatibility
   private boolean feedInputBuffer(long positionUs) throws ImageDecoderException {
     if (readyToOutputTiles && tileInfo != null) {
       return false;

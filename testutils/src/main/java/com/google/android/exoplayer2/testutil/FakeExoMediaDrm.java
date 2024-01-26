@@ -183,7 +183,11 @@ public final class FakeExoMediaDrm implements ExoMediaDrm {
    */
   @Deprecated
   public FakeExoMediaDrm() {
-    this(/* maxConcurrentSessions= */ Integer.MAX_VALUE);
+    this(
+        /* enforceValidKeyResponses= */ true,
+        /* provisionsRequired= */ 0,
+        /* throwNotProvisionedExceptionFromGetKeyRequest= */ false,
+        /* maxConcurrentSessions= */ Integer.MAX_VALUE);
   }
 
   /**

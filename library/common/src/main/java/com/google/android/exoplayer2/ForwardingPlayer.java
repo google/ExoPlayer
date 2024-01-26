@@ -868,6 +868,7 @@ public class ForwardingPlayer implements Player {
   /**
    * @deprecated Use {@link #setDeviceVolume(int, int)} instead.
    */
+  @SuppressWarnings("deprecation") // Intentionally forwarding deprecated method
   @Deprecated
   @Override
   public void setDeviceVolume(int volume) {
@@ -883,6 +884,7 @@ public class ForwardingPlayer implements Player {
   /**
    * @deprecated Use {@link #increaseDeviceVolume(int)} instead.
    */
+  @SuppressWarnings("deprecation") // Intentionally forwarding deprecated method
   @Deprecated
   @Override
   public void increaseDeviceVolume() {
@@ -898,6 +900,7 @@ public class ForwardingPlayer implements Player {
   /**
    * @deprecated Use {@link #decreaseDeviceVolume(int)} instead.
    */
+  @SuppressWarnings("deprecation") // Intentionally forwarding deprecated method
   @Deprecated
   @Override
   public void decreaseDeviceVolume() {
@@ -913,6 +916,7 @@ public class ForwardingPlayer implements Player {
   /**
    * @deprecated Use {@link #setDeviceMuted(boolean, int)} instead.
    */
+  @SuppressWarnings("deprecation") // Intentionally forwarding deprecated method
   @Deprecated
   @Override
   public void setDeviceMuted(boolean muted) {
@@ -1114,6 +1118,7 @@ public class ForwardingPlayer implements Player {
       listener.onSkipSilenceEnabledChanged(skipSilenceEnabled);
     }
 
+    @SuppressWarnings("deprecation") // Intentionally forwarding deprecated method
     @Override
     public void onCues(List<Cue> cues) {
       listener.onCues(cues);

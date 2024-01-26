@@ -216,6 +216,7 @@ public final class MimeTypes {
    * Returns whether the given string is a text MIME type, including known text types that use
    * &quot;application&quot; as their base type.
    */
+  @SuppressWarnings("deprecation") // Supporting deprecated MIME types
   @Pure
   public static boolean isText(@Nullable String mimeType) {
     return BASE_TYPE_TEXT.equals(getTopLevelType(mimeType))

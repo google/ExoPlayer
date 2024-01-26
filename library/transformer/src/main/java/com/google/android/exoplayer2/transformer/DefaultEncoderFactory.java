@@ -547,7 +547,7 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
 
   /**
    * Applying suggested profile/level settings from
-   * https://developer.android.com/guide/topics/media/sharing-video#b-frames_and_encoding_profiles
+   * https://developer.android.com/media/optimize/sharing#b-frames_and_encoding_profiles
    *
    * <p>The adjustment is applied in-place to {@code mediaFormat}.
    */

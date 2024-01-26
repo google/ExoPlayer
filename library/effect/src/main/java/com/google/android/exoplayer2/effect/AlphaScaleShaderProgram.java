@@ -33,7 +33,7 @@ import java.io.IOException;
  *     migration guide</a> for more details, including a script to help with the migration.
  */
 @Deprecated
-/* package */ final class AlphaScaleShaderProgram extends SingleFrameGlShaderProgram {
+/* package */ final class AlphaScaleShaderProgram extends BaseGlShaderProgram {
   private static final String VERTEX_SHADER_PATH = "shaders/vertex_shader_transformation_es2.glsl";
   private static final String FRAGMENT_SHADER_PATH = "shaders/fragment_shader_alpha_scale_es2.glsl";
 
@@ -50,7 +50,7 @@ import java.io.IOException;
    */
   public AlphaScaleShaderProgram(Context context, boolean useHdr, float alphaScale)
       throws VideoFrameProcessingException {
-    super(/* useHighPrecisionColorComponents= */ useHdr);
+    super(/* useHighPrecisionColorComponents= */ useHdr, /* texturePoolCapacity= */ 1);
 
     try {
       glProgram = new GlProgram(context, VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH);

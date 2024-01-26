@@ -29,6 +29,7 @@ import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.extractor.mp4.Mp4Extractor;
+import com.google.android.exoplayer2.text.SubtitleParser;
 import com.google.android.exoplayer2.upstream.DataReader;
 import com.google.android.exoplayer2.upstream.DataSourceUtil;
 import com.google.android.exoplayer2.upstream.DataSpec;
@@ -110,7 +111,9 @@ import org.checkerframework.checker.nullness.qual.Nullable;
    * @throws IOException If an error occurs during metadata extraction.
    */
   public static Mp4Info create(Context context, String filePath, long timeUs) throws IOException {
-    Mp4Extractor mp4Extractor = new Mp4Extractor();
+    Mp4Extractor mp4Extractor =
+        new Mp4Extractor(
+            SubtitleParser.Factory.UNSUPPORTED, Mp4Extractor.FLAG_EMIT_RAW_SUBTITLE_DATA);
     ExtractorOutputImpl extractorOutput = new ExtractorOutputImpl();
     DefaultDataSource dataSource =
         new DefaultDataSource(context, /* allowCrossProtocolRedirects= */ false);

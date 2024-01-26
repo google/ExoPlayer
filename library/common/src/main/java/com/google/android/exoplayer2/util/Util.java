@@ -2459,7 +2459,7 @@ public final class Util {
         return C.CONTENT_TYPE_HLS;
       case "ism":
       case "isml":
-        return C.TYPE_SS;
+        return C.CONTENT_TYPE_SS;
       default:
         return C.CONTENT_TYPE_OTHER;
     }

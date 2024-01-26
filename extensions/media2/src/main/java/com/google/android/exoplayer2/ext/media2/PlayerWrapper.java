@@ -310,11 +310,11 @@ import java.util.List;
   }
 
   public int getPreviousMediaItemIndex() {
-    return player.getPreviousWindowIndex();
+    return player.getPreviousMediaItemIndex();
   }
 
   public int getNextMediaItemIndex() {
-    return player.getNextWindowIndex();
+    return player.getNextMediaItemIndex();
   }
 
   @Nullable

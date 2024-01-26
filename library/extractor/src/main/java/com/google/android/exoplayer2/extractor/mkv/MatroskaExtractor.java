@@ -89,12 +89,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 public class MatroskaExtractor implements Extractor {
 
   /**
-   * @deprecated Use {@link #newFactory(SubtitleParser.Factory)} instead.
-   */
-  @Deprecated
-  public static final ExtractorsFactory FACTORY = () -> new Extractor[] {new MatroskaExtractor()};
-
-  /**
    * Creates a factory for {@link MatroskaExtractor} instances with the provided {@link
    * SubtitleParser.Factory}.
    */
@@ -129,6 +123,16 @@ public class MatroskaExtractor implements Extractor {
    * transcoded to {@link MimeTypes#APPLICATION_MEDIA3_CUES} during extraction.
    */
   public static final int FLAG_EMIT_RAW_SUBTITLE_DATA = 1 << 1; // 2
+
+  /**
+   * @deprecated Use {@link #newFactory(SubtitleParser.Factory)} instead.
+   */
+  @Deprecated
+  public static final ExtractorsFactory FACTORY =
+      () ->
+          new Extractor[] {
+            new MatroskaExtractor(SubtitleParser.Factory.UNSUPPORTED, FLAG_EMIT_RAW_SUBTITLE_DATA)
+          };
 
   private static final String TAG = "MatroskaExtractor";
 

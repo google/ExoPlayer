@@ -3147,6 +3147,7 @@ import java.util.concurrent.TimeoutException;
     }
 
     // TextOutput implementation
+    @SuppressWarnings("deprecation") // Intentionally forwarding deprecating callback
     @Override
     public void onCues(List<Cue> cues) {
       listeners.sendEvent(EVENT_CUES, listener -> listener.onCues(cues));

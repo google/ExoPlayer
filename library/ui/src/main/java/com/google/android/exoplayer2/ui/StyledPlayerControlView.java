@@ -335,7 +335,10 @@ public class StyledPlayerControlView extends FrameLayout {
   @Nullable private Player player;
   @Nullable private ProgressUpdateListener progressUpdateListener;
 
-  @Nullable private OnFullScreenModeChangedListener onFullScreenModeChangedListener;
+  @SuppressWarnings("deprecation") // Supporting deprecated listener
+  @Nullable
+  private OnFullScreenModeChangedListener onFullScreenModeChangedListener;
+
   private boolean isFullScreen;
   private boolean isAttachedToWindow;
   private boolean showMultiWindowTimeBar;
@@ -1859,7 +1862,7 @@ public class StyledPlayerControlView extends FrameLayout {
       mainTextView = itemView.findViewById(R.id.exo_main_text);
       subTextView = itemView.findViewById(R.id.exo_sub_text);
       iconView = itemView.findViewById(R.id.exo_icon);
-      itemView.setOnClickListener(v -> onSettingViewClicked(getAdapterPosition()));
+      itemView.setOnClickListener(v -> onSettingViewClicked(getBindingAdapterPosition()));
     }
   }
 

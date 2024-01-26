@@ -165,8 +165,7 @@ import java.util.List;
 public interface ExoPlayer extends Player {
 
   /**
-   * @deprecated Use {@link ExoPlayer}, as the {@link AudioComponent} methods are defined by that
-   *     interface.
+   * @deprecated Use {@link ExoPlayer}, as all methods are defined by that interface.
    */
   @Deprecated
   interface AudioComponent {
@@ -233,8 +232,7 @@ public interface ExoPlayer extends Player {
   }
 
   /**
-   * @deprecated Use {@link ExoPlayer}, as the {@link VideoComponent} methods are defined by that
-   *     interface.
+   * @deprecated Use {@link ExoPlayer}, as all methods are defined by that interface.
    */
   @Deprecated
   interface VideoComponent {
@@ -354,8 +352,7 @@ public interface ExoPlayer extends Player {
   }
 
   /**
-   * @deprecated Use {@link Player}, as the {@link TextComponent} methods are defined by that
-   *     interface.
+   * @deprecated Use {@link Player}, as all methods are defined by that interface.
    */
   @Deprecated
   interface TextComponent {
@@ -368,8 +365,7 @@ public interface ExoPlayer extends Player {
   }
 
   /**
-   * @deprecated Use {@link Player}, as the {@link DeviceComponent} methods are defined by that
-   *     interface.
+   * @deprecated Use {@link Player}, as all methods are defined by that interface.
    */
   @Deprecated
   interface DeviceComponent {
@@ -886,8 +882,8 @@ public interface ExoPlayer extends Player {
     /**
      * Sets whether the player should pause automatically when audio is rerouted from a headset to
      * device speakers. See the <a
-     * href="https://developer.android.com/guide/topics/media-apps/volume-and-earphones#becoming-noisy">
-     * audio becoming noisy</a> documentation for more information.
+     * href="https://developer.android.com/media/platform/output#becoming-noisy">audio becoming
+     * noisy</a> documentation for more information.
      *
      * @param handleAudioBecomingNoisy Whether the player should pause automatically when audio is
      *     rerouted from a headset to device speakers.
@@ -1196,6 +1192,7 @@ public interface ExoPlayer extends Player {
    * @deprecated Use {@link ExoPlayer}, as the {@link AudioComponent} methods are defined by that
    *     interface.
    */
+  @SuppressWarnings("deprecation") // Intentionally returning deprecated type
   @Nullable
   @Deprecated
   AudioComponent getAudioComponent();
@@ -1204,6 +1201,7 @@ public interface ExoPlayer extends Player {
    * @deprecated Use {@link ExoPlayer}, as the {@link VideoComponent} methods are defined by that
    *     interface.
    */
+  @SuppressWarnings("deprecation") // Intentionally returning deprecated type
   @Nullable
   @Deprecated
   VideoComponent getVideoComponent();
@@ -1212,6 +1210,7 @@ public interface ExoPlayer extends Player {
    * @deprecated Use {@link Player}, as the {@link TextComponent} methods are defined by that
    *     interface.
    */
+  @SuppressWarnings("deprecation") // Intentionally returning deprecated type
   @Nullable
   @Deprecated
   TextComponent getTextComponent();
@@ -1220,6 +1219,7 @@ public interface ExoPlayer extends Player {
    * @deprecated Use {@link Player}, as the {@link DeviceComponent} methods are defined by that
    *     interface.
    */
+  @SuppressWarnings("deprecation") // Intentionally returning deprecated type
   @Nullable
   @Deprecated
   DeviceComponent getDeviceComponent();

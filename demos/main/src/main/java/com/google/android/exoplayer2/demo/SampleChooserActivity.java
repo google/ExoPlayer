@@ -26,9 +26,10 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.util.JsonReader;
 import android.view.Menu;
@@ -71,6 +72,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * An activity for selecting from a list of media samples.
@@ -288,33 +291,41 @@ public class SampleChooserActivity extends AppCompatActivity
     return menuItem != null && menuItem.isChecked();
   }
 
-  private final class SampleListLoader extends AsyncTask<String, Void, List<PlaylistGroup>> {
+  private final class SampleListLoader {
+
+    private final ExecutorService executorService;
 
     private boolean sawError;
 
-    @Override
-    protected List<PlaylistGroup> doInBackground(String... uris) {
-      List<PlaylistGroup> result = new ArrayList<>();
-      Context context = getApplicationContext();
-      DataSource dataSource = DemoUtil.getDataSourceFactory(context).createDataSource();
-      for (String uri : uris) {
-        DataSpec dataSpec = new DataSpec(Uri.parse(uri));
-        InputStream inputStream = new DataSourceInputStream(dataSource, dataSpec);
-        try {
-          readPlaylistGroups(new JsonReader(new InputStreamReader(inputStream, "UTF-8")), result);
-        } catch (Exception e) {
-          Log.e(TAG, "Error loading sample list: " + uri, e);
-          sawError = true;
-        } finally {
-          DataSourceUtil.closeQuietly(dataSource);
-        }
-      }
-      return result;
+    public SampleListLoader() {
+      executorService = Executors.newSingleThreadExecutor();
     }
 
-    @Override
-    protected void onPostExecute(List<PlaylistGroup> result) {
-      onPlaylistGroups(result, sawError);
+    public void execute(String... uris) {
+      executorService.execute(
+          () -> {
+            List<PlaylistGroup> result = new ArrayList<>();
+            Context context = getApplicationContext();
+            DataSource dataSource = DemoUtil.getDataSourceFactory(context).createDataSource();
+            for (String uri : uris) {
+              DataSpec dataSpec = new DataSpec(Uri.parse(uri));
+              InputStream inputStream = new DataSourceInputStream(dataSource, dataSpec);
+              try {
+                readPlaylistGroups(
+                    new JsonReader(new InputStreamReader(inputStream, "UTF-8")), result);
+              } catch (Exception e) {
+                Log.e(TAG, "Error loading sample list: " + uri, e);
+                sawError = true;
+              } finally {
+                DataSourceUtil.closeQuietly(dataSource);
+              }
+            }
+            new Handler(Looper.getMainLooper())
+                .post(
+                    () -> {
+                      onPlaylistGroups(result, sawError);
+                    });
+          });
     }
 
     private void readPlaylistGroups(JsonReader reader, List<PlaylistGroup> groups)

@@ -40,6 +40,7 @@ import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.source.mediaparser.InputReaderAdapterV30;
 import com.google.android.exoplayer2.source.mediaparser.MediaParserUtil;
 import com.google.android.exoplayer2.source.mediaparser.OutputConsumerAdapterV30;
+import com.google.android.exoplayer2.text.SubtitleParser;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.FileTypes;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -76,7 +77,13 @@ public final class MediaParserHlsMediaChunkExtractor implements HlsMediaChunkExt
           // The segment contains WebVTT. MediaParser does not support WebVTT parsing, so we use the
           // bundled extractor.
           return new BundledHlsMediaChunkExtractor(
-              new WebvttExtractor(format.language, timestampAdjuster), format, timestampAdjuster);
+              new WebvttExtractor(
+                  format.language,
+                  timestampAdjuster,
+                  SubtitleParser.Factory.UNSUPPORTED,
+                  /* parseSubtitlesDuringExtraction= */ false),
+              format,
+              timestampAdjuster);
         }
 
         boolean overrideInBandCaptionDeclarations = muxedCaptionFormats != null;

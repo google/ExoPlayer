@@ -70,6 +70,7 @@ public interface LoadControl {
    * @deprecated Implement {@link #onTracksSelected(Timeline, MediaPeriodId, Renderer[],
    *     TrackGroupArray, ExoTrackSelection[])} instead.
    */
+  @SuppressWarnings("deprecation") // Intentionally referencing deprecated constant
   @Deprecated
   default void onTracksSelected(
       Renderer[] renderers, TrackGroupArray trackGroups, ExoTrackSelection[] trackSelections) {
@@ -172,6 +173,7 @@ public interface LoadControl {
    * @deprecated Implement {@link #shouldStartPlayback(Timeline, MediaPeriodId, long, float,
    *     boolean, long)} instead.
    */
+  @SuppressWarnings("deprecation") // Intentionally referencing deprecated constant
   @Deprecated
   default boolean shouldStartPlayback(
       long bufferedDurationUs, float playbackSpeed, boolean rebuffering, long targetLiveOffsetUs) {

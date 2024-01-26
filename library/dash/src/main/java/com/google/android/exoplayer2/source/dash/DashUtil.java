@@ -31,6 +31,7 @@ import com.google.android.exoplayer2.source.dash.manifest.DashManifestParser;
 import com.google.android.exoplayer2.source.dash.manifest.Period;
 import com.google.android.exoplayer2.source.dash.manifest.RangedUri;
 import com.google.android.exoplayer2.source.dash.manifest.Representation;
+import com.google.android.exoplayer2.text.SubtitleParser;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
@@ -348,7 +349,13 @@ public final class DashUtil {
         mimeType != null
             && (mimeType.startsWith(MimeTypes.VIDEO_WEBM)
                 || mimeType.startsWith(MimeTypes.AUDIO_WEBM));
-    Extractor extractor = isWebm ? new MatroskaExtractor() : new FragmentedMp4Extractor();
+    Extractor extractor =
+        isWebm
+            ? new MatroskaExtractor(
+                SubtitleParser.Factory.UNSUPPORTED, MatroskaExtractor.FLAG_EMIT_RAW_SUBTITLE_DATA)
+            : new FragmentedMp4Extractor(
+                SubtitleParser.Factory.UNSUPPORTED,
+                FragmentedMp4Extractor.FLAG_EMIT_RAW_SUBTITLE_DATA);
     return new BundledChunkExtractor(extractor, trackType, format);
   }
 

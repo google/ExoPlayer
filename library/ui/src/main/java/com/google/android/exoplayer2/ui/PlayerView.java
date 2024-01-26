@@ -535,6 +535,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
    * @param oldPlayerView The old view to detach from the player.
    * @param newPlayerView The new view to attach to the player.
    */
+  @SuppressWarnings("deprecation") // Intentionally using deprecated class
   public static void switchTargetView(
       Player player, @Nullable PlayerView oldPlayerView, @Nullable PlayerView newPlayerView) {
     if (oldPlayerView == newPlayerView) {
@@ -562,10 +563,10 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
    * Sets the {@link Player} to use.
    *
    * <p>To transition a {@link Player} from targeting one view to another, it's recommended to use
-   * {@link #switchTargetView(Player, PlayerView, PlayerView)} rather than this method. If you do
-   * wish to use this method directly, be sure to attach the player to the new view <em>before</em>
-   * calling {@code setPlayer(null)} to detach it from the old one. This ordering is significantly
-   * more efficient and may allow for more seamless transitions.
+   * {@link #switchTargetView} rather than this method. If you do wish to use this method directly,
+   * be sure to attach the player to the new view <em>before</em> calling {@code setPlayer(null)} to
+   * detach it from the old one. This ordering is significantly more efficient and may allow for
+   * more seamless transitions.
    *
    * @param player The {@link Player} to use, or {@code null} to detach the current player. Only
    *     players which are accessed on the main thread are supported ({@code
@@ -1166,13 +1167,13 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
     List<AdOverlayInfo> overlayViews = new ArrayList<>();
     if (overlayFrameLayout != null) {
       overlayViews.add(
-          new AdOverlayInfo(
-              overlayFrameLayout,
-              AdOverlayInfo.PURPOSE_NOT_VISIBLE,
-              /* detailedReason= */ "Transparent overlay does not impact viewability"));
+          new AdOverlayInfo.Builder(overlayFrameLayout, AdOverlayInfo.PURPOSE_NOT_VISIBLE)
+              .setDetailedReason("Transparent overlay does not impact viewability")
+              .build());
     }
     if (controller != null) {
-      overlayViews.add(new AdOverlayInfo(controller, AdOverlayInfo.PURPOSE_CONTROLS));
+      overlayViews.add(
+          new AdOverlayInfo.Builder(controller, AdOverlayInfo.PURPOSE_CONTROLS).build());
     }
     return ImmutableList.copyOf(overlayViews);
   }
@@ -1493,6 +1494,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
       }
     }
 
+    @SuppressWarnings("deprecation") // Intentionally referencing deprecated outer class
     @Override
     public void onTracksChanged(Tracks tracks) {
       // Suppress the update if transitioning to an unprepared period within the same window. This

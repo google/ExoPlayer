@@ -100,7 +100,8 @@ import com.google.android.exoplayer2.util.StandaloneMediaClock;
     if (rendererMediaClock != null && rendererMediaClock != rendererClock) {
       if (rendererClock != null) {
         throw ExoPlaybackException.createForUnexpected(
-            new IllegalStateException("Multiple renderer media clocks enabled."));
+            new IllegalStateException("Multiple renderer media clocks enabled."),
+            PlaybackException.ERROR_CODE_UNSPECIFIED);
       }
       this.rendererClock = rendererMediaClock;
       this.rendererClockSource = renderer;

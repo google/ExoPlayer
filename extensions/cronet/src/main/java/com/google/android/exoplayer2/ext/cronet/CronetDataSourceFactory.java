@@ -39,7 +39,9 @@ public final class CronetDataSourceFactory extends BaseFactory {
   public static final int DEFAULT_READ_TIMEOUT_MILLIS =
       CronetDataSource.DEFAULT_READ_TIMEOUT_MILLIS;
 
+  @SuppressWarnings("deprecation") // Intentionally using deprecated type
   private final CronetEngineWrapper cronetEngineWrapper;
+
   private final Executor executor;
   @Nullable private final TransferListener transferListener;
   private final int connectTimeoutMs;
@@ -61,6 +63,7 @@ public final class CronetDataSourceFactory extends BaseFactory {
    * @param fallbackFactory A {@link HttpDataSource.Factory} which is used as a fallback in case no
    *     suitable CronetEngine can be build.
    */
+  @SuppressWarnings("deprecation") // Intentionally using deprecated parameter
   public CronetDataSourceFactory(
       CronetEngineWrapper cronetEngineWrapper,
       Executor executor,
@@ -87,6 +90,7 @@ public final class CronetDataSourceFactory extends BaseFactory {
    * @param cronetEngineWrapper A {@link CronetEngineWrapper}.
    * @param executor The {@link java.util.concurrent.Executor} that will perform the requests.
    */
+  @SuppressWarnings("deprecation") // Intentionally using deprecated parameter
   public CronetDataSourceFactory(CronetEngineWrapper cronetEngineWrapper, Executor executor) {
     this(cronetEngineWrapper, executor, /* userAgent= */ (String) null);
   }
@@ -106,6 +110,7 @@ public final class CronetDataSourceFactory extends BaseFactory {
    *     needed, or {@code null} for the fallback to use the default user agent of the underlying
    *     platform.
    */
+  @SuppressWarnings("deprecation") // Intentionally using deprecated parameter
   public CronetDataSourceFactory(
       CronetEngineWrapper cronetEngineWrapper, Executor executor, @Nullable String userAgent) {
     this(
@@ -133,6 +138,7 @@ public final class CronetDataSourceFactory extends BaseFactory {
    *     needed, or {@code null} for the fallback to use the default user agent of the underlying
    *     platform.
    */
+  @SuppressWarnings("deprecation") // Intentionally using deprecated parameter
   public CronetDataSourceFactory(
       CronetEngineWrapper cronetEngineWrapper,
       Executor executor,
@@ -167,6 +173,7 @@ public final class CronetDataSourceFactory extends BaseFactory {
    * @param fallbackFactory A {@link HttpDataSource.Factory} which is used as a fallback in case no
    *     suitable CronetEngine can be build.
    */
+  @SuppressWarnings("deprecation") // Intentionally using deprecated parameter
   public CronetDataSourceFactory(
       CronetEngineWrapper cronetEngineWrapper,
       Executor executor,
@@ -199,6 +206,7 @@ public final class CronetDataSourceFactory extends BaseFactory {
    * @param fallbackFactory A {@link HttpDataSource.Factory} which is used as a fallback in case no
    *     suitable CronetEngine can be build.
    */
+  @SuppressWarnings("deprecation") // Intentionally using deprecated parameter
   public CronetDataSourceFactory(
       CronetEngineWrapper cronetEngineWrapper,
       Executor executor,
@@ -227,6 +235,7 @@ public final class CronetDataSourceFactory extends BaseFactory {
    * @param executor The {@link java.util.concurrent.Executor} that will perform the requests.
    * @param transferListener An optional listener.
    */
+  @SuppressWarnings("deprecation") // Intentionally using deprecated parameter
   public CronetDataSourceFactory(
       CronetEngineWrapper cronetEngineWrapper,
       Executor executor,
@@ -250,6 +259,7 @@ public final class CronetDataSourceFactory extends BaseFactory {
    *     needed, or {@code null} for the fallback to use the default user agent of the underlying
    *     platform.
    */
+  @SuppressWarnings("deprecation") // Intentionally using deprecated parameter
   public CronetDataSourceFactory(
       CronetEngineWrapper cronetEngineWrapper,
       Executor executor,
@@ -283,6 +293,7 @@ public final class CronetDataSourceFactory extends BaseFactory {
    *     needed, or {@code null} for the fallback to use the default user agent of the underlying
    *     platform.
    */
+  @SuppressWarnings("deprecation") // Intentionally using deprecated parameter
   public CronetDataSourceFactory(
       CronetEngineWrapper cronetEngineWrapper,
       Executor executor,
@@ -320,6 +331,7 @@ public final class CronetDataSourceFactory extends BaseFactory {
    * @param fallbackFactory A {@link HttpDataSource.Factory} which is used as a fallback in case no
    *     suitable CronetEngine can be build.
    */
+  @SuppressWarnings("deprecation") // Intentionally using deprecated parameter
   public CronetDataSourceFactory(
       CronetEngineWrapper cronetEngineWrapper,
       Executor executor,

@@ -81,13 +81,6 @@ import java.util.UUID;
 public class FragmentedMp4Extractor implements Extractor {
 
   /**
-   * @deprecated Use {@link #newFactory(SubtitleParser.Factory)} instead.
-   */
-  @Deprecated
-  public static final ExtractorsFactory FACTORY =
-      () -> new Extractor[] {new FragmentedMp4Extractor()};
-
-  /**
    * Creates a factory for {@link FragmentedMp4Extractor} instances with the provided {@link
    * SubtitleParser.Factory}.
    */
@@ -140,6 +133,17 @@ public class FragmentedMp4Extractor implements Extractor {
    * transcoded to {@link MimeTypes#APPLICATION_MEDIA3_CUES} during extraction.
    */
   public static final int FLAG_EMIT_RAW_SUBTITLE_DATA = 1 << 5; // 32
+
+  /**
+   * @deprecated Use {@link #newFactory(SubtitleParser.Factory)} instead.
+   */
+  @Deprecated
+  public static final ExtractorsFactory FACTORY =
+      () ->
+          new Extractor[] {
+            new FragmentedMp4Extractor(
+                SubtitleParser.Factory.UNSUPPORTED, /* flags= */ FLAG_EMIT_RAW_SUBTITLE_DATA)
+          };
 
   private static final String TAG = "FragmentedMp4Extractor";
 

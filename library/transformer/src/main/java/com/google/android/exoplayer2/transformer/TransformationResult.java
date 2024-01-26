@@ -29,6 +29,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 /**
  * @deprecated Use {@link ExportResult} instead.
  */
+@SuppressWarnings("deprecation") // Deprecated usages of own type
 @Deprecated
 public final class TransformationResult {
   /**

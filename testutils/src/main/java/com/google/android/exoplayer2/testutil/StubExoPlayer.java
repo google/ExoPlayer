@@ -53,6 +53,7 @@ public class StubExoPlayer extends StubPlayer implements ExoPlayer {
    * @deprecated Use {@link ExoPlayer}, as the {@link AudioComponent} methods are defined by that
    *     interface.
    */
+  @SuppressWarnings("deprecation") // Returning deprecated type
   @Override
   @Deprecated
   public AudioComponent getAudioComponent() {
@@ -63,6 +64,7 @@ public class StubExoPlayer extends StubPlayer implements ExoPlayer {
    * @deprecated Use {@link ExoPlayer}, as the {@link VideoComponent} methods are defined by that
    *     interface.
    */
+  @SuppressWarnings("deprecation") // Returning deprecated type
   @Override
   @Deprecated
   public VideoComponent getVideoComponent() {
@@ -73,6 +75,7 @@ public class StubExoPlayer extends StubPlayer implements ExoPlayer {
    * @deprecated Use {@link Player}, as the {@link TextComponent} methods are defined by that
    *     interface.
    */
+  @SuppressWarnings("deprecation") // Returning deprecated type
   @Override
   @Deprecated
   public TextComponent getTextComponent() {
@@ -83,6 +86,7 @@ public class StubExoPlayer extends StubPlayer implements ExoPlayer {
    * @deprecated Use {@link Player}, as the {@link DeviceComponent} methods are defined by that
    *     interface.
    */
+  @SuppressWarnings("deprecation") // Returning deprecated type
   @Override
   @Deprecated
   public DeviceComponent getDeviceComponent() {

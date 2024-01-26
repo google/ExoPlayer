@@ -31,6 +31,7 @@ public interface MediaSourceFactory extends MediaSource.Factory {
    * An instance that throws {@link UnsupportedOperationException} from {@link #createMediaSource}
    * and {@link #getSupportedTypes()}.
    */
+  @SuppressWarnings("deprecation") // Creating instance of deprecated type
   MediaSourceFactory UNSUPPORTED =
       new MediaSourceFactory() {
         @Override

@@ -32,6 +32,8 @@ import kotlin.annotations.jvm.UnderMigration;
  *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
  *     migration guide</a> for more details, including a script to help with the migration.
  */
+// MigrationStatus.STRICT is marked as deprecated because it's considered experimental
+@SuppressWarnings("deprecation")
 @Nonnull
 @TypeQualifierDefault(ElementType.TYPE_USE)
 @UnderMigration(status = MigrationStatus.STRICT)

@@ -160,11 +160,8 @@ public final class MediaSessionConnector {
           | PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE
           | PlaybackStateCompat.ACTION_SET_REPEAT_MODE
           | PlaybackStateCompat.ACTION_SET_PLAYBACK_SPEED;
-  private static final int BASE_MEDIA_SESSION_FLAGS =
-      MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS
-          | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS;
   private static final int EDITOR_MEDIA_SESSION_FLAGS =
-      BASE_MEDIA_SESSION_FLAGS | MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS;
+      MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS;
 
   private static final MediaMetadataCompat METADATA_EMPTY =
       new MediaMetadataCompat.Builder().build();
@@ -503,7 +500,6 @@ public final class MediaSessionConnector {
         new DefaultMediaMetadataProvider(
             mediaSession.getController(), /* metadataExtrasPrefix= */ null);
     enabledPlaybackActions = DEFAULT_PLAYBACK_ACTIONS;
-    mediaSession.setFlags(BASE_MEDIA_SESSION_FLAGS);
     mediaSession.setCallback(componentListener, new Handler(looper));
     clearMediaItemsOnStop = true;
   }
@@ -548,7 +544,7 @@ public final class MediaSessionConnector {
    *
    * <p>Please note that prior to API 21 MediaButton events are not delivered to the {@link
    * MediaSessionCompat}. Instead they are delivered as key events (see <a
-   * href="https://developer.android.com/guide/topics/media-apps/mediabuttons">'Responding to media
+   * href="https://developer.android.com/media/legacy/media-buttons">'Responding to media
    * buttons'</a>). In an {@link android.app.Activity Activity}, media button events arrive at the
    * {@link android.app.Activity#dispatchKeyEvent(KeyEvent)} method.
    *
@@ -615,8 +611,7 @@ public final class MediaSessionConnector {
       unregisterCommandReceiver(this.queueEditor);
       this.queueEditor = queueEditor;
       registerCommandReceiver(queueEditor);
-      mediaSession.setFlags(
-          queueEditor == null ? BASE_MEDIA_SESSION_FLAGS : EDITOR_MEDIA_SESSION_FLAGS);
+      mediaSession.setFlags(queueEditor == null ? 0 : EDITOR_MEDIA_SESSION_FLAGS);
     }
   }
 

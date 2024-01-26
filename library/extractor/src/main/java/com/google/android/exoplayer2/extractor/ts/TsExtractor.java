@@ -68,12 +68,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 public final class TsExtractor implements Extractor {
 
   /**
-   * @deprecated Use {@link #newFactory(SubtitleParser.Factory)} instead.
-   */
-  @Deprecated
-  public static final ExtractorsFactory FACTORY = () -> new Extractor[] {new TsExtractor()};
-
-  /**
    * Creates a factory for {@link TsExtractor} instances with the provided {@link
    * SubtitleParser.Factory}.
    */
@@ -120,6 +114,16 @@ public final class TsExtractor implements Extractor {
    * transcoded to {@link MimeTypes#APPLICATION_MEDIA3_CUES} during extraction.
    */
   public static final int FLAG_EMIT_RAW_SUBTITLE_DATA = 1;
+
+  /**
+   * @deprecated Use {@link #newFactory(SubtitleParser.Factory)} instead.
+   */
+  @Deprecated
+  public static final ExtractorsFactory FACTORY =
+      () ->
+          new Extractor[] {
+            new TsExtractor(FLAG_EMIT_RAW_SUBTITLE_DATA, SubtitleParser.Factory.UNSUPPORTED)
+          };
 
   public static final int TS_PACKET_SIZE = 188;
   public static final int DEFAULT_TIMESTAMP_SEARCH_BYTES = 600 * TS_PACKET_SIZE;
