@@ -20,7 +20,6 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.base.Objects;
-import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
@@ -148,7 +147,6 @@ public interface AudioProcessor {
    * @return The configured output audio format if this instance is {@link #isActive() active}.
    * @throws UnhandledAudioFormatException Thrown if the specified format can't be handled as input.
    */
-  @CanIgnoreReturnValue
   AudioFormat configure(AudioFormat inputAudioFormat) throws UnhandledAudioFormatException;
 
   /** Returns whether the processor is configured and will process input buffers. */

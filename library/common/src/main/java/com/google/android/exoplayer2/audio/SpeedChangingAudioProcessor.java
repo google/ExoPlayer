@@ -20,7 +20,6 @@ import static java.lang.Math.min;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Util;
-import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.nio.ByteBuffer;
 
 /**
@@ -57,7 +56,6 @@ public final class SpeedChangingAudioProcessor extends BaseAudioProcessor {
   }
 
   @Override
-  @CanIgnoreReturnValue
   public AudioFormat onConfigure(AudioFormat inputAudioFormat)
       throws UnhandledAudioFormatException {
     return sonicAudioProcessor.configure(inputAudioFormat);
