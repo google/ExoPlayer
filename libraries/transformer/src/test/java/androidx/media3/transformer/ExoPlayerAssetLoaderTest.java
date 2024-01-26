@@ -144,7 +144,7 @@ public class ExoPlayerAssetLoaderTest {
     EditedMediaItem editedMediaItem =
         new EditedMediaItem.Builder(MediaItem.fromUri("asset:///media/mp4/sample.mp4")).build();
     return new ExoPlayerAssetLoader.Factory(
-            context, decoderFactory, /* forceInterpretHdrAsSdr= */ false, clock)
+            context, decoderFactory, Composition.HDR_MODE_KEEP_HDR, clock)
         .createAssetLoader(editedMediaItem, Looper.myLooper(), listener);
   }
 

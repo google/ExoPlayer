@@ -20,7 +20,6 @@ import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.extractor.AacUtil.AAC_LC_AUDIO_SAMPLE_COUNT;
-import static androidx.media3.transformer.Composition.HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR;
 import static androidx.media3.transformer.ExportResult.OPTIMIZATION_ABANDONED_KEYFRAME_PLACEMENT_OPTIMAL_FOR_TRIM;
 import static androidx.media3.transformer.ExportResult.OPTIMIZATION_ABANDONED_OTHER;
 import static androidx.media3.transformer.ExportResult.OPTIMIZATION_ABANDONED_TRIM_AND_TRANSCODING_TRANSFORMATION_REQUESTED;
@@ -1532,11 +1531,7 @@ public final class Transformer {
     if (assetLoaderFactory == null) {
       assetLoaderFactory =
           new DefaultAssetLoaderFactory(
-              context,
-              new DefaultDecoderFactory(context),
-              /* forceInterpretHdrAsSdr= */ transformationRequest.hdrMode
-                  == HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR,
-              clock);
+              context, new DefaultDecoderFactory(context), transformationRequest.hdrMode, clock);
     }
     DebugTraceUtil.reset();
     transformerInternal =

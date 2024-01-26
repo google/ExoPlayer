@@ -37,7 +37,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   private final boolean flattenForSlowMotion;
   private final Codec.DecoderFactory decoderFactory;
-  private final boolean forceInterpretHdrAsSdr;
+  private final @Composition.HdrMode int hdrMode;
   private final List<Long> decodeOnlyPresentationTimestamps;
 
   private @MonotonicNonNull SefSlowMotionFlattener sefVideoSlowMotionFlattener;
@@ -46,13 +46,13 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   public ExoAssetLoaderVideoRenderer(
       boolean flattenForSlowMotion,
       Codec.DecoderFactory decoderFactory,
-      boolean forceInterpretHdrAsSdr,
+      @Composition.HdrMode int hdrMode,
       TransformerMediaClock mediaClock,
       AssetLoader.Listener assetLoaderListener) {
     super(C.TRACK_TYPE_VIDEO, mediaClock, assetLoaderListener);
     this.flattenForSlowMotion = flattenForSlowMotion;
     this.decoderFactory = decoderFactory;
-    this.forceInterpretHdrAsSdr = forceInterpretHdrAsSdr;
+    this.hdrMode = hdrMode;
     decodeOnlyPresentationTimestamps = new ArrayList<>();
   }
 
@@ -63,7 +63,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   @Override
   protected Format overrideFormat(Format inputFormat) {
-    if (forceInterpretHdrAsSdr && ColorInfo.isTransferHdr(inputFormat.colorInfo)) {
+    if (hdrMode == Composition.HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR
+        && ColorInfo.isTransferHdr(inputFormat.colorInfo)) {
       return inputFormat.buildUpon().setColorInfo(ColorInfo.SDR_BT709_LIMITED).build();
     }
     return inputFormat;
@@ -84,7 +85,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   @Override
   protected void initDecoder(Format inputFormat) throws ExportException {
     // TODO(b/278259383): Move surface creation out of sampleConsumer. Init decoder before
-    // sampleConsumer.
+    //  sampleConsumer.
     checkStateNotNull(sampleConsumer);
     boolean isDecoderToneMappingRequired =
         ColorInfo.isTransferHdr(inputFormat.colorInfo)
