@@ -67,12 +67,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 public final class Mp4Extractor implements Extractor, SeekMap {
 
   /**
-   * @deprecated Use {@link #newFactory(SubtitleParser.Factory)} instead.
-   */
-  @Deprecated
-  public static final ExtractorsFactory FACTORY = () -> new Extractor[] {new Mp4Extractor()};
-
-  /**
    * Creates a factory for {@link Mp4Extractor} instances with the provided {@link
    * SubtitleParser.Factory}.
    */
@@ -124,6 +118,16 @@ public final class Mp4Extractor implements Extractor, SeekMap {
   public static final int FLAG_MARK_FIRST_VIDEO_TRACK_WITH_MAIN_ROLE = 1 << 3;
 
   public static final int FLAG_EMIT_RAW_SUBTITLE_DATA = 1 << 4;
+
+  /**
+   * @deprecated Use {@link #newFactory(SubtitleParser.Factory)} instead.
+   */
+  @Deprecated
+  public static final ExtractorsFactory FACTORY =
+      () ->
+          new Extractor[] {
+            new Mp4Extractor(SubtitleParser.Factory.UNSUPPORTED, FLAG_EMIT_RAW_SUBTITLE_DATA)
+          };
 
   /** Parser states. */
   @Documented

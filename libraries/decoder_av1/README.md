@@ -128,4 +128,4 @@ GL rendering mode has better performance, so should be preferred
 
 *   [Troubleshooting using decoding extensions][]
 
-[Troubleshooting using decoding extensions]: https://developer.android.com/guide/topics/media/exoplayer/troubleshooting#how-can-i-get-a-decoding-library-to-load-and-be-used-for-playbacks
+[Troubleshooting using decoding extensions]: https://developer.android.com/media/media3/exoplayer/troubleshooting#how-can-i-get-a-decoding-library-to-load-and-be-used-for-playback

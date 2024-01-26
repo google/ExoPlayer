@@ -2767,6 +2767,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
   /**
    * @deprecated Use {@link #setDeviceVolume(int, int)} instead.
    */
+  @SuppressWarnings("deprecation") // Using deprecated command code
   @Deprecated
   @Override
   public final void setDeviceVolume(int volume) {
@@ -2797,6 +2798,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
   /**
    * @deprecated Use {@link #increaseDeviceVolume(int)} instead.
    */
+  @SuppressWarnings("deprecation") // Using deprecated command code
   @Deprecated
   @Override
   public final void increaseDeviceVolume() {
@@ -2829,6 +2831,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
   /**
    * @deprecated Use {@link #decreaseDeviceVolume(int)} instead.
    */
+  @SuppressWarnings("deprecation") // Using deprecated command code
   @Deprecated
   @Override
   public final void decreaseDeviceVolume() {
@@ -2861,6 +2864,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
   /**
    * @deprecated Use {@link #setDeviceMuted(boolean, int)} instead.
    */
+  @SuppressWarnings("deprecation") // Using deprecated command code
   @Deprecated
   @Override
   public final void setDeviceMuted(boolean muted) {

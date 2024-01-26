@@ -23,5 +23,5 @@ locally. Instructions for doing this can be found in the [top level README][].
 *   [Developer Guide][]
 *   [Javadoc][]
 
-[Developer Guide]: https://developer.android.com/guide/topics/media/transformer
+[Developer Guide]: https://developer.android.com/media/media3/transformer
 [Javadoc]: https://developer.android.com/reference/androidx/media3/transformer/package-summary

@@ -43,6 +43,7 @@ public final class TextInformationFrame extends Id3Frame {
   /** The text values of this frame. Will always have at least one element. */
   public final ImmutableList<String> values;
 
+  @SuppressWarnings("deprecation") // Assigning deprecated public field
   public TextInformationFrame(String id, @Nullable String description, List<String> values) {
     super(id);
     checkArgument(!values.isEmpty());

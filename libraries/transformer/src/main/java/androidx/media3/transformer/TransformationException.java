@@ -36,6 +36,7 @@ import java.lang.annotation.Target;
 /**
  * @deprecated Use {@link ExportException} instead.
  */
+@SuppressWarnings("deprecation") // Deprecated usages of own type
 @Deprecated
 @UnstableApi
 public final class TransformationException extends Exception {

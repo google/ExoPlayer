@@ -202,10 +202,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * <p>Generally, multiple sessions aren't necessary for most media apps. One exception is if your
  * app can play multiple media content at the same time, but only for the playback of video-only
  * media or remote playback, since the <a
- * href="https://developer.android.com/guide/topics/media-apps/audio-focus">audio focus policy</a>
- * recommends not playing multiple audio content at the same time. Also, keep in mind that multiple
- * media sessions would make Android Auto and Bluetooth devices with display to show your app
- * multiple times, because they list up media sessions, not media apps.
+ * href="https://developer.android.com/media/optimize/audio-focus">audio focus policy</a> recommends
+ * not playing multiple audio content at the same time. Also, keep in mind that multiple media
+ * sessions would make Android Auto and Bluetooth devices with display to show your app multiple
+ * times, because they list up media sessions, not media apps.
  *
  * <h2 id="BackwardCompatibility">Backward Compatibility with Legacy Session APIs</h2>
  *
@@ -1328,7 +1328,7 @@ public class MediaSession {
 
     /**
      * Called when a controller requested to add new {@linkplain MediaItem media items} to the
-     * playlist via one of the {@code Player.addMediaItem(s)} methods. Unless overriden, {@link
+     * playlist via one of the {@code Player.addMediaItem(s)} methods. Unless overridden, {@link
      * Callback#onSetMediaItems} will direct {@code Player.setMediaItem(s)} to this method as well.
      *
      * <p>In addition, unless {@link Callback#onSetMediaItems} is overridden, this callback is also

@@ -50,8 +50,8 @@ import java.util.List;
  * for non-Wear OS devices.
  *
  * <p>The system dialog will be the <a
- * href="https://developer.android.com/guide/topics/media/media-routing#output-switcher">Media
- * Output Switcher</a> if it is available on the device, or otherwise the Bluetooth settings screen.
+ * href="https://developer.android.com/media/routing#output-switcher">Media Output Switcher</a> if
+ * it is available on the device, or otherwise the Bluetooth settings screen.
  *
  * <p>This implementation also pauses playback when launching the system dialog. The underlying
  * {@link Player} implementation (e.g. ExoPlayer) is expected to resume playback automatically when

@@ -77,6 +77,7 @@ public final class PlaybackOutput implements Dumper.Dumpable {
             metadatas.add(metadata);
           }
 
+          @SuppressWarnings("deprecation") // Intentionally testing deprecated output
           @Override
           public void onCues(List<Cue> cues) {
             subtitlesFromDeprecatedTextOutput.add(cues);

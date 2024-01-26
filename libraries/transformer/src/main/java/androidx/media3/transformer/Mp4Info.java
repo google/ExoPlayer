@@ -34,6 +34,7 @@ import androidx.media3.extractor.PositionHolder;
 import androidx.media3.extractor.SeekMap;
 import androidx.media3.extractor.TrackOutput;
 import androidx.media3.extractor.mp4.Mp4Extractor;
+import androidx.media3.extractor.text.SubtitleParser;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -104,7 +105,9 @@ import org.checkerframework.checker.nullness.qual.Nullable;
    * @throws IOException If an error occurs during metadata extraction.
    */
   public static Mp4Info create(Context context, String filePath, long timeUs) throws IOException {
-    Mp4Extractor mp4Extractor = new Mp4Extractor();
+    Mp4Extractor mp4Extractor =
+        new Mp4Extractor(
+            SubtitleParser.Factory.UNSUPPORTED, Mp4Extractor.FLAG_EMIT_RAW_SUBTITLE_DATA);
     ExtractorOutputImpl extractorOutput = new ExtractorOutputImpl();
     DefaultDataSource dataSource =
         new DefaultDataSource(context, /* allowCrossProtocolRedirects= */ false);

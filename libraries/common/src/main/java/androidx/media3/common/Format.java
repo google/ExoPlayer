@@ -42,8 +42,8 @@ import java.util.UUID;
  *
  * <p>When building formats, populate all fields whose values are known and relevant to the type of
  * format being constructed. For information about different types of format, see ExoPlayer's <a
- * href="https://developer.android.com/guide/topics/media/exoplayer/supported-formats">Supported
- * formats page</a>.
+ * href="https://developer.android.com/media/media3/exoplayer/supported-formats">Supported formats
+ * page</a>.
  *
  * <h2>Fields commonly relevant to all formats</h2>
  *

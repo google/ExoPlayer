@@ -15,7 +15,6 @@
  */
 package androidx.media3.session;
 
-import static androidx.media3.common.Player.COMMAND_ADJUST_DEVICE_VOLUME;
 import static androidx.media3.common.Player.COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS;
 import static androidx.media3.common.Player.COMMAND_CHANGE_MEDIA_ITEMS;
 import static androidx.media3.common.Player.COMMAND_PLAY_PAUSE;
@@ -30,7 +29,6 @@ import static androidx.media3.common.Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_SEEK_TO_PREVIOUS;
 import static androidx.media3.common.Player.COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_SET_AUDIO_ATTRIBUTES;
-import static androidx.media3.common.Player.COMMAND_SET_DEVICE_VOLUME;
 import static androidx.media3.common.Player.COMMAND_SET_DEVICE_VOLUME_WITH_FLAGS;
 import static androidx.media3.common.Player.COMMAND_SET_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_SET_PLAYLIST_METADATA;
@@ -1529,7 +1527,7 @@ import java.util.concurrent.ExecutionException;
     queueSessionTaskWithPlayerCommand(
         caller,
         sequenceNumber,
-        COMMAND_SET_DEVICE_VOLUME,
+        Player.COMMAND_SET_DEVICE_VOLUME,
         sendSessionResultSuccess(player -> player.setDeviceVolume(volume)));
   }
 
@@ -1555,7 +1553,7 @@ import java.util.concurrent.ExecutionException;
     queueSessionTaskWithPlayerCommand(
         caller,
         sequenceNumber,
-        COMMAND_ADJUST_DEVICE_VOLUME,
+        Player.COMMAND_ADJUST_DEVICE_VOLUME,
         sendSessionResultSuccess(player -> player.increaseDeviceVolume()));
   }
 
@@ -1581,7 +1579,7 @@ import java.util.concurrent.ExecutionException;
     queueSessionTaskWithPlayerCommand(
         caller,
         sequenceNumber,
-        COMMAND_ADJUST_DEVICE_VOLUME,
+        Player.COMMAND_ADJUST_DEVICE_VOLUME,
         sendSessionResultSuccess(player -> player.decreaseDeviceVolume()));
   }
 
@@ -1607,7 +1605,7 @@ import java.util.concurrent.ExecutionException;
     queueSessionTaskWithPlayerCommand(
         caller,
         sequenceNumber,
-        COMMAND_ADJUST_DEVICE_VOLUME,
+        Player.COMMAND_ADJUST_DEVICE_VOLUME,
         sendSessionResultSuccess(player -> player.setDeviceMuted(muted)));
   }
 

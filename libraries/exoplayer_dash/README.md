@@ -39,5 +39,5 @@ instances and pass them directly to the player. For advanced download use cases,
 *   [Developer Guide][]
 *   [Javadoc][]
 
-[Developer Guide]: https://developer.android.com/guide/topics/media/exoplayer/dash
+[Developer Guide]: https://developer.android.com/media/media3/exoplayer/dash
 [Javadoc]: https://developer.android.com/reference/androidx/media3/exoplayer/dash/package-summary

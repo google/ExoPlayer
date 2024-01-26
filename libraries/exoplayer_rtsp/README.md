@@ -33,5 +33,5 @@ instances and pass them directly to the player.
 *   [Developer Guide][]
 *   [Javadoc][]
 
-[Developer Guide]: https://developer.android.com/guide/topics/media/exoplayer/rtsp
+[Developer Guide]: https://developer.android.com/media/media3/exoplayer/rtsp
 [Javadoc]: https://developer.android.com/reference/androidx/media3/exoplayer/rtsp/package-summary

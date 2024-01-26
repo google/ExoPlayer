@@ -630,6 +630,7 @@ public class MediaControllerProviderService extends Service {
           });
     }
 
+    @SuppressWarnings("deprecation") // Forwarding deprecated method call
     @Override
     public void setDeviceVolume(String controllerId, int volume) throws RemoteException {
       runOnHandler(
@@ -649,6 +650,7 @@ public class MediaControllerProviderService extends Service {
           });
     }
 
+    @SuppressWarnings("deprecation") // Forwarding deprecated method call
     @Override
     public void increaseDeviceVolume(String controllerId) throws RemoteException {
       runOnHandler(
@@ -668,6 +670,7 @@ public class MediaControllerProviderService extends Service {
           });
     }
 
+    @SuppressWarnings("deprecation") // Forwarding deprecated method call
     @Override
     public void decreaseDeviceVolume(String controllerId) throws RemoteException {
       runOnHandler(
@@ -687,6 +690,7 @@ public class MediaControllerProviderService extends Service {
           });
     }
 
+    @SuppressWarnings("deprecation") // Forwarding deprecated method call
     @Override
     public void setDeviceMuted(String controllerId, boolean muted) throws RemoteException {
       runOnHandler(

@@ -50,7 +50,7 @@ import java.util.concurrent.ScheduledExecutorService;
  * An {@link AssetLoader} implementation that loads images into {@link Bitmap} instances.
  *
  * <p>Supports the image formats listed <a
- * href="https://developer.android.com/guide/topics/media/media-formats#image-formats">here</a>
+ * href="https://developer.android.com/media/platform/supported-formats#image-formats">here</a>
  * except from GIFs, which could exhibit unexpected behavior.
  */
 @UnstableApi

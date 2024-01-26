@@ -133,6 +133,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
      *     CronetEngineWrapper#getCronetEngine()} would have returned {@code null}.
      */
     @UnstableApi
+    @SuppressWarnings("deprecation") // Intentionally using deprecated parameter
     @Deprecated
     public Factory(CronetEngineWrapper cronetEngineWrapper, Executor executor) {
       this.cronetEngine = cronetEngineWrapper.getCronetEngine();
@@ -325,6 +326,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
      *     {@link CronetEngine} is not available. Use the fallback factory directly in such cases.
      */
     @CanIgnoreReturnValue
+    @SuppressWarnings("deprecation") // Intentionally referring to deprecated parameter
     @UnstableApi
     @Deprecated
     public Factory setFallbackFactory(@Nullable HttpDataSource.Factory fallbackFactory) {

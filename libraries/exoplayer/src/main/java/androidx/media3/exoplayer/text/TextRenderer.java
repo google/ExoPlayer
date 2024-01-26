@@ -347,6 +347,7 @@ public final class TextRenderer extends BaseRenderer implements Callback {
     }
   }
 
+  @SuppressWarnings("deprecation") // Using deprecated C.BUFFER_FLAG_DECODE_ONLY for compatibility
   private void renderFromSubtitles(long positionUs) {
     lastRendererPositionUs = positionUs;
     if (nextSubtitle == null) {

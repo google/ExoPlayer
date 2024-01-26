@@ -34,6 +34,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresPermission;
 import androidx.core.app.NotificationBuilderWithBuilderAccessor;
+import androidx.core.graphics.drawable.IconCompat;
 import androidx.media3.common.util.NullableType;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
@@ -303,7 +304,10 @@ public class MediaStyleNotificationHelper {
           new RemoteViews(
               mBuilder.mContext.getPackageName(),
               androidx.media.R.layout.notification_media_action);
-      button.setImageViewResource(androidx.media.R.id.action0, action.getIcon());
+      IconCompat iconCompat = action.getIconCompat();
+      if (iconCompat != null) {
+        button.setImageViewResource(androidx.media.R.id.action0, iconCompat.getResId());
+      }
       if (!tombstone) {
         button.setOnClickPendingIntent(androidx.media.R.id.action0, action.getActionIntent());
       }

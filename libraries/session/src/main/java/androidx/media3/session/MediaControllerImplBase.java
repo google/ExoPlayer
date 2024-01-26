@@ -1525,6 +1525,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   /**
    * @deprecated Use {@link #setDeviceVolume(int, int)} instead.
    */
+  @SuppressWarnings("deprecation") // Checking deprecated command codes
   @Deprecated
   @Override
   public void setDeviceVolume(int volume) {
@@ -1573,6 +1574,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   /**
    * @deprecated Use {@link #increaseDeviceVolume(int)} instead.
    */
+  @SuppressWarnings("deprecation") // Checking deprecated command codes
   @Deprecated
   @Override
   public void increaseDeviceVolume() {
@@ -1617,6 +1619,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   /**
    * @deprecated Use {@link #decreaseDeviceVolume(int)} instead.
    */
+  @SuppressWarnings("deprecation") // Checking deprecated command codes
   @Deprecated
   @Override
   public void decreaseDeviceVolume() {
@@ -1659,6 +1662,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   /**
    * @deprecated Use {@link #setDeviceMuted(boolean, int)} instead.
    */
+  @SuppressWarnings("deprecation") // Checking deprecated command codes
   @Deprecated
   @Override
   public void setDeviceMuted(boolean muted) {

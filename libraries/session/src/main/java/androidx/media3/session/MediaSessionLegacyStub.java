@@ -598,20 +598,6 @@ import org.checkerframework.checker.initialization.qual.Initialized;
         sessionCompat.getCurrentControllerInfo());
   }
 
-  @Override
-  public void onRemoveQueueItemAt(int index) {
-    dispatchSessionTaskWithPlayerCommand(
-        COMMAND_CHANGE_MEDIA_ITEMS,
-        controller -> {
-          if (index < 0) {
-            Log.w(TAG, "onRemoveQueueItem(): index shouldn't be negative");
-            return;
-          }
-          sessionImpl.getPlayerWrapper().removeMediaItem(index);
-        },
-        sessionCompat.getCurrentControllerInfo());
-  }
-
   public ControllerCb getControllerLegacyCbForBroadcast() {
     return controllerLegacyCbForBroadcast;
   }

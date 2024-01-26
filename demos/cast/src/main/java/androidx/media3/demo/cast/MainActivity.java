@@ -44,6 +44,7 @@ import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 import com.google.android.gms.cast.framework.CastButtonFactory;
 import com.google.android.gms.cast.framework.CastContext;
 import com.google.android.gms.dynamite.DynamiteModule;
+import com.google.common.util.concurrent.MoreExecutors;
 
 /**
  * An activity that plays video using {@link ExoPlayer} and supports casting using ExoPlayer's Cast
@@ -65,7 +66,7 @@ public class MainActivity extends AppCompatActivity
     super.onCreate(savedInstanceState);
     // Getting the cast context later than onStart can cause device discovery not to take place.
     try {
-      castContext = CastContext.getSharedInstance(this);
+      castContext = CastContext.getSharedInstance(this, MoreExecutors.directExecutor()).getResult();
     } catch (RuntimeException e) {
       Throwable cause = e.getCause();
       while (cause != null) {

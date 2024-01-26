@@ -129,7 +129,7 @@ public class MediaButtonReceiver extends BroadcastReceiver {
         // button intents to this receiver only when the session is released or not active, meaning
         // the service is not running. Hence we only accept a PLAY command here that ensures that
         // playback is started and the MediaSessionService/MediaLibraryService is put into the
-        // foreground (see https://developer.android.com/guide/topics/media-apps/mediabuttons and
+        // foreground (see https://developer.android.com/media/legacy/media-buttons and
         // https://developer.android.com/about/versions/oreo/android-8.0-changes#back-all).
         android.util.Log.w(
             TAG,

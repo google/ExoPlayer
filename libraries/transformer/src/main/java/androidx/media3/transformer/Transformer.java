@@ -597,6 +597,7 @@ public final class Transformer {
     /**
      * @deprecated Use {@link #onCompleted(Composition, ExportResult)} instead.
      */
+    @SuppressWarnings("deprecation") // Using deprecated type in callback
     @Deprecated
     default void onTransformationCompleted(MediaItem inputMediaItem, TransformationResult result) {
       onTransformationCompleted(inputMediaItem);
@@ -623,6 +624,7 @@ public final class Transformer {
     /**
      * @deprecated Use {@link #onError(Composition, ExportResult, ExportException)} instead.
      */
+    @SuppressWarnings("deprecation") // Using deprecated type in callback
     @Deprecated
     default void onTransformationError(
         MediaItem inputMediaItem, TransformationException exception) {
@@ -632,6 +634,7 @@ public final class Transformer {
     /**
      * @deprecated Use {@link #onError(Composition, ExportResult, ExportException)} instead.
      */
+    @SuppressWarnings("deprecation") // Using deprecated type in callback
     @Deprecated
     default void onTransformationError(
         MediaItem inputMediaItem, TransformationResult result, TransformationException exception) {

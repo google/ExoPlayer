@@ -124,10 +124,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * <p>Generally, multiple sessions aren't necessary for most media apps. One exception is if your
  * app can play multiple media contents at the same time, but only for playback of video-only media
  * or remote playback, since the <a
- * href="https://developer.android.com/guide/topics/media-apps/audio-focus">audio focus policy</a>
- * recommends not playing multiple audio contents at the same time. Also, keep in mind that multiple
- * media sessions would make Android Auto and Bluetooth devices with a display to show your apps
- * multiple times, because they list up media sessions, not media apps.
+ * href="https://developer.android.com/media/optimize/audio-focus">audio focus policy</a> recommends
+ * not playing multiple audio contents at the same time. Also, keep in mind that multiple media
+ * sessions would make Android Auto and Bluetooth devices with a display to show your apps multiple
+ * times, because they list up media sessions, not media apps.
  *
  * <p>However, if you're capable of handling multiple playbacks and want to keep their sessions
  * while the app is in the background, create multiple sessions and add them to this service with

@@ -38,5 +38,5 @@ instances and pass them directly to the player. For advanced download use cases,
 *   [Developer Guide][]
 *   [Javadoc][]
 
-[Developer Guide]: https://developer.android.com/guide/topics/media/exoplayer/smoothstreaming
+[Developer Guide]: https://developer.android.com/media/media3/exoplayer/smoothstreaming
 [Javadoc]: https://developer.android.com/reference/androidx/media3/exoplayer/smoothstreaming/package-summary

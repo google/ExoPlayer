@@ -16,6 +16,7 @@
 package androidx.media3.exoplayer;
 
 import androidx.annotation.Nullable;
+import androidx.media3.common.PlaybackException;
 import androidx.media3.common.PlaybackParameters;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.Clock;
@@ -93,7 +94,8 @@ import androidx.media3.common.util.Clock;
     if (rendererMediaClock != null && rendererMediaClock != rendererClock) {
       if (rendererClock != null) {
         throw ExoPlaybackException.createForUnexpected(
-            new IllegalStateException("Multiple renderer media clocks enabled."));
+            new IllegalStateException("Multiple renderer media clocks enabled."),
+            PlaybackException.ERROR_CODE_UNSPECIFIED);
       }
       this.rendererClock = rendererMediaClock;
       this.rendererClockSource = renderer;

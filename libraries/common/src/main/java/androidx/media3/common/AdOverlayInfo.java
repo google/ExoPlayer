@@ -109,6 +109,7 @@ public final class AdOverlayInfo {
    * @deprecated Use {@link Builder} instead.
    */
   @UnstableApi
+  @SuppressWarnings("deprecation") // Intentionally using deprecated constructor
   @Deprecated
   public AdOverlayInfo(View view, @Purpose int purpose) {
     this(view, purpose, /* detailedReason= */ null);

@@ -151,10 +151,12 @@ public class DefaultTrackSelector extends MappingTrackSelector
      *
      * @param context Any context.
      */
+    @SuppressWarnings({"deprecation"}) // Supporting deprecated builder pattern
     public ParametersBuilder(Context context) {
       delegate = new Parameters.Builder(context);
     }
 
+    @SuppressWarnings("deprecation") // Intentionally returning deprecated type
     @CanIgnoreReturnValue
     @Override
     protected ParametersBuilder set(TrackSelectionParameters parameters) {
@@ -164,6 +166,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
 
     // Video
 
+    @SuppressWarnings("deprecation") // Intentionally returning deprecated type
     @CanIgnoreReturnValue
     @Override
     public DefaultTrackSelector.ParametersBuilder setMaxVideoSizeSd() {
@@ -171,6 +174,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
       return this;
     }
 
+    @SuppressWarnings("deprecation") // Intentionally returning deprecated type
     @CanIgnoreReturnValue
     @Override
     public DefaultTrackSelector.ParametersBuilder clearVideoSizeConstraints() {
@@ -178,6 +182,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
       return this;
     }
 
+    @SuppressWarnings("deprecation") // Intentionally returning deprecated type
     @CanIgnoreReturnValue
     @Override
     public DefaultTrackSelector.ParametersBuilder setMaxVideoSize(
@@ -186,6 +191,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
       return this;
     }
 
+    @SuppressWarnings("deprecation") // Intentionally returning deprecated type
     @CanIgnoreReturnValue
     @Override
     public DefaultTrackSelector.ParametersBuilder setMaxVideoFrameRate(int maxVideoFrameRate) {
@@ -193,6 +199,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
       return this;
     }
 
+    @SuppressWarnings("deprecation") // Intentionally returning deprecated type
     @CanIgnoreReturnValue
     @Override
     public DefaultTrackSelector.ParametersBuilder setMaxVideoBitrate(int maxVideoBitrate) {
@@ -200,6 +207,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
       return this;
     }
 
+    @SuppressWarnings("deprecation") // Intentionally returning deprecated type
     @CanIgnoreReturnValue
     @Override
     public DefaultTrackSelector.ParametersBuilder setMinVideoSize(
@@ -208,6 +216,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
       return this;
     }
 
+    @SuppressWarnings("deprecation") // Intentionally returning deprecated type
     @CanIgnoreReturnValue
     @Override
     public DefaultTrackSelector.ParametersBuilder setMinVideoFrameRate(int minVideoFrameRate) {
@@ -215,6 +224,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
       return this;
     }
 
+    @SuppressWarnings("deprecation") // Intentionally returning deprecated type
     @CanIgnoreReturnValue
     @Override
     public DefaultTrackSelector.ParametersBuilder setMinVideoBitrate(int minVideoBitrate) {
@@ -230,6 +240,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
      *     selection can be made otherwise.
      * @return This builder.
      */
+    @SuppressWarnings("deprecation") // Intentionally returning deprecated type
     @CanIgnoreReturnValue
     public ParametersBuilder setExceedVideoConstraintsIfNecessary(
         boolean exceedVideoConstraintsIfNecessary) {
@@ -248,6 +259,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
      *     containing mixed MIME types.
      * @return This builder.
      */
+    @SuppressWarnings("deprecation") // Intentionally returning deprecated type
     @CanIgnoreReturnValue
     public ParametersBuilder setAllowVideoMixedMimeTypeAdaptiveness(
         boolean allowVideoMixedMimeTypeAdaptiveness) {
@@ -263,6 +275,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
      *     adaptation may not be completely seamless.
      * @return This builder.
      */
+    @SuppressWarnings("deprecation") // Intentionally returning deprecated type
     @CanIgnoreReturnValue
     public ParametersBuilder setAllowVideoNonSeamlessAdaptiveness(
         boolean allowVideoNonSeamlessAdaptiveness) {
@@ -279,6 +292,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
      *     with mixed levels of decoder and hardware acceleration support.
      * @return This builder.
      */
+    @SuppressWarnings("deprecation") // Intentionally returning deprecated type
     @CanIgnoreReturnValue
     public ParametersBuilder setAllowVideoMixedDecoderSupportAdaptiveness(
         boolean allowVideoMixedDecoderSupportAdaptiveness) {
@@ -287,6 +301,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
       return this;
     }
 
+    @SuppressWarnings("deprecation") // Intentionally returning deprecated type
     @CanIgnoreReturnValue
     @Override
     public ParametersBuilder setViewportSizeToPhysicalDisplaySize(
@@ -295,6 +310,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
       return this;
     }
 
+    @SuppressWarnings("deprecation") // Intentionally returning deprecated type
     @CanIgnoreReturnValue
     @Override
     public ParametersBuilder clearViewportSizeConstraints() {
@@ -302,6 +318,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
       return this;
     }
 
+    @SuppressWarnings("deprecation") // Intentionally returning deprecated type
     @CanIgnoreReturnValue
     @Override
     public ParametersBuilder setViewportSize(
@@ -310,6 +327,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
       return this;
     }
 
+    @SuppressWarnings("deprecation") // Intentionally returning deprecated type
     @CanIgnoreReturnValue
     @Override
     public ParametersBuilder setPreferredVideoMimeType(@Nullable String mimeType) {
@@ -317,6 +335,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
       return this;
     }
 
+    @SuppressWarnings("deprecation") // Intentionally returning deprecated type
     @CanIgnoreReturnValue
     @Override
     public ParametersBuilder setPreferredVideoMimeTypes(String... mimeTypes) {
@@ -324,6 +343,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
       return this;
     }
 
+    @SuppressWarnings("deprecation") // Intentionally returning deprecated type
     @CanIgnoreReturnValue
     @Override
     public DefaultTrackSelector.ParametersBuilder setPreferredVideoRoleFlags(
@@ -334,6 +354,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
 
     // Audio
 
+    @SuppressWarnings("deprecation") // Intentionally returning deprecated type
     @CanIgnoreReturnValue
     @Override
     public ParametersBuilder setPreferredAudioLanguage(@Nullable String preferredAudioLanguage) {
@@ -341,6 +362,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
       return this;
     }
 
+    @SuppressWarnings("deprecation") // Intentionally returning deprecated type
     @CanIgnoreReturnValue
     @Override
     public ParametersBuilder setPreferredAudioLanguages(String... preferredAudioLanguages) {
@@ -348,6 +370,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
       return this;
     }
 
+    @SuppressWarnings("deprecation") // Intentionally returning deprecated type
     @CanIgnoreReturnValue
     @Override
     public ParametersBuilder setPreferredAudioRoleFlags(@C.RoleFlags int preferredAudioRoleFlags) {
@@ -355,6 +378,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
       return this;
     }
 
+    @SuppressWarnings("deprecation") // Intentionally returning deprecated type
     @CanIgnoreReturnValue
     @Override
     public ParametersBuilder setMaxAudioChannelCount(int maxAudioChannelCount) {
@@ -362,6 +386,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
       return this;
     }
 
+    @SuppressWarnings("deprecation") // Intentionally returning deprecated type
     @CanIgnoreReturnValue
     @Override
     public ParametersBuilder setMaxAudioBitrate(int maxAudioBitrate) {
@@ -377,6 +402,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
      *     selection can be made otherwise.
      * @return This builder.
      */
+    @SuppressWarnings("deprecation") // Intentionally returning deprecated type
     @CanIgnoreReturnValue
     public ParametersBuilder setExceedAudioConstraintsIfNecessary(
         boolean exceedAudioConstraintsIfNecessary) {
@@ -395,6 +421,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
      *     containing mixed MIME types.
      * @return This builder.
      */
+    @SuppressWarnings("deprecation") // Intentionally returning deprecated type
     @CanIgnoreReturnValue
     public ParametersBuilder setAllowAudioMixedMimeTypeAdaptiveness(
         boolean allowAudioMixedMimeTypeAdaptiveness) {
@@ -411,6 +438,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
      *     containing mixed sample rates.
      * @return This builder.
      */
+    @SuppressWarnings("deprecation") // Intentionally returning deprecated type
     @CanIgnoreReturnValue
     public ParametersBuilder setAllowAudioMixedSampleRateAdaptiveness(
         boolean allowAudioMixedSampleRateAdaptiveness) {
@@ -427,6 +455,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
      *     containing mixed channel counts.
      * @return This builder.
      */
+    @SuppressWarnings("deprecation") // Intentionally returning deprecated type
     @CanIgnoreReturnValue
     public ParametersBuilder setAllowAudioMixedChannelCountAdaptiveness(
         boolean allowAudioMixedChannelCountAdaptiveness) {
@@ -443,6 +472,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
      *     with mixed levels of decoder and hardware acceleration support.
      * @return This builder.
      */
+    @SuppressWarnings("deprecation") // Intentionally returning deprecated type
     @CanIgnoreReturnValue
     public ParametersBuilder setAllowAudioMixedDecoderSupportAdaptiveness(
         boolean allowAudioMixedDecoderSupportAdaptiveness) {
@@ -451,6 +481,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
       return this;
     }
 
+    @SuppressWarnings("deprecation") // Intentionally returning deprecated type
     @CanIgnoreReturnValue
     @Override
     public ParametersBuilder setPreferredAudioMimeType(@Nullable String mimeType) {
@@ -458,6 +489,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
       return this;
     }
 
+    @SuppressWarnings("deprecation") // Intentionally returning deprecated type
     @CanIgnoreReturnValue
     @Override
     public ParametersBuilder setPreferredAudioMimeTypes(String... mimeTypes) {
@@ -465,6 +497,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
       return this;
     }
 
+    @SuppressWarnings("deprecation") // Intentionally returning deprecated type
     @CanIgnoreReturnValue
     @Override
     public ParametersBuilder setAudioOffloadPreferences(
@@ -475,6 +508,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
 
     // Text
 
+    @SuppressWarnings("deprecation") // Intentionally returning deprecated type
     @CanIgnoreReturnValue
     @Override
     public ParametersBuilder setPreferredTextLanguageAndRoleFlagsToCaptioningManagerSettings(
@@ -483,6 +517,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
       return this;
     }
 
+    @SuppressWarnings("deprecation") // Intentionally returning deprecated type
     @CanIgnoreReturnValue
     @Override
     public ParametersBuilder setPreferredTextLanguage(@Nullable String preferredTextLanguage) {
@@ -490,6 +525,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
       return this;
     }
 
+    @SuppressWarnings("deprecation") // Intentionally returning deprecated type
     @CanIgnoreReturnValue
     @Override
     public ParametersBuilder setPreferredTextLanguages(String... preferredTextLanguages) {
@@ -497,6 +533,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
       return this;
     }
 
+    @SuppressWarnings("deprecation") // Intentionally returning deprecated type
     @CanIgnoreReturnValue
     @Override
     public ParametersBuilder setPreferredTextRoleFlags(@C.RoleFlags int preferredTextRoleFlags) {
@@ -504,6 +541,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
       return this;
     }
 
+    @SuppressWarnings("deprecation") // Intentionally returning deprecated type
     @CanIgnoreReturnValue
     @Override
     public ParametersBuilder setIgnoredTextSelectionFlags(
@@ -512,6 +550,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
       return this;
     }
 
+    @SuppressWarnings("deprecation") // Intentionally returning deprecated type
     @CanIgnoreReturnValue
     @Override
     public ParametersBuilder setSelectUndeterminedTextLanguage(
@@ -523,6 +562,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
     /**
      * @deprecated Use {@link #setIgnoredTextSelectionFlags}.
      */
+    @SuppressWarnings("deprecation") // Intentionally returning deprecated type
     @CanIgnoreReturnValue
     @Deprecated
     public ParametersBuilder setDisabledTextTrackSelectionFlags(
@@ -532,7 +572,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
     }
 
     // Image
-
+    @SuppressWarnings("deprecation") // Intentionally returning deprecated type
     @CanIgnoreReturnValue
     @Override
     public ParametersBuilder setPrioritizeImageOverVideoEnabled(
@@ -543,6 +583,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
 
     // General
 
+    @SuppressWarnings("deprecation") // Intentionally returning deprecated type
     @CanIgnoreReturnValue
     @Override
     public ParametersBuilder setForceLowestBitrate(boolean forceLowestBitrate) {
@@ -550,6 +591,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
       return this;
     }
 
+    @SuppressWarnings("deprecation") // Intentionally returning deprecated type
     @CanIgnoreReturnValue
     @Override
     public ParametersBuilder setForceHighestSupportedBitrate(boolean forceHighestSupportedBitrate) {
@@ -557,6 +599,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
       return this;
     }
 
+    @SuppressWarnings("deprecation") // Intentionally returning deprecated type
     @CanIgnoreReturnValue
     @Override
     public ParametersBuilder addOverride(TrackSelectionOverride override) {
@@ -564,6 +607,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
       return this;
     }
 
+    @SuppressWarnings("deprecation") // Intentionally returning deprecated type
     @CanIgnoreReturnValue
     @Override
     public ParametersBuilder clearOverride(TrackGroup trackGroup) {
@@ -571,6 +615,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
       return this;
     }
 
+    @SuppressWarnings("deprecation") // Intentionally returning deprecated type
     @CanIgnoreReturnValue
     @Override
     public ParametersBuilder setOverrideForType(TrackSelectionOverride override) {
@@ -578,6 +623,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
       return this;
     }
 
+    @SuppressWarnings("deprecation") // Intentionally returning deprecated type
     @CanIgnoreReturnValue
     @Override
     public ParametersBuilder clearOverridesOfType(@C.TrackType int trackType) {
@@ -585,6 +631,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
       return this;
     }
 
+    @SuppressWarnings("deprecation") // Intentionally returning deprecated type
     @CanIgnoreReturnValue
     @Override
     public ParametersBuilder clearOverrides() {
@@ -598,12 +645,13 @@ public class DefaultTrackSelector extends MappingTrackSelector
     @CanIgnoreReturnValue
     @Override
     @Deprecated
-    @SuppressWarnings("deprecation")
+    @SuppressWarnings("deprecation") // Intentionally returning deprecated type
     public ParametersBuilder setDisabledTrackTypes(Set<@C.TrackType Integer> disabledTrackTypes) {
       delegate.setDisabledTrackTypes(disabledTrackTypes);
       return this;
     }
 
+    @SuppressWarnings("deprecation") // Intentionally returning deprecated type
     @CanIgnoreReturnValue
     @Override
     public ParametersBuilder setTrackTypeDisabled(@C.TrackType int trackType, boolean disabled) {
@@ -623,6 +671,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
      *     selection can be made otherwise.
      * @return This builder.
      */
+    @SuppressWarnings("deprecation") // Intentionally returning deprecated type
     @CanIgnoreReturnValue
     public ParametersBuilder setExceedRendererCapabilitiesIfNecessary(
         boolean exceedRendererCapabilitiesIfNecessary) {
@@ -644,6 +693,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
      * @param tunnelingEnabled Whether to enable tunneling if possible.
      * @return This builder.
      */
+    @SuppressWarnings("deprecation") // Intentionally returning deprecated type
     @CanIgnoreReturnValue
     public ParametersBuilder setTunnelingEnabled(boolean tunnelingEnabled) {
       delegate.setTunnelingEnabled(tunnelingEnabled);
@@ -656,6 +706,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
      * @param allowMultipleAdaptiveSelections Whether multiple adaptive selections are allowed.
      * @return This builder.
      */
+    @SuppressWarnings("deprecation") // Intentionally returning deprecated type
     @CanIgnoreReturnValue
     public ParametersBuilder setAllowMultipleAdaptiveSelections(
         boolean allowMultipleAdaptiveSelections) {
@@ -673,6 +724,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
      * @param disabled Whether the renderer is disabled.
      * @return This builder.
      */
+    @SuppressWarnings("deprecation") // Intentionally returning deprecated type
     @CanIgnoreReturnValue
     public ParametersBuilder setRendererDisabled(int rendererIndex, boolean disabled) {
       delegate.setRendererDisabled(rendererIndex, disabled);
@@ -703,6 +755,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
      * @return This builder.
      * @deprecated Use {@link TrackSelectionParameters.Builder#addOverride(TrackSelectionOverride)}.
      */
+    @SuppressWarnings("deprecation") // Intentionally returning deprecated type
     @CanIgnoreReturnValue
     @Deprecated
     public ParametersBuilder setSelectionOverride(
@@ -719,6 +772,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
      * @return This builder.
      * @deprecated Use {@link TrackSelectionParameters.Builder#clearOverride(TrackGroup)}.
      */
+    @SuppressWarnings("deprecation") // Intentionally returning deprecated type
     @CanIgnoreReturnValue
     @Deprecated
     public ParametersBuilder clearSelectionOverride(int rendererIndex, TrackGroupArray groups) {
@@ -733,6 +787,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
      * @return This builder.
      * @deprecated Use {@link TrackSelectionParameters.Builder#clearOverridesOfType(int)}.
      */
+    @SuppressWarnings("deprecation") // Intentionally returning deprecated type
     @CanIgnoreReturnValue
     @Deprecated
     public ParametersBuilder clearSelectionOverrides(int rendererIndex) {
@@ -746,6 +801,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
      * @return This builder.
      * @deprecated Use {@link TrackSelectionParameters.Builder#clearOverrides()}.
      */
+    @SuppressWarnings("deprecation") // Intentionally returning deprecated type
     @CanIgnoreReturnValue
     @Deprecated
     public ParametersBuilder clearSelectionOverrides() {
@@ -1637,6 +1693,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
         return clone;
       }
 
+      @SuppressWarnings("deprecation") // Filling deprecated field from Bundle
       private void setSelectionOverridesFromBundle(Bundle bundle) {
         @Nullable
         int[] rendererIndices =
