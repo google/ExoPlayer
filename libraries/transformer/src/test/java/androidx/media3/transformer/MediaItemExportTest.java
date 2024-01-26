@@ -1073,10 +1073,9 @@ public final class MediaItemExportTest {
     // Total rotation is 270.
     ImmutableList<Effect> videoEffects =
         ImmutableList.of(
-            new ScaleAndRotateTransformation.Builder().setRotationDegrees(315).build(),
+            new ScaleAndRotateTransformation.Builder().setRotationDegrees(90).build(),
             new Contrast(0f),
             new ScaleAndRotateTransformation.Builder().setRotationDegrees(180).build(),
-            new ScaleAndRotateTransformation.Builder().setRotationDegrees(135).build(),
             Presentation.createForHeight(1080));
     EditedMediaItem editedMediaItem =
         new EditedMediaItem.Builder(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO))
