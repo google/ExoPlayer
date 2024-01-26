@@ -24,6 +24,8 @@ project.ext {
     targetSdkVersion = 30
     compileSdkVersion = 34
     dexmakerVersion = '2.28.3'
+    // Use the same JUnit version as the Android repo:
+    // https://cs.android.com/android/platform/superproject/main/+/main:external/junit/METADATA
     junitVersion = '4.13.2'
     // Use the same Guava version as the Android repo:
     // https://cs.android.com/android/platform/superproject/main/+/main:external/guava/METADATA
