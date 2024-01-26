@@ -83,7 +83,11 @@ import java.util.List;
     return mp4InfoSettableFuture;
   }
 
-  public static Composition buildNewCompositionWithClipTimes(
+  /**
+   * Changes the clip times of the {@link MediaItem} in the {@link Composition} and removes any
+   * video effects that shouldn't be applied during transcoding or transmuxing.
+   */
+  public static Composition buildUponCompositionForTrimOptimization(
       Composition oldComposition,
       long startTimeUs,
       long endTimeUs,
@@ -109,6 +113,8 @@ import java.util.List;
             .buildUpon()
             .setMediaItem(mediaItem)
             .setDurationUs(mediaDurationUs)
+            .setEffects(
+                new Effects(firstEditedMediaItem.effects.audioProcessors, ImmutableList.of()))
             .build();
 
     return oldComposition
