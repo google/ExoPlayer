@@ -17,7 +17,6 @@
 package androidx.media3.transformer;
 
 import static androidx.media3.transformer.Composition.HDR_MODE_KEEP_HDR;
-import static java.lang.Math.round;
 
 import android.media.MediaCodec;
 import androidx.annotation.Nullable;
@@ -179,9 +178,6 @@ import com.google.common.collect.ImmutableList;
           return false;
         }
         float rotationDegrees = scaleAndRotateTransformation.rotationDegrees;
-        if (rotationDegrees % 90f != 0) {
-          return false;
-        }
         totalRotationDegrees += rotationDegrees;
         if (totalRotationDegrees % 90 == 0 && !widthHeightFlipped) {
           int temp = decodedWidth;
@@ -209,7 +205,7 @@ import com.google.common.collect.ImmutableList;
         || totalRotationDegrees == 270f) {
       // The MuxerWrapper rotation is clockwise while the ScaleAndRotateTransformation rotation
       // is counterclockwise.
-      muxerWrapper.setAdditionalRotationDegrees(360 - round(totalRotationDegrees));
+      muxerWrapper.setAdditionalRotationDegrees(360 - Math.round(totalRotationDegrees));
       return true;
     }
     return false;

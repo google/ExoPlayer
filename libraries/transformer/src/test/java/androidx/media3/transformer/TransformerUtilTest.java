@@ -81,46 +81,6 @@ public class TransformerUtilTest {
         .isTrue();
   }
 
-  @Test
-  public void shouldTranscodeVideo_irregularRotationAndPresentation_returnsTrue() throws Exception {
-    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
-    Format format =
-        new Format.Builder()
-            .setSampleMimeType(VIDEO_H264)
-            .setWidth(1080)
-            .setHeight(720)
-            .setFrameRate(29.97f)
-            .setCodecs("avc1.64001F")
-            .build();
-    ImmutableList<Effect> videoEffects =
-        ImmutableList.of(
-            new ScaleAndRotateTransformation.Builder().setRotationDegrees(45).build(),
-            Presentation.createForHeight(format.height),
-            new ScaleAndRotateTransformation.Builder().setRotationDegrees(45).build());
-    Effects effects = new Effects(/* audioProcessors= */ ImmutableList.of(), videoEffects);
-    EditedMediaItem editedMediaItem =
-        new EditedMediaItem.Builder(mediaItem).setEffects(effects).build();
-    Composition composition =
-        new Composition.Builder(new EditedMediaItemSequence(editedMediaItem)).build();
-    MuxerWrapper muxerWrapper =
-        new MuxerWrapper(
-            temporaryFolder.newFile().getPath(),
-            new DefaultMuxer.Factory(),
-            new NoOpMuxerListenerImpl(),
-            MUXER_MODE_DEFAULT,
-            /* dropSamplesBeforeFirstVideoSample= */ false);
-
-    assertThat(
-            shouldTranscodeVideo(
-                format,
-                composition,
-                /* sequenceIndex= */ 0,
-                new TransformationRequest.Builder().build(),
-                new DefaultEncoderFactory.Builder(getApplicationContext()).build(),
-                muxerWrapper))
-        .isTrue();
-  }
-
   private static final class NoOpMuxerListenerImpl implements MuxerWrapper.Listener {
 
     @Override
