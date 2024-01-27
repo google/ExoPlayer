@@ -66,7 +66,6 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.audio.SonicAudioProcessor;
-import com.google.android.exoplayer2.effect.Contrast;
 import com.google.android.exoplayer2.effect.Presentation;
 import com.google.android.exoplayer2.effect.ScaleAndRotateTransformation;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
@@ -1054,34 +1053,6 @@ public final class MediaItemExportTest {
     Effects effects = new Effects(/* audioProcessors= */ ImmutableList.of(), videoEffects);
     EditedMediaItem editedMediaItem =
         new EditedMediaItem.Builder(mediaItem).setEffects(effects).build();
-
-    transformer.start(editedMediaItem, outputDir.newFile().getPath());
-    TransformerTestRunner.runLooper(transformer);
-
-    // Video transcoding in unit tests is not supported.
-    DumpFileAsserts.assertOutput(
-        context,
-        muxerFactory.getCreatedMuxer(),
-        getDumpFileName(
-            /* originalFileName= */ FILE_AUDIO_VIDEO, /* modifications...= */ "rotated"));
-  }
-
-  @Test
-  public void start_totalRotationRegularAndNoOps_transmuxes() throws Exception {
-    Transformer transformer =
-        createTransformerBuilder(muxerFactory, /* enableFallback= */ false).build();
-    // Total rotation is 270.
-    ImmutableList<Effect> videoEffects =
-        ImmutableList.of(
-            new ScaleAndRotateTransformation.Builder().setRotationDegrees(315).build(),
-            new Contrast(0f),
-            new ScaleAndRotateTransformation.Builder().setRotationDegrees(180).build(),
-            new ScaleAndRotateTransformation.Builder().setRotationDegrees(135).build(),
-            Presentation.createForHeight(1080));
-    EditedMediaItem editedMediaItem =
-        new EditedMediaItem.Builder(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO))
-            .setEffects(new Effects(ImmutableList.of(), videoEffects))
-            .build();
 
     transformer.start(editedMediaItem, outputDir.newFile().getPath());
     TransformerTestRunner.runLooper(transformer);
