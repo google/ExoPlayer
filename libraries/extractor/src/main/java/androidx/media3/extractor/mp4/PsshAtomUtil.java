@@ -163,19 +163,15 @@ public final class PsshAtomUtil {
     atomData.setPosition(0);
     int bufferLength = atomData.bytesLeft();
     int atomSize = atomData.readInt();
-
     if (atomSize != bufferLength) {
       Log.w(
           TAG,
-          "Advertised atom size ("
-              + atomSize
-              + ") does not match current buffer size: "
-              + bufferLength);
+          "Advertised atom size (" + atomSize + ") does not match buffer size: " + bufferLength);
       return null;
     }
     int atomType = atomData.readInt();
     if (atomType != Atom.TYPE_pssh) {
-      Log.w(TAG, "Atom Type is not pssh: " + atomType);
+      Log.w(TAG, "Atom type is not pssh: " + atomType);
       return null;
     }
     int atomVersion = Atom.parseFullAtomVersion(atomData.readInt());
@@ -185,42 +181,41 @@ public final class PsshAtomUtil {
     }
     UUID uuid = new UUID(atomData.readLong(), atomData.readLong());
     UUID[] keyIds = null;
-    int dataSize = 0;
     if (atomVersion == 1) {
       int keyIdCount = atomData.readUnsignedIntToInt();
       keyIds = new UUID[keyIdCount];
       for (int i = 0; i < keyIdCount; ++i) {
         keyIds[i] = new UUID(atomData.readLong(), atomData.readLong());
       }
-    } else if (atomVersion == 0) {
-      dataSize = atomData.readUnsignedIntToInt();
-      bufferLength = atomData.bytesLeft();
-      if (dataSize != bufferLength) {
-        Log.w(
-            TAG,
-            "Atom data size (" + dataSize + ") does not match the bytes left: " + bufferLength);
-        return null;
-      }
+    }
+    int dataSize = atomData.readUnsignedIntToInt();
+    bufferLength = atomData.bytesLeft();
+    if (dataSize != bufferLength) {
+      Log.w(
+          TAG, "Atom data size (" + dataSize + ") does not match the bytes left: " + bufferLength);
+      return null;
     }
     byte[] data = new byte[dataSize];
     atomData.readBytes(data, 0, dataSize);
     return new PsshAtom(uuid, atomVersion, data, keyIds);
   }
 
-  /**
-   * A class representing the mp4 PSSH Atom as specified in the CENC standard - systemId the UUID of
-   * the encryption system as specified in ISO/IEC 23009-1 section 5.8.4.1 - version the version of
-   * the PSSH atom, should be 0 or 1 - schemaData the binary data in the atom - keyIds the optional
-   * set of keyIds associated with the
-   */
-  public static class PsshAtom {
+  /** A class representing the mp4 PSSH Atom as specified in ISO/IEC 23001-7. */
+  public static final class PsshAtom {
 
+    /** The UUID of the encryption system as specified in ISO/IEC 23009-1 section 5.8.4.1. */
     public final UUID uuid;
+
+    /** The version of the PSSH atom, either 0 or 1. */
     public final int version;
+
+    /** Binary scheme data. */
     public final byte[] schemeData;
+
+    /** Array of key IDs. Always null for version 0 and non-null for version 1. */
     @Nullable public final UUID[] keyIds;
 
-    public PsshAtom(UUID uuid, int version, byte[] schemeData, @Nullable UUID[] keyIds) {
+    /* package */ PsshAtom(UUID uuid, int version, byte[] schemeData, @Nullable UUID[] keyIds) {
       this.uuid = uuid;
       this.version = version;
       this.schemeData = schemeData;
