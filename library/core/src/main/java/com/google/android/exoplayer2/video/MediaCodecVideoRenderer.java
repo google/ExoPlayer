@@ -157,6 +157,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer
   private boolean codecNeedsSetOutputSurfaceWorkaround;
   private boolean codecHandlesHdr10PlusOutOfBandMetadata;
   @Nullable private Surface displaySurface;
+  @Nullable private Size outputResolution;
   @Nullable private PlaceholderSurface placeholderSurface;
   private boolean haveReportedFirstFrameRenderedForCurrentSurface;
   private @C.VideoScalingMode int scalingMode;
@@ -774,14 +775,14 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer
         setVideoEffects(videoEffects);
         break;
       case MSG_SET_VIDEO_OUTPUT_RESOLUTION:
-        Size outputResolution = (Size) checkNotNull(message);
+        outputResolution = (Size) checkNotNull(message);
         // TODO: b/292111083 Set the surface on the videoSinkProvider before it's initialized
         //  otherwise the first frames are missed until a new video output resolution arrives.
         if (videoSinkProvider.isInitialized()
-            && outputResolution.getWidth() != 0
-            && outputResolution.getHeight() != 0
+            && checkNotNull(outputResolution).getWidth() != 0
+            && checkNotNull(outputResolution).getHeight() != 0
             && displaySurface != null) {
-          videoSinkProvider.setOutputSurfaceInfo(displaySurface, outputResolution);
+          videoSinkProvider.setOutputSurfaceInfo(displaySurface, checkNotNull(outputResolution));
         }
         break;
       case MSG_SET_AUDIO_ATTRIBUTES:
@@ -1066,6 +1067,9 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer
         if (frameMetadataListener != null) {
           videoSinkProvider.setVideoFrameMetadataListener(frameMetadataListener);
         }
+        if (displaySurface != null && outputResolution != null) {
+          videoSinkProvider.setOutputSurfaceInfo(displaySurface, outputResolution);
+        }
       } catch (VideoSink.VideoSinkException e) {
         throw createRendererException(
             e, format, PlaybackException.ERROR_CODE_VIDEO_FRAME_PROCESSOR_INIT_FAILED);
@@ -1090,7 +1094,9 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer
 
             @Override
             public void onVideoSizeChanged(VideoSink videoSink, VideoSize videoSize) {
-              maybeNotifyVideoSizeChanged(videoSize);
+              // TODO: b/292111083 - Report video size change to app. Video size reporting is
+              //  removed at the moment to ensure the first frame is rendered, and the video is
+              //  rendered after switching on/off the screen.
             }
 
             @Override
