@@ -81,8 +81,6 @@ import androidx.media3.exoplayer.ExoPlaybackException;
 
   private VideoSize reportedVideoSize;
   private long outputStreamOffsetUs;
-  // TODO b/292111083 - Remove the field and trigger the callback on every video size change.
-  private boolean reportedVideoSizeChange;
   private long lastPresentationTimeUs;
 
   /** Creates an instance. */
@@ -122,8 +120,6 @@ import androidx.media3.exoplayer.ExoPlaybackException;
       // we keep the latest value of pendingOutputVideoSize
       videoSizeChanges.clear();
     }
-    // Do not clear reportedVideoSizeChange because we report a video size change at most once
-    // (b/292111083).
   }
 
   /** Returns whether the renderer is ready. */
@@ -230,9 +226,8 @@ import androidx.media3.exoplayer.ExoPlaybackException;
     long presentationTimeUs = checkStateNotNull(presentationTimestampsUs.remove());
 
     boolean videoSizeUpdated = maybeUpdateVideoSize(presentationTimeUs);
-    if (videoSizeUpdated && !reportedVideoSizeChange) {
+    if (videoSizeUpdated) {
       frameRenderer.onVideoSizeChanged(reportedVideoSize);
-      reportedVideoSizeChange = true;
     }
     long renderTimeNs =
         shouldRenderImmediately
