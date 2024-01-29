@@ -1561,6 +1561,7 @@ public final class Transformer {
         /* eventFlag= */ C.INDEX_UNSET,
         listener -> listener.onCompleted(checkNotNull(composition), exportResultBuilder.build()));
     listeners.flushEvents();
+    transformerState = TRANSFORMER_STATE_PROCESS_FULL_INPUT;
   }
 
   private void onExportCompletedWithError(ExportException exception) {
@@ -1569,6 +1570,7 @@ public final class Transformer {
         listener ->
             listener.onError(checkNotNull(composition), exportResultBuilder.build(), exception));
     listeners.flushEvents();
+    transformerState = TRANSFORMER_STATE_PROCESS_FULL_INPUT;
   }
 
   private final class ComponentListener
@@ -1604,7 +1606,6 @@ public final class Transformer {
       } else if (transformerState == TRANSFORMER_STATE_PROCESS_MEDIA_START) {
         remuxRemainingMedia();
       } else if (transformerState == TRANSFORMER_STATE_REMUX_REMAINING_MEDIA) {
-        transformerState = TRANSFORMER_STATE_PROCESS_FULL_INPUT;
         mediaItemInfo = null;
         exportResultBuilder.setOptimizationResult(ExportResult.OPTIMIZATION_SUCCEEDED);
         onExportCompletedWithSuccess();
