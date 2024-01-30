@@ -157,9 +157,14 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
   }
 
-  /** Overrides the {@code inputFormat}. */
-  protected Format overrideFormat(Format inputFormat) {
-    return inputFormat;
+  /** Overrides the input {@code format}. */
+  protected Format overrideInputFormat(Format format) {
+    return format;
+  }
+
+  /** Overrides the output {@code format}. */
+  protected Format overrideOutputFormat(Format format) {
+    return format;
   }
 
   /** Called when the {@link Format} of the samples fed to the renderer is known. */
@@ -213,7 +218,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       if (result != C.RESULT_FORMAT_READ) {
         return false;
       }
-      inputFormat = overrideFormat(checkNotNull(formatHolder.format));
+      inputFormat = overrideInputFormat(checkNotNull(formatHolder.format));
       onInputFormatRead(inputFormat);
       shouldInitDecoder =
           assetLoaderListener.onTrackAdded(
@@ -258,11 +263,11 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         if (decoderOutputFormat == null) {
           return false;
         }
-        outputFormat = decoderOutputFormat;
+        outputFormat = overrideOutputFormat(decoderOutputFormat);
       } else {
         // TODO(b/278259383): Move surface creation out of video sampleConsumer. Init decoder and
         // get decoderOutput Format before init sampleConsumer.
-        outputFormat = inputFormat;
+        outputFormat = overrideOutputFormat(inputFormat);
       }
     }
 

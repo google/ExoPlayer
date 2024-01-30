@@ -82,6 +82,18 @@ import org.checkerframework.dataflow.qual.Pure;
 
   private boolean hasMuxedTimestampZero;
 
+  // TODO: b/307952514 - Move this method to a color utility.
+  /**
+   * Adjust for invalid {@link ColorInfo} values, by defaulting to {@link
+   * ColorInfo#SDR_BT709_LIMITED}.
+   */
+  public static ColorInfo getValidColor(@Nullable ColorInfo colorInfo) {
+    if (colorInfo == null || !colorInfo.isDataSpaceValid()) {
+      return ColorInfo.SDR_BT709_LIMITED;
+    }
+    return colorInfo;
+  }
+
   public VideoSampleExporter(
       Context context,
       Format firstInputFormat,
@@ -103,12 +115,7 @@ import org.checkerframework.dataflow.qual.Pure;
     this.initialTimestampOffsetUs = initialTimestampOffsetUs;
     finalFramePresentationTimeUs = C.TIME_UNSET;
 
-    ColorInfo decoderInputColor;
-    if (firstInputFormat.colorInfo == null || !firstInputFormat.colorInfo.isDataSpaceValid()) {
-      decoderInputColor = ColorInfo.SDR_BT709_LIMITED;
-    } else {
-      decoderInputColor = firstInputFormat.colorInfo;
-    }
+    ColorInfo decoderInputColor = getValidColor(firstInputFormat.colorInfo);
     encoderWrapper =
         new EncoderWrapper(
             encoderFactory,
@@ -120,11 +127,13 @@ import org.checkerframework.dataflow.qual.Pure;
         new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);
 
     @Composition.HdrMode int hdrModeAfterFallback = encoderWrapper.getHdrModeAfterFallback();
-    boolean isMediaCodecToneMapping =
-        hdrModeAfterFallback == HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC
-            && ColorInfo.isTransferHdr(decoderInputColor);
+    boolean isMediaCodecToneMappingRequested =
+        hdrModeAfterFallback == HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC;
+    // TODO: b/278259383 - After solving the bug, we can use the decoder output format, and no
+    //  longer need to import this color conversion method.
     ColorInfo videoGraphInputColor =
-        isMediaCodecToneMapping ? SDR_BT709_LIMITED : decoderInputColor;
+        ExoAssetLoaderVideoRenderer.getDecoderOutputColor(
+            decoderInputColor, isMediaCodecToneMappingRequested);
 
     boolean isGlToneMapping =
         hdrModeAfterFallback == HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL

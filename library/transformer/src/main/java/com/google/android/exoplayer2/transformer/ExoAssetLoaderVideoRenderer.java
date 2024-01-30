@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.transformer;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
+import static com.google.android.exoplayer2.video.ColorInfo.SDR_BT709_LIMITED;
 
 import android.media.MediaCodec;
 import androidx.annotation.Nullable;
@@ -57,18 +58,38 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     decodeOnlyPresentationTimestamps = new ArrayList<>();
   }
 
+  public static ColorInfo getDecoderOutputColor(
+      ColorInfo decoderInputColor, boolean isMediaCodecToneMappingRequested) {
+    if (isMediaCodecToneMappingRequested && ColorInfo.isTransferHdr(decoderInputColor)) {
+      return SDR_BT709_LIMITED;
+    }
+    return decoderInputColor;
+  }
+
   @Override
   public String getName() {
     return TAG;
   }
 
   @Override
-  protected Format overrideFormat(Format inputFormat) {
+  protected Format overrideInputFormat(Format format) {
     if (hdrMode == Composition.HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR
-        && ColorInfo.isTransferHdr(inputFormat.colorInfo)) {
-      return inputFormat.buildUpon().setColorInfo(ColorInfo.SDR_BT709_LIMITED).build();
+        && ColorInfo.isTransferHdr(format.colorInfo)) {
+      return format.buildUpon().setColorInfo(ColorInfo.SDR_BT709_LIMITED).build();
     }
-    return inputFormat;
+    return format;
+  }
+
+  @Override
+  protected Format overrideOutputFormat(Format format) {
+    // Gets the expected output color from the decoder, based on the input track format, if
+    // tone-mapping is applied.
+    ColorInfo validColor = VideoSampleExporter.getValidColor(format.colorInfo);
+    boolean isDecoderToneMappingRequested =
+        hdrMode == Composition.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC;
+    ColorInfo outputColor = getDecoderOutputColor(validColor, isDecoderToneMappingRequested);
+
+    return format.buildUpon().setColorInfo(outputColor).build();
   }
 
   @Override
@@ -90,7 +111,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     checkStateNotNull(sampleConsumer);
     boolean isDecoderToneMappingRequired =
         ColorInfo.isTransferHdr(inputFormat.colorInfo)
-            && !ColorInfo.isTransferHdr(sampleConsumer.getExpectedInputColorInfo());
+            && hdrMode == Composition.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC;
     decoder =
         decoderFactory.createForVideoDecoding(
             inputFormat,
