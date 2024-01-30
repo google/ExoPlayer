@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.media3.transformer.mh;
+package androidx.media3.test.utils;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -25,12 +25,14 @@ import androidx.media3.common.ColorInfo;
 import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.TrackGroup;
+import androidx.media3.common.util.UnstableApi;
 import androidx.media3.exoplayer.MetadataRetriever;
 import androidx.media3.exoplayer.source.TrackGroupArray;
 import java.util.concurrent.ExecutionException;
 
 /** Utilities for accessing details of media files. */
-/* package */ class FileUtil {
+@UnstableApi
+public final class FileUtil {
 
   /**
    * Asserts that the file has a certain color transfer.

@@ -16,6 +16,7 @@
 package androidx.media3.transformer.mh;
 
 import static androidx.media3.common.MimeTypes.VIDEO_H265;
+import static androidx.media3.test.utils.FileUtil.assertFileHasColorTransfer;
 import static androidx.media3.transformer.AndroidTestUtil.FORCE_TRANSCODE_VIDEO_EFFECTS;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_1080P_5_SECOND_HLG10;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT;
@@ -26,7 +27,6 @@ import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_DOLBY_VISION
 import static androidx.media3.transformer.AndroidTestUtil.recordTestSkipped;
 import static androidx.media3.transformer.Composition.HDR_MODE_KEEP_HDR;
 import static androidx.media3.transformer.Composition.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL;
-import static androidx.media3.transformer.mh.FileUtil.assertFileHasColorTransfer;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
