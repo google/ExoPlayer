@@ -33,6 +33,7 @@ import androidx.media3.common.ColorInfo;
 import androidx.media3.common.DrmInitData;
 import androidx.media3.common.DrmInitData.SchemeData;
 import androidx.media3.common.Format;
+import androidx.media3.common.Label;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.ParserException;
 import androidx.media3.common.util.Log;
@@ -2423,7 +2424,9 @@ public class MatroskaExtractor implements Extractor {
       }
 
       if (name != null && !TRACK_NAME_TO_ROTATION_DEGREES.containsKey(name)) {
-        formatBuilder.setLabel(name);
+        List<Label> labels = new ArrayList<>();
+        labels.add(new Label(null, null, name));
+        formatBuilder.setLabels(labels);
       }
 
       Format format =

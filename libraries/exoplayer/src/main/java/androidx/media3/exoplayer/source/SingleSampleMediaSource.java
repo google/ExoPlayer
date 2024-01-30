@@ -21,6 +21,7 @@ import static com.google.common.base.MoreObjects.firstNonNull;
 import android.net.Uri;
 import androidx.annotation.Nullable;
 import androidx.media3.common.Format;
+import androidx.media3.common.Label;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.Timeline;
@@ -33,6 +34,8 @@ import androidx.media3.exoplayer.upstream.DefaultLoadErrorHandlingPolicy;
 import androidx.media3.exoplayer.upstream.LoadErrorHandlingPolicy;
 import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Loads data at a given {@link Uri} as a single sample belonging to a single {@link MediaPeriod}.
@@ -170,13 +173,20 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
             .setSubtitleConfigurations(ImmutableList.of(subtitleConfiguration))
             .setTag(tag)
             .build();
+    List<Label> labels = new ArrayList<>();
+    String label = subtitleConfiguration.label;
+    if (label != null) {
+      labels.add(new Label(null, null, label));
+    } else {
+      labels = null;
+    }
     this.format =
         new Format.Builder()
             .setSampleMimeType(firstNonNull(subtitleConfiguration.mimeType, MimeTypes.TEXT_UNKNOWN))
             .setLanguage(subtitleConfiguration.language)
             .setSelectionFlags(subtitleConfiguration.selectionFlags)
             .setRoleFlags(subtitleConfiguration.roleFlags)
-            .setLabel(subtitleConfiguration.label)
+            .setLabels(labels)
             .setId(subtitleConfiguration.id != null ? subtitleConfiguration.id : trackId)
             .build();
     this.dataSpec =

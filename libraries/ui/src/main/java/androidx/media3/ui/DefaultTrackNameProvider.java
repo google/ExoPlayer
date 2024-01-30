@@ -20,11 +20,14 @@ import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
+import androidx.media3.common.Label;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
+import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 /** A default {@link TrackNameProvider}. */
 @UnstableApi
@@ -107,7 +110,19 @@ public class DefaultTrackNameProvider implements TrackNameProvider {
   }
 
   private String buildLabelString(Format format) {
-    return TextUtils.isEmpty(format.label) ? "" : format.label;
+    if (format.labels == null || format.labels.isEmpty()) {
+      return "";
+    }
+    if (!TextUtils.isEmpty(format.language)) {
+      List<Label> labelsByLanguage =
+          format.labels.stream()
+              .filter(label -> format.language.equals(label.lang))
+              .collect(Collectors.toList());
+      if (!labelsByLanguage.isEmpty()) {
+        return labelsByLanguage.get(0).value;
+      }
+    }
+    return TextUtils.isEmpty(format.labels.get(0).value) ? "" : format.labels.get(0).value;
   }
 
   private String buildLanguageString(Format format) {

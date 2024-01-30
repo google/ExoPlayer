@@ -517,7 +517,7 @@ public final class OutputConsumerAdapterV30 implements MediaParser.OutputConsume
             .setLanguage(muxedCaptionFormat.language)
             .setRoleFlags(muxedCaptionFormat.roleFlags)
             .setSelectionFlags(muxedCaptionFormat.selectionFlags)
-            .setLabel(muxedCaptionFormat.label)
+            .setLabels(muxedCaptionFormat.labels)
             .setMetadata(muxedCaptionFormat.metadata);
         break;
       }

@@ -2058,7 +2058,7 @@ public final class SampleQueueTest {
   }
 
   private static Format copyWithLabel(Format format, String label) {
-    return format.buildUpon().setLabel(label).build();
+    return format.buildUpon().setLabels(label).build();
   }
 
   private static final class MockDrmSessionManager implements DrmSessionManager {

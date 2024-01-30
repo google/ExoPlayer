@@ -26,6 +26,7 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.AdViewProvider;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
+import androidx.media3.common.Label;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.Assertions;
@@ -58,6 +59,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Ints;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -513,13 +515,21 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
       mediaSources[0] = mediaSource;
       for (int i = 0; i < subtitleConfigurations.size(); i++) {
         if (parseSubtitlesDuringExtraction) {
+          List<Label> labels = new ArrayList<>();
+          String label = subtitleConfigurations.get(i).label;
+          if (label != null) {
+            labels.add(new Label(null, null, label));
+          } else {
+            labels = null;
+          }
+
           Format format =
               new Format.Builder()
                   .setSampleMimeType(subtitleConfigurations.get(i).mimeType)
                   .setLanguage(subtitleConfigurations.get(i).language)
                   .setSelectionFlags(subtitleConfigurations.get(i).selectionFlags)
                   .setRoleFlags(subtitleConfigurations.get(i).roleFlags)
-                  .setLabel(subtitleConfigurations.get(i).label)
+                  .setLabels(labels)
                   .setId(subtitleConfigurations.get(i).id)
                   .build();
           ExtractorsFactory extractorsFactory =

@@ -21,6 +21,7 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.DrmInitData;
 import androidx.media3.common.Format;
+import androidx.media3.common.Label;
 import androidx.media3.common.Metadata;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.StreamKey;
@@ -851,7 +852,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     @Nullable String sampleMimeType = MimeTypes.getMediaMimeType(codecs);
     return new Format.Builder()
         .setId(variantFormat.id)
-        .setLabel(variantFormat.label)
+        .setLabels(variantFormat.labels)
         .setContainerMimeType(variantFormat.containerMimeType)
         .setSampleMimeType(sampleMimeType)
         .setCodecs(codecs)
@@ -874,7 +875,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     int selectionFlags = 0;
     int roleFlags = 0;
     @Nullable String language = null;
-    @Nullable String label = null;
+    @Nullable List<Label> labels = null;
     if (mediaTagFormat != null) {
       codecs = mediaTagFormat.codecs;
       metadata = mediaTagFormat.metadata;
@@ -882,7 +883,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       selectionFlags = mediaTagFormat.selectionFlags;
       roleFlags = mediaTagFormat.roleFlags;
       language = mediaTagFormat.language;
-      label = mediaTagFormat.label;
+      labels = mediaTagFormat.labels;
     } else {
       codecs = Util.getCodecsOfType(variantFormat.codecs, C.TRACK_TYPE_AUDIO);
       metadata = variantFormat.metadata;
@@ -891,7 +892,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         selectionFlags = variantFormat.selectionFlags;
         roleFlags = variantFormat.roleFlags;
         language = variantFormat.language;
-        label = variantFormat.label;
+        labels = variantFormat.labels;
       }
     }
     @Nullable String sampleMimeType = MimeTypes.getMediaMimeType(codecs);
@@ -899,7 +900,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     int peakBitrate = isPrimaryTrackInVariant ? variantFormat.peakBitrate : Format.NO_VALUE;
     return new Format.Builder()
         .setId(variantFormat.id)
-        .setLabel(label)
+        .setLabels(labels)
         .setContainerMimeType(variantFormat.containerMimeType)
         .setSampleMimeType(sampleMimeType)
         .setCodecs(codecs)

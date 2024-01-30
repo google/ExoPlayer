@@ -100,7 +100,7 @@ public final class DumpableFormat implements Dumper.Dumpable {
         DEFAULT_FORMAT,
         format -> Util.getRoleFlagStrings(format.roleFlags));
     addIfNonDefault(dumper, "language", format, DEFAULT_FORMAT, format -> format.language);
-    addIfNonDefault(dumper, "label", format, DEFAULT_FORMAT, format -> format.label);
+    addIfNonDefault(dumper, "label", format, DEFAULT_FORMAT, format -> format.labels);
     if (format.drmInitData != null) {
       dumper.add("drmInitData", format.drmInitData.hashCode());
     }

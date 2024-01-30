@@ -22,6 +22,7 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.DrmInitData;
 import androidx.media3.common.Format;
+import androidx.media3.common.Label;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.Util;
 import androidx.media3.exoplayer.dash.manifest.Representation.MultiSegmentRepresentation;
@@ -278,8 +279,10 @@ public class DashManifestParserTest {
 
     List<AdaptationSet> adaptationSets = manifest.getPeriod(0).adaptationSets;
 
-    assertThat(adaptationSets.get(0).representations.get(0).format.label).isEqualTo("audio label");
-    assertThat(adaptationSets.get(1).representations.get(0).format.label).isEqualTo("video label");
+    assertThat(adaptationSets.get(0).representations.get(0).format.labels.get(0).value)
+        .isEqualTo("audio label");
+    assertThat(adaptationSets.get(1).representations.get(0).format.labels.get(0).value)
+        .isEqualTo("video label");
   }
 
   @Test
@@ -433,11 +436,37 @@ public class DashManifestParserTest {
   public void parseLabel() throws Exception {
     DashManifestParser parser = new DashManifestParser();
     XmlPullParser xpp = XmlPullParserFactory.newInstance().newPullParser();
+    xpp.setInput(new StringReader("<Label id=\"1\" lang=\"en\">test label</Label>" + NEXT_TAG));
+    xpp.next();
+
+    Label label = parser.parseLabel(xpp);
+    assertThat(label.id).isEqualTo("1");
+    assertThat(label.lang).isEqualTo("en");
+    assertThat(label.value).isEqualTo("test label");
+    assertNextTag(xpp);
+  }
+
+  @Test
+  public void parseLabel_noId() throws Exception {
+    DashManifestParser parser = new DashManifestParser();
+    XmlPullParser xpp = XmlPullParserFactory.newInstance().newPullParser();
+    xpp.setInput(new StringReader("<Label lang=\"en\">test label</Label>" + NEXT_TAG));
+    xpp.next();
+
+    Label label = parser.parseLabel(xpp);
+    assertThat(label.id).isEqualTo(null);
+    assertNextTag(xpp);
+  }
+
+  @Test
+  public void parseLabel_noLang() throws Exception {
+    DashManifestParser parser = new DashManifestParser();
+    XmlPullParser xpp = XmlPullParserFactory.newInstance().newPullParser();
     xpp.setInput(new StringReader("<Label>test label</Label>" + NEXT_TAG));
     xpp.next();
 
-    String label = parser.parseLabel(xpp);
-    assertThat(label).isEqualTo("test label");
+    Label label = parser.parseLabel(xpp);
+    assertThat(label.lang).isEqualTo(null);
     assertNextTag(xpp);
   }
 
@@ -448,8 +477,8 @@ public class DashManifestParserTest {
     xpp.setInput(new StringReader("<Label/>" + NEXT_TAG));
     xpp.next();
 
-    String label = parser.parseLabel(xpp);
-    assertThat(label).isEqualTo("");
+    Label label = parser.parseLabel(xpp);
+    assertThat(label.value).isEqualTo("");
     assertNextTag(xpp);
   }
 

@@ -51,6 +51,6 @@ public final class SsManifestParserTest {
             Uri.parse("https://example.com/test.ismc"),
             TestUtil.getInputStream(ApplicationProvider.getApplicationContext(), SAMPLE_ISMC_1));
 
-    assertThat(ssManifest.streamElements[0].formats[0].label).isEqualTo("video");
+    assertThat(ssManifest.streamElements[0].formats[0].labels).isEqualTo("video");
   }
 }
