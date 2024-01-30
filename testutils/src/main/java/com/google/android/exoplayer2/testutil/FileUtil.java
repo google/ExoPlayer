@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.exoplayer2.transformer.mh;
+package com.google.android.exoplayer2.testutil;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -30,7 +30,7 @@ import com.google.android.exoplayer2.video.ColorInfo;
 import java.util.concurrent.ExecutionException;
 
 /** Utilities for accessing details of media files. */
-/* package */ class FileUtil {
+public final class FileUtil {
 
   /**
    * Asserts that the file has a certain color transfer.

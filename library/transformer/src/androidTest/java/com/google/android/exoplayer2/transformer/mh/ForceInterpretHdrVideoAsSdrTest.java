@@ -15,13 +15,13 @@
  */
 package com.google.android.exoplayer2.transformer.mh;
 
+import static com.google.android.exoplayer2.testutil.FileUtil.assertFileHasColorTransfer;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_1080P_5_SECOND_HLG10;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_720P_4_SECOND_HDR10;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_720P_4_SECOND_HDR10_FORMAT;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.recordTestSkipped;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.skipAndLogIfFormatsUnsupported;
-import static com.google.android.exoplayer2.transformer.mh.FileUtil.assertFileHasColorTransfer;
 import static com.google.android.exoplayer2.util.Util.SDK_INT;
 
 import android.content.Context;
