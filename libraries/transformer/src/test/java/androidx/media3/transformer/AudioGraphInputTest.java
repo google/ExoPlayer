@@ -20,9 +20,7 @@ import static androidx.media3.common.util.Util.getPcmFormat;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.media3.common.C;
-import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
-import androidx.media3.common.MimeTypes;
 import androidx.media3.common.audio.AudioProcessor.AudioFormat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.junit.Test;
@@ -34,32 +32,28 @@ public class AudioGraphInputTest {
   private static final EditedMediaItem FAKE_ITEM =
       new EditedMediaItem.Builder(MediaItem.EMPTY).build();
 
+  private static final AudioFormat MONO_48000 =
+      new AudioFormat(/* sampleRate= */ 48_000, /* channelCount= */ 1, C.ENCODING_PCM_16BIT);
+  private static final AudioFormat STEREO_44100 =
+      new AudioFormat(/* sampleRate= */ 44_100, /* channelCount= */ 2, C.ENCODING_PCM_16BIT);
+
   @Test
   public void getOutputAudioFormat_withUnsetRequestedFormat_matchesInputFormat() throws Exception {
-    AudioFormat requestedAudioFormat = AudioFormat.NOT_SET;
-    AudioFormat inputAudioFormat =
-        new AudioFormat(/* sampleRate= */ 48_000, /* channelCount= */ 1, C.ENCODING_PCM_16BIT);
-    Format inputFormat =
-        getPcmFormat(inputAudioFormat).buildUpon().setSampleMimeType(MimeTypes.AUDIO_RAW).build();
-
     AudioGraphInput audioGraphInput =
-        new AudioGraphInput(requestedAudioFormat, FAKE_ITEM, inputFormat);
+        new AudioGraphInput(
+            /* requestedOutputAudioFormat= */ AudioFormat.NOT_SET,
+            FAKE_ITEM,
+            getPcmFormat(MONO_48000));
 
-    assertThat(audioGraphInput.getOutputAudioFormat()).isEqualTo(inputAudioFormat);
+    assertThat(audioGraphInput.getOutputAudioFormat()).isEqualTo(MONO_48000);
   }
 
   @Test
   public void getOutputAudioFormat_withRequestedFormat_matchesRequestedFormat() throws Exception {
-    AudioFormat requestedAudioFormat =
-        new AudioFormat(/* sampleRate= */ 44_100, /* channelCount= */ 2, C.ENCODING_PCM_16BIT);
-    AudioFormat inputAudioFormat =
-        new AudioFormat(/* sampleRate= */ 48_000, /* channelCount= */ 1, C.ENCODING_PCM_16BIT);
-    Format inputFormat =
-        getPcmFormat(inputAudioFormat).buildUpon().setSampleMimeType(MimeTypes.AUDIO_RAW).build();
-
     AudioGraphInput audioGraphInput =
-        new AudioGraphInput(requestedAudioFormat, FAKE_ITEM, inputFormat);
+        new AudioGraphInput(
+            /* requestedOutputAudioFormat= */ STEREO_44100, FAKE_ITEM, getPcmFormat(MONO_48000));
 
-    assertThat(audioGraphInput.getOutputAudioFormat()).isEqualTo(requestedAudioFormat);
+    assertThat(audioGraphInput.getOutputAudioFormat()).isEqualTo(STEREO_44100);
   }
 }
