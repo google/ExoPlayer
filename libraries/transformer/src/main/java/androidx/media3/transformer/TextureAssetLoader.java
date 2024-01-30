@@ -80,7 +80,12 @@ public final class TextureAssetLoader implements AssetLoader {
     checkArgument(format.height != Format.NO_VALUE && format.width != Format.NO_VALUE);
     this.editedMediaItem = editedMediaItem;
     this.assetLoaderListener = assetLoaderListener;
-    this.format = format.buildUpon().setSampleMimeType(MimeTypes.VIDEO_RAW).build();
+    this.format =
+        format
+            .buildUpon()
+            .setColorInfo(VideoSampleExporter.getValidColor(format.colorInfo))
+            .setSampleMimeType(MimeTypes.VIDEO_RAW)
+            .build();
     this.frameProcessedListener = frameProcessedListener;
     progressState = PROGRESS_STATE_NOT_STARTED;
   }

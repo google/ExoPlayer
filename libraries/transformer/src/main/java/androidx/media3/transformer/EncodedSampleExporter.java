@@ -82,7 +82,7 @@ import java.util.concurrent.atomic.AtomicLong;
   public void onMediaItemChanged(
       EditedMediaItem editedMediaItem,
       long durationUs,
-      @Nullable Format trackFormat,
+      @Nullable Format decodedFormat,
       boolean isLast) {
     mediaItemOffsetUs = nextMediaItemOffsetUs.get();
     nextMediaItemOffsetUs.addAndGet(durationUs);

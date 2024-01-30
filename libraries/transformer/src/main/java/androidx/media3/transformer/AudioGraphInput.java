@@ -119,19 +119,19 @@ import java.util.concurrent.atomic.AtomicReference;
   public void onMediaItemChanged(
       EditedMediaItem editedMediaItem,
       long durationUs,
-      @Nullable Format trackFormat,
+      @Nullable Format decodedFormat,
       boolean isLast) {
-    if (trackFormat == null) {
+    if (decodedFormat == null) {
       checkState(
           durationUs != C.TIME_UNSET,
           "Could not generate silent audio because duration is unknown.");
     } else {
-      checkState(MimeTypes.isAudio(trackFormat.sampleMimeType));
-      AudioFormat trackAudioFormat = new AudioFormat(trackFormat);
-      checkState(isInputAudioFormatValid(trackAudioFormat), /* errorMessage= */ trackAudioFormat);
+      checkState(MimeTypes.isAudio(decodedFormat.sampleMimeType));
+      AudioFormat audioFormat = new AudioFormat(decodedFormat);
+      checkState(isInputAudioFormatValid(audioFormat), /* errorMessage= */ audioFormat);
     }
     pendingMediaItemChange.set(
-        new MediaItemChange(editedMediaItem, durationUs, trackFormat, isLast));
+        new MediaItemChange(editedMediaItem, durationUs, decodedFormat, isLast));
   }
 
   @Override

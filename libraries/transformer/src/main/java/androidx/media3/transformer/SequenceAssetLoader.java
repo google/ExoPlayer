@@ -285,24 +285,25 @@ import java.util.concurrent.atomic.AtomicInteger;
           sampleConsumersByTrackType.entrySet()) {
         int outputTrackType = entry.getKey();
         if (trackType != outputTrackType) {
-          onMediaItemChanged(outputTrackType, /* format= */ null);
+          onMediaItemChanged(outputTrackType, /* outputFormat= */ null);
         }
       }
     }
     return sampleConsumer;
   }
 
-  private void onMediaItemChanged(int trackType, @Nullable Format format) {
+  private void onMediaItemChanged(int trackType, @Nullable Format outputFormat) {
     @Nullable
     OnMediaItemChangedListener onMediaItemChangedListener =
         mediaItemChangedListenersByTrackType.get(trackType);
     if (onMediaItemChangedListener == null) {
       return;
     }
+
     onMediaItemChangedListener.onMediaItemChanged(
         editedMediaItems.get(currentMediaItemIndex),
         currentAssetDurationUs,
-        format,
+        /* decodedFormat= */ outputFormat,
         /* isLast= */ currentMediaItemIndex == editedMediaItems.size() - 1);
   }
 

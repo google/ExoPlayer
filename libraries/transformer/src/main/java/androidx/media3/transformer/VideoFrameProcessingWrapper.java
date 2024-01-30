@@ -64,19 +64,18 @@ import java.util.concurrent.atomic.AtomicLong;
   public void onMediaItemChanged(
       EditedMediaItem editedMediaItem,
       long durationUs,
-      @Nullable Format trackFormat,
+      @Nullable Format decodedFormat,
       boolean isLast) {
-    if (trackFormat != null) {
-      Size decodedSize = getDecodedSize(trackFormat);
-      ColorInfo colorInfo =
-          trackFormat.colorInfo == null || !trackFormat.colorInfo.isDataSpaceValid()
-              ? inputColorInfo
-              : trackFormat.colorInfo;
+    if (decodedFormat != null) {
+      Size decodedSize = getDecodedSize(decodedFormat);
       videoFrameProcessor.registerInputStream(
-          getInputType(checkNotNull(trackFormat.sampleMimeType)),
+          getInputType(checkNotNull(decodedFormat.sampleMimeType)),
           createEffectListWithPresentation(editedMediaItem.effects.videoEffects, presentation),
-          new FrameInfo.Builder(colorInfo, decodedSize.getWidth(), decodedSize.getHeight())
-              .setPixelWidthHeightRatio(trackFormat.pixelWidthHeightRatio)
+          new FrameInfo.Builder(
+                  checkNotNull(decodedFormat.colorInfo),
+                  decodedSize.getWidth(),
+                  decodedSize.getHeight())
+              .setPixelWidthHeightRatio(decodedFormat.pixelWidthHeightRatio)
               .setOffsetToAddUs(initialTimestampOffsetUs + mediaItemOffsetUs.get())
               .build());
     }
