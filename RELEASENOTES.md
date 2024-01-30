@@ -23,6 +23,8 @@
 *   Cronet Extension:
 *   RTMP Extension:
 *   HLS Extension:
+    *   Resolve seeks to beginning of a segment more efficiently
+        ([#1031](https://github.com/androidx/media/pull/1031)).
 *   DASH Extension:
 *   Smooth Streaming Extension:
 *   RTSP Extension:

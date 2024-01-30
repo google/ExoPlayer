@@ -1483,7 +1483,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * Attempts to seek to the specified position within the sample queues.
    *
    * @param positionUs The seek position in microseconds.
-   * @param chunk Optionally the chunk to seek to.
+   * @param chunk The chunk to seek to, or null to seek to the exact position. {@code positionUs} is
+   *     ignored if this is non-null.
    * @return Whether the in-buffer seek was successful.
    */
   private boolean seekInsideBufferUs(long positionUs, @Nullable HlsMediaChunk chunk) {
