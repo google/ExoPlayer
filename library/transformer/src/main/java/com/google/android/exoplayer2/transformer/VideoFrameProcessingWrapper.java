@@ -31,7 +31,6 @@ import com.google.android.exoplayer2.util.FrameInfo;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.OnInputFrameProcessedListener;
 import com.google.android.exoplayer2.util.Size;
-import com.google.android.exoplayer2.util.SurfaceInfo;
 import com.google.android.exoplayer2.util.TimestampIterator;
 import com.google.android.exoplayer2.util.VideoFrameProcessor;
 import com.google.android.exoplayer2.video.ColorInfo;
@@ -133,10 +132,6 @@ import java.util.concurrent.atomic.AtomicLong;
   @Override
   public void signalEndOfVideoInput() {
     videoFrameProcessor.signalEndOfInput();
-  }
-
-  public void setOutputSurfaceInfo(@Nullable SurfaceInfo outputSurfaceInfo) {
-    videoFrameProcessor.setOutputSurfaceInfo(outputSurfaceInfo);
   }
 
   public void release() {
