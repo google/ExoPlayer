@@ -47,17 +47,9 @@ import java.nio.ByteBuffer;
  */
 @Deprecated
 /* package */ final class FrameworkMuxer implements Muxer {
-
   // MediaMuxer supported sample formats are documented in MediaMuxer.addTrack(MediaFormat).
   private static final ImmutableList<String> SUPPORTED_VIDEO_SAMPLE_MIME_TYPES =
-      Util.SDK_INT >= 24
-          ? ImmutableList.of(
-              MimeTypes.VIDEO_H265,
-              MimeTypes.VIDEO_H264,
-              MimeTypes.VIDEO_H263,
-              MimeTypes.VIDEO_MP4V)
-          : ImmutableList.of(MimeTypes.VIDEO_H264, MimeTypes.VIDEO_H263, MimeTypes.VIDEO_MP4V);
-
+      getSupportedVideoSampleMimeTypes();
   private static final ImmutableList<String> SUPPORTED_AUDIO_SAMPLE_MIME_TYPES =
       ImmutableList.of(MimeTypes.AUDIO_AAC, MimeTypes.AUDIO_AMR_NB, MimeTypes.AUDIO_AMR_WB);
 
@@ -266,5 +258,18 @@ import java.nio.ByteBuffer;
       // Rethrow the original error.
       throw e;
     }
+  }
+
+  private static ImmutableList<String> getSupportedVideoSampleMimeTypes() {
+    ImmutableList.Builder<String> supportedMimeTypes =
+        new ImmutableList.Builder<String>()
+            .add(MimeTypes.VIDEO_H264, MimeTypes.VIDEO_H263, MimeTypes.VIDEO_MP4V);
+    if (SDK_INT >= 24) {
+      supportedMimeTypes.add(MimeTypes.VIDEO_H265);
+    }
+    if (SDK_INT >= 34) {
+      supportedMimeTypes.add(MimeTypes.VIDEO_AV1);
+    }
+    return supportedMimeTypes.build();
   }
 }
