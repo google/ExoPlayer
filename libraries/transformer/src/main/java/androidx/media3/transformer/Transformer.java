@@ -1643,7 +1643,9 @@ public final class Transformer {
     public void onTrackEnded(
         @C.TrackType int trackType, Format format, int averageBitrate, int sampleCount) {
       if (trackType == C.TRACK_TYPE_AUDIO) {
-        exportResultBuilder.setAverageAudioBitrate(averageBitrate);
+        exportResultBuilder
+            .setAudioMimeType(format.sampleMimeType)
+            .setAverageAudioBitrate(averageBitrate);
         if (format.channelCount != Format.NO_VALUE) {
           exportResultBuilder.setChannelCount(format.channelCount);
         }
@@ -1652,6 +1654,7 @@ public final class Transformer {
         }
       } else if (trackType == C.TRACK_TYPE_VIDEO) {
         exportResultBuilder
+            .setVideoMimeType(format.sampleMimeType)
             .setAverageVideoBitrate(averageBitrate)
             .setColorInfo(format.colorInfo)
             .setVideoFrameCount(sampleCount);
