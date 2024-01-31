@@ -22,6 +22,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
@@ -52,12 +53,14 @@ public final class ExportResult {
     private int channelCount;
     private int sampleRate;
     @Nullable private String audioEncoderName;
+    @Nullable private String audioMimeType;
     private int averageVideoBitrate;
     @Nullable private ColorInfo colorInfo;
     private int height;
     private int width;
     private int videoFrameCount;
     @Nullable private String videoEncoderName;
+    @Nullable private String videoMimeType;
     private @OptimizationResult int optimizationResult;
     @Nullable private ExportException exportException;
 
@@ -144,6 +147,15 @@ public final class ExportResult {
     }
 
     /**
+     * Sets the output audio {@linkplain com.google.android.exoplayer2.util.MimeTypes mime type}.
+     */
+    @CanIgnoreReturnValue
+    public Builder setAudioMimeType(@Nullable String audioMimeType) {
+      this.audioMimeType = audioMimeType;
+      return this;
+    }
+
+    /**
      * Sets the average video bitrate.
      *
      * <p>Must be positive or {@link C#RATE_UNSET_INT}.
@@ -206,6 +218,15 @@ public final class ExportResult {
     }
 
     /**
+     * Sets the output video {@linkplain com.google.android.exoplayer2.util.MimeTypes mime type}.
+     */
+    @CanIgnoreReturnValue
+    public Builder setVideoMimeType(@Nullable String videoMimeType) {
+      this.videoMimeType = videoMimeType;
+      return this;
+    }
+
+    /**
      * Sets {@link OptimizationResult} to indicate an optimization as been successful, or has failed
      * and normal export proceeded instead.
      *
@@ -237,12 +258,14 @@ public final class ExportResult {
           channelCount,
           sampleRate,
           audioEncoderName,
+          audioMimeType,
           averageVideoBitrate,
           colorInfo,
           height,
           width,
           videoFrameCount,
           videoEncoderName,
+          videoMimeType,
           optimizationResult,
           exportException);
     }
@@ -388,6 +411,9 @@ public final class ExportResult {
   /** The name of the audio encoder used, or {@code null} if none were used. */
   @Nullable public final String audioEncoderName;
 
+  /** The output audio {@linkplain MimeTypes mime type}, or {@code null} if unset or unknown. */
+  @Nullable public final String audioMimeType;
+
   /**
    * The average bitrate of the video track data, or {@link C#RATE_UNSET_INT} if unset or unknown.
    */
@@ -408,6 +434,9 @@ public final class ExportResult {
   /** The name of the video encoder used, or {@code null} if none were used. */
   @Nullable public final String videoEncoderName;
 
+  /** The output video {@linkplain MimeTypes mime type}, or {@code null} if unset or unknown. */
+  @Nullable public final String videoMimeType;
+
   /** The result of any requested optimizations. */
   public final @OptimizationResult int optimizationResult;
 
@@ -425,12 +454,14 @@ public final class ExportResult {
       int channelCount,
       int sampleRate,
       @Nullable String audioEncoderName,
+      @Nullable String audioMimeType,
       int averageVideoBitrate,
       @Nullable ColorInfo colorInfo,
       int height,
       int width,
       int videoFrameCount,
       @Nullable String videoEncoderName,
+      @Nullable String videoMimeType,
       @OptimizationResult int optimizationResult,
       @Nullable ExportException exportException) {
     this.processedInputs = processedInputs;
@@ -440,12 +471,14 @@ public final class ExportResult {
     this.channelCount = channelCount;
     this.sampleRate = sampleRate;
     this.audioEncoderName = audioEncoderName;
+    this.audioMimeType = audioMimeType;
     this.averageVideoBitrate = averageVideoBitrate;
     this.colorInfo = colorInfo;
     this.height = height;
     this.width = width;
     this.videoFrameCount = videoFrameCount;
     this.videoEncoderName = videoEncoderName;
+    this.videoMimeType = videoMimeType;
     this.optimizationResult = optimizationResult;
     this.exportException = exportException;
   }
@@ -459,12 +492,14 @@ public final class ExportResult {
         .setChannelCount(channelCount)
         .setSampleRate(sampleRate)
         .setAudioEncoderName(audioEncoderName)
+        .setAudioMimeType(audioMimeType)
         .setAverageVideoBitrate(averageVideoBitrate)
         .setColorInfo(colorInfo)
         .setHeight(height)
         .setWidth(width)
         .setVideoFrameCount(videoFrameCount)
         .setVideoEncoderName(videoEncoderName)
+        .setVideoMimeType(videoMimeType)
         .setOptimizationResult(optimizationResult)
         .setExportException(exportException);
   }
@@ -485,12 +520,14 @@ public final class ExportResult {
         && channelCount == result.channelCount
         && sampleRate == result.sampleRate
         && Objects.equals(audioEncoderName, result.audioEncoderName)
+        && Objects.equals(audioMimeType, result.audioMimeType)
         && averageVideoBitrate == result.averageVideoBitrate
         && Objects.equals(colorInfo, result.colorInfo)
         && height == result.height
         && width == result.width
         && videoFrameCount == result.videoFrameCount
         && Objects.equals(videoEncoderName, result.videoEncoderName)
+        && Objects.equals(videoMimeType, result.videoMimeType)
         && optimizationResult == result.optimizationResult
         && Objects.equals(exportException, result.exportException);
   }
@@ -504,12 +541,14 @@ public final class ExportResult {
     result = 31 * result + channelCount;
     result = 31 * result + sampleRate;
     result = 31 * result + Objects.hashCode(audioEncoderName);
+    result = 31 * result + Objects.hashCode(audioMimeType);
     result = 31 * result + averageVideoBitrate;
     result = 31 * result + Objects.hashCode(colorInfo);
     result = 31 * result + height;
     result = 31 * result + width;
     result = 31 * result + videoFrameCount;
     result = 31 * result + Objects.hashCode(videoEncoderName);
+    result = 31 * result + Objects.hashCode(videoMimeType);
     result = 31 * result + optimizationResult;
     result = 31 * result + Objects.hashCode(exportException);
     return result;

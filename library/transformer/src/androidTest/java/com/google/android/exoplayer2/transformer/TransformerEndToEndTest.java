@@ -925,8 +925,8 @@ public class TransformerEndToEndTest {
   }
 
   @Test
-  public void transcode_withOutputMimeTypeAv1_completesSuccessfully() throws Exception {
-    String testId = "transcode_withOutputMimeTypeAv1_completesSuccessfully";
+  public void transcode_withOutputVideoMimeTypeAv1_completesSuccessfully() throws Exception {
+    String testId = "transcode_withOutputVideoMimeTypeAv1_completesSuccessfully";
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context,
         testId,
@@ -943,13 +943,36 @@ public class TransformerEndToEndTest {
     Transformer transformer =
         new Transformer.Builder(context).setVideoMimeType(MimeTypes.VIDEO_AV1).build();
 
-    ExportTestResult exportTestResult =
+    ExportResult exportResult =
         new TransformerAndroidTestRunner.Builder(context, transformer)
             .build()
-            .run(testId, editedMediaItem);
+            .run(testId, editedMediaItem)
+            .exportResult;
 
-    // TODO: b/322813915 - Assert on output mime type.
-    assertThat(exportTestResult.exportResult.exportException).isNull();
+    // TODO: b/322954582 - Also assert by probing output file.
+    assertThat(exportResult.exportException).isNull();
+    assertThat(exportResult.durationMs).isGreaterThan(0);
+    assertThat(exportResult.videoMimeType).isEqualTo(MimeTypes.VIDEO_AV1);
+  }
+
+  @Test
+  public void transcode_withOutputAudioMimeTypeAac_completesSuccessfully() throws Exception {
+    String testId = "transcode_withOutputAudioMimeTypeAac_completesSuccessfully";
+    MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP3_ASSET_URI_STRING));
+    EditedMediaItem editedMediaItem = new EditedMediaItem.Builder(mediaItem).build();
+    Transformer transformer =
+        new Transformer.Builder(context).setAudioMimeType(MimeTypes.AUDIO_AAC).build();
+
+    ExportResult exportResult =
+        new TransformerAndroidTestRunner.Builder(context, transformer)
+            .build()
+            .run(testId, editedMediaItem)
+            .exportResult;
+
+    // TODO: b/322954582 - Also assert by probing output file.
+    assertThat(exportResult.exportException).isNull();
+    assertThat(exportResult.durationMs).isGreaterThan(0);
+    assertThat(exportResult.audioMimeType).isEqualTo(MimeTypes.AUDIO_AAC);
   }
 
   private static AudioProcessor createSonic(float pitch) {
