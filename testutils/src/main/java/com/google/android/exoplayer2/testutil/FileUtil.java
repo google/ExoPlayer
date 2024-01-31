@@ -41,6 +41,17 @@ public final class FileUtil {
    */
   public static void assertFileHasColorTransfer(
       Context context, @Nullable String filePath, @C.ColorTransfer int expectedColorTransfer) {
+    Format videoTrackFormat = retrieveVideoTrackFormat(context, filePath);
+    @Nullable ColorInfo colorInfo = videoTrackFormat.colorInfo;
+    @C.ColorTransfer
+    int actualColorTransfer =
+        colorInfo == null || colorInfo.colorTransfer == Format.NO_VALUE
+            ? C.COLOR_TRANSFER_SDR
+            : colorInfo.colorTransfer;
+    assertThat(actualColorTransfer).isEqualTo(expectedColorTransfer);
+  }
+
+  private static Format retrieveVideoTrackFormat(Context context, @Nullable String filePath) {
     TrackGroupArray trackGroupArray;
     try {
       trackGroupArray =
@@ -57,14 +68,7 @@ public final class FileUtil {
       TrackGroup trackGroup = trackGroupArray.get(i);
       if (trackGroup.type == C.TRACK_TYPE_VIDEO) {
         assertThat(trackGroup.length).isEqualTo(1);
-        @Nullable ColorInfo colorInfo = trackGroup.getFormat(0).colorInfo;
-        @C.ColorTransfer
-        int actualColorTransfer =
-            colorInfo == null || colorInfo.colorTransfer == Format.NO_VALUE
-                ? C.COLOR_TRANSFER_SDR
-                : colorInfo.colorTransfer;
-        assertThat(actualColorTransfer).isEqualTo(expectedColorTransfer);
-        return;
+        return trackGroup.getFormat(0);
       }
     }
     throw new IllegalStateException("Couldn't find video track");
