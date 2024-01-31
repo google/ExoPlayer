@@ -24,6 +24,7 @@ import android.util.Pair;
 import androidx.media3.extractor.mp4.Mp4Extractor;
 import androidx.media3.muxer.Mp4Muxer.TrackToken;
 import androidx.media3.test.utils.DumpFileAsserts;
+import androidx.media3.test.utils.DumpableMp4Box;
 import androidx.media3.test.utils.FakeExtractorOutput;
 import androidx.media3.test.utils.TestUtil;
 import androidx.test.core.app.ApplicationProvider;
@@ -155,5 +156,36 @@ public class Mp4MuxerEndToEndTest {
     } finally {
       mp4Muxer.close();
     }
+  }
+
+  @Test
+  public void createMp4File_withOneTrackEmpty_doesNotWriteEmptyTrack() throws Exception {
+    String outputFilePath = temporaryFolder.newFile().getPath();
+    Mp4Muxer mp4Muxer = new Mp4Muxer.Builder(new FileOutputStream(outputFilePath)).build();
+    mp4Muxer.setModificationTime(/* timestampMs= */ 500_000_000L);
+    Pair<ByteBuffer, BufferInfo> track1Sample1 =
+        MuxerTestUtil.getFakeSampleAndSampleInfo(/* presentationTimeUs= */ 0L);
+    Pair<ByteBuffer, BufferInfo> track1Sample2 =
+        MuxerTestUtil.getFakeSampleAndSampleInfo(/* presentationTimeUs= */ 100L);
+
+    try {
+      TrackToken track1 = mp4Muxer.addTrack(/* sortKey= */ 0, FAKE_VIDEO_FORMAT);
+      mp4Muxer.writeSampleData(track1, track1Sample1.first, track1Sample1.second);
+      mp4Muxer.writeSampleData(track1, track1Sample2.first, track1Sample2.second);
+      // Add same track again but without any samples.
+      mp4Muxer.addTrack(/* sortKey= */ 1, FAKE_VIDEO_FORMAT);
+    } finally {
+      mp4Muxer.close();
+    }
+
+    // The FakeExtractorOutput omits tracks with no samples so the dump file will be the same
+    // with/without the empty track. Hence used DumpableMp4Box instead.
+    DumpableMp4Box dumpableBox =
+        new DumpableMp4Box(ByteBuffer.wrap(TestUtil.getByteArrayFromFilePath(outputFilePath)));
+    // Output contains only one trak box.
+    DumpFileAsserts.assertOutput(
+        ApplicationProvider.getApplicationContext(),
+        dumpableBox,
+        MuxerTestUtil.getExpectedDumpFilePath("mp4_without_empty_track.mp4"));
   }
 }
