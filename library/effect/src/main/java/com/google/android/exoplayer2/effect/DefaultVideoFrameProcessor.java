@@ -873,8 +873,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
     checkArgument(outputColorInfo.isDataSpaceValid());
     checkArgument(outputColorInfo.colorTransfer != C.COLOR_TRANSFER_LINEAR);
 
-    if (inputColorInfo.colorSpace != outputColorInfo.colorSpace
-        || ColorInfo.isTransferHdr(inputColorInfo) != ColorInfo.isTransferHdr(outputColorInfo)) {
+    if (ColorInfo.isTransferHdr(inputColorInfo) != ColorInfo.isTransferHdr(outputColorInfo)) {
       // OpenGL tone mapping is only implemented for BT2020 to BT709 and HDR to SDR.
       checkArgument(inputColorInfo.colorSpace == C.COLOR_SPACE_BT2020);
       checkArgument(outputColorInfo.colorSpace != C.COLOR_SPACE_BT2020);
