@@ -477,6 +477,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
       Format.Builder formatBuilder =
           new Format.Builder()
               .setId(groupId + ":" + name)
+              .setLabel(name)
               .setLabels(labels)
               .setContainerMimeType(MimeTypes.APPLICATION_M3U8)
               .setSelectionFlags(parseSelectionFlags(line))

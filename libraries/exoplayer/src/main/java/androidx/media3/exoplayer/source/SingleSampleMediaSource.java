@@ -177,8 +177,6 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
     String label = subtitleConfiguration.label;
     if (label != null) {
       labels.add(new Label(null, null, label));
-    } else {
-      labels = null;
     }
     this.format =
         new Format.Builder()
@@ -186,6 +184,7 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
             .setLanguage(subtitleConfiguration.language)
             .setSelectionFlags(subtitleConfiguration.selectionFlags)
             .setRoleFlags(subtitleConfiguration.roleFlags)
+            .setLabel(label)
             .setLabels(labels)
             .setId(subtitleConfiguration.id != null ? subtitleConfiguration.id : trackId)
             .build();

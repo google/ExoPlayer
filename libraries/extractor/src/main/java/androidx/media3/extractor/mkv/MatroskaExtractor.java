@@ -2424,6 +2424,8 @@ public class MatroskaExtractor implements Extractor {
       }
 
       if (name != null && !TRACK_NAME_TO_ROTATION_DEGREES.containsKey(name)) {
+        formatBuilder.setLabel(name);
+
         List<Label> labels = new ArrayList<>();
         labels.add(new Label(null, null, name));
         formatBuilder.setLabels(labels);

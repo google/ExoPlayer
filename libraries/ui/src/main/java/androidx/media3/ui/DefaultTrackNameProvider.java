@@ -110,8 +110,8 @@ public class DefaultTrackNameProvider implements TrackNameProvider {
   }
 
   private String buildLabelString(Format format) {
-    if (format.labels == null || format.labels.isEmpty()) {
-      return "";
+    if (format.labels.isEmpty()) {
+      return TextUtils.isEmpty(format.label) ? "" : format.label;
     }
     if (!TextUtils.isEmpty(format.language)) {
       List<Label> labelsByLanguage =

@@ -87,6 +87,7 @@ public final class FormatTest {
     labels.add(new Label("id", "en", "label"));
     return new Format.Builder()
         .setId("id")
+        .setLabel("label")
         .setLabels(labels)
         .setLanguage("language")
         .setSelectionFlags(C.SELECTION_FLAG_DEFAULT)

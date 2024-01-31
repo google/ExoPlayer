@@ -1583,6 +1583,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         sampleFormat
             .buildUpon()
             .setId(playlistFormat.id)
+            .setLabel(playlistFormat.label)
             .setLabels(playlistFormat.labels)
             .setLanguage(playlistFormat.language)
             .setSelectionFlags(playlistFormat.selectionFlags)

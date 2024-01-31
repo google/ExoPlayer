@@ -519,8 +519,6 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
           String label = subtitleConfigurations.get(i).label;
           if (label != null) {
             labels.add(new Label(null, null, label));
-          } else {
-            labels = null;
           }
 
           Format format =
@@ -529,6 +527,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
                   .setLanguage(subtitleConfigurations.get(i).language)
                   .setSelectionFlags(subtitleConfigurations.get(i).selectionFlags)
                   .setRoleFlags(subtitleConfigurations.get(i).roleFlags)
+                  .setLabel(label)
                   .setLabels(labels)
                   .setId(subtitleConfigurations.get(i).id)
                   .build();

@@ -405,7 +405,7 @@ public class DashManifestParser extends DefaultHandler
     int audioChannels = Format.NO_VALUE;
     int audioSamplingRate = parseInt(xpp, "audioSamplingRate", Format.NO_VALUE);
     String language = xpp.getAttributeValue(null, "lang");
-    String adaptationSetLabel = xpp.getAttributeValue(null, "label");
+    String label = xpp.getAttributeValue(null, "label");
     List<Label> labels = new ArrayList<>();
     String drmSchemeType = null;
     ArrayList<SchemeData> drmSchemeDatas = new ArrayList<>();
@@ -506,15 +506,13 @@ public class DashManifestParser extends DefaultHandler
       } else if (XmlPullParserUtil.isStartTag(xpp, "InbandEventStream")) {
         inbandEventStreams.add(parseDescriptor(xpp, "InbandEventStream"));
       } else if (XmlPullParserUtil.isStartTag(xpp, "Label")) {
-        labels.add(parseLabel(xpp));
+        Label parsedLabel = parseLabel(xpp);
+        label = parsedLabel.value;
+        labels.add(parsedLabel);
       } else if (XmlPullParserUtil.isStartTag(xpp)) {
         parseAdaptationSetChild(xpp);
       }
     } while (!XmlPullParserUtil.isEndTag(xpp, "AdaptationSet"));
-
-    if (labels.size() == 0 && adaptationSetLabel != null) {
-      labels.add(new Label(null, null, adaptationSetLabel));
-    }
 
     // Build the representations.
     List<Representation> representations = new ArrayList<>(representationInfos.size());
@@ -522,7 +520,8 @@ public class DashManifestParser extends DefaultHandler
       representations.add(
           buildRepresentation(
               representationInfos.get(i),
-              labels.isEmpty() ? null : labels,
+              label,
+              labels,
               drmSchemeType,
               drmSchemeDatas,
               inbandEventStreams));
@@ -861,11 +860,15 @@ public class DashManifestParser extends DefaultHandler
 
   protected Representation buildRepresentation(
       RepresentationInfo representationInfo,
+      @Nullable String label,
       @Nullable List<Label> labels,
       @Nullable String extraDrmSchemeType,
       ArrayList<SchemeData> extraDrmSchemeDatas,
       ArrayList<Descriptor> extraInbandEventStreams) {
     Format.Builder formatBuilder = representationInfo.format.buildUpon();
+    if (label != null) {
+      formatBuilder.setLabel(label);
+    }
     formatBuilder.setLabels(labels);
     @Nullable String drmSchemeType = representationInfo.drmSchemeType;
     if (drmSchemeType == null) {

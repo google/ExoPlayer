@@ -516,8 +516,11 @@ public final class AviExtractor implements Extractor {
     }
     StreamNameChunk streamName = streamList.getChild(StreamNameChunk.class);
     if (streamName != null) {
+      String label = streamName.name;
+      builder.setLabel(label);
+
       List<Label> labels = new ArrayList<>();
-      labels.add(new Label(null, null, streamName.name));
+      labels.add(new Label(null, null, label));
       builder.setLabels(labels);
     }
     int trackType = MimeTypes.getTrackType(streamFormat.sampleMimeType);

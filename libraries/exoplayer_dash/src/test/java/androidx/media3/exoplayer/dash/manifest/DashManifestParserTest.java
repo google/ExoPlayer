@@ -279,8 +279,9 @@ public class DashManifestParserTest {
 
     List<AdaptationSet> adaptationSets = manifest.getPeriod(0).adaptationSets;
 
-    assertThat(adaptationSets.get(0).representations.get(0).format.labels.get(0).value)
-        .isEqualTo("audio label");
+    assertThat(adaptationSets.get(0).representations.get(0).format.label).isEqualTo("audio label");
+    assertThat(adaptationSets.get(1).representations.get(0).format.label).isEqualTo("video label");
+    assertThat(adaptationSets.get(0).representations.get(0).format.labels.size()).isEqualTo(0);
     assertThat(adaptationSets.get(1).representations.get(0).format.labels.get(0).value)
         .isEqualTo("video label");
   }

@@ -745,12 +745,11 @@ public class SsManifestParser implements ParsingLoadable.Parser<SsManifest> {
       String label = (String) getNormalizedAttribute(KEY_NAME);
       if (label != null) {
         labels.add(new Label(null, null, label));
-      } else {
-        labels = null;
       }
       format =
           formatBuilder
               .setId(parser.getAttributeValue(null, KEY_INDEX))
+              .setLabel(label)
               .setLabels(labels)
               .setSampleMimeType(sampleMimeType)
               .setAverageBitrate(parseRequiredInt(parser, KEY_BITRATE))
