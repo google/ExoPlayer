@@ -2402,20 +2402,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
                       .setEncoderDelay(numberPreSkipSamples)
                       .build();
             }
-            // For HLS-fMP4 and HLS-TS, the bit-rate of the DTS Express stream is not in the
-            // manifest file. The bit-rate has no value at the point of AudioTrack Initialisation.
-            // This will lead to a computed direct passthrough playback buffer size of 2250000
-            // bytes. Some TVs (E.g. Xiaomi A Pro and Q2) do not support such a big buffer for
-            // direct passthrough playback. It will crash at the point of AudioTrack Initialisation.
-            // Here we set the unknown bit-rate to a known peak bit-rate for DTS Express streams.
-            if (Objects.equals(outputFormat.sampleMimeType, MimeTypes.AUDIO_DTS_EXPRESS)
-                && (outputFormat.bitrate == NO_VALUE)) {
-              outputFormat =
-                  checkNotNull(outputFormat)
-                      .buildUpon()
-                      .setPeakBitrate(DtsUtil.DTS_EXPRESS_MAX_RATE_BITS_PER_SECOND)
-                      .build();
-            }
             onOutputFormatChanged(outputFormat, /* mediaFormat= */ null);
             waitingForFirstSampleInFormat = false;
           }

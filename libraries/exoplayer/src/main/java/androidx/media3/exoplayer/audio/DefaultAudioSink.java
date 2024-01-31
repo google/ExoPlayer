@@ -76,6 +76,7 @@ import java.lang.annotation.Target;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayDeque;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
@@ -765,6 +766,19 @@ public final class DefaultAudioSink implements AudioSink {
           "Invalid output channel config (mode=" + outputMode + ") for: " + inputFormat,
           inputFormat);
     }
+
+    // For HLS-fMP4 and HLS-TS, the bit-rate of the DTS Express stream is not in the
+    // manifest file. The bit-rate has no value at the point of AudioTrack Initialisation.
+    // This will lead to a computed direct passthrough playback buffer size of 2250000
+    // bytes. Some TVs (E.g. Xiaomi A Pro and Q2) do not support such a big buffer for
+    // direct passthrough playback. It will crash at the point of AudioTrack Initialisation.
+    // Here we set the unknown bit-rate to a known peak bit-rate for DTS Express streams.
+    int bitRate = inputFormat.bitrate;
+    if (Objects.equals(inputFormat.sampleMimeType, MimeTypes.AUDIO_DTS_EXPRESS)
+        && (inputFormat.bitrate == Format.NO_VALUE)) {
+      bitRate = DtsUtil.DTS_EXPRESS_MAX_RATE_BITS_PER_SECOND;
+    }
+
     int bufferSize =
         specifiedBufferSize != 0
             ? specifiedBufferSize
@@ -774,7 +788,7 @@ public final class DefaultAudioSink implements AudioSink {
                 outputMode,
                 outputPcmFrameSize != C.LENGTH_UNSET ? outputPcmFrameSize : 1,
                 outputSampleRate,
-                inputFormat.bitrate,
+                bitRate,
                 enableAudioTrackPlaybackParams ? MAX_PLAYBACK_SPEED : DEFAULT_PLAYBACK_SPEED);
     offloadDisabledUntilNextConfiguration = false;
     Configuration pendingConfiguration =
