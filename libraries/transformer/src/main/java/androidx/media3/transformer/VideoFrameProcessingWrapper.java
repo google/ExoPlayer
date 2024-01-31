@@ -30,7 +30,6 @@ import androidx.media3.common.Format;
 import androidx.media3.common.FrameInfo;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.OnInputFrameProcessedListener;
-import androidx.media3.common.SurfaceInfo;
 import androidx.media3.common.VideoFrameProcessor;
 import androidx.media3.common.util.Size;
 import androidx.media3.common.util.TimestampIterator;
@@ -125,10 +124,6 @@ import java.util.concurrent.atomic.AtomicLong;
   @Override
   public void signalEndOfVideoInput() {
     videoFrameProcessor.signalEndOfInput();
-  }
-
-  public void setOutputSurfaceInfo(@Nullable SurfaceInfo outputSurfaceInfo) {
-    videoFrameProcessor.setOutputSurfaceInfo(outputSurfaceInfo);
   }
 
   public void release() {
