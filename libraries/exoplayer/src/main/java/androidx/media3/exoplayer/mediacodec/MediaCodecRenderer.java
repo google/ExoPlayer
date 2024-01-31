@@ -15,7 +15,6 @@
  */
 package androidx.media3.exoplayer.mediacodec;
 
-import static androidx.media3.common.Format.NO_VALUE;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
@@ -80,7 +79,6 @@ import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.exoplayer.source.SampleStream;
 import androidx.media3.exoplayer.source.SampleStream.ReadDataResult;
 import androidx.media3.exoplayer.source.SampleStream.ReadFlags;
-import androidx.media3.extractor.DtsUtil;
 import androidx.media3.extractor.OpusUtil;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;

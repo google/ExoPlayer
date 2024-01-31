@@ -76,7 +76,6 @@ import java.lang.annotation.Target;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayDeque;
-import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
@@ -767,16 +766,12 @@ public final class DefaultAudioSink implements AudioSink {
           inputFormat);
     }
 
-    // For HLS-fMP4 and HLS-TS, the bit-rate of the DTS Express stream is not in the
-    // manifest file. The bit-rate has no value at the point of AudioTrack Initialisation.
-    // This will lead to a computed direct passthrough playback buffer size of 2250000
-    // bytes. Some TVs (E.g. Xiaomi A Pro and Q2) do not support such a big buffer for
-    // direct passthrough playback. It will crash at the point of AudioTrack Initialisation.
-    // Here we set the unknown bit-rate to a known peak bit-rate for DTS Express streams.
-    int bitRate = inputFormat.bitrate;
-    if (Objects.equals(inputFormat.sampleMimeType, MimeTypes.AUDIO_DTS_EXPRESS)
-        && (inputFormat.bitrate == Format.NO_VALUE)) {
-      bitRate = DtsUtil.DTS_EXPRESS_MAX_RATE_BITS_PER_SECOND;
+    // Replace unknown bitrate by maximum allowed bitrate for DTS Express to avoid allocating an
+    // AudioTrack buffer for the much larger maximum bitrate of the underlying DTS-HD encoding.
+    int bitrate = inputFormat.bitrate;
+    if (MimeTypes.AUDIO_DTS_EXPRESS.equals(inputFormat.sampleMimeType)
+        && bitrate == Format.NO_VALUE) {
+      bitrate = DtsUtil.DTS_EXPRESS_MAX_RATE_BITS_PER_SECOND;
     }
 
     int bufferSize =
@@ -788,7 +783,7 @@ public final class DefaultAudioSink implements AudioSink {
                 outputMode,
                 outputPcmFrameSize != C.LENGTH_UNSET ? outputPcmFrameSize : 1,
                 outputSampleRate,
-                bitRate,
+                bitrate,
                 enableAudioTrackPlaybackParams ? MAX_PLAYBACK_SPEED : DEFAULT_PLAYBACK_SPEED);
     offloadDisabledUntilNextConfiguration = false;
     Configuration pendingConfiguration =
