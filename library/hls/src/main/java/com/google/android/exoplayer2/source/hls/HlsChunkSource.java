@@ -250,6 +250,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     return trackGroup;
   }
 
+  /** Returns whether the chunk source has independent segments. */
+  public boolean hasIndependentSegments() {
+    return independentSegments;
+  }
+
   /**
    * Sets the current track selection.
    *

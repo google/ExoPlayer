@@ -502,8 +502,21 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       return true;
     }
 
+    // Detect whether the seek is to the start of a chunk that's at least partially buffered.
+    @Nullable HlsMediaChunk seekToMediaChunk = null;
+    if (chunkSource.hasIndependentSegments()) {
+      for (int i = 0; i < mediaChunks.size(); i++) {
+        HlsMediaChunk mediaChunk = mediaChunks.get(i);
+        long mediaChunkStartTimeUs = mediaChunk.startTimeUs;
+        if (mediaChunkStartTimeUs == positionUs) {
+          seekToMediaChunk = mediaChunk;
+          break;
+        }
+      }
+    }
+
     // If we're not forced to reset, try and seek within the buffer.
-    if (sampleQueuesBuilt && !forceReset && seekInsideBufferUs(positionUs)) {
+    if (sampleQueuesBuilt && !forceReset && seekInsideBufferUs(positionUs, seekToMediaChunk)) {
       return false;
     }
 
@@ -1476,13 +1489,20 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * Attempts to seek to the specified position within the sample queues.
    *
    * @param positionUs The seek position in microseconds.
+   * @param chunk The chunk to seek to, or null to seek to the exact position. {@code positionUs} is
+   *     ignored if this is non-null.
    * @return Whether the in-buffer seek was successful.
    */
-  private boolean seekInsideBufferUs(long positionUs) {
+  private boolean seekInsideBufferUs(long positionUs, @Nullable HlsMediaChunk chunk) {
     int sampleQueueCount = sampleQueues.length;
     for (int i = 0; i < sampleQueueCount; i++) {
       SampleQueue sampleQueue = sampleQueues[i];
-      boolean seekInsideQueue = sampleQueue.seekTo(positionUs, /* allowTimeBeyondBuffer= */ false);
+      boolean seekInsideQueue;
+      if (chunk != null) {
+        seekInsideQueue = sampleQueue.seekTo(chunk.getFirstSampleIndex(i));
+      } else {
+        seekInsideQueue = sampleQueue.seekTo(positionUs, /* allowTimeBeyondBuffer= */ false);
+      }
       // If we have AV tracks then an in-queue seek is successful if the seek into every AV queue
       // is successful. We ignore whether seeks within non-AV queues are successful in this case, as
       // they may be sparse or poorly interleaved. If we only have non-AV tracks then a seek is

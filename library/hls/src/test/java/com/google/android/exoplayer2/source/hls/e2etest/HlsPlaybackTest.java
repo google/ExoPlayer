@@ -24,6 +24,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.robolectric.PlaybackOutput;
 import com.google.android.exoplayer2.robolectric.ShadowMediaCodecConfig;
 import com.google.android.exoplayer2.robolectric.TestPlayerRunHelper;
@@ -152,5 +153,38 @@ public final class HlsPlaybackTest {
 
     DumpFileAsserts.assertOutput(
         applicationContext, playbackOutput, "playbackdumps/hls/cea608.dump");
+  }
+
+  @Test
+  public void multiSegment_withSeekToPrevSyncFrame_startsRenderingAtBeginningOfSegment()
+      throws Exception {
+    Context applicationContext = ApplicationProvider.getApplicationContext();
+    CapturingRenderersFactory capturingRenderersFactory =
+        new CapturingRenderersFactory(applicationContext);
+    ExoPlayer player =
+        new ExoPlayer.Builder(applicationContext, capturingRenderersFactory)
+            .setMediaSourceFactory(
+                new HlsMediaSource.Factory(new DefaultDataSource.Factory(applicationContext))
+                    .experimentalParseSubtitlesDuringExtraction(true))
+            .setClock(new FakeClock(/* isAutoAdvancing= */ true))
+            .build();
+    // Prepare media fully to ensure we have all the segment data available.
+    player.setVideoSurface(new Surface(new SurfaceTexture(/* texName= */ 1)));
+    PlaybackOutput playbackOutput = PlaybackOutput.register(player, capturingRenderersFactory);
+    player.setMediaItem(MediaItem.fromUri("asset:///media/hls/multi-segment/playlist.m3u8"));
+    player.prepare();
+    TestPlayerRunHelper.runUntilIsLoading(player, true);
+    TestPlayerRunHelper.runUntilIsLoading(player, false);
+
+    // Seek to beginning of second segment (at 500ms according to playlist)
+    player.setSeekParameters(SeekParameters.PREVIOUS_SYNC);
+    player.seekTo(600);
+    player.play();
+    TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_ENDED);
+    player.release();
+
+    // Output only starts at 550ms (the first sample in the second segment)
+    DumpFileAsserts.assertOutput(
+        applicationContext, playbackOutput, "playbackdumps/hls/multi-segment-with-seek.dump");
   }
 }
