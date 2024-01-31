@@ -101,15 +101,18 @@ public final class SequenceEffectTestUtil {
   public static void assertBitmapsMatchExpectedAndSave(List<Bitmap> actualBitmaps, String testId)
       throws IOException {
     for (int i = 0; i < actualBitmaps.size(); i++) {
-      Bitmap actualBitmap = actualBitmaps.get(i);
       maybeSaveTestBitmap(
-          testId, /* bitmapLabel= */ String.valueOf(i), actualBitmap, /* path= */ null);
+          testId, /* bitmapLabel= */ String.valueOf(i), actualBitmaps.get(i), /* path= */ null);
+    }
+
+    for (int i = 0; i < actualBitmaps.size(); i++) {
       String subTestId = testId + "_" + i;
       String expectedPath = Util.formatInvariant("%s/%s.png", PNG_ASSET_BASE_PATH, subTestId);
       Bitmap expectedBitmap = readBitmap(expectedPath);
 
       float averagePixelAbsoluteDifference =
-          getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, subTestId);
+          getBitmapAveragePixelAbsoluteDifferenceArgb8888(
+              expectedBitmap, actualBitmaps.get(i), subTestId);
       assertWithMessage("For expected bitmap " + expectedPath)
           .that(averagePixelAbsoluteDifference)
           .isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE_LUMA);
