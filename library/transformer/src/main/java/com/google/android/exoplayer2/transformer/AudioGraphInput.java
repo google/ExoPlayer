@@ -79,6 +79,7 @@ import java.util.concurrent.atomic.AtomicReference;
     AudioFormat inputAudioFormat = new AudioFormat(inputFormat);
     checkArgument(isInputAudioFormatValid(inputAudioFormat), /* errorMessage= */ inputAudioFormat);
 
+    // TODO(b/323148735) - Use improved buffer assignment logic.
     availableInputBuffers = new ConcurrentLinkedQueue<>();
     ByteBuffer emptyBuffer = ByteBuffer.allocateDirect(0).order(ByteOrder.nativeOrder());
     for (int i = 0; i < MAX_INPUT_BUFFER_COUNT; i++) {
