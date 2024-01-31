@@ -316,6 +316,9 @@ public final class ConfigurationActivity extends AppCompatActivity {
     if (SDK_INT >= 24) {
       videoMimeAdapter.add(MimeTypes.VIDEO_H265);
     }
+    if (SDK_INT >= 34) {
+      videoMimeAdapter.add(MimeTypes.VIDEO_AV1);
+    }
 
     ArrayAdapter<String> resolutionHeightAdapter =
         new ArrayAdapter<>(/* context= */ this, R.layout.spinner_item);

@@ -49,6 +49,7 @@ import androidx.media3.common.C;
 import androidx.media3.common.Effect;
 import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
+import androidx.media3.common.MimeTypes;
 import androidx.media3.common.OnInputFrameProcessedListener;
 import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.audio.AudioProcessor;
@@ -921,6 +922,34 @@ public class TransformerEndToEndTest {
             .run(testId, editedMediaItem);
 
     assertThat(result.exportResult.channelCount).isEqualTo(2);
+  }
+
+  @Test
+  public void transcode_withOutputMimeTypeAv1_completesSuccessfully() throws Exception {
+    String testId = "transcode_withOutputMimeTypeAv1_completesSuccessfully";
+    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
+        context,
+        testId,
+        /* inputFormat= */ MP4_ASSET_FORMAT,
+        /* outputFormat= */ MP4_ASSET_FORMAT
+            .buildUpon()
+            .setSampleMimeType(MimeTypes.VIDEO_AV1)
+            .setCodecs(null)
+            .build())) {
+      return;
+    }
+    MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_ASSET_URI_STRING));
+    EditedMediaItem editedMediaItem = new EditedMediaItem.Builder(mediaItem).build();
+    Transformer transformer =
+        new Transformer.Builder(context).setVideoMimeType(MimeTypes.VIDEO_AV1).build();
+
+    ExportTestResult exportTestResult =
+        new TransformerAndroidTestRunner.Builder(context, transformer)
+            .build()
+            .run(testId, editedMediaItem);
+
+    // TODO: b/322813915 - Assert on output mime type.
+    assertThat(exportTestResult.exportResult.exportException).isNull();
   }
 
   private static AudioProcessor createSonic(float pitch) {
