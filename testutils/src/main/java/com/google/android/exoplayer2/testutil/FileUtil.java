@@ -16,6 +16,7 @@
 
 package com.google.android.exoplayer2.testutil;
 
+import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
@@ -41,7 +42,7 @@ public final class FileUtil {
    */
   public static void assertFileHasColorTransfer(
       Context context, @Nullable String filePath, @C.ColorTransfer int expectedColorTransfer) {
-    Format videoTrackFormat = retrieveVideoTrackFormat(context, filePath);
+    Format videoTrackFormat = retrieveTrackFormat(context, filePath, C.TRACK_TYPE_VIDEO);
     @Nullable ColorInfo colorInfo = videoTrackFormat.colorInfo;
     @C.ColorTransfer
     int actualColorTransfer =
@@ -51,7 +52,9 @@ public final class FileUtil {
     assertThat(actualColorTransfer).isEqualTo(expectedColorTransfer);
   }
 
-  private static Format retrieveVideoTrackFormat(Context context, @Nullable String filePath) {
+  /** Returns {@linkplain Format track format} from the media file. */
+  public static Format retrieveTrackFormat(
+      Context context, @Nullable String filePath, @C.TrackType int trackType) {
     TrackGroupArray trackGroupArray;
     try {
       trackGroupArray =
@@ -66,12 +69,12 @@ public final class FileUtil {
 
     for (int i = 0; i < trackGroupArray.length; i++) {
       TrackGroup trackGroup = trackGroupArray.get(i);
-      if (trackGroup.type == C.TRACK_TYPE_VIDEO) {
-        assertThat(trackGroup.length).isEqualTo(1);
+      if (trackGroup.type == trackType) {
+        checkState(trackGroup.length == 1);
         return trackGroup.getFormat(0);
       }
     }
-    throw new IllegalStateException("Couldn't find video track");
+    throw new IllegalStateException("Couldn't find track");
   }
 
   private FileUtil() {}
