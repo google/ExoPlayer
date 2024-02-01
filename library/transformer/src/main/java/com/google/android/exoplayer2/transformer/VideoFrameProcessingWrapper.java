@@ -33,7 +33,6 @@ import com.google.android.exoplayer2.util.OnInputFrameProcessedListener;
 import com.google.android.exoplayer2.util.Size;
 import com.google.android.exoplayer2.util.TimestampIterator;
 import com.google.android.exoplayer2.util.VideoFrameProcessor;
-import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
@@ -50,19 +49,15 @@ import java.util.concurrent.atomic.AtomicLong;
 /* package */ final class VideoFrameProcessingWrapper implements GraphInput {
   private final VideoFrameProcessor videoFrameProcessor;
   private final AtomicLong mediaItemOffsetUs;
-  private final ColorInfo inputColorInfo;
   private final long initialTimestampOffsetUs;
   @Nullable final Presentation presentation;
 
   public VideoFrameProcessingWrapper(
       VideoFrameProcessor videoFrameProcessor,
-      ColorInfo inputColorInfo,
       @Nullable Presentation presentation,
       long initialTimestampOffsetUs) {
     this.videoFrameProcessor = videoFrameProcessor;
     this.mediaItemOffsetUs = new AtomicLong();
-    // TODO: b/307952514 - Remove inputColorInfo reference.
-    this.inputColorInfo = inputColorInfo;
     this.initialTimestampOffsetUs = initialTimestampOffsetUs;
     this.presentation = presentation;
   }
@@ -112,11 +107,6 @@ import java.util.concurrent.atomic.AtomicLong;
   @Override
   public Surface getInputSurface() {
     return videoFrameProcessor.getInputSurface();
-  }
-
-  @Override
-  public ColorInfo getExpectedInputColorInfo() {
-    return inputColorInfo;
   }
 
   @Override

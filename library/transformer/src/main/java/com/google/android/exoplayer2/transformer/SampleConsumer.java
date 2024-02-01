@@ -24,7 +24,6 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.util.OnInputFrameProcessedListener;
 import com.google.android.exoplayer2.util.TimestampIterator;
-import com.google.android.exoplayer2.video.ColorInfo;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -159,15 +158,6 @@ public interface SampleConsumer {
    * <p>Should only be used for raw video data.
    */
   default Surface getInputSurface() {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * Returns the expected input {@link ColorInfo}.
-   *
-   * <p>Should only be used for raw video data.
-   */
-  default ColorInfo getExpectedInputColorInfo() {
     throw new UnsupportedOperationException();
   }
 

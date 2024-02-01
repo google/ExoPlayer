@@ -57,7 +57,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     @Override
     public TransformerSingleInputVideoGraph create(
         Context context,
-        ColorInfo inputColorInfo,
         ColorInfo outputColorInfo,
         DebugViewProvider debugViewProvider,
         Listener listener,
@@ -75,7 +74,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       return new TransformerSingleInputVideoGraph(
           context,
           videoFrameProcessorFactory,
-          inputColorInfo,
           outputColorInfo,
           listener,
           debugViewProvider,
@@ -92,7 +90,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private TransformerSingleInputVideoGraph(
       Context context,
       VideoFrameProcessor.Factory videoFrameProcessorFactory,
-      ColorInfo inputColorInfo,
       ColorInfo outputColorInfo,
       Listener listener,
       DebugViewProvider debugViewProvider,
@@ -104,7 +101,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     super(
         context,
         videoFrameProcessorFactory,
-        inputColorInfo,
         outputColorInfo,
         listener,
         debugViewProvider,
@@ -121,10 +117,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     int inputId = registerInput();
     videoFrameProcessingWrapper =
         new VideoFrameProcessingWrapper(
-            getProcessor(inputId),
-            getInputColorInfo(),
-            getPresentation(),
-            getInitialTimestampOffsetUs());
+            getProcessor(inputId), getPresentation(), getInitialTimestampOffsetUs());
     return videoFrameProcessingWrapper;
   }
 }

@@ -49,7 +49,6 @@ public abstract class SingleInputVideoGraph implements VideoGraph {
 
   private final Context context;
   private final VideoFrameProcessor.Factory videoFrameProcessorFactory;
-  private final ColorInfo inputColorInfo;
   private final ColorInfo outputColorInfo;
   private final Listener listener;
   private final DebugViewProvider debugViewProvider;
@@ -69,11 +68,9 @@ public abstract class SingleInputVideoGraph implements VideoGraph {
    *
    * <p>{@code videoCompositorSettings} must be {@link VideoCompositorSettings#DEFAULT}.
    */
-  // TODO: b/307952514 - Remove inputColorInfo reference in VideoGraph constructor.
   public SingleInputVideoGraph(
       Context context,
       VideoFrameProcessor.Factory videoFrameProcessorFactory,
-      ColorInfo inputColorInfo,
       ColorInfo outputColorInfo,
       Listener listener,
       DebugViewProvider debugViewProvider,
@@ -88,7 +85,6 @@ public abstract class SingleInputVideoGraph implements VideoGraph {
             + " VideoCompositorSettings");
     this.context = context;
     this.videoFrameProcessorFactory = videoFrameProcessorFactory;
-    this.inputColorInfo = inputColorInfo;
     this.outputColorInfo = outputColorInfo;
     this.listener = listener;
     this.debugViewProvider = debugViewProvider;
@@ -201,10 +197,6 @@ public abstract class SingleInputVideoGraph implements VideoGraph {
       videoFrameProcessor = null;
     }
     released = true;
-  }
-
-  protected ColorInfo getInputColorInfo() {
-    return inputColorInfo;
   }
 
   protected long getInitialTimestampOffsetUs() {

@@ -73,7 +73,6 @@ public abstract class MultipleInputVideoGraph implements VideoGraph {
 
   private final Context context;
 
-  private final ColorInfo inputColorInfo;
   private final ColorInfo outputColorInfo;
   private final GlObjectsProvider glObjectsProvider;
   private final DebugViewProvider debugViewProvider;
@@ -104,16 +103,14 @@ public abstract class MultipleInputVideoGraph implements VideoGraph {
 
   protected MultipleInputVideoGraph(
       Context context,
-      ColorInfo inputColorInfo,
       ColorInfo outputColorInfo,
       DebugViewProvider debugViewProvider,
-      VideoGraph.Listener listener,
+      Listener listener,
       Executor listenerExecutor,
       VideoCompositorSettings videoCompositorSettings,
       List<Effect> compositionEffects,
       long initialTimestampOffsetUs) {
     this.context = context;
-    this.inputColorInfo = inputColorInfo;
     this.outputColorInfo = outputColorInfo;
     this.debugViewProvider = debugViewProvider;
     this.listener = listener;
@@ -315,10 +312,6 @@ public abstract class MultipleInputVideoGraph implements VideoGraph {
     }
 
     released = true;
-  }
-
-  protected ColorInfo getInputColorInfo() {
-    return inputColorInfo;
   }
 
   protected long getInitialTimestampOffsetUs() {

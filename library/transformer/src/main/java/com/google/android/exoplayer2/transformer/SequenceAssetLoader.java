@@ -36,7 +36,6 @@ import com.google.android.exoplayer2.util.HandlerWrapper;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.OnInputFrameProcessedListener;
 import com.google.android.exoplayer2.util.TimestampIterator;
-import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.HashMap;
@@ -458,11 +457,6 @@ import java.util.concurrent.atomic.AtomicInteger;
     @Override
     public Surface getInputSurface() {
       return sampleConsumer.getInputSurface();
-    }
-
-    @Override
-    public ColorInfo getExpectedInputColorInfo() {
-      return sampleConsumer.getExpectedInputColorInfo();
     }
 
     @Override
