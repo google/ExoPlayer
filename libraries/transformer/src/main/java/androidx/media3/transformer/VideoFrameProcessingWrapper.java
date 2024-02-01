@@ -24,7 +24,6 @@ import static androidx.media3.common.util.Assertions.checkNotNull;
 import android.graphics.Bitmap;
 import android.view.Surface;
 import androidx.annotation.Nullable;
-import androidx.media3.common.ColorInfo;
 import androidx.media3.common.Effect;
 import androidx.media3.common.Format;
 import androidx.media3.common.FrameInfo;
@@ -42,19 +41,15 @@ import java.util.concurrent.atomic.AtomicLong;
 /* package */ final class VideoFrameProcessingWrapper implements GraphInput {
   private final VideoFrameProcessor videoFrameProcessor;
   private final AtomicLong mediaItemOffsetUs;
-  private final ColorInfo inputColorInfo;
   private final long initialTimestampOffsetUs;
   @Nullable final Presentation presentation;
 
   public VideoFrameProcessingWrapper(
       VideoFrameProcessor videoFrameProcessor,
-      ColorInfo inputColorInfo,
       @Nullable Presentation presentation,
       long initialTimestampOffsetUs) {
     this.videoFrameProcessor = videoFrameProcessor;
     this.mediaItemOffsetUs = new AtomicLong();
-    // TODO: b/307952514 - Remove inputColorInfo reference.
-    this.inputColorInfo = inputColorInfo;
     this.initialTimestampOffsetUs = initialTimestampOffsetUs;
     this.presentation = presentation;
   }
@@ -104,11 +99,6 @@ import java.util.concurrent.atomic.AtomicLong;
   @Override
   public Surface getInputSurface() {
     return videoFrameProcessor.getInputSurface();
-  }
-
-  @Override
-  public ColorInfo getExpectedInputColorInfo() {
-    return inputColorInfo;
   }
 
   @Override

@@ -31,7 +31,6 @@ public interface PreviewingVideoGraph extends VideoGraph {
      * Creates a new {@link PreviewingVideoGraph} instance.
      *
      * @param context A {@link Context}.
-     * @param inputColorInfo The {@link ColorInfo} for the input frames.
      * @param outputColorInfo The {@link ColorInfo} for the output frames.
      * @param debugViewProvider A {@link DebugViewProvider}.
      * @param listener A {@link Listener}.
@@ -44,7 +43,6 @@ public interface PreviewingVideoGraph extends VideoGraph {
      */
     PreviewingVideoGraph create(
         Context context,
-        ColorInfo inputColorInfo,
         ColorInfo outputColorInfo,
         DebugViewProvider debugViewProvider,
         Listener listener,

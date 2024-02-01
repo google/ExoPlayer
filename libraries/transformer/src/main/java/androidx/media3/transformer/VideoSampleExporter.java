@@ -156,7 +156,6 @@ import org.checkerframework.dataflow.qual.Pure;
               hasMultipleInputs
                   ? new TransformerMultipleInputVideoGraph.Factory()
                   : new TransformerSingleInputVideoGraph.Factory(videoFrameProcessorFactory),
-              videoGraphInputColor,
               videoGraphOutputColor,
               errorConsumer,
               debugViewProvider,
@@ -484,7 +483,6 @@ import org.checkerframework.dataflow.qual.Pure;
     public VideoGraphWrapper(
         Context context,
         TransformerVideoGraph.Factory videoGraphFactory,
-        ColorInfo videoFrameProcessorInputColor,
         ColorInfo videoFrameProcessorOutputColor,
         Consumer<ExportException> errorConsumer,
         DebugViewProvider debugViewProvider,
@@ -500,7 +498,6 @@ import org.checkerframework.dataflow.qual.Pure;
       videoGraph =
           videoGraphFactory.create(
               context,
-              videoFrameProcessorInputColor,
               videoFrameProcessorOutputColor,
               debugViewProvider,
               /* listener= */ thisRef,

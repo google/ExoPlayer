@@ -36,7 +36,6 @@ import java.util.concurrent.Executor;
      * Creates a new {@link TransformerVideoGraph} instance.
      *
      * @param context A {@link Context}.
-     * @param inputColorInfo The {@link ColorInfo} for the input frames.
      * @param outputColorInfo The {@link ColorInfo} for the output frames.
      * @param debugViewProvider A {@link DebugViewProvider}.
      * @param listener A {@link Listener}.
@@ -51,7 +50,6 @@ import java.util.concurrent.Executor;
      */
     TransformerVideoGraph create(
         Context context,
-        ColorInfo inputColorInfo,
         ColorInfo outputColorInfo,
         DebugViewProvider debugViewProvider,
         Listener listener,

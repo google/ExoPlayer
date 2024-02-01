@@ -28,7 +28,6 @@ import android.os.Looper;
 import android.view.Surface;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
-import androidx.media3.common.ColorInfo;
 import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MimeTypes;
@@ -452,11 +451,6 @@ import java.util.concurrent.atomic.AtomicInteger;
     @Override
     public Surface getInputSurface() {
       return sampleConsumer.getInputSurface();
-    }
-
-    @Override
-    public ColorInfo getExpectedInputColorInfo() {
-      return sampleConsumer.getExpectedInputColorInfo();
     }
 
     @Override

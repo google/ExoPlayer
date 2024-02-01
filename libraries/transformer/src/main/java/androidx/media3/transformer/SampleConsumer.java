@@ -21,7 +21,6 @@ import android.graphics.Bitmap;
 import android.view.Surface;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
-import androidx.media3.common.ColorInfo;
 import androidx.media3.common.OnInputFrameProcessedListener;
 import androidx.media3.common.util.TimestampIterator;
 import androidx.media3.common.util.UnstableApi;
@@ -153,15 +152,6 @@ public interface SampleConsumer {
    * <p>Should only be used for raw video data.
    */
   default Surface getInputSurface() {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * Returns the expected input {@link ColorInfo}.
-   *
-   * <p>Should only be used for raw video data.
-   */
-  default ColorInfo getExpectedInputColorInfo() {
     throw new UnsupportedOperationException();
   }
 

@@ -203,7 +203,6 @@ public final class CompositingVideoSinkProvider
       videoGraph =
           previewingVideoGraphFactory.create(
               context,
-              inputColorInfo,
               outputColorInfo,
               DebugViewProvider.NONE,
               /* listener= */ thisRef,
@@ -785,7 +784,6 @@ public final class CompositingVideoSinkProvider
     @Override
     public PreviewingVideoGraph create(
         Context context,
-        ColorInfo inputColorInfo,
         ColorInfo outputColorInfo,
         DebugViewProvider debugViewProvider,
         VideoGraph.Listener listener,
@@ -803,7 +801,6 @@ public final class CompositingVideoSinkProvider
                     .newInstance(videoFrameProcessorFactory);
         return factory.create(
             context,
-            inputColorInfo,
             outputColorInfo,
             debugViewProvider,
             listener,

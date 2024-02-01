@@ -59,7 +59,6 @@ public final class PreviewingSingleInputVideoGraph extends SingleInputVideoGraph
     @Override
     public PreviewingVideoGraph create(
         Context context,
-        ColorInfo inputColorInfo,
         ColorInfo outputColorInfo,
         DebugViewProvider debugViewProvider,
         Listener listener,
@@ -76,7 +75,6 @@ public final class PreviewingSingleInputVideoGraph extends SingleInputVideoGraph
       return new PreviewingSingleInputVideoGraph(
           context,
           videoFrameProcessorFactory,
-          inputColorInfo,
           outputColorInfo,
           debugViewProvider,
           listener,
@@ -89,7 +87,6 @@ public final class PreviewingSingleInputVideoGraph extends SingleInputVideoGraph
   private PreviewingSingleInputVideoGraph(
       Context context,
       VideoFrameProcessor.Factory videoFrameProcessorFactory,
-      ColorInfo inputColorInfo,
       ColorInfo outputColorInfo,
       DebugViewProvider debugViewProvider,
       Listener listener,
@@ -99,7 +96,6 @@ public final class PreviewingSingleInputVideoGraph extends SingleInputVideoGraph
     super(
         context,
         videoFrameProcessorFactory,
-        inputColorInfo,
         outputColorInfo,
         listener,
         debugViewProvider,
