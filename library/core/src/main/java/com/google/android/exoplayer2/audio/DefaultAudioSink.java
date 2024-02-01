@@ -758,6 +758,15 @@ public final class DefaultAudioSink implements AudioSink {
           "Invalid output channel config (mode=" + outputMode + ") for: " + inputFormat,
           inputFormat);
     }
+
+    // Replace unknown bitrate by maximum allowed bitrate for DTS Express to avoid allocating an
+    // AudioTrack buffer for the much larger maximum bitrate of the underlying DTS-HD encoding.
+    int bitrate = inputFormat.bitrate;
+    if (MimeTypes.AUDIO_DTS_EXPRESS.equals(inputFormat.sampleMimeType)
+        && bitrate == Format.NO_VALUE) {
+      bitrate = DtsUtil.DTS_EXPRESS_MAX_RATE_BITS_PER_SECOND;
+    }
+
     int bufferSize =
         specifiedBufferSize != 0
             ? specifiedBufferSize
@@ -767,7 +776,7 @@ public final class DefaultAudioSink implements AudioSink {
                 outputMode,
                 outputPcmFrameSize != C.LENGTH_UNSET ? outputPcmFrameSize : 1,
                 outputSampleRate,
-                inputFormat.bitrate,
+                bitrate,
                 enableAudioTrackPlaybackParams ? MAX_PLAYBACK_SPEED : DEFAULT_PLAYBACK_SPEED);
     offloadDisabledUntilNextConfiguration = false;
     Configuration pendingConfiguration =
