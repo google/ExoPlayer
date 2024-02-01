@@ -143,6 +143,9 @@ public final class DtsUtil {
   /** Maximum rate for a DTS-HD audio stream, in bytes per second. */
   public static final int DTS_HD_MAX_RATE_BYTES_PER_SECOND = 18000 * 1000 / 8;
 
+  /** Maximum bit-rate for a DTS Express audio stream, in bits per second. */
+  public static final int DTS_EXPRESS_MAX_RATE_BITS_PER_SECOND = 768000;
+
   /**
    * DTS Core Syncword (in different Endianness). See ETSI TS 102 114 V1.6.1 (2019-08), Section 5.3.
    */
