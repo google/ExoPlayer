@@ -547,19 +547,32 @@ public class ImageRenderer extends BaseRenderer {
     currentTileIndex++;
     // TODO: b/319484746 - ImageRenderer should consider startPositionUs when choosing to output an
     // image.
-    if (nextTileInfo.getPresentationTimeUs() - IMAGE_PRESENTATION_WINDOW_THRESHOLD_US <= positionUs
-        && positionUs
-            <= nextTileInfo.getPresentationTimeUs() + IMAGE_PRESENTATION_WINDOW_THRESHOLD_US) {
-      readyToOutputTiles = true;
-    } else if (tileInfo != null
-        && nextTileInfo != null
-        && tileInfo.getPresentationTimeUs() <= positionUs
-        && positionUs < checkStateNotNull(nextTileInfo).getPresentationTimeUs()) {
-      readyToOutputTiles = true;
-      return;
+    if (!readyToOutputTiles) {
+      long tilePresentationTimeUs = nextTileInfo.getPresentationTimeUs();
+      boolean isNextTileWithinPresentationThreshold =
+          tilePresentationTimeUs - IMAGE_PRESENTATION_WINDOW_THRESHOLD_US <= positionUs
+              && positionUs <= tilePresentationTimeUs + IMAGE_PRESENTATION_WINDOW_THRESHOLD_US;
+      boolean isPositionBetweenTiles =
+          tileInfo != null
+              && tileInfo.getPresentationTimeUs() <= positionUs
+              && positionUs < tilePresentationTimeUs;
+      boolean isNextTileLastInGrid = isTileLastInGrid(checkStateNotNull(nextTileInfo));
+      readyToOutputTiles =
+          isNextTileWithinPresentationThreshold || isPositionBetweenTiles || isNextTileLastInGrid;
+      if (isPositionBetweenTiles && !isNextTileWithinPresentationThreshold) {
+        return;
+      }
     }
     tileInfo = nextTileInfo;
     nextTileInfo = null;
+  }
+
+  private boolean isTileLastInGrid(TileInfo tileInfo) {
+    return checkStateNotNull(inputFormat).tileCountHorizontal == Format.NO_VALUE
+        || inputFormat.tileCountVertical == Format.NO_VALUE
+        || (tileInfo.getTileIndex()
+            == checkStateNotNull(inputFormat).tileCountVertical * inputFormat.tileCountHorizontal
+                - 1);
   }
 
   private Bitmap cropTileFromImageGrid(int tileIndex) {

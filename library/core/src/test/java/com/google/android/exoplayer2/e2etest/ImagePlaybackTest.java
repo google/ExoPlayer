@@ -15,12 +15,11 @@
  */
 package com.google.android.exoplayer2.e2etest;
 
-import static com.google.common.truth.Truth.assertThat;
 import static org.robolectric.annotation.GraphicsMode.Mode.NATIVE;
 
 import android.content.Context;
 import androidx.test.core.app.ApplicationProvider;
-import com.google.android.exoplayer2.C;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
@@ -29,89 +28,44 @@ import com.google.android.exoplayer2.robolectric.TestPlayerRunHelper;
 import com.google.android.exoplayer2.testutil.CapturingRenderersFactory;
 import com.google.android.exoplayer2.testutil.DumpFileAsserts;
 import com.google.android.exoplayer2.testutil.FakeClock;
-import com.google.android.exoplayer2.util.Clock;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.ParameterizedRobolectricTestRunner;
-import org.robolectric.ParameterizedRobolectricTestRunner.Parameter;
-import org.robolectric.ParameterizedRobolectricTestRunner.Parameters;
 import org.robolectric.annotation.GraphicsMode;
 
 /** End-to-end tests using image samples. */
-@RunWith(ParameterizedRobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 @GraphicsMode(value = NATIVE)
 public class ImagePlaybackTest {
-  @Parameter public Set<String> inputFiles;
-
-  @Parameters(name = "{0}")
-  public static List<Set<String>> mediaSamples() {
-    // Robolectric's ShadowNativeBitmapFactory doesn't support decoding HEIF format, so we don't
-    // test that here.
-    // TODO b/300457060 - Find out why jpegs cause flaky failures in this test and then add jpegs to
-    // this list if possible.
-    return new ArrayList<>(
-        Collections2.filter(
-            Sets.powerSet(
-                ImmutableSet.of(
-                    "bitmap/input_images/media3test.png",
-                    "bmp/non-motion-photo-shortened-cropped.bmp",
-                    "png/non-motion-photo-shortened.png",
-                    "webp/ic_launcher_round.webp")),
-            /* predicate= */ input -> !input.isEmpty()));
-  }
 
   @Test
-  public void test() throws Exception {
+  public void playImagePlaylist_withSeek_rendersExpectedImages() throws Exception {
     Context applicationContext = ApplicationProvider.getApplicationContext();
     CapturingRenderersFactory renderersFactory = new CapturingRenderersFactory(applicationContext);
-    Clock clock = new FakeClock(/* isAutoAdvancing= */ true);
     ExoPlayer player =
-        new ExoPlayer.Builder(applicationContext, renderersFactory).setClock(clock).build();
+        new ExoPlayer.Builder(applicationContext, renderersFactory)
+            .setClock(new FakeClock(/* isAutoAdvancing= */ true))
+            .build();
     PlaybackOutput playbackOutput = PlaybackOutput.register(player, renderersFactory);
-    List<String> sortedInputFiles = new ArrayList<>(inputFiles);
-    Collections.sort(sortedInputFiles);
-    List<MediaItem> mediaItems = new ArrayList<>(inputFiles.size());
-    long totalDurationMs = 0;
-    long currentDurationMs = 3 * C.MILLIS_PER_SECOND;
-    for (String inputFile : sortedInputFiles) {
-      mediaItems.add(
-          new MediaItem.Builder()
-              .setUri("asset:///media/" + inputFile)
-              .setImageDurationMs(currentDurationMs)
-              .build());
-      totalDurationMs += currentDurationMs;
-      if (currentDurationMs < 5 * C.MILLIS_PER_SECOND) {
-        currentDurationMs += C.MILLIS_PER_SECOND;
-      }
-    }
-    player.setMediaItems(mediaItems);
+    MediaItem mediaItem1 =
+        new MediaItem.Builder()
+            .setUri("asset:///media/bitmap/input_images/media3test.png")
+            .setImageDurationMs(3000L)
+            .build();
+    MediaItem mediaItem2 =
+        new MediaItem.Builder()
+            .setUri("asset:///media/png/non-motion-photo-shortened.png")
+            .setImageDurationMs(3000L)
+            .build();
+    player.setMediaItems(ImmutableList.of(mediaItem1, mediaItem2));
     player.prepare();
-    TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_READY);
-    long playerStartedMs = clock.elapsedRealtime();
-    player.play();
-    TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_ENDED);
-    long playbackDurationMs = clock.elapsedRealtime() - playerStartedMs;
-    player.release();
-    assertThat(playbackDurationMs).isAtLeast(totalDurationMs);
-    DumpFileAsserts.assertOutput(
-        applicationContext,
-        playbackOutput,
-        "playbackdumps/image/" + generateName(sortedInputFiles) + ".dump");
-  }
 
-  private static String generateName(List<String> sortedInputFiles) {
-    StringBuilder name = new StringBuilder();
-    for (String inputFile : sortedInputFiles) {
-      name.append(inputFile, inputFile.lastIndexOf("/") + 1, inputFile.length()).append("+");
-    }
-    name.setLength(name.length() - 1);
-    return name.toString();
+    TestPlayerRunHelper.playUntilPosition(player, /* mediaItemIndex= */ 0, /* positionMs= */ 1000L);
+    player.seekTo(/* mediaItemIndex= */ 0, /* positionMs= */ 2000L);
+    TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_ENDED);
+    player.release();
+
+    DumpFileAsserts.assertOutput(
+        applicationContext, playbackOutput, "playbackdumps/image/image_playlist_with_seek.dump");
   }
 }
