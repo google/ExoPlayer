@@ -310,6 +310,7 @@ public final class VideoFrameProcessorTestRunner {
               public void onError(VideoFrameProcessingException exception) {
                 videoFrameProcessingException.set(exception);
                 checkNotNull(videoFrameProcessingEndedLatch).countDown();
+                videoFrameProcessorReadyCondition.open();
               }
 
               @Override
@@ -338,12 +339,7 @@ public final class VideoFrameProcessorTestRunner {
                         mediaFormat.getInteger(MediaFormat.KEY_HEIGHT))
                     .setPixelWidthHeightRatio(pixelWidthHeightRatio)
                     .build());
-            try {
-              videoFrameProcessorReadyCondition.block();
-            } catch (InterruptedException e) {
-              Thread.currentThread().interrupt();
-              throw new IllegalStateException(e);
-            }
+            awaitVideoFrameProcessorReady();
             checkState(videoFrameProcessor.registerInputFrame());
           }
 
@@ -363,8 +359,11 @@ public final class VideoFrameProcessorTestRunner {
   }
 
   public void queueInputBitmap(
-      Bitmap inputBitmap, long durationUs, long offsetToAddUs, float frameRate, ColorInfo colorInfo)
-      throws InterruptedException {
+      Bitmap inputBitmap,
+      long durationUs,
+      long offsetToAddUs,
+      float frameRate,
+      ColorInfo colorInfo) {
     videoFrameProcessorReadyCondition.close();
     videoFrameProcessor.registerInputStream(
         INPUT_TYPE_BITMAP,
@@ -373,20 +372,18 @@ public final class VideoFrameProcessorTestRunner {
             .setPixelWidthHeightRatio(pixelWidthHeightRatio)
             .setOffsetToAddUs(offsetToAddUs)
             .build());
-    videoFrameProcessorReadyCondition.block();
+    awaitVideoFrameProcessorReady();
     checkState(
         videoFrameProcessor.queueInputBitmap(
             inputBitmap, new ConstantRateTimestampIterator(durationUs, frameRate)));
   }
 
-  public void queueInputBitmaps(int width, int height, Pair<Bitmap, TimestampIterator>... frames)
-      throws InterruptedException {
+  public void queueInputBitmaps(int width, int height, Pair<Bitmap, TimestampIterator>... frames) {
     queueInputBitmaps(width, height, ColorInfo.SRGB_BT709_FULL, frames);
   }
 
   public void queueInputBitmaps(
-      int width, int height, ColorInfo colorInfo, Pair<Bitmap, TimestampIterator>... frames)
-      throws InterruptedException {
+      int width, int height, ColorInfo colorInfo, Pair<Bitmap, TimestampIterator>... frames) {
     videoFrameProcessorReadyCondition.close();
     videoFrameProcessor.registerInputStream(
         INPUT_TYPE_BITMAP,
@@ -394,7 +391,7 @@ public final class VideoFrameProcessorTestRunner {
         new FrameInfo.Builder(colorInfo, width, height)
             .setPixelWidthHeightRatio(pixelWidthHeightRatio)
             .build());
-    videoFrameProcessorReadyCondition.block();
+    awaitVideoFrameProcessorReady();
     for (Pair<Bitmap, TimestampIterator> frame : frames) {
       videoFrameProcessor.queueInputBitmap(frame.first, frame.second);
     }
@@ -417,7 +414,7 @@ public final class VideoFrameProcessorTestRunner {
             throw new VideoFrameProcessingException(e);
           }
         });
-    videoFrameProcessorReadyCondition.block();
+    awaitVideoFrameProcessorReady();
     checkState(videoFrameProcessor.queueInputTexture(inputTexture.texId, pts));
   }
 
@@ -554,5 +551,15 @@ public final class VideoFrameProcessorTestRunner {
         throw new UnsupportedOperationException();
       }
     };
+  }
+
+  private void awaitVideoFrameProcessorReady() {
+    try {
+      videoFrameProcessorReadyCondition.block();
+      assertThat(videoFrameProcessingException.get()).isNull();
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new IllegalStateException(e);
+    }
   }
 }
