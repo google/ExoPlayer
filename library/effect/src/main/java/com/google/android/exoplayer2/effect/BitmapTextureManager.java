@@ -162,7 +162,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       return;
     }
 
-    BitmapFrameSequenceInfo currentBitmapInfo = checkNotNull(pendingBitmaps.peek());
+    BitmapFrameSequenceInfo currentBitmapInfo = pendingBitmaps.element();
     FrameInfo currentFrameInfo = currentBitmapInfo.frameInfo;
     TimestampIterator inStreamOffsetsUs = currentBitmapInfo.inStreamOffsetsUs;
     checkState(currentBitmapInfo.inStreamOffsetsUs.hasNext());
