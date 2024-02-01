@@ -299,7 +299,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     surfaceTexture.updateTexImage();
     availableFrameCount--;
-    this.currentFrame = pendingFrames.peek();
+    this.currentFrame = pendingFrames.element();
 
     FrameInfo currentFrame = checkStateNotNull(this.currentFrame);
     externalShaderProgramInputCapacity.decrementAndGet();
