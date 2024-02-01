@@ -21,6 +21,7 @@ import android.graphics.SurfaceTexture;
 import android.view.Surface;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
@@ -167,14 +168,19 @@ public final class HlsPlaybackTest {
                 new HlsMediaSource.Factory(new DefaultDataSource.Factory(applicationContext))
                     .experimentalParseSubtitlesDuringExtraction(true))
             .setClock(new FakeClock(/* isAutoAdvancing= */ true))
+            .setLoadControl(
+                new DefaultLoadControl.Builder()
+                    .setBackBuffer(
+                        /* backBufferDurationMs= */ 10000, /* retainBackBufferFromKeyframe= */ true)
+                    .build())
             .build();
-    // Prepare media fully to ensure we have all the segment data available.
     player.setVideoSurface(new Surface(new SurfaceTexture(/* texName= */ 1)));
     PlaybackOutput playbackOutput = PlaybackOutput.register(player, capturingRenderersFactory);
+    // Play media fully (with back buffer) to ensure we have all the segment data available.
     player.setMediaItem(MediaItem.fromUri("asset:///media/hls/multi-segment/playlist.m3u8"));
     player.prepare();
-    TestPlayerRunHelper.runUntilIsLoading(player, true);
-    TestPlayerRunHelper.runUntilIsLoading(player, false);
+    player.play();
+    TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_ENDED);
 
     // Seek to beginning of second segment (at 500ms according to playlist)
     player.setSeekParameters(SeekParameters.PREVIOUS_SYNC);
