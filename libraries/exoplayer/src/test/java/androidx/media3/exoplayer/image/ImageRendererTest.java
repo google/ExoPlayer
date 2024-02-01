@@ -533,6 +533,50 @@ public class ImageRendererTest {
   }
 
   @Test
+  public void render_tiledImageStartPositionIsBeforeLastTileAndNotWithinThreshold_rendersPriorTile()
+      throws Exception {
+    FakeSampleStream fakeSampleStream =
+        createSampleStream(
+            JPEG_FORMAT_WITH_FOUR_TILES,
+            ImmutableList.of(
+                oneByteSample(/* timeUs= */ 0L, /* flags= */ C.BUFFER_FLAG_KEY_FRAME),
+                emptySample(/* timeUs= */ 100_000L, /* flags= */ 0),
+                emptySample(/* timeUs= */ 200_000L, /* flags= */ 0),
+                emptySample(/* timeUs= */ 300_000L, /* flags= */ 0),
+                END_OF_STREAM_ITEM));
+    fakeSampleStream.writeData(/* startPositionUs= */ 0);
+    renderer.enable(
+        RendererConfiguration.DEFAULT,
+        new Format[] {JPEG_FORMAT_WITH_FOUR_TILES},
+        fakeSampleStream,
+        /* positionUs= */ 0,
+        /* joining= */ false,
+        /* mayRenderStartOfStream= */ true,
+        /* startPositionUs= */ 0,
+        /* offsetUs= */ 0,
+        new MediaSource.MediaPeriodId(new Object()));
+    renderer.setCurrentStreamFinal();
+
+    StopWatch isReadyStopWatch = new StopWatch(IS_READY_TIMEOUT_MESSAGE);
+    while (!renderer.isReady() && isReadyStopWatch.ensureNotExpired()) {
+      renderer.render(
+          /* positionUs= */ 250_000L,
+          /* elapsedRealtimeUs= */ SystemClock.DEFAULT.elapsedRealtime() * 1000);
+    }
+    StopWatch isEndedStopWatch = new StopWatch(IS_ENDED_TIMEOUT_MESSAGE);
+    long positionUs = 250_000L;
+    while (!renderer.isEnded() && isEndedStopWatch.ensureNotExpired()) {
+      renderer.render(
+          positionUs, /* elapsedRealtimeUs= */ SystemClock.DEFAULT.elapsedRealtime() * 1000);
+      positionUs += 100_000L;
+    }
+
+    assertThat(renderedBitmaps).hasSize(2);
+    assertThat(renderedBitmaps.get(0).first).isEqualTo(200_000L);
+    assertThat(renderedBitmaps.get(1).first).isEqualTo(300_000L);
+  }
+
+  @Test
   public void
       render_tiledImageStartPositionBeforePresentationTimeAndWithinThreshold_rendersIncomingTile()
           throws Exception {
