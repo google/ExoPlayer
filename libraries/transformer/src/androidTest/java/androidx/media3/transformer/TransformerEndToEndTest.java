@@ -17,6 +17,7 @@ package androidx.media3.transformer;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Util.isRunningOnEmulator;
+import static androidx.media3.test.utils.FileUtil.retrieveTrackFormat;
 import static androidx.media3.transformer.AndroidTestUtil.JPG_ASSET_URI_STRING;
 import static androidx.media3.transformer.AndroidTestUtil.MP3_ASSET_URI_STRING;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_FORMAT;
@@ -943,13 +944,15 @@ public class TransformerEndToEndTest {
     Transformer transformer =
         new Transformer.Builder(context).setVideoMimeType(MimeTypes.VIDEO_AV1).build();
 
-    ExportResult exportResult =
+    ExportTestResult exportTestResult =
         new TransformerAndroidTestRunner.Builder(context, transformer)
             .build()
-            .run(testId, editedMediaItem)
-            .exportResult;
+            .run(testId, editedMediaItem);
+    ExportResult exportResult = exportTestResult.exportResult;
 
-    // TODO: b/322954582 - Also assert by probing output file.
+    String actualMimeType =
+        retrieveTrackFormat(context, exportTestResult.filePath, C.TRACK_TYPE_VIDEO).sampleMimeType;
+    assertThat(actualMimeType).isEqualTo(MimeTypes.VIDEO_AV1);
     assertThat(exportResult.exportException).isNull();
     assertThat(exportResult.durationMs).isGreaterThan(0);
     assertThat(exportResult.videoMimeType).isEqualTo(MimeTypes.VIDEO_AV1);
@@ -963,13 +966,15 @@ public class TransformerEndToEndTest {
     Transformer transformer =
         new Transformer.Builder(context).setAudioMimeType(MimeTypes.AUDIO_AAC).build();
 
-    ExportResult exportResult =
+    ExportTestResult exportTestResult =
         new TransformerAndroidTestRunner.Builder(context, transformer)
             .build()
-            .run(testId, editedMediaItem)
-            .exportResult;
+            .run(testId, editedMediaItem);
+    ExportResult exportResult = exportTestResult.exportResult;
 
-    // TODO: b/322954582 - Also assert by probing output file.
+    String actualMimeType =
+        retrieveTrackFormat(context, exportTestResult.filePath, C.TRACK_TYPE_AUDIO).sampleMimeType;
+    assertThat(actualMimeType).isEqualTo(MimeTypes.AUDIO_AAC);
     assertThat(exportResult.exportException).isNull();
     assertThat(exportResult.durationMs).isGreaterThan(0);
     assertThat(exportResult.audioMimeType).isEqualTo(MimeTypes.AUDIO_AAC);
