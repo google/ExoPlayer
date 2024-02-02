@@ -84,7 +84,6 @@ public final class DefaultAssetLoaderFactory implements AssetLoader.Factory {
       Clock clock) {
     this.context = context.getApplicationContext();
     this.decoderFactory = decoderFactory;
-    // TODO: b/307952514 - MediaCodec tone-mapping information isn't actually used yet. Use it.
     this.hdrMode = hdrMode;
     this.clock = clock;
     this.mediaSourceFactory = null;
