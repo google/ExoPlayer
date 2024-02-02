@@ -19,7 +19,6 @@ package com.google.android.exoplayer2.effect;
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static java.lang.Math.round;
 
-import android.content.Context;
 import com.google.android.exoplayer2.util.GlObjectsProvider;
 import com.google.android.exoplayer2.util.GlTextureInfo;
 import com.google.android.exoplayer2.util.VideoFrameProcessingException;
@@ -37,7 +36,7 @@ import com.google.android.exoplayer2.util.VideoFrameProcessingException;
  *     migration guide</a> for more details, including a script to help with the migration.
  */
 @Deprecated
-/* package */ final class SimpleFrameDroppingShaderProgram extends FrameCacheGlShaderProgram {
+/* package */ final class SimpleFrameDroppingShaderProgram extends PassthroughShaderProgram {
 
   private final int n;
 
@@ -46,16 +45,11 @@ import com.google.android.exoplayer2.util.VideoFrameProcessingException;
   /**
    * Creates a new instance.
    *
-   * @param context The {@link Context}.
-   * @param useHdr Whether input textures come from an HDR source. If {@code true}, colors will be
-   *     in linear RGB BT.2020. If {@code false}, colors will be in linear RGB BT.709.
    * @param inputFrameRate The number of frames per second the input stream should have.
    * @param targetFrameRate The number of frames per second the output video should roughly have.
    */
-  public SimpleFrameDroppingShaderProgram(
-      Context context, boolean useHdr, float inputFrameRate, float targetFrameRate)
-      throws VideoFrameProcessingException {
-    super(context, /* capacity= */ 1, useHdr);
+  public SimpleFrameDroppingShaderProgram(float inputFrameRate, float targetFrameRate) {
+    super();
     n = round(inputFrameRate / targetFrameRate);
     checkArgument(n >= 1, "The input frame rate should be greater than the target frame rate.");
   }
@@ -81,6 +75,12 @@ import com.google.android.exoplayer2.util.VideoFrameProcessingException;
   @Override
   public void flush() {
     super.flush();
+    framesReceived = 0;
+  }
+
+  @Override
+  public void release() throws VideoFrameProcessingException {
+    super.release();
     framesReceived = 0;
   }
 }

@@ -15,10 +15,8 @@
  */
 package com.google.android.exoplayer2.effect;
 
-import android.content.Context;
 import com.google.android.exoplayer2.util.GlObjectsProvider;
 import com.google.android.exoplayer2.util.GlTextureInfo;
-import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 
 /**
  * Applies a speed change by updating the frame timestamps.
@@ -29,13 +27,12 @@ import com.google.android.exoplayer2.util.VideoFrameProcessingException;
  *     migration guide</a> for more details, including a script to help with the migration.
  */
 @Deprecated
-/* package */ final class SpeedChangeShaderProgram extends FrameCacheGlShaderProgram {
+/* package */ final class SpeedChangeShaderProgram extends PassthroughShaderProgram {
 
   private final float speed;
 
-  public SpeedChangeShaderProgram(Context context, float speed, boolean useHdr)
-      throws VideoFrameProcessingException {
-    super(context, /* capacity= */ 1, useHdr);
+  public SpeedChangeShaderProgram(float speed) {
+    super();
     this.speed = speed;
   }
 
