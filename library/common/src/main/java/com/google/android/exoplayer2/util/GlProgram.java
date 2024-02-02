@@ -425,6 +425,10 @@ public final class GlProgram {
           GLES20.glUniform3fv(location, /* count= */ 1, floatValue, /* offset= */ 0);
           GlUtil.checkGlError();
           break;
+        case GLES20.GL_FLOAT_VEC4:
+          GLES20.glUniform4fv(location, /* count= */ 1, floatValue, /* offset= */ 0);
+          GlUtil.checkGlError();
+          break;
         case GLES20.GL_FLOAT_MAT3:
           GLES20.glUniformMatrix3fv(
               location, /* count= */ 1, /* transpose= */ false, floatValue, /* offset= */ 0);
