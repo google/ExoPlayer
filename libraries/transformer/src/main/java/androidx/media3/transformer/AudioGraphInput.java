@@ -410,8 +410,12 @@ import java.util.concurrent.atomic.AtomicReference;
     AudioProcessingPipeline audioProcessingPipeline =
         new AudioProcessingPipeline(audioProcessors.build());
     AudioFormat outputAudioFormat = audioProcessingPipeline.configure(inputAudioFormat);
-    if (!requiredOutputAudioFormat.equals(AudioFormat.NOT_SET)
-        && !outputAudioFormat.equals(requiredOutputAudioFormat)) {
+    if ((requiredOutputAudioFormat.sampleRate != Format.NO_VALUE
+            && requiredOutputAudioFormat.sampleRate != outputAudioFormat.sampleRate)
+        || (requiredOutputAudioFormat.channelCount != Format.NO_VALUE
+            && requiredOutputAudioFormat.channelCount != outputAudioFormat.channelCount)
+        || (requiredOutputAudioFormat.encoding != Format.NO_VALUE
+            && requiredOutputAudioFormat.encoding != outputAudioFormat.encoding)) {
       throw new UnhandledAudioFormatException(
           "Audio can not be modified to match downstream format", inputAudioFormat);
     }
