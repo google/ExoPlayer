@@ -85,13 +85,9 @@ import com.google.android.exoplayer2.util.VideoFrameProcessor;
    * @param frameInfo Information about the bitmap being queued.
    * @param inStreamOffsetsUs The times within the current stream that the bitmap should be shown
    *     at. The timestamps should be monotonically increasing.
-   * @param useHdr Whether input and/or output colors are HDR.
    */
   public void queueInputBitmap(
-      Bitmap inputBitmap,
-      FrameInfo frameInfo,
-      TimestampIterator inStreamOffsetsUs,
-      boolean useHdr) {
+      Bitmap inputBitmap, FrameInfo frameInfo, TimestampIterator inStreamOffsetsUs) {
     throw new UnsupportedOperationException();
   }
 
