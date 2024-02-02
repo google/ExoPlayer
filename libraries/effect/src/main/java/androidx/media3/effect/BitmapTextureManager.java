@@ -21,6 +21,7 @@ import static androidx.media3.common.util.Assertions.checkState;
 
 import android.graphics.Bitmap;
 import androidx.media3.common.C;
+import androidx.media3.common.ColorInfo;
 import androidx.media3.common.FrameInfo;
 import androidx.media3.common.GlObjectsProvider;
 import androidx.media3.common.GlTextureInfo;
@@ -40,24 +41,16 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 @UnstableApi
 /* package */ final class BitmapTextureManager extends TextureManager {
 
-  private static final String UNSUPPORTED_IMAGE_CONFIGURATION =
-      "Unsupported Image Configuration: No more than 8 bits of precision should be used for each"
-          + " RGB channel.";
-
-  private final GlObjectsProvider glObjectsProvider;
-  private @MonotonicNonNull GlShaderProgram shaderProgram;
   // The queue holds all bitmaps with one or more frames pending to be sent downstream.
   private final Queue<BitmapFrameSequenceInfo> pendingBitmaps;
+  private final GlObjectsProvider glObjectsProvider;
 
+  private @MonotonicNonNull GlShaderProgram shaderProgram;
   private @MonotonicNonNull GlTextureInfo currentGlTextureInfo;
   private int downstreamShaderProgramCapacity;
-
-  // TODO - b/262693274: Support HDR.
-  @SuppressWarnings({"UnusedVariable", "FieldCanBeLocal"})
-  private boolean useHdr;
-
   private boolean currentInputStreamEnded;
   private boolean isNextFrameInTexture;
+  private boolean useHdr;
 
   /**
    * Creates a new instance.
@@ -91,15 +84,17 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   @Override
   public void queueInputBitmap(
-      Bitmap inputBitmap,
-      FrameInfo frameInfo,
-      TimestampIterator inStreamOffsetsUs,
-      boolean useHdr) {
+      Bitmap inputBitmap, FrameInfo frameInfo, TimestampIterator inStreamOffsetsUs) {
     videoFrameProcessingTaskExecutor.submit(
         () -> {
-          setupBitmap(inputBitmap, frameInfo, inStreamOffsetsUs, useHdr);
+          setupBitmap(inputBitmap, frameInfo, inStreamOffsetsUs);
           currentInputStreamEnded = false;
         });
+  }
+
+  @Override
+  public void setInputFrameInfo(FrameInfo inputFrameInfo) {
+    this.useHdr = ColorInfo.isTransferHdr(inputFrameInfo.colorInfo);
   }
 
   @Override
@@ -134,20 +129,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   // Methods that must be called on the GL thread.
-  private void setupBitmap(
-      Bitmap bitmap, FrameInfo frameInfo, TimestampIterator inStreamOffsetsUs, boolean useHdr)
+  private void setupBitmap(Bitmap bitmap, FrameInfo frameInfo, TimestampIterator inStreamOffsetsUs)
       throws VideoFrameProcessingException {
-    if (Util.SDK_INT >= 26) {
-      checkState(
-          !checkNotNull(bitmap.getConfig()).equals(Bitmap.Config.RGBA_F16),
-          UNSUPPORTED_IMAGE_CONFIGURATION);
-    }
-    if (Util.SDK_INT >= 33) {
-      checkState(
-          !checkNotNull(bitmap.getConfig()).equals(Bitmap.Config.RGBA_1010102),
-          UNSUPPORTED_IMAGE_CONFIGURATION);
-    }
-    this.useHdr = useHdr;
     checkArgument(inStreamOffsetsUs.hasNext(), "Bitmap queued but no timestamps provided.");
     pendingBitmaps.add(new BitmapFrameSequenceInfo(bitmap, frameInfo, inStreamOffsetsUs));
     maybeQueueToShaderProgram();
@@ -222,15 +205,27 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         currentGlTextureInfo.release();
       }
       currentTexId = GlUtil.createTexture(bitmap);
+      if (useHdr && Util.SDK_INT >= 34 && bitmap.hasGainmap()) {
+        currentGlTextureInfo =
+            new GlTextureInfo(
+                currentTexId,
+                /* fboId= */ C.INDEX_UNSET,
+                /* rboId= */ C.INDEX_UNSET,
+                frameInfo.width,
+                frameInfo.height,
+                checkNotNull(bitmap.getGainmap()),
+                GlUtil.createTexture(bitmap.getGainmap().getGainmapContents()));
+      } else {
+        currentGlTextureInfo =
+            new GlTextureInfo(
+                currentTexId,
+                /* fboId= */ C.INDEX_UNSET,
+                /* rboId= */ C.INDEX_UNSET,
+                frameInfo.width,
+                frameInfo.height);
+      }
     } catch (GlUtil.GlException e) {
       throw VideoFrameProcessingException.from(e);
     }
-    currentGlTextureInfo =
-        new GlTextureInfo(
-            currentTexId,
-            /* fboId= */ C.INDEX_UNSET,
-            /* rboId= */ C.INDEX_UNSET,
-            frameInfo.width,
-            frameInfo.height);
   }
 }

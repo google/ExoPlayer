@@ -397,8 +397,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
         .queueInputBitmap(
             inputBitmap,
             new FrameInfo.Builder(frameInfo).setOffsetToAddUs(frameInfo.offsetToAddUs).build(),
-            timestampIterator,
-            /* useHdr= */ false);
+            timestampIterator);
     return true;
   }
 
