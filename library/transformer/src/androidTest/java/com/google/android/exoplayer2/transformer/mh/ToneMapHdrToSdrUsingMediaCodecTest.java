@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.transformer.mh;
 
-import static com.google.android.exoplayer2.testutil.FileUtil.assertFileHasColorTransfer;
+import static com.google.android.exoplayer2.testutil.FileUtil.retrieveColorTransfer;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.FORCE_TRANSCODE_VIDEO_EFFECTS;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_1080P_5_SECOND_HLG10;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT;
@@ -91,7 +91,9 @@ public class ToneMapHdrToSdrUsingMediaCodecTest {
           new TransformerAndroidTestRunner.Builder(context, transformer)
               .build()
               .run(testId, composition);
-      assertFileHasColorTransfer(context, exportTestResult.filePath, C.COLOR_TRANSFER_SDR);
+      @C.ColorTransfer
+      int actualColorTransfer = retrieveColorTransfer(context, exportTestResult.filePath);
+      assertThat(actualColorTransfer).isEqualTo(C.COLOR_TRANSFER_SDR);
     } catch (ExportException exception) {
       if (exception.getCause() != null
           && (Objects.equals(
@@ -149,7 +151,9 @@ public class ToneMapHdrToSdrUsingMediaCodecTest {
           new TransformerAndroidTestRunner.Builder(context, transformer)
               .build()
               .run(testId, composition);
-      assertFileHasColorTransfer(context, exportTestResult.filePath, C.COLOR_TRANSFER_SDR);
+      @C.ColorTransfer
+      int actualColorTransfer = retrieveColorTransfer(context, exportTestResult.filePath);
+      assertThat(actualColorTransfer).isEqualTo(C.COLOR_TRANSFER_SDR);
     } catch (ExportException exception) {
       if (exception.getCause() != null
           && (Objects.equals(
@@ -208,7 +212,9 @@ public class ToneMapHdrToSdrUsingMediaCodecTest {
           new TransformerAndroidTestRunner.Builder(context, transformer)
               .build()
               .run(testId, composition);
-      assertFileHasColorTransfer(context, exportTestResult.filePath, C.COLOR_TRANSFER_SDR);
+      @C.ColorTransfer
+      int actualColorTransfer = retrieveColorTransfer(context, exportTestResult.filePath);
+      assertThat(actualColorTransfer).isEqualTo(C.COLOR_TRANSFER_SDR);
     } catch (ExportException exception) {
       if (exception.getCause() != null
           && (Objects.equals(
@@ -267,7 +273,9 @@ public class ToneMapHdrToSdrUsingMediaCodecTest {
           new TransformerAndroidTestRunner.Builder(context, transformer)
               .build()
               .run(testId, composition);
-      assertFileHasColorTransfer(context, exportTestResult.filePath, C.COLOR_TRANSFER_SDR);
+      @C.ColorTransfer
+      int actualColorTransfer = retrieveColorTransfer(context, exportTestResult.filePath);
+      assertThat(actualColorTransfer).isEqualTo(C.COLOR_TRANSFER_SDR);
     } catch (ExportException exception) {
       if (exception.getCause() != null
           && (Objects.equals(
