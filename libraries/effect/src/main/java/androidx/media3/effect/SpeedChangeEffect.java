@@ -41,7 +41,7 @@ public final class SpeedChangeEffect implements GlEffect {
   @Override
   public GlShaderProgram toGlShaderProgram(Context context, boolean useHdr)
       throws VideoFrameProcessingException {
-    return new SpeedChangeShaderProgram(context, speed, useHdr);
+    return new SpeedChangeShaderProgram(speed);
   }
 
   @Override

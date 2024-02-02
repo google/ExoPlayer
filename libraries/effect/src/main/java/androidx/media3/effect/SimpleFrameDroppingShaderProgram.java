@@ -19,7 +19,6 @@ package androidx.media3.effect;
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static java.lang.Math.round;
 
-import android.content.Context;
 import androidx.media3.common.GlObjectsProvider;
 import androidx.media3.common.GlTextureInfo;
 import androidx.media3.common.VideoFrameProcessingException;
@@ -31,7 +30,7 @@ import androidx.media3.common.VideoFrameProcessingException;
  * <p>For example, if the input stream came in at 60fps and the targeted frame rate was 20fps, every
  * 3rd frame would be kept. If n is not an integer, then we round to the nearest one.
  */
-/* package */ final class SimpleFrameDroppingShaderProgram extends FrameCacheGlShaderProgram {
+/* package */ final class SimpleFrameDroppingShaderProgram extends PassthroughShaderProgram {
 
   private final int n;
 
@@ -40,16 +39,11 @@ import androidx.media3.common.VideoFrameProcessingException;
   /**
    * Creates a new instance.
    *
-   * @param context The {@link Context}.
-   * @param useHdr Whether input textures come from an HDR source. If {@code true}, colors will be
-   *     in linear RGB BT.2020. If {@code false}, colors will be in linear RGB BT.709.
    * @param inputFrameRate The number of frames per second the input stream should have.
    * @param targetFrameRate The number of frames per second the output video should roughly have.
    */
-  public SimpleFrameDroppingShaderProgram(
-      Context context, boolean useHdr, float inputFrameRate, float targetFrameRate)
-      throws VideoFrameProcessingException {
-    super(context, /* capacity= */ 1, useHdr);
+  public SimpleFrameDroppingShaderProgram(float inputFrameRate, float targetFrameRate) {
+    super();
     n = round(inputFrameRate / targetFrameRate);
     checkArgument(n >= 1, "The input frame rate should be greater than the target frame rate.");
   }
@@ -75,6 +69,12 @@ import androidx.media3.common.VideoFrameProcessingException;
   @Override
   public void flush() {
     super.flush();
+    framesReceived = 0;
+  }
+
+  @Override
+  public void release() throws VideoFrameProcessingException {
+    super.release();
     framesReceived = 0;
   }
 }

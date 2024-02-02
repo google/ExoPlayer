@@ -15,21 +15,18 @@
  */
 package androidx.media3.effect;
 
-import android.content.Context;
 import androidx.media3.common.GlObjectsProvider;
 import androidx.media3.common.GlTextureInfo;
-import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.util.UnstableApi;
 
 /** Applies a speed change by updating the frame timestamps. */
 @UnstableApi
-/* package */ final class SpeedChangeShaderProgram extends FrameCacheGlShaderProgram {
+/* package */ final class SpeedChangeShaderProgram extends PassthroughShaderProgram {
 
   private final float speed;
 
-  public SpeedChangeShaderProgram(Context context, float speed, boolean useHdr)
-      throws VideoFrameProcessingException {
-    super(context, /* capacity= */ 1, useHdr);
+  public SpeedChangeShaderProgram(float speed) {
+    super();
     this.speed = speed;
   }
 

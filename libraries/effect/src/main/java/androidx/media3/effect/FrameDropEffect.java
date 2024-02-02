@@ -69,7 +69,7 @@ public final class FrameDropEffect implements GlEffect {
     if (inputFrameRate == C.RATE_UNSET) {
       return new DefaultFrameDroppingShaderProgram(context, useHdr, targetFrameRate);
     } else {
-      return new SimpleFrameDroppingShaderProgram(context, useHdr, inputFrameRate, targetFrameRate);
+      return new SimpleFrameDroppingShaderProgram(inputFrameRate, targetFrameRate);
     }
   }
 
