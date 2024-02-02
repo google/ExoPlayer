@@ -46,10 +46,14 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * Processes a single stream of raw audio samples.
+ * Processes a single sequential stream of PCM audio samples.
  *
- * <p>Handles changes to the {@link Format} and {@link Effects} on {@linkplain #onMediaItemChanged
- * item boundaries}.
+ * <p>Supports changes to the input {@link Format} and {@link Effects} on {@linkplain
+ * #onMediaItemChanged item boundaries}.
+ *
+ * <p>Class has thread-safe support for input and processing happening on different threads. In that
+ * case, one is the upstream SampleConsumer "input" thread, and the other is the main internal
+ * "processing" thread.
  *
  * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
  *     contains the same ExoPlayer code). See <a
@@ -73,6 +77,14 @@ import java.util.concurrent.atomic.AtomicReference;
   private boolean receivedEndOfStreamFromInput;
   private boolean queueEndOfStreamAfterSilence;
 
+  /**
+   * Creates an instance.
+   *
+   * @param requestedOutputAudioFormat The requested {@linkplain AudioFormat properties} of the
+   *     output audio. {@linkplain Format#NO_VALUE Unset} fields are ignored.
+   * @param editedMediaItem The initial {@link EditedMediaItem}.
+   * @param inputFormat The initial {@link Format} of audio input data.
+   */
   public AudioGraphInput(
       AudioFormat requestedOutputAudioFormat, EditedMediaItem editedMediaItem, Format inputFormat)
       throws UnhandledAudioFormatException {
@@ -98,12 +110,16 @@ import java.util.concurrent.atomic.AtomicReference;
     outputAudioFormat = audioProcessingPipeline.getOutputAudioFormat();
   }
 
+  /** Returns the {@link AudioFormat} of {@linkplain #getOutput() output buffers}. */
   public AudioFormat getOutputAudioFormat() {
     return outputAudioFormat;
   }
 
   /**
-   * Returns a {@link ByteBuffer} of output.
+   * Returns a {@link ByteBuffer} of output, in the {@linkplain #getOutputAudioFormat() output audio
+   * format}.
+   *
+   * <p>Should only be called by the processing thread.
    *
    * @throws UnhandledAudioFormatException If the configuration of underlying components fails as a
    *     result of upstream changes.
@@ -122,6 +138,11 @@ import java.util.concurrent.atomic.AtomicReference;
     return EMPTY_BUFFER;
   }
 
+  /**
+   * {@inheritDoc}
+   *
+   * <p>Should only be called by the input thread.
+   */
   @Override
   public void onMediaItemChanged(
       EditedMediaItem editedMediaItem,
@@ -141,6 +162,11 @@ import java.util.concurrent.atomic.AtomicReference;
         new MediaItemChange(editedMediaItem, durationUs, decodedFormat, isLast));
   }
 
+  /**
+   * {@inheritDoc}
+   *
+   * <p>Should only be called by the input thread.
+   */
   @Override
   @Nullable
   public DecoderInputBuffer getInputBuffer() {
@@ -150,6 +176,11 @@ import java.util.concurrent.atomic.AtomicReference;
     return availableInputBuffers.peek();
   }
 
+  /**
+   * {@inheritDoc}
+   *
+   * <p>Should only be called by the input thread.
+   */
   @Override
   public boolean queueInputBuffer() {
     checkState(pendingMediaItemChange.get() == null);
@@ -158,13 +189,21 @@ import java.util.concurrent.atomic.AtomicReference;
     return true;
   }
 
-  /** Releases any underlying resources. */
+  /**
+   * Releases any underlying resources.
+   *
+   * <p>Should only be called by the processing thread.
+   */
   public void release() {
     // TODO(b/303029174): Impl flush(), reset() & decide if a separate release() is still needed.
     audioProcessingPipeline.reset();
   }
 
-  /** Returns whether the input has ended and all queued data has been output. */
+  /**
+   * Returns whether the input has ended and all queued data has been output.
+   *
+   * <p>Should only be called on the processing thread.
+   */
   public boolean isEnded() {
     if (hasDataToOutput()) {
       return false;
@@ -329,6 +368,16 @@ import java.util.concurrent.atomic.AtomicReference;
     processedFirstMediaItemChange = true;
   }
 
+  /**
+   * Returns a new configured {@link AudioProcessingPipeline}.
+   *
+   * <p>Additional {@link AudioProcessor} instances may be added to the returned pipeline that:
+   *
+   * <ul>
+   *   <li>Handle {@linkplain EditedMediaItem#flattenForSlowMotion slow motion flattening}.
+   *   <li>Modify the audio stream to match the {@code requiredOutputAudioFormat}.
+   * </ul>
+   */
   private static AudioProcessingPipeline configureProcessing(
       EditedMediaItem editedMediaItem,
       @Nullable Format inputFormat,
