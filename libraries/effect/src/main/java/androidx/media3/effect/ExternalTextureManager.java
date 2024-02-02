@@ -299,9 +299,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     surfaceTexture.updateTexImage();
     availableFrameCount--;
-    this.currentFrame = pendingFrames.element();
+    FrameInfo currentFrame = pendingFrames.element();
+    this.currentFrame = currentFrame;
 
-    FrameInfo currentFrame = checkStateNotNull(this.currentFrame);
     externalShaderProgramInputCapacity.decrementAndGet();
     surfaceTexture.getTransformMatrix(textureTransformMatrix);
     checkNotNull(externalShaderProgram).setTextureTransformMatrix(textureTransformMatrix);
