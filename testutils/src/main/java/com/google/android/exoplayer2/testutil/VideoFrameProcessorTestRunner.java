@@ -24,7 +24,6 @@ import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 import static com.google.android.exoplayer2.util.VideoFrameProcessor.INPUT_TYPE_BITMAP;
 import static com.google.android.exoplayer2.util.VideoFrameProcessor.INPUT_TYPE_SURFACE;
 import static com.google.android.exoplayer2.util.VideoFrameProcessor.INPUT_TYPE_TEXTURE_ID;
-import static com.google.common.truth.Truth.assertThat;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import android.annotation.SuppressLint;
@@ -461,8 +460,8 @@ public final class VideoFrameProcessorTestRunner {
       Thread.currentThread().interrupt();
       endFrameProcessingException = e;
     }
-    assertThat(videoFrameProcessingException.get()).isNull();
-    assertThat(endFrameProcessingException).isNull();
+    checkState(videoFrameProcessingException.get() == null);
+    checkState(endFrameProcessingException == null);
   }
 
   /**
@@ -556,7 +555,7 @@ public final class VideoFrameProcessorTestRunner {
   private void awaitVideoFrameProcessorReady() {
     try {
       videoFrameProcessorReadyCondition.block();
-      assertThat(videoFrameProcessingException.get()).isNull();
+      checkState(videoFrameProcessingException.get() == null);
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
       throw new IllegalStateException(e);
