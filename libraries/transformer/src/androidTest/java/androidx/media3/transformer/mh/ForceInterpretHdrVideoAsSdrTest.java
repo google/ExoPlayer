@@ -16,13 +16,14 @@
 package androidx.media3.transformer.mh;
 
 import static androidx.media3.common.util.Util.SDK_INT;
-import static androidx.media3.test.utils.FileUtil.assertFileHasColorTransfer;
+import static androidx.media3.test.utils.FileUtil.retrieveColorTransfer;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_1080P_5_SECOND_HLG10;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_720P_4_SECOND_HDR10;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_720P_4_SECOND_HDR10_FORMAT;
 import static androidx.media3.transformer.AndroidTestUtil.recordTestSkipped;
 import static androidx.media3.transformer.AndroidTestUtil.skipAndLogIfFormatsUnsupported;
+import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
 import android.net.Uri;
@@ -85,7 +86,9 @@ public class ForceInterpretHdrVideoAsSdrTest {
             .build()
             .run(testId, composition);
 
-    assertFileHasColorTransfer(context, exportTestResult.filePath, C.COLOR_TRANSFER_SDR);
+    @C.ColorTransfer
+    int actualColorTransfer = retrieveColorTransfer(context, exportTestResult.filePath);
+    assertThat(actualColorTransfer).isEqualTo(C.COLOR_TRANSFER_SDR);
   }
 
   @Test
@@ -124,6 +127,8 @@ public class ForceInterpretHdrVideoAsSdrTest {
             .build()
             .run(testId, composition);
 
-    assertFileHasColorTransfer(context, exportTestResult.filePath, C.COLOR_TRANSFER_SDR);
+    @C.ColorTransfer
+    int actualColorTransfer = retrieveColorTransfer(context, exportTestResult.filePath);
+    assertThat(actualColorTransfer).isEqualTo(C.COLOR_TRANSFER_SDR);
   }
 }

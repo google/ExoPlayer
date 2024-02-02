@@ -16,7 +16,7 @@
 package androidx.media3.transformer.mh;
 
 import static androidx.media3.common.MimeTypes.VIDEO_H265;
-import static androidx.media3.test.utils.FileUtil.assertFileHasColorTransfer;
+import static androidx.media3.test.utils.FileUtil.retrieveColorTransfer;
 import static androidx.media3.transformer.AndroidTestUtil.FORCE_TRANSCODE_VIDEO_EFFECTS;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_1080P_5_SECOND_HLG10;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT;
@@ -97,7 +97,9 @@ public final class HdrEditingTest {
         new TransformerAndroidTestRunner.Builder(context, transformer)
             .build()
             .run(testId, mediaItem);
-    assertFileHasColorTransfer(context, exportTestResult.filePath, C.COLOR_TRANSFER_ST2084);
+    @C.ColorTransfer
+    int actualColorTransfer = retrieveColorTransfer(context, exportTestResult.filePath);
+    assertThat(actualColorTransfer).isEqualTo(C.COLOR_TRANSFER_ST2084);
   }
 
   @Test
@@ -126,7 +128,9 @@ public final class HdrEditingTest {
         new TransformerAndroidTestRunner.Builder(context, transformer)
             .build()
             .run(testId, mediaItem);
-    assertFileHasColorTransfer(context, exportTestResult.filePath, C.COLOR_TRANSFER_HLG);
+    @C.ColorTransfer
+    int actualColorTransfer = retrieveColorTransfer(context, exportTestResult.filePath);
+    assertThat(actualColorTransfer).isEqualTo(C.COLOR_TRANSFER_HLG);
   }
 
   @Test
@@ -155,7 +159,9 @@ public final class HdrEditingTest {
         new TransformerAndroidTestRunner.Builder(context, transformer)
             .build()
             .run(testId, editedMediaItem);
-    assertFileHasColorTransfer(context, exportTestResult.filePath, C.COLOR_TRANSFER_ST2084);
+    @C.ColorTransfer
+    int actualColorTransfer = retrieveColorTransfer(context, exportTestResult.filePath);
+    assertThat(actualColorTransfer).isEqualTo(C.COLOR_TRANSFER_ST2084);
   }
 
   @Test
@@ -184,7 +190,9 @@ public final class HdrEditingTest {
         new TransformerAndroidTestRunner.Builder(context, transformer)
             .build()
             .run(testId, editedMediaItem);
-    assertFileHasColorTransfer(context, exportTestResult.filePath, C.COLOR_TRANSFER_HLG);
+    @C.ColorTransfer
+    int actualColorTransfer = retrieveColorTransfer(context, exportTestResult.filePath);
+    assertThat(actualColorTransfer).isEqualTo(C.COLOR_TRANSFER_HLG);
   }
 
   @Test
@@ -214,7 +222,9 @@ public final class HdrEditingTest {
         new TransformerAndroidTestRunner.Builder(context, transformer)
             .build()
             .run(testId, editedMediaItem);
-    assertFileHasColorTransfer(context, exportTestResult.filePath, C.COLOR_TRANSFER_HLG);
+    @C.ColorTransfer
+    int actualColorTransfer = retrieveColorTransfer(context, exportTestResult.filePath);
+    assertThat(actualColorTransfer).isEqualTo(C.COLOR_TRANSFER_HLG);
   }
 
   @Test
@@ -264,7 +274,9 @@ public final class HdrEditingTest {
               .build()
               .run(testId, editedMediaItem);
       assertThat(isToneMappingFallbackApplied.get()).isTrue();
-      assertFileHasColorTransfer(context, exportTestResult.filePath, C.COLOR_TRANSFER_SDR);
+      @C.ColorTransfer
+      int actualColorTransfer = retrieveColorTransfer(context, exportTestResult.filePath);
+      assertThat(actualColorTransfer).isEqualTo(C.COLOR_TRANSFER_SDR);
     } catch (ExportException exception) {
       if (exception.getCause() != null) {
         @Nullable String message = exception.getCause().getMessage();
@@ -325,7 +337,9 @@ public final class HdrEditingTest {
               .build()
               .run(testId, editedMediaItem);
       assertThat(isToneMappingFallbackApplied.get()).isTrue();
-      assertFileHasColorTransfer(context, exportTestResult.filePath, C.COLOR_TRANSFER_SDR);
+      @C.ColorTransfer
+      int actualColorTransfer = retrieveColorTransfer(context, exportTestResult.filePath);
+      assertThat(actualColorTransfer).isEqualTo(C.COLOR_TRANSFER_SDR);
     } catch (ExportException exception) {
       if (exception.getCause() != null) {
         @Nullable String message = exception.getCause().getMessage();

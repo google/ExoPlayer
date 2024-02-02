@@ -17,7 +17,6 @@
 package androidx.media3.test.utils;
 
 import static androidx.media3.common.util.Assertions.checkState;
-import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
 import androidx.annotation.Nullable;
@@ -36,22 +35,16 @@ import java.util.concurrent.ExecutionException;
 public final class FileUtil {
 
   /**
-   * Asserts that the file has a certain color transfer.
-   *
-   * @param context The current context.
-   * @param filePath The path of the input file.
-   * @param expectedColorTransfer The expected {@link C.ColorTransfer} for the input file.
+   * Returns {@link C.ColorTransfer} information from the media file, or {@link
+   * C#COLOR_TRANSFER_SDR} if the information can not be found.
    */
-  public static void assertFileHasColorTransfer(
-      Context context, @Nullable String filePath, @C.ColorTransfer int expectedColorTransfer) {
+  public static @C.ColorTransfer int retrieveColorTransfer(
+      Context context, @Nullable String filePath) {
     Format videoTrackFormat = retrieveTrackFormat(context, filePath, C.TRACK_TYPE_VIDEO);
     @Nullable ColorInfo colorInfo = videoTrackFormat.colorInfo;
-    @C.ColorTransfer
-    int actualColorTransfer =
-        colorInfo == null || colorInfo.colorTransfer == Format.NO_VALUE
-            ? C.COLOR_TRANSFER_SDR
-            : colorInfo.colorTransfer;
-    assertThat(actualColorTransfer).isEqualTo(expectedColorTransfer);
+    return colorInfo == null || colorInfo.colorTransfer == Format.NO_VALUE
+        ? C.COLOR_TRANSFER_SDR
+        : colorInfo.colorTransfer;
   }
 
   /** Returns {@linkplain Format track format} from the media file. */
