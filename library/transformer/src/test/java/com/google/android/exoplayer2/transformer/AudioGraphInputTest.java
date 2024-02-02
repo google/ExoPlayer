@@ -21,8 +21,11 @@ import static com.google.common.truth.Truth.assertThat;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.audio.AudioProcessor.AudioFormat;
+import com.google.android.exoplayer2.util.Util;
+import java.nio.ByteBuffer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -31,19 +34,22 @@ import org.junit.runner.RunWith;
 public class AudioGraphInputTest {
   private static final EditedMediaItem FAKE_ITEM =
       new EditedMediaItem.Builder(MediaItem.EMPTY).build();
-
+  private static final AudioFormat MONO_44100 =
+      new AudioFormat(/* sampleRate= */ 44_100, /* channelCount= */ 1, C.ENCODING_PCM_16BIT);
   private static final AudioFormat MONO_48000 =
       new AudioFormat(/* sampleRate= */ 48_000, /* channelCount= */ 1, C.ENCODING_PCM_16BIT);
   private static final AudioFormat STEREO_44100 =
       new AudioFormat(/* sampleRate= */ 44_100, /* channelCount= */ 2, C.ENCODING_PCM_16BIT);
+  private static final AudioFormat STEREO_48000 =
+      new AudioFormat(/* sampleRate= */ 48_000, /* channelCount= */ 2, C.ENCODING_PCM_16BIT);
 
   @Test
   public void getOutputAudioFormat_withUnsetRequestedFormat_matchesInputFormat() throws Exception {
     AudioGraphInput audioGraphInput =
         new AudioGraphInput(
             /* requestedOutputAudioFormat= */ AudioFormat.NOT_SET,
-            FAKE_ITEM,
-            getPcmFormat(MONO_48000));
+            /* editedMediaItem= */ FAKE_ITEM,
+            /* inputFormat= */ getPcmFormat(MONO_48000));
 
     assertThat(audioGraphInput.getOutputAudioFormat()).isEqualTo(MONO_48000);
   }
@@ -52,8 +58,77 @@ public class AudioGraphInputTest {
   public void getOutputAudioFormat_withRequestedFormat_matchesRequestedFormat() throws Exception {
     AudioGraphInput audioGraphInput =
         new AudioGraphInput(
-            /* requestedOutputAudioFormat= */ STEREO_44100, FAKE_ITEM, getPcmFormat(MONO_48000));
+            /* requestedOutputAudioFormat= */ STEREO_44100,
+            /* editedMediaItem= */ FAKE_ITEM,
+            /* inputFormat= */ getPcmFormat(MONO_48000));
 
     assertThat(audioGraphInput.getOutputAudioFormat()).isEqualTo(STEREO_44100);
+  }
+
+  @Test
+  public void getOutputAudioFormat_withRequestedSampleRate_combinesWithConfiguredFormat()
+      throws Exception {
+    AudioFormat requestedAudioFormat =
+        new AudioFormat(
+            /* sampleRate= */ MONO_48000.sampleRate,
+            /* channelCount= */ Format.NO_VALUE,
+            /* encoding= */ Format.NO_VALUE);
+
+    AudioGraphInput audioGraphInput =
+        new AudioGraphInput(
+            /* requestedOutputAudioFormat= */ requestedAudioFormat,
+            /* editedMediaItem= */ FAKE_ITEM,
+            /* inputFormat= */ getPcmFormat(MONO_44100));
+
+    assertThat(audioGraphInput.getOutputAudioFormat()).isEqualTo(MONO_48000);
+  }
+
+  @Test
+  public void getOutputAudioFormat_withRequestedChannelCount_combinesWithConfiguredFormat()
+      throws Exception {
+    AudioFormat requestedAudioFormat =
+        new AudioFormat(
+            /* sampleRate= */ Format.NO_VALUE,
+            /* channelCount= */ STEREO_48000.channelCount,
+            /* encoding= */ Format.NO_VALUE);
+
+    AudioGraphInput audioGraphInput =
+        new AudioGraphInput(
+            /* requestedOutputAudioFormat= */ requestedAudioFormat,
+            /* editedMediaItem= */ FAKE_ITEM,
+            /* inputFormat= */ getPcmFormat(MONO_44100));
+
+    assertThat(audioGraphInput.getOutputAudioFormat()).isEqualTo(STEREO_44100);
+  }
+
+  @Test
+  public void getOutput_withSilentMediaItemChange_outputsCorrectAmountOfSilentBytes()
+      throws Exception {
+    AudioGraphInput audioGraphInput =
+        new AudioGraphInput(
+            /* requestedOutputAudioFormat= */ AudioFormat.NOT_SET,
+            /* editedMediaItem= */ FAKE_ITEM,
+            /* inputFormat= */ getPcmFormat(STEREO_44100));
+
+    audioGraphInput.onMediaItemChanged(
+        /* editedMediaItem= */ FAKE_ITEM,
+        /* durationUs= */ 1_000_000,
+        /* decodedFormat= */ null,
+        /* isLast= */ true);
+    int bytesOutput = drainAudioGraphInput(audioGraphInput);
+
+    long expectedSampleCount = Util.durationUsToSampleCount(1_000_000, STEREO_44100.sampleRate);
+    assertThat(bytesOutput).isEqualTo(expectedSampleCount * STEREO_44100.bytesPerFrame);
+  }
+
+  /** Drains the graph and returns the number of bytes output. */
+  private static int drainAudioGraphInput(AudioGraphInput audioGraphInput) throws Exception {
+    int bytesOutput = 0;
+    ByteBuffer output;
+    while ((output = audioGraphInput.getOutput()).hasRemaining() || !audioGraphInput.isEnded()) {
+      bytesOutput += output.remaining();
+      output.position(output.limit());
+    }
+    return bytesOutput;
   }
 }
