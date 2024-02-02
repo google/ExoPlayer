@@ -24,7 +24,6 @@ import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static androidx.media3.test.utils.BitmapPixelTestUtil.createArgb8888BitmapFromRgba8888Image;
 import static androidx.media3.test.utils.BitmapPixelTestUtil.maybeSaveTestBitmap;
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
-import static com.google.common.truth.Truth.assertThat;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import android.annotation.SuppressLint;
@@ -463,8 +462,8 @@ public final class VideoFrameProcessorTestRunner {
       Thread.currentThread().interrupt();
       endFrameProcessingException = e;
     }
-    assertThat(videoFrameProcessingException.get()).isNull();
-    assertThat(endFrameProcessingException).isNull();
+    checkState(videoFrameProcessingException.get() == null);
+    checkState(endFrameProcessingException == null);
   }
 
   /**
@@ -558,7 +557,7 @@ public final class VideoFrameProcessorTestRunner {
   private void awaitVideoFrameProcessorReady() {
     try {
       videoFrameProcessorReadyCondition.block();
-      assertThat(videoFrameProcessingException.get()).isNull();
+      checkState(videoFrameProcessingException.get() == null);
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
       throw new IllegalStateException(e);
