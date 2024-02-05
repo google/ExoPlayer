@@ -558,7 +558,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             && getProcessedTrackType(firstAssetLoaderInputFormat.sampleMimeType)
                 == TRACK_TYPE_VIDEO) {
           maybeSetMuxerWrapperAdditionalRotationDegrees(
-              muxerWrapper, firstEditedMediaItem.effects.videoEffects);
+              muxerWrapper, firstEditedMediaItem.effects.videoEffects, firstAssetLoaderInputFormat);
         }
         assetLoaderInputTracker.setShouldTranscode(trackType, shouldTranscode);
         return shouldTranscode;

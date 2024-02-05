@@ -17,6 +17,7 @@
 package androidx.media3.transformer;
 
 import static androidx.media3.transformer.Composition.HDR_MODE_KEEP_HDR;
+import static java.lang.Math.round;
 
 import android.media.MediaCodec;
 import androidx.annotation.Nullable;
@@ -144,72 +145,67 @@ import com.google.common.collect.ImmutableList;
     }
     ImmutableList<Effect> videoEffects = firstEditedMediaItem.effects.videoEffects;
     return !videoEffects.isEmpty()
-        && !areVideoEffectsAllNoOp(videoEffects, inputFormat)
-        && getRegularRotationDegrees(videoEffects) == -1;
+        && maybeCalculateTotalRotationDegreesAppliedInEffects(videoEffects, inputFormat) == -1;
   }
 
   /**
-   * Returns whether the collection of {@code videoEffects} would be a {@linkplain
-   * GlEffect#isNoOp(int, int) no-op}, if queued samples of this {@link Format}.
+   * Returns the total rotation degrees of all the rotations in {@code videoEffects}, or {@code -1}
+   * if {@code videoEffects} contains any effects that are not no-ops or regular rotations.
+   *
+   * <p>If all the {@code videoEffects} are either noOps or regular rotations, then the rotations
+   * can be applied in the {@linkplain #maybeSetMuxerWrapperAdditionalRotationDegrees(MuxerWrapper,
+   * ImmutableList, Format) MuxerWrapper}.
    */
-  public static boolean areVideoEffectsAllNoOp(
+  private static float maybeCalculateTotalRotationDegreesAppliedInEffects(
       ImmutableList<Effect> videoEffects, Format inputFormat) {
-    int decodedWidth =
-        (inputFormat.rotationDegrees % 180 == 0) ? inputFormat.width : inputFormat.height;
-    int decodedHeight =
-        (inputFormat.rotationDegrees % 180 == 0) ? inputFormat.height : inputFormat.width;
+    int width = (inputFormat.rotationDegrees % 180 == 0) ? inputFormat.width : inputFormat.height;
+    int height = (inputFormat.rotationDegrees % 180 == 0) ? inputFormat.height : inputFormat.width;
+    float totalRotationDegrees = 0;
     for (int i = 0; i < videoEffects.size(); i++) {
       Effect videoEffect = videoEffects.get(i);
       if (!(videoEffect instanceof GlEffect)) {
         // We cannot confirm whether Effect instances that are not GlEffect instances are
         // no-ops.
-        return false;
+        return -1;
       }
       GlEffect glEffect = (GlEffect) videoEffect;
-      if (!glEffect.isNoOp(decodedWidth, decodedHeight)) {
-        return false;
+      if (videoEffect instanceof ScaleAndRotateTransformation) {
+        ScaleAndRotateTransformation scaleAndRotateTransformation =
+            (ScaleAndRotateTransformation) videoEffect;
+        if (scaleAndRotateTransformation.scaleX != 1f
+            || scaleAndRotateTransformation.scaleY != 1f) {
+          return -1;
+        }
+        float rotationDegrees = scaleAndRotateTransformation.rotationDegrees;
+        if (rotationDegrees % 90f != 0) {
+          return -1;
+        }
+        totalRotationDegrees += rotationDegrees;
+        width = (totalRotationDegrees % 180 == 0) ? inputFormat.width : inputFormat.height;
+        height = (totalRotationDegrees % 180 == 0) ? inputFormat.height : inputFormat.width;
+        continue;
+      }
+      if (!glEffect.isNoOp(width, height)) {
+        return -1;
       }
     }
-    return true;
+    totalRotationDegrees %= 360;
+    return totalRotationDegrees % 90 == 0 ? totalRotationDegrees : -1;
   }
 
-  private static float getRegularRotationDegrees(ImmutableList<Effect> videoEffects) {
-    if (videoEffects.size() != 1) {
-      return -1;
-    }
-    Effect videoEffect = videoEffects.get(0);
-    if (!(videoEffect instanceof ScaleAndRotateTransformation)) {
-      return -1;
-    }
-    ScaleAndRotateTransformation scaleAndRotateTransformation =
-        (ScaleAndRotateTransformation) videoEffect;
-    if (scaleAndRotateTransformation.scaleX != 1f || scaleAndRotateTransformation.scaleY != 1f) {
-      return -1;
-    }
-    float rotationDegrees = scaleAndRotateTransformation.rotationDegrees;
-    if (rotationDegrees == 90f || rotationDegrees == 180f || rotationDegrees == 270f) {
-      return rotationDegrees;
-    }
-    return -1;
-  }
-
-  // TODO: b/322146331 - Support setting MuxerWrapper#setAdditionalRotationDegrees(int) for
-  //  videoEffects lists that are a mix of no-ops and rotations.
   /**
    * Sets {@linkplain MuxerWrapper#setAdditionalRotationDegrees(int) the additionalRotationDegrees}
-   * on the given {@link MuxerWrapper} if the given {@code videoEffects} only contains one regular
-   * rotation effect. A regular rotation is a rotation divisible by 90 degrees.
+   * on the given {@link MuxerWrapper} if the given {@code videoEffects} only contains a mix of
+   * regular rotations and no-ops. A regular rotation is a rotation divisible by 90 degrees.
    */
   public static void maybeSetMuxerWrapperAdditionalRotationDegrees(
-      MuxerWrapper muxerWrapper, ImmutableList<Effect> videoEffects) {
-    float rotationDegrees = getRegularRotationDegrees(videoEffects);
-    if (rotationDegrees == -1) {
-      return;
-    }
+      MuxerWrapper muxerWrapper, ImmutableList<Effect> videoEffects, Format inputFormat) {
+    float rotationDegrees =
+        maybeCalculateTotalRotationDegreesAppliedInEffects(videoEffects, inputFormat);
     if (rotationDegrees == 90f || rotationDegrees == 180f || rotationDegrees == 270f) {
       // The MuxerWrapper rotation is clockwise while the ScaleAndRotateTransformation rotation
       // is counterclockwise.
-      muxerWrapper.setAdditionalRotationDegrees(360 - Math.round(rotationDegrees));
+      muxerWrapper.setAdditionalRotationDegrees(360 - round(rotationDegrees));
     }
   }
 }
