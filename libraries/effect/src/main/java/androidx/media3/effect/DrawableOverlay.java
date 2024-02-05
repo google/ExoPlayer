@@ -70,7 +70,7 @@ public abstract class DrawableOverlay extends BitmapOverlay {
   }
 
   /**
-   * Creates a {@link TextOverlay} that shows the {@link Drawable} with the same {@link
+   * Creates a {@link DrawableOverlay} that shows the {@link Drawable} with the same {@link
    * OverlaySettings} throughout the whole video.
    *
    * @param drawable The {@link Drawable} to be displayed.
