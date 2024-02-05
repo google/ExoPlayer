@@ -153,7 +153,7 @@ import com.google.common.collect.ImmutableList;
     ImmutableList<Effect> videoEffects = firstEditedMediaItem.effects.videoEffects;
     return !videoEffects.isEmpty()
         && !areVideoEffectsAllNoOp(videoEffects, inputFormat)
-        && !hasOnlyRegularRotationEffect(videoEffects, muxerWrapper);
+        && getRegularRotationDegrees(videoEffects) == -1;
   }
 
   /**
@@ -181,27 +181,43 @@ import com.google.common.collect.ImmutableList;
     return true;
   }
 
-  private static boolean hasOnlyRegularRotationEffect(
-      ImmutableList<Effect> videoEffects, MuxerWrapper muxerWrapper) {
+  private static float getRegularRotationDegrees(ImmutableList<Effect> videoEffects) {
     if (videoEffects.size() != 1) {
-      return false;
+      return -1;
     }
     Effect videoEffect = videoEffects.get(0);
     if (!(videoEffect instanceof ScaleAndRotateTransformation)) {
-      return false;
+      return -1;
     }
     ScaleAndRotateTransformation scaleAndRotateTransformation =
         (ScaleAndRotateTransformation) videoEffect;
     if (scaleAndRotateTransformation.scaleX != 1f || scaleAndRotateTransformation.scaleY != 1f) {
-      return false;
+      return -1;
     }
     float rotationDegrees = scaleAndRotateTransformation.rotationDegrees;
+    if (rotationDegrees == 90f || rotationDegrees == 180f || rotationDegrees == 270f) {
+      return rotationDegrees;
+    }
+    return -1;
+  }
+
+  // TODO: b/322146331 - Support setting MuxerWrapper#setAdditionalRotationDegrees(int) for
+  //  videoEffects lists that are a mix of no-ops and rotations.
+  /**
+   * Sets {@linkplain MuxerWrapper#setAdditionalRotationDegrees(int) the additionalRotationDegrees}
+   * on the given {@link MuxerWrapper} if the given {@code videoEffects} only contains one regular
+   * rotation effect. A regular rotation is a rotation divisible by 90 degrees.
+   */
+  public static void maybeSetMuxerWrapperAdditionalRotationDegrees(
+      MuxerWrapper muxerWrapper, ImmutableList<Effect> videoEffects) {
+    float rotationDegrees = getRegularRotationDegrees(videoEffects);
+    if (rotationDegrees == -1) {
+      return;
+    }
     if (rotationDegrees == 90f || rotationDegrees == 180f || rotationDegrees == 270f) {
       // The MuxerWrapper rotation is clockwise while the ScaleAndRotateTransformation rotation
       // is counterclockwise.
       muxerWrapper.setAdditionalRotationDegrees(360 - Math.round(rotationDegrees));
-      return true;
     }
-    return false;
   }
 }

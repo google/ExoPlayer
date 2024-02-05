@@ -65,6 +65,7 @@ import com.google.android.exoplayer2.effect.Presentation;
 import com.google.android.exoplayer2.effect.RgbFilter;
 import com.google.android.exoplayer2.effect.ScaleAndRotateTransformation;
 import com.google.android.exoplayer2.effect.TimestampWrapper;
+import com.google.android.exoplayer2.testutil.FileUtil;
 import com.google.android.exoplayer2.upstream.DataSourceBitmapLoader;
 import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.GlUtil;
@@ -87,6 +88,7 @@ import org.junit.runner.RunWith;
 public class TransformerEndToEndTest {
 
   private final Context context = ApplicationProvider.getApplicationContext();
+
   private volatile @MonotonicNonNull TextureAssetLoader textureAssetLoader;
 
   @Test
@@ -486,6 +488,55 @@ public class TransformerEndToEndTest {
 
   @Test
   public void
+      clippedAndRotatedMedia_trimOptimizationEnabledButFormatsMismatch_fallsbackWithCorrectOrientationOutput()
+          throws Exception {
+    String testId =
+        "clippedAndRotatedMedia_trimOptimizationEnabledButFormatsMismatch_fallsbackWithCorrectOrientationOutput";
+    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
+        context,
+        testId,
+        /* inputFormat= */ MP4_ASSET_WITH_INCREASING_TIMESTAMPS_320W_240H_15S_FORMAT,
+        /* outputFormat= */ MP4_ASSET_WITH_INCREASING_TIMESTAMPS_320W_240H_15S_FORMAT)) {
+      return;
+    }
+    Transformer transformer =
+        new Transformer.Builder(context).experimentalSetTrimOptimizationEnabled(true).build();
+    long clippingStartMs = 10_000;
+    long clippingEndMs = 13_000;
+    // The format for this file cannot be encoded on phones, so it will trigger trim optimization
+    // fallback. This is because its csd doesn't match any known phone decoder.
+    MediaItem mediaItem =
+        new MediaItem.Builder()
+            .setUri(Uri.parse(MP4_ASSET_WITH_INCREASING_TIMESTAMPS_320W_240H_15S_URI_STRING))
+            .setClippingConfiguration(
+                new MediaItem.ClippingConfiguration.Builder()
+                    .setStartPositionMs(clippingStartMs)
+                    .setEndPositionMs(clippingEndMs)
+                    .build())
+            .build();
+    ImmutableList<Effect> videoEffects =
+        ImmutableList.of(
+            new ScaleAndRotateTransformation.Builder().setRotationDegrees(180).build());
+    Effects effects = new Effects(/* audioProcessors= */ ImmutableList.of(), videoEffects);
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem.Builder(mediaItem).setEffects(effects).build();
+
+    ExportTestResult result =
+        new TransformerAndroidTestRunner.Builder(context, transformer)
+            .build()
+            .run(testId, editedMediaItem);
+
+    assertThat(result.exportResult.optimizationResult)
+        .isEqualTo(OPTIMIZATION_FAILED_FORMAT_MISMATCH);
+    assertThat(result.exportResult.durationMs).isAtMost(clippingEndMs - clippingStartMs);
+    Format format = FileUtil.retrieveTrackFormat(context, result.filePath, C.TRACK_TYPE_VIDEO);
+    // The video is transcoded, so the rotation is performed in the VideoFrameProcessor.
+    // The output video is portrait, but Transformer's default setup encodes videos landscape.
+    assertThat(format.rotationDegrees).isEqualTo(0);
+  }
+
+  @Test
+  public void
       clippedMedia_trimOptimizationEnabled_noKeyFrameBetweenClipTimes_fallbackToNormalExport()
           throws Exception {
     String testId =
@@ -591,9 +642,10 @@ public class TransformerEndToEndTest {
 
   @Test
   public void
-      clippedMedia_trimOptimizationEnabled_audioRemovedAndRotated_completesWithOptimizationApplied()
+      clippedMediaAudioRemovedAndRotated_trimOptimizationEnabled_completedWithOptimizationAppliedAndCorrectOrientation()
           throws Exception {
-    String testId = "clippedMedia_trimOptimizationEnabled_completesWithOptimizationApplied";
+    String testId =
+        "clippedMediaAudioRemovedAndRotated_trimOptimizationEnabled_completedWithOptimizationAppliedAndCorrectOrientation";
     if (!isRunningOnEmulator() || Util.SDK_INT != 33) {
       // The trim optimization is only guaranteed to work on emulator for this (emulator-transcoded)
       // file.
@@ -615,7 +667,7 @@ public class TransformerEndToEndTest {
         new Effects(
             /* audioProcessors= */ ImmutableList.of(),
             ImmutableList.of(
-                new ScaleAndRotateTransformation.Builder().setRotationDegrees(90).build()));
+                new ScaleAndRotateTransformation.Builder().setRotationDegrees(180).build()));
     EditedMediaItem editedMediaItem =
         new EditedMediaItem.Builder(mediaItem).setRemoveAudio(true).setEffects(effects).build();
 
@@ -626,6 +678,13 @@ public class TransformerEndToEndTest {
 
     assertThat(result.exportResult.optimizationResult).isEqualTo(OPTIMIZATION_SUCCEEDED);
     assertThat(result.exportResult.durationMs).isAtMost(2000);
+
+    Format format = FileUtil.retrieveTrackFormat(context, result.filePath, C.TRACK_TYPE_VIDEO);
+    // The video is trim-optimized, so the rotation is performed in MuxerWrapper.
+    // The MuxerWrapper rotation is clockwise while the ScaleAndRotateTransformation rotation
+    // is counterclockwise.
+    // Manually verified that the video has correct rotation.
+    assertThat(format.rotationDegrees).isEqualTo(180);
   }
 
   @Test

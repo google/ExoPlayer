@@ -83,12 +83,13 @@ import java.util.List;
     return mp4InfoSettableFuture;
   }
 
-  public static Composition buildNewCompositionWithClipTimes(
+  public static Composition buildUponCompositionForTrimOptimization(
       Composition oldComposition,
       long startTimeUs,
       long endTimeUs,
       long mediaDurationUs,
-      boolean startsAtKeyFrame) {
+      boolean startsAtKeyFrame,
+      boolean clearVideoEffects) {
     EditedMediaItem firstEditedMediaItem = oldComposition.sequences.get(0).editedMediaItems.get(0);
 
     MediaItem.ClippingConfiguration clippingConfiguration =
@@ -104,11 +105,18 @@ import java.util.List;
             .buildUpon()
             .setClippingConfiguration(clippingConfiguration)
             .build();
+    Effects effects =
+        clearVideoEffects
+            ? new Effects(
+                firstEditedMediaItem.effects.audioProcessors,
+                /* videoEffects= */ ImmutableList.of())
+            : firstEditedMediaItem.effects;
     EditedMediaItem editedMediaItem =
         firstEditedMediaItem
             .buildUpon()
             .setMediaItem(mediaItem)
             .setDurationUs(mediaDurationUs)
+            .setEffects(effects)
             .build();
 
     return oldComposition
