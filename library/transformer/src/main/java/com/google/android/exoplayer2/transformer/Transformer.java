@@ -1444,7 +1444,9 @@ public final class Transformer {
             }
             Transformer.this.mediaItemInfo = mp4Info;
             maybeSetMuxerWrapperAdditionalRotationDegrees(
-                remuxingMuxerWrapper, firstEditedMediaItem.effects.videoEffects);
+                remuxingMuxerWrapper,
+                firstEditedMediaItem.effects.videoEffects,
+                checkNotNull(mp4Info.videoFormat));
             Composition trancodeComposition =
                 buildUponCompositionForTrimOptimization(
                     composition,

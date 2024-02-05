@@ -61,6 +61,7 @@ import com.google.android.exoplayer2.effect.Contrast;
 import com.google.android.exoplayer2.effect.DefaultGlObjectsProvider;
 import com.google.android.exoplayer2.effect.DefaultVideoFrameProcessor;
 import com.google.android.exoplayer2.effect.FrameCache;
+import com.google.android.exoplayer2.effect.GlEffect;
 import com.google.android.exoplayer2.effect.Presentation;
 import com.google.android.exoplayer2.effect.RgbFilter;
 import com.google.android.exoplayer2.effect.ScaleAndRotateTransformation;
@@ -87,6 +88,7 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class TransformerEndToEndTest {
 
+  private static final GlEffect NO_OP_EFFECT = new Contrast(0f);
   private final Context context = ApplicationProvider.getApplicationContext();
 
   private volatile @MonotonicNonNull TextureAssetLoader textureAssetLoader;
@@ -450,6 +452,50 @@ public class TransformerEndToEndTest {
   }
 
   @Test
+  public void
+      clippedAndRotatedMedia_withNoOpEffect_completesWithClippedDurationAndCorrectOrientation()
+          throws Exception {
+    String testId =
+        "clippedAndRotatedMedia_withNoOpEffect_completesWithClippedDurationAndCorrectOrientation";
+    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
+        context,
+        testId,
+        /* inputFormat= */ MP4_ASSET_WITH_INCREASING_TIMESTAMPS_320W_240H_15S_FORMAT,
+        /* outputFormat= */ MP4_ASSET_WITH_INCREASING_TIMESTAMPS_320W_240H_15S_FORMAT)) {
+      return;
+    }
+    Transformer transformer = new Transformer.Builder(context).build();
+    long clippingStartMs = 10_000;
+    long clippingEndMs = 11_000;
+    MediaItem mediaItem =
+        new MediaItem.Builder()
+            .setUri(Uri.parse(MP4_ASSET_WITH_INCREASING_TIMESTAMPS_320W_240H_15S_URI_STRING))
+            .setClippingConfiguration(
+                new MediaItem.ClippingConfiguration.Builder()
+                    .setStartPositionMs(clippingStartMs)
+                    .setEndPositionMs(clippingEndMs)
+                    .build())
+            .build();
+    ImmutableList<Effect> videoEffects =
+        ImmutableList.of(
+            new ScaleAndRotateTransformation.Builder().setRotationDegrees(90).build(),
+            NO_OP_EFFECT);
+    Effects effects = new Effects(/* audioProcessors= */ ImmutableList.of(), videoEffects);
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem.Builder(mediaItem).setEffects(effects).build();
+
+    ExportTestResult result =
+        new TransformerAndroidTestRunner.Builder(context, transformer)
+            .build()
+            .run(testId, editedMediaItem);
+
+    assertThat(result.exportResult.durationMs).isAtMost(clippingEndMs - clippingStartMs);
+    Format format = FileUtil.retrieveTrackFormat(context, result.filePath, C.TRACK_TYPE_VIDEO);
+    // The output video is portrait, but Transformer's default setup encodes videos landscape.
+    assertThat(format.rotationDegrees).isEqualTo(90);
+  }
+
+  @Test
   public void clippedMedia_trimOptimizationEnabled_fallbackToNormalExportUponFormatMismatch()
       throws Exception {
     String testId = "clippedMedia_trimOptimizationEnabled_fallbackToNormalExportUponFormatMismatch";
@@ -516,7 +562,8 @@ public class TransformerEndToEndTest {
             .build();
     ImmutableList<Effect> videoEffects =
         ImmutableList.of(
-            new ScaleAndRotateTransformation.Builder().setRotationDegrees(180).build());
+            new ScaleAndRotateTransformation.Builder().setRotationDegrees(180).build(),
+            NO_OP_EFFECT);
     Effects effects = new Effects(/* audioProcessors= */ ImmutableList.of(), videoEffects);
     EditedMediaItem editedMediaItem =
         new EditedMediaItem.Builder(mediaItem).setEffects(effects).build();
@@ -642,10 +689,10 @@ public class TransformerEndToEndTest {
 
   @Test
   public void
-      clippedMediaAudioRemovedAndRotated_trimOptimizationEnabled_completedWithOptimizationAppliedAndCorrectOrientation()
+      clippedMediaAudioRemovedNoOpEffectAndRotated_trimOptimizationEnabled_completedWithOptimizationAppliedAndCorrectOrientation()
           throws Exception {
     String testId =
-        "clippedMediaAudioRemovedAndRotated_trimOptimizationEnabled_completedWithOptimizationAppliedAndCorrectOrientation";
+        "clippedMediaAudioRemovedNoOpEffectAndRotated_trimOptimizationEnabled_completedWithOptimizationAppliedAndCorrectOrientation";
     if (!isRunningOnEmulator() || Util.SDK_INT != 33) {
       // The trim optimization is only guaranteed to work on emulator for this (emulator-transcoded)
       // file.
@@ -667,7 +714,8 @@ public class TransformerEndToEndTest {
         new Effects(
             /* audioProcessors= */ ImmutableList.of(),
             ImmutableList.of(
-                new ScaleAndRotateTransformation.Builder().setRotationDegrees(180).build()));
+                new ScaleAndRotateTransformation.Builder().setRotationDegrees(180).build(),
+                NO_OP_EFFECT));
     EditedMediaItem editedMediaItem =
         new EditedMediaItem.Builder(mediaItem).setRemoveAudio(true).setEffects(effects).build();
 
