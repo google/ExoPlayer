@@ -25,9 +25,10 @@ import static androidx.media3.transformer.ExportResult.OPTIMIZATION_ABANDONED_OT
 import static androidx.media3.transformer.ExportResult.OPTIMIZATION_ABANDONED_TRIM_AND_TRANSCODING_TRANSFORMATION_REQUESTED;
 import static androidx.media3.transformer.ExportResult.OPTIMIZATION_FAILED_EXTRACTION_FAILED;
 import static androidx.media3.transformer.ExportResult.OPTIMIZATION_FAILED_FORMAT_MISMATCH;
+import static androidx.media3.transformer.TransformerUtil.maybeSetMuxerWrapperAdditionalRotationDegrees;
 import static androidx.media3.transformer.TransformerUtil.shouldTranscodeAudio;
 import static androidx.media3.transformer.TransformerUtil.shouldTranscodeVideo;
-import static androidx.media3.transformer.TransmuxTranscodeHelper.buildNewCompositionWithClipTimes;
+import static androidx.media3.transformer.TransmuxTranscodeHelper.buildUponCompositionForTrimOptimization;
 import static java.lang.Math.round;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
@@ -1359,14 +1360,14 @@ public final class Transformer {
 
   private void processMediaBeforeFirstSyncSampleAfterTrimStartTime() {
     transformerState = TRANSFORMER_STATE_PROCESS_MEDIA_START;
-    MediaItem firstMediaItem =
-        checkNotNull(composition).sequences.get(0).editedMediaItems.get(0).mediaItem;
-    long trimStartTimeUs = firstMediaItem.clippingConfiguration.startPositionUs;
-    long trimEndTimeUs = firstMediaItem.clippingConfiguration.endPositionUs;
+    EditedMediaItem firstEditedMediaItem =
+        checkNotNull(composition).sequences.get(0).editedMediaItems.get(0);
+    long trimStartTimeUs = firstEditedMediaItem.mediaItem.clippingConfiguration.startPositionUs;
+    long trimEndTimeUs = firstEditedMediaItem.mediaItem.clippingConfiguration.endPositionUs;
     ListenableFuture<Mp4Info> getMp4InfoFuture =
         TransmuxTranscodeHelper.getMp4Info(
             context,
-            checkNotNull(firstMediaItem.localConfiguration).uri.toString(),
+            checkNotNull(firstEditedMediaItem.mediaItem.localConfiguration).uri.toString(),
             trimStartTimeUs);
     Futures.addCallback(
         getMp4InfoFuture,
@@ -1397,12 +1398,13 @@ public final class Transformer {
             if (mp4Info.firstSyncSampleTimestampUsAfterTimeUs - trimStartTimeUs
                 <= maxEncodedAudioBufferDurationUs) {
               Transformer.this.composition =
-                  buildNewCompositionWithClipTimes(
+                  buildUponCompositionForTrimOptimization(
                       composition,
                       mp4Info.firstSyncSampleTimestampUsAfterTimeUs,
-                      firstMediaItem.clippingConfiguration.endPositionUs,
+                      trimEndTimeUs,
                       mp4Info.durationUs,
-                      /* startsAtKeyFrame= */ true);
+                      /* startsAtKeyFrame= */ true,
+                      /* clearVideoEffects= */ false);
               exportResultBuilder.setOptimizationResult(
                   OPTIMIZATION_ABANDONED_KEYFRAME_PLACEMENT_OPTIMAL_FOR_TRIM);
               processFullInput();
@@ -1437,14 +1439,16 @@ public final class Transformer {
               return;
             }
             Transformer.this.mediaItemInfo = mp4Info;
+            maybeSetMuxerWrapperAdditionalRotationDegrees(
+                remuxingMuxerWrapper, firstEditedMediaItem.effects.videoEffects);
             Composition trancodeComposition =
-                buildNewCompositionWithClipTimes(
+                buildUponCompositionForTrimOptimization(
                     composition,
                     trimStartTimeUs,
                     mp4Info.firstSyncSampleTimestampUsAfterTimeUs,
                     mp4Info.durationUs,
-                    /* startsAtKeyFrame= */ false);
-
+                    /* startsAtKeyFrame= */ false,
+                    /* clearVideoEffects= */ true);
             startInternal(
                 trancodeComposition,
                 checkNotNull(remuxingMuxerWrapper),
@@ -1476,12 +1480,13 @@ public final class Transformer {
     long trimStartTimeUs = firstEditedMediaItem.mediaItem.clippingConfiguration.startPositionUs;
     long trimEndTimeUs = firstEditedMediaItem.mediaItem.clippingConfiguration.endPositionUs;
     Composition transmuxComposition =
-        buildNewCompositionWithClipTimes(
+        buildUponCompositionForTrimOptimization(
             composition,
             mediaItemInfo.firstSyncSampleTimestampUsAfterTimeUs,
             trimEndTimeUs,
             mediaItemInfo.durationUs,
-            /* startsAtKeyFrame= */ true);
+            /* startsAtKeyFrame= */ true,
+            /* clearVideoEffects= */ true);
     checkNotNull(remuxingMuxerWrapper);
     remuxingMuxerWrapper.changeToAppendMode();
     startInternal(

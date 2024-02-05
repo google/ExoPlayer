@@ -28,6 +28,7 @@ import static androidx.media3.transformer.ExportException.ERROR_CODE_MUXING_FAIL
 import static androidx.media3.transformer.Transformer.PROGRESS_STATE_AVAILABLE;
 import static androidx.media3.transformer.Transformer.PROGRESS_STATE_NOT_STARTED;
 import static androidx.media3.transformer.TransformerUtil.getProcessedTrackType;
+import static androidx.media3.transformer.TransformerUtil.maybeSetMuxerWrapperAdditionalRotationDegrees;
 import static androidx.media3.transformer.TransformerUtil.shouldTranscodeAudio;
 import static androidx.media3.transformer.TransformerUtil.shouldTranscodeVideo;
 import static java.lang.Math.max;
@@ -553,6 +554,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
         boolean shouldTranscode =
             shouldTranscode(firstAssetLoaderInputFormat, supportedOutputTypes);
+        if (!shouldTranscode
+            && getProcessedTrackType(firstAssetLoaderInputFormat.sampleMimeType)
+                == TRACK_TYPE_VIDEO) {
+          maybeSetMuxerWrapperAdditionalRotationDegrees(
+              muxerWrapper, firstEditedMediaItem.effects.videoEffects);
+        }
         assetLoaderInputTracker.setShouldTranscode(trackType, shouldTranscode);
         return shouldTranscode;
       }
