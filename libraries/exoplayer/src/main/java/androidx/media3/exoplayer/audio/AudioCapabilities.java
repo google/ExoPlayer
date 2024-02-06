@@ -15,7 +15,9 @@
  */
 package androidx.media3.exoplayer.audio;
 
+import static android.media.AudioFormat.CHANNEL_OUT_STEREO;
 import static androidx.media3.common.util.Assertions.checkNotNull;
+import static java.lang.Math.max;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -28,6 +30,7 @@ import android.media.AudioTrack;
 import android.net.Uri;
 import android.provider.Settings.Global;
 import android.util.Pair;
+import android.util.SparseArray;
 import androidx.annotation.DoNotInline;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -42,8 +45,11 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.primitives.Ints;
-import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /** Represents the set of audio formats that a device is capable of playing. */
 @UnstableApi
@@ -51,12 +57,12 @@ public final class AudioCapabilities {
 
   // TODO(internal b/283945513): Have separate default max channel counts in `AudioCapabilities`
   // for PCM and compressed audio.
-  private static final int DEFAULT_MAX_CHANNEL_COUNT = 10;
+  @VisibleForTesting /* package */ static final int DEFAULT_MAX_CHANNEL_COUNT = 10;
   @VisibleForTesting /* package */ static final int DEFAULT_SAMPLE_RATE_HZ = 48_000;
 
   /** The minimum audio capabilities supported by all devices. */
   public static final AudioCapabilities DEFAULT_AUDIO_CAPABILITIES =
-      new AudioCapabilities(new int[] {AudioFormat.ENCODING_PCM_16BIT}, DEFAULT_MAX_CHANNEL_COUNT);
+      new AudioCapabilities(ImmutableList.of(AudioProfile.DEFAULT_AUDIO_PROFILE));
 
   /** Encodings supported when the device specifies external surround sound. */
   @SuppressLint("InlinedApi") // Compile-time access to integer constants defined in API 21.
@@ -68,7 +74,8 @@ public final class AudioCapabilities {
    * All surround sound encodings that a device may be capable of playing mapped to a maximum
    * channel count.
    */
-  private static final ImmutableMap<Integer, Integer> ALL_SURROUND_ENCODINGS_AND_MAX_CHANNELS =
+  @VisibleForTesting /* package */
+  static final ImmutableMap<Integer, Integer> ALL_SURROUND_ENCODINGS_AND_MAX_CHANNELS =
       new ImmutableMap.Builder<Integer, Integer>()
           .put(C.ENCODING_AC3, 6)
           .put(C.ENCODING_AC4, 6)
@@ -134,6 +141,14 @@ public final class AudioCapabilities {
             : Util.SDK_INT >= 33
                 ? Api33.getDefaultRoutedDeviceForAttributes(audioManager, audioAttributes)
                 : null;
+
+    if (Util.SDK_INT >= 33 && (Util.isTv(context) || Util.isAutomotive(context))) {
+      // TV or automotive devices generally shouldn't support audio offload for surround encodings,
+      // so the encodings we get from AudioManager.getDirectProfilesForAttributes should include
+      // the PCM encodings and surround encodings for passthrough mode.
+      return Api33.getCapabilitiesInternalForDirectPlayback(audioManager, audioAttributes);
+    }
+
     // If a connection to Bluetooth device is detected, we only return the minimum capabilities that
     // is supported by all the devices.
     if (Util.SDK_INT >= 23 && Api23.isBluetoothConnected(audioManager, currentDevice)) {
@@ -153,7 +168,7 @@ public final class AudioCapabilities {
     if (Util.SDK_INT >= 29 && (Util.isTv(context) || Util.isAutomotive(context))) {
       supportedEncodings.addAll(Api29.getDirectPlaybackSupportedEncodings(audioAttributes));
       return new AudioCapabilities(
-          Ints.toArray(supportedEncodings.build()), DEFAULT_MAX_CHANNEL_COUNT);
+          getAudioProfiles(Ints.toArray(supportedEncodings.build()), DEFAULT_MAX_CHANNEL_COUNT));
     }
 
     if (intent != null && intent.getIntExtra(AudioManager.EXTRA_AUDIO_PLUG_STATE, 0) == 1) {
@@ -162,13 +177,17 @@ public final class AudioCapabilities {
         supportedEncodings.addAll(Ints.asList(encodingsFromExtra));
       }
       return new AudioCapabilities(
-          Ints.toArray(supportedEncodings.build()),
-          intent.getIntExtra(
-              AudioManager.EXTRA_MAX_CHANNEL_COUNT, /* defaultValue= */ DEFAULT_MAX_CHANNEL_COUNT));
+          getAudioProfiles(
+              Ints.toArray(supportedEncodings.build()),
+              intent.getIntExtra(
+                  AudioManager.EXTRA_MAX_CHANNEL_COUNT,
+                  /* defaultValue= */ DEFAULT_MAX_CHANNEL_COUNT)));
     }
 
     return new AudioCapabilities(
-        Ints.toArray(supportedEncodings.build()), /* maxChannelCount= */ DEFAULT_MAX_CHANNEL_COUNT);
+        getAudioProfiles(
+            Ints.toArray(supportedEncodings.build()),
+            /* maxChannelCount= */ DEFAULT_MAX_CHANNEL_COUNT));
   }
 
   /**
@@ -182,28 +201,26 @@ public final class AudioCapabilities {
         : null;
   }
 
-  private final int[] supportedEncodings;
+  private final SparseArray<AudioProfile> encodingToAudioProfile;
   private final int maxChannelCount;
 
   /**
-   * Constructs new audio capabilities based on a set of supported encodings and a maximum channel
-   * count.
-   *
-   * <p>Applications should generally call {@link #getCapabilities(Context, AudioAttributes,
-   * AudioDeviceInfo)} to obtain an instance based on the capabilities advertised by the platform,
-   * rather than calling this constructor.
-   *
-   * @param supportedEncodings Supported audio encodings from {@link android.media.AudioFormat}'s
-   *     {@code ENCODING_*} constants. Passing {@code null} indicates that no encodings are
-   *     supported.
-   * @param maxChannelCount The maximum number of audio channels that can be played simultaneously.
+   * @deprecated Use {@link #getCapabilities(Context, AudioAttributes, AudioDeviceInfo)} instead.
    */
+  @Deprecated
   public AudioCapabilities(@Nullable int[] supportedEncodings, int maxChannelCount) {
-    if (supportedEncodings != null) {
-      this.supportedEncodings = Arrays.copyOf(supportedEncodings, supportedEncodings.length);
-      Arrays.sort(this.supportedEncodings);
-    } else {
-      this.supportedEncodings = new int[0];
+    this(getAudioProfiles(supportedEncodings, maxChannelCount));
+  }
+
+  private AudioCapabilities(List<AudioProfile> audioProfiles) {
+    encodingToAudioProfile = new SparseArray<>();
+    for (int i = 0; i < audioProfiles.size(); i++) {
+      AudioProfile audioProfile = audioProfiles.get(i);
+      encodingToAudioProfile.put(audioProfile.encoding, audioProfile);
+    }
+    int maxChannelCount = 0;
+    for (int i = 0; i < encodingToAudioProfile.size(); i++) {
+      maxChannelCount = max(maxChannelCount, encodingToAudioProfile.valueAt(i).maxChannelCount);
     }
     this.maxChannelCount = maxChannelCount;
   }
@@ -215,7 +232,7 @@ public final class AudioCapabilities {
    * @return Whether this device supports playback the specified audio {@code encoding}.
    */
   public boolean supportsEncoding(@C.Encoding int encoding) {
-    return Arrays.binarySearch(supportedEncodings, encoding) >= 0;
+    return Util.contains(encodingToAudioProfile, encoding);
   }
 
   /** Returns the maximum number of channels the device can play at the same time. */
@@ -279,6 +296,8 @@ public final class AudioCapabilities {
     if (!supportsEncoding(encoding)) {
       return null;
     }
+
+    AudioProfile audioProfile = checkNotNull(encodingToAudioProfile.get(encoding));
     int channelCount;
     if (format.channelCount == Format.NO_VALUE || encoding == C.ENCODING_E_AC3_JOC) {
       // In HLS chunkless preparation, the format channel count and sample rate may be unset. See
@@ -287,16 +306,16 @@ public final class AudioCapabilities {
       int sampleRate =
           format.sampleRate != Format.NO_VALUE ? format.sampleRate : DEFAULT_SAMPLE_RATE_HZ;
       channelCount =
-          getMaxSupportedChannelCountForPassthrough(encoding, sampleRate, audioAttributes);
+          audioProfile.getMaxSupportedChannelCountForPassthrough(sampleRate, audioAttributes);
     } else {
       channelCount = format.channelCount;
-      // Some DTS:X TVs reports ACTION_HDMI_AUDIO_PLUG.EXTRA_MAX_CHANNEL_COUNT as 8
-      // instead of 10. See https://github.com/androidx/media/issues/396
-      if (format.sampleMimeType.equals(MimeTypes.AUDIO_DTS_X)) {
+      if (format.sampleMimeType.equals(MimeTypes.AUDIO_DTS_X) && Util.SDK_INT < 33) {
+        // Some DTS:X TVs reports ACTION_HDMI_AUDIO_PLUG.EXTRA_MAX_CHANNEL_COUNT as 8
+        // instead of 10. See https://github.com/androidx/media/issues/396
         if (channelCount > 10) {
           return null;
         }
-      } else if (channelCount > maxChannelCount) {
+      } else if (!audioProfile.supportsChannelCount(channelCount)) {
         return null;
       }
     }
@@ -316,42 +335,27 @@ public final class AudioCapabilities {
       return false;
     }
     AudioCapabilities audioCapabilities = (AudioCapabilities) other;
-    return Arrays.equals(supportedEncodings, audioCapabilities.supportedEncodings)
+    return Util.contentEquals(encodingToAudioProfile, audioCapabilities.encodingToAudioProfile)
         && maxChannelCount == audioCapabilities.maxChannelCount;
   }
 
   @Override
   public int hashCode() {
-    return maxChannelCount + 31 * Arrays.hashCode(supportedEncodings);
+    return maxChannelCount + 31 * Util.contentHashCode(encodingToAudioProfile);
   }
 
   @Override
   public String toString() {
     return "AudioCapabilities[maxChannelCount="
         + maxChannelCount
-        + ", supportedEncodings="
-        + Arrays.toString(supportedEncodings)
+        + ", audioProfiles="
+        + encodingToAudioProfile
         + "]";
   }
 
   private static boolean deviceMaySetExternalSurroundSoundGlobalSetting() {
     return Util.SDK_INT >= 17
         && ("Amazon".equals(Util.MANUFACTURER) || "Xiaomi".equals(Util.MANUFACTURER));
-  }
-
-  /**
-   * Returns the maximum number of channels supported for passthrough playback of audio in the given
-   * encoding, or {@code 0} if the format is unsupported.
-   */
-  private static int getMaxSupportedChannelCountForPassthrough(
-      @C.Encoding int encoding, int sampleRate, AudioAttributes audioAttributes) {
-    // From API 29 we can get the channel count from the platform, but before then there is no way
-    // to query the platform so we assume the channel count matches the maximum channel count per
-    // audio encoding spec.
-    if (Util.SDK_INT >= 29) {
-      return Api29.getMaxSupportedChannelCountForPassthrough(encoding, sampleRate, audioAttributes);
-    }
-    return checkNotNull(ALL_SURROUND_ENCODINGS_AND_MAX_CHANNELS.getOrDefault(encoding, 0));
   }
 
   private static int getChannelConfigForPassthrough(int channelCount) {
@@ -374,6 +378,152 @@ public final class AudioCapabilities {
     }
 
     return Util.getAudioTrackChannelConfig(channelCount);
+  }
+
+  // Suppression needed for IntDef casting.
+  @SuppressLint("WrongConstant")
+  @RequiresApi(33)
+  private static ImmutableList<AudioProfile> getAudioProfiles(
+      List<android.media.AudioProfile> audioProfiles) {
+    Map<Integer, Set<Integer>> formatToChannelMasks = new HashMap<>();
+    // Enforce the support of stereo 16bit-PCM.
+    formatToChannelMasks.put(C.ENCODING_PCM_16BIT, new HashSet<>(Ints.asList(CHANNEL_OUT_STEREO)));
+    for (int i = 0; i < audioProfiles.size(); i++) {
+      android.media.AudioProfile audioProfile = audioProfiles.get(i);
+      if ((audioProfile.getEncapsulationType()
+          == android.media.AudioProfile.AUDIO_ENCAPSULATION_TYPE_IEC61937)) {
+        // Skip the IEC61937 encapsulation because we don't support it yet.
+        continue;
+      }
+      int encoding = audioProfile.getFormat();
+      if (!Util.isEncodingLinearPcm(encoding)
+          && !ALL_SURROUND_ENCODINGS_AND_MAX_CHANNELS.containsKey(encoding)) {
+        continue;
+      }
+      if (formatToChannelMasks.containsKey(encoding)) {
+        checkNotNull(formatToChannelMasks.get(encoding))
+            .addAll(Ints.asList(audioProfile.getChannelMasks()));
+      } else {
+        formatToChannelMasks.put(
+            encoding, new HashSet<>(Ints.asList(audioProfile.getChannelMasks())));
+      }
+    }
+
+    ImmutableList.Builder<AudioProfile> localAudioProfiles = ImmutableList.builder();
+    for (Map.Entry<Integer, Set<Integer>> formatAndChannelMasks : formatToChannelMasks.entrySet()) {
+      localAudioProfiles.add(
+          new AudioProfile(formatAndChannelMasks.getKey(), formatAndChannelMasks.getValue()));
+    }
+    return localAudioProfiles.build();
+  }
+
+  private static ImmutableList<AudioProfile> getAudioProfiles(
+      @Nullable int[] supportedEncodings, int maxChannelCount) {
+    ImmutableList.Builder<AudioProfile> audioProfiles = ImmutableList.builder();
+    if (supportedEncodings == null) {
+      supportedEncodings = new int[0];
+    }
+    for (int i = 0; i < supportedEncodings.length; i++) {
+      int encoding = supportedEncodings[i];
+      audioProfiles.add(new AudioProfile(encoding, maxChannelCount));
+    }
+    return audioProfiles.build();
+  }
+
+  private static final class AudioProfile {
+
+    public static final AudioProfile DEFAULT_AUDIO_PROFILE =
+        (Util.SDK_INT >= 33)
+            ? new AudioProfile(
+                C.ENCODING_PCM_16BIT,
+                getAllChannelMasksForMaxChannelCount(DEFAULT_MAX_CHANNEL_COUNT))
+            : new AudioProfile(C.ENCODING_PCM_16BIT, DEFAULT_MAX_CHANNEL_COUNT);
+
+    public final @C.Encoding int encoding;
+    public final int maxChannelCount;
+    @Nullable private final ImmutableSet<Integer> channelMasks;
+
+    @RequiresApi(33)
+    public AudioProfile(@C.Encoding int encoding, Set<Integer> channelMasks) {
+      this.encoding = encoding;
+      this.channelMasks = ImmutableSet.copyOf(channelMasks);
+      int maxChannelCount = 0;
+      for (int channelMask : this.channelMasks) {
+        maxChannelCount = max(maxChannelCount, Integer.bitCount(channelMask));
+      }
+      this.maxChannelCount = maxChannelCount;
+    }
+
+    public AudioProfile(@C.Encoding int encoding, int maxChannelCount) {
+      this.encoding = encoding;
+      this.maxChannelCount = maxChannelCount;
+      this.channelMasks = null;
+    }
+
+    public boolean supportsChannelCount(int channelCount) {
+      if (channelMasks == null) {
+        return channelCount <= maxChannelCount;
+      }
+
+      int channelMask = Util.getAudioTrackChannelConfig(channelCount);
+      if (channelMask == AudioFormat.CHANNEL_INVALID) {
+        return false;
+      }
+      return channelMasks.contains(channelMask);
+    }
+
+    public int getMaxSupportedChannelCountForPassthrough(
+        int sampleRate, AudioAttributes audioAttributes) {
+      if (channelMasks != null) {
+        // We built the AudioProfile on API 33.
+        return maxChannelCount;
+      } else if (Util.SDK_INT >= 29) {
+        return Api29.getMaxSupportedChannelCountForPassthrough(
+            encoding, sampleRate, audioAttributes);
+      }
+      return checkNotNull(ALL_SURROUND_ENCODINGS_AND_MAX_CHANNELS.getOrDefault(encoding, 0));
+    }
+
+    private static ImmutableSet<Integer> getAllChannelMasksForMaxChannelCount(int maxChannelCount) {
+      ImmutableSet.Builder<Integer> allChannelMasks = new ImmutableSet.Builder<>();
+      for (int i = 1; i <= maxChannelCount; i++) {
+        allChannelMasks.add(Util.getAudioTrackChannelConfig(i));
+      }
+      return allChannelMasks.build();
+    }
+
+    @Override
+    public boolean equals(@Nullable Object other) {
+      if (this == other) {
+        return true;
+      }
+      if (!(other instanceof AudioProfile)) {
+        return false;
+      }
+      AudioProfile audioProfile = (AudioProfile) other;
+      return encoding == audioProfile.encoding
+          && maxChannelCount == audioProfile.maxChannelCount
+          && Util.areEqual(channelMasks, audioProfile.channelMasks);
+    }
+
+    @Override
+    public int hashCode() {
+      int result = encoding;
+      result = 31 * result + maxChannelCount;
+      result = 31 * result + (channelMasks == null ? 0 : channelMasks.hashCode());
+      return result;
+    }
+
+    @Override
+    public String toString() {
+      return "AudioProfile[format="
+          + encoding
+          + ", maxChannelCount="
+          + maxChannelCount
+          + ", channelMasks="
+          + channelMasks
+          + "]";
+    }
   }
 
   @RequiresApi(23)
@@ -438,7 +588,7 @@ public final class AudioCapabilities {
         }
         if (AudioTrack.isDirectPlaybackSupported(
             new AudioFormat.Builder()
-                .setChannelMask(AudioFormat.CHANNEL_OUT_STEREO)
+                .setChannelMask(CHANNEL_OUT_STEREO)
                 .setEncoding(encoding)
                 .setSampleRate(DEFAULT_SAMPLE_RATE_HZ)
                 .build(),
@@ -481,6 +631,17 @@ public final class AudioCapabilities {
 
   @RequiresApi(33)
   private static final class Api33 {
+
+    private Api33() {}
+
+    @DoNotInline
+    public static AudioCapabilities getCapabilitiesInternalForDirectPlayback(
+        AudioManager audioManager, AudioAttributes audioAttributes) {
+      List<android.media.AudioProfile> directAudioProfiles =
+          audioManager.getDirectProfilesForAttributes(
+              audioAttributes.getAudioAttributesV21().audioAttributes);
+      return new AudioCapabilities(getAudioProfiles(directAudioProfiles));
+    }
 
     @Nullable
     @DoNotInline
