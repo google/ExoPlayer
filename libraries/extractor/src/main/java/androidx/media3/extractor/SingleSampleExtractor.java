@@ -40,7 +40,7 @@ public final class SingleSampleExtractor implements Extractor {
 
   private final int fileSignature;
   private final int fileSignatureLength;
-  private final String containerMimeType;
+  private final String sampleMimeType;
 
   /** Parser states. */
   @Documented
@@ -72,13 +72,12 @@ public final class SingleSampleExtractor implements Extractor {
    *     method won't be used.
    * @param fileSignatureLength The length of file signature, or {@link C#LENGTH_UNSET} if the
    *     {@link #sniff} method won't be used.
-   * @param containerMimeType The mime type of the format being extracted.
+   * @param sampleMimeType The mime type of the sample.
    */
-  public SingleSampleExtractor(
-      int fileSignature, int fileSignatureLength, String containerMimeType) {
+  public SingleSampleExtractor(int fileSignature, int fileSignatureLength, String sampleMimeType) {
     this.fileSignature = fileSignature;
     this.fileSignatureLength = fileSignatureLength;
-    this.containerMimeType = containerMimeType;
+    this.sampleMimeType = sampleMimeType;
   }
 
   @Override
@@ -92,7 +91,7 @@ public final class SingleSampleExtractor implements Extractor {
   @Override
   public void init(ExtractorOutput output) {
     extractorOutput = output;
-    outputImageTrackAndSeekMap(containerMimeType);
+    outputImageTrackAndSeekMap(sampleMimeType);
   }
 
   @Override
@@ -137,9 +136,9 @@ public final class SingleSampleExtractor implements Extractor {
   }
 
   @RequiresNonNull("this.extractorOutput")
-  private void outputImageTrackAndSeekMap(String containerMimeType) {
+  private void outputImageTrackAndSeekMap(String sampleMimeType) {
     trackOutput = extractorOutput.track(IMAGE_TRACK_ID, C.TRACK_TYPE_IMAGE);
-    trackOutput.format(new Format.Builder().setContainerMimeType(containerMimeType).build());
+    trackOutput.format(new Format.Builder().setSampleMimeType(sampleMimeType).build());
     extractorOutput.endTracks();
     extractorOutput.seekMap(new SingleSampleSeekMap(/* durationUs= */ C.TIME_UNSET));
     state = STATE_READING;

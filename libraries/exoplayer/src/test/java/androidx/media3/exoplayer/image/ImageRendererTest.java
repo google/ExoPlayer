@@ -56,19 +56,19 @@ public class ImageRendererTest {
       "Renderer has not read stream to end after " + DEFAULT_LOOP_TIMEOUT_MS + " milliseconds.";
   private static final Format PNG_FORMAT =
       new Format.Builder()
-          .setContainerMimeType(MimeTypes.IMAGE_PNG)
+          .setSampleMimeType(MimeTypes.IMAGE_PNG)
           .setTileCountVertical(1)
           .setTileCountHorizontal(1)
           .build();
   private static final Format JPEG_FORMAT =
       new Format.Builder()
-          .setContainerMimeType(MimeTypes.IMAGE_JPEG)
+          .setSampleMimeType(MimeTypes.IMAGE_JPEG)
           .setTileCountVertical(1)
           .setTileCountHorizontal(1)
           .build();
   private static final Format JPEG_FORMAT_WITH_FOUR_TILES =
       new Format.Builder()
-          .setContainerMimeType(MimeTypes.IMAGE_JPEG)
+          .setSampleMimeType(MimeTypes.IMAGE_JPEG)
           .setTileCountVertical(2)
           .setTileCountHorizontal(2)
           .build();

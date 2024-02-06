@@ -35,7 +35,7 @@ public class BitmapFactoryImageDecoderFactoryTest {
 
   @Test
   public void supportsFormat_validFormat_returnsFormatSupported() throws Exception {
-    Format.Builder format = new Format.Builder().setContainerMimeType(MimeTypes.IMAGE_JPEG);
+    Format.Builder format = new Format.Builder().setSampleMimeType(MimeTypes.IMAGE_JPEG);
 
     assertThat(imageDecoderFactory.supportsFormat(format.build()))
         .isEqualTo(RendererCapabilities.create(C.FORMAT_HANDLED));
@@ -53,7 +53,7 @@ public class BitmapFactoryImageDecoderFactoryTest {
   public void supportsFormat_nonImageMimeType_returnsUnsupportedType() throws Exception {
     Format.Builder format = new Format.Builder();
 
-    format.setContainerMimeType(MimeTypes.VIDEO_AV1);
+    format.setSampleMimeType(MimeTypes.VIDEO_AV1);
 
     assertThat(imageDecoderFactory.supportsFormat(format.build()))
         .isEqualTo(RendererCapabilities.create(C.FORMAT_UNSUPPORTED_TYPE));
@@ -63,7 +63,7 @@ public class BitmapFactoryImageDecoderFactoryTest {
   public void supportsFormat_unsupportedImageMimeType_returnsUnsupportedSubType() throws Exception {
     Format.Builder format = new Format.Builder();
 
-    format.setContainerMimeType("image/custom");
+    format.setSampleMimeType("image/custom");
 
     assertThat(imageDecoderFactory.supportsFormat(format.build()))
         .isEqualTo(RendererCapabilities.create(C.FORMAT_UNSUPPORTED_SUBTYPE));

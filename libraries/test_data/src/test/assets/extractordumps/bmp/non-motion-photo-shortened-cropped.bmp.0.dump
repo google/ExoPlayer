@@ -8,7 +8,7 @@ track 1024:
   total output bytes = 69130
   sample count = 1
   format 0:
-    containerMimeType = image/bmp
+    sampleMimeType = image/bmp
   sample 0:
     time = 0
     flags = 1

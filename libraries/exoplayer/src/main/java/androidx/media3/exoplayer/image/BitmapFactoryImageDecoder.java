@@ -89,10 +89,10 @@ public final class BitmapFactoryImageDecoder
 
     @Override
     public @RendererCapabilities.Capabilities int supportsFormat(Format format) {
-      if (format.containerMimeType == null || !MimeTypes.isImage(format.containerMimeType)) {
+      if (format.sampleMimeType == null || !MimeTypes.isImage(format.sampleMimeType)) {
         return RendererCapabilities.create(C.FORMAT_UNSUPPORTED_TYPE);
       }
-      return isBitmapFactorySupportedMimeType(format.containerMimeType)
+      return isBitmapFactorySupportedMimeType(format.sampleMimeType)
           ? RendererCapabilities.create(C.FORMAT_HANDLED)
           : RendererCapabilities.create(C.FORMAT_UNSUPPORTED_SUBTYPE);
     }
