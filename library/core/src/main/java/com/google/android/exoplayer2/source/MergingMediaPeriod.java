@@ -291,7 +291,17 @@ import java.util.List;
       int periodTrackGroupCount = periodTrackGroups.length;
       for (int j = 0; j < periodTrackGroupCount; j++) {
         TrackGroup childTrackGroup = periodTrackGroups.get(j);
-        TrackGroup mergedTrackGroup = childTrackGroup.copyWithId(i + ":" + childTrackGroup.id);
+        Format[] mergedFormats = new Format[childTrackGroup.length];
+        for (int k = 0; k < childTrackGroup.length; k++) {
+          Format originalFormat = childTrackGroup.getFormat(k);
+          mergedFormats[k] =
+              originalFormat
+                  .buildUpon()
+                  .setId(i + ":" + (originalFormat.id == null ? "" : originalFormat.id))
+                  .build();
+        }
+        TrackGroup mergedTrackGroup =
+            new TrackGroup(/* id= */ i + ":" + childTrackGroup.id, mergedFormats);
         childTrackGroupByMergedTrackGroup.put(mergedTrackGroup, childTrackGroup);
         trackGroupArray[trackGroupIndex++] = mergedTrackGroup;
       }
@@ -332,7 +342,7 @@ import java.util.List;
 
     @Override
     public Format getFormat(int index) {
-      return trackSelection.getFormat(index);
+      return trackGroup.getFormat(trackSelection.getIndexInTrackGroup(index));
     }
 
     @Override
@@ -342,7 +352,7 @@ import java.util.List;
 
     @Override
     public int indexOf(Format format) {
-      return trackSelection.indexOf(format);
+      return trackSelection.indexOf(trackGroup.indexOf(format));
     }
 
     @Override
@@ -362,7 +372,7 @@ import java.util.List;
 
     @Override
     public Format getSelectedFormat() {
-      return trackSelection.getSelectedFormat();
+      return trackGroup.getFormat(trackSelection.getSelectedIndexInTrackGroup());
     }
 
     @Override
