@@ -17,6 +17,8 @@
 *   Muxers:
 *   IMA extension:
 *   Session:
+    *   Fix issue where `MediaItem.RequestMetadata` with just non-null extras is
+        not sent transmitted between media controllers and sessions.
 *   UI:
 *   Downloads:
 *   OkHttp Extension:

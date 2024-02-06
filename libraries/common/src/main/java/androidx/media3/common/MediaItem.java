@@ -2267,8 +2267,8 @@ public final class MediaItem implements Bundleable {
     /**
      * Optional extras {@link Bundle}.
      *
-     * <p>Given the complexities of checking the equality of two {@link Bundle}s, this is not
-     * considered in the {@link #equals(Object)} or {@link #hashCode()}.
+     * <p>Given the complexities of checking the equality of two {@link Bundle}s, the contents of
+     * these extras are not considered in the {@link #equals(Object)} or {@link #hashCode()}.
      */
     @Nullable public final Bundle extras;
 
@@ -2292,13 +2292,16 @@ public final class MediaItem implements Bundleable {
         return false;
       }
       RequestMetadata that = (RequestMetadata) o;
-      return Util.areEqual(mediaUri, that.mediaUri) && Util.areEqual(searchQuery, that.searchQuery);
+      return Util.areEqual(mediaUri, that.mediaUri)
+          && Util.areEqual(searchQuery, that.searchQuery)
+          && ((extras == null) == (that.extras == null));
     }
 
     @Override
     public int hashCode() {
       int result = mediaUri == null ? 0 : mediaUri.hashCode();
       result = 31 * result + (searchQuery == null ? 0 : searchQuery.hashCode());
+      result = 31 * result + (extras == null ? 0 : 1);
       return result;
     }
 
