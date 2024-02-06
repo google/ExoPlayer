@@ -20,6 +20,8 @@ import static com.google.android.exoplayer2.testutil.TestUtil.buildTestString;
 import static com.google.android.exoplayer2.testutil.TestUtil.createByteArray;
 import static com.google.android.exoplayer2.util.Util.binarySearchCeil;
 import static com.google.android.exoplayer2.util.Util.binarySearchFloor;
+import static com.google.android.exoplayer2.util.Util.contentEquals;
+import static com.google.android.exoplayer2.util.Util.contentHashCode;
 import static com.google.android.exoplayer2.util.Util.escapeFileName;
 import static com.google.android.exoplayer2.util.Util.getCodecsOfType;
 import static com.google.android.exoplayer2.util.Util.getStringForTime;
@@ -42,6 +44,7 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
+import android.util.SparseArray;
 import android.util.SparseLongArray;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
@@ -1521,6 +1524,77 @@ public class UtilTest {
         Util.getRoleFlagStrings(C.ROLE_FLAG_DESCRIBES_MUSIC_AND_SOUND | C.ROLE_FLAG_EASY_TO_READ);
 
     assertThat(roleFlags).containsExactly("describes-music", "easy-read");
+  }
+
+  @Test
+  public void contentEquals_twoNullSparseArrays_returnsTrue() {
+    assertThat(contentEquals(null, null)).isTrue();
+  }
+
+  @Test
+  public void contentEquals_oneNullSparseArrayAndOneNonNullSparseArray_returnsFalse() {
+    SparseArray<Integer> sparseArray = new SparseArray<>();
+    sparseArray.put(1, 2);
+
+    assertThat(contentEquals(sparseArray, null)).isFalse();
+    assertThat(contentEquals(null, sparseArray)).isFalse();
+  }
+
+  @Test
+  @Config(minSdk = 16) // Specifies the minimum SDK to enforce the test to run with all API levels.
+  public void contentEquals_sparseArraysWithEqualContent_returnsTrue() {
+    SparseArray<Integer> sparseArray1 = new SparseArray<>();
+    sparseArray1.put(1, 2);
+    sparseArray1.put(3, 4);
+    SparseArray<Integer> sparseArray2 = new SparseArray<>();
+    sparseArray2.put(3, 4);
+    sparseArray2.put(1, 2);
+
+    assertThat(contentEquals(sparseArray1, sparseArray2)).isTrue();
+  }
+
+  @Test
+  @Config(minSdk = 16) // Specifies the minimum SDK to enforce the test to run with all API levels.
+  public void contentEquals_sparseArraysWithDifferentContents_returnsFalse() {
+    SparseArray<Integer> sparseArray1 = new SparseArray<>();
+    sparseArray1.put(1, 2);
+    sparseArray1.put(3, 4);
+    SparseArray<Integer> sparseArray2 = new SparseArray<>();
+    sparseArray2.put(3, 4);
+    SparseArray<Integer> sparseArray3 = new SparseArray<>();
+    sparseArray3.put(1, 3);
+    sparseArray3.put(3, 4);
+
+    assertThat(contentEquals(sparseArray1, sparseArray2)).isFalse();
+    assertThat(contentEquals(sparseArray1, sparseArray3)).isFalse();
+  }
+
+  @Test
+  @Config(minSdk = 16) // Specifies the minimum SDK to enforce the test to run with all API levels.
+  public void contentHashCode_sparseArraysWithEqualContent_returnsEqualContentHashCode() {
+    SparseArray<Integer> sparseArray1 = new SparseArray<>();
+    sparseArray1.put(1, 2);
+    sparseArray1.put(3, 4);
+    SparseArray<Integer> sparseArray2 = new SparseArray<>();
+    sparseArray2.put(3, 4);
+    sparseArray2.put(1, 2);
+
+    assertThat(contentHashCode(sparseArray1)).isEqualTo(contentHashCode(sparseArray2));
+  }
+
+  @Test
+  @Config(minSdk = 16) // Specifies the minimum SDK to enforce the test to run with all API levels.
+  public void contentHashCode_sparseArraysWithDifferentContent_returnsDifferentContentHashCode() {
+    // In theory this is not guaranteed though, adding this test to ensure a sensible
+    // contentHashCode implementation.
+    SparseArray<Integer> sparseArray1 = new SparseArray<>();
+    sparseArray1.put(1, 2);
+    sparseArray1.put(3, 4);
+    SparseArray<Integer> sparseArray2 = new SparseArray<>();
+    sparseArray2.put(3, 2);
+    sparseArray2.put(1, 4);
+
+    assertThat(contentHashCode(sparseArray1)).isNotEqualTo(contentHashCode(sparseArray2));
   }
 
   private static void assertEscapeUnescapeFileName(String fileName, String escapedFileName) {

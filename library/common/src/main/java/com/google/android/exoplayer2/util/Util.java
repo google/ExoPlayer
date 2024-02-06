@@ -121,6 +121,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.TimeZone;
 import java.util.UUID;
 import java.util.concurrent.CancellationException;
@@ -500,7 +501,7 @@ public final class Util {
 
   /**
    * Tests two objects for {@link Object#equals(Object)} equality, handling the case where one or
-   * both may be null.
+   * both may be {@code null}.
    *
    * @param o1 The first object.
    * @param o2 The second object.
@@ -508,6 +509,62 @@ public final class Util {
    */
   public static boolean areEqual(@Nullable Object o1, @Nullable Object o2) {
     return o1 == null ? o2 == null : o1.equals(o2);
+  }
+
+  /**
+   * Tests two {@link SparseArray} instances for content equality, handling the case where one or
+   * both may be {@code null}.
+   *
+   * @see SparseArray#contentEquals(SparseArray)
+   * @param sparseArray1 The first {@link SparseArray} instance.
+   * @param sparseArray2 The second {@link SparseArray} instance.
+   * @return True if the two {@link SparseArray} instances are equal in contents.
+   */
+  public static <T> boolean contentEquals(
+      @Nullable SparseArray<T> sparseArray1, @Nullable SparseArray<T> sparseArray2) {
+    if (sparseArray1 == null) {
+      return sparseArray2 == null;
+    } else if (sparseArray2 == null) {
+      return false;
+    }
+
+    if (Util.SDK_INT >= 31) {
+      return sparseArray1.contentEquals(sparseArray2);
+    }
+
+    int size = sparseArray1.size();
+    if (size != sparseArray2.size()) {
+      return false;
+    }
+
+    for (int index = 0; index < size; index++) {
+      int key = sparseArray1.keyAt(index);
+      if (!Objects.equals(sparseArray1.valueAt(index), sparseArray2.get(key))) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  /**
+   * Returns a hash code value for the contents of this {@link SparseArray}, combining the {@link
+   * Objects#hashCode(Object)} result of all its keys and values.
+   *
+   * @see SparseArray#contentHashCode()
+   * @param sparseArray The {@link SparseArray} instance.
+   * @return The hash code.
+   */
+  public static <T> int contentHashCode(SparseArray<T> sparseArray) {
+    if (Util.SDK_INT >= 31) {
+      return sparseArray.contentHashCode();
+    }
+    int hash = 17;
+    for (int index = 0; index < sparseArray.size(); index++) {
+      hash = 31 * hash + sparseArray.keyAt(index);
+      hash = 31 * hash + Objects.hashCode(sparseArray.valueAt(index));
+    }
+    return hash;
   }
 
   /**
