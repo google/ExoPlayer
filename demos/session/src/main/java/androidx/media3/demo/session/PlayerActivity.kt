@@ -54,6 +54,7 @@ class PlayerActivity : AppCompatActivity() {
   private val mediaItemList: MutableList<MediaItem> = mutableListOf()
   private var lastMediaItemId: String? = null
 
+  @OptIn(UnstableApi::class) // PlayerView.hideController
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.activity_player)
@@ -67,7 +68,6 @@ class PlayerActivity : AppCompatActivity() {
         val controller = this.controller ?: return@run
         if (controller.currentMediaItemIndex == position) {
           controller.playWhenReady = !controller.playWhenReady
-          @OptIn(UnstableApi::class) // PlayerView.hideController
           if (controller.playWhenReady) {
             playerView.hideController()
           }
@@ -94,7 +94,7 @@ class PlayerActivity : AppCompatActivity() {
     controllerFuture =
       MediaController.Builder(
           this,
-          SessionToken(this, ComponentName(this, PlaybackService::class.java))
+          SessionToken(this, ComponentName(this, PlaybackService::class.java)),
         )
         .buildAsync()
     updateMediaMetadataUI()
@@ -163,7 +163,7 @@ class PlayerActivity : AppCompatActivity() {
   private inner class MediaItemListAdapter(
     context: Context,
     viewID: Int,
-    mediaItemList: List<MediaItem>
+    mediaItemList: List<MediaItem>,
   ) : ArrayAdapter<MediaItem>(context, viewID, mediaItemList) {
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
       val mediaItem = getItem(position)!!
