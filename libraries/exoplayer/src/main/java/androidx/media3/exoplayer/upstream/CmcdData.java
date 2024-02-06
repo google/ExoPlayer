@@ -89,8 +89,12 @@ public final class CmcdData {
     /** Represents the object type for muxed audio and video content in a media container. */
     public static final String OBJECT_TYPE_MUXED_AUDIO_AND_VIDEO = "av";
 
-    private static final Pattern CUSTOM_KEY_NAME_PATTERN =
-        Pattern.compile("[a-zA-Z0-9]+(-[a-zA-Z0-9]+)+");
+    /**
+     * Custom key names MUST carry a hyphenated prefix to ensure that there will not be a namespace
+     * collision with future revisions to this specification. Clients SHOULD use a reverse-DNS
+     * syntax when defining their own prefix.
+     */
+    private static final Pattern CUSTOM_KEY_NAME_PATTERN = Pattern.compile(".*-.*");
 
     private final CmcdConfiguration cmcdConfiguration;
     private final ExoTrackSelection trackSelection;

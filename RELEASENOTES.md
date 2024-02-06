@@ -7,6 +7,9 @@
     *   Add source prefix to all `Format.id` fields generated from
         `MergingMediaSource`. This helps to identify which source produced a
         `Format` ([#883](https://github.com/androidx/media/issues/883)).
+    *   Fix the regex used for validating custom Common Media Client Data (CMCD)
+        key names by modifying it to only check for hyphen
+        ([#1028](https://github.com/androidx/media/issues/1028)).
 *   Transformer:
 *   Track Selection:
 *   Extractors:
