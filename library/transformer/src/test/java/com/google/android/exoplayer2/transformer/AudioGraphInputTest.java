@@ -108,6 +108,42 @@ public class AudioGraphInputTest {
   }
 
   @Test
+  public void isEnded_whenInitialized_returnsFalse() throws Exception {
+    AudioGraphInput audioGraphInput =
+        new AudioGraphInput(
+            /* requestedOutputAudioFormat= */ AudioFormat.NOT_SET,
+            /* editedMediaItem= */ FAKE_ITEM,
+            /* inputFormat= */ getPcmFormat(MONO_44100));
+
+    assertThat(audioGraphInput.isEnded()).isFalse();
+  }
+
+  @Test
+  public void isEnded_withEndOfStreamQueued_returnsTrue() throws Exception {
+    AudioGraphInput audioGraphInput =
+        new AudioGraphInput(
+            /* requestedOutputAudioFormat= */ AudioFormat.NOT_SET,
+            /* editedMediaItem= */ FAKE_ITEM,
+            /* inputFormat= */ getPcmFormat(MONO_44100));
+
+    audioGraphInput.onMediaItemChanged(
+        /* editedMediaItem= */ FAKE_ITEM,
+        /* durationUs= */ C.TIME_UNSET,
+        /* decodedFormat= */ getPcmFormat(MONO_44100),
+        /* isLast= */ false);
+
+    checkState(!audioGraphInput.getOutput().hasRemaining());
+    assertThat(audioGraphInput.isEnded()).isFalse();
+
+    // Queue EOS.
+    audioGraphInput.getInputBuffer().setFlags(C.BUFFER_FLAG_END_OF_STREAM);
+    checkState(audioGraphInput.queueInputBuffer());
+
+    assertThat(audioGraphInput.getOutput().hasRemaining()).isFalse();
+    assertThat(audioGraphInput.isEnded()).isTrue();
+  }
+
+  @Test
   public void getOutput_withoutMediaItemChange_returnsEmptyBuffer() throws Exception {
     AudioGraphInput audioGraphInput =
         new AudioGraphInput(
