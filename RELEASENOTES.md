@@ -4,6 +4,9 @@
 
 *   Common Library:
 *   ExoPlayer:
+    *   Add source prefix to all `Format.id` fields generated from
+        `MergingMediaSource`. This helps to identify which source produced a
+        `Format` ([#883](https://github.com/androidx/media/issues/883)).
 *   Transformer:
 *   Track Selection:
 *   Extractors:
