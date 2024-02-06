@@ -15,6 +15,8 @@
  */
 package androidx.media3.exoplayer.source;
 
+import static androidx.media3.common.util.Assertions.checkArgument;
+import static androidx.media3.common.util.Assertions.checkState;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.media3.common.C;
@@ -29,7 +31,8 @@ public final class CompositeSequenceableLoaderTest {
 
   /**
    * Tests that {@link CompositeSequenceableLoader#getBufferedPositionUs()} returns minimum buffered
-   * position among all sub-loaders.
+   * position among all sub-loaders, and is consistent with {@link
+   * CompositeSequenceableLoader#isLoading()}.
    */
   @Test
   public void getBufferedPositionUsReturnsMinimumLoaderBufferedPosition() {
@@ -40,11 +43,13 @@ public final class CompositeSequenceableLoaderTest {
     CompositeSequenceableLoader compositeSequenceableLoader =
         new CompositeSequenceableLoader(new SequenceableLoader[] {loader1, loader2});
     assertThat(compositeSequenceableLoader.getBufferedPositionUs()).isEqualTo(1000);
+    assertThat(compositeSequenceableLoader.isLoading()).isTrue();
   }
 
   /**
    * Tests that {@link CompositeSequenceableLoader#getBufferedPositionUs()} returns minimum buffered
-   * position that is not {@link C#TIME_END_OF_SOURCE} among all sub-loaders.
+   * position that is not {@link C#TIME_END_OF_SOURCE} among all sub-loaders, and is consistent with
+   * {@link CompositeSequenceableLoader#isLoading()}.
    */
   @Test
   public void getBufferedPositionUsReturnsMinimumNonEndOfSourceLoaderBufferedPosition() {
@@ -59,11 +64,13 @@ public final class CompositeSequenceableLoaderTest {
     CompositeSequenceableLoader compositeSequenceableLoader =
         new CompositeSequenceableLoader(new SequenceableLoader[] {loader1, loader2, loader3});
     assertThat(compositeSequenceableLoader.getBufferedPositionUs()).isEqualTo(1000);
+    assertThat(compositeSequenceableLoader.isLoading()).isTrue();
   }
 
   /**
    * Tests that {@link CompositeSequenceableLoader#getBufferedPositionUs()} returns {@link
-   * C#TIME_END_OF_SOURCE} when all sub-loaders have buffered till end-of-source.
+   * C#TIME_END_OF_SOURCE} when all sub-loaders have buffered till end-of-source, and is consistent
+   * with {@link CompositeSequenceableLoader#isLoading()}.
    */
   @Test
   public void getBufferedPositionUsReturnsEndOfSourceWhenAllLoaderBufferedTillEndOfSource() {
@@ -78,11 +85,13 @@ public final class CompositeSequenceableLoaderTest {
     CompositeSequenceableLoader compositeSequenceableLoader =
         new CompositeSequenceableLoader(new SequenceableLoader[] {loader1, loader2});
     assertThat(compositeSequenceableLoader.getBufferedPositionUs()).isEqualTo(C.TIME_END_OF_SOURCE);
+    assertThat(compositeSequenceableLoader.isLoading()).isFalse();
   }
 
   /**
    * Tests that {@link CompositeSequenceableLoader#getNextLoadPositionUs()} returns minimum next
-   * load position among all sub-loaders.
+   * load position among all sub-loaders, and is consistent with {@link
+   * CompositeSequenceableLoader#isLoading()}.
    */
   @Test
   public void getNextLoadPositionUsReturnMinimumLoaderNextLoadPositionUs() {
@@ -93,11 +102,13 @@ public final class CompositeSequenceableLoaderTest {
     CompositeSequenceableLoader compositeSequenceableLoader =
         new CompositeSequenceableLoader(new SequenceableLoader[] {loader1, loader2});
     assertThat(compositeSequenceableLoader.getNextLoadPositionUs()).isEqualTo(2000);
+    assertThat(compositeSequenceableLoader.isLoading()).isTrue();
   }
 
   /**
    * Tests that {@link CompositeSequenceableLoader#getNextLoadPositionUs()} returns minimum next
-   * load position that is not {@link C#TIME_END_OF_SOURCE} among all sub-loaders.
+   * load position that is not {@link C#TIME_END_OF_SOURCE} among all sub-loaders, and is consistent
+   * with {@link CompositeSequenceableLoader#isLoading()}.
    */
   @Test
   public void getNextLoadPositionUsReturnMinimumNonEndOfSourceLoaderNextLoadPositionUs() {
@@ -111,11 +122,13 @@ public final class CompositeSequenceableLoaderTest {
     CompositeSequenceableLoader compositeSequenceableLoader =
         new CompositeSequenceableLoader(new SequenceableLoader[] {loader1, loader2, loader3});
     assertThat(compositeSequenceableLoader.getNextLoadPositionUs()).isEqualTo(2000);
+    assertThat(compositeSequenceableLoader.isLoading()).isTrue();
   }
 
   /**
    * Tests that {@link CompositeSequenceableLoader#getNextLoadPositionUs()} returns {@link
-   * C#TIME_END_OF_SOURCE} when all sub-loaders have next load position at end-of-source.
+   * C#TIME_END_OF_SOURCE} when all sub-loaders have next load position at end-of-source, and is
+   * consistent with {@link CompositeSequenceableLoader#isLoading()}.
    */
   @Test
   public void getNextLoadPositionUsReturnsEndOfSourceWhenAllLoaderLoadingLastChunk() {
@@ -128,6 +141,7 @@ public final class CompositeSequenceableLoaderTest {
     CompositeSequenceableLoader compositeSequenceableLoader =
         new CompositeSequenceableLoader(new SequenceableLoader[] {loader1, loader2});
     assertThat(compositeSequenceableLoader.getNextLoadPositionUs()).isEqualTo(C.TIME_END_OF_SOURCE);
+    assertThat(compositeSequenceableLoader.isLoading()).isFalse();
   }
 
   /**
@@ -246,6 +260,9 @@ public final class CompositeSequenceableLoaderTest {
     private int nextChunkDurationUs;
 
     private FakeSequenceableLoader(long bufferedPositionUs, long nextLoadPositionUs) {
+      if (bufferedPositionUs == C.TIME_END_OF_SOURCE) {
+        checkArgument(nextLoadPositionUs == C.TIME_END_OF_SOURCE);
+      }
       this.bufferedPositionUs = bufferedPositionUs;
       this.nextLoadPositionUs = nextLoadPositionUs;
     }
@@ -263,17 +280,22 @@ public final class CompositeSequenceableLoaderTest {
     @Override
     public boolean continueLoading(LoadingInfo loadingInfo) {
       numInvocations++;
-      boolean loaded = nextChunkDurationUs != 0;
-      // The current chunk has been loaded, advance to next chunk.
+
       bufferedPositionUs = nextLoadPositionUs;
+      if (nextLoadPositionUs == C.TIME_END_OF_SOURCE) {
+        return false;
+      }
+
+      long oldNextLoadPositionUs = nextLoadPositionUs;
+      // The current chunk has been loaded, advance to next chunk.
       nextLoadPositionUs += nextChunkDurationUs;
       nextChunkDurationUs = 0;
-      return loaded;
+      return oldNextLoadPositionUs != nextLoadPositionUs;
     }
 
     @Override
     public boolean isLoading() {
-      return nextChunkDurationUs != 0;
+      return nextLoadPositionUs != C.TIME_END_OF_SOURCE;
     }
 
     @Override
@@ -282,6 +304,7 @@ public final class CompositeSequenceableLoaderTest {
     }
 
     private void setNextChunkDurationUs(int nextChunkDurationUs) {
+      checkState(nextLoadPositionUs != C.TIME_END_OF_SOURCE);
       this.nextChunkDurationUs = nextChunkDurationUs;
     }
   }
