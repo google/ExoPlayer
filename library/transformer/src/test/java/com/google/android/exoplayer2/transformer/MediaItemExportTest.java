@@ -19,6 +19,8 @@ package com.google.android.exoplayer2.transformer;
 import static com.google.android.exoplayer2.robolectric.RobolectricUtil.runLooperUntil;
 import static com.google.android.exoplayer2.transformer.AssetLoader.SUPPORTED_OUTPUT_TYPE_DECODED;
 import static com.google.android.exoplayer2.transformer.AssetLoader.SUPPORTED_OUTPUT_TYPE_ENCODED;
+import static com.google.android.exoplayer2.transformer.ExportResult.CONVERSION_PROCESS_NA;
+import static com.google.android.exoplayer2.transformer.ExportResult.CONVERSION_PROCESS_TRANSMUXED;
 import static com.google.android.exoplayer2.transformer.ExportResult.OPTIMIZATION_ABANDONED_KEYFRAME_PLACEMENT_OPTIMAL_FOR_TRIM;
 import static com.google.android.exoplayer2.transformer.ExportResult.OPTIMIZATION_FAILED_EXTRACTION_FAILED;
 import static com.google.android.exoplayer2.transformer.TestUtil.ASSET_URI_PREFIX;
@@ -168,15 +170,17 @@ public final class MediaItemExportTest {
             .build();
 
     transformer.start(mediaItem, outputDir.newFile().getPath());
-    ExportResult exportResult = TransformerTestRunner.runLooper(transformer);
+    ExportResult result = TransformerTestRunner.runLooper(transformer);
 
-    assertThat(exportResult.optimizationResult)
+    assertThat(result.optimizationResult)
         .isEqualTo(OPTIMIZATION_ABANDONED_KEYFRAME_PLACEMENT_OPTIMAL_FOR_TRIM);
     // Asserts against file generated when experimentalSetTrimOptimizationEnabled is set to false.
     DumpFileAsserts.assertOutput(
         context,
         muxerFactory.getCreatedMuxer(),
         getDumpFileName(/* originalFileName= */ FILE_AUDIO_VIDEO_INCREASING_TIMESTAMPS_15S));
+    assertThat(result.videoConversionProcess).isEqualTo(CONVERSION_PROCESS_TRANSMUXED);
+    assertThat(result.audioConversionProcess).isEqualTo(CONVERSION_PROCESS_TRANSMUXED);
   }
 
   @Test
@@ -230,9 +234,9 @@ public final class MediaItemExportTest {
             .build();
 
     transformer.start(mediaItem, outputDir.newFile().getPath());
-    ExportResult exportResult = TransformerTestRunner.runLooper(transformer);
+    ExportResult result = TransformerTestRunner.runLooper(transformer);
 
-    assertThat(exportResult.optimizationResult)
+    assertThat(result.optimizationResult)
         .isEqualTo(OPTIMIZATION_ABANDONED_KEYFRAME_PLACEMENT_OPTIMAL_FOR_TRIM);
     DumpFileAsserts.assertOutput(
         context,
@@ -240,6 +244,8 @@ public final class MediaItemExportTest {
         getDumpFileName(
             /* originalFileName= */ FILE_AUDIO_VIDEO_INCREASING_TIMESTAMPS_15S,
             /* modifications...= */ "clipped"));
+    assertThat(result.videoConversionProcess).isEqualTo(CONVERSION_PROCESS_TRANSMUXED);
+    assertThat(result.audioConversionProcess).isEqualTo(CONVERSION_PROCESS_TRANSMUXED);
   }
 
   @Test
@@ -259,13 +265,15 @@ public final class MediaItemExportTest {
             .build();
 
     transformer.start(mediaItem, outputDir.newFile().getPath());
-    ExportResult exportResult = TransformerTestRunner.runLooper(transformer);
+    ExportResult result = TransformerTestRunner.runLooper(transformer);
 
-    assertThat(exportResult.optimizationResult).isEqualTo(OPTIMIZATION_FAILED_EXTRACTION_FAILED);
+    assertThat(result.optimizationResult).isEqualTo(OPTIMIZATION_FAILED_EXTRACTION_FAILED);
     DumpFileAsserts.assertOutput(
         context,
         muxerFactory.getCreatedMuxer(),
         getDumpFileName(/* originalFileName= */ FILE_AUDIO_RAW, /* modifications...= */ "clipped"));
+    assertThat(result.videoConversionProcess).isEqualTo(CONVERSION_PROCESS_NA);
+    assertThat(result.audioConversionProcess).isEqualTo(CONVERSION_PROCESS_TRANSMUXED);
   }
 
   @Test
@@ -1069,11 +1077,13 @@ public final class MediaItemExportTest {
         new EditedMediaItem.Builder(mediaItem).setEffects(effects).build();
 
     transformer.start(editedMediaItem, outputDir.newFile().getPath());
-    TransformerTestRunner.runLooper(transformer);
+    ExportResult result = TransformerTestRunner.runLooper(transformer);
 
     // Video transcoding in unit tests is not supported.
     DumpFileAsserts.assertOutput(
         context, muxerFactory.getCreatedMuxer(), getDumpFileName(FILE_VIDEO_ONLY));
+    assertThat(result.videoConversionProcess).isEqualTo(CONVERSION_PROCESS_TRANSMUXED);
+    assertThat(result.audioConversionProcess).isEqualTo(CONVERSION_PROCESS_NA);
   }
 
   @Test
@@ -1089,7 +1099,7 @@ public final class MediaItemExportTest {
         new EditedMediaItem.Builder(mediaItem).setEffects(effects).build();
 
     transformer.start(editedMediaItem, outputDir.newFile().getPath());
-    TransformerTestRunner.runLooper(transformer);
+    ExportResult result = TransformerTestRunner.runLooper(transformer);
 
     // Video transcoding in unit tests is not supported.
     DumpFileAsserts.assertOutput(
@@ -1097,6 +1107,8 @@ public final class MediaItemExportTest {
         muxerFactory.getCreatedMuxer(),
         getDumpFileName(
             /* originalFileName= */ FILE_AUDIO_VIDEO, /* modifications...= */ "rotated"));
+    assertThat(result.videoConversionProcess).isEqualTo(CONVERSION_PROCESS_TRANSMUXED);
+    assertThat(result.audioConversionProcess).isEqualTo(CONVERSION_PROCESS_TRANSMUXED);
   }
 
   @Test

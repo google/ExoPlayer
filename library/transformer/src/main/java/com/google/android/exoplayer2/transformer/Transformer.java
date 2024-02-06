@@ -1479,6 +1479,7 @@ public final class Transformer {
     if (!doesFormatsMatch(mediaItemInfo, firstEditedMediaItem)) {
       remuxingMuxerWrapper = null;
       transformerInternal = null;
+      exportResultBuilder.reset();
       exportResultBuilder.setOptimizationResult(OPTIMIZATION_FAILED_FORMAT_MISMATCH);
       processFullInput();
       return;
