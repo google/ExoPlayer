@@ -539,10 +539,13 @@ public final class DefaultEncoderFactory implements Codec.EncoderFactory {
     // On these chipsets, setting an operating rate close to Integer.MAX_VALUE will cause the
     // encoder to throw at configuration time. Setting the operating rate to 1000 avoids being close
     // to an integer overflow limit while being higher than a maximum feasible operating rate. See
-    // [internal b/311206113, b/317297946].
+    // [internal b/311206113, b/317297946, b/312299527].
     return Util.SDK_INT >= 31
         && Util.SDK_INT <= 34
-        && (Build.SOC_MODEL.equals("SM8550") || Build.SOC_MODEL.equals("T612"));
+        && (Build.SOC_MODEL.equals("SM8550")
+            || Build.SOC_MODEL.equals("T612")
+            || Build.SOC_MODEL.equals("SM7450")
+            || Build.SOC_MODEL.equals("SM6450"));
   }
 
   /**
