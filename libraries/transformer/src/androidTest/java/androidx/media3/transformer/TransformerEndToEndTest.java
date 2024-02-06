@@ -30,6 +30,10 @@ import static androidx.media3.transformer.AndroidTestUtil.PNG_ASSET_URI_STRING;
 import static androidx.media3.transformer.AndroidTestUtil.createOpenGlObjects;
 import static androidx.media3.transformer.AndroidTestUtil.generateTextureFromBitmap;
 import static androidx.media3.transformer.AndroidTestUtil.recordTestSkipped;
+import static androidx.media3.transformer.ExportResult.CONVERSION_PROCESS_NA;
+import static androidx.media3.transformer.ExportResult.CONVERSION_PROCESS_TRANSCODED;
+import static androidx.media3.transformer.ExportResult.CONVERSION_PROCESS_TRANSMUXED;
+import static androidx.media3.transformer.ExportResult.CONVERSION_PROCESS_TRANSMUXED_AND_TRANSCODED;
 import static androidx.media3.transformer.ExportResult.OPTIMIZATION_ABANDONED_KEYFRAME_PLACEMENT_OPTIMAL_FOR_TRIM;
 import static androidx.media3.transformer.ExportResult.OPTIMIZATION_ABANDONED_TRIM_AND_TRANSCODING_TRANSFORMATION_REQUESTED;
 import static androidx.media3.transformer.ExportResult.OPTIMIZATION_FAILED_FORMAT_MISMATCH;
@@ -530,6 +534,8 @@ public class TransformerEndToEndTest {
     assertThat(result.exportResult.optimizationResult)
         .isEqualTo(OPTIMIZATION_FAILED_FORMAT_MISMATCH);
     assertThat(result.exportResult.durationMs).isAtMost(clippingEndMs - clippingStartMs);
+    assertThat(result.exportResult.videoConversionProcess).isEqualTo(CONVERSION_PROCESS_TRANSCODED);
+    assertThat(result.exportResult.audioConversionProcess).isEqualTo(CONVERSION_PROCESS_TRANSMUXED);
   }
 
   @Test
@@ -617,6 +623,8 @@ public class TransformerEndToEndTest {
     assertThat(result.exportResult.optimizationResult)
         .isEqualTo(OPTIMIZATION_ABANDONED_KEYFRAME_PLACEMENT_OPTIMAL_FOR_TRIM);
     assertThat(result.exportResult.durationMs).isAtMost(clippingEndMs - clippingStartMs);
+    assertThat(result.exportResult.videoConversionProcess).isEqualTo(CONVERSION_PROCESS_TRANSCODED);
+    assertThat(result.exportResult.audioConversionProcess).isEqualTo(CONVERSION_PROCESS_TRANSMUXED);
   }
 
   @Test
@@ -653,6 +661,8 @@ public class TransformerEndToEndTest {
         .isEqualTo(OPTIMIZATION_ABANDONED_KEYFRAME_PLACEMENT_OPTIMAL_FOR_TRIM);
     // The asset is 15 s 537 ms long.
     assertThat(result.exportResult.durationMs).isAtMost(1_017);
+    assertThat(result.exportResult.videoConversionProcess).isEqualTo(CONVERSION_PROCESS_TRANSCODED);
+    assertThat(result.exportResult.audioConversionProcess).isEqualTo(CONVERSION_PROCESS_TRANSMUXED);
   }
 
   @Test
@@ -685,6 +695,9 @@ public class TransformerEndToEndTest {
 
     assertThat(result.exportResult.optimizationResult).isEqualTo(OPTIMIZATION_SUCCEEDED);
     assertThat(result.exportResult.durationMs).isAtMost(2000);
+    assertThat(result.exportResult.videoConversionProcess)
+        .isEqualTo(CONVERSION_PROCESS_TRANSMUXED_AND_TRANSCODED);
+    assertThat(result.exportResult.audioConversionProcess).isEqualTo(CONVERSION_PROCESS_TRANSMUXED);
   }
 
   @Test
@@ -726,6 +739,9 @@ public class TransformerEndToEndTest {
 
     assertThat(result.exportResult.optimizationResult).isEqualTo(OPTIMIZATION_SUCCEEDED);
     assertThat(result.exportResult.durationMs).isAtMost(2000);
+    assertThat(result.exportResult.videoConversionProcess)
+        .isEqualTo(CONVERSION_PROCESS_TRANSMUXED_AND_TRANSCODED);
+    assertThat(result.exportResult.audioConversionProcess).isEqualTo(CONVERSION_PROCESS_NA);
 
     Format format = FileUtil.retrieveTrackFormat(context, result.filePath, C.TRACK_TYPE_VIDEO);
     // The video is trim-optimized, so the rotation is performed in MuxerWrapper.
@@ -768,6 +784,8 @@ public class TransformerEndToEndTest {
 
     assertThat(result.exportResult.optimizationResult)
         .isEqualTo(OPTIMIZATION_ABANDONED_TRIM_AND_TRANSCODING_TRANSFORMATION_REQUESTED);
+    assertThat(result.exportResult.videoConversionProcess).isEqualTo(CONVERSION_PROCESS_TRANSCODED);
+    assertThat(result.exportResult.audioConversionProcess).isEqualTo(CONVERSION_PROCESS_TRANSMUXED);
   }
 
   @Test

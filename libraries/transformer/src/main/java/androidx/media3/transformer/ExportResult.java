@@ -378,6 +378,39 @@ public final class ExportResult {
    */
   public static final int OPTIMIZATION_FAILED_FORMAT_MISMATCH = 6;
 
+  /**
+   * Specifies what conversion process was used to make a track in the output file. One of:
+   *
+   * <ul>
+   *   <li>{@link #CONVERSION_PROCESS_NA}
+   *   <li>{@link #CONVERSION_PROCESS_TRANSCODED}
+   *   <li>{@link #CONVERSION_PROCESS_TRANSMUXED}
+   *   <li>{@link #CONVERSION_PROCESS_TRANSMUXED_AND_TRANSCODED}
+   * </ul>
+   */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
+  @IntDef({
+    CONVERSION_PROCESS_NA,
+    CONVERSION_PROCESS_TRANSCODED,
+    CONVERSION_PROCESS_TRANSMUXED,
+    CONVERSION_PROCESS_TRANSMUXED_AND_TRANSCODED
+  })
+  @interface ConversionProcess {}
+
+  /** The output file doesn't contain this track type. */
+  public static final int CONVERSION_PROCESS_NA = 0;
+
+  /** The track was transcoded. */
+  public static final int CONVERSION_PROCESS_TRANSCODED = 1;
+
+  /** The track was transmuxed. */
+  public static final int CONVERSION_PROCESS_TRANSMUXED = 2;
+
+  /** The track was both transcoded and transmuxed. */
+  public static final int CONVERSION_PROCESS_TRANSMUXED_AND_TRANSCODED = 3;
+
   /** The list of {@linkplain ProcessedInput processed inputs}. */
   public final ImmutableList<ProcessedInput> processedInputs;
 
@@ -436,6 +469,12 @@ public final class ExportResult {
    */
   @Nullable public final ExportException exportException;
 
+  /** Returns the {@link ConversionProcess} taken to create the video track in the output file. */
+  public final @ConversionProcess int videoConversionProcess;
+
+  /** Returns the {@link ConversionProcess} taken to create the audio track in the output file. */
+  public final @ConversionProcess int audioConversionProcess;
+
   private ExportResult(
       ImmutableList<ProcessedInput> processedInputs,
       long durationMs,
@@ -471,6 +510,12 @@ public final class ExportResult {
     this.videoMimeType = videoMimeType;
     this.optimizationResult = optimizationResult;
     this.exportException = exportException;
+    audioConversionProcess =
+        getConversionProcess(
+            audioMimeType, optimizationResult, processedInputs, C.TRACK_TYPE_AUDIO);
+    videoConversionProcess =
+        getConversionProcess(
+            videoMimeType, optimizationResult, processedInputs, C.TRACK_TYPE_VIDEO);
   }
 
   public Builder buildUpon() {
@@ -542,5 +587,42 @@ public final class ExportResult {
     result = 31 * result + optimizationResult;
     result = 31 * result + Objects.hashCode(exportException);
     return result;
+  }
+
+  // Nullness test incorrectly throws monotonic type error when assigning the @Nullable decoderName.
+  @SuppressWarnings("monotonic.type.incompatible")
+  private static @ConversionProcess int getConversionProcess(
+      @Nullable String mimeType,
+      @OptimizationResult int optimizationResult,
+      List<ProcessedInput> processedInputs,
+      @C.TrackType int trackType) {
+    if (mimeType == null) {
+      return CONVERSION_PROCESS_NA;
+    }
+    if (optimizationResult == OPTIMIZATION_SUCCEEDED) { // Trim optimization occurred.
+      return trackType == C.TRACK_TYPE_AUDIO
+          ? CONVERSION_PROCESS_TRANSMUXED
+          : CONVERSION_PROCESS_TRANSMUXED_AND_TRANSCODED;
+    }
+    @ConversionProcess int conversionProcess = CONVERSION_PROCESS_NA;
+    for (ProcessedInput processedInput : processedInputs) {
+      @Nullable
+      String decoderName =
+          trackType == C.TRACK_TYPE_AUDIO
+              ? processedInput.audioDecoderName
+              : processedInput.videoDecoderName;
+      if (decoderName == null) {
+        if (conversionProcess == CONVERSION_PROCESS_TRANSCODED) {
+          return CONVERSION_PROCESS_TRANSMUXED_AND_TRANSCODED;
+        }
+        conversionProcess = CONVERSION_PROCESS_TRANSMUXED;
+      } else {
+        if (conversionProcess == CONVERSION_PROCESS_TRANSMUXED) {
+          return CONVERSION_PROCESS_TRANSMUXED_AND_TRANSCODED;
+        }
+        conversionProcess = CONVERSION_PROCESS_TRANSCODED;
+      }
+    }
+    return conversionProcess;
   }
 }

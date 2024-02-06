@@ -11,6 +11,9 @@
         key names by modifying it to only check for hyphen
         ([#1028](https://github.com/androidx/media/issues/1028)).
 *   Transformer:
+    *   Add `audioConversionProcess` and `videoConversionProcess` to
+        `ExportResult` indicating how the respective track in the output file
+        was made.
 *   Track Selection:
 *   Extractors:
 *   Audio:
