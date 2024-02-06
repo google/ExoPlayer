@@ -208,7 +208,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       if (mp4StartPosition != C.INDEX_UNSET) {
         state = STATE_SNIFFING_MOTION_PHOTO_VIDEO;
       } else {
-        endReadingWithImageTrack();
+        endReading();
       }
     } else if ((marker < 0xFFD0 || marker > 0xFFD9) && marker != 0xFF01) {
       state = STATE_READING_SEGMENT_LENGTH;
@@ -248,7 +248,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         input.peekFully(
             scratch.getData(), /* offset= */ 0, /* length= */ 1, /* allowEndOfInput= */ true);
     if (!peekedData) {
-      endReadingWithImageTrack();
+      endReading();
     } else {
       input.resetPeekPosition();
       if (mp4Extractor == null) {
@@ -263,7 +263,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             new StartOffsetExtractorOutput(mp4StartPosition, checkNotNull(extractorOutput)));
         startReadingMotionPhoto();
       } else {
-        endReadingWithImageTrack();
+        endReading();
       }
     }
   }
@@ -273,21 +273,19 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     state = STATE_READING_MOTION_PHOTO_VIDEO;
   }
 
-  private void endReadingWithImageTrack() {
-    outputImageTrack();
+  private void endReading() {
     checkNotNull(extractorOutput).endTracks();
     extractorOutput.seekMap(new SeekMap.Unseekable(/* durationUs= */ C.TIME_UNSET));
     state = STATE_ENDED;
   }
 
-  private void outputImageTrack(Metadata.Entry... metadataEntries) {
+  private void outputImageTrack(MotionPhotoMetadata motionPhotoMetadata) {
     TrackOutput imageTrackOutput =
         checkNotNull(extractorOutput).track(IMAGE_TRACK_ID, C.TRACK_TYPE_IMAGE);
-    // TODO(b/289989902): Set the rotationDegrees in format so images can be decoded correctly.
     imageTrackOutput.format(
         new Format.Builder()
             .setContainerMimeType(MimeTypes.IMAGE_JPEG)
-            .setMetadata(new Metadata(metadataEntries))
+            .setMetadata(new Metadata(motionPhotoMetadata))
             .build());
   }
 
