@@ -15,14 +15,18 @@
  */
 package com.google.android.exoplayer2.transformer;
 
-import static com.google.android.exoplayer2.transformer.TestUtil.FILE_AUDIO_VIDEO;
-import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.android.exoplayer2.container.Mp4TimestampData.TIMESCALE_UNSET;
+import static com.google.android.exoplayer2.testutil.FileUtil.retrieveTrackFormat;
+import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
 import android.net.Uri;
+import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.container.Mp4LocationData;
 import com.google.android.exoplayer2.container.Mp4TimestampData;
@@ -33,7 +37,9 @@ import com.google.android.exoplayer2.metadata.mp4.MdtaMetadataEntry;
 import com.google.android.exoplayer2.testutil.DumpFileAsserts;
 import com.google.android.exoplayer2.testutil.FakeClock;
 import com.google.android.exoplayer2.testutil.FakeExtractorOutput;
+import com.google.android.exoplayer2.text.DefaultSubtitleParserFactory;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.base.Predicate;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -43,7 +49,8 @@ import org.junit.runner.RunWith;
 /** End-to-end test for {@link Transformer} with {@link InAppMuxer}. */
 @RunWith(AndroidJUnit4.class)
 public class TransformerWithInAppMuxerEndToEndTest {
-  private static final String MP4_FILE = "asset:///media/mp4/sample_no_bframes.mp4";
+  private static final String MP4_FILE_PATH = "asset:///media/mp4/sample_no_bframes.mp4";
+  private static final String MP4_FILE_NAME = "mp4/sample_no_bframes.mp4";
   @Rule public final TemporaryFolder outputDir = new TemporaryFolder();
 
   private final Context context = ApplicationProvider.getApplicationContext();
@@ -55,15 +62,51 @@ public class TransformerWithInAppMuxerEndToEndTest {
   }
 
   @Test
-  public void transmux_withLocationMetadata_outputMatchesExpected() throws Exception {
+  public void transmux_mp4File_outputMatchesExpected() throws Exception {
+    Muxer.Factory inAppMuxerFactory =
+        new InAppMuxer.Factory.Builder()
+            .setMetadataProvider(
+                metadataEntries ->
+                    // Add timestamp to make output file deterministic.
+                    metadataEntries.add(
+                        new Mp4TimestampData(
+                            /* creationTimestampSeconds= */ 2_000_000_000L,
+                            /* modificationTimestampSeconds= */ 2_000_000_000L,
+                            TIMESCALE_UNSET)))
+            .build();
+
+    Transformer transformer =
+        new Transformer.Builder(context)
+            .setClock(new FakeClock(/* isAutoAdvancing= */ true))
+            .setMuxerFactory(inAppMuxerFactory)
+            .build();
+    MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_FILE_PATH));
+
+    transformer.start(mediaItem, outputPath);
+    TransformerTestRunner.runLooper(transformer);
+
+    FakeExtractorOutput fakeExtractorOutput =
+        com.google.android.exoplayer2.testutil.TestUtil.extractAllSamplesFromFilePath(
+            new Mp4Extractor(new DefaultSubtitleParserFactory()), outputPath);
+    DumpFileAsserts.assertOutput(
+        context,
+        fakeExtractorOutput,
+        TestUtil.getDumpFileName(
+            /* originalFileName= */ MP4_FILE_NAME,
+            /* modifications...= */ "transmuxed_with_inappmuxer"));
+  }
+
+  @Test
+  public void transmux_withLocationMetadata_writesSameLocationMetadata() throws Exception {
+    Mp4LocationData expectedLocationData =
+        new Mp4LocationData(/* latitude= */ 45f, /* longitude= */ -90f);
     Muxer.Factory inAppMuxerFactory =
         new InAppMuxer.Factory.Builder()
             .setMetadataProvider(
                 metadataEntries -> {
                   metadataEntries.removeIf(
                       (Metadata.Entry entry) -> entry instanceof Mp4LocationData);
-                  metadataEntries.add(
-                      new Mp4LocationData(/* latitude= */ 45f, /* longitude= */ -90f));
+                  metadataEntries.add(expectedLocationData);
                 })
             .build();
     Transformer transformer =
@@ -71,21 +114,15 @@ public class TransformerWithInAppMuxerEndToEndTest {
             .setClock(new FakeClock(/* isAutoAdvancing= */ true))
             .setMuxerFactory(inAppMuxerFactory)
             .build();
-    MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_FILE));
+    MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_FILE_PATH));
 
     transformer.start(mediaItem, outputPath);
     TransformerTestRunner.runLooper(transformer);
 
-    FakeExtractorOutput fakeExtractorOutput =
-        com.google.android.exoplayer2.testutil.TestUtil.extractAllSamplesFromFilePath(
-            new Mp4Extractor(), checkNotNull(outputPath));
-    // [xyz: latitude=45.0, longitude=-90.0] in track metadata dump.
-    DumpFileAsserts.assertOutput(
-        context,
-        fakeExtractorOutput,
-        TestUtil.getDumpFileName(
-            /* originalFileName= */ FILE_AUDIO_VIDEO,
-            /* modifications...= */ "with_location_metadata"));
+    Mp4LocationData actualLocationData =
+        (Mp4LocationData)
+            retrieveMetadata(context, outputPath, entry -> entry instanceof Mp4LocationData);
+    assertThat(actualLocationData).isEqualTo(expectedLocationData);
   }
 
   @Test
@@ -102,7 +139,7 @@ public class TransformerWithInAppMuxerEndToEndTest {
             .setClock(new FakeClock(/* isAutoAdvancing= */ true))
             .setMuxerFactory(inAppMuxerFactory)
             .build();
-    MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_FILE));
+    MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_FILE_PATH));
 
     transformer.start(mediaItem, outputPath);
     ExportResult exportResult = TransformerTestRunner.runLooper(transformer);
@@ -112,18 +149,91 @@ public class TransformerWithInAppMuxerEndToEndTest {
   }
 
   @Test
-  public void transmux_withCaptureFps_outputMatchesExpected() throws Exception {
+  public void transmux_withCaptureFps_writesSameCaptureFps() throws Exception {
+    float captureFps = 60.0f;
+    MdtaMetadataEntry expectedCaptureFps =
+        new MdtaMetadataEntry(
+            MdtaMetadataEntry.KEY_ANDROID_CAPTURE_FPS,
+            /* value= */ Util.toByteArray(captureFps),
+            /* localeIndicator= */ 0,
+            MdtaMetadataEntry.TYPE_INDICATOR_FLOAT32);
+    Muxer.Factory inAppMuxerFactory =
+        new InAppMuxer.Factory.Builder()
+            .setMetadataProvider(metadataEntries -> metadataEntries.add(expectedCaptureFps))
+            .build();
+    Transformer transformer =
+        new Transformer.Builder(context)
+            .setClock(new FakeClock(/* isAutoAdvancing= */ true))
+            .setMuxerFactory(inAppMuxerFactory)
+            .build();
+    MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_FILE_PATH));
+
+    transformer.start(mediaItem, outputPath);
+    TransformerTestRunner.runLooper(transformer);
+
+    MdtaMetadataEntry actualCaptureFps =
+        (MdtaMetadataEntry)
+            retrieveMetadata(
+                context,
+                outputPath,
+                entry ->
+                    entry instanceof MdtaMetadataEntry
+                        && ((MdtaMetadataEntry) entry).key.equals(expectedCaptureFps.key));
+    assertThat(actualCaptureFps).isEqualTo(expectedCaptureFps);
+  }
+
+  @Test
+  public void transmux_withTimestampData_writesSameTimestampData() throws Exception {
+    // TODO: b/285281716 - Use different value for modification timestamp.
+    Mp4TimestampData expectedTimestampData =
+        new Mp4TimestampData(
+            /* creationTimestampSeconds= */ 2_000_000_000L,
+            /* modificationTimestampSeconds= */ 2_000_000_000L,
+            TIMESCALE_UNSET);
+    Muxer.Factory inAppMuxerFactory =
+        new InAppMuxer.Factory.Builder()
+            .setMetadataProvider(metadataEntries -> metadataEntries.add(expectedTimestampData))
+            .build();
+
+    Transformer transformer =
+        new Transformer.Builder(context)
+            .setClock(new FakeClock(/* isAutoAdvancing= */ true))
+            .setMuxerFactory(inAppMuxerFactory)
+            .build();
+    MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_FILE_PATH));
+
+    transformer.start(mediaItem, outputPath);
+    TransformerTestRunner.runLooper(transformer);
+
+    Mp4TimestampData actualTimestampData =
+        (Mp4TimestampData)
+            retrieveMetadata(context, outputPath, entry -> entry instanceof Mp4TimestampData);
+    assertThat(actualTimestampData.creationTimestampSeconds)
+        .isEqualTo(expectedTimestampData.creationTimestampSeconds);
+    assertThat(actualTimestampData.modificationTimestampSeconds)
+        .isEqualTo(expectedTimestampData.modificationTimestampSeconds);
+  }
+
+  @Test
+  public void transmux_withCustomMetadata_writesSameCustomMetadata() throws Exception {
+    MdtaMetadataEntry expectedStringMetadata =
+        new MdtaMetadataEntry(
+            "StringKey",
+            Util.getUtf8Bytes("StringValue"),
+            /* localeIndicator= */ 0,
+            MdtaMetadataEntry.TYPE_INDICATOR_STRING);
+    MdtaMetadataEntry expectedFloatMetadata =
+        new MdtaMetadataEntry(
+            "FloatKey",
+            /* value= */ Util.toByteArray(600.0f),
+            /* localeIndicator= */ 0,
+            MdtaMetadataEntry.TYPE_INDICATOR_FLOAT32);
     Muxer.Factory inAppMuxerFactory =
         new InAppMuxer.Factory.Builder()
             .setMetadataProvider(
                 metadataEntries -> {
-                  float captureFps = 60.0f;
-                  metadataEntries.add(
-                      new MdtaMetadataEntry(
-                          MdtaMetadataEntry.KEY_ANDROID_CAPTURE_FPS,
-                          /* value= */ Util.toByteArray(captureFps),
-                          /* localeIndicator= */ 0,
-                          MdtaMetadataEntry.TYPE_INDICATOR_FLOAT32));
+                  metadataEntries.add(expectedStringMetadata);
+                  metadataEntries.add(expectedFloatMetadata);
                 })
             .build();
     Transformer transformer =
@@ -131,98 +241,78 @@ public class TransformerWithInAppMuxerEndToEndTest {
             .setClock(new FakeClock(/* isAutoAdvancing= */ true))
             .setMuxerFactory(inAppMuxerFactory)
             .build();
-    MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_FILE));
+    MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_FILE_PATH));
 
     transformer.start(mediaItem, outputPath);
     TransformerTestRunner.runLooper(transformer);
 
-    FakeExtractorOutput fakeExtractorOutput =
-        com.google.android.exoplayer2.testutil.TestUtil.extractAllSamplesFromFilePath(
-            new Mp4Extractor(), checkNotNull(outputPath));
-    // [mdta: key=com.android.capture.fps, value=60.0] in video track metadata dump.
-    DumpFileAsserts.assertOutput(
-        context,
-        fakeExtractorOutput,
-        TestUtil.getDumpFileName(
-            /* originalFileName= */ FILE_AUDIO_VIDEO, /* modifications...= */ "with_capture_fps"));
+    MdtaMetadataEntry actualStringMetadata =
+        (MdtaMetadataEntry)
+            retrieveMetadata(
+                context,
+                outputPath,
+                entry ->
+                    entry instanceof MdtaMetadataEntry
+                        && ((MdtaMetadataEntry) entry).key.equals(expectedStringMetadata.key));
+    assertThat(actualStringMetadata).isEqualTo(expectedStringMetadata);
+    MdtaMetadataEntry actualFloatMetadata =
+        (MdtaMetadataEntry)
+            retrieveMetadata(
+                context,
+                outputPath,
+                entry ->
+                    entry instanceof MdtaMetadataEntry
+                        && ((MdtaMetadataEntry) entry).key.equals(expectedFloatMetadata.key));
+    assertThat(actualFloatMetadata).isEqualTo(expectedFloatMetadata);
   }
 
-  @Test
-  public void transmux_withCreationTime_outputMatchesExpected() throws Exception {
-    Muxer.Factory inAppMuxerFactory =
-        new InAppMuxer.Factory.Builder()
-            .setMetadataProvider(
-                metadataEntries ->
-                    metadataEntries.add(
-                        new Mp4TimestampData(/* creationTimestampSeconds= */ 2_000_000_000L)))
-            .build();
+  /**
+   * Returns specific {@linkplain Metadata.Entry metadata} from the media file.
+   *
+   * @param context The application context.
+   * @param filePath The path of the media file.
+   * @param predicate The {@link Predicate} to be used to retrieve the {@linkplain Metadata.Entry
+   *     metadata}.
+   * @return The {@linkplain Metadata.Entry metadata}.
+   */
+  @Nullable
+  private static Metadata.Entry retrieveMetadata(
+      Context context, @Nullable String filePath, Predicate<Metadata.Entry> predicate) {
+    Format videoTrackFormat = retrieveTrackFormat(context, filePath, C.TRACK_TYPE_VIDEO);
+    @Nullable
+    Metadata.Entry metadataEntryFromVideoTrack = findMetadataEntry(videoTrackFormat, predicate);
+    Format audioTrackFormat = retrieveTrackFormat(context, filePath, C.TRACK_TYPE_AUDIO);
+    @Nullable
+    Metadata.Entry metadataEntryFromAudioTrack = findMetadataEntry(audioTrackFormat, predicate);
 
-    Transformer transformer =
-        new Transformer.Builder(context)
-            .setClock(new FakeClock(/* isAutoAdvancing= */ true))
-            .setMuxerFactory(inAppMuxerFactory)
-            .build();
-    MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_FILE));
+    ensureSameMetadataAcrossTracks(metadataEntryFromVideoTrack, metadataEntryFromAudioTrack);
 
-    transformer.start(mediaItem, outputPath);
-    TransformerTestRunner.runLooper(transformer);
-
-    FakeExtractorOutput fakeExtractorOutput =
-        com.google.android.exoplayer2.testutil.TestUtil.extractAllSamplesFromFilePath(
-            new Mp4Extractor(), checkNotNull(outputPath));
-    // [Creation time: 2_000_000_000_000] in track metadata dump.
-    DumpFileAsserts.assertOutput(
-        context,
-        fakeExtractorOutput,
-        TestUtil.getDumpFileName(
-            /* originalFileName= */ FILE_AUDIO_VIDEO, /* modifications...= */
-            "with_creation_time"));
+    return metadataEntryFromVideoTrack != null
+        ? metadataEntryFromVideoTrack
+        : metadataEntryFromAudioTrack;
   }
 
-  @Test
-  public void transmux_withCustomeMetadata_outputMatchesExpected() throws Exception {
-    Muxer.Factory inAppMuxerFactory =
-        new InAppMuxer.Factory.Builder()
-            .setMetadataProvider(
-                metadataEntries -> {
-                  String stringKey = "StringKey";
-                  String stringValue = "StringValue";
-                  metadataEntries.add(
-                      new MdtaMetadataEntry(
-                          stringKey,
-                          Util.getUtf8Bytes(stringValue),
-                          /* localeIndicator= */ 0,
-                          MdtaMetadataEntry.TYPE_INDICATOR_STRING));
-                  String floatKey = "FloatKey";
-                  float floatValue = 600.0f;
-                  metadataEntries.add(
-                      new MdtaMetadataEntry(
-                          floatKey,
-                          Util.toByteArray(floatValue),
-                          /* localeIndicator= */ 0,
-                          MdtaMetadataEntry.TYPE_INDICATOR_FLOAT32));
-                })
-            .build();
-    Transformer transformer =
-        new Transformer.Builder(context)
-            .setClock(new FakeClock(/* isAutoAdvancing= */ true))
-            .setMuxerFactory(inAppMuxerFactory)
-            .build();
-    MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_FILE));
+  private static void ensureSameMetadataAcrossTracks(
+      @Nullable Metadata.Entry firstTrackMetadata, @Nullable Metadata.Entry secondTrackMetadata) {
+    // If same metadata is present in both audio and video track, then they must be same.
+    if (firstTrackMetadata != null && secondTrackMetadata != null) {
+      checkState(firstTrackMetadata.equals(secondTrackMetadata));
+    }
+  }
 
-    transformer.start(mediaItem, outputPath);
-    TransformerTestRunner.runLooper(transformer);
+  @Nullable
+  private static Metadata.Entry findMetadataEntry(
+      Format format, Predicate<Metadata.Entry> predicate) {
+    if (format.metadata == null) {
+      return null;
+    }
 
-    FakeExtractorOutput fakeExtractorOutput =
-        com.google.android.exoplayer2.testutil.TestUtil.extractAllSamplesFromFilePath(
-            new Mp4Extractor(), checkNotNull(outputPath));
-    // [mdta: key=StringKey, value=StringValue, mdta: key=FloatKey, value=600.0] in track metadata
-    // dump
-    DumpFileAsserts.assertOutput(
-        context,
-        fakeExtractorOutput,
-        TestUtil.getDumpFileName(
-            /* originalFileName= */ FILE_AUDIO_VIDEO, /* modifications...= */
-            "with_custom_metadata"));
+    for (int i = 0; i < format.metadata.length(); i++) {
+      Metadata.Entry metadataEntry = format.metadata.get(i);
+      if (predicate.apply(metadataEntry)) {
+        return metadataEntry;
+      }
+    }
+    return null;
   }
 }
