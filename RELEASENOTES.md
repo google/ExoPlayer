@@ -22,6 +22,8 @@
 *   Session:
     *   Fix issue where `MediaItem.RequestMetadata` with just non-null extras is
         not sent transmitted between media controllers and sessions.
+    *   Add constructor to `MediaLibrarySession.Builder` that only takes a
+        `Context` instead of a `MediaLibraryService`.
 *   UI:
 *   Downloads:
 *   OkHttp Extension:

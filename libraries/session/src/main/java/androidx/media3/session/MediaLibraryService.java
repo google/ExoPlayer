@@ -414,6 +414,19 @@ public abstract class MediaLibraryService extends MediaSessionService {
       }
 
       /**
+       * Creates a builder for {@link MediaLibrarySession}.
+       *
+       * @param context The {@link Context}.
+       * @param player The underlying player to perform playback and handle transport controls.
+       * @param callback The callback to handle requests from {@link MediaBrowser}.
+       * @throws IllegalArgumentException if {@link Player#canAdvertiseSession()} returns false.
+       */
+      @UnstableApi
+      public Builder(Context context, Player player, Callback callback) {
+        super(context, player, callback);
+      }
+
+      /**
        * Sets a {@link PendingIntent} to launch an {@link android.app.Activity} for the {@link
        * MediaLibrarySession}. This can be used as a quick link to an ongoing media screen.
        *
