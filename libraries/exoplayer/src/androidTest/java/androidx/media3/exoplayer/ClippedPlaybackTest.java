@@ -34,6 +34,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -94,7 +95,7 @@ public final class ClippedPlaybackTest {
               player.get().addListener(textCapturer);
               player.get().setMediaItem(mediaItem);
               player.get().prepare();
-              player.get().play();
+              playWhenLoadingIsDone(player.get());
             });
 
     textCapturer.block();
@@ -146,6 +147,9 @@ public final class ClippedPlaybackTest {
               player.get().addListener(textCapturer);
               player.get().setMediaItems(mediaItems);
               player.get().prepare();
+              // We don't need playWhenLoadingIsDone here because playback already waits at the end
+              // of the first period for subtitles to be fully loaded beforetransitioning to the
+              // second period.
               player.get().play();
             });
 
@@ -155,6 +159,21 @@ public final class ClippedPlaybackTest {
     getInstrumentation().waitForIdleSync();
     assertThat(Iterables.getOnlyElement(Iterables.concat(textCapturer.cues)).text.toString())
         .isEqualTo("This is the first subtitle.");
+  }
+
+  private static void playWhenLoadingIsDone(Player player) {
+    AtomicBoolean loadingStarted = new AtomicBoolean(false);
+    player.addListener(
+        new Player.Listener() {
+          @Override
+          public void onEvents(Player player, Player.Events events) {
+            if (events.contains(Player.EVENT_IS_LOADING_CHANGED)
+                && loadingStarted.getAndSet(player.isLoading())
+                && !player.isLoading()) {
+              player.play();
+            }
+          }
+        });
   }
 
   private static class TextCapturingPlaybackListener implements Player.Listener {

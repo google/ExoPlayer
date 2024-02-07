@@ -51,6 +51,8 @@ import androidx.media3.exoplayer.upstream.Allocator;
 import androidx.media3.exoplayer.upstream.CmcdConfiguration;
 import androidx.media3.exoplayer.upstream.LoadErrorHandlingPolicy;
 import androidx.media3.extractor.Extractor;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.google.common.primitives.Ints;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -157,8 +159,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.playerId = playerId;
     this.timestampAdjusterInitializationTimeoutMs = timestampAdjusterInitializationTimeoutMs;
     sampleStreamWrapperCallback = new SampleStreamWrapperCallback();
-    compositeSequenceableLoader =
-        compositeSequenceableLoaderFactory.createCompositeSequenceableLoader();
+    compositeSequenceableLoader = compositeSequenceableLoaderFactory.empty();
     streamWrapperIndices = new IdentityHashMap<>();
     timestampAdjusterProvider = new TimestampAdjusterProvider();
     sampleStreamWrappers = new HlsSampleStreamWrapper[0];
@@ -372,9 +373,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     // Update the local state.
     enabledSampleStreamWrappers =
         Util.nullSafeArrayCopy(newEnabledSampleStreamWrappers, newEnabledSampleStreamWrapperCount);
+    ImmutableList<HlsSampleStreamWrapper> enabledSampleStreamWrappersList =
+        ImmutableList.copyOf(enabledSampleStreamWrappers);
     compositeSequenceableLoader =
-        compositeSequenceableLoaderFactory.createCompositeSequenceableLoader(
-            enabledSampleStreamWrappers);
+        compositeSequenceableLoaderFactory.create(
+            enabledSampleStreamWrappersList,
+            Lists.transform(
+                enabledSampleStreamWrappersList,
+                sampleStreamWrapper -> sampleStreamWrapper.getTrackGroups().getTrackTypes()));
     return positionUs;
   }
 

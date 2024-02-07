@@ -15,7 +15,10 @@
  */
 package androidx.media3.exoplayer.source;
 
+import androidx.media3.common.C;
 import androidx.media3.common.util.UnstableApi;
+import com.google.common.collect.ImmutableList;
+import java.util.List;
 
 /** Default implementation of {@link CompositeSequenceableLoaderFactory}. */
 @UnstableApi
@@ -23,7 +26,21 @@ public final class DefaultCompositeSequenceableLoaderFactory
     implements CompositeSequenceableLoaderFactory {
 
   @Override
+  public SequenceableLoader empty() {
+    return new CompositeSequenceableLoader(ImmutableList.of(), ImmutableList.of());
+  }
+
+  @Deprecated
+  @Override
+  @SuppressWarnings("deprecation") // Calling deprecated constructor
   public SequenceableLoader createCompositeSequenceableLoader(SequenceableLoader... loaders) {
     return new CompositeSequenceableLoader(loaders);
+  }
+
+  @Override
+  public SequenceableLoader create(
+      List<? extends SequenceableLoader> loaders,
+      List<List<@C.TrackType Integer>> loaderTrackTypes) {
+    return new CompositeSequenceableLoader(loaders, loaderTrackTypes);
   }
 }
