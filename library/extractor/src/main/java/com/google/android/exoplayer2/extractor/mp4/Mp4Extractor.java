@@ -591,8 +591,8 @@ public final class Mp4Extractor implements Extractor, SeekMap {
             isQuickTime,
             /* modifyTrackFunction= */ track -> track);
 
-    int trackCount = trackSampleTables.size();
-    for (int i = 0; i < trackCount; i++) {
+    int trackIndex = 0;
+    for (int i = 0; i < trackSampleTables.size(); i++) {
       TrackSampleTable trackSampleTable = trackSampleTables.get(i);
       if (trackSampleTable.sampleCount == 0) {
         continue;
@@ -602,7 +602,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
           track.durationUs != C.TIME_UNSET ? track.durationUs : trackSampleTable.durationUs;
       durationUs = max(durationUs, trackDurationUs);
       Mp4Track mp4Track =
-          new Mp4Track(track, trackSampleTable, extractorOutput.track(i, track.type));
+          new Mp4Track(track, trackSampleTable, extractorOutput.track(trackIndex++, track.type));
 
       int maxInputSize;
       if (MimeTypes.AUDIO_TRUEHD.equals(track.format.sampleMimeType)) {

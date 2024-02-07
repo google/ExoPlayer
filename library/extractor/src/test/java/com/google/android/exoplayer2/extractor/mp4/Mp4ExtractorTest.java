@@ -16,10 +16,19 @@
 package com.google.android.exoplayer2.extractor.mp4;
 
 import static com.google.android.exoplayer2.extractor.mp4.FragmentedMp4Extractor.FLAG_EMIT_RAW_SUBTITLE_DATA;
+import static com.google.common.truth.Truth.assertThat;
 
+import androidx.test.core.app.ApplicationProvider;
+import com.google.android.exoplayer2.extractor.Extractor;
+import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.testutil.ExtractorAsserts;
+import com.google.android.exoplayer2.testutil.FakeExtractorInput;
+import com.google.android.exoplayer2.testutil.FakeExtractorOutput;
+import com.google.android.exoplayer2.testutil.FakeTrackOutput;
+import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.text.DefaultSubtitleParserFactory;
 import com.google.android.exoplayer2.text.SubtitleParser;
+import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Test;
@@ -224,6 +233,51 @@ public final class Mp4ExtractorTest {
         getExtractorFactory(subtitlesParsedDuringExtraction),
         "media/mp4/sample_edit_list.mp4",
         simulationConfig);
+  }
+
+  @Test
+  public void mp4SampleWithEmptyTrack() throws Exception {
+    ExtractorAsserts.assertBehavior(
+        getExtractorFactory(subtitlesParsedDuringExtraction),
+        "media/mp4/sample_empty_track.mp4",
+        simulationConfig);
+  }
+
+  @Test
+  public void getSeekPoints_withEmptyTracks_returnsValidInformation() throws Exception {
+    Mp4Extractor extractor =
+        (Mp4Extractor) getExtractorFactory(subtitlesParsedDuringExtraction).create();
+    FakeExtractorInput input =
+        new FakeExtractorInput.Builder()
+            .setData(
+                TestUtil.getByteArray(
+                    ApplicationProvider.getApplicationContext(),
+                    "media/mp4/sample_empty_track.mp4"))
+            .build();
+    FakeExtractorOutput output =
+        new FakeExtractorOutput(
+            (id, type) -> new FakeTrackOutput(/* deduplicateConsecutiveFormats= */ true));
+    PositionHolder seekPositionHolder = new PositionHolder();
+    extractor.init(output);
+    int readResult = Extractor.RESULT_CONTINUE;
+    while (readResult != Extractor.RESULT_END_OF_INPUT) {
+      readResult = extractor.read(input, seekPositionHolder);
+      if (readResult == Extractor.RESULT_SEEK) {
+        long seekPosition = seekPositionHolder.position;
+        input.setPosition((int) seekPosition);
+      }
+    }
+    ImmutableList.Builder<Long> trackSeekTimesUs = ImmutableList.builder();
+    long testPositionUs = output.seekMap.getDurationUs() / 2;
+
+    for (int i = 0; i < output.numberOfTracks; i++) {
+      int trackId = output.trackOutputs.keyAt(i);
+      trackSeekTimesUs.add(extractor.getSeekPoints(testPositionUs, trackId).first.timeUs);
+    }
+    long extractorSeekTimeUs = extractor.getSeekPoints(testPositionUs).first.timeUs;
+
+    assertThat(output.numberOfTracks).isEqualTo(2);
+    assertThat(extractorSeekTimeUs).isIn(trackSeekTimesUs.build());
   }
 
   private static ExtractorAsserts.ExtractorFactory getExtractorFactory(
