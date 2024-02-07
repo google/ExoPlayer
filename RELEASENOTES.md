@@ -10,6 +10,8 @@
     *   Fix the regex used for validating custom Common Media Client Data (CMCD)
         key names by modifying it to only check for hyphen
         ([#1028](https://github.com/androidx/media/issues/1028)).
+    *   Stop double-encoding CMCD query parameters
+        ([#1075](https://github.com/androidx/media/issues/1075)).
 *   Transformer:
     *   Add `audioConversionProcess` and `videoConversionProcess` to
         `ExportResult` indicating how the respective track in the output file

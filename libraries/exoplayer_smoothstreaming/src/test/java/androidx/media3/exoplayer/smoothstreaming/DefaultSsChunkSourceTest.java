@@ -283,9 +283,7 @@ public class DefaultSsChunkSourceTest {
         output);
 
     assertThat(
-            Uri.decode(
-                output.chunk.dataSpec.uri.getQueryParameter(
-                    CmcdConfiguration.CMCD_QUERY_PARAMETER_KEY)))
+            output.chunk.dataSpec.uri.getQueryParameter(CmcdConfiguration.CMCD_QUERY_PARAMETER_KEY))
         .isEqualTo(
             "bl=0,br=308,cid=\"mediaId\",com.example.test-key-1=1,d=1968,dl=0,"
                 + "key-2=\"stringValue\",mtp=1000,nor=\"..%2FFragments(video%3D19680000)\",ot=v,"

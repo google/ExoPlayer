@@ -417,8 +417,7 @@ public final class CmcdData {
               .uri
               .buildUpon()
               .appendQueryParameter(
-                  CmcdConfiguration.CMCD_QUERY_PARAMETER_KEY,
-                  Uri.encode(COMMA_JOINER.join(keyValuePairs)));
+                  CmcdConfiguration.CMCD_QUERY_PARAMETER_KEY, COMMA_JOINER.join(keyValuePairs));
       return dataSpec.buildUpon().setUri(uriBuilder.build()).build();
     }
   }
