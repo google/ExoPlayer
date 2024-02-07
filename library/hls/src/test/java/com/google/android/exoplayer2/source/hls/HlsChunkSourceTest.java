@@ -442,9 +442,7 @@ public class HlsChunkSourceTest {
         output);
 
     assertThat(
-            Uri.decode(
-                output.chunk.dataSpec.uri.getQueryParameter(
-                    CmcdConfiguration.CMCD_QUERY_PARAMETER_KEY)))
+            output.chunk.dataSpec.uri.getQueryParameter(CmcdConfiguration.CMCD_QUERY_PARAMETER_KEY))
         .isEqualTo(
             "bl=0,br=800,cid=\"mediaId\",com.example.test-key-1=1,d=4000,dl=0,"
                 + "key-2=\"stringValue\",nor=\"..%2F3.mp4\",nrr=\"0-\",ot=v,sf=h,"
