@@ -19,7 +19,6 @@ import static com.google.android.exoplayer2.util.MimeTypes.normalizeMimeType;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.net.Uri;
-import android.text.TextUtils;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
@@ -29,7 +28,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 /**
  * Defines common file type constants and helper methods.
@@ -334,31 +332,5 @@ public final class FileTypes {
     } else {
       return FileTypes.UNKNOWN;
     }
-  }
-
-  /**
-   * Returns the file extension of the given {@link Uri} or an empty string if there is no
-   * extension.
-   *
-   * <p>This method is a convenience method for obtaining the extension of a url and has undefined
-   * results for other Strings.
-   */
-  public static String getFileExtensionFromUri(Uri uri) {
-    String path = uri.getPath();
-    if (TextUtils.isEmpty(path)) {
-      return "";
-    }
-    int filenamePos = path.lastIndexOf('/');
-    String filename = 0 <= filenamePos ? path.substring(filenamePos + 1) : path;
-
-    // If the filename contains special characters, we don't consider it valid for our matching
-    // purposes.
-    if (!filename.isEmpty() && Pattern.matches("[a-zA-Z_0-9\\.\\-\\(\\)\\%]+", filename)) {
-      int dotPos = filename.lastIndexOf('.');
-      if (0 <= dotPos) {
-        return filename.substring(dotPos + 1);
-      }
-    }
-    return "";
   }
 }

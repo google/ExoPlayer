@@ -16,6 +16,7 @@
 
 package com.google.android.exoplayer2.transformer;
 
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 
 import android.content.ContentResolver;
@@ -30,7 +31,6 @@ import com.google.android.exoplayer2.upstream.DataSourceBitmapLoader;
 import com.google.android.exoplayer2.upstream.DefaultDataSource;
 import com.google.android.exoplayer2.util.BitmapLoader;
 import com.google.android.exoplayer2.util.Clock;
-import com.google.android.exoplayer2.util.FileTypes;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.base.Ascii;
@@ -181,8 +181,12 @@ public final class DefaultAssetLoaderFactory implements AssetLoader.Factory {
         ContentResolver cr = context.getContentResolver();
         mimeType = cr.getType(localConfiguration.uri);
       } else {
-        String fileExtension = FileTypes.getFileExtensionFromUri(localConfiguration.uri);
-        mimeType = getCommonImageMimeTypeFromExtension(Ascii.toLowerCase(fileExtension));
+        String uriPath = checkNotNull(localConfiguration.uri.getPath());
+        int fileExtensionStart = uriPath.lastIndexOf(".");
+        if (fileExtensionStart != -1) {
+          String extension = Ascii.toLowerCase(uriPath.substring(fileExtensionStart + 1));
+          mimeType = getCommonImageMimeTypeFromExtension(Ascii.toLowerCase(extension));
+        }
       }
     }
     if (mimeType == null) {
