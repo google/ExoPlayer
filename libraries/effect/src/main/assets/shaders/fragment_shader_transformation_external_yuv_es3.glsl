@@ -54,6 +54,16 @@ const int COLOR_TRANSFER_GAMMA_2_2 = 10;
 const int COLOR_TRANSFER_ST2084 = 6;
 const int COLOR_TRANSFER_HLG = 7;
 
+// Matrix values based on computeXYZMatrix(BT2020Primaries, BT2020WhitePoint)
+// https://cs.android.com/android/platform/superproject/+/master:frameworks/base/libs/hwui/utils/HostColorSpace.cpp;l=200-232;drc=86bd214059cd6150304888a285941bf74af5b687
+const mat3 RGB_TO_XYZ_BT2020 =
+    mat3(0.63695805f, 0.26270021f, 0.00000000f, 0.14461690f, 0.67799807f,
+         0.02807269f, 0.16888098f, 0.05930172f, 1.06098506f);
+// Matrix values based on computeXYZMatrix(BT709Primaries, BT709WhitePoint)
+const mat3 XYZ_TO_RGB_BT709 =
+    mat3(3.24096994f, -0.96924364f, 0.05563008f, -1.53738318f, 1.87596750f,
+         -0.20397696f, -0.49861076f, 0.04155506f, 1.05697151f);
+
 // TODO(b/227624622): Consider using mediump to save precision, if it won't lead
 //  to noticeable quantization errors.
 
@@ -111,15 +121,6 @@ highp vec3 applyEotf(highp vec3 electricalColor) {
 highp vec3 applyHlgBt2020ToBt709Ootf(highp vec3 linearRgbBt2020) {
   // Reference ("HLG Reference OOTF" section):
   // https://www.itu.int/dms_pubrec/itu-r/rec/bt/R-REC-BT.2100-2-201807-I!!PDF-E.pdf
-  // Matrix values based on computeXYZMatrix(BT2020Primaries, BT2020WhitePoint)
-  // https://cs.android.com/android/platform/superproject/+/master:frameworks/base/libs/hwui/utils/HostColorSpace.cpp;l=200-232;drc=86bd214059cd6150304888a285941bf74af5b687
-  const mat3 RGB_TO_XYZ_BT2020 =
-      mat3(0.63695805f, 0.26270021f, 0.00000000f, 0.14461690f, 0.67799807f,
-           0.02807269f, 0.16888098f, 0.05930172f, 1.06098506f);
-  // Matrix values based on computeXYZMatrix(BT709Primaries, BT709WhitePoint)
-  const mat3 XYZ_TO_RGB_BT709 =
-      mat3(3.24096994f, -0.96924364f, 0.05563008f, -1.53738318f, 1.87596750f,
-           -0.20397696f, -0.49861076f, 0.04155506f, 1.05697151f);
   // hlgGamma is 1.2 + 0.42 * log10(nominalPeakLuminance/1000);
   // nominalPeakLuminance was selected to use a 500 as a typical value, used
   // in
@@ -128,10 +129,9 @@ highp vec3 applyHlgBt2020ToBt709Ootf(highp vec3 linearRgbBt2020) {
   // https://www.microsoft.com/applied-sciences/uploads/projects/investigation-of-hdr-vs-tone-mapped-sdr/investigation-of-hdr-vs-tone-mapped-sdr.pdf.
   const float hlgGamma = 1.0735674018211279;
 
-  vec3 linearXyzBt2020 = RGB_TO_XYZ_BT2020 * linearRgbBt2020;
-  vec3 linearXyzBt709 =
-      linearXyzBt2020 * pow(linearXyzBt2020[1], hlgGamma - 1.0);
-  vec3 linearRgbBt709 = clamp((XYZ_TO_RGB_BT709 * linearXyzBt709), 0.0, 1.0);
+  vec3 linearXyz = RGB_TO_XYZ_BT2020 * linearRgbBt2020;
+  linearXyz = linearXyz * pow(linearXyz[1], hlgGamma - 1.0);
+  vec3 linearRgbBt709 = clamp((XYZ_TO_RGB_BT709 * linearXyz), 0.0, 1.0);
   return linearRgbBt709;
 }
 
@@ -156,8 +156,8 @@ highp vec3 applyPqBt2020ToBt709Ootf(highp vec3 linearRgbBt2020) {
   const float maxInputLuminance = maxMasteringLuminance;
   const float maxOutputLuminance = sdrMaxLuminance;
 
-  highp vec3 color = linearRgbBt2020 * pqMaxLuminance;  // Scale luminance.
-  float nits = color.y;
+  linearRgbBt2020 = linearRgbBt2020 * pqMaxLuminance;  // Scale luminance.
+  float nits = linearRgbBt2020.y;
 
   nits = clamp(nits, 0.0, maxInputLuminance);
 
@@ -193,9 +193,11 @@ highp vec3 applyPqBt2020ToBt709Ootf(highp vec3 linearRgbBt2020) {
         (maxOutputLuminance * (3.0 - 2.0 * t) + h23 * m3 * (t - 1.0)) * t * t;
   }
 
-  // color.y is greater than 0 and is thus non-zero.
-  color = color * (nits / color.y);
-  return color / sdrMaxLuminance;  // Normalize luminance.
+  // linearRgbBt2020.y is greater than 0 and is thus non-zero.
+  linearRgbBt2020 = linearRgbBt2020 * (nits / linearRgbBt2020.y);
+  linearRgbBt2020 = linearRgbBt2020 / sdrMaxLuminance;  // Normalize luminance.
+  vec3 linearRgbBt709 = XYZ_TO_RGB_BT709 * RGB_TO_XYZ_BT2020 * linearRgbBt2020;
+  return linearRgbBt709;
 }
 
 highp vec3 applyBt2020ToBt709Ootf(highp vec3 linearRgbBt2020) {

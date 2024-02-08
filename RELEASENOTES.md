@@ -30,6 +30,7 @@
 *   Image:
 *   DRM:
 *   Effect:
+    *   Improved PQ to SDR tone-mapping by converting color spaces.
 *   Muxers:
 *   IMA extension:
 *   Session:
