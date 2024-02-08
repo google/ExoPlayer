@@ -19,6 +19,9 @@
 *   Track Selection:
 *   Extractors:
 *   Audio:
+    *   Improve silence skipping algorithm with smooth volume ramp, retained
+        minimal silence and more natural silence durations
+        ([#7423](https://github.com/google/ExoPlayer/issues/7423)).
 *   Video:
 *   Text:
 *   Metadata:
@@ -88,13 +91,6 @@ This release includes the following changes since the
     *   Extract audio types from TS descriptors and map them to role flags,
         allowing users to make better-informed audio track selections
         ([#973](https://github.com/androidx/media/pull/973)).
-*   Audio:
-    *   Improve silence skipping algorithm with smooth volume ramp, retained
-        minimal silence and more natural silence durations
-        ([#7423](https://github.com/google/ExoPlayer/issues/7423)).
-*   Video:
-*   Text:
-*   Metadata:
 *   Image:
     *   Add support for DASH thumbnails. Grid images are cropped and individual
         thumbnails are provided to `ImageOutput` close to their presentation
