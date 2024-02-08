@@ -16,6 +16,7 @@
 
 package androidx.media3.transformer;
 
+import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
 
 import android.content.ContentResolver;
@@ -24,7 +25,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.ColorSpace;
 import android.os.Looper;
 import androidx.annotation.Nullable;
-import androidx.media3.common.FileTypes;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.BitmapLoader;
@@ -175,8 +175,12 @@ public final class DefaultAssetLoaderFactory implements AssetLoader.Factory {
         ContentResolver cr = context.getContentResolver();
         mimeType = cr.getType(localConfiguration.uri);
       } else {
-        String fileExtension = FileTypes.getFileExtensionFromUri(localConfiguration.uri);
-        mimeType = getCommonImageMimeTypeFromExtension(Ascii.toLowerCase(fileExtension));
+        String uriPath = checkNotNull(localConfiguration.uri.getPath());
+        int fileExtensionStart = uriPath.lastIndexOf(".");
+        if (fileExtensionStart != -1) {
+          String extension = Ascii.toLowerCase(uriPath.substring(fileExtensionStart + 1));
+          mimeType = getCommonImageMimeTypeFromExtension(Ascii.toLowerCase(extension));
+        }
       }
     }
     if (mimeType == null) {
