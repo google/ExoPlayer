@@ -261,6 +261,7 @@ import java.lang.annotation.Target;
     }
   }
 
+  // DO NOT SUBMIT in-line this
   private static final class AudioTimestampV19 {
 
     private final AudioTrack audioTrack;

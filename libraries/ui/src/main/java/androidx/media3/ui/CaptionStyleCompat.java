@@ -114,14 +114,19 @@ public final class CaptionStyleCompat {
    * @param captionStyle A {@link CaptionStyle}.
    * @return The equivalent {@link CaptionStyleCompat}.
    */
+  @SuppressWarnings("ResourceType") // DO NOT SUBMIT check this is still needed
   public static CaptionStyleCompat createFromCaptionStyle(
       CaptioningManager.CaptionStyle captionStyle) {
     if (Util.SDK_INT >= 21) {
       return createFromCaptionStyleV21(captionStyle);
     } else {
-      // Note - Any caller must be on at least API level 19 or greater (because CaptionStyle did
-      // not exist in earlier API levels).
-      return createFromCaptionStyleV19(captionStyle);
+      return new CaptionStyleCompat(
+          captionStyle.foregroundColor,
+          captionStyle.backgroundColor,
+          Color.TRANSPARENT,
+          captionStyle.edgeType,
+          captionStyle.edgeColor,
+          captionStyle.getTypeface());
     }
   }
 
@@ -146,18 +151,6 @@ public final class CaptionStyleCompat {
     this.edgeType = edgeType;
     this.edgeColor = edgeColor;
     this.typeface = typeface;
-  }
-
-  @SuppressWarnings("ResourceType")
-  private static CaptionStyleCompat createFromCaptionStyleV19(
-      CaptioningManager.CaptionStyle captionStyle) {
-    return new CaptionStyleCompat(
-        captionStyle.foregroundColor,
-        captionStyle.backgroundColor,
-        Color.TRANSPARENT,
-        captionStyle.edgeType,
-        captionStyle.edgeColor,
-        captionStyle.getTypeface());
   }
 
   @RequiresApi(21)

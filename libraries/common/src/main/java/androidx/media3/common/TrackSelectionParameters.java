@@ -630,7 +630,21 @@ public class TrackSelectionParameters implements Bundleable {
     @CanIgnoreReturnValue
     public Builder setPreferredTextLanguageAndRoleFlagsToCaptioningManagerSettings(
         Context context) {
-      setPreferredTextLanguageAndRoleFlagsToCaptioningManagerSettingsV19(context);
+      if (Util.SDK_INT < 23 && Looper.myLooper() == null) {
+        // Android platform bug (pre-Marshmallow) that causes RuntimeExceptions when
+        // CaptioningService is instantiated from a non-Looper thread. See [internal: b/143779904].
+        return this;
+      }
+      CaptioningManager captioningManager =
+          (CaptioningManager) context.getSystemService(Context.CAPTIONING_SERVICE);
+      if (captioningManager == null || !captioningManager.isEnabled()) {
+        return this;
+      }
+      preferredTextRoleFlags = C.ROLE_FLAG_CAPTION | C.ROLE_FLAG_DESCRIBES_MUSIC_AND_SOUND;
+      Locale preferredLocale = captioningManager.getLocale();
+      if (preferredLocale != null) {
+        preferredTextLanguages = ImmutableList.of(Util.getLocaleLanguageTag(preferredLocale));
+      }
       return this;
     }
 
@@ -827,25 +841,6 @@ public class TrackSelectionParameters implements Bundleable {
     /** Builds a {@link TrackSelectionParameters} instance with the selected values. */
     public TrackSelectionParameters build() {
       return new TrackSelectionParameters(this);
-    }
-
-    private void setPreferredTextLanguageAndRoleFlagsToCaptioningManagerSettingsV19(
-        Context context) {
-      if (Util.SDK_INT < 23 && Looper.myLooper() == null) {
-        // Android platform bug (pre-Marshmallow) that causes RuntimeExceptions when
-        // CaptioningService is instantiated from a non-Looper thread. See [internal: b/143779904].
-        return;
-      }
-      CaptioningManager captioningManager =
-          (CaptioningManager) context.getSystemService(Context.CAPTIONING_SERVICE);
-      if (captioningManager == null || !captioningManager.isEnabled()) {
-        return;
-      }
-      preferredTextRoleFlags = C.ROLE_FLAG_CAPTION | C.ROLE_FLAG_DESCRIBES_MUSIC_AND_SOUND;
-      Locale preferredLocale = captioningManager.getLocale();
-      if (preferredLocale != null) {
-        preferredTextLanguages = ImmutableList.of(Util.getLocaleLanguageTag(preferredLocale));
-      }
     }
 
     private static ImmutableList<String> normalizeLanguageCodes(String[] preferredTextLanguages) {
