@@ -34,7 +34,6 @@ import android.opengl.GLES20;
 import android.opengl.GLES30;
 import android.opengl.GLUtils;
 import android.opengl.Matrix;
-import androidx.annotation.DoNotInline;
 import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
@@ -413,7 +412,8 @@ public final class GlUtil {
         currentEglContextVersion,
         /* offset= */ 0);
     checkGlError();
-    return currentEglContextVersion[0];  }
+    return currentEglContextVersion[0];
+  }
 
   /**
    * Returns a newly created sync object and inserts it into the GL command stream.
@@ -445,7 +445,8 @@ public final class GlUtil {
    */
   public static void deleteSyncObject(long syncObject) throws GlException {
     deleteSyncObjectQuietly(syncObject);
-    checkGlError();  }
+    checkGlError();
+  }
 
   /** Releases the GL sync object if set, suppressing any error. */
   public static void deleteSyncObjectQuietly(long syncObject) {
@@ -546,8 +547,7 @@ public final class GlUtil {
   public static void focusEglSurface(
       EGLDisplay eglDisplay, EGLContext eglContext, EGLSurface eglSurface, int width, int height)
       throws GlException {
-    focusRenderTarget(
-        eglDisplay, eglContext, eglSurface, /* framebuffer= */ 0, width, height);
+    focusRenderTarget(eglDisplay, eglContext, eglSurface, /* framebuffer= */ 0, width, height);
   }
 
   /**

@@ -106,7 +106,8 @@ public final class SphericalGLSurfaceView extends GLSurfaceView {
     // fusion. It's used instead of TYPE_ROTATION_VECTOR since the latter uses the magnetometer on
     // devices. When used indoors, the magnetometer can take some time to settle depending on the
     // device and amount of metal in the environment.
-    @Nullable Sensor orientationSensor = sensorManager.getDefaultSensor(Sensor.TYPE_GAME_ROTATION_VECTOR);
+    @Nullable
+    Sensor orientationSensor = sensorManager.getDefaultSensor(Sensor.TYPE_GAME_ROTATION_VECTOR);
     if (orientationSensor == null) {
       orientationSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
     }

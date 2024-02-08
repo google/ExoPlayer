@@ -26,7 +26,6 @@ import android.view.Choreographer;
 import android.view.Choreographer.FrameCallback;
 import android.view.Display;
 import android.view.Surface;
-import android.view.WindowManager;
 import androidx.annotation.DoNotInline;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -419,7 +418,9 @@ public final class VideoFrameReleaseHelper {
 
   @Nullable
   private DisplayHelper maybeBuildDisplayHelper(@Nullable Context context) {
-    if (context == null) { return null;}
+    if (context == null) {
+      return null;
+    }
     DisplayManager displayManager =
         (DisplayManager) context.getSystemService(Context.DISPLAY_SERVICE);
     return displayManager != null ? new DisplayHelper(displayManager) : null;
@@ -443,8 +444,7 @@ public final class VideoFrameReleaseHelper {
     }
   }
 
-  private final class DisplayHelper
-      implements DisplayManager.DisplayListener {
+  private final class DisplayHelper implements DisplayManager.DisplayListener {
 
     private final DisplayManager displayManager;
 
