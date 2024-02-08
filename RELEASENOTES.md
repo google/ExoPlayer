@@ -22,6 +22,8 @@
     *   Improve silence skipping algorithm with smooth volume ramp, retained
         minimal silence and more natural silence durations
         ([#7423](https://github.com/google/ExoPlayer/issues/7423)).
+    *   Report the skipped silence more deterministically
+        ([#1035](https://github.com/androidx/media/issues/1035)).
 *   Video:
 *   Text:
 *   Metadata:

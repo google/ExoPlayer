@@ -99,7 +99,7 @@ public final class DefaultAudioSink implements AudioSink {
   private static final int AUDIO_TRACK_SMALLER_BUFFER_RETRY_SIZE = 1_000_000;
 
   /** The minimum duration of the skipped silence to be reported as discontinuity. */
-  private static final int MINIMUM_REPORT_SKIPPED_SILENCE_DURATION_US = 1_000_000;
+  private static final int MINIMUM_REPORT_SKIPPED_SILENCE_DURATION_US = 300_000;
 
   /**
    * The delay of reporting the skipped silence, during which the default audio sink checks if there
@@ -2340,10 +2340,8 @@ public final class DefaultAudioSink implements AudioSink {
     if (accumulatedSkippedSilenceDurationUs >= MINIMUM_REPORT_SKIPPED_SILENCE_DURATION_US) {
       // If the existing silence is already long enough, report the silence
       listener.onSilenceSkipped();
+      accumulatedSkippedSilenceDurationUs = 0;
     }
-    // Reset the accumulated silence anyway as the later silences are far from the current one
-    // and should be treated separately.
-    accumulatedSkippedSilenceDurationUs = 0;
   }
 
   @RequiresApi(23)
