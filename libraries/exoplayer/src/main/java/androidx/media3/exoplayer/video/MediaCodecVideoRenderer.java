@@ -803,7 +803,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer
       } else {
         MediaCodecInfo codecInfo = getCodecInfo();
         if (codecInfo != null && shouldUsePlaceholderSurface(codecInfo)) {
-          placeholderSurface = PlaceholderSurface.newInstanceV17(context, codecInfo.secure);
+          placeholderSurface = PlaceholderSurface.newInstance(context, codecInfo.secure);
           displaySurface = placeholderSurface;
         }
       }
@@ -890,7 +890,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer
         throw new IllegalStateException();
       }
       if (placeholderSurface == null) {
-        placeholderSurface = PlaceholderSurface.newInstanceV17(context, codecInfo.secure);
+        placeholderSurface = PlaceholderSurface.newInstance(context, codecInfo.secure);
       }
       displaySurface = placeholderSurface;
     }

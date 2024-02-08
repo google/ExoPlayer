@@ -65,6 +65,14 @@ public final class PlaceholderSurface extends Surface {
   }
 
   /**
+   * @deprecated Use {@link #newInstance(Context, boolean)} instead.
+   */
+  @Deprecated
+  public static PlaceholderSurface newInstanceV17(Context context, boolean secure) {
+    return newInstance(context, secure);
+  }
+
+  /**
    * Returns a newly created placeholder surface. The surface must be released by calling {@link
    * #release} when it's no longer required.
    *
@@ -76,11 +84,13 @@ public final class PlaceholderSurface extends Surface {
    * @throws IllegalStateException If a secure surface is requested on a device for which {@link
    *     #isSecureSupported(Context)} returns {@code false}.
    */
-  public static PlaceholderSurface newInstanceV17(Context context, boolean secure) {
+  public static PlaceholderSurface newInstance(Context context, boolean secure) {
     Assertions.checkState(!secure || isSecureSupported(context));
     PlaceholderSurfaceThread thread = new PlaceholderSurfaceThread();
     return thread.init(secure ? secureMode : SECURE_MODE_NONE);
   }
+
+
 
   private PlaceholderSurface(
       PlaceholderSurfaceThread thread, SurfaceTexture surfaceTexture, boolean secure) {
