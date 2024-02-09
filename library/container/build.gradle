@@ -46,7 +46,7 @@ android {
  }
 
 dependencies {
-    implementation project(modulePrefix + 'library-common')
+    api project(modulePrefix + 'library-common')
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
     testImplementation 'androidx.test.ext:junit:' + androidxTestJUnitVersion
     testImplementation 'com.google.truth:truth:' + truthVersion

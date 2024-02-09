@@ -45,8 +45,8 @@ dependencies {
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
     implementation project(modulePrefix + 'library-datasource')
     implementation project(modulePrefix + 'library-container')
-    implementation project(modulePrefix + 'library-core')
-    implementation project(modulePrefix + 'library-effect')
+    api project(modulePrefix + 'library-core')
+    api project(modulePrefix + 'library-effect')
     implementation project(modulePrefix + 'library-muxer')
     compileOnly 'com.google.errorprone:error_prone_annotations:' + errorProneVersion
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
