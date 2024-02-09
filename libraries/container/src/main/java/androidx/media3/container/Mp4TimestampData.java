@@ -18,7 +18,6 @@ package androidx.media3.container;
 import android.os.Parcel;
 import android.os.Parcelable;
 import androidx.annotation.Nullable;
-import androidx.media3.common.C;
 import androidx.media3.common.Metadata;
 import androidx.media3.common.util.UnstableApi;
 import com.google.common.primitives.Longs;
@@ -28,6 +27,13 @@ import com.google.common.primitives.Longs;
 public final class Mp4TimestampData implements Metadata.Entry {
   /** Represents an unset or unknown timescale. */
   public static final int TIMESCALE_UNSET = -1;
+
+  /**
+   * The delta between a Unix epoch timestamp (in milliseconds since midnight, January 1, 1970) and
+   * an MP4 timestamp (in seconds since midnight, January 1, 1904).
+   */
+  private static final int UNIX_EPOCH_TO_MP4_TIME_DELTA_SECONDS =
+      ((1970 - 1904) * 365 + 17 /* leap year */) * (24 * 60 * 60);
 
   /** The creation timestamp. */
   public final long creationTimestampSeconds;
@@ -41,13 +47,16 @@ public final class Mp4TimestampData implements Metadata.Entry {
   /**
    * Creates an instance.
    *
+   * <p>The {@link #timescale} is set to {@link Mp4TimestampData#TIMESCALE_UNSET}.
+   *
    * @param creationTimestampSeconds The creation time UTC in seconds since midnight, January 1,
-   *     1904. The {@link #modificationTimestampSeconds} is set to {@link C#TIME_UNSET} and {@link
-   *     #timescale} is set to {@link Mp4TimestampData#TIMESCALE_UNSET}.
+   *     1904.
+   * @param modificationTimestampSeconds The modification time UTC in seconds since midnight,
+   *     January 1, 1904.
    */
-  public Mp4TimestampData(long creationTimestampSeconds) {
+  public Mp4TimestampData(long creationTimestampSeconds, long modificationTimestampSeconds) {
     this.creationTimestampSeconds = creationTimestampSeconds;
-    this.modificationTimestampSeconds = C.TIME_UNSET;
+    this.modificationTimestampSeconds = modificationTimestampSeconds;
     this.timescale = TIMESCALE_UNSET;
   }
 
@@ -71,6 +80,14 @@ public final class Mp4TimestampData implements Metadata.Entry {
     this.creationTimestampSeconds = in.readLong();
     this.modificationTimestampSeconds = in.readLong();
     this.timescale = in.readLong();
+  }
+
+  /**
+   * Returns an MP4 timestamp (in seconds since midnight, January 1, 1904) from a Unix epoch
+   * timestamp (in milliseconds since midnight, January 1, 1970).
+   */
+  public static long unixTimeToMp4TimeSeconds(long unixTimestampMs) {
+    return (unixTimestampMs / 1_000L) + UNIX_EPOCH_TO_MP4_TIME_DELTA_SECONDS;
   }
 
   @Override

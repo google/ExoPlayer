@@ -15,7 +15,9 @@
  */
 package androidx.media3.muxer;
 
+import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkNotNull;
+import static androidx.media3.muxer.Mp4Utils.UNSIGNED_INT_MAX_VALUE;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.media.MediaCodec.BufferInfo;
@@ -25,6 +27,7 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.container.Mp4TimestampData;
 import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.io.FileOutputStream;
@@ -233,12 +236,17 @@ public final class Mp4Muxer {
   }
 
   /**
-   * Sets the file modification time.
+   * Sets the timestamp data (creation time and modification time) for the output file.
    *
-   * @param timestampMs The modification time UTC in milliseconds since the Unix epoch.
+   * <p>If this method is not called, the file creation time and modification time will be when the
+   * {@link Mp4Muxer} was {@linkplain Builder#build() created}.
    */
-  public void setModificationTime(long timestampMs) {
-    metadataCollector.setModificationTime(timestampMs);
+  public void setTimestampData(Mp4TimestampData timestampData) {
+    checkArgument(
+        timestampData.creationTimestampSeconds <= UNSIGNED_INT_MAX_VALUE
+            && timestampData.modificationTimestampSeconds <= UNSIGNED_INT_MAX_VALUE,
+        "Only 32-bit long timestamp is supported");
+    metadataCollector.setTimestampData(timestampData);
   }
 
   /**

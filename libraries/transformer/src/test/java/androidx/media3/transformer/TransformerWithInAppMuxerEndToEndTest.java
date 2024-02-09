@@ -16,7 +16,6 @@
 package androidx.media3.transformer;
 
 import static androidx.media3.common.util.Assertions.checkState;
-import static androidx.media3.container.Mp4TimestampData.TIMESCALE_UNSET;
 import static androidx.media3.test.utils.FileUtil.retrieveTrackFormat;
 import static com.google.common.truth.Truth.assertThat;
 
@@ -70,9 +69,8 @@ public class TransformerWithInAppMuxerEndToEndTest {
                     // Add timestamp to make output file deterministic.
                     metadataEntries.add(
                         new Mp4TimestampData(
-                            /* creationTimestampSeconds= */ 2_000_000_000L,
-                            /* modificationTimestampSeconds= */ 2_000_000_000L,
-                            TIMESCALE_UNSET)))
+                            /* creationTimestampSeconds= */ 3_000_000_000L,
+                            /* modificationTimestampSeconds= */ 4_000_000_000L)))
             .build();
 
     Transformer transformer =
@@ -183,12 +181,10 @@ public class TransformerWithInAppMuxerEndToEndTest {
 
   @Test
   public void transmux_withTimestampData_writesSameTimestampData() throws Exception {
-    // TODO: b/285281716 - Use different value for modification timestamp.
     Mp4TimestampData expectedTimestampData =
         new Mp4TimestampData(
-            /* creationTimestampSeconds= */ 2_000_000_000L,
-            /* modificationTimestampSeconds= */ 2_000_000_000L,
-            TIMESCALE_UNSET);
+            /* creationTimestampSeconds= */ 3_000_000_000L,
+            /* modificationTimestampSeconds= */ 4_000_000_000L);
     Muxer.Factory inAppMuxerFactory =
         new InAppMuxer.Factory.Builder()
             .setMetadataProvider(metadataEntries -> metadataEntries.add(expectedTimestampData))

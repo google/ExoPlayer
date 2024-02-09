@@ -66,7 +66,8 @@ public class BoxesTest {
         Boxes.tkhd(
             /* trackId= */ 1,
             /* trackDurationVu= */ 5_000_000,
-            /* modificationTimestampSeconds= */ 1_000_000_000,
+            /* creationTimestampSeconds= */ 1_000_000_000,
+            /* modificationTimestampSeconds= */ 2_000_000_000,
             /* orientation= */ 90,
             FAKE_VIDEO_FORMAT);
 
@@ -81,7 +82,8 @@ public class BoxesTest {
         Boxes.tkhd(
             /* trackId= */ 1,
             /* trackDurationVu= */ 5_000_000,
-            /* modificationTimestampSeconds= */ 1_000_000_000,
+            /* creationTimestampSeconds= */ 1_000_000_000,
+            /* modificationTimestampSeconds= */ 2_000_000_000,
             /* orientation= */ 90,
             FAKE_AUDIO_FORMAT);
 
@@ -95,7 +97,8 @@ public class BoxesTest {
     ByteBuffer mvhdBox =
         Boxes.mvhd(
             /* nextEmptyTrackId= */ 3,
-            /* modificationTimestampSeconds= */ 1_000_000_000,
+            /* creationTimestampSeconds= */ 1_000_000_000,
+            /* modificationTimestampSeconds= */ 2_000_000_000,
             /* videoDurationUs= */ 5_000_000);
 
     DumpableMp4Box dumpableBox = new DumpableMp4Box(mvhdBox);
@@ -108,7 +111,8 @@ public class BoxesTest {
         Boxes.mdhd(
             /* trackDurationVu= */ 5_000_000,
             VU_TIMEBASE,
-            /* modificationTimestampSeconds= */ 1_000_000_000,
+            /* creationTimestampSeconds= */ 1_000_000_000,
+            /* modificationTimestampSeconds= */ 2_000_000_000,
             /* languageCode= */ "und");
 
     DumpableMp4Box dumpableBox = new DumpableMp4Box(mdhdBox);

@@ -23,7 +23,7 @@ track 0:
       colorTransfer = 3
       lumaBitdepth = 8
       chromaBitdepth = 8
-    metadata = entries=[mdta: key=com.android.version, value=13, xyz: latitude=40.68, longitude=-74.4999, Mp4Timestamp: creation time=2000000000, modification time=2000000000, timescale=10000]
+    metadata = entries=[mdta: key=com.android.version, value=13, xyz: latitude=40.68, longitude=-74.4999, Mp4Timestamp: creation time=3000000000, modification time=4000000000, timescale=10000]
     initializationData:
       data = length 23, hash 33E412EE
       data = length 9, hash FBAFBC0C
@@ -158,7 +158,7 @@ track 1:
     channelCount = 1
     sampleRate = 44100
     language = und
-    metadata = entries=[mdta: key=com.android.version, value=13, xyz: latitude=40.68, longitude=-74.4999, Mp4Timestamp: creation time=2000000000, modification time=2000000000, timescale=10000]
+    metadata = entries=[mdta: key=com.android.version, value=13, xyz: latitude=40.68, longitude=-74.4999, Mp4Timestamp: creation time=3000000000, modification time=4000000000, timescale=10000]
     initializationData:
       data = length 2, hash 5F7
   sample 0:

@@ -93,14 +93,15 @@ import java.util.Locale;
   public static ByteBuffer tkhd(
       int trackId,
       int trackDurationVu,
+      int creationTimestampSeconds,
       int modificationTimestampSeconds,
       int orientation,
       Format format) {
     ByteBuffer contents = ByteBuffer.allocate(Mp4Utils.MAX_FIXED_LEAF_BOX_SIZE);
     contents.putInt(0x00000007); // version and flags; allow presentation, etc.
 
-    contents.putInt(modificationTimestampSeconds); // creation_time
-    contents.putInt(modificationTimestampSeconds); // modification_time
+    contents.putInt(creationTimestampSeconds); // creation_time; unsigned int(32)
+    contents.putInt(modificationTimestampSeconds); // modification_time; unsigned int(32)
 
     contents.putInt(trackId);
     contents.putInt(0); // reserved
@@ -132,12 +133,15 @@ import java.util.Locale;
    * <p>This is the movie header for the entire MP4 file.
    */
   public static ByteBuffer mvhd(
-      int nextEmptyTrackId, int modificationTimestampSeconds, long videoDurationUs) {
+      int nextEmptyTrackId,
+      int creationTimestampSeconds,
+      int modificationTimestampSeconds,
+      long videoDurationUs) {
     ByteBuffer contents = ByteBuffer.allocate(Mp4Utils.MAX_FIXED_LEAF_BOX_SIZE);
     contents.putInt(0); // version and flags
 
-    contents.putInt(modificationTimestampSeconds); // creation_time
-    contents.putInt(modificationTimestampSeconds); // modification_time
+    contents.putInt(creationTimestampSeconds); // creation_time; unsigned int(32)
+    contents.putInt(modificationTimestampSeconds); // modification_time; unsigned int(32)
     contents.putInt((int) MVHD_TIMEBASE); // The per-track timescales might be different.
     contents.putInt(
         (int) Mp4Utils.vuFromUs(videoDurationUs, MVHD_TIMEBASE)); // Duration of the entire video.
@@ -175,13 +179,14 @@ import java.util.Locale;
   public static ByteBuffer mdhd(
       long trackDurationVu,
       int videoUnitTimebase,
+      int creationTimestampSeconds,
       int modificationTimestampSeconds,
       @Nullable String languageCode) {
     ByteBuffer contents = ByteBuffer.allocate(Mp4Utils.MAX_FIXED_LEAF_BOX_SIZE);
     contents.putInt(0x0); // version and flags
 
-    contents.putInt(modificationTimestampSeconds); // creation_time
-    contents.putInt(modificationTimestampSeconds); // modification_time
+    contents.putInt(creationTimestampSeconds); // creation_time; unsigned int(32)
+    contents.putInt(modificationTimestampSeconds); // modification_time; unsigned int(32)
 
     contents.putInt(videoUnitTimebase);
 

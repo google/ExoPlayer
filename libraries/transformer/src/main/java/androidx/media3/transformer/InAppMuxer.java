@@ -28,7 +28,6 @@ import androidx.media3.common.util.Util;
 import androidx.media3.container.MdtaMetadataEntry;
 import androidx.media3.container.Mp4LocationData;
 import androidx.media3.container.Mp4TimestampData;
-import androidx.media3.container.Mp4Util;
 import androidx.media3.container.XmpData;
 import androidx.media3.muxer.Mp4Muxer;
 import androidx.media3.muxer.Mp4Muxer.TrackToken;
@@ -290,9 +289,7 @@ public final class InAppMuxer implements Muxer {
       } else if (entry instanceof XmpData) {
         mp4Muxer.addXmp(ByteBuffer.wrap(((XmpData) entry).data));
       } else if (entry instanceof Mp4TimestampData) {
-        // TODO: b/285281716 - Use creation time specific API.
-        mp4Muxer.setModificationTime(
-            Mp4Util.mp4TimeToUnixTimeMs(((Mp4TimestampData) entry).creationTimestampSeconds));
+        mp4Muxer.setTimestampData((Mp4TimestampData) entry);
       } else if (entry instanceof MdtaMetadataEntry) {
         MdtaMetadataEntry mdtaMetadataEntry = (MdtaMetadataEntry) entry;
         if (mdtaMetadataEntry.key.equals(MdtaMetadataEntry.KEY_ANDROID_CAPTURE_FPS)) {

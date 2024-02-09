@@ -4,13 +4,13 @@ mdat (126 bytes):
   Data = length 110, hash 48173D41
 moov (674 bytes):
   mvhd (108 bytes):
-    Data = length 100, hash 3D6D026F
+    Data = length 100, hash 105FA889
   trak (558 bytes):
     tkhd (92 bytes):
-      Data = length 84, hash 3EFBEC22
+      Data = length 84, hash AC22063C
     mdia (458 bytes):
       mdhd (32 bytes):
-        Data = length 24, hash 42F40E1C
+        Data = length 24, hash 88615B36
       hdlr (44 bytes):
         Data = length 36, hash A0852FF2
       minf (374 bytes):
