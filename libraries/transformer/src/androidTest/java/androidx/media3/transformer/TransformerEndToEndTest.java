@@ -17,7 +17,7 @@ package androidx.media3.transformer;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Util.isRunningOnEmulator;
-import static androidx.media3.test.utils.FileUtil.retrieveTrackFormat;
+import static androidx.media3.test.utils.TestUtil.retrieveTrackFormat;
 import static androidx.media3.transformer.AndroidTestUtil.JPG_ASSET_URI_STRING;
 import static androidx.media3.transformer.AndroidTestUtil.MP3_ASSET_URI_STRING;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_FORMAT;
@@ -75,7 +75,6 @@ import androidx.media3.effect.RgbFilter;
 import androidx.media3.effect.ScaleAndRotateTransformation;
 import androidx.media3.effect.TimestampWrapper;
 import androidx.media3.exoplayer.audio.TeeAudioProcessor;
-import androidx.media3.test.utils.FileUtil;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
@@ -494,7 +493,7 @@ public class TransformerEndToEndTest {
             .run(testId, editedMediaItem);
 
     assertThat(result.exportResult.durationMs).isAtMost(clippingEndMs - clippingStartMs);
-    Format format = FileUtil.retrieveTrackFormat(context, result.filePath, C.TRACK_TYPE_VIDEO);
+    Format format = retrieveTrackFormat(context, result.filePath, C.TRACK_TYPE_VIDEO);
     // The output video is portrait, but Transformer's default setup encodes videos landscape.
     assertThat(format.rotationDegrees).isEqualTo(90);
   }
@@ -582,7 +581,7 @@ public class TransformerEndToEndTest {
     assertThat(result.exportResult.optimizationResult)
         .isEqualTo(OPTIMIZATION_FAILED_FORMAT_MISMATCH);
     assertThat(result.exportResult.durationMs).isAtMost(clippingEndMs - clippingStartMs);
-    Format format = FileUtil.retrieveTrackFormat(context, result.filePath, C.TRACK_TYPE_VIDEO);
+    Format format = retrieveTrackFormat(context, result.filePath, C.TRACK_TYPE_VIDEO);
     // The video is transcoded, so the rotation is performed in the VideoFrameProcessor.
     // The output video is portrait, but Transformer's default setup encodes videos landscape.
     assertThat(format.rotationDegrees).isEqualTo(0);
@@ -743,7 +742,7 @@ public class TransformerEndToEndTest {
         .isEqualTo(CONVERSION_PROCESS_TRANSMUXED_AND_TRANSCODED);
     assertThat(result.exportResult.audioConversionProcess).isEqualTo(CONVERSION_PROCESS_NA);
 
-    Format format = FileUtil.retrieveTrackFormat(context, result.filePath, C.TRACK_TYPE_VIDEO);
+    Format format = retrieveTrackFormat(context, result.filePath, C.TRACK_TYPE_VIDEO);
     // The video is trim-optimized, so the rotation is performed in MuxerWrapper.
     // The MuxerWrapper rotation is clockwise while the ScaleAndRotateTransformation rotation
     // is counterclockwise.

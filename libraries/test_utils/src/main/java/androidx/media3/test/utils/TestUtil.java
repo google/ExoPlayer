@@ -16,6 +16,7 @@
 package androidx.media3.test.utils;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
+import static androidx.media3.common.util.Assertions.checkState;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
@@ -30,10 +31,12 @@ import android.os.Bundle;
 import android.os.Parcel;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
+import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MediaMetadata;
 import androidx.media3.common.StreamKey;
 import androidx.media3.common.Timeline;
+import androidx.media3.common.TrackGroup;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
@@ -42,6 +45,8 @@ import androidx.media3.database.DefaultDatabaseProvider;
 import androidx.media3.datasource.DataSource;
 import androidx.media3.datasource.DataSourceUtil;
 import androidx.media3.datasource.DataSpec;
+import androidx.media3.exoplayer.MetadataRetriever;
+import androidx.media3.exoplayer.source.TrackGroupArray;
 import androidx.media3.extractor.DefaultExtractorInput;
 import androidx.media3.extractor.Extractor;
 import androidx.media3.extractor.ExtractorInput;
@@ -70,6 +75,7 @@ import java.util.Queue;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 /** Utility methods for tests. */
 @UnstableApi
@@ -354,6 +360,31 @@ public class TestUtil {
   /** Returns the {@link Uri} for the given asset path. */
   public static Uri buildAssetUri(String assetPath) {
     return Uri.parse("asset:///" + assetPath);
+  }
+
+  /** Returns the {@linkplain Format track format} from the media file. */
+  public static Format retrieveTrackFormat(
+      Context context, String filePath, @C.TrackType int trackType) {
+    TrackGroupArray trackGroupArray;
+    try {
+      trackGroupArray =
+          MetadataRetriever.retrieveMetadata(context, MediaItem.fromUri("file://" + filePath))
+              .get();
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new IllegalStateException(e);
+    } catch (ExecutionException e) {
+      throw new IllegalStateException(e);
+    }
+
+    for (int i = 0; i < trackGroupArray.length; i++) {
+      TrackGroup trackGroup = trackGroupArray.get(i);
+      if (trackGroup.type == trackType) {
+        checkState(trackGroup.length == 1);
+        return trackGroup.getFormat(0);
+      }
+    }
+    throw new IllegalStateException("Couldn't find track");
   }
 
   /**
