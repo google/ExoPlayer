@@ -42,7 +42,7 @@ android {
 }
 
 dependencies {
-    implementation project(modulePrefix + 'lib-common')
+    api project(modulePrefix + 'lib-common')
     implementation project(modulePrefix + 'lib-container')
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
     compileOnly 'com.google.errorprone:error_prone_annotations:' + errorProneVersion

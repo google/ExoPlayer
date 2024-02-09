@@ -45,8 +45,8 @@ dependencies {
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
     implementation project(modulePrefix + 'lib-datasource')
     implementation project(modulePrefix + 'lib-container')
-    implementation project(modulePrefix + 'lib-exoplayer')
-    implementation project(modulePrefix + 'lib-effect')
+    api project(modulePrefix + 'lib-exoplayer')
+    api project(modulePrefix + 'lib-effect')
     implementation project(modulePrefix + 'lib-muxer')
     compileOnly 'com.google.errorprone:error_prone_annotations:' + errorProneVersion
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion

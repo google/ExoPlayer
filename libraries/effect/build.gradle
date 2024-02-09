@@ -42,7 +42,7 @@ android {
 
 dependencies {
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
-    implementation project(modulePrefix + 'lib-common')
+    api project(modulePrefix + 'lib-common')
     implementation project(modulePrefix + 'lib-datasource')
     compileOnly 'com.google.errorprone:error_prone_annotations:' + errorProneVersion
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
