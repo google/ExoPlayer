@@ -138,6 +138,8 @@ public class MediaControllerListenerWithMediaSessionCompatTest {
             .build();
     Bundle extras2 = new Bundle();
     extras2.putString("key", "value-2");
+    extras2.putInt(
+        MediaConstants.EXTRAS_KEY_COMMAND_BUTTON_ICON_COMPAT, CommandButton.ICON_FAST_FORWARD);
     PlaybackStateCompat.CustomAction customAction2 =
         new PlaybackStateCompat.CustomAction.Builder("action2", "actionName2", /* icon= */ 2)
             .setExtras(extras2)
@@ -151,6 +153,7 @@ public class MediaControllerListenerWithMediaSessionCompatTest {
     List<String> receivedBundleValues = new ArrayList<>();
     List<Integer> receivedIconResIds = new ArrayList<>();
     List<Integer> receivedCommandCodes = new ArrayList<>();
+    List<Integer> receivedIcons = new ArrayList<>();
     CountDownLatch countDownLatch = new CountDownLatch(1);
     controllerTestRule.createController(
         session.getSessionToken(),
@@ -164,6 +167,7 @@ public class MediaControllerListenerWithMediaSessionCompatTest {
               receivedBundleValues.add(button.sessionCommand.customExtras.getString("key"));
               receivedCommandCodes.add(button.sessionCommand.commandCode);
               receivedIconResIds.add(button.iconResId);
+              receivedIcons.add(button.icon);
             }
             countDownLatch.countDown();
             return Futures.immediateFuture(new SessionResult(SessionResult.RESULT_SUCCESS));
@@ -180,6 +184,9 @@ public class MediaControllerListenerWithMediaSessionCompatTest {
     assertThat(receivedDisplayNames).containsExactly("actionName1", "actionName2").inOrder();
     assertThat(receivedIconResIds).containsExactly(1, 2).inOrder();
     assertThat(receivedBundleValues).containsExactly("value-1", "value-2").inOrder();
+    assertThat(receivedIcons)
+        .containsExactly(CommandButton.ICON_UNDEFINED, CommandButton.ICON_FAST_FORWARD)
+        .inOrder();
   }
 
   @Test
@@ -395,6 +402,7 @@ public class MediaControllerListenerWithMediaSessionCompatTest {
     CommandButton button2 =
         new CommandButton.Builder()
             .setDisplayName("button2")
+            .setIcon(CommandButton.ICON_FAST_FORWARD)
             .setIconResId(R.drawable.media3_notification_small_icon)
             .setSessionCommand(new SessionCommand("command2", Bundle.EMPTY))
             .build();
@@ -431,6 +439,8 @@ public class MediaControllerListenerWithMediaSessionCompatTest {
             .build();
     Bundle extras2 = new Bundle();
     extras2.putString("key", "value-2");
+    extras2.putInt(
+        MediaConstants.EXTRAS_KEY_COMMAND_BUTTON_ICON_COMPAT, CommandButton.ICON_FAST_FORWARD);
     PlaybackStateCompat.CustomAction customAction2 =
         new PlaybackStateCompat.CustomAction.Builder(
                 "command2", "button2", /* icon= */ R.drawable.media3_notification_small_icon)

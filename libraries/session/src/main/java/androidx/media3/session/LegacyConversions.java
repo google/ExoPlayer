@@ -1258,11 +1258,19 @@ import java.util.concurrent.TimeoutException;
     for (CustomAction customAction : state.getCustomActions()) {
       String action = customAction.getAction();
       @Nullable Bundle extras = customAction.getExtras();
+      @CommandButton.Icon
+      int icon =
+          extras != null
+              ? extras.getInt(
+                  MediaConstants.EXTRAS_KEY_COMMAND_BUTTON_ICON_COMPAT,
+                  /* defaultValue= */ CommandButton.ICON_UNDEFINED)
+              : CommandButton.ICON_UNDEFINED;
       CommandButton button =
           new CommandButton.Builder()
               .setSessionCommand(new SessionCommand(action, extras == null ? Bundle.EMPTY : extras))
               .setDisplayName(customAction.getName())
               .setEnabled(true)
+              .setIcon(icon)
               .setIconResId(customAction.getIcon())
               .build();
       layout.add(button);

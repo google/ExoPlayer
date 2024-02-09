@@ -18,11 +18,13 @@ package androidx.media3.session;
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import androidx.annotation.DrawableRes;
+import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.media3.common.Bundleable;
 import androidx.media3.common.Player;
@@ -32,6 +34,10 @@ import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.errorprone.annotations.CheckReturnValue;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.List;
 
 /**
@@ -43,11 +49,343 @@ import java.util.List;
  */
 public final class CommandButton implements Bundleable {
 
+  /** An icon constant for a button. Must be one of the {@code CommandButton.ICON_} constants. */
+  @UnstableApi
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
+  @IntDef({
+    ICON_UNDEFINED,
+    ICON_PLAY,
+    ICON_PAUSE,
+    ICON_STOP,
+    ICON_NEXT,
+    ICON_PREVIOUS,
+    ICON_SKIP_FORWARD,
+    ICON_SKIP_FORWARD_5,
+    ICON_SKIP_FORWARD_10,
+    ICON_SKIP_FORWARD_15,
+    ICON_SKIP_FORWARD_30,
+    ICON_SKIP_BACK,
+    ICON_SKIP_BACK_5,
+    ICON_SKIP_BACK_10,
+    ICON_SKIP_BACK_15,
+    ICON_SKIP_BACK_30,
+    ICON_FAST_FORWARD,
+    ICON_REWIND,
+    ICON_REPEAT_ALL,
+    ICON_REPEAT_ONE,
+    ICON_SHUFFLE,
+    ICON_SHUFFLE_STAR,
+    ICON_HEART_FILLED,
+    ICON_HEART_UNFILLED,
+    ICON_STAR_FILLED,
+    ICON_STAR_UNFILLED,
+    ICON_BOOKMARK_FILLED,
+    ICON_BOOKMARK_UNFILLED,
+    ICON_THUMB_UP_FILLED,
+    ICON_THUMB_UP_UNFILLED,
+    ICON_THUMB_DOWN_FILLED,
+    ICON_THUMB_DOWN_UNFILLED,
+    ICON_FLAG_FILLED,
+    ICON_FLAG_UNFILLED,
+    ICON_PLUS,
+    ICON_MINUS,
+    ICON_PLAYLIST_ADD,
+    ICON_PLAYLIST_REMOVE,
+    ICON_BLOCK,
+    ICON_PLUS_CIRCLE_FILLED,
+    ICON_PLUS_CIRCLE_UNFILLED,
+    ICON_MINUS_CIRCLE_FILLED,
+    ICON_MINUS_CIRCLE_UNFILLED,
+    ICON_CHECK_CIRCLE_FILLED,
+    ICON_CHECK_CIRCLE_UNFILLED,
+    ICON_PLAYBACK_SPEED,
+    ICON_PLAYBACK_SPEED_0_5,
+    ICON_PLAYBACK_SPEED_0_8,
+    ICON_PLAYBACK_SPEED_1_0,
+    ICON_PLAYBACK_SPEED_1_2,
+    ICON_PLAYBACK_SPEED_1_5,
+    ICON_PLAYBACK_SPEED_1_8,
+    ICON_PLAYBACK_SPEED_2_0,
+    ICON_SETTINGS,
+    ICON_QUALITY,
+    ICON_SUBTITLES,
+    ICON_SUBTITLES_OFF,
+    ICON_CLOSED_CAPTIONS,
+    ICON_CLOSED_CAPTIONS_OFF,
+    ICON_SYNC,
+    ICON_SHARE,
+    ICON_VOLUME_UP,
+    ICON_VOLUME_DOWN,
+    ICON_VOLUME_OFF,
+    ICON_ARTIST,
+    ICON_ALBUM,
+    ICON_RADIO,
+    ICON_SIGNAL,
+    ICON_FEED
+  })
+  public @interface Icon {}
+
+  // Note: The constant values of these icons matches the Material Design code points.
+
+  /**
+   * An icon constant representing an undefined icon, for example a custom icon not covered by the
+   * existing constants.
+   */
+  @UnstableApi public static final int ICON_UNDEFINED = 0;
+
+  /** An icon showing a play symbol (a right facing triangle). */
+  @UnstableApi public static final int ICON_PLAY = 0xe037;
+
+  /** An icon showing a pause symbol (two vertical bars). */
+  @UnstableApi public static final int ICON_PAUSE = 0xe034;
+
+  /** An icon showing a stop symbol (a square). */
+  @UnstableApi public static final int ICON_STOP = 0xe047;
+
+  /** An icon showing a next symbol (a right facing triangle with a vertical bar). */
+  @UnstableApi public static final int ICON_NEXT = 0xe044;
+
+  /** An icon showing a previous symbol (a left facing triangle with a vertical bar). */
+  @UnstableApi public static final int ICON_PREVIOUS = 0xe045;
+
+  /** An icon showing a skip forward symbol (an open clock-wise arrow). */
+  @UnstableApi public static final int ICON_SKIP_FORWARD = 0xf6f4;
+
+  /**
+   * An icon showing a skip forward 5 seconds symbol (an open clockwise arrow with the number 5).
+   */
+  @UnstableApi public static final int ICON_SKIP_FORWARD_5 = 0xe058;
+
+  /**
+   * An icon showing a skip forward 10 seconds symbol (an open clockwise arrow with the number 10).
+   */
+  @UnstableApi public static final int ICON_SKIP_FORWARD_10 = 0xe056;
+
+  /**
+   * An icon showing a skip forward 15 seconds symbol (an open clockwise arrow with the number 15).
+   */
+  @UnstableApi public static final int ICON_SKIP_FORWARD_15 = 0xfe056;
+
+  /**
+   * An icon showing a skip forward 30 seconds symbol (an open clockwise arrow with the number 30).
+   */
+  @UnstableApi public static final int ICON_SKIP_FORWARD_30 = 0xe057;
+
+  /** An icon showing a skip back symbol (an open anti-clockwise arrow). */
+  @UnstableApi public static final int ICON_SKIP_BACK = 0xe042;
+
+  /**
+   * An icon showing a skip back 5 seconds symbol (an open anti-clockwise arrow with the number 5).
+   */
+  @UnstableApi public static final int ICON_SKIP_BACK_5 = 0xe05b;
+
+  /**
+   * An icon showing a skip back 10 seconds symbol (an open anti-clockwise arrow with the number
+   * 10).
+   */
+  @UnstableApi public static final int ICON_SKIP_BACK_10 = 0xe059;
+
+  /**
+   * An icon showing a skip back 15 seconds symbol (an open anti-clockwise arrow with the number
+   * 15).
+   */
+  @UnstableApi public static final int ICON_SKIP_BACK_15 = 0xfe059;
+
+  /**
+   * An icon showing a skip back 30 seconds symbol (an open anti-clockwise arrow with the number
+   * 30).
+   */
+  @UnstableApi public static final int ICON_SKIP_BACK_30 = 0xe05a;
+
+  /** An icon showing a fast forward symbol (two right facing triangles). */
+  @UnstableApi public static final int ICON_FAST_FORWARD = 0xe01f;
+
+  /** An icon showing a rewind symbol (two left facing triangles). */
+  @UnstableApi public static final int ICON_REWIND = 0xe020;
+
+  /** An icon showing a repeat all symbol (two open clockwise arrows). */
+  @UnstableApi public static final int ICON_REPEAT_ALL = 0xe040;
+
+  /** An icon showing a repeat one symbol (two open clockwise arrows with an overlaid number 1). */
+  @UnstableApi public static final int ICON_REPEAT_ONE = 0xe041;
+
+  /** An icon showing a shuffle symbol (two diagonal upward and downward facing arrows). */
+  @UnstableApi public static final int ICON_SHUFFLE = 0xe043;
+
+  /**
+   * An icon showing a shuffle symbol with a start (two diagonal upward and downward facing arrows
+   * with an overlaid star).
+   */
+  @UnstableApi public static final int ICON_SHUFFLE_STAR = 0xfe043;
+
+  /** An icon showing a filled heart symbol. */
+  @UnstableApi public static final int ICON_HEART_FILLED = 0xfe87d;
+
+  /** An icon showing an unfilled heart symbol. */
+  @UnstableApi public static final int ICON_HEART_UNFILLED = 0xe87d;
+
+  /** An icon showing a filled star symbol. */
+  @UnstableApi public static final int ICON_STAR_FILLED = 0xfe838;
+
+  /** An icon showing an unfilled star symbol. */
+  @UnstableApi public static final int ICON_STAR_UNFILLED = 0xe838;
+
+  /** An icon showing a filled bookmark symbol. */
+  @UnstableApi public static final int ICON_BOOKMARK_FILLED = 0xfe866;
+
+  /** An icon showing an unfilled bookmark symbol. */
+  @UnstableApi public static final int ICON_BOOKMARK_UNFILLED = 0xe866;
+
+  /** An icon showing a filled thumb-up symbol. */
+  @UnstableApi public static final int ICON_THUMB_UP_FILLED = 0xfe8dc;
+
+  /** An icon showing an unfilled thumb-up symbol. */
+  @UnstableApi public static final int ICON_THUMB_UP_UNFILLED = 0xe8dc;
+
+  /** An icon showing a filled thumb-down symbol. */
+  @UnstableApi public static final int ICON_THUMB_DOWN_FILLED = 0xfe8db;
+
+  /** An icon showing an unfilled thumb-down symbol. */
+  @UnstableApi public static final int ICON_THUMB_DOWN_UNFILLED = 0xe8db;
+
+  /** An icon showing a filled flag symbol. */
+  @UnstableApi public static final int ICON_FLAG_FILLED = 0xfe153;
+
+  /** An icon showing an unfilled flag symbol. */
+  @UnstableApi public static final int ICON_FLAG_UNFILLED = 0xe153;
+
+  /** An icon showing a plus symbol. */
+  @UnstableApi public static final int ICON_PLUS = 0xe145;
+
+  /** An icon showing a minus symbol. */
+  @UnstableApi public static final int ICON_MINUS = 0xe15b;
+
+  /** An icon showing an add to playlist symbol (multiple horizontal bars with a small plus). */
+  @UnstableApi public static final int ICON_PLAYLIST_ADD = 0xe03b;
+
+  /**
+   * An icon showing an remove from playlist symbol (multiple horizontal bars with a small minus).
+   */
+  @UnstableApi public static final int ICON_PLAYLIST_REMOVE = 0xeb80;
+
+  /** An icon showing a block symbol (a circle with a diagonal line). */
+  @UnstableApi public static final int ICON_BLOCK = 0xe14b;
+
+  /** An icon showing a filled circle with a plus. */
+  @UnstableApi public static final int ICON_PLUS_CIRCLE_FILLED = 0xfe147;
+
+  /** An icon showing an unfilled circle with a plus. */
+  @UnstableApi public static final int ICON_PLUS_CIRCLE_UNFILLED = 0xe147;
+
+  /** An icon showing a filled circle with a minus. */
+  @UnstableApi public static final int ICON_MINUS_CIRCLE_FILLED = 0xfe148;
+
+  /** An icon showing an unfilled circle with a minus. */
+  @UnstableApi public static final int ICON_MINUS_CIRCLE_UNFILLED = 0xfe149;
+
+  /** An icon showing a filled circle with a check mark. */
+  @UnstableApi public static final int ICON_CHECK_CIRCLE_FILLED = 0xfe86c;
+
+  /** An icon showing a unfilled circle with a check mark. */
+  @UnstableApi public static final int ICON_CHECK_CIRCLE_UNFILLED = 0xe86c;
+
+  /**
+   * An icon showing a playback speed symbol (a right facing triangle in a circle with half-dashed,
+   * half-solid contour).
+   */
+  @UnstableApi public static final int ICON_PLAYBACK_SPEED = 0xe068;
+
+  /** An icon showing a 0.5x speed symbol. */
+  @UnstableApi public static final int ICON_PLAYBACK_SPEED_0_5 = 0xf4e2;
+
+  /** An icon showing a 0.8x speed symbol. */
+  @UnstableApi public static final int ICON_PLAYBACK_SPEED_0_8 = 0xff4e2;
+
+  /** An icon showing a 1.0x speed symbol. */
+  @UnstableApi public static final int ICON_PLAYBACK_SPEED_1_0 = 0xefcd;
+
+  /** An icon showing a 1.2x speed symbol. */
+  @UnstableApi public static final int ICON_PLAYBACK_SPEED_1_2 = 0xf4e1;
+
+  /** An icon showing a 1.5x speed symbol. */
+  @UnstableApi public static final int ICON_PLAYBACK_SPEED_1_5 = 0xf4e0;
+
+  /** An icon showing a 1.8x speed symbol. */
+  @UnstableApi public static final int ICON_PLAYBACK_SPEED_1_8 = 0xff4e0;
+
+  /** An icon showing a 2.0x speed symbol. */
+  @UnstableApi public static final int ICON_PLAYBACK_SPEED_2_0 = 0xf4eb;
+
+  /** An icon showing a settings symbol (a stylized cog). */
+  @UnstableApi public static final int ICON_SETTINGS = 0xe8b8;
+
+  /** An icon showing a quality selection symbol (multiple horizontal bars with sliders). */
+  @UnstableApi public static final int ICON_QUALITY = 0xe429;
+
+  /** An icon showing a subtitles symbol (a rectangle filled with dots and horizontal lines). */
+  @UnstableApi public static final int ICON_SUBTITLES = 0xe048;
+
+  /**
+   * An icon showing a subtitles off symbol (a rectangle filled with dots and horizontal lines, with
+   * a large diagonal line across).
+   */
+  @UnstableApi public static final int ICON_SUBTITLES_OFF = 0xef72;
+
+  /** An icon showing a closed caption symbol (a rectangle with the letters CC). */
+  @UnstableApi public static final int ICON_CLOSED_CAPTIONS = 0xe01c;
+
+  /**
+   * An icon showing a closed caption off symbol (a rectangle with the letters CC, with a large
+   * diagonal line across).
+   */
+  @UnstableApi public static final int ICON_CLOSED_CAPTIONS_OFF = 0xf1dc;
+
+  /** An icon showing a sync symbol (two open anti-clockwise arrows). */
+  @UnstableApi public static final int ICON_SYNC = 0xe627;
+
+  /**
+   * An icon showing a share symbol (three dots connected by two diagonal lines, open on the right).
+   */
+  @UnstableApi public static final int ICON_SHARE = 0xe80d;
+
+  /** An icon showing a volume up symbol (a stylized speaker with multiple sound waves). */
+  @UnstableApi public static final int ICON_VOLUME_UP = 0xe050;
+
+  /** An icon showing a volume down symbol (a stylized speaker with a single small sound wave). */
+  @UnstableApi public static final int ICON_VOLUME_DOWN = 0xe04d;
+
+  /**
+   * An icon showing a volume off symbol (a stylized speaker with multiple sound waves, with a large
+   * diagonal line across).
+   */
+  @UnstableApi public static final int ICON_VOLUME_OFF = 0xe04f;
+
+  /** An icon showing an artist symbol (a stylized person with a musical note). */
+  @UnstableApi public static final int ICON_ARTIST = 0xe01a;
+
+  /** An icon showing an album symbol (a stylized LP record). */
+  @UnstableApi public static final int ICON_ALBUM = 0xe019;
+
+  /** An icon showing a radio symbol (left and right facing sound waves). */
+  @UnstableApi public static final int ICON_RADIO = 0xe51e;
+
+  /** An icon showing an signal symbol (a vertical mast with circular sounds waves). */
+  @UnstableApi public static final int ICON_SIGNAL = 0xf048;
+
+  /**
+   * An icon showing an feed symbol (a dot in the bottom-left with multiple concentric quarter
+   * circles).
+   */
+  @UnstableApi public static final int ICON_FEED = 0xe0e5;
+
   /** A builder for {@link CommandButton}. */
   public static final class Builder {
 
     @Nullable private SessionCommand sessionCommand;
     private @Player.Command int playerCommand;
+    private @Icon int icon;
     @DrawableRes private int iconResId;
     @Nullable private Uri iconUri;
     private CharSequence displayName;
@@ -59,6 +397,7 @@ public final class CommandButton implements Bundleable {
       displayName = "";
       extras = Bundle.EMPTY;
       playerCommand = Player.COMMAND_INVALID;
+      icon = ICON_UNDEFINED;
     }
 
     /**
@@ -94,6 +433,19 @@ public final class CommandButton implements Bundleable {
           "sessionCommand is already set. Only one of sessionCommand and playerCommand should be"
               + " set.");
       this.playerCommand = playerCommand;
+      return this;
+    }
+
+    /**
+     * Sets the icon of this button.
+     *
+     * @param icon The {@link Icon} that should be shown for this button.
+     * @return This builder for chaining.
+     */
+    @UnstableApi
+    @CanIgnoreReturnValue
+    public Builder setIcon(@Icon int icon) {
+      this.icon = icon;
       return this;
     }
 
@@ -168,7 +520,7 @@ public final class CommandButton implements Bundleable {
           (sessionCommand == null) != (playerCommand == Player.COMMAND_INVALID),
           "Exactly one of sessionCommand and playerCommand should be set");
       return new CommandButton(
-          sessionCommand, playerCommand, iconResId, iconUri, displayName, extras, enabled);
+          sessionCommand, playerCommand, icon, iconResId, iconUri, displayName, extras, enabled);
     }
   }
 
@@ -180,6 +532,9 @@ public final class CommandButton implements Bundleable {
    * {@link #sessionCommand} is set.
    */
   public final @Player.Command int playerCommand;
+
+  /** The {@link Icon} of the button. */
+  @UnstableApi public final @Icon int icon;
 
   /**
    * The icon resource id of the button. Can be {@code 0} if the command is predefined and a custom
@@ -208,6 +563,7 @@ public final class CommandButton implements Bundleable {
   private CommandButton(
       @Nullable SessionCommand sessionCommand,
       @Player.Command int playerCommand,
+      @Icon int icon,
       @DrawableRes int iconResId,
       @Nullable Uri iconUri,
       CharSequence displayName,
@@ -215,6 +571,7 @@ public final class CommandButton implements Bundleable {
       boolean enabled) {
     this.sessionCommand = sessionCommand;
     this.playerCommand = playerCommand;
+    this.icon = icon;
     this.iconResId = iconResId;
     this.iconUri = iconUri;
     this.displayName = displayName;
@@ -234,6 +591,7 @@ public final class CommandButton implements Bundleable {
     return new CommandButton(
         sessionCommand,
         playerCommand,
+        icon,
         iconResId,
         iconUri,
         displayName,
@@ -253,6 +611,7 @@ public final class CommandButton implements Bundleable {
     CommandButton button = (CommandButton) obj;
     return Objects.equal(sessionCommand, button.sessionCommand)
         && playerCommand == button.playerCommand
+        && icon == button.icon
         && iconResId == button.iconResId
         && Objects.equal(iconUri, button.iconUri)
         && TextUtils.equals(displayName, button.displayName)
@@ -262,7 +621,7 @@ public final class CommandButton implements Bundleable {
   @Override
   public int hashCode() {
     return Objects.hashCode(
-        sessionCommand, playerCommand, iconResId, displayName, isEnabled, iconUri);
+        sessionCommand, playerCommand, icon, iconResId, displayName, isEnabled, iconUri);
   }
 
   /**
@@ -307,6 +666,7 @@ public final class CommandButton implements Bundleable {
   private static final String FIELD_EXTRAS = Util.intToStringMaxRadix(4);
   private static final String FIELD_ENABLED = Util.intToStringMaxRadix(5);
   private static final String FIELD_ICON_URI = Util.intToStringMaxRadix(6);
+  private static final String FIELD_ICON = Util.intToStringMaxRadix(7);
 
   @UnstableApi
   @Override
@@ -315,12 +675,27 @@ public final class CommandButton implements Bundleable {
     if (sessionCommand != null) {
       bundle.putBundle(FIELD_SESSION_COMMAND, sessionCommand.toBundle());
     }
-    bundle.putInt(FIELD_PLAYER_COMMAND, playerCommand);
-    bundle.putInt(FIELD_ICON_RES_ID, iconResId);
-    bundle.putCharSequence(FIELD_DISPLAY_NAME, displayName);
-    bundle.putBundle(FIELD_EXTRAS, extras);
-    bundle.putParcelable(FIELD_ICON_URI, iconUri);
-    bundle.putBoolean(FIELD_ENABLED, isEnabled);
+    if (playerCommand != Player.COMMAND_INVALID) {
+      bundle.putInt(FIELD_PLAYER_COMMAND, playerCommand);
+    }
+    if (icon != ICON_UNDEFINED) {
+      bundle.putInt(FIELD_ICON, icon);
+    }
+    if (iconResId != 0) {
+      bundle.putInt(FIELD_ICON_RES_ID, iconResId);
+    }
+    if (displayName != "") {
+      bundle.putCharSequence(FIELD_DISPLAY_NAME, displayName);
+    }
+    if (!extras.isEmpty()) {
+      bundle.putBundle(FIELD_EXTRAS, extras);
+    }
+    if (iconUri != null) {
+      bundle.putParcelable(FIELD_ICON_URI, iconUri);
+    }
+    if (isEnabled) {
+      bundle.putBoolean(FIELD_ENABLED, isEnabled);
+    }
     return bundle;
   }
 
@@ -349,6 +724,7 @@ public final class CommandButton implements Bundleable {
     @Nullable Bundle extras = bundle.getBundle(FIELD_EXTRAS);
     boolean enabled = bundle.getBoolean(FIELD_ENABLED, /* defaultValue= */ false);
     @Nullable Uri iconUri = bundle.getParcelable(FIELD_ICON_URI);
+    @Icon int icon = bundle.getInt(FIELD_ICON, /* defaultValue= */ ICON_UNDEFINED);
     Builder builder = new Builder();
     if (sessionCommand != null) {
       builder.setSessionCommand(sessionCommand);
@@ -360,6 +736,7 @@ public final class CommandButton implements Bundleable {
       builder.setIconUri(iconUri);
     }
     return builder
+        .setIcon(icon)
         .setIconResId(iconResId)
         .setDisplayName(displayName)
         .setExtras(extras == null ? Bundle.EMPTY : extras)

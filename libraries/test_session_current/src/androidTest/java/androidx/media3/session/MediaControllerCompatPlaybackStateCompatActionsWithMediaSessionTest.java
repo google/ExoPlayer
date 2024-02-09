@@ -1563,6 +1563,7 @@ public class MediaControllerCompatPlaybackStateCompatActionsWithMediaSessionTest
                 .build(),
             new CommandButton.Builder()
                 .setDisplayName("button2")
+                .setIcon(CommandButton.ICON_FAST_FORWARD)
                 .setIconResId(R.drawable.media3_notification_pause)
                 .setSessionCommand(command2)
                 .build());

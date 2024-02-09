@@ -1048,12 +1048,18 @@ import java.util.List;
         if (sessionCommand.commandCode == SessionCommand.COMMAND_CODE_CUSTOM
             && CommandButton.isEnabled(
                 commandButton, availableSessionCommands, availablePlayerCommands)) {
+          Bundle actionExtras = sessionCommand.customExtras;
+          if (commandButton.icon != CommandButton.ICON_UNDEFINED) {
+            actionExtras = new Bundle(sessionCommand.customExtras);
+            actionExtras.putInt(
+                MediaConstants.EXTRAS_KEY_COMMAND_BUTTON_ICON_COMPAT, commandButton.icon);
+          }
           builder.addCustomAction(
               new PlaybackStateCompat.CustomAction.Builder(
                       sessionCommand.customAction,
                       commandButton.displayName,
                       commandButton.iconResId)
-                  .setExtras(sessionCommand.customExtras)
+                  .setExtras(actionExtras)
                   .build());
         }
       }

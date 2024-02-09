@@ -58,6 +58,7 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
+import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.List;
 import org.junit.Before;
@@ -895,23 +896,23 @@ public final class LegacyConversionsTest {
   }
 
   @Test
-  public void convertToCustomLayout() {
+  public void convertToCustomLayout_withNull_returnsEmptyList() {
     assertThat(LegacyConversions.convertToCustomLayout(null)).isEmpty();
+  }
 
+  @Test
+  public void convertToCustomLayout_withoutIconConstantInExtras() {
     String extraKey = "key";
     String extraValue = "value";
     String actionStr = "action";
     String displayName = "display_name";
     int iconRes = 21;
-
     Bundle extras = new Bundle();
     extras.putString(extraKey, extraValue);
-
     PlaybackStateCompat.CustomAction action =
         new PlaybackStateCompat.CustomAction.Builder(actionStr, displayName, iconRes)
             .setExtras(extras)
             .build();
-
     PlaybackStateCompat state =
         new PlaybackStateCompat.Builder()
             .setState(
@@ -922,7 +923,8 @@ public final class LegacyConversionsTest {
             .addCustomAction(action)
             .build();
 
-    List<CommandButton> buttons = LegacyConversions.convertToCustomLayout(state);
+    ImmutableList<CommandButton> buttons = LegacyConversions.convertToCustomLayout(state);
+
     assertThat(buttons).hasSize(1);
     CommandButton button = buttons.get(0);
     assertThat(button.displayName.toString()).isEqualTo(displayName);
@@ -930,6 +932,41 @@ public final class LegacyConversionsTest {
     assertThat(button.iconResId).isEqualTo(iconRes);
     assertThat(button.sessionCommand.customAction).isEqualTo(actionStr);
     assertThat(button.sessionCommand.customExtras.getString(extraKey)).isEqualTo(extraValue);
+    assertThat(button.icon).isEqualTo(CommandButton.ICON_UNDEFINED);
+  }
+
+  @Test
+  public void convertToCustomLayout_withIconConstantInExtras() {
+    String actionStr = "action";
+    String displayName = "display_name";
+    int iconRes = 21;
+    Bundle extras = new Bundle();
+    extras.putInt(
+        androidx.media3.session.MediaConstants.EXTRAS_KEY_COMMAND_BUTTON_ICON_COMPAT,
+        CommandButton.ICON_FAST_FORWARD);
+    PlaybackStateCompat.CustomAction action =
+        new PlaybackStateCompat.CustomAction.Builder(actionStr, displayName, iconRes)
+            .setExtras(extras)
+            .build();
+    PlaybackStateCompat state =
+        new PlaybackStateCompat.Builder()
+            .setState(
+                PlaybackStateCompat.STATE_NONE,
+                /* position= */ 0,
+                /* playbackSpeed= */ 1,
+                /* updateTime= */ 100)
+            .addCustomAction(action)
+            .build();
+
+    ImmutableList<CommandButton> buttons = LegacyConversions.convertToCustomLayout(state);
+
+    assertThat(buttons).hasSize(1);
+    CommandButton button = buttons.get(0);
+    assertThat(button.displayName.toString()).isEqualTo(displayName);
+    assertThat(button.isEnabled).isTrue();
+    assertThat(button.iconResId).isEqualTo(iconRes);
+    assertThat(button.sessionCommand.customAction).isEqualTo(actionStr);
+    assertThat(button.icon).isEqualTo(CommandButton.ICON_FAST_FORWARD);
   }
 
   @Test

@@ -465,6 +465,15 @@ public final class MediaConstants {
   public static final String EXTRAS_KEY_MEDIA_TYPE_COMPAT =
       "androidx.media3.session.EXTRAS_KEY_MEDIA_TYPE_COMPAT";
 
+  /**
+   * {@link Bundle} key used to indicate the {@link CommandButton.Icon} in the extras of the legacy
+   * {@link PlaybackStateCompat.CustomAction}. The corresponding value should be one of the {@code
+   * CommandButton.ICON_} integer constants.
+   */
+  @UnstableApi
+  public static final String EXTRAS_KEY_COMMAND_BUTTON_ICON_COMPAT =
+      "androidx.media3.session.EXTRAS_KEY_COMMAND_BUTTON_ICON_COMPAT";
+
   /* package */ static final String SESSION_COMMAND_ON_CAPTIONING_ENABLED_CHANGED =
       "androidx.media3.session.SESSION_COMMAND_ON_CAPTIONING_ENABLED_CHANGED";
   /* package */ static final String SESSION_COMMAND_REQUEST_SESSION3_TOKEN =

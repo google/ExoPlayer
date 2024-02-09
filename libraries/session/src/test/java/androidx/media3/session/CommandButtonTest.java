@@ -242,6 +242,14 @@ public class CommandButtonTest {
                 .setIconUri(Uri.parse("content://test"))
                 .setPlayerCommand(Player.COMMAND_SEEK_TO_NEXT)
                 .build());
+    assertThat(button)
+        .isNotEqualTo(
+            new CommandButton.Builder()
+                .setIcon(CommandButton.ICON_NEXT)
+                .setDisplayName("button")
+                .setIconResId(R.drawable.media3_notification_small_icon)
+                .setPlayerCommand(Player.COMMAND_SEEK_TO_NEXT)
+                .build());
   }
 
   @Test
@@ -359,5 +367,46 @@ public class CommandButtonTest {
             .setDisplayName("button")
             .setIconResId(R.drawable.media3_notification_small_icon);
     assertThrows(IllegalStateException.class, builder::build);
+  }
+
+  @Test
+  public void fromBundle_afterToBundle_returnsEqualInstance() {
+    Bundle extras = new Bundle();
+    extras.putString("key", "value");
+    CommandButton buttonWithSessionCommand =
+        new CommandButton.Builder()
+            .setDisplayName("name")
+            .setEnabled(true)
+            .setIcon(CommandButton.ICON_CLOSED_CAPTIONS)
+            .setIconResId(R.drawable.media3_notification_small_icon)
+            .setIconUri(Uri.parse("http://test.test"))
+            .setExtras(extras)
+            .setSessionCommand(new SessionCommand(SessionCommand.COMMAND_CODE_SESSION_SET_RATING))
+            .build();
+    CommandButton buttonWithPlayerCommand =
+        new CommandButton.Builder()
+            .setDisplayName("name")
+            .setEnabled(true)
+            .setIcon(CommandButton.ICON_CLOSED_CAPTIONS)
+            .setIconResId(R.drawable.media3_notification_small_icon)
+            .setIconUri(Uri.parse("http://test.test"))
+            .setExtras(extras)
+            .setPlayerCommand(Player.COMMAND_GET_METADATA)
+            .build();
+    CommandButton buttonWithDefaultValues =
+        new CommandButton.Builder().setPlayerCommand(Player.COMMAND_PLAY_PAUSE).build();
+
+    CommandButton restoredButtonWithSessionCommand =
+        CommandButton.fromBundle(buttonWithSessionCommand.toBundle());
+    CommandButton restoredButtonWithPlayerCommand =
+        CommandButton.fromBundle(buttonWithPlayerCommand.toBundle());
+    CommandButton restoredButtonWithDefaultValues =
+        CommandButton.fromBundle(buttonWithDefaultValues.toBundle());
+
+    assertThat(restoredButtonWithSessionCommand).isEqualTo(buttonWithSessionCommand);
+    assertThat(restoredButtonWithSessionCommand.extras.get("key")).isEqualTo("value");
+    assertThat(restoredButtonWithPlayerCommand).isEqualTo(buttonWithPlayerCommand);
+    assertThat(restoredButtonWithPlayerCommand.extras.get("key")).isEqualTo("value");
+    assertThat(restoredButtonWithDefaultValues).isEqualTo(buttonWithDefaultValues);
   }
 }
