@@ -91,7 +91,7 @@ import java.lang.annotation.Target;
    */
   private static final int INITIALIZING_DURATION_US = 500_000;
 
-  @Nullable private final AudioTimestampV19 audioTimestamp;
+  @Nullable private final AudioTimestampWrapper audioTimestamp;
 
   private @State int state;
   private long initializeSystemTimeUs;
@@ -105,7 +105,7 @@ import java.lang.annotation.Target;
    * @param audioTrack The audio track that will provide timestamps.
    */
   public AudioTimestampPoller(AudioTrack audioTrack) {
-    audioTimestamp = new AudioTimestampV19(audioTrack);
+    audioTimestamp = new AudioTimestampWrapper(audioTrack);
     reset();
   }
 
@@ -261,8 +261,7 @@ import java.lang.annotation.Target;
     }
   }
 
-  // DO NOT SUBMIT in-line this
-  private static final class AudioTimestampV19 {
+  private static final class AudioTimestampWrapper {
 
     private final AudioTrack audioTrack;
     private final AudioTimestamp audioTimestamp;
@@ -276,7 +275,7 @@ import java.lang.annotation.Target;
      *
      * @param audioTrack The audio track that will provide timestamps.
      */
-    public AudioTimestampV19(AudioTrack audioTrack) {
+    public AudioTimestampWrapper(AudioTrack audioTrack) {
       this.audioTrack = audioTrack;
       audioTimestamp = new AudioTimestamp();
     }

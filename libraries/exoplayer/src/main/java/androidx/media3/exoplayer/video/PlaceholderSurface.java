@@ -90,8 +90,6 @@ public final class PlaceholderSurface extends Surface {
     return thread.init(secure ? secureMode : SECURE_MODE_NONE);
   }
 
-
-
   private PlaceholderSurface(
       PlaceholderSurfaceThread thread, SurfaceTexture surfaceTexture, boolean secure) {
     super(surfaceTexture);
