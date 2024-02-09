@@ -23,7 +23,7 @@ track 0:
       colorTransfer = 6
       lumaBitdepth = 10
       chromaBitdepth = 10
-    metadata = entries=[Mp4Timestamp: creation time=2083344800, modification time=2083344800, timescale=10000]
+    metadata = entries=[Mp4Timestamp: creation time=100000000, modification time=500000000, timescale=10000]
     initializationData:
       data = length 99, hash 99842E5A
   sample 0:
@@ -415,7 +415,7 @@ track 1:
     channelCount = 2
     sampleRate = 48000
     language = ```
-    metadata = entries=[Mp4Timestamp: creation time=2083344800, modification time=2083344800, timescale=10000]
+    metadata = entries=[Mp4Timestamp: creation time=100000000, modification time=500000000, timescale=10000]
     initializationData:
       data = length 2, hash 560
   sample 0:

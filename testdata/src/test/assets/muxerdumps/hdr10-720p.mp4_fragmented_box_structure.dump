@@ -2,13 +2,13 @@ ftyp (28 bytes):
   Data = length 20, hash EF896440
 moov (1209 bytes):
   mvhd (108 bytes):
-    Data = length 100, hash 5CF3AC6F
+    Data = length 100, hash 2FE65289
   trak (610 bytes):
     tkhd (92 bytes):
-      Data = length 84, hash 112173F4
+      Data = length 84, hash 7E478E0E
     mdia (510 bytes):
       mdhd (32 bytes):
-        Data = length 24, hash 42753A93
+        Data = length 24, hash 87E287AD
       hdlr (44 bytes):
         Data = length 36, hash A0852FF2
       minf (426 bytes):
@@ -31,10 +31,10 @@ moov (1209 bytes):
             Data = length 8, hash 94446F01
   trak (411 bytes):
     tkhd (92 bytes):
-      Data = length 84, hash 34D7906B
+      Data = length 84, hash A1FDAA85
     mdia (311 bytes):
       mdhd (32 bytes):
-        Data = length 24, hash EA3D1FE6
+        Data = length 24, hash 2FAA6D00
       hdlr (44 bytes):
         Data = length 36, hash 49FC755F
       minf (227 bytes):

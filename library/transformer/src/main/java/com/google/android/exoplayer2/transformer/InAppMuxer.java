@@ -23,7 +23,6 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.container.Mp4LocationData;
 import com.google.android.exoplayer2.container.Mp4TimestampData;
-import com.google.android.exoplayer2.container.Mp4Util;
 import com.google.android.exoplayer2.container.XmpData;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.mp4.MdtaMetadataEntry;
@@ -296,9 +295,7 @@ public final class InAppMuxer implements Muxer {
       } else if (entry instanceof XmpData) {
         mp4Muxer.addXmp(ByteBuffer.wrap(((XmpData) entry).data));
       } else if (entry instanceof Mp4TimestampData) {
-        // TODO: b/285281716 - Use creation time specific API.
-        mp4Muxer.setModificationTime(
-            Mp4Util.mp4TimeToUnixTimeMs(((Mp4TimestampData) entry).creationTimestampSeconds));
+        mp4Muxer.setTimestampData((Mp4TimestampData) entry);
       } else if (entry instanceof MdtaMetadataEntry) {
         MdtaMetadataEntry mdtaMetadataEntry = (MdtaMetadataEntry) entry;
         if (mdtaMetadataEntry.key.equals(MdtaMetadataEntry.KEY_ANDROID_CAPTURE_FPS)) {

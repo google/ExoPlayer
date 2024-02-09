@@ -23,6 +23,7 @@ import android.media.MediaCodec;
 import android.media.MediaExtractor;
 import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
+import com.google.android.exoplayer2.container.Mp4TimestampData;
 import com.google.android.exoplayer2.extractor.mp4.FragmentedMp4Extractor;
 import com.google.android.exoplayer2.extractor.mp4.Mp4Extractor;
 import com.google.android.exoplayer2.testutil.DumpFileAsserts;
@@ -85,7 +86,10 @@ public class Mp4MuxerEndToEndTest {
 
     try {
       mp4Muxer = new Mp4Muxer.Builder(checkNotNull(outputStream)).build();
-      mp4Muxer.setModificationTime(/* timestampMs= */ 500_000_000L);
+      mp4Muxer.setTimestampData(
+          new Mp4TimestampData(
+              /* creationTimestampSeconds= */ 100_000_000L,
+              /* modificationTimestampSeconds= */ 500_000_000L));
       feedInputDataToMuxer(mp4Muxer, checkNotNull(inputFile));
     } finally {
       if (mp4Muxer != null) {
@@ -106,7 +110,10 @@ public class Mp4MuxerEndToEndTest {
     // ensure some data has been written after taking all the inputs but before closing the muxer.
     assumeTrue(checkNotNull(inputFile).equals(H265_HDR10_MP4));
     Mp4Muxer mp4Muxer = new Mp4Muxer.Builder(checkNotNull(outputStream)).build();
-    mp4Muxer.setModificationTime(/* timestampMs= */ 500_000_000L);
+    mp4Muxer.setTimestampData(
+        new Mp4TimestampData(
+            /* creationTimestampSeconds= */ 100_000_000L,
+            /* modificationTimestampSeconds= */ 500_000_000L));
     feedInputDataToMuxer(mp4Muxer, inputFile);
 
     // Muxer not closed.
@@ -132,7 +139,10 @@ public class Mp4MuxerEndToEndTest {
     try {
       mp4Muxer =
           new Mp4Muxer.Builder(checkNotNull(outputStream)).setFragmentedMp4Enabled(true).build();
-      mp4Muxer.setModificationTime(/* timestampMs= */ 500_000_000L);
+      mp4Muxer.setTimestampData(
+          new Mp4TimestampData(
+              /* creationTimestampSeconds= */ 100_000_000L,
+              /* modificationTimestampSeconds= */ 500_000_000L));
       feedInputDataToMuxer(mp4Muxer, inputFile);
     } finally {
       if (mp4Muxer != null) {
@@ -160,7 +170,10 @@ public class Mp4MuxerEndToEndTest {
     try {
       mp4Muxer =
           new Mp4Muxer.Builder(checkNotNull(outputStream)).setFragmentedMp4Enabled(true).build();
-      mp4Muxer.setModificationTime(/* timestampMs= */ 500_000_000L);
+      mp4Muxer.setTimestampData(
+          new Mp4TimestampData(
+              /* creationTimestampSeconds= */ 100_000_000L,
+              /* modificationTimestampSeconds= */ 500_000_000L));
       feedInputDataToMuxer(mp4Muxer, inputFile);
     } finally {
       if (mp4Muxer != null) {

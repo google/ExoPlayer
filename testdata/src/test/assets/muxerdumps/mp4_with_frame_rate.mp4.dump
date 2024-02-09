@@ -20,7 +20,7 @@ track 0:
       colorRange = 1
       lumaBitdepth = 8
       chromaBitdepth = 8
-    metadata = entries=[mdta: key=com.android.capture.fps, value=120.0, Mp4Timestamp: creation time=2082849800, modification time=2082849800, timescale=10000]
+    metadata = entries=[mdta: key=com.android.capture.fps, value=120.0, Mp4Timestamp: creation time=1000000, modification time=5000000, timescale=10000]
     initializationData:
       data = length 28, hash 410B510
       data = length 9, hash FBADD682

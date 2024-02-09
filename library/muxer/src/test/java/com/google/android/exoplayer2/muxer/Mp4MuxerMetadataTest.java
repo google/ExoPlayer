@@ -22,6 +22,7 @@ import android.media.MediaCodec.BufferInfo;
 import android.util.Pair;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.container.Mp4TimestampData;
 import com.google.android.exoplayer2.extractor.mp4.Mp4Extractor;
 import com.google.android.exoplayer2.muxer.Mp4Muxer.TrackToken;
 import com.google.android.exoplayer2.testutil.DumpFileAsserts;
@@ -53,7 +54,10 @@ public class Mp4MuxerMetadataTest {
     Mp4Muxer muxer = new Mp4Muxer.Builder(new FileOutputStream(outputFilePath)).build();
 
     try {
-      muxer.setModificationTime(/* timestampMs= */ 5_000_000L);
+      muxer.setTimestampData(
+          new Mp4TimestampData(
+              /* creationTimestampSeconds= */ 1_000_000L,
+              /* modificationTimestampSeconds= */ 5_000_000L));
       TrackToken token = muxer.addTrack(/* sortKey= */ 0, FAKE_VIDEO_FORMAT);
       muxer.writeSampleData(token, sampleAndSampleInfo.first, sampleAndSampleInfo.second);
     } finally {
@@ -75,7 +79,10 @@ public class Mp4MuxerMetadataTest {
     Mp4Muxer muxer = new Mp4Muxer.Builder(new FileOutputStream(outputFilePath)).build();
 
     try {
-      muxer.setModificationTime(/* timestampMs= */ 5_000_000L);
+      muxer.setTimestampData(
+          new Mp4TimestampData(
+              /* creationTimestampSeconds= */ 1_000_000L,
+              /* modificationTimestampSeconds= */ 5_000_000L));
       TrackToken token = muxer.addTrack(/* sortKey= */ 0, FAKE_VIDEO_FORMAT);
       muxer.writeSampleData(token, sampleAndSampleInfo.first, sampleAndSampleInfo.second);
 
@@ -99,7 +106,10 @@ public class Mp4MuxerMetadataTest {
     Mp4Muxer muxer = new Mp4Muxer.Builder(new FileOutputStream(outputFilePath)).build();
 
     try {
-      muxer.setModificationTime(/* timestampMs= */ 5_000_000L);
+      muxer.setTimestampData(
+          new Mp4TimestampData(
+              /* creationTimestampSeconds= */ 1_000_000L,
+              /* modificationTimestampSeconds= */ 5_000_000L));
       TrackToken token = muxer.addTrack(/* sortKey= */ 0, FAKE_VIDEO_FORMAT);
       muxer.writeSampleData(token, sampleAndSampleInfo.first, sampleAndSampleInfo.second);
 
@@ -123,7 +133,10 @@ public class Mp4MuxerMetadataTest {
     Mp4Muxer muxer = new Mp4Muxer.Builder(new FileOutputStream(outputFilePath)).build();
 
     try {
-      muxer.setModificationTime(/* timestampMs= */ 5_000_000L);
+      muxer.setTimestampData(
+          new Mp4TimestampData(
+              /* creationTimestampSeconds= */ 1_000_000L,
+              /* modificationTimestampSeconds= */ 5_000_000L));
       TrackToken token = muxer.addTrack(/* sortKey= */ 0, FAKE_VIDEO_FORMAT);
       muxer.writeSampleData(token, sampleAndSampleInfo.first, sampleAndSampleInfo.second);
 
@@ -147,7 +160,10 @@ public class Mp4MuxerMetadataTest {
     Mp4Muxer muxer = new Mp4Muxer.Builder(new FileOutputStream(outputFilePath)).build();
 
     try {
-      muxer.setModificationTime(/* timestampMs= */ 5_000_000L);
+      muxer.setTimestampData(
+          new Mp4TimestampData(
+              /* creationTimestampSeconds= */ 1_000_000L,
+              /* modificationTimestampSeconds= */ 5_000_000L));
       TrackToken token = muxer.addTrack(/* sortKey= */ 0, FAKE_VIDEO_FORMAT);
       muxer.writeSampleData(token, sampleAndSampleInfo.first, sampleAndSampleInfo.second);
       muxer.setLocation(33.0f, -120f);
@@ -170,7 +186,10 @@ public class Mp4MuxerMetadataTest {
     Mp4Muxer muxer = new Mp4Muxer.Builder(new FileOutputStream(outputFilePath)).build();
 
     try {
-      muxer.setModificationTime(/* timestampMs= */ 5_000_000L);
+      muxer.setTimestampData(
+          new Mp4TimestampData(
+              /* creationTimestampSeconds= */ 1_000_000L,
+              /* modificationTimestampSeconds= */ 5_000_000L));
       TrackToken token = muxer.addTrack(/* sortKey= */ 0, FAKE_VIDEO_FORMAT);
       muxer.writeSampleData(token, sampleAndSampleInfo.first, sampleAndSampleInfo.second);
     } finally {
@@ -192,7 +211,10 @@ public class Mp4MuxerMetadataTest {
     Mp4Muxer muxer = new Mp4Muxer.Builder(new FileOutputStream(outputFilePath)).build();
 
     try {
-      muxer.setModificationTime(/* timestampMs= */ 5_000_000L);
+      muxer.setTimestampData(
+          new Mp4TimestampData(
+              /* creationTimestampSeconds= */ 1_000_000L,
+              /* modificationTimestampSeconds= */ 5_000_000L));
       muxer.setCaptureFps(120.0f);
       TrackToken token = muxer.addTrack(/* sortKey= */ 0, FAKE_VIDEO_FORMAT);
       muxer.writeSampleData(token, sampleAndSampleInfo.first, sampleAndSampleInfo.second);
@@ -215,7 +237,10 @@ public class Mp4MuxerMetadataTest {
     Mp4Muxer muxer = new Mp4Muxer.Builder(new FileOutputStream(outputFilePath)).build();
 
     try {
-      muxer.setModificationTime(/* timestampMs= */ 5_000_000L);
+      muxer.setTimestampData(
+          new Mp4TimestampData(
+              /* creationTimestampSeconds= */ 1_000_000L,
+              /* modificationTimestampSeconds= */ 5_000_000L));
       muxer.addMetadata("SomeStringKey", "Some Random String");
       TrackToken token = muxer.addTrack(/* sortKey= */ 0, FAKE_VIDEO_FORMAT);
       muxer.writeSampleData(token, sampleAndSampleInfo.first, sampleAndSampleInfo.second);
@@ -238,7 +263,10 @@ public class Mp4MuxerMetadataTest {
     Mp4Muxer muxer = new Mp4Muxer.Builder(new FileOutputStream(outputFilePath)).build();
 
     try {
-      muxer.setModificationTime(/* timestampMs= */ 5_000_000L);
+      muxer.setTimestampData(
+          new Mp4TimestampData(
+              /* creationTimestampSeconds= */ 1_000_000L,
+              /* modificationTimestampSeconds= */ 5_000_000L));
       muxer.addMetadata("SomeStringKey", 10.0f);
       TrackToken token = muxer.addTrack(/* sortKey= */ 0, FAKE_VIDEO_FORMAT);
       muxer.writeSampleData(token, sampleAndSampleInfo.first, sampleAndSampleInfo.second);
@@ -261,7 +289,10 @@ public class Mp4MuxerMetadataTest {
     Mp4Muxer muxer = new Mp4Muxer.Builder(new FileOutputStream(outputFilePath)).build();
 
     try {
-      muxer.setModificationTime(/* timestampMs= */ 5_000_000L);
+      muxer.setTimestampData(
+          new Mp4TimestampData(
+              /* creationTimestampSeconds= */ 1_000_000L,
+              /* modificationTimestampSeconds= */ 5_000_000L));
       Context context = ApplicationProvider.getApplicationContext();
       byte[] xmpBytes = TestUtil.getByteArray(context, XMP_SAMPLE_DATA);
       ByteBuffer xmp = ByteBuffer.wrap(xmpBytes);

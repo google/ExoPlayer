@@ -23,6 +23,7 @@ import android.media.MediaCodec.BufferInfo;
 import android.util.Pair;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.container.Mp4TimestampData;
 import com.google.android.exoplayer2.extractor.mp4.Mp4Extractor;
 import com.google.android.exoplayer2.muxer.Mp4Muxer.TrackToken;
 import com.google.android.exoplayer2.testutil.DumpFileAsserts;
@@ -63,7 +64,10 @@ public class Mp4MuxerEndToEndTest {
   public void createMp4File_withSameTracksOffset_matchesExpected() throws IOException {
     String outputFilePath = temporaryFolder.newFile().getPath();
     Mp4Muxer mp4Muxer = new Mp4Muxer.Builder(new FileOutputStream(outputFilePath)).build();
-    mp4Muxer.setModificationTime(/* timestampMs= */ 500_000_000L);
+    mp4Muxer.setTimestampData(
+        new Mp4TimestampData(
+            /* creationTimestampSeconds= */ 100_000_000L,
+            /* modificationTimestampSeconds= */ 500_000_000L));
     Pair<ByteBuffer, BufferInfo> track1Sample1 =
         MuxerTestUtil.getFakeSampleAndSampleInfo(/* presentationTimeUs= */ 100L);
     Pair<ByteBuffer, BufferInfo> track1Sample2 =
@@ -103,7 +107,10 @@ public class Mp4MuxerEndToEndTest {
   public void createMp4File_withDifferentTracksOffset_matchesExpected() throws IOException {
     String outputFilePath = temporaryFolder.newFile().getPath();
     Mp4Muxer mp4Muxer = new Mp4Muxer.Builder(new FileOutputStream(outputFilePath)).build();
-    mp4Muxer.setModificationTime(/* timestampMs= */ 500_000_000L);
+    mp4Muxer.setTimestampData(
+        new Mp4TimestampData(
+            /* creationTimestampSeconds= */ 100_000_000L,
+            /* modificationTimestampSeconds= */ 500_000_000L));
     Pair<ByteBuffer, BufferInfo> track1Sample1 =
         MuxerTestUtil.getFakeSampleAndSampleInfo(/* presentationTimeUs= */ 0L);
     Pair<ByteBuffer, BufferInfo> track1Sample2 =
@@ -162,7 +169,10 @@ public class Mp4MuxerEndToEndTest {
   public void createMp4File_withOneTrackEmpty_doesNotWriteEmptyTrack() throws Exception {
     String outputFilePath = temporaryFolder.newFile().getPath();
     Mp4Muxer mp4Muxer = new Mp4Muxer.Builder(new FileOutputStream(outputFilePath)).build();
-    mp4Muxer.setModificationTime(/* timestampMs= */ 500_000_000L);
+    mp4Muxer.setTimestampData(
+        new Mp4TimestampData(
+            /* creationTimestampSeconds= */ 100_000_000L,
+            /* modificationTimestampSeconds= */ 500_000_000L));
     Pair<ByteBuffer, BufferInfo> track1Sample1 =
         MuxerTestUtil.getFakeSampleAndSampleInfo(/* presentationTimeUs= */ 0L);
     Pair<ByteBuffer, BufferInfo> track1Sample2 =
