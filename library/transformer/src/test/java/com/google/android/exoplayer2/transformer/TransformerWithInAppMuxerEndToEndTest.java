@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.transformer;
 
-import static com.google.android.exoplayer2.testutil.FileUtil.retrieveTrackFormat;
+import static com.google.android.exoplayer2.testutil.TestUtil.retrieveTrackFormat;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.common.truth.Truth.assertThat;
 

@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.testutil;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
@@ -30,8 +31,10 @@ import android.os.Bundle;
 import android.os.Parcel;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.MediaMetadata;
+import com.google.android.exoplayer2.MetadataRetriever;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.database.DatabaseProvider;
 import com.google.android.exoplayer2.database.DefaultDatabaseProvider;
@@ -42,6 +45,8 @@ import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.metadata.MetadataInputBuffer;
 import com.google.android.exoplayer2.offline.StreamKey;
+import com.google.android.exoplayer2.source.TrackGroup;
+import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSourceUtil;
 import com.google.android.exoplayer2.upstream.DataSpec;
@@ -69,6 +74,7 @@ import java.util.Queue;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 /** Utility methods for tests. */
 public class TestUtil {
@@ -352,6 +358,31 @@ public class TestUtil {
   /** Returns the {@link Uri} for the given asset path. */
   public static Uri buildAssetUri(String assetPath) {
     return Uri.parse("asset:///" + assetPath);
+  }
+
+  /** Returns the {@linkplain Format track format} from the media file. */
+  public static Format retrieveTrackFormat(
+      Context context, String filePath, @C.TrackType int trackType) {
+    TrackGroupArray trackGroupArray;
+    try {
+      trackGroupArray =
+          MetadataRetriever.retrieveMetadata(context, MediaItem.fromUri("file://" + filePath))
+              .get();
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new IllegalStateException(e);
+    } catch (ExecutionException e) {
+      throw new IllegalStateException(e);
+    }
+
+    for (int i = 0; i < trackGroupArray.length; i++) {
+      TrackGroup trackGroup = trackGroupArray.get(i);
+      if (trackGroup.type == trackType) {
+        checkState(trackGroup.length == 1);
+        return trackGroup.getFormat(0);
+      }
+    }
+    throw new IllegalStateException("Couldn't find track");
   }
 
   /**
