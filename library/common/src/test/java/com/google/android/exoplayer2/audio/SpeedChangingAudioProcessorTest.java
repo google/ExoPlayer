@@ -16,12 +16,11 @@
 package com.google.android.exoplayer2.audio;
 
 import static com.google.android.exoplayer2.audio.AudioProcessor.EMPTY_BUFFER;
-import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.testutil.TestSpeedProvider;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import org.junit.Test;
@@ -39,7 +38,7 @@ public class SpeedChangingAudioProcessorTest {
   public void queueInput_noSpeedChange_doesNotOverwriteInput() throws Exception {
     SpeedProvider speedProvider =
         TestSpeedProvider.createWithFrameCounts(
-            /* frameCounts= */ new int[] {5}, /* speeds= */ new float[] {1});
+            AUDIO_FORMAT, /* frameCounts= */ new int[] {5}, /* speeds= */ new float[] {1});
     SpeedChangingAudioProcessor speedChangingAudioProcessor =
         getConfiguredSpeedChangingAudioProcessor(speedProvider);
     ByteBuffer inputBuffer = getInputBuffer(/* frameCount= */ 5);
@@ -54,7 +53,7 @@ public class SpeedChangingAudioProcessorTest {
   public void queueInput_speedChange_doesNotOverwriteInput() throws Exception {
     SpeedProvider speedProvider =
         TestSpeedProvider.createWithFrameCounts(
-            /* frameCounts= */ new int[] {5}, /* speeds= */ new float[] {2});
+            AUDIO_FORMAT, /* frameCounts= */ new int[] {5}, /* speeds= */ new float[] {2});
     SpeedChangingAudioProcessor speedChangingAudioProcessor =
         getConfiguredSpeedChangingAudioProcessor(speedProvider);
     ByteBuffer inputBuffer = getInputBuffer(/* frameCount= */ 5);
@@ -69,7 +68,7 @@ public class SpeedChangingAudioProcessorTest {
   public void queueInput_noSpeedChange_copiesSamples() throws Exception {
     SpeedProvider speedProvider =
         TestSpeedProvider.createWithFrameCounts(
-            /* frameCounts= */ new int[] {5}, /* speeds= */ new float[] {1});
+            AUDIO_FORMAT, /* frameCounts= */ new int[] {5}, /* speeds= */ new float[] {1});
     SpeedChangingAudioProcessor speedChangingAudioProcessor =
         getConfiguredSpeedChangingAudioProcessor(speedProvider);
     ByteBuffer inputBuffer = getInputBuffer(/* frameCount= */ 5);
@@ -86,7 +85,7 @@ public class SpeedChangingAudioProcessorTest {
   public void queueInput_speedChange_modifiesSamples() throws Exception {
     SpeedProvider speedProvider =
         TestSpeedProvider.createWithFrameCounts(
-            /* frameCounts= */ new int[] {5}, /* speeds= */ new float[] {2});
+            AUDIO_FORMAT, /* frameCounts= */ new int[] {5}, /* speeds= */ new float[] {2});
     SpeedChangingAudioProcessor speedChangingAudioProcessor =
         getConfiguredSpeedChangingAudioProcessor(speedProvider);
     ByteBuffer inputBuffer = getInputBuffer(/* frameCount= */ 5);
@@ -104,7 +103,7 @@ public class SpeedChangingAudioProcessorTest {
   public void queueInput_noSpeedChangeAfterSpeedChange_copiesSamples() throws Exception {
     SpeedProvider speedProvider =
         TestSpeedProvider.createWithFrameCounts(
-            /* frameCounts= */ new int[] {5, 5}, /* speeds= */ new float[] {2, 1});
+            AUDIO_FORMAT, /* frameCounts= */ new int[] {5, 5}, /* speeds= */ new float[] {2, 1});
     SpeedChangingAudioProcessor speedChangingAudioProcessor =
         getConfiguredSpeedChangingAudioProcessor(speedProvider);
     ByteBuffer inputBuffer = getInputBuffer(/* frameCount= */ 5);
@@ -124,7 +123,7 @@ public class SpeedChangingAudioProcessorTest {
       throws Exception {
     SpeedProvider speedProvider =
         TestSpeedProvider.createWithFrameCounts(
-            /* frameCounts= */ new int[] {5, 5}, /* speeds= */ new float[] {1, 2});
+            AUDIO_FORMAT, /* frameCounts= */ new int[] {5, 5}, /* speeds= */ new float[] {1, 2});
     SpeedChangingAudioProcessor speedChangingAudioProcessor =
         getConfiguredSpeedChangingAudioProcessor(speedProvider);
     ByteBuffer inputBuffer = getInputBuffer(/* frameCount= */ 5);
@@ -137,7 +136,7 @@ public class SpeedChangingAudioProcessorTest {
 
     speedProvider =
         TestSpeedProvider.createWithFrameCounts(
-            /* frameCounts= */ new int[] {5}, /* speeds= */ new float[] {2});
+            AUDIO_FORMAT, /* frameCounts= */ new int[] {5}, /* speeds= */ new float[] {2});
     speedChangingAudioProcessor = getConfiguredSpeedChangingAudioProcessor(speedProvider);
     inputBuffer.rewind();
     speedChangingAudioProcessor.queueInput(inputBuffer);
@@ -152,7 +151,7 @@ public class SpeedChangingAudioProcessorTest {
       throws Exception {
     SpeedProvider speedProvider =
         TestSpeedProvider.createWithFrameCounts(
-            /* frameCounts= */ new int[] {5, 5}, /* speeds= */ new float[] {3, 2});
+            AUDIO_FORMAT, /* frameCounts= */ new int[] {5, 5}, /* speeds= */ new float[] {3, 2});
     SpeedChangingAudioProcessor speedChangingAudioProcessor =
         getConfiguredSpeedChangingAudioProcessor(speedProvider);
     ByteBuffer inputBuffer = getInputBuffer(/* frameCount= */ 5);
@@ -165,7 +164,7 @@ public class SpeedChangingAudioProcessorTest {
 
     speedProvider =
         TestSpeedProvider.createWithFrameCounts(
-            /* frameCounts= */ new int[] {5}, /* speeds= */ new float[] {2});
+            AUDIO_FORMAT, /* frameCounts= */ new int[] {5}, /* speeds= */ new float[] {2});
     speedChangingAudioProcessor = getConfiguredSpeedChangingAudioProcessor(speedProvider);
     inputBuffer.rewind();
     speedChangingAudioProcessor.queueInput(inputBuffer);
@@ -180,7 +179,7 @@ public class SpeedChangingAudioProcessorTest {
       throws Exception {
     SpeedProvider speedProvider =
         TestSpeedProvider.createWithFrameCounts(
-            /* frameCounts= */ new int[] {5, 5}, /* speeds= */ new float[] {2, 3});
+            AUDIO_FORMAT, /* frameCounts= */ new int[] {5, 5}, /* speeds= */ new float[] {2, 3});
     SpeedChangingAudioProcessor speedChangingAudioProcessor =
         getConfiguredSpeedChangingAudioProcessor(speedProvider);
     ByteBuffer inputBuffer = getInputBuffer(/* frameCount= */ 5);
@@ -190,7 +189,7 @@ public class SpeedChangingAudioProcessorTest {
 
     speedProvider =
         TestSpeedProvider.createWithFrameCounts(
-            /* frameCounts= */ new int[] {5}, /* speeds= */ new float[] {2});
+            AUDIO_FORMAT, /* frameCounts= */ new int[] {5}, /* speeds= */ new float[] {2});
     speedChangingAudioProcessor = getConfiguredSpeedChangingAudioProcessor(speedProvider);
     inputBuffer.rewind();
     speedChangingAudioProcessor.queueInput(inputBuffer);
@@ -243,7 +242,7 @@ public class SpeedChangingAudioProcessorTest {
       throws Exception {
     SpeedProvider speedProvider =
         TestSpeedProvider.createWithFrameCounts(
-            /* frameCounts= */ new int[] {5, 5}, /* speeds= */ new float[] {2, 1});
+            AUDIO_FORMAT, /* frameCounts= */ new int[] {5, 5}, /* speeds= */ new float[] {2, 1});
     SpeedChangingAudioProcessor speedChangingAudioProcessor =
         getConfiguredSpeedChangingAudioProcessor(speedProvider);
     ByteBuffer inputBuffer = getInputBuffer(/* frameCount= */ 5);
@@ -262,7 +261,7 @@ public class SpeedChangingAudioProcessorTest {
       throws Exception {
     SpeedProvider speedProvider =
         TestSpeedProvider.createWithFrameCounts(
-            /* frameCounts= */ new int[] {5, 5}, /* speeds= */ new float[] {1, 2});
+            AUDIO_FORMAT, /* frameCounts= */ new int[] {5, 5}, /* speeds= */ new float[] {1, 2});
     SpeedChangingAudioProcessor speedChangingAudioProcessor =
         getConfiguredSpeedChangingAudioProcessor(speedProvider);
     ByteBuffer inputBuffer = getInputBuffer(/* frameCount= */ 5);
@@ -281,7 +280,7 @@ public class SpeedChangingAudioProcessorTest {
       throws Exception {
     SpeedProvider speedProvider =
         TestSpeedProvider.createWithFrameCounts(
-            /* frameCounts= */ new int[] {5}, /* speeds= */ new float[] {1});
+            AUDIO_FORMAT, /* frameCounts= */ new int[] {5}, /* speeds= */ new float[] {1});
     SpeedChangingAudioProcessor speedChangingAudioProcessor =
         getConfiguredSpeedChangingAudioProcessor(speedProvider);
     ByteBuffer inputBuffer = getInputBuffer(/* frameCount= */ 5);
@@ -297,7 +296,7 @@ public class SpeedChangingAudioProcessorTest {
       throws Exception {
     SpeedProvider speedProvider =
         TestSpeedProvider.createWithFrameCounts(
-            /* frameCounts= */ new int[] {5}, /* speeds= */ new float[] {2});
+            AUDIO_FORMAT, /* frameCounts= */ new int[] {5}, /* speeds= */ new float[] {2});
     SpeedChangingAudioProcessor speedChangingAudioProcessor =
         getConfiguredSpeedChangingAudioProcessor(speedProvider);
     ByteBuffer inputBuffer = getInputBuffer(/* frameCount= */ 5);
@@ -312,7 +311,7 @@ public class SpeedChangingAudioProcessorTest {
   public void queueEndOfStream_noInputQueued_endsProcessor() throws Exception {
     SpeedProvider speedProvider =
         TestSpeedProvider.createWithFrameCounts(
-            /* frameCounts= */ new int[] {5}, /* speeds= */ new float[] {2});
+            AUDIO_FORMAT, /* frameCounts= */ new int[] {5}, /* speeds= */ new float[] {2});
     SpeedChangingAudioProcessor speedChangingAudioProcessor =
         getConfiguredSpeedChangingAudioProcessor(speedProvider);
 
@@ -325,7 +324,7 @@ public class SpeedChangingAudioProcessorTest {
   public void isEnded_afterNoSpeedChangeAndOutputRetrieved_isFalse() throws Exception {
     SpeedProvider speedProvider =
         TestSpeedProvider.createWithFrameCounts(
-            /* frameCounts= */ new int[] {5}, /* speeds= */ new float[] {1});
+            AUDIO_FORMAT, /* frameCounts= */ new int[] {5}, /* speeds= */ new float[] {1});
     SpeedChangingAudioProcessor speedChangingAudioProcessor =
         getConfiguredSpeedChangingAudioProcessor(speedProvider);
     ByteBuffer inputBuffer = getInputBuffer(/* frameCount= */ 5);
@@ -340,7 +339,7 @@ public class SpeedChangingAudioProcessorTest {
   public void isEnded_afterSpeedChangeAndOutputRetrieved_isFalse() throws Exception {
     SpeedProvider speedProvider =
         TestSpeedProvider.createWithFrameCounts(
-            /* frameCounts= */ new int[] {5}, /* speeds= */ new float[] {2});
+            AUDIO_FORMAT, /* frameCounts= */ new int[] {5}, /* speeds= */ new float[] {2});
     SpeedChangingAudioProcessor speedChangingAudioProcessor =
         getConfiguredSpeedChangingAudioProcessor(speedProvider);
     ByteBuffer inputBuffer = getInputBuffer(/* frameCount= */ 5);
@@ -387,63 +386,5 @@ public class SpeedChangingAudioProcessorTest {
       concatenatedOutputBuffers = temp;
     }
     return concatenatedOutputBuffers;
-  }
-
-  private static final class TestSpeedProvider implements SpeedProvider {
-
-    private final long[] startTimesUs;
-    private final float[] speeds;
-
-    /**
-     * Creates a {@code TestSpeedProvider} instance.
-     *
-     * @param startTimesUs The speed change start times, in microseconds. The values must be
-     *     distinct and in increasing order.
-     * @param speeds The speeds corresponding to each start time. Consecutive values must be
-     *     distinct.
-     * @return A {@code TestSpeedProvider}.
-     */
-    public static TestSpeedProvider createWithStartTimes(long[] startTimesUs, float[] speeds) {
-      return new TestSpeedProvider(startTimesUs, speeds);
-    }
-
-    /**
-     * Creates a {@code TestSpeedProvider} instance.
-     *
-     * @param frameCounts The frame counts for which the same speed should be applied.
-     * @param speeds The speeds corresponding to each frame count. The values must be distinct.
-     * @return A {@code TestSpeedProvider}.
-     */
-    public static TestSpeedProvider createWithFrameCounts(int[] frameCounts, float[] speeds) {
-      long[] startTimesUs = new long[frameCounts.length];
-      int totalFrameCount = 0;
-      for (int i = 0; i < frameCounts.length; i++) {
-        startTimesUs[i] = totalFrameCount * C.MICROS_PER_SECOND / AUDIO_FORMAT.sampleRate;
-        totalFrameCount += frameCounts[i];
-      }
-      return new TestSpeedProvider(startTimesUs, speeds);
-    }
-
-    private TestSpeedProvider(long[] startTimesUs, float[] speeds) {
-      checkArgument(startTimesUs.length == speeds.length);
-      this.startTimesUs = startTimesUs;
-      this.speeds = speeds;
-    }
-
-    @Override
-    public float getSpeed(long timeUs) {
-      int index =
-          Util.binarySearchFloor(
-              startTimesUs, timeUs, /* inclusive= */ true, /* stayInBounds= */ true);
-      return speeds[index];
-    }
-
-    @Override
-    public long getNextSpeedChangeTimeUs(long timeUs) {
-      int index =
-          Util.binarySearchCeil(
-              startTimesUs, timeUs, /* inclusive= */ false, /* stayInBounds= */ false);
-      return index < startTimesUs.length ? startTimesUs[index] : C.TIME_UNSET;
-    }
   }
 }
