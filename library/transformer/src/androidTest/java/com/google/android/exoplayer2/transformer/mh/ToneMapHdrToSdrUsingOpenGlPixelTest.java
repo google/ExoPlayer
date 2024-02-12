@@ -18,17 +18,17 @@ package com.google.android.exoplayer2.transformer.mh;
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static com.google.android.exoplayer2.testutil.BitmapPixelTestUtil.getBitmapAveragePixelAbsoluteDifferenceArgb8888;
 import static com.google.android.exoplayer2.testutil.BitmapPixelTestUtil.readBitmap;
-import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT;
-import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_720P_4_SECOND_HDR10_FORMAT;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.recordTestSkipped;
 import static com.google.android.exoplayer2.transformer.mh.HdrCapabilitiesUtil.skipAndLogIfOpenGlToneMappingUnsupported;
 import static com.google.android.exoplayer2.transformer.mh.UnoptimizedGlEffect.NO_OP_EFFECT;
+import static com.google.android.exoplayer2.util.MimeTypes.VIDEO_H265;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.graphics.Bitmap;
 import android.util.Log;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.effect.DefaultVideoFrameProcessor;
 import com.google.android.exoplayer2.testutil.DecodeOneFrameUtil;
 import com.google.android.exoplayer2.testutil.VideoFrameProcessorTestRunner;
@@ -68,10 +68,40 @@ public final class ToneMapHdrToSdrUsingOpenGlPixelTest {
       "media/bitmap/sample_mp4_first_frame/electrical_colors/tone_map_pq_to_sdr.png";
 
   /** Input HLG video of which we only use the first frame. */
-  private static final String INPUT_HLG_MP4_ASSET_STRING = "media/mp4/hlg-1080p.mp4";
+  private static final String HLG_ASSET_STRING = "media/mp4/hlg10-color-test.mp4";
+
+  private static final Format HLG_ASSET_FORMAT =
+      new Format.Builder()
+          .setSampleMimeType(VIDEO_H265)
+          .setWidth(1920)
+          .setHeight(1080)
+          .setFrameRate(30.000f)
+          .setColorInfo(
+              new ColorInfo.Builder()
+                  .setColorSpace(C.COLOR_SPACE_BT2020)
+                  .setColorRange(C.COLOR_RANGE_LIMITED)
+                  .setColorTransfer(C.COLOR_TRANSFER_HLG)
+                  .build())
+          .setCodecs("hvc1.2.4.L153")
+          .build();
 
   /** Input PQ video of which we only use the first frame. */
-  private static final String INPUT_PQ_MP4_ASSET_STRING = "media/mp4/hdr10-720p.mp4";
+  private static final String PQ_ASSET_STRING = "media/mp4/hdr10plus-color-test.mp4";
+
+  public static final Format PQ_ASSET_FORMAT =
+      new Format.Builder()
+          .setSampleMimeType(VIDEO_H265)
+          .setWidth(3840)
+          .setHeight(2160)
+          .setFrameRate(29.024f)
+          .setColorInfo(
+              new ColorInfo.Builder()
+                  .setColorSpace(C.COLOR_SPACE_BT2020)
+                  .setColorRange(C.COLOR_RANGE_LIMITED)
+                  .setColorTransfer(C.COLOR_TRANSFER_ST2084)
+                  .build())
+          .setCodecs("hvc1.2.4.L153")
+          .build();
 
   private static final ColorInfo TONE_MAP_SDR_COLOR =
       new ColorInfo.Builder()
@@ -92,12 +122,12 @@ public final class ToneMapHdrToSdrUsingOpenGlPixelTest {
   @Test
   public void toneMap_hlgFrame_matchesGoldenFile() throws Exception {
     String testId = "toneMap_hlgFrame_matchesGoldenFile";
-    if (skipAndLogIfOpenGlToneMappingUnsupported(testId, MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT)) {
+    if (skipAndLogIfOpenGlToneMappingUnsupported(testId, HLG_ASSET_FORMAT)) {
       return;
     }
     videoFrameProcessorTestRunner =
         getDefaultFrameProcessorTestRunnerBuilder(testId)
-            .setVideoAssetPath(INPUT_HLG_MP4_ASSET_STRING)
+            .setVideoAssetPath(HLG_ASSET_STRING)
             .setOutputColorInfo(TONE_MAP_SDR_COLOR)
             .build();
     Bitmap expectedBitmap = readBitmap(TONE_MAP_HLG_TO_SDR_PNG_ASSET_PATH);
@@ -130,12 +160,12 @@ public final class ToneMapHdrToSdrUsingOpenGlPixelTest {
   @Test
   public void toneMapWithNoOpEffect_hlgFrame_matchesGoldenFile() throws Exception {
     String testId = "toneMapWithNoOpEffect_hlgFrame_matchesGoldenFile";
-    if (skipAndLogIfOpenGlToneMappingUnsupported(testId, MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT)) {
+    if (skipAndLogIfOpenGlToneMappingUnsupported(testId, HLG_ASSET_FORMAT)) {
       return;
     }
     videoFrameProcessorTestRunner =
         getDefaultFrameProcessorTestRunnerBuilder(testId)
-            .setVideoAssetPath(INPUT_HLG_MP4_ASSET_STRING)
+            .setVideoAssetPath(HLG_ASSET_STRING)
             .setOutputColorInfo(TONE_MAP_SDR_COLOR)
             .setEffects(ImmutableList.of(NO_OP_EFFECT))
             .build();
@@ -169,13 +199,13 @@ public final class ToneMapHdrToSdrUsingOpenGlPixelTest {
   @Test
   public void toneMap_pqFrame_matchesGoldenFile() throws Exception {
     String testId = "toneMap_pqFrame_matchesGoldenFile";
-    if (skipAndLogIfOpenGlToneMappingUnsupported(testId, MP4_ASSET_720P_4_SECOND_HDR10_FORMAT)) {
+    if (skipAndLogIfOpenGlToneMappingUnsupported(testId, PQ_ASSET_FORMAT)) {
       return;
     }
 
     videoFrameProcessorTestRunner =
         getDefaultFrameProcessorTestRunnerBuilder(testId)
-            .setVideoAssetPath(INPUT_PQ_MP4_ASSET_STRING)
+            .setVideoAssetPath(PQ_ASSET_STRING)
             .setOutputColorInfo(TONE_MAP_SDR_COLOR)
             .build();
     Bitmap expectedBitmap = readBitmap(TONE_MAP_PQ_TO_SDR_PNG_ASSET_PATH);
@@ -208,13 +238,13 @@ public final class ToneMapHdrToSdrUsingOpenGlPixelTest {
   @Test
   public void toneMapWithNoOpEffect_pqFrame_matchesGoldenFile() throws Exception {
     String testId = "toneMapWithNoOpEffect_pqFrame_matchesGoldenFile";
-    if (skipAndLogIfOpenGlToneMappingUnsupported(testId, MP4_ASSET_720P_4_SECOND_HDR10_FORMAT)) {
+    if (skipAndLogIfOpenGlToneMappingUnsupported(testId, PQ_ASSET_FORMAT)) {
       return;
     }
 
     videoFrameProcessorTestRunner =
         getDefaultFrameProcessorTestRunnerBuilder(testId)
-            .setVideoAssetPath(INPUT_PQ_MP4_ASSET_STRING)
+            .setVideoAssetPath(PQ_ASSET_STRING)
             .setOutputColorInfo(TONE_MAP_SDR_COLOR)
             .setEffects(ImmutableList.of(NO_OP_EFFECT))
             .build();
