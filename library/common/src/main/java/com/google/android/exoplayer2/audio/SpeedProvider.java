@@ -29,7 +29,10 @@ import com.google.android.exoplayer2.C;
 public interface SpeedProvider {
 
   /**
-   * Returns the media speed at the provided timestamp.
+   * Returns the media speed from the provided timestamp.
+   *
+   * <p>The media speed will stay the same until {@linkplain #getNextSpeedChangeTimeUs the next
+   * specified speed change}.
    *
    * @param timeUs The timestamp of the media.
    * @return The speed that the media should be played at.
