@@ -74,6 +74,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final Queue<FrameInfo> pendingFrames;
   private final ScheduledExecutorService forceEndOfStreamExecutorService;
   private final AtomicInteger externalShaderProgramInputCapacity;
+  private final boolean repeatLastRegisteredFrame;
 
   // Counts the frames that are registered before flush but are made available after flush.
   private int numberOfFramesToDropOnBecomingAvailable;
@@ -82,6 +83,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   // The frame that is sent downstream and is not done processing yet.
   @Nullable private FrameInfo currentFrame;
+  @Nullable private FrameInfo lastRegisteredFrame;
 
   @Nullable private Future<?> forceSignalEndOfStreamFuture;
   private boolean shouldRejectIncomingFrames;
@@ -91,16 +93,24 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    *
    * @param glObjectsProvider The {@link GlObjectsProvider} for using EGL and GLES.
    * @param videoFrameProcessingTaskExecutor The {@link VideoFrameProcessingTaskExecutor}.
+   * @param repeatLastRegisteredFrame If {@code true}, the last {@linkplain
+   *     #registerInputFrame(FrameInfo) registered frame} is repeated for subsequent input textures
+   *     made available on the {@linkplain #getInputSurface() input Surface}. This means the user
+   *     can call {@link #registerInputFrame(FrameInfo)} only once. Else, every input frame needs to
+   *     be {@linkplain #registerInputFrame(FrameInfo) registered} before they are made available on
+   *     the {@linkplain #getInputSurface() input Surface}.
    * @throws VideoFrameProcessingException If a problem occurs while creating the external texture.
    */
   // The onFrameAvailableListener will not be invoked until the constructor returns.
   @SuppressWarnings("nullness:method.invocation.invalid")
   public ExternalTextureManager(
       GlObjectsProvider glObjectsProvider,
-      VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor)
+      VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor,
+      boolean repeatLastRegisteredFrame)
       throws VideoFrameProcessingException {
     super(videoFrameProcessingTaskExecutor);
     this.glObjectsProvider = glObjectsProvider;
+    this.repeatLastRegisteredFrame = repeatLastRegisteredFrame;
     try {
       externalTexId = GlUtil.createExternalTexture();
     } catch (GlUtil.GlException e) {
@@ -196,13 +206,19 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    */
   @Override
   public void registerInputFrame(FrameInfo frame) {
-    pendingFrames.add(frame);
+    lastRegisteredFrame = frame;
+    if (!repeatLastRegisteredFrame) {
+      pendingFrames.add(frame);
+    }
     videoFrameProcessingTaskExecutor.submit(() -> shouldRejectIncomingFrames = false);
   }
 
   /**
    * Returns the number of {@linkplain #registerInputFrame(FrameInfo) registered} frames that have
    * not been sent to the downstream {@link ExternalShaderProgram} yet.
+   *
+   * <p>This method always returns 0 if {@code ExternalTextureManager} is built with {@code
+   * repeatLastRegisteredFrame} equal to {@code true}.
    *
    * <p>Can be called on any thread.
    */
@@ -242,6 +258,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     externalShaderProgramInputCapacity.set(0);
     currentFrame = null;
     pendingFrames.clear();
+    lastRegisteredFrame = null;
     maybeExecuteAfterFlushTask();
   }
 
@@ -305,7 +322,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     surfaceTexture.updateTexImage();
     availableFrameCount--;
-    FrameInfo currentFrame = pendingFrames.element();
+
+    FrameInfo currentFrame =
+        repeatLastRegisteredFrame ? checkNotNull(lastRegisteredFrame) : pendingFrames.element();
     this.currentFrame = currentFrame;
 
     externalShaderProgramInputCapacity.decrementAndGet();
@@ -325,7 +344,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                 currentFrame.width,
                 currentFrame.height),
             presentationTimeUs);
-    checkStateNotNull(pendingFrames.remove());
+    if (!repeatLastRegisteredFrame) {
+      checkStateNotNull(pendingFrames.remove());
+    }
     DebugTraceUtil.logEvent(DebugTraceUtil.EVENT_VFP_QUEUE_FRAME, presentationTimeUs);
     // If the queued frame is the last frame, end of stream will be signaled onInputFrameProcessed.
   }
