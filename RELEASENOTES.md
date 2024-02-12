@@ -39,6 +39,7 @@
 *   Leanback extension:
 *   Cast Extension:
 *   Test Utilities:
+    *   Implement `onInit()` and `onRelease()` in `FakeRenderer`.
 *   Remove deprecated symbols:
 *   Demo app:
 
