@@ -91,10 +91,12 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       private @MonotonicNonNull GlObjectsProvider glObjectsProvider;
       private GlTextureProducer.@MonotonicNonNull Listener textureOutputListener;
       private int textureOutputCapacity;
+      private boolean requireRegisteringAllInputFrames;
 
       /** Creates an instance. */
       public Builder() {
         enableColorTransfers = true;
+        requireRegisteringAllInputFrames = true;
       }
 
       private Builder(Factory factory) {
@@ -113,6 +115,33 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       @CanIgnoreReturnValue
       public Builder setEnableColorTransfers(boolean enableColorTransfers) {
         this.enableColorTransfers = enableColorTransfers;
+        return this;
+      }
+
+      /**
+       * Sets whether {@link VideoFrameProcessor#registerInputFrame() registering} every input frame
+       * is required.
+       *
+       * <p>The default value is {@code true}, meaning that all frames input to the {@link
+       * VideoFrameProcessor}'s input {@link #getInputSurface Surface} must be {@linkplain
+       * #registerInputFrame() registered} before they are rendered. In this mode the input format
+       * change between input streams is handled frame-exactly. If {@code false}, {@link
+       * #registerInputFrame} can be called only once for each {@linkplain #registerInputStream
+       * registered input stream} before rendering the first frame to the input {@link
+       * #getInputSurface() Surface}. The same registered {@link FrameInfo} is repeated for the
+       * subsequent frames. To ensure the format change between input streams is applied on the
+       * right frame, the caller needs to {@linkplain #registerInputStream(int, List, FrameInfo)
+       * register} the new input stream strictly after rendering all frames from the previous input
+       * stream. This mode should be used in streams where users don't have direct control over
+       * rendering frames, like in a camera feed.
+       *
+       * <p>Regardless of the value set, {@link #registerInputStream(int, List, FrameInfo)} must be
+       * called for each input stream to specify the format for upcoming frames before calling
+       * {@link #registerInputFrame()}.
+       */
+      @CanIgnoreReturnValue
+      public Builder setRequireRegisteringAllInputFrames(boolean requireRegisteringAllInputFrames) {
+        this.requireRegisteringAllInputFrames = requireRegisteringAllInputFrames;
         return this;
       }
 
@@ -178,6 +207,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       public DefaultVideoFrameProcessor.Factory build() {
         return new DefaultVideoFrameProcessor.Factory(
             enableColorTransfers,
+            /* repeatLastRegisteredFrame= */ !requireRegisteringAllInputFrames,
             glObjectsProvider == null ? new DefaultGlObjectsProvider() : glObjectsProvider,
             executorService,
             textureOutputListener,
@@ -186,6 +216,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
     }
 
     private final boolean enableColorTransfers;
+    private final boolean repeatLastRegisteredFrame;
     private final GlObjectsProvider glObjectsProvider;
     @Nullable private final ExecutorService executorService;
     @Nullable private final GlTextureProducer.Listener textureOutputListener;
@@ -193,11 +224,13 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
 
     private Factory(
         boolean enableColorTransfers,
+        boolean repeatLastRegisteredFrame,
         GlObjectsProvider glObjectsProvider,
         @Nullable ExecutorService executorService,
         @Nullable GlTextureProducer.Listener textureOutputListener,
         int textureOutputCapacity) {
       this.enableColorTransfers = enableColorTransfers;
+      this.repeatLastRegisteredFrame = repeatLastRegisteredFrame;
       this.glObjectsProvider = glObjectsProvider;
       this.executorService = executorService;
       this.textureOutputListener = textureOutputListener;
@@ -264,7 +297,8 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
                       listener,
                       glObjectsProvider,
                       textureOutputListener,
-                      textureOutputCapacity));
+                      textureOutputCapacity,
+                      repeatLastRegisteredFrame));
 
       try {
         return defaultVideoFrameProcessorFuture.get();
@@ -622,10 +656,11 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       boolean renderFramesAutomatically,
       VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor,
       Executor videoFrameProcessorListenerExecutor,
-      VideoFrameProcessor.Listener listener,
+      Listener listener,
       GlObjectsProvider glObjectsProvider,
       @Nullable GlTextureProducer.Listener textureOutputListener,
-      int textureOutputCapacity)
+      int textureOutputCapacity,
+      boolean repeatLastRegisteredFrame)
       throws GlUtil.GlException, VideoFrameProcessingException {
     EGLDisplay eglDisplay = GlUtil.getDefaultEglDisplay();
     int[] configAttributes =
@@ -661,7 +696,8 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
             videoFrameProcessingTaskExecutor,
             /* errorListenerExecutor= */ videoFrameProcessorListenerExecutor,
             /* samplingShaderProgramErrorListener= */ listener::onError,
-            enableColorTransfers);
+            enableColorTransfers,
+            repeatLastRegisteredFrame);
 
     FinalShaderProgramWrapper finalShaderProgramWrapper =
         new FinalShaderProgramWrapper(
