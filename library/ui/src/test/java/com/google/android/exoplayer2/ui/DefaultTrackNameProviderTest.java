@@ -29,13 +29,46 @@ import org.junit.runner.RunWith;
 public class DefaultTrackNameProviderTest {
 
   @Test
-  public void getTrackName_handlesInvalidLanguage() {
+  public void getTrackName_withInvalidLanguage_returnsUnknownWithLanguage() {
     Resources resources = ApplicationProvider.getApplicationContext().getResources();
     DefaultTrackNameProvider provider = new DefaultTrackNameProvider(resources);
     Format format = new Format.Builder().setLanguage("```").build();
 
     String name = provider.getTrackName(format);
 
+    assertThat(name).isEqualTo(resources.getString(R.string.exo_track_unknown_name, "```"));
+  }
+
+  @Test
+  public void getTrackName_withLanguageEmptyString_returnsUnknown() {
+    Resources resources = ApplicationProvider.getApplicationContext().getResources();
+    DefaultTrackNameProvider provider = new DefaultTrackNameProvider(resources);
+    Format format = new Format.Builder().setLanguage("").build();
+
+    String name = provider.getTrackName(format);
+
     assertThat(name).isEqualTo(resources.getString(R.string.exo_track_unknown));
+  }
+
+  @Test
+  public void getTrackName_withLanguageSpacesNewLine_returnsUnknown() {
+    Resources resources = ApplicationProvider.getApplicationContext().getResources();
+    DefaultTrackNameProvider provider = new DefaultTrackNameProvider(resources);
+    Format format = new Format.Builder().setLanguage("   \n ").build();
+
+    String name = provider.getTrackName(format);
+
+    assertThat(name).isEqualTo(resources.getString(R.string.exo_track_unknown));
+  }
+
+  @Test
+  public void getTrackName_withLanguageEmptyStringAndLabel_returnsLabel() {
+    Resources resources = ApplicationProvider.getApplicationContext().getResources();
+    DefaultTrackNameProvider provider = new DefaultTrackNameProvider(resources);
+    Format format = new Format.Builder().setLanguage("").setLabel("Main").build();
+
+    String name = provider.getTrackName(format);
+
+    assertThat(name).isEqualTo("Main");
   }
 }

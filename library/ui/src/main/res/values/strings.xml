@@ -100,6 +100,8 @@
   <string name="exo_track_selection_auto">Auto</string>
   <!-- Name of a media track about which nothing is known. Shown in a list view that allows the user to choose between multiple media tracks. [CHAR LIMIT=20] -->
   <string name="exo_track_unknown">Unknown</string>
+  <!-- Name of a media track of which the language name could not be identified. Shown in a list view that allows the user to choose between multiple media tracks. [CHAR LIMIT=20] -->
+  <string name="exo_track_unknown_name">Unknown (<xliff:g id="name" example="Frengligian">%1$s</xliff:g>)</string>
   <!-- Resolution of a video track. [CHAR LIMIT=20] -->
   <string name="exo_track_resolution"><xliff:g id="width" example="1024">%1$d</xliff:g> × <xliff:g id="height" example="768">%2$d</xliff:g></string>
   <!-- Describes an audio track with one channel. Shown in a list view that allows the user to choose between multiple audio tracks. [CHAR LIMIT=20] -->
