@@ -22,6 +22,9 @@
 *   IMA extension:
 *   Session:
 *   UI:
+    *   Fallback to include audio track language name if `Locale` cannot
+        identify a display name
+        ([#988](https://github.com/androidx/media/issues/988)).
 *   Downloads:
 *   OkHttp Extension:
 *   Cronet Extension:
