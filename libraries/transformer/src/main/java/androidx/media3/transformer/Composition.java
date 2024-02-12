@@ -342,6 +342,8 @@ public final class Composition {
   /** The {@link VideoCompositorSettings} to apply to the composition. */
   public final VideoCompositorSettings videoCompositorSettings;
 
+  // TODO: b/302695659 - Ensure composition level effects are only applied consistently between the
+  //  different VideoGraphs.
   /** The {@link Effects} to apply to the composition. */
   public final Effects effects;
 

@@ -16,12 +16,19 @@
 package androidx.media3.effect;
 
 import static androidx.media3.test.utils.BitmapPixelTestUtil.readBitmap;
+import static androidx.media3.test.utils.VideoFrameProcessorTestRunner.createTimestampIterator;
 import static com.google.common.truth.Truth.assertThat;
 
+import android.graphics.Bitmap;
+import android.util.Pair;
 import androidx.media3.common.C;
 import androidx.media3.common.Effect;
+import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.VideoFrameProcessor;
+import androidx.media3.common.audio.SpeedProvider;
+import androidx.media3.test.utils.TestSpeedProvider;
 import androidx.media3.test.utils.VideoFrameProcessorTestRunner;
+import androidx.media3.test.utils.VideoFrameProcessorTestRunner.OnOutputFrameAvailableForRenderingListener;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
@@ -41,29 +48,121 @@ public class SpeedChangeEffectTest {
       "media/bitmap/sample_mp4_first_frame/electrical_colors/original.png";
 
   @Test
-  public void changeSpeed_outputsFramesAtTheCorrectPresentationTimesUs() throws Exception {
-    String testId = testName.getMethodName();
-    VideoFrameProcessor.Factory videoFrameProcessorFactory =
-        new DefaultVideoFrameProcessor.Factory.Builder().build();
-    ImmutableList<Effect> effects = ImmutableList.of(new SpeedChangeEffect(2f));
+  public void increaseSpeed_outputsFramesAtTheCorrectPresentationTimesUs() throws Exception {
     List<Long> outputPresentationTimesUs = new ArrayList<>();
-    VideoFrameProcessorTestRunner.OnOutputFrameAvailableForRenderingListener
-        onOutputFrameAvailableForRenderingListener = outputPresentationTimesUs::add;
     VideoFrameProcessorTestRunner videoFrameProcessorTestRunner =
-        new VideoFrameProcessorTestRunner.Builder()
-            .setTestId(testId)
-            .setVideoFrameProcessorFactory(videoFrameProcessorFactory)
-            .setEffects(effects)
-            .setOnOutputFrameAvailableForRenderingListener(
-                onOutputFrameAvailableForRenderingListener)
-            .build();
+        getVideoFrameProcessorTestRunner(
+            testName.getMethodName(), new SpeedChangeEffect(2), outputPresentationTimesUs::add);
 
     videoFrameProcessorTestRunner.queueInputBitmap(
-        readBitmap(IMAGE_PATH), C.MICROS_PER_SECOND, /* offsetToAddUs= */ 0L, /* frameRate= */ 5);
+        readBitmap(IMAGE_PATH),
+        /* durationUs= */ C.MICROS_PER_SECOND,
+        /* offsetToAddUs= */ 0L,
+        /* frameRate= */ 5);
     videoFrameProcessorTestRunner.endFrameProcessing();
 
     assertThat(outputPresentationTimesUs)
         .containsExactly(0L, 100_000L, 200_000L, 300_000L, 400_000L)
         .inOrder();
+  }
+
+  @Test
+  public void decreaseSpeed_outputsFramesAtTheCorrectPresentationTimesUs() throws Exception {
+    List<Long> outputPresentationTimesUs = new ArrayList<>();
+    VideoFrameProcessorTestRunner videoFrameProcessorTestRunner =
+        getVideoFrameProcessorTestRunner(
+            testName.getMethodName(), new SpeedChangeEffect(0.5f), outputPresentationTimesUs::add);
+
+    videoFrameProcessorTestRunner.queueInputBitmap(
+        readBitmap(IMAGE_PATH),
+        /* durationUs= */ C.MICROS_PER_SECOND,
+        /* offsetToAddUs= */ 0L,
+        /* frameRate= */ 5);
+    videoFrameProcessorTestRunner.endFrameProcessing();
+
+    assertThat(outputPresentationTimesUs)
+        .containsExactly(0L, 400_000L, 800_000L, 1_200_000L, 1_600_000L)
+        .inOrder();
+  }
+
+  @Test
+  public void variableSpeedChange_outputsFramesAtTheCorrectPresentationTimesUs() throws Exception {
+    SpeedProvider speedProvider =
+        TestSpeedProvider.createWithStartTimes(
+            /* startTimesUs= */ new long[] {0, 1_500_000, 3_000_000},
+            /* speeds= */ new float[] {1, 2, 1});
+    List<Long> outputPresentationTimesUs = new ArrayList<>();
+    VideoFrameProcessorTestRunner videoFrameProcessorTestRunner =
+        getVideoFrameProcessorTestRunner(
+            testName.getMethodName(),
+            new SpeedChangeEffect(speedProvider),
+            outputPresentationTimesUs::add);
+
+    videoFrameProcessorTestRunner.queueInputBitmap(
+        readBitmap(IMAGE_PATH),
+        /* durationUs= */ 5_000_000L,
+        /* offsetToAddUs= */ 0L,
+        /* frameRate= */ 1);
+    videoFrameProcessorTestRunner.queueInputBitmap(
+        readBitmap(IMAGE_PATH),
+        /* durationUs= */ 5_000_000L,
+        /* offsetToAddUs= */ 5_000_000L,
+        /* frameRate= */ 1);
+    videoFrameProcessorTestRunner.endFrameProcessing();
+
+    ImmutableList<Long> firstStreamExpectedTimestamps =
+        ImmutableList.of(0L, 1_000_000L, 1_750_000L, 2_250_000L, 3_250_000L);
+    ImmutableList<Long> secondStreamExpectedTimestamps =
+        ImmutableList.of(5_000_000L, 6_000_000L, 6_750_000L, 7_250_000L, 8_250_000L);
+    ImmutableList<Long> allExpectedTimestamps =
+        new ImmutableList.Builder<Long>()
+            .addAll(firstStreamExpectedTimestamps)
+            .addAll(secondStreamExpectedTimestamps)
+            .build();
+    assertThat(outputPresentationTimesUs)
+        .containsExactlyElementsIn(allExpectedTimestamps)
+        .inOrder();
+  }
+
+  @Test
+  public void
+      variableSpeedChange_multipleSpeedChangesBetweenFrames_outputsFramesAtTheCorrectPresentationTimesUs()
+          throws Exception {
+    SpeedProvider speedProvider =
+        TestSpeedProvider.createWithStartTimes(
+            /* startTimesUs= */ new long[] {0, 1_000_000, 2_000_000},
+            /* speeds= */ new float[] {4, 2, 1});
+    List<Long> outputPresentationTimesUs = new ArrayList<>();
+    VideoFrameProcessorTestRunner videoFrameProcessorTestRunner =
+        getVideoFrameProcessorTestRunner(
+            testName.getMethodName(),
+            new SpeedChangeEffect(speedProvider),
+            outputPresentationTimesUs::add);
+    Bitmap bitmap = readBitmap(IMAGE_PATH);
+    ImmutableList<Long> inputTimestamps = ImmutableList.of(0L, 4_000_000L, 5_000_000L);
+
+    videoFrameProcessorTestRunner.queueInputBitmaps(
+        bitmap.getWidth(),
+        bitmap.getHeight(),
+        Pair.create(bitmap, createTimestampIterator(inputTimestamps)));
+    videoFrameProcessorTestRunner.endFrameProcessing();
+
+    assertThat(outputPresentationTimesUs).containsExactly(0L, 2_750_000L, 3_750_000L).inOrder();
+  }
+
+  private static VideoFrameProcessorTestRunner getVideoFrameProcessorTestRunner(
+      String testId,
+      GlEffect speedChangeEffect,
+      OnOutputFrameAvailableForRenderingListener onOutputFrameAvailableForRenderingListener)
+      throws VideoFrameProcessingException {
+    VideoFrameProcessor.Factory videoFrameProcessorFactory =
+        new DefaultVideoFrameProcessor.Factory.Builder().build();
+    ImmutableList<Effect> effects = ImmutableList.of(speedChangeEffect);
+    return new VideoFrameProcessorTestRunner.Builder()
+        .setTestId(testId)
+        .setVideoFrameProcessorFactory(videoFrameProcessorFactory)
+        .setEffects(effects)
+        .setOnOutputFrameAvailableForRenderingListener(onOutputFrameAvailableForRenderingListener)
+        .build();
   }
 }

@@ -19,33 +19,57 @@ import static androidx.media3.common.util.Assertions.checkArgument;
 
 import android.content.Context;
 import androidx.annotation.FloatRange;
-import androidx.media3.common.VideoFrameProcessingException;
+import androidx.media3.common.C;
+import androidx.media3.common.audio.SpeedProvider;
 import androidx.media3.common.util.UnstableApi;
 
 /**
  * Applies a speed change by updating the frame timestamps.
  *
  * <p>This effect doesn't drop any frames.
+ *
+ * <p>This effect is not supported for effects previewing.
  */
 @UnstableApi
 public final class SpeedChangeEffect implements GlEffect {
 
-  private final float speed;
+  private final SpeedProvider speedProvider;
 
-  /** Creates an instance. */
+  /** Creates an instance that applies the same {@code speed} change to all the timestamps. */
   public SpeedChangeEffect(@FloatRange(from = 0, fromInclusive = false) float speed) {
     checkArgument(speed > 0f);
-    this.speed = speed;
+    speedProvider =
+        new SpeedProvider() {
+          @Override
+          public float getSpeed(long timeUs) {
+            return speed;
+          }
+
+          @Override
+          public long getNextSpeedChangeTimeUs(long timeUs) {
+            return C.TIME_UNSET;
+          }
+        };
+  }
+
+  /**
+   * Creates an instance.
+   *
+   * @param speedProvider The {@link SpeedProvider} specifying the speed changes. Applied on each
+   *     stream assuming the first frame timestamp of the input media is 0.
+   */
+  public SpeedChangeEffect(SpeedProvider speedProvider) {
+    this.speedProvider = speedProvider;
   }
 
   @Override
-  public GlShaderProgram toGlShaderProgram(Context context, boolean useHdr)
-      throws VideoFrameProcessingException {
-    return new SpeedChangeShaderProgram(speed);
+  public GlShaderProgram toGlShaderProgram(Context context, boolean useHdr) {
+    return new SpeedChangeShaderProgram(speedProvider);
   }
 
   @Override
   public boolean isNoOp(int inputWidth, int inputHeight) {
-    return speed == 1f;
+    return speedProvider.getSpeed(/* timeUs= */ 0) == 1
+        && speedProvider.getNextSpeedChangeTimeUs(/* timeUs= */ 0) == C.TIME_UNSET;
   }
 }

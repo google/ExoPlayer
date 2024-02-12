@@ -18,6 +18,8 @@
 *   DRM:
 *   Effect:
     *   Improved PQ to SDR tone-mapping by converting color spaces.
+    *   Support multiple speed changes within the same `EditedMediaItem` or
+        `Composition` in `SpeedChangeEffect`.
 *   Muxers:
 *   IMA extension:
 *   Session:
