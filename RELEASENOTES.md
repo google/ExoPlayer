@@ -59,6 +59,11 @@ This release includes the following changes since the
         ([#1028](https://github.com/androidx/media/issues/1028)).
     *   Stop double-encoding CMCD query parameters
         ([#1075](https://github.com/androidx/media/issues/1075)).
+*   Transformer:
+    *   Add support for optimizing single asset mp4 trim operations.
+    *   Add support to ensure a video frame has the first timestamp in the
+        output file. Fixes output files beginning with black frame on iOS based
+        players ([#829](https://github.com/androidx/media/issues/829)).
 *   Audio:
     *   Improve silence skipping algorithm with smooth volume ramp, retained
         minimal silence and more natural silence durations
