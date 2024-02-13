@@ -26,11 +26,13 @@ import static android.view.KeyEvent.KEYCODE_MEDIA_STOP;
 import static androidx.media3.common.Player.STATE_IDLE;
 import static androidx.media3.test.session.common.TestUtils.LONG_TIMEOUT_MS;
 import static androidx.media3.test.session.common.TestUtils.TIMEOUT_MS;
+import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.junit.Assert.assertThrows;
 
+import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -64,6 +66,8 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.After;
+import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -164,6 +168,82 @@ public class MediaSessionTest {
     // Empty string as ID is allowed.
     sessionTestRule.ensureReleaseAfterTest(
         new MediaSession.Builder(context, player).setId("").build());
+  }
+
+  @Test
+  public void builderSetSessionActivity_activityIntent_accepted() {
+    PendingIntent pendingIntent =
+        PendingIntent.getActivity(
+            ApplicationProvider.getApplicationContext(),
+            /* requestCode= */ 0,
+            new Intent("action"),
+            PendingIntent.FLAG_IMMUTABLE);
+
+    MediaSession session =
+        sessionTestRule.ensureReleaseAfterTest(
+            new MediaSession.Builder(getApplicationContext(), new MockPlayer.Builder().build())
+                .setId("sessionActivity")
+                .setSessionActivity(pendingIntent)
+                .build());
+
+    assertThat(session.getSessionActivity()).isEqualTo(pendingIntent);
+  }
+
+  @Test
+  public void setSessionActivity_activityIntent_accepted() {
+    PendingIntent pendingIntent =
+        PendingIntent.getActivity(
+            ApplicationProvider.getApplicationContext(),
+            /* requestCode= */ 0,
+            new Intent("action"),
+            PendingIntent.FLAG_IMMUTABLE);
+
+    MediaSession session =
+        sessionTestRule.ensureReleaseAfterTest(
+            new MediaSession.Builder(getApplicationContext(), new MockPlayer.Builder().build())
+                .setId("sessionActivity")
+                .build());
+    session.setSessionActivity(pendingIntent);
+
+    assertThat(session.getSessionActivity()).isEqualTo(pendingIntent);
+  }
+
+  @Test
+  public void builderSetSessionActivity_nonActivityIntent_throwsIllegalArgumentException() {
+    Assume.assumeTrue(Util.SDK_INT >= 31);
+    PendingIntent pendingIntent =
+        PendingIntent.getBroadcast(
+            ApplicationProvider.getApplicationContext(),
+            /* requestCode= */ 0,
+            new Intent("action"),
+            PendingIntent.FLAG_IMMUTABLE);
+
+    MediaSession.Builder builder =
+        new MediaSession.Builder(getApplicationContext(), new MockPlayer.Builder().build())
+            .setId("sessionActivity");
+
+    Assert.assertThrows(
+        IllegalArgumentException.class, () -> builder.setSessionActivity(pendingIntent));
+  }
+
+  @Test
+  public void setSessionActivity_nonActivityIntent_throwsIllegalArgumentException() {
+    Assume.assumeTrue(Util.SDK_INT >= 31);
+    PendingIntent pendingIntent =
+        PendingIntent.getBroadcast(
+            ApplicationProvider.getApplicationContext(),
+            /* requestCode= */ 0,
+            new Intent("action"),
+            PendingIntent.FLAG_IMMUTABLE);
+
+    MediaSession session =
+        sessionTestRule.ensureReleaseAfterTest(
+            new MediaSession.Builder(getApplicationContext(), new MockPlayer.Builder().build())
+                .setId("sessionActivity")
+                .build());
+
+    Assert.assertThrows(
+        IllegalArgumentException.class, () -> session.setSessionActivity(pendingIntent));
   }
 
   @Test
