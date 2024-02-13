@@ -15,9 +15,10 @@
  */
 package androidx.media3.common.util;
 
+import android.os.Trace;
 import androidx.media3.common.MediaLibraryInfo;
 
-/** Calls through to {@link android.os.Trace} methods on supported API levels. */
+/** Calls through to {@link Trace} methods if {@link MediaLibraryInfo#TRACE_ENABLED} is {@code true}. */
 @UnstableApi
 public final class TraceUtil {
 
@@ -26,24 +27,24 @@ public final class TraceUtil {
   /**
    * Writes a trace message to indicate that a given section of code has begun.
    *
-   * @see android.os.Trace#beginSection(String)
+   * @see Trace#beginSection(String)
    * @param sectionName The name of the code section to appear in the trace. This may be at most 127
    *     Unicode code units long.
    */
   public static void beginSection(String sectionName) {
     if (MediaLibraryInfo.TRACE_ENABLED) {
-      android.os.Trace.beginSection(sectionName);
+      Trace.beginSection(sectionName);
     }
   }
 
   /**
    * Writes a trace message to indicate that a given section of code has ended.
    *
-   * @see android.os.Trace#endSection()
+   * @see Trace#endSection()
    */
   public static void endSection() {
     if (MediaLibraryInfo.TRACE_ENABLED) {
-      android.os.Trace.endSection();
+      Trace.endSection();
     }
   }
 }
