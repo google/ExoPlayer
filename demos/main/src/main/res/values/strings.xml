@@ -59,6 +59,8 @@
 
   <string name="download_ads_unsupported">IMA does not support offline ads</string>
 
+  <string name="download_only_widevine_drm_supported">This demo app only supports downloading unencrypted or Widevine DRM content</string>
+
   <string name="prefer_extension_decoders">Prefer extension decoders</string>
 
 </resources>

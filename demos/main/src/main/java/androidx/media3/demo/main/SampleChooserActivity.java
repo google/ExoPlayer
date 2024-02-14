@@ -49,6 +49,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MediaItem.ClippingConfiguration;
 import androidx.media3.common.MediaMetadata;
@@ -272,6 +273,10 @@ public class SampleChooserActivity extends AppCompatActivity
         checkNotNull(playlistHolder.mediaItems.get(0).localConfiguration);
     if (localConfiguration.adsConfiguration != null) {
       return R.string.download_ads_unsupported;
+    }
+    @Nullable MediaItem.DrmConfiguration drmConfiguration = localConfiguration.drmConfiguration;
+    if (drmConfiguration != null && !drmConfiguration.scheme.equals(C.WIDEVINE_UUID)) {
+      return R.string.download_only_widevine_drm_supported;
     }
     String scheme = localConfiguration.uri.getScheme();
     if (!("http".equals(scheme) || "https".equals(scheme))) {
