@@ -40,7 +40,6 @@
       android:largeHeap="true"
       android:allowBackup="false"
       android:supportsRtl="true"
-      android:name="androidx.multidex.MultiDexApplication"
       tools:targetApi="29">
 
     <activity android:name=".SampleChooserActivity"

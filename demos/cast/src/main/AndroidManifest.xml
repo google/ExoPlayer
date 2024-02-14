@@ -23,7 +23,6 @@
   <uses-sdk/>
 
   <application
-      android:name="androidx.multidex.MultiDexApplication"
       android:label="@string/application_name"
       android:icon="@mipmap/ic_launcher"
       android:largeHeap="true"
