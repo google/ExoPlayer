@@ -23,7 +23,6 @@
   <uses-sdk/>
 
   <application
-      android:name="androidx.multidex.MultiDexApplication"
       android:allowBackup="false"
       android:usesCleartextTraffic="true"
       tools:ignore="MissingApplicationIcon,HardcodedDebugMode">

@@ -24,7 +24,6 @@
   </queries>
 
   <application
-      android:name="androidx.multidex.MultiDexApplication"
       android:allowBackup="false">
     <activity android:name="androidx.media3.test.session.common.SurfaceActivity"
         android:exported="false" />

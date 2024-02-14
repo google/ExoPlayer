@@ -22,7 +22,6 @@
   <uses-sdk/>
 
   <application
-      android:name="androidx.multidex.MultiDexApplication"
       android:allowBackup="false"
       tools:ignore="MissingApplicationIcon,HardcodedDebugMode"/>
 

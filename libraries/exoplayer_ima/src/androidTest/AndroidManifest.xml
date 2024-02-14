@@ -24,7 +24,6 @@
   <uses-sdk/>
 
   <application
-      android:name="androidx.multidex.MultiDexApplication"
       android:allowBackup="false"
       tools:ignore="MissingApplicationIcon,HardcodedDebugMode">
     <activity android:name="androidx.media3.test.utils.HostActivity"
