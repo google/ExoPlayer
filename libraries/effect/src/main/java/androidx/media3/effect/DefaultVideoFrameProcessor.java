@@ -105,6 +105,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
         glObjectsProvider = factory.glObjectsProvider;
         textureOutputListener = factory.textureOutputListener;
         textureOutputCapacity = factory.textureOutputCapacity;
+        requireRegisteringAllInputFrames = !factory.repeatLastRegisteredFrame;
       }
 
       /**
