@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.demo;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 import android.content.Context;
 import android.content.DialogInterface;
@@ -387,6 +388,7 @@ public class DownloadTracker {
         DataSource.Factory dataSourceFactory,
         StartDownloadDialogHelper dialogHelper,
         DownloadHelper downloadHelper) {
+      checkState(drmConfiguration.scheme.equals(C.WIDEVINE_UUID));
       this.executorService = Executors.newSingleThreadExecutor();
       this.format = format;
       this.drmConfiguration = drmConfiguration;
