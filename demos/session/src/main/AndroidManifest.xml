@@ -23,10 +23,12 @@
   <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
 
   <application
+      android:name="androidx.multidex.MultiDexApplication"
       android:allowBackup="false"
       android:icon="@mipmap/ic_launcher"
       android:label="@string/app_name"
-      android:theme="@style/Theme.Media3Demo">
+      android:theme="@style/Theme.Media3Demo"
+      tools:replace="android:name">
 
     <!-- Declare that this session demo supports Android Auto. -->
     <meta-data

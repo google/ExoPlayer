@@ -39,11 +39,13 @@
     android:resource="@xml/automotive_app_desc"/>
 
   <application
+      android:name="androidx.multidex.MultiDexApplication"
       android:allowBackup="false"
       android:taskAffinity=""
       android:appCategory="audio"
       android:icon="@mipmap/ic_launcher"
-      android:label="@string/app_name">
+      android:label="@string/app_name"
+      tools:replace="android:name">
 
     <meta-data
       android:name="androidx.car.app.TintableAttributionIcon"

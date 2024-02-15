@@ -21,8 +21,10 @@
     android:allowBackup="false"
     android:icon="@mipmap/ic_launcher"
     android:label="@string/app_name"
+    android:name="androidx.multidex.MultiDexApplication"
     android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar"
-    android:taskAffinity="">
+    android:taskAffinity=""
+    tools:replace="android:name">
     <activity
       android:exported="true"
       android:name=".MainActivity">
