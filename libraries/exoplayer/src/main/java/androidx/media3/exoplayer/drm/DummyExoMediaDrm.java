@@ -18,7 +18,6 @@ package androidx.media3.exoplayer.drm;
 import android.media.MediaDrmException;
 import android.os.PersistableBundle;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.media3.common.C;
 import androidx.media3.common.DrmInitData;
 import androidx.media3.common.util.UnstableApi;
@@ -29,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 
 /** An {@link ExoMediaDrm} that does not support any protection schemes. */
-@RequiresApi(18)
 @UnstableApi
 public final class DummyExoMediaDrm implements ExoMediaDrm {
 

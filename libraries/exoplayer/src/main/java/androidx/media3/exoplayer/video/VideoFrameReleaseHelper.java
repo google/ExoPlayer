@@ -26,7 +26,6 @@ import android.view.Choreographer;
 import android.view.Choreographer.FrameCallback;
 import android.view.Display;
 import android.view.Surface;
-import android.view.WindowManager;
 import androidx.annotation.DoNotInline;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -161,7 +160,7 @@ public final class VideoFrameReleaseHelper {
     resetAdjustment();
     if (displayHelper != null) {
       checkNotNull(vsyncSampler).addObserver();
-      displayHelper.register(this::updateDefaultDisplayRefreshRateParams);
+      displayHelper.register();
     }
     updateSurfacePlaybackFrameRate(/* forceUpdate= */ false);
   }
@@ -172,7 +171,7 @@ public final class VideoFrameReleaseHelper {
    * @param surface The new {@link Surface}, or {@code null} if the renderer does not have one.
    */
   public void onSurfaceChanged(@Nullable Surface surface) {
-    if (Util.SDK_INT >= 17 && Api17.isPlaceholderSurface(surface)) {
+    if (surface instanceof PlaceholderSurface) {
       // We don't care about dummy surfaces for release timing, since they're not visible.
       surface = null;
     }
@@ -418,18 +417,13 @@ public final class VideoFrameReleaseHelper {
   }
 
   @Nullable
-  private static DisplayHelper maybeBuildDisplayHelper(@Nullable Context context) {
-    @Nullable DisplayHelper displayHelper = null;
-    if (context != null) {
-      context = context.getApplicationContext();
-      if (Util.SDK_INT >= 17) {
-        displayHelper = DisplayHelperV17.maybeBuildNewInstance(context);
-      }
-      if (displayHelper == null) {
-        displayHelper = DisplayHelperV16.maybeBuildNewInstance(context);
-      }
+  private DisplayHelper maybeBuildDisplayHelper(@Nullable Context context) {
+    if (context == null) {
+      return null;
     }
-    return displayHelper;
+    DisplayManager displayManager =
+        (DisplayManager) context.getSystemService(Context.DISPLAY_SERVICE);
+    return displayManager != null ? new DisplayHelper(displayManager) : null;
   }
 
   // Nested classes.
@@ -450,92 +444,27 @@ public final class VideoFrameReleaseHelper {
     }
   }
 
-  /** Helper for listening to changes to the default display. */
-  private interface DisplayHelper {
-
-    /** Listener for changes to the default display. */
-    interface Listener {
-
-      /**
-       * Called when the default display changes.
-       *
-       * @param defaultDisplay The default display, or {@code null} if a corresponding {@link
-       *     Display} object could not be obtained.
-       */
-      void onDefaultDisplayChanged(@Nullable Display defaultDisplay);
-    }
-
-    /**
-     * Enables the helper, invoking {@link Listener#onDefaultDisplayChanged(Display)} to pass the
-     * initial default display.
-     */
-    void register(Listener listener);
-
-    /** Disables the helper. */
-    void unregister();
-  }
-
-  private static final class DisplayHelperV16 implements DisplayHelper {
-
-    @Nullable
-    public static DisplayHelper maybeBuildNewInstance(Context context) {
-      WindowManager windowManager =
-          (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-      return windowManager != null ? new DisplayHelperV16(windowManager) : null;
-    }
-
-    private final WindowManager windowManager;
-
-    private DisplayHelperV16(WindowManager windowManager) {
-      this.windowManager = windowManager;
-    }
-
-    @Override
-    public void register(Listener listener) {
-      listener.onDefaultDisplayChanged(windowManager.getDefaultDisplay());
-    }
-
-    @Override
-    public void unregister() {
-      // Do nothing.
-    }
-  }
-
-  @RequiresApi(17)
-  private static final class DisplayHelperV17
-      implements DisplayHelper, DisplayManager.DisplayListener {
-
-    @Nullable
-    public static DisplayHelper maybeBuildNewInstance(Context context) {
-      DisplayManager displayManager =
-          (DisplayManager) context.getSystemService(Context.DISPLAY_SERVICE);
-      return displayManager != null ? new DisplayHelperV17(displayManager) : null;
-    }
+  private final class DisplayHelper implements DisplayManager.DisplayListener {
 
     private final DisplayManager displayManager;
-    @Nullable private Listener listener;
 
-    private DisplayHelperV17(DisplayManager displayManager) {
+    public DisplayHelper(DisplayManager displayManager) {
       this.displayManager = displayManager;
     }
 
-    @Override
-    public void register(Listener listener) {
-      this.listener = listener;
+    public void register() {
       displayManager.registerDisplayListener(this, Util.createHandlerForCurrentLooper());
-      listener.onDefaultDisplayChanged(getDefaultDisplay());
+      updateDefaultDisplayRefreshRateParams(getDefaultDisplay());
     }
 
-    @Override
     public void unregister() {
       displayManager.unregisterDisplayListener(this);
-      listener = null;
     }
 
     @Override
     public void onDisplayChanged(int displayId) {
-      if (listener != null && displayId == Display.DEFAULT_DISPLAY) {
-        listener.onDefaultDisplayChanged(getDefaultDisplay());
+      if (displayId == Display.DEFAULT_DISPLAY) {
+        updateDefaultDisplayRefreshRateParams(getDefaultDisplay());
       }
     }
 
@@ -651,15 +580,6 @@ public final class VideoFrameReleaseHelper {
           sampledVsyncTimeNs = C.TIME_UNSET;
         }
       }
-    }
-  }
-
-  @RequiresApi(17)
-  private static final class Api17 {
-
-    @DoNotInline
-    public static boolean isPlaceholderSurface(@Nullable Surface surface) {
-      return surface instanceof PlaceholderSurface;
     }
   }
 }

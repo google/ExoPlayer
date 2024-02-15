@@ -31,7 +31,6 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import android.net.Uri;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.media3.common.C;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.UnstableApi;
@@ -68,7 +67,6 @@ import org.mockito.Mockito;
  * not required) to also annotate this {@link Ignore @Ignore} so that JUnit correctly reports the
  * test as skipped/ignored instead of passing.
  */
-@RequiresApi(19)
 @UnstableApi
 public abstract class DataSourceContractTest {
 

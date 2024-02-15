@@ -20,7 +20,6 @@ import static androidx.media3.exoplayer.drm.DefaultDrmSessionManager.MODE_PLAYBA
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
@@ -75,7 +74,7 @@ public final class DefaultDrmSessionManagerProvider implements DrmSessionManager
     checkNotNull(mediaItem.localConfiguration);
     @Nullable
     MediaItem.DrmConfiguration drmConfiguration = mediaItem.localConfiguration.drmConfiguration;
-    if (drmConfiguration == null || Util.SDK_INT < 18) {
+    if (drmConfiguration == null) {
       return DrmSessionManager.DRM_UNSUPPORTED;
     }
 
@@ -88,7 +87,6 @@ public final class DefaultDrmSessionManagerProvider implements DrmSessionManager
     }
   }
 
-  @RequiresApi(18)
   private DrmSessionManager createManager(MediaItem.DrmConfiguration drmConfiguration) {
     DataSource.Factory dataSourceFactory =
         drmHttpDataSourceFactory != null

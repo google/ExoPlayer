@@ -39,7 +39,6 @@ import androidx.media3.common.C;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.UnstableApi;
-import androidx.media3.common.util.Util;
 import androidx.media3.exoplayer.video.VideoFrameMetadataListener;
 import java.util.concurrent.CopyOnWriteArrayList;
 import javax.microedition.khronos.egl.EGLConfig;
@@ -103,14 +102,12 @@ public final class SphericalGLSurfaceView extends GLSurfaceView {
     // Configure sensors and touch.
     sensorManager =
         (SensorManager) Assertions.checkNotNull(context.getSystemService(Context.SENSOR_SERVICE));
-    @Nullable Sensor orientationSensor = null;
-    if (Util.SDK_INT >= 18) {
-      // TYPE_GAME_ROTATION_VECTOR is the easiest sensor since it handles all the complex math for
-      // fusion. It's used instead of TYPE_ROTATION_VECTOR since the latter uses the magnetometer on
-      // devices. When used indoors, the magnetometer can take some time to settle depending on the
-      // device and amount of metal in the environment.
-      orientationSensor = sensorManager.getDefaultSensor(Sensor.TYPE_GAME_ROTATION_VECTOR);
-    }
+    // TYPE_GAME_ROTATION_VECTOR is the easiest sensor since it handles all the complex math for
+    // fusion. It's used instead of TYPE_ROTATION_VECTOR since the latter uses the magnetometer on
+    // devices. When used indoors, the magnetometer can take some time to settle depending on the
+    // device and amount of metal in the environment.
+    @Nullable
+    Sensor orientationSensor = sensorManager.getDefaultSensor(Sensor.TYPE_GAME_ROTATION_VECTOR);
     if (orientationSensor == null) {
       orientationSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
     }

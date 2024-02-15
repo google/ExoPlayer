@@ -26,7 +26,6 @@ import androidx.core.app.BundleCompat;
 import androidx.media3.common.Bundleable;
 import androidx.media3.common.Player;
 import androidx.media3.common.util.BundleCollectionUtil;
-import androidx.media3.common.util.BundleUtil;
 import androidx.media3.common.util.Util;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
@@ -139,7 +138,7 @@ import java.util.List;
    */
   public Bundle toBundleInProcess() {
     Bundle bundle = new Bundle();
-    BundleUtil.putBinder(bundle, FIELD_IN_PROCESS_BINDER, new InProcessBinder());
+    bundle.putBinder(FIELD_IN_PROCESS_BINDER, new InProcessBinder());
     return bundle;
   }
 
@@ -152,7 +151,7 @@ import java.util.List;
 
   /** Restores a {@code ConnectionState} from a {@link Bundle}. */
   public static ConnectionState fromBundle(Bundle bundle) {
-    @Nullable IBinder inProcessBinder = BundleUtil.getBinder(bundle, FIELD_IN_PROCESS_BINDER);
+    @Nullable IBinder inProcessBinder = bundle.getBinder(FIELD_IN_PROCESS_BINDER);
     if (inProcessBinder instanceof InProcessBinder) {
       return ((InProcessBinder) inProcessBinder).getConnectionState();
     }

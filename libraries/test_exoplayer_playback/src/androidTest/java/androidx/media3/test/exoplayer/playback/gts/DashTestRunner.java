@@ -21,7 +21,6 @@ import android.media.MediaDrm;
 import android.media.UnsupportedSchemeException;
 import android.view.Surface;
 import android.widget.FrameLayout;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.Size;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
@@ -106,22 +105,17 @@ import java.util.List;
 
   @SuppressWarnings("ResourceType")
   public static boolean isL1WidevineAvailable(String mimeType) {
-    if (Util.SDK_INT >= 18) {
-      try {
-        // Force L3 if secure decoder is not available.
-        if (MediaCodecUtil.getDecoderInfo(mimeType, /* secure= */ true, /* tunneling= */ false)
-            == null) {
-          return false;
-        }
-        MediaDrm mediaDrm = MediaDrmBuilder.build();
-        String securityProperty = mediaDrm.getPropertyString(SECURITY_LEVEL_PROPERTY);
-        mediaDrm.release();
-        return WIDEVINE_SECURITY_LEVEL_1.equals(securityProperty);
-      } catch (MediaCodecUtil.DecoderQueryException e) {
-        throw new IllegalStateException(e);
+    try (MediaDrm mediaDrm = new MediaDrm(WIDEVINE_UUID)) {
+      // Force L3 if secure decoder is not available.
+      if (MediaCodecUtil.getDecoderInfo(mimeType, /* secure= */ true, /* tunneling= */ false)
+          == null) {
+        return false;
       }
+      String securityProperty = mediaDrm.getPropertyString(SECURITY_LEVEL_PROPERTY);
+      return WIDEVINE_SECURITY_LEVEL_1.equals(securityProperty);
+    } catch (UnsupportedSchemeException | MediaCodecUtil.DecoderQueryException e) {
+      throw new IllegalStateException(e);
     }
-    return false;
   }
 
   public DashTestRunner(@Size(max = 23) String tag, HostActivity activity) {
@@ -505,22 +499,6 @@ import java.util.List;
 
     private static boolean isFormatHandled(int formatSupport) {
       return RendererCapabilities.getFormatSupport(formatSupport) == C.FORMAT_HANDLED;
-    }
-  }
-
-  /**
-   * Creates a new {@code MediaDrm} object. The encapsulation ensures that the tests can be executed
-   * for API level < 18.
-   */
-  @RequiresApi(18)
-  private static final class MediaDrmBuilder {
-
-    public static MediaDrm build() {
-      try {
-        return new MediaDrm(WIDEVINE_UUID);
-      } catch (UnsupportedSchemeException e) {
-        throw new IllegalStateException(e);
-      }
     }
   }
 }

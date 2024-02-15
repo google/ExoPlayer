@@ -35,7 +35,6 @@ import android.media.MediaFormat;
 import android.util.Pair;
 import android.view.Surface;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.media3.common.ColorInfo;
 import androidx.media3.common.DebugViewProvider;
 import androidx.media3.common.Effect;
@@ -61,7 +60,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** A test runner for {@link VideoFrameProcessor} tests. */
 @UnstableApi
-@RequiresApi(19)
 public final class VideoFrameProcessorTestRunner {
 
   /** A builder for {@link VideoFrameProcessorTestRunner} instances. */

@@ -186,11 +186,7 @@ public class MockMediaLibraryService extends MediaLibraryService {
       expectedParams = null;
     }
     TestServiceRegistry.getInstance().cleanUp();
-    if (Util.SDK_INT >= 18) {
-      handlerThread.quitSafely();
-    } else {
-      handlerThread.quit();
-    }
+    handlerThread.quitSafely();
   }
 
   @Override

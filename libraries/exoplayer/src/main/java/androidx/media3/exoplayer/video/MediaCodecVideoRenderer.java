@@ -715,7 +715,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer
     }
   }
 
-  @TargetApi(17) // Needed for placeholderSurface usage, as it is always null on API level 16.
   @Override
   protected void onReset() {
     try {
@@ -804,7 +803,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer
       } else {
         MediaCodecInfo codecInfo = getCodecInfo();
         if (codecInfo != null && shouldUsePlaceholderSurface(codecInfo)) {
-          placeholderSurface = PlaceholderSurface.newInstanceV17(context, codecInfo.secure);
+          placeholderSurface = PlaceholderSurface.newInstance(context, codecInfo.secure);
           displaySurface = placeholderSurface;
         }
       }
@@ -866,7 +865,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer
     return tunneling && Util.SDK_INT < 23;
   }
 
-  @TargetApi(17) // Needed for placeHolderSurface usage, as it is always null on API level 16.
   @Override
   protected MediaCodecAdapter.Configuration getMediaCodecConfiguration(
       MediaCodecInfo codecInfo,
@@ -892,7 +890,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer
         throw new IllegalStateException();
       }
       if (placeholderSurface == null) {
-        placeholderSurface = PlaceholderSurface.newInstanceV17(context, codecInfo.secure);
+        placeholderSurface = PlaceholderSurface.newInstance(context, codecInfo.secure);
       }
       displaySurface = placeholderSurface;
     }
@@ -1682,7 +1680,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer
         && (!codecInfo.secure || PlaceholderSurface.isSecureSupported(context));
   }
 
-  @RequiresApi(17)
   private void releasePlaceholderSurface() {
     if (displaySurface == placeholderSurface) {
       displaySurface = null;

@@ -27,14 +27,12 @@ import android.opengl.GLES20;
 import android.os.Handler;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /** Generates a {@link SurfaceTexture} using EGL/GLES functions. */
-@RequiresApi(17)
 @UnstableApi
 public final class EGLSurfaceTexture implements SurfaceTexture.OnFrameAvailableListener, Runnable {
 
@@ -150,10 +148,7 @@ public final class EGLSurfaceTexture implements SurfaceTexture.OnFrameAvailableL
       if (context != null) {
         EGL14.eglDestroyContext(display, context);
       }
-      // EGL14.eglReleaseThread could crash before Android K (see [internal: b/11327779]).
-      if (Util.SDK_INT >= 19) {
-        EGL14.eglReleaseThread();
-      }
+      EGL14.eglReleaseThread();
       if (display != null && !display.equals(EGL14.EGL_NO_DISPLAY)) {
         // Android is unusual in that it uses a reference-counted EGLDisplay.  So for
         // every eglInitialize() we need an eglTerminate().

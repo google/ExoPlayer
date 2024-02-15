@@ -26,7 +26,6 @@ import android.os.Looper;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
-import androidx.annotation.RequiresApi;
 import androidx.fragment.app.FragmentManager;
 import androidx.media3.common.C;
 import androidx.media3.common.DrmInitData;
@@ -202,12 +201,7 @@ public class DownloadTracker {
       }
 
       // The content is DRM protected. We need to acquire an offline license.
-      if (Util.SDK_INT < 18) {
-        Toast.makeText(context, R.string.error_drm_unsupported_before_api_18, Toast.LENGTH_LONG)
-            .show();
-        Log.e(TAG, "Downloading DRM protected content is not supported on API versions below 18");
-        return;
-      }
+
       // TODO(internal b/163107948): Support cases where DrmInitData are not in the manifest.
       if (!hasNonNullWidevineSchemaData(format.drmInitData)) {
         Toast.makeText(context, R.string.download_start_error_offline_license, Toast.LENGTH_LONG)
@@ -362,7 +356,6 @@ public class DownloadTracker {
   }
 
   /** Downloads a Widevine offline license in a background thread. */
-  @RequiresApi(18)
   private static final class WidevineOfflineLicenseFetchTask {
 
     private final Format format;

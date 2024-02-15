@@ -33,7 +33,6 @@ import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.media3.common.text.Cue;
 import androidx.media3.common.util.UnstableApi;
-import androidx.media3.common.util.Util;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
@@ -319,7 +318,7 @@ public final class SubtitleView extends FrameLayout {
   }
 
   private float getUserCaptionFontScale() {
-    if (Util.SDK_INT < 19 || isInEditMode()) {
+    if (isInEditMode()) {
       return 1f;
     }
     @Nullable
@@ -331,7 +330,7 @@ public final class SubtitleView extends FrameLayout {
   }
 
   private CaptionStyleCompat getUserCaptionStyle() {
-    if (Util.SDK_INT < 19 || isInEditMode()) {
+    if (isInEditMode()) {
       return CaptionStyleCompat.DEFAULT;
     }
     @Nullable

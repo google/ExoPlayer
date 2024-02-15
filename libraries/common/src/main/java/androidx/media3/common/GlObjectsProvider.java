@@ -21,7 +21,6 @@ import android.opengl.EGLContext;
 import android.opengl.EGLDisplay;
 import android.opengl.EGLSurface;
 import androidx.annotation.IntRange;
-import androidx.annotation.RequiresApi;
 import androidx.media3.common.util.GlUtil.GlException;
 import androidx.media3.common.util.UnstableApi;
 
@@ -39,7 +38,6 @@ public interface GlObjectsProvider {
    * @param configAttributes The attributes to configure EGL with.
    * @throws GlException If an error occurs during creation.
    */
-  @RequiresApi(17)
   EGLContext createEglContext(
       EGLDisplay eglDisplay, @IntRange(from = 2, to = 3) int openGlVersion, int[] configAttributes)
       throws GlException;
@@ -54,7 +52,6 @@ public interface GlObjectsProvider {
    * @param isEncoderInputSurface Whether the {@code surface} is the input surface of an encoder.
    * @throws GlException If an error occurs during creation.
    */
-  @RequiresApi(17)
   EGLSurface createEglSurface(
       EGLDisplay eglDisplay,
       Object surface,
@@ -72,7 +69,6 @@ public interface GlObjectsProvider {
    *     surface.
    * @throws GlException If an error occurs during creation.
    */
-  @RequiresApi(17)
   EGLSurface createFocusedPlaceholderEglSurface(EGLContext eglContext, EGLDisplay eglDisplay)
       throws GlException;
 

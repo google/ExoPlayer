@@ -16,7 +16,6 @@
 package androidx.media3.test.session.common;
 
 import android.os.HandlerThread;
-import androidx.media3.common.util.Util;
 import org.junit.rules.ExternalResource;
 
 /** TestRule for providing a handler and an executor for {@link HandlerThread}. */
@@ -40,11 +39,7 @@ public final class HandlerThreadTestRule extends ExternalResource {
   @Override
   protected void after() {
     try {
-      if (Util.SDK_INT >= 18) {
-        handler.getLooper().quitSafely();
-      } else {
-        handler.getLooper().quit();
-      }
+      handler.getLooper().quitSafely();
     } finally {
       handler = null;
     }

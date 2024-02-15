@@ -145,7 +145,6 @@ public class BitmapPixelTestUtil {
    * @return A {@link Bitmap}.
    * @throws IOException If the bitmap can't be read.
    */
-  @RequiresApi(19) // BitmapFactory.Options#inPremultiplied.
   public static Bitmap readBitmapUnpremultipliedAlpha(String assetString) throws IOException {
     Bitmap bitmap;
     try (InputStream inputStream = getApplicationContext().getAssets().open(assetString)) {
@@ -161,7 +160,6 @@ public class BitmapPixelTestUtil {
    * Returns a bitmap with the same information as the provided alpha/red/green/blue 8-bits per
    * component image.
    */
-  @RequiresApi(19)
   public static Bitmap createArgb8888BitmapFromRgba8888Image(Image image) {
     int width = image.getWidth();
     int height = image.getHeight();
@@ -186,7 +184,6 @@ public class BitmapPixelTestUtil {
   /**
    * Returns a grayscale bitmap from the Luma channel in the {@link ImageFormat#YUV_420_888} image.
    */
-  @RequiresApi(19)
   public static Bitmap createGrayscaleArgb8888BitmapFromYuv420888Image(Image image) {
     int width = image.getWidth();
     int height = image.getHeight();
@@ -423,7 +420,6 @@ public class BitmapPixelTestUtil {
   //  createUnpremultipliedArgb8888BitmapFromFocusedGlFramebuffer back to
   //  createArgb8888BitmapFromFocusedGlFramebuffer. Also, apply
   //  setPremultiplied(false) to createBitmapFromFocusedGlFrameBuffer.
-  @RequiresApi(17) // #flipBitmapVertically.
   public static Bitmap createArgb8888BitmapFromFocusedGlFramebuffer(int width, int height)
       throws GlUtil.GlException {
     return createBitmapFromFocusedGlFrameBuffer(
@@ -440,7 +436,6 @@ public class BitmapPixelTestUtil {
    * @param height The height of the pixel rectangle to read.
    * @return A {@link Bitmap} with the framebuffer's values.
    */
-  @RequiresApi(19) // Bitmap#setPremultiplied.
   public static Bitmap createUnpremultipliedArgb8888BitmapFromFocusedGlFramebuffer(
       int width, int height) throws GlUtil.GlException {
     Bitmap bitmap =
@@ -471,7 +466,6 @@ public class BitmapPixelTestUtil {
         width, height, /* pixelSize= */ 8, GLES30.GL_HALF_FLOAT, Bitmap.Config.RGBA_F16);
   }
 
-  @RequiresApi(17) // #flipBitmapVertically.
   private static Bitmap createBitmapFromFocusedGlFrameBuffer(
       int width, int height, int pixelSize, int glReadPixelsFormat, Bitmap.Config bitmapConfig)
       throws GlUtil.GlException {
@@ -494,14 +488,12 @@ public class BitmapPixelTestUtil {
    * @param bitmap A {@link Bitmap}.
    * @return The identifier of the newly created texture.
    */
-  @RequiresApi(17) // #flipBitmapVertically.
   public static int createGlTextureFromBitmap(Bitmap bitmap) throws GlUtil.GlException {
     // Put the flipped bitmap in the OpenGL texture as the bitmap's positive y-axis points down
     // while OpenGL's positive y-axis points up.
     return GlUtil.createTexture(flipBitmapVertically(bitmap));
   }
 
-  @RequiresApi(17) // Bitmap#isPremultiplied.
   public static Bitmap flipBitmapVertically(Bitmap bitmap) {
     boolean wasPremultiplied = bitmap.isPremultiplied();
     if (!wasPremultiplied) {

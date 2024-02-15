@@ -52,7 +52,6 @@ import java.util.Map;
 import java.util.UUID;
 
 /** An {@link ExoMediaDrm} implementation that wraps the framework {@link MediaDrm}. */
-@RequiresApi(18)
 public final class FrameworkMediaDrm implements ExoMediaDrm {
 
   private static final String TAG = "FrameworkMediaDrm";

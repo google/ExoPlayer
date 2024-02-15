@@ -143,7 +143,7 @@ public final class MainActivity extends Activity {
             ? Assertions.checkNotNull(intent.getData())
             : Uri.parse(DEFAULT_MEDIA_URI);
     DrmSessionManager drmSessionManager;
-    if (Util.SDK_INT >= 18 && intent.hasExtra(DRM_SCHEME_EXTRA)) {
+    if (intent.hasExtra(DRM_SCHEME_EXTRA)) {
       String drmScheme = Assertions.checkNotNull(intent.getStringExtra(DRM_SCHEME_EXTRA));
       String drmLicenseUrl = Assertions.checkNotNull(intent.getStringExtra(DRM_LICENSE_URL_EXTRA));
       UUID drmSchemeUuid = Assertions.checkNotNull(Util.getDrmUuid(drmScheme));

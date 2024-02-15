@@ -47,7 +47,6 @@ import androidx.media3.common.Tracks;
 import androidx.media3.common.VideoSize;
 import androidx.media3.common.text.CueGroup;
 import androidx.media3.common.util.Assertions;
-import androidx.media3.common.util.BundleUtil;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import com.google.common.base.Objects;
@@ -901,7 +900,7 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
    */
   public Bundle toBundleInProcess() {
     Bundle bundle = new Bundle();
-    BundleUtil.putBinder(bundle, FIELD_IN_PROCESS_BINDER, new InProcessBinder());
+    bundle.putBinder(FIELD_IN_PROCESS_BINDER, new InProcessBinder());
     return bundle;
   }
 
@@ -1025,7 +1024,7 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
   /** Restores a {@code PlayerInfo} from a {@link Bundle}. */
   public static PlayerInfo fromBundle(Bundle bundle) {
-    @Nullable IBinder inProcessBinder = BundleUtil.getBinder(bundle, FIELD_IN_PROCESS_BINDER);
+    @Nullable IBinder inProcessBinder = bundle.getBinder(FIELD_IN_PROCESS_BINDER);
     if (inProcessBinder instanceof InProcessBinder) {
       return ((InProcessBinder) inProcessBinder).getPlayerInfo();
     }

@@ -754,10 +754,10 @@ public final class MediaMetricsListener
           return new ErrorInfo(errorCode, subErrorCode);
         } else if (Util.SDK_INT >= 23 && cause instanceof MediaDrmResetException) {
           return new ErrorInfo(PlaybackErrorEvent.ERROR_DRM_SYSTEM_ERROR, /* subErrorCode= */ 0);
-        } else if (Util.SDK_INT >= 18 && cause instanceof NotProvisionedException) {
+        } else if (cause instanceof NotProvisionedException) {
           return new ErrorInfo(
               PlaybackErrorEvent.ERROR_DRM_PROVISIONING_FAILED, /* subErrorCode= */ 0);
-        } else if (Util.SDK_INT >= 18 && cause instanceof DeniedByServerException) {
+        } else if (cause instanceof DeniedByServerException) {
           return new ErrorInfo(PlaybackErrorEvent.ERROR_DRM_DEVICE_REVOKED, /* subErrorCode= */ 0);
         } else if (cause instanceof UnsupportedDrmException) {
           return new ErrorInfo(
@@ -810,7 +810,7 @@ public final class MediaMetricsListener
     } else if (cause instanceof AudioSink.WriteException) {
       int subErrorCode = ((AudioSink.WriteException) cause).errorCode;
       return new ErrorInfo(PlaybackErrorEvent.ERROR_AUDIO_TRACK_WRITE_FAILED, subErrorCode);
-    } else if (Util.SDK_INT >= 16 && cause instanceof MediaCodec.CryptoException) {
+    } else if (cause instanceof MediaCodec.CryptoException) {
       int subErrorCode = ((MediaCodec.CryptoException) cause).getErrorCode();
       int errorCode = getDrmErrorCode(subErrorCode);
       return new ErrorInfo(errorCode, subErrorCode);

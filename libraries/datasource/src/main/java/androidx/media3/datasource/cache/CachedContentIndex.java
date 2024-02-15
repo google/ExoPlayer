@@ -20,7 +20,6 @@ import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Util.castNonNull;
 import static java.lang.Math.min;
 
-import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.SQLException;
@@ -347,19 +346,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     return cachedContent;
   }
 
-  @SuppressLint("GetInstance") // Suppress warning about specifying "BC" as an explicit provider.
-  private static Cipher getCipher() throws NoSuchPaddingException, NoSuchAlgorithmException {
-    // Workaround for https://issuetracker.google.com/issues/36976726
-    if (Util.SDK_INT == 18) {
-      try {
-        return Cipher.getInstance("AES/CBC/PKCS5PADDING", "BC");
-      } catch (Throwable ignored) {
-        // ignored
-      }
-    }
-    return Cipher.getInstance("AES/CBC/PKCS5PADDING");
-  }
-
   /**
    * Returns an id which isn't used in the given array. If the maximum id in the array is smaller
    * than {@link java.lang.Integer#MAX_VALUE} it just returns the next bigger integer. Otherwise it
@@ -526,7 +512,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       if (secretKey != null) {
         Assertions.checkArgument(secretKey.length == 16);
         try {
-          cipher = getCipher();
+          cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
           secretKeySpec = new SecretKeySpec(secretKey, "AES");
         } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
           throw new IllegalStateException(e); // Should never happen.

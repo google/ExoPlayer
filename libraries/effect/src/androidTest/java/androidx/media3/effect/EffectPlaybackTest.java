@@ -24,7 +24,6 @@ import static androidx.media3.test.utils.BitmapPixelTestUtil.createArgb8888Bitma
 import static androidx.media3.test.utils.BitmapPixelTestUtil.getBitmapAveragePixelAbsoluteDifferenceArgb8888;
 import static androidx.media3.test.utils.BitmapPixelTestUtil.readBitmap;
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assume.assumeTrue;
 
 import android.app.Instrumentation;
 import android.graphics.Bitmap;
@@ -103,8 +102,6 @@ public class EffectPlaybackTest {
 
   @Test
   public void exoplayerEffectsPreviewTest_ensuresFirstFrameRendered() throws Exception {
-    assumeTrue(Util.SDK_INT >= 18);
-
     String testId =
         Util.formatInvariant(
             "exoplayerEffectsPreviewTest_withPlayWhenReady[%b]_ensuresFirstFrameRendered",

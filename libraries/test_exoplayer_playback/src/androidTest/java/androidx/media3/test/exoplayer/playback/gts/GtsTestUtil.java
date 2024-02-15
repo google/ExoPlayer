@@ -21,7 +21,6 @@ import static androidx.media3.common.C.WIDEVINE_UUID;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.media.MediaDrm;
-import androidx.media3.common.util.Util;
 
 /** Utility methods for GTS tests. */
 public final class GtsTestUtil {
@@ -30,10 +29,6 @@ public final class GtsTestUtil {
 
   /** Returns true if the device doesn't support Widevine and this is permitted. */
   public static boolean shouldSkipWidevineTest(Context context) {
-    if (Util.SDK_INT < 18) {
-      // MediaDrm isn't present until API 18
-      return true;
-    }
     if (isGmsInstalled(context)) {
       // GMS devices are required to support Widevine.
       return false;

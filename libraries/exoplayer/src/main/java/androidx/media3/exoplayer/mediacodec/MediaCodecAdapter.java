@@ -250,7 +250,6 @@ public interface MediaCodecAdapter {
    *
    * @see MediaCodec#setParameters(Bundle)
    */
-  @RequiresApi(19)
   void setParameters(Bundle params);
 
   /**

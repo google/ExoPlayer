@@ -57,7 +57,6 @@ import androidx.media3.common.TrackSelectionOverride;
 import androidx.media3.common.TrackSelectionParameters;
 import androidx.media3.common.Tracks;
 import androidx.media3.common.VideoSize;
-import androidx.media3.common.util.Util;
 import androidx.media3.test.session.R;
 import androidx.media3.test.session.common.HandlerThreadTestRule;
 import androidx.media3.test.session.common.MainLooperTestRule;
@@ -163,13 +162,10 @@ public class MediaControllerTest {
     MediaController controller = controllerTestRule.createController(session.getToken());
     PendingIntent sessionActivity = controller.getSessionActivity();
     assertThat(sessionActivity).isNotNull();
-    if (Util.SDK_INT >= 17) {
-      // PendingIntent#getCreatorPackage() is added in API 17.
-      assertThat(sessionActivity.getCreatorPackage()).isEqualTo(SUPPORT_APP_PACKAGE_NAME);
+    assertThat(sessionActivity.getCreatorPackage()).isEqualTo(SUPPORT_APP_PACKAGE_NAME);
 
-      // TODO: Add getPid/getUid in MediaControllerProviderService and compare them.
-      // assertThat(sessionActivity.getCreatorUid()).isEqualTo(remoteSession.getUid());
-    }
+    // TODO: Add getPid/getUid in MediaControllerProviderService and compare them.
+    // assertThat(sessionActivity.getCreatorUid()).isEqualTo(remoteSession.getUid());
     session.cleanUp();
   }
 

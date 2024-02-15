@@ -26,7 +26,6 @@ import android.os.HandlerThread;
 import android.os.Message;
 import android.view.Surface;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.EGLSurfaceTexture;
 import androidx.media3.common.util.EGLSurfaceTexture.SecureMode;
@@ -34,10 +33,10 @@ import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
+import com.google.errorprone.annotations.InlineMe;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** A placeholder {@link Surface}. */
-@RequiresApi(17)
 @UnstableApi
 public final class PlaceholderSurface extends Surface {
 
@@ -67,6 +66,17 @@ public final class PlaceholderSurface extends Surface {
   }
 
   /**
+   * @deprecated Use {@link #newInstance(Context, boolean)} instead.
+   */
+  @InlineMe(
+      replacement = "PlaceholderSurface.newInstance(context, secure)",
+      imports = "androidx.media3.exoplayer.video.PlaceholderSurface")
+  @Deprecated
+  public static PlaceholderSurface newInstanceV17(Context context, boolean secure) {
+    return newInstance(context, secure);
+  }
+
+  /**
    * Returns a newly created placeholder surface. The surface must be released by calling {@link
    * #release} when it's no longer required.
    *
@@ -78,7 +88,7 @@ public final class PlaceholderSurface extends Surface {
    * @throws IllegalStateException If a secure surface is requested on a device for which {@link
    *     #isSecureSupported(Context)} returns {@code false}.
    */
-  public static PlaceholderSurface newInstanceV17(Context context, boolean secure) {
+  public static PlaceholderSurface newInstance(Context context, boolean secure) {
     Assertions.checkState(!secure || isSecureSupported(context));
     PlaceholderSurfaceThread thread = new PlaceholderSurfaceThread();
     return thread.init(secure ? secureMode : SECURE_MODE_NONE);
