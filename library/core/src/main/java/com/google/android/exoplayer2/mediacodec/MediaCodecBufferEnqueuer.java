@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.mediacodec;
 
 import android.media.MediaCodec;
 import android.os.Bundle;
-import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.decoder.CryptoInfo;
 
 /**
@@ -63,7 +62,6 @@ import com.google.android.exoplayer2.decoder.CryptoInfo;
    *
    * @see MediaCodec#setParameters(Bundle)
    */
-  @RequiresApi(19)
   void setParameters(Bundle parameters);
 
   /** Flushes the instance. */

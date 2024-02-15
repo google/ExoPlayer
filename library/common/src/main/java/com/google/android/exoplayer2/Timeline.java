@@ -30,7 +30,6 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.source.ads.AdPlaybackState;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.BundleCollectionUtil;
-import com.google.android.exoplayer2.util.BundleUtil;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
@@ -1442,8 +1441,8 @@ public abstract class Timeline implements Bundleable {
     }
 
     Bundle bundle = new Bundle();
-    BundleUtil.putBinder(bundle, FIELD_WINDOWS, new BundleListRetriever(windowBundles));
-    BundleUtil.putBinder(bundle, FIELD_PERIODS, new BundleListRetriever(periodBundles));
+    bundle.putBinder(FIELD_WINDOWS, new BundleListRetriever(windowBundles));
+    bundle.putBinder(FIELD_PERIODS, new BundleListRetriever(periodBundles));
     bundle.putIntArray(FIELD_SHUFFLED_WINDOW_INDICES, shuffledWindowIndices);
     return bundle;
   }
@@ -1489,9 +1488,9 @@ public abstract class Timeline implements Bundleable {
   /** Restores a {@code Timeline} from a {@link Bundle}. */
   public static Timeline fromBundle(Bundle bundle) {
     ImmutableList<Window> windows =
-        fromBundleListRetriever(Window::fromBundle, BundleUtil.getBinder(bundle, FIELD_WINDOWS));
+        fromBundleListRetriever(Window::fromBundle, bundle.getBinder(FIELD_WINDOWS));
     ImmutableList<Period> periods =
-        fromBundleListRetriever(Period::fromBundle, BundleUtil.getBinder(bundle, FIELD_PERIODS));
+        fromBundleListRetriever(Period::fromBundle, bundle.getBinder(FIELD_PERIODS));
     @Nullable int[] shuffledWindowIndices = bundle.getIntArray(FIELD_SHUFFLED_WINDOW_INDICES);
     return new RemotableTimeline(
         windows,

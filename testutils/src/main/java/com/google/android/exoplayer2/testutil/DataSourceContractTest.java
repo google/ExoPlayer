@@ -31,7 +31,6 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import android.net.Uri;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSourceException;
@@ -67,7 +66,6 @@ import org.mockito.Mockito;
  * not required) to also annotate this {@link Ignore @Ignore} so that JUnit correctly reports the
  * test as skipped/ignored instead of passing.
  */
-@RequiresApi(19)
 public abstract class DataSourceContractTest {
 
   @Rule public final AdditionalFailureInfo additionalFailureInfo = new AdditionalFailureInfo();

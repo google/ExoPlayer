@@ -35,7 +35,6 @@ import android.media.MediaFormat;
 import android.util.Pair;
 import android.view.Surface;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.util.ConditionVariable;
 import com.google.android.exoplayer2.util.ConstantRateTimestampIterator;
 import com.google.android.exoplayer2.util.DebugViewProvider;
@@ -59,7 +58,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** A test runner for {@link VideoFrameProcessor} tests. */
-@RequiresApi(19)
 public final class VideoFrameProcessorTestRunner {
 
   /** A builder for {@link VideoFrameProcessorTestRunner} instances. */

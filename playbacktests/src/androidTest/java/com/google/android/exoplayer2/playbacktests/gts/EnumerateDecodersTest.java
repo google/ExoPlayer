@@ -135,8 +135,7 @@ public class EnumerateDecodersTest {
         appendAudioCapabilities(codecCapabilities.getAudioCapabilities(), result);
       }
     }
-    if (Util.SDK_INT >= 19
-        && isVideo
+    if (isVideo
         && codecCapabilities.isFeatureSupported(CodecCapabilities.FEATURE_AdaptivePlayback)) {
       result.append(", FEATURE_AdaptivePlayback");
     }

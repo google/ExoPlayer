@@ -29,7 +29,6 @@ import android.os.SystemClock;
 import android.util.Pair;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.decoder.CryptoConfig;
@@ -64,7 +63,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
  *     migration guide</a> for more details, including a script to help with the migration.
  */
-@RequiresApi(18)
 @Deprecated
 /* package */ class DefaultDrmSession implements DrmSession {
 

@@ -24,7 +24,6 @@ import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 import static com.google.android.exoplayer2.util.MimeTypes.VIDEO_H264;
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assume.assumeTrue;
 
 import android.app.Instrumentation;
 import android.graphics.Bitmap;
@@ -103,8 +102,6 @@ public class EffectPlaybackTest {
 
   @Test
   public void exoplayerEffectsPreviewTest_ensuresFirstFrameRendered() throws Exception {
-    assumeTrue(Util.SDK_INT >= 18);
-
     String testId =
         Util.formatInvariant(
             "exoplayerEffectsPreviewTest_withPlayWhenReady[%b]_ensuresFirstFrameRendered",

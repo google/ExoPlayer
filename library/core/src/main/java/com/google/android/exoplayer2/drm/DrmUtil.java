@@ -86,13 +86,13 @@ public final class DrmUtil {
       return Api21.mediaDrmStateExceptionToErrorCode(exception);
     } else if (Util.SDK_INT >= 23 && Api23.isMediaDrmResetException(exception)) {
       return PlaybackException.ERROR_CODE_DRM_SYSTEM_ERROR;
-    } else if (Util.SDK_INT >= 18 && Api18.isNotProvisionedException(exception)) {
+    } else if (exception instanceof NotProvisionedException) {
       return PlaybackException.ERROR_CODE_DRM_PROVISIONING_FAILED;
-    } else if (Util.SDK_INT >= 18 && Api18.isDeniedByServerException(exception)) {
+    } else if (exception instanceof DeniedByServerException) {
       return PlaybackException.ERROR_CODE_DRM_DEVICE_REVOKED;
     } else if (exception instanceof UnsupportedDrmException) {
       return PlaybackException.ERROR_CODE_DRM_SCHEME_UNSUPPORTED;
-    } else if (Util.SDK_INT >= 18 && Api18.isMissingSchemeDataException(exception)) {
+    } else if (exception instanceof DefaultDrmSessionManager.MissingSchemeDataException) {
       return PlaybackException.ERROR_CODE_DRM_CONTENT_ERROR;
     } else if (exception instanceof KeysExpiredException) {
       return PlaybackException.ERROR_CODE_DRM_LICENSE_EXPIRED;
@@ -111,25 +111,6 @@ public final class DrmUtil {
   }
 
   // Internal classes.
-
-  @RequiresApi(18)
-  private static final class Api18 {
-
-    @DoNotInline
-    public static boolean isNotProvisionedException(@Nullable Throwable throwable) {
-      return throwable instanceof NotProvisionedException;
-    }
-
-    @DoNotInline
-    public static boolean isDeniedByServerException(@Nullable Throwable throwable) {
-      return throwable instanceof DeniedByServerException;
-    }
-
-    @DoNotInline
-    public static boolean isMissingSchemeDataException(@Nullable Throwable throwable) {
-      return throwable instanceof DefaultDrmSessionManager.MissingSchemeDataException;
-    }
-  }
 
   @RequiresApi(21)
   private static final class Api21 {

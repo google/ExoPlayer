@@ -361,11 +361,7 @@ public class PlayerActivity extends AppCompatActivity
 
       MediaItem.DrmConfiguration drmConfiguration = mediaItem.localConfiguration.drmConfiguration;
       if (drmConfiguration != null) {
-        if (Build.VERSION.SDK_INT < 18) {
-          showToast(R.string.error_drm_unsupported_before_api_18);
-          finish();
-          return Collections.emptyList();
-        } else if (!FrameworkMediaDrm.isCryptoSchemeSupported(drmConfiguration.scheme)) {
+        if (!FrameworkMediaDrm.isCryptoSchemeSupported(drmConfiguration.scheme)) {
           showToast(R.string.error_drm_unsupported_scheme);
           finish();
           return Collections.emptyList();

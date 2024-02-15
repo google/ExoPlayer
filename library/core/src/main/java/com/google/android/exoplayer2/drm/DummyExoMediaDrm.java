@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.drm;
 import android.media.MediaDrmException;
 import android.os.PersistableBundle;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.decoder.CryptoConfig;
 import com.google.android.exoplayer2.util.Util;
@@ -34,7 +33,6 @@ import java.util.Map;
  *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
  *     migration guide</a> for more details, including a script to help with the migration.
  */
-@RequiresApi(18)
 @Deprecated
 public final class DummyExoMediaDrm implements ExoMediaDrm {
 

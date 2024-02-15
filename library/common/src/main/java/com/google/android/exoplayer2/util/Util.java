@@ -1500,7 +1500,6 @@ public final class Util {
    * @return The minimum value.
    * @throws NoSuchElementException If the array is empty.
    */
-  @RequiresApi(18)
   public static long minValue(SparseLongArray sparseLongArray) {
     if (sparseLongArray.size() == 0) {
       throw new NoSuchElementException();
@@ -1519,7 +1518,6 @@ public final class Util {
    * @return The maximum value.
    * @throws NoSuchElementException If the array is empty.
    */
-  @RequiresApi(18)
   public static long maxValue(SparseLongArray sparseLongArray) {
     if (sparseLongArray.size() == 0) {
       throw new NoSuchElementException();
@@ -3010,15 +3008,12 @@ public final class Util {
    */
   public static Point getCurrentDisplayModeSize(Context context) {
     @Nullable Display defaultDisplay = null;
-    if (SDK_INT >= 17) {
-      @Nullable
-      DisplayManager displayManager =
-          (DisplayManager) context.getSystemService(Context.DISPLAY_SERVICE);
-      // We don't expect displayManager to ever be null, so this check is just precautionary.
-      // Consider removing it when the library minSdkVersion is increased to 17 or higher.
-      if (displayManager != null) {
-        defaultDisplay = displayManager.getDisplay(Display.DEFAULT_DISPLAY);
-      }
+    @Nullable
+    DisplayManager displayManager =
+        (DisplayManager) context.getSystemService(Context.DISPLAY_SERVICE);
+    // We don't expect displayManager to ever be null, so this check is just precautionary.
+    if (displayManager != null) {
+      defaultDisplay = displayManager.getDisplay(Display.DEFAULT_DISPLAY);
     }
     if (defaultDisplay == null) {
       WindowManager windowManager =
@@ -3089,10 +3084,8 @@ public final class Util {
     Point displaySize = new Point();
     if (SDK_INT >= 23) {
       getDisplaySizeV23(display, displaySize);
-    } else if (SDK_INT >= 17) {
-      getDisplaySizeV17(display, displaySize);
     } else {
-      getDisplaySizeV16(display, displaySize);
+      display.getRealSize(displaySize);
     }
     return displaySize;
   }
@@ -3559,15 +3552,6 @@ public final class Util {
     Display.Mode mode = display.getMode();
     outSize.x = mode.getPhysicalWidth();
     outSize.y = mode.getPhysicalHeight();
-  }
-
-  @RequiresApi(17)
-  private static void getDisplaySizeV17(Display display, Point outSize) {
-    display.getRealSize(outSize);
-  }
-
-  private static void getDisplaySizeV16(Display display, Point outSize) {
-    display.getSize(outSize);
   }
 
   private static String[] getSystemLocales() {

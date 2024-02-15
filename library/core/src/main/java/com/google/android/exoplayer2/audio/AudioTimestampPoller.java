@@ -17,14 +17,11 @@ package com.google.android.exoplayer2.audio;
 
 import static java.lang.annotation.ElementType.TYPE_USE;
 
-import android.annotation.TargetApi;
 import android.media.AudioTimestamp;
 import android.media.AudioTrack;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.util.Util;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -100,7 +97,7 @@ import java.lang.annotation.Target;
    */
   private static final int INITIALIZING_DURATION_US = 500_000;
 
-  @Nullable private final AudioTimestampV19 audioTimestamp;
+  @Nullable private final AudioTimestampWrapper audioTimestamp;
 
   private @State int state;
   private long initializeSystemTimeUs;
@@ -111,16 +108,11 @@ import java.lang.annotation.Target;
   /**
    * Creates a new audio timestamp poller.
    *
-   * @param audioTrack The audio track that will provide timestamps, if the platform supports it.
+   * @param audioTrack The audio track that will provide timestamps.
    */
   public AudioTimestampPoller(AudioTrack audioTrack) {
-    if (Util.SDK_INT >= 19) {
-      audioTimestamp = new AudioTimestampV19(audioTrack);
-      reset();
-    } else {
-      audioTimestamp = null;
-      updateState(STATE_NO_TIMESTAMP);
-    }
+    audioTimestamp = new AudioTimestampWrapper(audioTrack);
+    reset();
   }
 
   /**
@@ -133,7 +125,6 @@ import java.lang.annotation.Target;
    * @param systemTimeUs The current system time, in microseconds.
    * @return Whether the timestamp was updated.
    */
-  @TargetApi(19) // audioTimestamp will be null if Util.SDK_INT < 19.
   public boolean maybePollTimestamp(long systemTimeUs) {
     if (audioTimestamp == null || (systemTimeUs - lastTimestampSampleTimeUs) < sampleIntervalUs) {
       return false;
@@ -239,7 +230,6 @@ import java.lang.annotation.Target;
    * If {@link #maybePollTimestamp(long)} or {@link #hasTimestamp()} returned {@code true}, returns
    * the system time at which the latest timestamp was sampled, in microseconds.
    */
-  @TargetApi(19) // audioTimestamp will be null if Util.SDK_INT < 19.
   public long getTimestampSystemTimeUs() {
     return audioTimestamp != null ? audioTimestamp.getTimestampSystemTimeUs() : C.TIME_UNSET;
   }
@@ -248,7 +238,6 @@ import java.lang.annotation.Target;
    * If {@link #maybePollTimestamp(long)} or {@link #hasTimestamp()} returned {@code true}, returns
    * the latest timestamp's position in frames.
    */
-  @TargetApi(19) // audioTimestamp will be null if Util.SDK_INT < 19.
   public long getTimestampPositionFrames() {
     return audioTimestamp != null ? audioTimestamp.getTimestampPositionFrames() : C.INDEX_UNSET;
   }
@@ -278,8 +267,7 @@ import java.lang.annotation.Target;
     }
   }
 
-  @RequiresApi(19)
-  private static final class AudioTimestampV19 {
+  private static final class AudioTimestampWrapper {
 
     private final AudioTrack audioTrack;
     private final AudioTimestamp audioTimestamp;
@@ -293,7 +281,7 @@ import java.lang.annotation.Target;
      *
      * @param audioTrack The audio track that will provide timestamps.
      */
-    public AudioTimestampV19(AudioTrack audioTrack) {
+    public AudioTimestampWrapper(AudioTrack audioTrack) {
       this.audioTrack = audioTrack;
       audioTimestamp = new AudioTimestamp();
     }

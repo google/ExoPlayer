@@ -1223,8 +1223,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     codecNeedsEosFlushWorkaround = codecNeedsEosFlushWorkaround(codecName);
     codecNeedsEosOutputExceptionWorkaround = codecNeedsEosOutputExceptionWorkaround(codecName);
     codecNeedsEosBufferTimestampWorkaround = codecNeedsEosBufferTimestampWorkaround(codecName);
-    codecNeedsMonoChannelCountWorkaround =
-        codecNeedsMonoChannelCountWorkaround(codecName, checkNotNull(codecInputFormat));
+    codecNeedsMonoChannelCountWorkaround = false;
     codecNeedsEosPropagation =
         codecNeedsEosPropagationWorkaround(codecInfo) || getCodecNeedsEosPropagation();
     if (checkNotNull(codec).needsReconfiguration()) {
@@ -2505,12 +2504,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    * @return True if the decoder is known to fail when flushed.
    */
   private static boolean codecNeedsFlushWorkaround(String name) {
-    return Util.SDK_INT < 18
-        || (Util.SDK_INT == 18
-            && ("OMX.SEC.avc.dec".equals(name) || "OMX.SEC.avc.dec.secure".equals(name)))
-        || (Util.SDK_INT == 19
-            && Util.MODEL.startsWith("SM-G800")
-            && ("OMX.Exynos.avc.dec".equals(name) || "OMX.Exynos.avc.dec.secure".equals(name)));
+    return Util.SDK_INT == 19
+        && Util.MODEL.startsWith("SM-G800")
+        && ("OMX.Exynos.avc.dec".equals(name) || "OMX.Exynos.avc.dec.secure".equals(name));
   }
 
   /**
@@ -2595,7 +2591,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private static boolean codecNeedsEosPropagationWorkaround(MediaCodecInfo codecInfo) {
     String name = codecInfo.name;
     return (Util.SDK_INT <= 25 && "OMX.rk.video_decoder.avc".equals(name))
-        || (Util.SDK_INT <= 17 && "OMX.allwinner.video.decoder.avc".equals(name))
         || (Util.SDK_INT <= 29
             && ("OMX.broadcom.video_decoder.tunnel".equals(name)
                 || "OMX.broadcom.video_decoder.tunnel.secure".equals(name)
@@ -2621,7 +2616,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    */
   private static boolean codecNeedsEosFlushWorkaround(String name) {
     return (Util.SDK_INT <= 23 && "OMX.google.vorbis.decoder".equals(name))
-        || (Util.SDK_INT <= 19
+        || (Util.SDK_INT == 19
             && ("hb2000".equals(Util.DEVICE) || "stvm8".equals(Util.DEVICE))
             && ("OMX.amlogic.avc.decoder.awesome".equals(name)
                 || "OMX.amlogic.avc.decoder.awesome.secure".equals(name)));
@@ -2658,26 +2653,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    */
   private static boolean codecNeedsEosOutputExceptionWorkaround(String name) {
     return Util.SDK_INT == 21 && "OMX.google.aac.decoder".equals(name);
-  }
-
-  /**
-   * Returns whether the decoder is known to set the number of audio channels in the output {@link
-   * Format} to 2 for the given input {@link Format}, whilst only actually outputting a single
-   * channel.
-   *
-   * <p>If true is returned then we explicitly override the number of channels in the output {@link
-   * Format}, setting it to 1.
-   *
-   * @param name The decoder name.
-   * @param format The input {@link Format}.
-   * @return True if the decoder is known to set the number of audio channels in the output {@link
-   *     Format} to 2 for the given input {@link Format}, whilst only actually outputting a single
-   *     channel. False otherwise.
-   */
-  private static boolean codecNeedsMonoChannelCountWorkaround(String name, Format format) {
-    return Util.SDK_INT <= 18
-        && format.channelCount == 1
-        && "OMX.MTK.AUDIO.DECODER.MP3".equals(name);
   }
 
   private static final class OutputStreamInfo {

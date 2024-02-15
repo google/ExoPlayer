@@ -22,7 +22,6 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.util.Pair;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager.Mode;
@@ -43,7 +42,6 @@ import java.util.concurrent.ExecutionException;
  *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
  *     migration guide</a> for more details, including a script to help with the migration.
  */
-@RequiresApi(18)
 @Deprecated
 public final class OfflineLicenseHelper {
 

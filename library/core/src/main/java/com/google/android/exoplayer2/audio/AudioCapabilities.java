@@ -359,8 +359,7 @@ public final class AudioCapabilities {
   }
 
   private static boolean deviceMaySetExternalSurroundSoundGlobalSetting() {
-    return Util.SDK_INT >= 17
-        && ("Amazon".equals(Util.MANUFACTURER) || "Xiaomi".equals(Util.MANUFACTURER));
+    return "Amazon".equals(Util.MANUFACTURER) || "Xiaomi".equals(Util.MANUFACTURER);
   }
 
   private static int getChannelConfigForPassthrough(int channelCount) {

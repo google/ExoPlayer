@@ -29,7 +29,6 @@ import android.os.Message;
 import android.os.SystemClock;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.PlaybackException;
@@ -71,7 +70,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
  *     migration guide</a> for more details, including a script to help with the migration.
  */
-@RequiresApi(18)
 @Deprecated
 public class DefaultDrmSessionManager implements DrmSessionManager {
 
@@ -660,11 +658,8 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
   }
 
   private static boolean acquisitionFailedIndicatingResourceShortage(DrmSession session) {
-    // ResourceBusyException is only available at API 19, so on earlier versions we
-    // assume any error indicates resource shortage (ensuring we retry).
     return session.getState() == DrmSession.STATE_ERROR
-        && (Util.SDK_INT < 19
-            || checkNotNull(session.getError()).getCause() instanceof ResourceBusyException);
+        && checkNotNull(session.getError()).getCause() instanceof ResourceBusyException;
   }
 
   /**

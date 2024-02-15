@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.testutil;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.util.NullableType;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.truth.Truth;
@@ -38,7 +37,6 @@ import org.junit.runners.model.Statement;
  * <p>Includes special handling for {@link AssertionError} to ensure that test failures are
  * correctly distinguished from test errors (all other errors/exceptions).
  */
-@RequiresApi(19)
 public final class AdditionalFailureInfo implements TestRule {
 
   private final AtomicReference<@NullableType String> info;

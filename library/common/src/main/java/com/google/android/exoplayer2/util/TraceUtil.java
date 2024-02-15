@@ -15,11 +15,12 @@
  */
 package com.google.android.exoplayer2.util;
 
-import androidx.annotation.RequiresApi;
+import android.os.Trace;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 
 /**
- * Calls through to {@link android.os.Trace} methods on supported API levels.
+ * Calls through to {@link Trace} methods if {@link ExoPlayerLibraryInfo#TRACE_ENABLED} is {@code
+ * true}.
  *
  * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
  *     contains the same ExoPlayer code). See <a
@@ -34,34 +35,24 @@ public final class TraceUtil {
   /**
    * Writes a trace message to indicate that a given section of code has begun.
    *
-   * @see android.os.Trace#beginSection(String)
+   * @see Trace#beginSection(String)
    * @param sectionName The name of the code section to appear in the trace. This may be at most 127
    *     Unicode code units long.
    */
   public static void beginSection(String sectionName) {
-    if (ExoPlayerLibraryInfo.TRACE_ENABLED && Util.SDK_INT >= 18) {
-      beginSectionV18(sectionName);
+    if (ExoPlayerLibraryInfo.TRACE_ENABLED) {
+      Trace.beginSection(sectionName);
     }
   }
 
   /**
    * Writes a trace message to indicate that a given section of code has ended.
    *
-   * @see android.os.Trace#endSection()
+   * @see Trace#endSection()
    */
   public static void endSection() {
-    if (ExoPlayerLibraryInfo.TRACE_ENABLED && Util.SDK_INT >= 18) {
-      endSectionV18();
+    if (ExoPlayerLibraryInfo.TRACE_ENABLED) {
+      Trace.endSection();
     }
-  }
-
-  @RequiresApi(18)
-  private static void beginSectionV18(String sectionName) {
-    android.os.Trace.beginSection(sectionName);
-  }
-
-  @RequiresApi(18)
-  private static void endSectionV18() {
-    android.os.Trace.endSection();
   }
 }

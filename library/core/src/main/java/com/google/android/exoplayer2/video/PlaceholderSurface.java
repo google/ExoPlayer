@@ -26,13 +26,13 @@ import android.os.HandlerThread;
 import android.os.Message;
 import android.view.Surface;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.EGLSurfaceTexture;
 import com.google.android.exoplayer2.util.EGLSurfaceTexture.SecureMode;
 import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
+import com.google.errorprone.annotations.InlineMe;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
@@ -43,7 +43,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
  *     migration guide</a> for more details, including a script to help with the migration.
  */
-@RequiresApi(17)
 @Deprecated
 public final class PlaceholderSurface extends Surface {
 
@@ -73,6 +72,17 @@ public final class PlaceholderSurface extends Surface {
   }
 
   /**
+   * @deprecated Use {@link #newInstance(Context, boolean)} instead.
+   */
+  @InlineMe(
+      replacement = "PlaceholderSurface.newInstance(context, secure)",
+      imports = "com.google.android.exoplayer2.video.PlaceholderSurface")
+  @Deprecated
+  public static PlaceholderSurface newInstanceV17(Context context, boolean secure) {
+    return newInstance(context, secure);
+  }
+
+  /**
    * Returns a newly created placeholder surface. The surface must be released by calling {@link
    * #release} when it's no longer required.
    *
@@ -84,7 +94,7 @@ public final class PlaceholderSurface extends Surface {
    * @throws IllegalStateException If a secure surface is requested on a device for which {@link
    *     #isSecureSupported(Context)} returns {@code false}.
    */
-  public static PlaceholderSurface newInstanceV17(Context context, boolean secure) {
+  public static PlaceholderSurface newInstance(Context context, boolean secure) {
     Assertions.checkState(!secure || isSecureSupported(context));
     PlaceholderSurfaceThread thread = new PlaceholderSurfaceThread();
     return thread.init(secure ? secureMode : SECURE_MODE_NONE);
