@@ -340,8 +340,12 @@ public class TestPlayerRunHelper {
 
   /**
    * Calls {@link Player#play()}, runs tasks of the main {@link Looper} until the {@code player}
-   * reaches the specified media item or a playback error occurs, and then pauses the {@code
-   * player}.
+   * reaches the specified media item or a playback error occurs.
+   *
+   * <p>The playback thread is automatically blocked from making further progress after reaching the
+   * media item and will only be unblocked by other {@code run/playUntil...} methods, custom {@link
+   * RobolectricUtil#runMainLooperUntil} conditions or an explicit {@link
+   * ThreadTestUtil#unblockThreadsWaitingForProgressOnCurrentLooper()} on the main thread.
    *
    * <p>If a playback error occurs it will be thrown wrapped in an {@link IllegalStateException}.
    *
