@@ -51,6 +51,9 @@ public final class TestUtil {
   public static final String FILE_AUDIO_AMR_NB = "amr/sample_nb.amr";
   public static final String FILE_AUDIO_AC3_UNSUPPORTED_BY_MUXER = "mp4/sample_ac3.mp4";
   public static final String FILE_UNKNOWN_DURATION = "mp4/sample_fragmented.mp4";
+  public static final String FILE_AUDIO_ELST_SKIP_500MS = "mp4/long_edit_list_audioonly.mp4";
+  public static final String FILE_VIDEO_ELST_TRIM_IDR_DURATION =
+      "mp4/iibbibb_editlist_videoonly.mp4";
 
   private static final String DUMP_FILE_OUTPUT_DIRECTORY = "transformerdumps";
   private static final String DUMP_FILE_EXTENSION = "dump";
@@ -58,7 +61,7 @@ public final class TestUtil {
   private TestUtil() {}
 
   public static Transformer.Builder createTransformerBuilder(
-      CapturingMuxer.Factory muxerFactory, boolean enableFallback) {
+      Muxer.Factory muxerFactory, boolean enableFallback) {
     Context context = ApplicationProvider.getApplicationContext();
     return new Transformer.Builder(context)
         .setClock(new FakeClock(/* isAutoAdvancing= */ true))

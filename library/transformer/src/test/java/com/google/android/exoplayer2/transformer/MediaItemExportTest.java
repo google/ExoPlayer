@@ -19,6 +19,7 @@ package com.google.android.exoplayer2.transformer;
 import static com.google.android.exoplayer2.robolectric.RobolectricUtil.runLooperUntil;
 import static com.google.android.exoplayer2.transformer.AssetLoader.SUPPORTED_OUTPUT_TYPE_DECODED;
 import static com.google.android.exoplayer2.transformer.AssetLoader.SUPPORTED_OUTPUT_TYPE_ENCODED;
+import static com.google.android.exoplayer2.transformer.DefaultMuxer.Factory.DEFAULT_MAX_DELAY_BETWEEN_SAMPLES_MS;
 import static com.google.android.exoplayer2.transformer.ExportResult.CONVERSION_PROCESS_NA;
 import static com.google.android.exoplayer2.transformer.ExportResult.CONVERSION_PROCESS_TRANSMUXED;
 import static com.google.android.exoplayer2.transformer.ExportResult.OPTIMIZATION_ABANDONED_KEYFRAME_PLACEMENT_OPTIMAL_FOR_TRIM;
@@ -26,10 +27,12 @@ import static com.google.android.exoplayer2.transformer.ExportResult.OPTIMIZATIO
 import static com.google.android.exoplayer2.transformer.TestUtil.ASSET_URI_PREFIX;
 import static com.google.android.exoplayer2.transformer.TestUtil.FILE_AUDIO_AMR_NB;
 import static com.google.android.exoplayer2.transformer.TestUtil.FILE_AUDIO_AMR_WB;
+import static com.google.android.exoplayer2.transformer.TestUtil.FILE_AUDIO_ELST_SKIP_500MS;
 import static com.google.android.exoplayer2.transformer.TestUtil.FILE_AUDIO_RAW;
 import static com.google.android.exoplayer2.transformer.TestUtil.FILE_AUDIO_VIDEO;
 import static com.google.android.exoplayer2.transformer.TestUtil.FILE_AUDIO_VIDEO_INCREASING_TIMESTAMPS_15S;
 import static com.google.android.exoplayer2.transformer.TestUtil.FILE_UNKNOWN_DURATION;
+import static com.google.android.exoplayer2.transformer.TestUtil.FILE_VIDEO_ELST_TRIM_IDR_DURATION;
 import static com.google.android.exoplayer2.transformer.TestUtil.FILE_VIDEO_ONLY;
 import static com.google.android.exoplayer2.transformer.TestUtil.FILE_WITH_SEF_SLOW_MOTION;
 import static com.google.android.exoplayer2.transformer.TestUtil.FILE_WITH_SUBTITLES;
@@ -104,6 +107,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowMediaCodec;
 
 /**
@@ -1452,6 +1456,79 @@ public final class MediaItemExportTest {
     countDownLatch.await();
 
     assertThat(illegalStateException.get()).isNotNull();
+  }
+
+  @Test
+  @Config(minSdk = 30)
+  // This test requires Android SDK >= 30 for MediaMuxer negative PTS support.
+  public void transmux_audioWithEditList_api30_correctDuration() throws Exception {
+    Transformer transformer =
+        createTransformerBuilder(muxerFactory, /* enableFallback= */ false).build();
+    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_ELST_SKIP_500MS);
+
+    transformer.start(mediaItem, outputDir.newFile().getPath());
+    ExportResult result = TransformerTestRunner.runLooper(transformer);
+
+    // TODO: b/324245196 - Update this test when bugs are fixed.
+    //  Duration is actually 68267 / 44100 = 1548ms.
+    //  Last frame PTS is 67866 / 44100 = 1.53891 which rounds down to 1538ms.
+    assertThat(result.durationMs).isEqualTo(1538);
+    // TODO: b/325020444 - Update this test when bugs are fixed.
+    //  Dump incorrectly includes the last clipped audio sample from input file.
+    DumpFileAsserts.assertOutput(
+        context,
+        muxerFactory.getCreatedMuxer(),
+        getDumpFileName(
+            /* originalFileName= */ FILE_AUDIO_ELST_SKIP_500MS,
+            /* modifications...= */ "transmuxed"));
+  }
+
+  @Test
+  @Config(minSdk = 21, maxSdk = 29)
+  // This test requires Android SDK < 30 with no MediaMuxer negative PTS support.
+  public void transmux_audioWithEditList_api29_frameworkMuxerDoesNotThrow() throws Exception {
+    // Do not use CapturingMuxer.Factory(), as this test checks for a workaround in
+    // FrameworkMuxer.
+    Transformer transformer =
+        createTransformerBuilder(
+                new FrameworkMuxer.Factory(DEFAULT_MAX_DELAY_BETWEEN_SAMPLES_MS, C.TIME_UNSET),
+                /* enableFallback= */ false)
+            .build();
+    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_ELST_SKIP_500MS);
+
+    transformer.start(mediaItem, outputDir.newFile().getPath());
+    ExportResult result = TransformerTestRunner.runLooper(transformer);
+
+    // TODO: b/324842222 - Update this test when bugs are fixed.
+    //  The result.durationMs is incorrect in this test because
+    //  FrameworkMuxer workaround doesn't propagate changed timestamps to MuxerWrapper.
+    assertThat(result.durationMs).isEqualTo(1538);
+    assertThat(result.exportException).isNull();
+  }
+
+  @Test
+  @Config(minSdk = 25)
+  // This test requires Android SDK < 30 for lack of MediaMuxer negative PTS support
+  // and SDK >= 25 for B-frame support.
+  public void transmux_trimsFirstIDRDuration() throws Exception {
+    Transformer transformer =
+        createTransformerBuilder(muxerFactory, /* enableFallback= */ false).build();
+    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_VIDEO_ELST_TRIM_IDR_DURATION);
+
+    transformer.start(mediaItem, outputDir.newFile().getPath());
+    ExportResult result = TransformerTestRunner.runLooper(transformer);
+
+    // TODO: b/324245196 - Update this test when bugs are fixed.
+    //  Duration is actually 12_500. Last frame PTS is 11_500.
+    assertThat(result.durationMs).isEqualTo(11_500);
+    int inputFrameCount = 13;
+    assertThat(result.videoFrameCount).isEqualTo(inputFrameCount);
+    DumpFileAsserts.assertOutput(
+        context,
+        muxerFactory.getCreatedMuxer(),
+        getDumpFileName(
+            /* originalFileName= */ FILE_VIDEO_ELST_TRIM_IDR_DURATION,
+            /* modifications...= */ "transmuxed"));
   }
 
   private static final class SlowExtractorsFactory implements ExtractorsFactory {

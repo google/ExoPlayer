@@ -1,0 +1,95 @@
+format video:
+  id = 1
+  sampleMimeType = video/avc
+  codecs = avc1.F40016
+  maxInputSize = 7838
+  width = 704
+  height = 576
+  frameRate = 1.04
+  colorInfo:
+    lumaBitdepth = 8
+    chromaBitdepth = 8
+  metadata = entries=[TSSE: description=null: values=[Lavf60.3.100], Mp4Timestamp: creation time=0, modification time=0, timescale=1000]
+  initializationData:
+    data = length 30, hash 9DFD8D5
+    data = length 9, hash FBADD682
+container metadata = entries=[TSSE: description=null: values=[Lavf60.3.100], Mp4Timestamp: creation time=0, modification time=0, timescale=1000]
+sample:
+  trackType = video
+  dataHashCode = 1491581480
+  size = 7804
+  isKeyFrame = true
+  presentationTimeUs = 0
+sample:
+  trackType = video
+  dataHashCode = -1689048121
+  size = 7808
+  isKeyFrame = true
+  presentationTimeUs = 2500000
+sample:
+  trackType = video
+  dataHashCode = 1018268785
+  size = 1301
+  isKeyFrame = false
+  presentationTimeUs = 1500000
+sample:
+  trackType = video
+  dataHashCode = -1625273408
+  size = 1114
+  isKeyFrame = false
+  presentationTimeUs = 500000
+sample:
+  trackType = video
+  dataHashCode = -374381878
+  size = 7730
+  isKeyFrame = true
+  presentationTimeUs = 5500000
+sample:
+  trackType = video
+  dataHashCode = -2004918573
+  size = 1247
+  isKeyFrame = false
+  presentationTimeUs = 4500000
+sample:
+  trackType = video
+  dataHashCode = 1940057858
+  size = 1110
+  isKeyFrame = false
+  presentationTimeUs = 3500000
+sample:
+  trackType = video
+  dataHashCode = 472148756
+  size = 7595
+  isKeyFrame = true
+  presentationTimeUs = 8500000
+sample:
+  trackType = video
+  dataHashCode = 911200371
+  size = 1273
+  isKeyFrame = false
+  presentationTimeUs = 7500000
+sample:
+  trackType = video
+  dataHashCode = -954114383
+  size = 1130
+  isKeyFrame = false
+  presentationTimeUs = 6500000
+sample:
+  trackType = video
+  dataHashCode = 77841273
+  size = 6734
+  isKeyFrame = true
+  presentationTimeUs = 11500000
+sample:
+  trackType = video
+  dataHashCode = 1932832421
+  size = 1437
+  isKeyFrame = false
+  presentationTimeUs = 10500000
+sample:
+  trackType = video
+  dataHashCode = -2133964046
+  size = 1186
+  isKeyFrame = false
+  presentationTimeUs = 9500000
+released = true
