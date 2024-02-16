@@ -8,6 +8,8 @@
     *   Add `audioConversionProcess` and `videoConversionProcess` to
         `ExportResult` indicating how the respective track in the output file
         was made.
+    *   Add workaround for exception thrown due to `MediaMuxer` not supporting
+        negative presentation timestamps before API 30.
 *   Track Selection:
 *   Extractors:
 *   Audio:

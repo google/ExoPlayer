@@ -75,6 +75,11 @@ import androidx.media3.effect.RgbFilter;
 import androidx.media3.effect.ScaleAndRotateTransformation;
 import androidx.media3.effect.TimestampWrapper;
 import androidx.media3.exoplayer.audio.TeeAudioProcessor;
+import androidx.media3.extractor.mp4.Mp4Extractor;
+import androidx.media3.extractor.text.DefaultSubtitleParserFactory;
+import androidx.media3.test.utils.FakeExtractorOutput;
+import androidx.media3.test.utils.FakeTrackOutput;
+import androidx.media3.test.utils.TestUtil;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
@@ -1102,6 +1107,118 @@ public class TransformerEndToEndTest {
     assertThat(exportResult.exportException).isNull();
     assertThat(exportResult.durationMs).isGreaterThan(0);
     assertThat(exportResult.audioMimeType).isEqualTo(MimeTypes.AUDIO_AAC);
+  }
+
+  @Test
+  public void transmux_audioWithEditList_preservesDuration() throws Exception {
+    String testId = "transmux_audioWithEditList_preservesDuration";
+    Context context = ApplicationProvider.getApplicationContext();
+    Transformer transformer = new Transformer.Builder(context).build();
+    MediaItem mediaItem =
+        MediaItem.fromUri(Uri.parse("asset:///media/mp4/long_edit_list_audioonly.mp4"));
+
+    ExportTestResult exportTestResult =
+        new TransformerAndroidTestRunner.Builder(context, transformer)
+            .build()
+            .run(testId, mediaItem);
+
+    Mp4Extractor mp4Extractor = new Mp4Extractor(new DefaultSubtitleParserFactory());
+    FakeExtractorOutput fakeExtractorOutput =
+        TestUtil.extractAllSamplesFromFilePath(mp4Extractor, exportTestResult.filePath);
+    // TODO: b/324842222 - Mp4Extractor reports incorrect duration, without considering edit lists.
+    assertThat(fakeExtractorOutput.seekMap.getDurationUs()).isEqualTo(1_579_000);
+    assertThat(fakeExtractorOutput.numberOfTracks).isEqualTo(1);
+    FakeTrackOutput audioTrack = fakeExtractorOutput.trackOutputs.get(0);
+    int expectedSampleCount = 68;
+    audioTrack.assertSampleCount(expectedSampleCount);
+    if (Util.SDK_INT >= 30) {
+      // TODO: b/324842222 - Mp4Extractor doesn't interpret Transformer's generated output as
+      //  "gapless" audio. The generated file should have encoderDelay = 742 and first
+      //  sample PTS of 0.
+      assertThat(audioTrack.lastFormat.encoderDelay).isEqualTo(0);
+      assertThat(audioTrack.getSampleTimeUs(/* index= */ 0)).isEqualTo(-16_826);
+      assertThat(audioTrack.getSampleTimeUs(/* index= */ expectedSampleCount - 1))
+          .isEqualTo(1_538_911);
+    } else {
+      // Edit lists are not supported b/142580952 : sample times start from zero,
+      // and output duration will be longer than input duration by encoder delay.
+      assertThat(audioTrack.lastFormat.encoderDelay).isEqualTo(0);
+      assertThat(audioTrack.getSampleTimeUs(/* index= */ 0)).isEqualTo(0);
+      assertThat(audioTrack.getSampleTimeUs(/* index= */ expectedSampleCount - 1))
+          .isEqualTo(1_555_736);
+    }
+  }
+
+  @Test
+  public void transmux_audioWithEditListUsingInAppMuxer_preservesDuration() throws Exception {
+    String testId = "transmux_AudioWithEditListUsingInAppMuxer_preservesDuration";
+    Context context = ApplicationProvider.getApplicationContext();
+    Transformer transformer =
+        new Transformer.Builder(context)
+            .setMuxerFactory(new InAppMuxer.Factory.Builder().build())
+            .build();
+    MediaItem mediaItem =
+        MediaItem.fromUri(Uri.parse("asset:///media/mp4/long_edit_list_audioonly.mp4"));
+
+    ExportTestResult exportTestResult =
+        new TransformerAndroidTestRunner.Builder(context, transformer)
+            .build()
+            .run(testId, mediaItem);
+
+    Mp4Extractor mp4Extractor = new Mp4Extractor(new DefaultSubtitleParserFactory());
+    FakeExtractorOutput fakeExtractorOutput =
+        TestUtil.extractAllSamplesFromFilePath(mp4Extractor, exportTestResult.filePath);
+    // TODO: b/324903070 - The generated output file has incorrect duration.
+    assertThat(fakeExtractorOutput.seekMap.getDurationUs()).isEqualTo(1_555_700);
+    assertThat(fakeExtractorOutput.numberOfTracks).isEqualTo(1);
+    FakeTrackOutput audioTrack = fakeExtractorOutput.trackOutputs.get(0);
+    int expectedSampleCount = 68;
+    audioTrack.assertSampleCount(expectedSampleCount);
+    // TODO: b/324903070 - InAppMuxer doesn't write edit lists to support gapless audio muxing.
+    //  Output incorrectly starts at encoderDelay 0, PTS 0
+    assertThat(audioTrack.lastFormat.encoderDelay).isEqualTo(0);
+    assertThat(audioTrack.getSampleTimeUs(/* index= */ 0)).isEqualTo(0);
+    // TODO: b/270583563 - InAppMuxer always uses 1 / 48_000 timebase for audio.
+    //  The audio file in this test is 44_100 Hz, with timebase for audio of 1 / 44_100 and
+    //  each sample duration is exactly 1024 / 44_100, with no rounding errors.
+    //  Since InAppMuxer uses a different timebase for audio, some rounding errors are introduced
+    //  and MP4 sample durations are off.
+    // TODO: b/324903070 - expectedLastSampleTimeUs & expectedDurationUs are incorrect.
+    //  Last sample time cannot be greater than total duration.
+    assertThat(audioTrack.getSampleTimeUs(/* index= */ expectedSampleCount - 1))
+        .isEqualTo(1_555_708);
+  }
+
+  @Test
+  public void transmux_videoWithEditList_trimsFirstIDRFrameDuration() throws Exception {
+    String testId = "transmux_videoWithEditList_trimsFirstIDRFrameDuration";
+    Context context = ApplicationProvider.getApplicationContext();
+    assumeTrue(
+        "MediaMuxer doesn't support B frames reliably on older SDK versions", Util.SDK_INT >= 29);
+    Transformer transformer = new Transformer.Builder(context).build();
+    MediaItem mediaItem =
+        MediaItem.fromUri(Uri.parse("asset:///media/mp4/iibbibb_editlist_videoonly.mp4"));
+
+    ExportTestResult exportTestResult =
+        new TransformerAndroidTestRunner.Builder(context, transformer)
+            .build()
+            .run(testId, mediaItem);
+
+    Mp4Extractor mp4Extractor = new Mp4Extractor(new DefaultSubtitleParserFactory());
+    FakeExtractorOutput fakeExtractorOutput =
+        TestUtil.extractAllSamplesFromFilePath(mp4Extractor, exportTestResult.filePath);
+    assertThat(fakeExtractorOutput.numberOfTracks).isEqualTo(1);
+
+    // TODO: b/324842222 - Duration isn't written correctly when transmuxing, and differs
+    //  between SDK versions. Do not assert for duration yet.
+    FakeTrackOutput videoTrack = fakeExtractorOutput.trackOutputs.get(0);
+    int expectedSampleCount = 13;
+    videoTrack.assertSampleCount(expectedSampleCount);
+    assertThat(videoTrack.getSampleTimeUs(/* index= */ 0)).isEqualTo(0);
+    int sampleIndexWithLargestSampleTime = 10;
+    assertThat(videoTrack.getSampleTimeUs(sampleIndexWithLargestSampleTime)).isEqualTo(11_500_000);
+    assertThat(videoTrack.getSampleTimeUs(/* index= */ expectedSampleCount - 1))
+        .isEqualTo(9_500_000);
   }
 
   private static AudioProcessor createSonic(float pitch) {
