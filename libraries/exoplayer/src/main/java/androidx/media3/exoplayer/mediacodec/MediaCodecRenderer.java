@@ -360,7 +360,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    */
   @Nullable private MediaCrypto mediaCrypto;
 
-  private boolean mediaCryptoRequiresSecureDecoder;
   private long renderTimeLimitMs;
   private float currentPlaybackSpeed;
   private float targetPlaybackSpeed;
@@ -539,6 +538,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       // We have a codec, are bypassing it, or don't have a format to decide how to render.
       return;
     }
+    Format inputFormat = this.inputFormat;
 
     if (isBypassPossible(inputFormat)) {
       initBypass(inputFormat);
@@ -548,6 +548,10 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     setCodecDrmSession(sourceDrmSession);
     if (codecDrmSession == null || initMediaCryptoIfDrmSessionReady()) {
       try {
+        boolean mediaCryptoRequiresSecureDecoder =
+            codecDrmSession != null
+                && codecDrmSession.requiresSecureDecoder(
+                    checkStateNotNull(inputFormat.sampleMimeType));
         maybeInitCodecWithFallback(mediaCrypto, mediaCryptoRequiresSecureDecoder);
       } catch (DecoderInitializationException e) {
         throw createRendererException(
@@ -558,7 +562,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       // mediaCrypto was created, but a codec wasn't, so release the mediaCrypto before returning.
       mediaCrypto.release();
       mediaCrypto = null;
-      mediaCryptoRequiresSecureDecoder = false;
     }
   }
 
@@ -968,7 +971,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     codecNeedsEosPropagation = false;
     codecReconfigured = false;
     codecReconfigurationState = RECONFIGURATION_STATE_NONE;
-    mediaCryptoRequiresSecureDecoder = false;
   }
 
   protected MediaCodecDecoderException createDecoderException(
@@ -1011,7 +1013,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private boolean initMediaCryptoIfDrmSessionReady() throws ExoPlaybackException {
     checkState(mediaCrypto == null);
     DrmSession codecDrmSession = this.codecDrmSession;
-    String mimeType = checkNotNull(inputFormat).sampleMimeType;
     @Nullable CryptoConfig cryptoConfig = codecDrmSession.getCryptoConfig();
     if (FrameworkCryptoConfig.WORKAROUND_DEVICE_NEEDS_KEYS_TO_CONFIGURE_CODEC
         && cryptoConfig instanceof FrameworkCryptoConfig) {
@@ -1044,9 +1045,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         throw createRendererException(
             e, inputFormat, PlaybackException.ERROR_CODE_DRM_SYSTEM_ERROR);
       }
-      mediaCryptoRequiresSecureDecoder =
-          !frameworkCryptoConfig.forceAllowInsecureDecoderComponents
-              && mediaCrypto.requiresSecureDecoderComponent(checkStateNotNull(mimeType));
     }
     return true;
   }
@@ -2228,8 +2226,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       return false;
     }
 
-    FrameworkCryptoConfig newFrameworkCryptoConfig = (FrameworkCryptoConfig) newCryptoConfig;
-
     // Note: Both oldSession and newSession are non-null, and they are different sessions.
 
     if (!newSession.getSchemeUuid().equals(oldSession.getSchemeUuid())) {
@@ -2250,20 +2246,10 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       return true;
     }
 
-    boolean requiresSecureDecoder;
-    if (newFrameworkCryptoConfig.forceAllowInsecureDecoderComponents) {
-      requiresSecureDecoder = false;
-    } else {
-      requiresSecureDecoder =
-          newSession.requiresSecureDecoder(checkNotNull(newFormat.sampleMimeType));
-    }
-    if (!codecInfo.secure && requiresSecureDecoder) {
-      // Re-initialization is required because newSession might require switching to the secure
-      // output path.
-      return true;
-    }
-
-    return false;
+    // Re-initialization is required if newSession might require switching to the secure output
+    // path.
+    return !codecInfo.secure
+        && newSession.requiresSecureDecoder(checkNotNull(newFormat.sampleMimeType));
   }
 
   private void reinitializeCodec() throws ExoPlaybackException {

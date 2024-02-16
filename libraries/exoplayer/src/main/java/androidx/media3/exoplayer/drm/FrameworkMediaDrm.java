@@ -287,22 +287,24 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
   @UnstableApi
   @Override
   public boolean requiresSecureDecoder(byte[] sessionId, String mimeType) {
+    boolean result;
     if (Util.SDK_INT >= 31) {
-      return Api31.requiresSecureDecoder(mediaDrm, mimeType);
+      result = Api31.requiresSecureDecoder(mediaDrm, mimeType);
+    } else {
+      MediaCrypto mediaCrypto = null;
+      try {
+        mediaCrypto = new MediaCrypto(uuid, sessionId);
+        result = mediaCrypto.requiresSecureDecoderComponent(mimeType);
+      } catch (MediaCryptoException e) {
+        // This shouldn't happen, but if it does then assume that a secure decoder may be required.
+        result = true;
+      } finally {
+        if (mediaCrypto != null) {
+          mediaCrypto.release();
+        }
+      }
     }
-
-    MediaCrypto mediaCrypto;
-    try {
-      mediaCrypto = new MediaCrypto(uuid, sessionId);
-    } catch (MediaCryptoException e) {
-      // This shouldn't happen, but if it does then assume that a secure decoder may be required.
-      return true;
-    }
-    try {
-      return mediaCrypto.requiresSecureDecoderComponent(mimeType);
-    } finally {
-      mediaCrypto.release();
-    }
+    return result && !shouldForceAllowInsecureDecoderComponents();
   }
 
   @UnstableApi
@@ -383,14 +385,17 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
   @UnstableApi
   @Override
   public FrameworkCryptoConfig createCryptoConfig(byte[] sessionId) throws MediaCryptoException {
-    // Work around a bug prior to Lollipop where L1 Widevine forced into L3 mode would still
-    // indicate that it required secure video decoders [Internal ref: b/11428937].
-    boolean forceAllowInsecureDecoderComponents =
-        Util.SDK_INT < 21
-            && C.WIDEVINE_UUID.equals(uuid)
-            && "L3".equals(getPropertyString("securityLevel"));
+    boolean forceAllowInsecureDecoderComponents = shouldForceAllowInsecureDecoderComponents();
     return new FrameworkCryptoConfig(
         adjustUuid(uuid), sessionId, forceAllowInsecureDecoderComponents);
+  }
+
+  // Work around a bug prior to Lollipop where L1 Widevine forced into L3 mode would still
+  // indicate that it required secure video decoders [Internal ref: b/11428937].
+  private boolean shouldForceAllowInsecureDecoderComponents() {
+    return Util.SDK_INT < 21
+        && C.WIDEVINE_UUID.equals(uuid)
+        && "L3".equals(getPropertyString("securityLevel"));
   }
 
   @UnstableApi

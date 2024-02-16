@@ -47,10 +47,10 @@ public final class FrameworkCryptoConfig implements CryptoConfig {
   public final byte[] sessionId;
 
   /**
-   * Whether to allow use of insecure decoder components even if the underlying platform says
-   * otherwise.
+   * @deprecated Use {@link ExoMediaDrm#requiresSecureDecoder} instead, which incorporates this
+   *     logic.
    */
-  public final boolean forceAllowInsecureDecoderComponents;
+  @Deprecated public final boolean forceAllowInsecureDecoderComponents;
 
   /**
    * @param uuid The DRM scheme UUID.
@@ -58,6 +58,7 @@ public final class FrameworkCryptoConfig implements CryptoConfig {
    * @param forceAllowInsecureDecoderComponents Whether to allow use of insecure decoder components
    *     even if the underlying platform says otherwise.
    */
+  @SuppressWarnings("deprecation") // Setting deprecated field
   public FrameworkCryptoConfig(
       UUID uuid, byte[] sessionId, boolean forceAllowInsecureDecoderComponents) {
     this.uuid = uuid;
