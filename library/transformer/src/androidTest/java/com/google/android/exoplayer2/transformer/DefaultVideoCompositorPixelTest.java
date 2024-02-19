@@ -777,7 +777,8 @@ public final class DefaultVideoCompositorPixelTest {
      * Queues {@code durationSec} bitmaps, with one bitmap per second, starting from and including
      * {@code 0} seconds. Sources have a {@code frameRate} of {@code 1}.
      */
-    public void queueBitmapToAllInputs(int durationSec) throws IOException, InterruptedException {
+    public void queueBitmapToAllInputs(int durationSec)
+        throws IOException, VideoFrameProcessingException {
       for (int i = 0; i < inputVideoFrameProcessorTestRunners.size(); i++) {
         inputVideoFrameProcessorTestRunners
             .get(i)
@@ -790,7 +791,7 @@ public final class DefaultVideoCompositorPixelTest {
     }
 
     public void queueBitmapToInput(int inputId, List<Long> timestamps)
-        throws IOException, InterruptedException {
+        throws IOException, VideoFrameProcessingException {
       Bitmap bitmap = readBitmapUnpremultipliedAlpha(ORIGINAL_PNG_ASSET_PATH);
       inputVideoFrameProcessorTestRunners
           .get(inputId)
@@ -800,7 +801,7 @@ public final class DefaultVideoCompositorPixelTest {
               Pair.create(bitmap, createTimestampIterator(timestamps)));
     }
 
-    public void endCompositing() {
+    public void endCompositing() throws Exception {
       for (int i = 0; i < inputVideoFrameProcessorTestRunners.size(); i++) {
         inputVideoFrameProcessorTestRunners.get(i).signalEndOfInput();
       }

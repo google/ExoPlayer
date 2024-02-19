@@ -29,6 +29,7 @@ import com.google.android.exoplayer2.effect.DefaultVideoFrameProcessor;
 import com.google.android.exoplayer2.testutil.BitmapPixelTestUtil;
 import com.google.android.exoplayer2.testutil.TextureBitmapReader;
 import com.google.android.exoplayer2.testutil.VideoFrameProcessorTestRunner;
+import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 import com.google.android.exoplayer2.util.VideoFrameProcessor;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
@@ -148,7 +149,7 @@ public class DefaultVideoFrameProcessorMultipleTextureOutputPixelTest {
       VideoFrameProcessorTestRunner videoFrameProcessorTestRunner,
       String bitmapAssetPath,
       List<Long> timestamps)
-      throws IOException, InterruptedException {
+      throws IOException, VideoFrameProcessingException {
     Bitmap bitmap = readBitmap(bitmapAssetPath);
     videoFrameProcessorTestRunner.queueInputBitmaps(
         bitmap.getWidth(),

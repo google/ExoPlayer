@@ -336,7 +336,11 @@ public final class VideoFrameProcessorTestRunner {
                         mediaFormat.getInteger(MediaFormat.KEY_HEIGHT))
                     .setPixelWidthHeightRatio(pixelWidthHeightRatio)
                     .build());
-            awaitVideoFrameProcessorReady();
+            try {
+              awaitVideoFrameProcessorReady();
+            } catch (VideoFrameProcessingException e) {
+              throw new IllegalStateException(e);
+            }
             checkState(videoFrameProcessor.registerInputFrame());
           }
 
@@ -351,16 +355,13 @@ public final class VideoFrameProcessorTestRunner {
 
   public void queueInputBitmap(
       Bitmap inputBitmap, long durationUs, long offsetToAddUs, float frameRate)
-      throws InterruptedException {
+      throws VideoFrameProcessingException {
     queueInputBitmap(inputBitmap, durationUs, offsetToAddUs, frameRate, ColorInfo.SRGB_BT709_FULL);
   }
 
   public void queueInputBitmap(
-      Bitmap inputBitmap,
-      long durationUs,
-      long offsetToAddUs,
-      float frameRate,
-      ColorInfo colorInfo) {
+      Bitmap inputBitmap, long durationUs, long offsetToAddUs, float frameRate, ColorInfo colorInfo)
+      throws VideoFrameProcessingException {
     videoFrameProcessorReadyCondition.close();
     videoFrameProcessor.registerInputStream(
         INPUT_TYPE_BITMAP,
@@ -375,12 +376,14 @@ public final class VideoFrameProcessorTestRunner {
             inputBitmap, new ConstantRateTimestampIterator(durationUs, frameRate)));
   }
 
-  public void queueInputBitmaps(int width, int height, Pair<Bitmap, TimestampIterator>... frames) {
+  public void queueInputBitmaps(int width, int height, Pair<Bitmap, TimestampIterator>... frames)
+      throws VideoFrameProcessingException {
     queueInputBitmaps(width, height, ColorInfo.SRGB_BT709_FULL, frames);
   }
 
   public void queueInputBitmaps(
-      int width, int height, ColorInfo colorInfo, Pair<Bitmap, TimestampIterator>... frames) {
+      int width, int height, ColorInfo colorInfo, Pair<Bitmap, TimestampIterator>... frames)
+      throws VideoFrameProcessingException {
     videoFrameProcessorReadyCondition.close();
     videoFrameProcessor.registerInputStream(
         INPUT_TYPE_BITMAP,
@@ -395,7 +398,7 @@ public final class VideoFrameProcessorTestRunner {
   }
 
   public void queueInputTexture(GlTextureInfo inputTexture, long pts, ColorInfo colorInfo)
-      throws InterruptedException {
+      throws VideoFrameProcessingException {
     videoFrameProcessor.registerInputStream(
         INPUT_TYPE_TEXTURE_ID,
         effects,
@@ -416,18 +419,18 @@ public final class VideoFrameProcessorTestRunner {
   }
 
   /** {@link #endFrameProcessing(long)} with {@link #VIDEO_FRAME_PROCESSING_WAIT_MS} applied. */
-  public void endFrameProcessing() {
+  public void endFrameProcessing() throws Exception {
     endFrameProcessing(VIDEO_FRAME_PROCESSING_WAIT_MS);
   }
 
   /**
    * Ends {@link VideoFrameProcessor} frame processing.
    *
-   * <p>Waits for frame processing to end, for {@code videoFrameProcessingWaitTimeMs}.
+   * <p>Waits for frame processing to end, for {@code videoFrameProcessingWaitMs}.
    */
-  public void endFrameProcessing(long videoFrameProcessingWaitTimeMs) {
+  public void endFrameProcessing(long videoFrameProcessingWaitMs) throws Exception {
     signalEndOfInput();
-    awaitFrameProcessingEnd(videoFrameProcessingWaitTimeMs);
+    awaitFrameProcessingEnd(videoFrameProcessingWaitMs);
   }
 
   /**
@@ -446,11 +449,11 @@ public final class VideoFrameProcessorTestRunner {
   }
 
   /** After {@link #signalEndOfInput}, is called, wait for this instance to end. */
-  public void awaitFrameProcessingEnd(long videoFrameProcessingWaitTimeMs) {
+  public void awaitFrameProcessingEnd(long videoFrameProcessingWaitMs) throws Exception {
     @Nullable Exception endFrameProcessingException = null;
     try {
       if (!checkNotNull(videoFrameProcessingEndedLatch)
-          .await(videoFrameProcessingWaitTimeMs, MILLISECONDS)) {
+          .await(videoFrameProcessingWaitMs, MILLISECONDS)) {
         endFrameProcessingException =
             new IllegalStateException("Video frame processing timed out.");
       }
@@ -458,8 +461,12 @@ public final class VideoFrameProcessorTestRunner {
       Thread.currentThread().interrupt();
       endFrameProcessingException = e;
     }
-    checkState(videoFrameProcessingException.get() == null);
-    checkState(endFrameProcessingException == null);
+    if (videoFrameProcessingException.get() != null) {
+      throw videoFrameProcessingException.get();
+    }
+    if (endFrameProcessingException != null) {
+      throw endFrameProcessingException;
+    }
   }
 
   /**
@@ -550,10 +557,12 @@ public final class VideoFrameProcessorTestRunner {
     };
   }
 
-  private void awaitVideoFrameProcessorReady() {
+  private void awaitVideoFrameProcessorReady() throws VideoFrameProcessingException {
     try {
       videoFrameProcessorReadyCondition.block();
-      checkState(videoFrameProcessingException.get() == null);
+      if (videoFrameProcessingException.get() != null) {
+        throw videoFrameProcessingException.get();
+      }
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
       throw new IllegalStateException(e);
