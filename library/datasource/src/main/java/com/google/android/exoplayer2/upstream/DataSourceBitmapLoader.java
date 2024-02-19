@@ -51,7 +51,7 @@ import java.util.concurrent.Executors;
  *     migration guide</a> for more details, including a script to help with the migration.
  */
 @Deprecated
-public final class DataSourceBitmapLoader implements BitmapLoader {
+public class DataSourceBitmapLoader implements BitmapLoader {
 
   public static final Supplier<ListeningExecutorService> DEFAULT_EXECUTOR_SERVICE =
       Suppliers.memoize(
@@ -104,19 +104,19 @@ public final class DataSourceBitmapLoader implements BitmapLoader {
   }
 
   @Override
-  public ListenableFuture<Bitmap> decodeBitmap(byte[] data) {
+  public final ListenableFuture<Bitmap> decodeBitmap(byte[] data) {
     return listeningExecutorService.submit(() -> decode(data, options));
   }
 
   @Override
-  public ListenableFuture<Bitmap> loadBitmap(Uri uri) {
+  public final ListenableFuture<Bitmap> loadBitmap(Uri uri) {
     return listeningExecutorService.submit(
         () -> load(dataSourceFactory.createDataSource(), uri, options));
   }
 
   // BitmapFactory's options parameter is null-ok.
   @SuppressWarnings("nullness:argument.type.incompatible")
-  private static Bitmap decode(byte[] data, @Nullable BitmapFactory.Options options)
+  protected static Bitmap decode(byte[] data, @Nullable BitmapFactory.Options options)
       throws IOException {
     @Nullable
     Bitmap bitmap = BitmapFactory.decodeByteArray(data, /* offset= */ 0, data.length, options);
