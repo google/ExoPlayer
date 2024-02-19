@@ -36,6 +36,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.channels.FileChannel;
+import java.util.List;
 
 /**
  * A {@link DataSource} for reading a raw resource.
@@ -43,28 +44,29 @@ import java.nio.channels.FileChannel;
  * <p>URIs supported by this source are:
  *
  * <ul>
- *   <li>{@code android.resource:///id}, where {@code id} is the integer identifier of a raw
- *       resource in this application.
+ *   <li>{@code android.resource://[package]/id}, where {@code package} is the name of the package
+ *       in which the resource is located and {@code id} is the integer identifier of the resource.
+ *       {@code package} is optional, its default value is the package of this application.
  *   <li>{@code android.resource://[package]/[type/]name}, where {@code package} is the name of the
  *       package in which the resource is located, {@code type} is the resource type and {@code
  *       name} is the resource name. The package and the type are optional. Their default value is
- *       the package of this application and "raw", respectively. Using the two other forms is more
+ *       the package of this application and "raw", respectively. Using the other form is more
  *       efficient.
- *       <ul>
- *         <li>If {@code package} is specified, it must be <a
- *             href="https://developer.android.com/training/package-visibility">visible</a> to the
- *             current application.
- *       </ul>
  * </ul>
  *
- * <p>URIs of the form {@code android.resource://package/id} are also supported, although the
- * package part is not needed and is not used. This support is due to this format being prevalent in
- * the ecosystem (including being <a href="https://stackoverflow.com/a/4896272">recommended on Stack
- * Overflow</a>).
+ * <p>If {@code package} is specified in either of the above URI forms, it must be <a
+ * href="https://developer.android.com/training/package-visibility">visible</a> to the current
+ * application.
  *
- * <p>{@code new
- * Uri.Builder().scheme(ContentResolver.SCHEME_ANDROID_RESOURCE).path(Integer.toString(resourceId)).build()}
- * can be used to build supported {@link Uri}s.
+ * <p>Supported {@link Uri} instances can be built as follows:
+ *
+ * <pre>{@code
+ * Uri.Builder()
+ *     .scheme(ContentResolver.SCHEME_ANDROID_RESOURCE)
+ *     .authority(packageName)
+ *     .path(Integer.toString(resourceId))
+ *     .build();
+ * }</pre>
  */
 @UnstableApi
 public final class RawResourceDataSource extends BaseDataSource {
@@ -209,18 +211,16 @@ public final class RawResourceDataSource extends BaseDataSource {
     Uri normalizedUri = dataSpec.uri.normalizeScheme();
     Resources resources;
     int resourceId;
-    if (TextUtils.equals(RAW_RESOURCE_SCHEME, normalizedUri.getScheme())
-        || (TextUtils.equals(ContentResolver.SCHEME_ANDROID_RESOURCE, normalizedUri.getScheme())
-            && normalizedUri.getPathSegments().size() == 1
-            && Assertions.checkNotNull(normalizedUri.getLastPathSegment()).matches("\\d+"))) {
+    if (TextUtils.equals(RAW_RESOURCE_SCHEME, normalizedUri.getScheme())) {
       resources = applicationContext.getResources();
-      try {
-        resourceId = Integer.parseInt(Assertions.checkNotNull(normalizedUri.getLastPathSegment()));
-      } catch (NumberFormatException e) {
+      List<String> pathSegments = normalizedUri.getPathSegments();
+      if (pathSegments.size() == 1) {
+        resourceId = parseResourceId(pathSegments.get(0));
+      } else {
         throw new RawResourceDataSourceException(
-            "Resource identifier must be an integer.",
-            /* cause= */ null,
-            PlaybackException.ERROR_CODE_FAILED_RUNTIME_CHECK);
+            RAW_RESOURCE_SCHEME
+                + ":// URI must have exactly one path element, found "
+                + pathSegments.size());
       }
     } else if (TextUtils.equals(
         ContentResolver.SCHEME_ANDROID_RESOURCE, normalizedUri.getScheme())) {
@@ -247,18 +247,22 @@ public final class RawResourceDataSource extends BaseDataSource {
               PlaybackException.ERROR_CODE_IO_FILE_NOT_FOUND);
         }
       }
-      // The javadoc of this class already discourages the URI form that requires this API call.
-      @SuppressLint("DiscouragedApi")
-      int resourceIdFromName =
-          resources.getIdentifier(
-              packageName + ":" + path, /* defType= */ "raw", /* defPackage= */ null);
-      if (resourceIdFromName != 0) {
-        resourceId = resourceIdFromName;
+      if (path.matches("\\d+")) {
+        resourceId = parseResourceId(path);
       } else {
-        throw new RawResourceDataSourceException(
-            "Resource not found.",
-            /* cause= */ null,
-            PlaybackException.ERROR_CODE_IO_FILE_NOT_FOUND);
+        // The javadoc of this class already discourages the URI form that requires this API call.
+        @SuppressLint("DiscouragedApi")
+        int resourceIdFromName =
+            resources.getIdentifier(
+                packageName + ":" + path, /* defType= */ "raw", /* defPackage= */ null);
+        if (resourceIdFromName != 0) {
+          resourceId = resourceIdFromName;
+        } else {
+          throw new RawResourceDataSourceException(
+              "Resource not found.",
+              /* cause= */ null,
+              PlaybackException.ERROR_CODE_IO_FILE_NOT_FOUND);
+        }
       }
     } else {
       throw new RawResourceDataSourceException(
@@ -286,6 +290,17 @@ public final class RawResourceDataSource extends BaseDataSource {
           PlaybackException.ERROR_CODE_IO_UNSPECIFIED);
     }
     return assetFileDescriptor;
+  }
+
+  private static int parseResourceId(String resourceId) throws RawResourceDataSourceException {
+    try {
+      return Integer.parseInt(resourceId);
+    } catch (NumberFormatException e) {
+      throw new RawResourceDataSourceException(
+          "Resource identifier must be an integer.",
+          /* cause= */ null,
+          PlaybackException.ERROR_CODE_FAILED_RUNTIME_CHECK);
+    }
   }
 
   @Override

@@ -93,8 +93,13 @@ public final class RawResourceDataSourceContractTest extends DataSourceContractT
             .setExpectedBytes(RESOURCE_1_DATA)
             .build(),
         new TestResource.Builder()
-            .setName("android.resource:// with (unused) package and ID")
-            .setUri(Uri.parse("android.resource://unused.package.name/" + R.raw.resource1))
+            .setName("android.resource:// with package and ID")
+            .setUri(
+                Uri.parse(
+                    "android.resource://"
+                        + ApplicationProvider.getApplicationContext().getPackageName()
+                        + "/"
+                        + R.raw.resource1))
             .setExpectedBytes(RESOURCE_1_DATA)
             .build());
   }

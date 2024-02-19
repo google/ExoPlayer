@@ -18,6 +18,11 @@
 *   Metadata:
 *   Image:
 *   DRM:
+*   DataSource:
+    *   Implement support for `android.resource://package/id` raw resource URIs
+        where `package` is different to the package of the current application.
+        This wasn't previously documented to work, but is a more efficient way
+        of accessing resources in another package than by name.
 *   Effect:
     *   Improved PQ to SDR tone-mapping by converting color spaces.
     *   Support multiple speed changes within the same `EditedMediaItem` or
