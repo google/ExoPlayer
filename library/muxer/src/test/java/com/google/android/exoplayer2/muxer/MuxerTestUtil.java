@@ -46,6 +46,8 @@ import java.nio.ByteBuffer;
           .setInitializationData(ImmutableList.of(FAKE_CSD_0, FAKE_CSD_1))
           .build();
 
+  public static final String XMP_SAMPLE_DATA = "media/xmp/sample_datetime_xmp.xmp";
+
   private static final byte[] FAKE_H264_SAMPLE =
       BaseEncoding.base16()
           .decode(
