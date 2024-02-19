@@ -20,6 +20,8 @@ package androidx.media3.transformer;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Util.SDK_INT;
 import static androidx.media3.test.utils.BitmapPixelTestUtil.readBitmap;
+import static androidx.media3.transformer.AndroidTestUtil.BT601_ASSET_FORMAT;
+import static androidx.media3.transformer.AndroidTestUtil.BT601_ASSET_URI_STRING;
 import static androidx.media3.transformer.AndroidTestUtil.JPG_ASSET_URI_STRING;
 import static androidx.media3.transformer.AndroidTestUtil.JPG_PORTRAIT_ASSET_URI_STRING;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_FORMAT;
@@ -210,6 +212,39 @@ public final class TransformerSequenceEffectTest {
                 MP4_PORTRAIT_ASSET_URI_STRING,
                 ImmutableList.of(RgbFilter.createInvertedFilter()),
                 SINGLE_30_FPS_VIDEO_FRAME_THRESHOLD_MS));
+
+    ExportTestResult result =
+        new TransformerAndroidTestRunner.Builder(context, new Transformer.Builder(context).build())
+            .build()
+            .run(testId, composition);
+
+    assertThat(result.filePath).isNotNull();
+    assertBitmapsMatchExpectedAndSave(
+        extractBitmapsFromVideo(context, checkNotNull(result.filePath)), testId);
+  }
+
+  @Test
+  public void export_withBt601AndBt709MediaItems() throws Exception {
+    String testId = "export_withBt601AndBt709MediaItems";
+    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
+        context,
+        testId,
+        /* inputFormat= */ MP4_ASSET_FORMAT,
+        /* outputFormat= */ MP4_ASSET_FORMAT)) {
+      return;
+    }
+    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
+        context, testId, /* inputFormat= */ BT601_ASSET_FORMAT, /* outputFormat= */ null)) {
+      return;
+    }
+    Composition composition =
+        createComposition(
+            Presentation.createForHeight(EXPORT_HEIGHT),
+            clippedVideo(
+                BT601_ASSET_URI_STRING,
+                ImmutableList.of(RgbFilter.createInvertedFilter()),
+                SINGLE_30_FPS_VIDEO_FRAME_THRESHOLD_MS),
+            clippedVideo(MP4_ASSET_URI_STRING, NO_EFFECT, SINGLE_30_FPS_VIDEO_FRAME_THRESHOLD_MS));
 
     ExportTestResult result =
         new TransformerAndroidTestRunner.Builder(context, new Transformer.Builder(context).build())
