@@ -16,6 +16,7 @@
 package androidx.media3.muxer;
 
 import static androidx.media3.muxer.MuxerTestUtil.FAKE_VIDEO_FORMAT;
+import static androidx.media3.muxer.MuxerTestUtil.XMP_SAMPLE_DATA;
 
 import android.content.Context;
 import android.media.MediaCodec.BufferInfo;
@@ -40,9 +41,6 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class Mp4MuxerMetadataTest {
   @Rule public final TemporaryFolder temporaryFolder = new TemporaryFolder();
-
-  // Input files.
-  private static final String XMP_SAMPLE_DATA = "media/xmp/sample_datetime_xmp.xmp";
 
   private final Context context = ApplicationProvider.getApplicationContext();
   private final Pair<ByteBuffer, BufferInfo> sampleAndSampleInfo =
