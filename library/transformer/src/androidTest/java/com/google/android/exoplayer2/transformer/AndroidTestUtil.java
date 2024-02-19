@@ -88,6 +88,22 @@ public final class AndroidTestUtil {
   // ffprobe -count_frames -select_streams v:0 -show_entries stream=nb_read_frames sample.mp4
   public static final int MP4_ASSET_FRAME_COUNT = 30;
 
+  public static final String BT601_ASSET_URI_STRING = "asset:///media/mp4/bt601.mov";
+  public static final Format BT601_ASSET_FORMAT =
+      new Format.Builder()
+          .setSampleMimeType(VIDEO_H264)
+          .setWidth(640)
+          .setHeight(428)
+          .setFrameRate(29.97f)
+          .setColorInfo(
+              new ColorInfo.Builder()
+                  .setColorSpace(C.COLOR_SPACE_BT601)
+                  .setColorRange(C.COLOR_RANGE_LIMITED)
+                  .setColorTransfer(C.COLOR_TRANSFER_SDR)
+                  .build())
+          .setCodecs("avc1.4D001E")
+          .build();
+
   public static final String MP4_PORTRAIT_ASSET_URI_STRING =
       "asset:///media/mp4/sample_portrait.mp4";
   public static final Format MP4_PORTRAIT_ASSET_FORMAT =
