@@ -24,6 +24,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.graphics.Bitmap;
 import android.util.Pair;
+import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.VideoFrameProcessor;
 import androidx.media3.effect.DefaultVideoFrameProcessor;
 import androidx.media3.test.utils.BitmapPixelTestUtil;
@@ -148,7 +149,7 @@ public class DefaultVideoFrameProcessorMultipleTextureOutputPixelTest {
       VideoFrameProcessorTestRunner videoFrameProcessorTestRunner,
       String bitmapAssetPath,
       List<Long> timestamps)
-      throws IOException, InterruptedException {
+      throws IOException, VideoFrameProcessingException {
     Bitmap bitmap = readBitmap(bitmapAssetPath);
     videoFrameProcessorTestRunner.queueInputBitmaps(
         bitmap.getWidth(),

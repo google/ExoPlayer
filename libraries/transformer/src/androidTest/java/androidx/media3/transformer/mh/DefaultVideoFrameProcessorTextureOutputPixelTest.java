@@ -493,7 +493,8 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
     DefaultVideoFrameProcessor.Factory defaultVideoFrameProcessorFactory =
         new DefaultVideoFrameProcessor.Factory.Builder()
             .setTextureOutput(
-                (outputTextureProducer, outputTexture, presentationTimeUs, syncObject) ->
+                (outputTextureProducer, outputTexture, presentationTimeUs, syncObject) -> {
+                  try {
                     inputTextureIntoVideoFrameProcessor(
                         testId,
                         consumersBitmapReader,
@@ -502,7 +503,11 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
                         outputTexture,
                         outputTextureProducer,
                         presentationTimeUs,
-                        syncObject),
+                        syncObject);
+                  } catch (Exception e) {
+                    throw VideoFrameProcessingException.from(e, presentationTimeUs);
+                  }
+                },
                 /* textureOutputCapacity= */ 1)
             .build();
     return new VideoFrameProcessorTestRunner.Builder()
@@ -523,7 +528,7 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
       GlTextureProducer textureProducer,
       long presentationTimeUs,
       long syncObject)
-      throws VideoFrameProcessingException, GlUtil.GlException {
+      throws Exception {
     GlObjectsProvider contextSharingGlObjectsProvider =
         new DefaultGlObjectsProvider(GlUtil.getCurrentContext());
     DefaultVideoFrameProcessor.Factory defaultVideoFrameProcessorFactory =
@@ -545,12 +550,7 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
             .setEffects(effects)
             .build();
     GlUtil.awaitSyncObject(syncObject);
-    try {
-      videoFrameProcessorTestRunner.queueInputTexture(texture, presentationTimeUs, colorInfo);
-    } catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
-      throw VideoFrameProcessingException.from(e);
-    }
+    videoFrameProcessorTestRunner.queueInputTexture(texture, presentationTimeUs, colorInfo);
     videoFrameProcessorTestRunner.endFrameProcessing(VIDEO_FRAME_PROCESSING_WAIT_MS / 2);
     textureProducer.releaseOutputTexture(presentationTimeUs);
   }
