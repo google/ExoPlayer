@@ -17,7 +17,7 @@ package androidx.media3.transformer.mh;
 
 import static androidx.media3.common.MimeTypes.VIDEO_H265;
 import static androidx.media3.common.util.Assertions.checkState;
-import static androidx.media3.test.utils.FileUtil.retrieveColorTransfer;
+import static androidx.media3.test.utils.TestUtil.retrieveTrackFormat;
 import static androidx.media3.transformer.AndroidTestUtil.FORCE_TRANSCODE_VIDEO_EFFECTS;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_1080P_5_SECOND_HLG10;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT;
@@ -88,7 +88,10 @@ public final class HdrEditingTest {
             .build()
             .run(testId, mediaItem);
     @C.ColorTransfer
-    int actualColorTransfer = retrieveColorTransfer(context, exportTestResult.filePath);
+    int actualColorTransfer =
+        retrieveTrackFormat(context, exportTestResult.filePath, C.TRACK_TYPE_VIDEO)
+            .colorInfo
+            .colorTransfer;
     assertThat(actualColorTransfer).isEqualTo(C.COLOR_TRANSFER_ST2084);
   }
 
@@ -119,7 +122,10 @@ public final class HdrEditingTest {
             .build()
             .run(testId, mediaItem);
     @C.ColorTransfer
-    int actualColorTransfer = retrieveColorTransfer(context, exportTestResult.filePath);
+    int actualColorTransfer =
+        retrieveTrackFormat(context, exportTestResult.filePath, C.TRACK_TYPE_VIDEO)
+            .colorInfo
+            .colorTransfer;
     assertThat(actualColorTransfer).isEqualTo(C.COLOR_TRANSFER_HLG);
   }
 
@@ -148,7 +154,10 @@ public final class HdrEditingTest {
             .build()
             .run(testId, editedMediaItem);
     @C.ColorTransfer
-    int actualColorTransfer = retrieveColorTransfer(context, exportTestResult.filePath);
+    int actualColorTransfer =
+        retrieveTrackFormat(context, exportTestResult.filePath, C.TRACK_TYPE_VIDEO)
+            .colorInfo
+            .colorTransfer;
     assertThat(actualColorTransfer).isEqualTo(C.COLOR_TRANSFER_ST2084);
   }
 
@@ -177,7 +186,10 @@ public final class HdrEditingTest {
             .build()
             .run(testId, editedMediaItem);
     @C.ColorTransfer
-    int actualColorTransfer = retrieveColorTransfer(context, exportTestResult.filePath);
+    int actualColorTransfer =
+        retrieveTrackFormat(context, exportTestResult.filePath, C.TRACK_TYPE_VIDEO)
+            .colorInfo
+            .colorTransfer;
     assertThat(actualColorTransfer).isEqualTo(C.COLOR_TRANSFER_HLG);
   }
 
@@ -206,7 +218,10 @@ public final class HdrEditingTest {
             .build()
             .run(testId, editedMediaItem);
     @C.ColorTransfer
-    int actualColorTransfer = retrieveColorTransfer(context, exportTestResult.filePath);
+    int actualColorTransfer =
+        retrieveTrackFormat(context, exportTestResult.filePath, C.TRACK_TYPE_VIDEO)
+            .colorInfo
+            .colorTransfer;
     assertThat(actualColorTransfer).isEqualTo(C.COLOR_TRANSFER_HLG);
   }
 
@@ -256,7 +271,10 @@ public final class HdrEditingTest {
               .run(testId, editedMediaItem);
       assertThat(isToneMappingFallbackApplied.get()).isTrue();
       @C.ColorTransfer
-      int actualColorTransfer = retrieveColorTransfer(context, exportTestResult.filePath);
+      int actualColorTransfer =
+          retrieveTrackFormat(context, exportTestResult.filePath, C.TRACK_TYPE_VIDEO)
+              .colorInfo
+              .colorTransfer;
       assertThat(actualColorTransfer).isEqualTo(C.COLOR_TRANSFER_SDR);
     } catch (ExportException exception) {
       if (exception.getCause() != null) {
@@ -317,7 +335,10 @@ public final class HdrEditingTest {
               .run(testId, editedMediaItem);
       assertThat(isToneMappingFallbackApplied.get()).isTrue();
       @C.ColorTransfer
-      int actualColorTransfer = retrieveColorTransfer(context, exportTestResult.filePath);
+      int actualColorTransfer =
+          retrieveTrackFormat(context, exportTestResult.filePath, C.TRACK_TYPE_VIDEO)
+              .colorInfo
+              .colorTransfer;
       assertThat(actualColorTransfer).isEqualTo(C.COLOR_TRANSFER_SDR);
     } catch (ExportException exception) {
       if (exception.getCause() != null) {

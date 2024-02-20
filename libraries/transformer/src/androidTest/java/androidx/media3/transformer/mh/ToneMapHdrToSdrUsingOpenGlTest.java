@@ -15,7 +15,7 @@
  */
 package androidx.media3.transformer.mh;
 
-import static androidx.media3.test.utils.FileUtil.retrieveColorTransfer;
+import static androidx.media3.test.utils.TestUtil.retrieveTrackFormat;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_1080P_5_SECOND_HLG10;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_720P_4_SECOND_HDR10;
@@ -94,7 +94,10 @@ public class ToneMapHdrToSdrUsingOpenGlTest {
             .build()
             .run(testId, composition);
     @C.ColorTransfer
-    int actualColorTransfer = retrieveColorTransfer(context, exportTestResult.filePath);
+    int actualColorTransfer =
+        retrieveTrackFormat(context, exportTestResult.filePath, C.TRACK_TYPE_VIDEO)
+            .colorInfo
+            .colorTransfer;
     assertThat(actualColorTransfer).isEqualTo(C.COLOR_TRANSFER_SDR);
   }
 }
