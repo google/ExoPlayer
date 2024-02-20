@@ -24,20 +24,18 @@ import static com.google.android.exoplayer2.util.Util.isBitmapFactorySupportedMi
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
-import androidx.exifinterface.media.ExifInterface;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.decoder.SimpleDecoder;
+import com.google.android.exoplayer2.upstream.DataSourceUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.util.Objects;
 
 /**
  * An image decoder that uses {@link BitmapFactory} to decode images.
@@ -164,37 +162,21 @@ public final class BitmapFactoryImageDecoder
    * @throws ImageDecoderException If a decoding error occurs.
    */
   private static Bitmap decode(byte[] data, int length) throws ImageDecoderException {
-    @Nullable Bitmap bitmap = BitmapFactory.decodeByteArray(data, /* offset= */ 0, length);
-    if (bitmap == null) {
-      throw new ImageDecoderException(
-          "Could not decode image data with BitmapFactory. (data.length = "
-              + data.length
-              + ", input length = "
-              + length
-              + ")");
-    }
-    // BitmapFactory doesn't read the exif header, so we use the ExifInterface to this do ensure the
-    // bitmap is correctly orientated.
-    ExifInterface exifInterface;
-    try (InputStream inputStream = new ByteArrayInputStream(data, /* offset= */ 0, length)) {
-      exifInterface = new ExifInterface(inputStream);
+    try {
+      return DataSourceUtil.decode(data, length, /* options= */ null);
     } catch (IOException e) {
       throw new ImageDecoderException(e);
+    } catch (IllegalArgumentException e) {
+      if (Objects.equals(e.getMessage(), DataSourceUtil.BITMAP_DECODING_EXCEPTION_MESSAGE)) {
+        throw new ImageDecoderException(
+            "Could not decode image data with BitmapFactory. (data.length = "
+                + data.length
+                + ", input length = "
+                + length
+                + ")");
+      } else {
+        throw e;
+      }
     }
-    int rotationDegrees = exifInterface.getRotationDegrees();
-    if (rotationDegrees != 0) {
-      Matrix matrix = new Matrix();
-      matrix.postRotate(rotationDegrees);
-      bitmap =
-          Bitmap.createBitmap(
-              bitmap,
-              /* x= */ 0,
-              /* y= */ 0,
-              bitmap.getWidth(),
-              bitmap.getHeight(),
-              matrix,
-              /* filter= */ false);
-    }
-    return bitmap;
   }
 }
