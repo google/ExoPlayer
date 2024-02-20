@@ -85,7 +85,7 @@ public final class CompositingVideoSinkProvider
 
     /** Creates a builder with the supplied {@linkplain Context application context}. */
     public Builder(Context context) {
-      this.context = context;
+      this.context = context.getApplicationContext();
     }
 
     /**
