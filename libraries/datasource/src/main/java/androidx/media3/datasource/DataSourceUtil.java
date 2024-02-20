@@ -15,15 +15,24 @@
  */
 package androidx.media3.datasource;
 
+import static androidx.media3.common.util.Assertions.checkArgument;
+
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import androidx.annotation.Nullable;
+import androidx.exifinterface.media.ExifInterface;
 import androidx.media3.common.C;
 import androidx.media3.common.util.UnstableApi;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 
 /** Utility methods for {@link DataSource}. */
 @UnstableApi
 public final class DataSourceUtil {
+  public static final String BITMAP_DECODING_EXCEPTION_MESSAGE = "Could not decode image data";
 
   private DataSourceUtil() {}
 
@@ -89,5 +98,38 @@ public final class DataSourceUtil {
     } catch (IOException e) {
       // Ignore.
     }
+  }
+
+  /**
+   * Decodes a {@link Bitmap} from a byte array using {@link BitmapFactory} and the {@link
+   * ExifInterface}.
+   */
+  // BitmapFactory's options parameter is null-ok.
+  @SuppressWarnings("nullness:argument.type.incompatible")
+  public static Bitmap decode(byte[] data, int length, @Nullable BitmapFactory.Options options)
+      throws IOException {
+    @Nullable Bitmap bitmap = BitmapFactory.decodeByteArray(data, /* offset= */ 0, length, options);
+    checkArgument(bitmap != null, BITMAP_DECODING_EXCEPTION_MESSAGE);
+    // BitmapFactory doesn't read the exif header, so we use the ExifInterface to this do ensure the
+    // bitmap is correctly orientated.
+    ExifInterface exifInterface;
+    try (InputStream inputStream = new ByteArrayInputStream(data)) {
+      exifInterface = new ExifInterface(inputStream);
+    }
+    int rotationDegrees = exifInterface.getRotationDegrees();
+    if (rotationDegrees != 0) {
+      Matrix matrix = new Matrix();
+      matrix.postRotate(rotationDegrees);
+      bitmap =
+          Bitmap.createBitmap(
+              bitmap,
+              /* x= */ 0,
+              /* y= */ 0,
+              bitmap.getWidth(),
+              bitmap.getHeight(),
+              matrix,
+              /* filter= */ false);
+    }
+    return bitmap;
   }
 }
