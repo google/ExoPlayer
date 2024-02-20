@@ -74,14 +74,14 @@ This release includes the following changes since the
         output file. Fixes output files beginning with black frame on iOS based
         players ([#829](https://github.com/androidx/media/issues/829)).
 *   Audio:
-    *   Improve silence skipping algorithm with smooth volume ramp, retained
+    *   Improve silence skipping algorithm with smooth volume ramp; retained
         minimal silence and more natural silence durations
         ([#7423](https://github.com/google/ExoPlayer/issues/7423)).
     *   Report the skipped silence more deterministically
         ([#1035](https://github.com/androidx/media/issues/1035)).
 *   Session:
     *   Fix issue where `MediaItem.RequestMetadata` with just non-null extras is
-        not sent transmitted between media controllers and sessions.
+        not transmitted between media controllers and sessions.
     *   Add constructor to `MediaLibrarySession.Builder` that only takes a
         `Context` instead of a `MediaLibraryService`.
 *   HLS Extension:
