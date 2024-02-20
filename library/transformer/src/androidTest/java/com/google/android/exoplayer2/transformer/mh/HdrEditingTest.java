@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.transformer.mh;
 
-import static com.google.android.exoplayer2.testutil.FileUtil.retrieveColorTransfer;
+import static com.google.android.exoplayer2.testutil.TestUtil.retrieveTrackFormat;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.FORCE_TRANSCODE_VIDEO_EFFECTS;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_1080P_5_SECOND_HLG10;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT;
@@ -88,7 +88,10 @@ public final class HdrEditingTest {
             .build()
             .run(testId, mediaItem);
     @C.ColorTransfer
-    int actualColorTransfer = retrieveColorTransfer(context, exportTestResult.filePath);
+    int actualColorTransfer =
+        retrieveTrackFormat(context, exportTestResult.filePath, C.TRACK_TYPE_VIDEO)
+            .colorInfo
+            .colorTransfer;
     assertThat(actualColorTransfer).isEqualTo(C.COLOR_TRANSFER_ST2084);
   }
 
@@ -119,7 +122,10 @@ public final class HdrEditingTest {
             .build()
             .run(testId, mediaItem);
     @C.ColorTransfer
-    int actualColorTransfer = retrieveColorTransfer(context, exportTestResult.filePath);
+    int actualColorTransfer =
+        retrieveTrackFormat(context, exportTestResult.filePath, C.TRACK_TYPE_VIDEO)
+            .colorInfo
+            .colorTransfer;
     assertThat(actualColorTransfer).isEqualTo(C.COLOR_TRANSFER_HLG);
   }
 
@@ -148,7 +154,10 @@ public final class HdrEditingTest {
             .build()
             .run(testId, editedMediaItem);
     @C.ColorTransfer
-    int actualColorTransfer = retrieveColorTransfer(context, exportTestResult.filePath);
+    int actualColorTransfer =
+        retrieveTrackFormat(context, exportTestResult.filePath, C.TRACK_TYPE_VIDEO)
+            .colorInfo
+            .colorTransfer;
     assertThat(actualColorTransfer).isEqualTo(C.COLOR_TRANSFER_ST2084);
   }
 
@@ -177,7 +186,10 @@ public final class HdrEditingTest {
             .build()
             .run(testId, editedMediaItem);
     @C.ColorTransfer
-    int actualColorTransfer = retrieveColorTransfer(context, exportTestResult.filePath);
+    int actualColorTransfer =
+        retrieveTrackFormat(context, exportTestResult.filePath, C.TRACK_TYPE_VIDEO)
+            .colorInfo
+            .colorTransfer;
     assertThat(actualColorTransfer).isEqualTo(C.COLOR_TRANSFER_HLG);
   }
 
@@ -206,7 +218,10 @@ public final class HdrEditingTest {
             .build()
             .run(testId, editedMediaItem);
     @C.ColorTransfer
-    int actualColorTransfer = retrieveColorTransfer(context, exportTestResult.filePath);
+    int actualColorTransfer =
+        retrieveTrackFormat(context, exportTestResult.filePath, C.TRACK_TYPE_VIDEO)
+            .colorInfo
+            .colorTransfer;
     assertThat(actualColorTransfer).isEqualTo(C.COLOR_TRANSFER_HLG);
   }
 
@@ -256,7 +271,10 @@ public final class HdrEditingTest {
               .run(testId, editedMediaItem);
       assertThat(isToneMappingFallbackApplied.get()).isTrue();
       @C.ColorTransfer
-      int actualColorTransfer = retrieveColorTransfer(context, exportTestResult.filePath);
+      int actualColorTransfer =
+          retrieveTrackFormat(context, exportTestResult.filePath, C.TRACK_TYPE_VIDEO)
+              .colorInfo
+              .colorTransfer;
       assertThat(actualColorTransfer).isEqualTo(C.COLOR_TRANSFER_SDR);
     } catch (ExportException exception) {
       if (exception.getCause() != null) {
@@ -317,7 +335,10 @@ public final class HdrEditingTest {
               .run(testId, editedMediaItem);
       assertThat(isToneMappingFallbackApplied.get()).isTrue();
       @C.ColorTransfer
-      int actualColorTransfer = retrieveColorTransfer(context, exportTestResult.filePath);
+      int actualColorTransfer =
+          retrieveTrackFormat(context, exportTestResult.filePath, C.TRACK_TYPE_VIDEO)
+              .colorInfo
+              .colorTransfer;
       assertThat(actualColorTransfer).isEqualTo(C.COLOR_TRANSFER_SDR);
     } catch (ExportException exception) {
       if (exception.getCause() != null) {

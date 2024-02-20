@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.transformer.mh;
 
-import static com.google.android.exoplayer2.testutil.FileUtil.retrieveColorTransfer;
+import static com.google.android.exoplayer2.testutil.TestUtil.retrieveTrackFormat;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_1080P_5_SECOND_HLG10;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_720P_4_SECOND_HDR10;
@@ -94,7 +94,10 @@ public class ToneMapHdrToSdrUsingOpenGlTest {
             .build()
             .run(testId, composition);
     @C.ColorTransfer
-    int actualColorTransfer = retrieveColorTransfer(context, exportTestResult.filePath);
+    int actualColorTransfer =
+        retrieveTrackFormat(context, exportTestResult.filePath, C.TRACK_TYPE_VIDEO)
+            .colorInfo
+            .colorTransfer;
     assertThat(actualColorTransfer).isEqualTo(C.COLOR_TRANSFER_SDR);
   }
 }
