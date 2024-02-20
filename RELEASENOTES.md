@@ -42,6 +42,8 @@
 *   DASH Extension:
 *   Smooth Streaming Extension:
 *   RTSP Extension:
+    *   Skip empty session information values (i-tags) in SDP parsing
+        ([#1087](https://github.com/androidx/media/issues/1087)).
 *   Decoder Extensions (FFmpeg, VP9, AV1, MIDI, etc.):
 *   Leanback extension:
 *   Cast Extension:

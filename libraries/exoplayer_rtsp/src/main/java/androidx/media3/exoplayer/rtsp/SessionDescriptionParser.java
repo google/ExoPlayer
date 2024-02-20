@@ -26,6 +26,7 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.ParserException;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -35,6 +36,8 @@ import java.util.regex.Pattern;
   // SDP line always starts with an one letter tag, followed by an equal sign. The information
   // under the given tag follows an optional space.
   private static final Pattern SDP_LINE_PATTERN = Pattern.compile("([a-z])=\\s?(.+)");
+  // SDP line with a one letter tag, an equal sign, and an empty value.
+  private static final Pattern SDP_LINE_WITH_EMPTY_VALUE_PATTERN = Pattern.compile("^([a-z])=$");
   // Matches an attribute line (with a= sdp tag removed. Example: range:npt=0-50.0).
   // Attribute can also be a flag, i.e. without a value, like recvonly. Reference RFC4566 Section 9
   // Page 43, under "token-char".
@@ -81,6 +84,11 @@ import java.util.regex.Pattern;
 
       Matcher matcher = SDP_LINE_PATTERN.matcher(line);
       if (!matcher.matches()) {
+        Matcher sdpTagMatcher = SDP_LINE_WITH_EMPTY_VALUE_PATTERN.matcher(line);
+        if (sdpTagMatcher.matches() && Objects.equals(sdpTagMatcher.group(1), INFORMATION_TYPE)) {
+          // Allow and skip empty Session Information (tag 'i') attributes
+          continue;
+        }
         throw ParserException.createForMalformedManifest(
             "Malformed SDP line: " + line, /* cause= */ null);
       }

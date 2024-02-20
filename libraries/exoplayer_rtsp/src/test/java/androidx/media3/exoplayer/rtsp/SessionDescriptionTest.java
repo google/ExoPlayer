@@ -29,6 +29,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
 import android.net.Uri;
+import androidx.media3.common.ParserException;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -268,6 +269,38 @@ public class SessionDescriptionTest {
     assertThat(rtpMapAttribute.payloadType).isEqualTo(97);
     assertThat(rtpMapAttribute.mediaEncoding).isEqualTo("AC3");
     assertThat(rtpMapAttribute.clockRate).isEqualTo(44100);
+  }
+
+  @Test
+  public void parse_sdpStringWithEmptyInformationAttribute_succeeds() throws Exception {
+    String testMediaSdpInfo =
+        "v=0\r\n"
+            + "o=MNobody 2890844526 2890842807 IN IP4 192.0.2.46\r\n"
+            + "s=SDP Seminar\r\n"
+            + "i=\r\n"
+            + "t=0 0\r\n"
+            + "a=control:*\r\n"
+            + "m=audio 3456 RTP/AVP 0\r\n"
+            + "i=\r\n"
+            + "a=rtpmap:97 AC3/44100  \r\n";
+
+    SessionDescription sessionDescription = SessionDescriptionParser.parse(testMediaSdpInfo);
+
+    assertThat(sessionDescription.sessionInfo).isNull();
+    assertThat(sessionDescription.mediaDescriptionList.get(0).mediaTitle).isNull();
+  }
+
+  @Test
+  public void parse_sdpStringWithEmptySessionAttribute_throwsParserException() {
+    String testMediaSdpInfo =
+        "v=0\r\n"
+            + "o=MNobody 2890844526 2890842807 IN IP4 192.0.2.46\r\n"
+            + "s=\r\n"
+            + "a=control:*\r\n"
+            + "m=audio 3456 RTP/AVP 0\r\n"
+            + "a=rtpmap:97 AC3/44100  \r\n";
+
+    assertThrows(ParserException.class, () -> SessionDescriptionParser.parse(testMediaSdpInfo));
   }
 
   @Test
