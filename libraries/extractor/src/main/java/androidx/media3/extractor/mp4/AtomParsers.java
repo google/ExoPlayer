@@ -677,8 +677,11 @@ import java.util.Objects;
           track, offsets, sizes, maximumSize, timestamps, flags, durationUs);
     }
 
-    // Omit any sample at the end point of an edit for audio tracks.
-    boolean omitClippedSample = track.type == C.TRACK_TYPE_AUDIO;
+    // When applying edit lists, we need to include any partial clipped samples at the end to ensure
+    // the final output is rendered correctly (see https://github.com/google/ExoPlayer/issues/2408).
+    // For audio only, we can omit any sample that starts at exactly the end point of an edit as
+    // there is no partial audio in this case.
+    boolean omitZeroDurationClippedSample = track.type == C.TRACK_TYPE_AUDIO;
 
     // Count the number of samples after applying edits.
     int editedSampleCount = 0;
@@ -707,7 +710,7 @@ import java.util.Objects;
             Util.binarySearchCeil(
                 timestamps,
                 editMediaTime + editDuration,
-                /* inclusive= */ omitClippedSample,
+                /* inclusive= */ omitZeroDurationClippedSample,
                 /* stayInBounds= */ false);
         while (startIndices[i] < endIndices[i]
             && (flags[startIndices[i]] & C.BUFFER_FLAG_KEY_FRAME) == 0) {
