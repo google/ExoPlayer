@@ -20,11 +20,14 @@ import static com.google.android.exoplayer2.C.TRACK_TYPE_AUDIO;
 import static com.google.android.exoplayer2.C.TRACK_TYPE_VIDEO;
 import static com.google.android.exoplayer2.transformer.AssetLoader.SUPPORTED_OUTPUT_TYPE_DECODED;
 import static com.google.android.exoplayer2.transformer.AssetLoader.SUPPORTED_OUTPUT_TYPE_ENCODED;
+import static com.google.android.exoplayer2.transformer.Composition.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC;
+import static com.google.android.exoplayer2.transformer.ExoAssetLoaderVideoRenderer.getDecoderOutputColor;
 import static com.google.android.exoplayer2.transformer.ExportException.ERROR_CODE_FAILED_RUNTIME_CHECK;
 import static com.google.android.exoplayer2.transformer.ExportException.ERROR_CODE_MUXING_FAILED;
 import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STATE_AVAILABLE;
 import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STATE_NOT_STARTED;
 import static com.google.android.exoplayer2.transformer.TransformerUtil.getProcessedTrackType;
+import static com.google.android.exoplayer2.transformer.TransformerUtil.getValidColor;
 import static com.google.android.exoplayer2.transformer.TransformerUtil.maybeSetMuxerWrapperAdditionalRotationDegrees;
 import static com.google.android.exoplayer2.transformer.TransformerUtil.shouldTranscodeAudio;
 import static com.google.android.exoplayer2.transformer.TransformerUtil.shouldTranscodeVideo;
@@ -53,6 +56,7 @@ import com.google.android.exoplayer2.util.DebugViewProvider;
 import com.google.android.exoplayer2.util.HandlerWrapper;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.VideoFrameProcessor;
+import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.collect.ImmutableList;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -643,11 +647,18 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                 fallbackListener));
       } else {
         // TODO(b/267301878): Pass firstAssetLoaderOutputFormat once surface creation not in VSP.
+        boolean isMediaCodecToneMappingRequested =
+            transformationRequest.hdrMode == HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC;
+        ColorInfo decoderOutputColor =
+            getDecoderOutputColor(
+                getValidColor(firstAssetLoaderInputFormat.colorInfo),
+                isMediaCodecToneMappingRequested);
+
         assetLoaderInputTracker.registerSampleExporter(
             C.TRACK_TYPE_VIDEO,
             new VideoSampleExporter(
                 context,
-                firstAssetLoaderInputFormat,
+                firstAssetLoaderInputFormat.buildUpon().setColorInfo(decoderOutputColor).build(),
                 transformationRequest,
                 composition.videoCompositorSettings,
                 composition.effects.videoEffects,

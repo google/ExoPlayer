@@ -20,6 +20,7 @@ import static com.google.android.exoplayer2.transformer.SampleConsumer.INPUT_RES
 import static com.google.android.exoplayer2.transformer.SampleConsumer.INPUT_RESULT_TRY_AGAIN_LATER;
 import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STATE_AVAILABLE;
 import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STATE_NOT_STARTED;
+import static com.google.android.exoplayer2.transformer.TransformerUtil.getValidColor;
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static java.lang.Math.round;
@@ -87,7 +88,7 @@ public final class TextureAssetLoader implements AssetLoader {
     this.format =
         format
             .buildUpon()
-            .setColorInfo(VideoSampleExporter.getValidColor(format.colorInfo))
+            .setColorInfo(getValidColor(format.colorInfo))
             .setSampleMimeType(MimeTypes.VIDEO_RAW)
             .build();
     this.frameProcessedListener = frameProcessedListener;

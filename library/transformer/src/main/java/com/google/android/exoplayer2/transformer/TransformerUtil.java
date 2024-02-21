@@ -29,6 +29,7 @@ import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.mp4.SlowMotionData;
 import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.collect.ImmutableList;
 
 /**
@@ -215,5 +216,16 @@ import com.google.common.collect.ImmutableList;
       // is counterclockwise.
       muxerWrapper.setAdditionalRotationDegrees(360 - round(rotationDegrees));
     }
+  }
+
+  /**
+   * Adjust for invalid {@link ColorInfo} values, by defaulting to {@link
+   * ColorInfo#SDR_BT709_LIMITED}.
+   */
+  public static ColorInfo getValidColor(@Nullable ColorInfo colorInfo) {
+    if (colorInfo == null || !colorInfo.isDataSpaceValid()) {
+      return ColorInfo.SDR_BT709_LIMITED;
+    }
+    return colorInfo;
   }
 }
