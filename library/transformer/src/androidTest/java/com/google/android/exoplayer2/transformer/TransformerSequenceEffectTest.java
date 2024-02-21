@@ -256,6 +256,39 @@ public final class TransformerSequenceEffectTest {
         extractBitmapsFromVideo(context, checkNotNull(result.filePath)), testId);
   }
 
+  @Test
+  public void export_withBt601VideoAndBt709ImageMediaItems() throws Exception {
+    String testId = "export_withBt601VideoAndBt709ImageMediaItems";
+    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
+        context,
+        testId,
+        /* inputFormat= */ MP4_ASSET_FORMAT,
+        /* outputFormat= */ MP4_ASSET_FORMAT)) {
+      return;
+    }
+    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
+        context, testId, /* inputFormat= */ BT601_ASSET_FORMAT, /* outputFormat= */ null)) {
+      return;
+    }
+    Composition composition =
+        createComposition(
+            Presentation.createForHeight(EXPORT_HEIGHT),
+            clippedVideo(
+                BT601_ASSET_URI_STRING,
+                ImmutableList.of(RgbFilter.createInvertedFilter()),
+                SINGLE_30_FPS_VIDEO_FRAME_THRESHOLD_MS),
+            oneFrameFromImage(JPG_ASSET_URI_STRING, NO_EFFECT));
+
+    ExportTestResult result =
+        new TransformerAndroidTestRunner.Builder(context, new Transformer.Builder(context).build())
+            .build()
+            .run(testId, composition);
+
+    assertThat(result.filePath).isNotNull();
+    assertBitmapsMatchExpectedAndSave(
+        extractBitmapsFromVideo(context, checkNotNull(result.filePath)), testId);
+  }
+
   private static OverlayEffect createOverlayEffect() throws IOException {
     return new OverlayEffect(
         ImmutableList.of(
