@@ -50,6 +50,11 @@
 *   Cast Extension:
 *   Test Utilities:
     *   Implement `onInit()` and `onRelease()` in `FakeRenderer`.
+    *   Change `TestPlayerRunHelper.runUntil/playUntil` methods to fail on
+        non-fatal errors (e.g. those reported to
+        `AnalyticsListener.onVideoCodecError`). Use the new
+        `TestPlayerRunHelper.run(player).ignoringNonFatalErrors().untilXXX()`
+        method chain to disable this behavior.
 *   Remove deprecated symbols:
 *   Demo app:
 
