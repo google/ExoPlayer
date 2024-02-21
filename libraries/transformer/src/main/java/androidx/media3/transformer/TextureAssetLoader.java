@@ -22,6 +22,7 @@ import static androidx.media3.transformer.SampleConsumer.INPUT_RESULT_END_OF_STR
 import static androidx.media3.transformer.SampleConsumer.INPUT_RESULT_TRY_AGAIN_LATER;
 import static androidx.media3.transformer.Transformer.PROGRESS_STATE_AVAILABLE;
 import static androidx.media3.transformer.Transformer.PROGRESS_STATE_NOT_STARTED;
+import static androidx.media3.transformer.TransformerUtil.getValidColor;
 import static java.lang.Math.round;
 
 import androidx.annotation.Nullable;
@@ -83,7 +84,7 @@ public final class TextureAssetLoader implements AssetLoader {
     this.format =
         format
             .buildUpon()
-            .setColorInfo(VideoSampleExporter.getValidColor(format.colorInfo))
+            .setColorInfo(getValidColor(format.colorInfo))
             .setSampleMimeType(MimeTypes.VIDEO_RAW)
             .build();
     this.frameProcessedListener = frameProcessedListener;

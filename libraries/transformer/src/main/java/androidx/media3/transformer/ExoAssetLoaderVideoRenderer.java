@@ -83,7 +83,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   protected Format overrideOutputFormat(Format format) {
     // Gets the expected output color from the decoder, based on the input track format, if
     // tone-mapping is applied.
-    ColorInfo validColor = VideoSampleExporter.getValidColor(format.colorInfo);
+    ColorInfo validColor = TransformerUtil.getValidColor(format.colorInfo);
     boolean isDecoderToneMappingRequested =
         hdrMode == Composition.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC;
     ColorInfo outputColor = getDecoderOutputColor(validColor, isDecoderToneMappingRequested);

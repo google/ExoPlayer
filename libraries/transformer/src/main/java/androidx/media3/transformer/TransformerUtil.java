@@ -22,6 +22,7 @@ import static java.lang.Math.round;
 import android.media.MediaCodec;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
+import androidx.media3.common.ColorInfo;
 import androidx.media3.common.Effect;
 import androidx.media3.common.Format;
 import androidx.media3.common.Metadata;
@@ -207,5 +208,16 @@ import com.google.common.collect.ImmutableList;
       // is counterclockwise.
       muxerWrapper.setAdditionalRotationDegrees(360 - round(rotationDegrees));
     }
+  }
+
+  /**
+   * Adjust for invalid {@link ColorInfo} values, by defaulting to {@link
+   * ColorInfo#SDR_BT709_LIMITED}.
+   */
+  public static ColorInfo getValidColor(@Nullable ColorInfo colorInfo) {
+    if (colorInfo == null || !colorInfo.isDataSpaceValid()) {
+      return ColorInfo.SDR_BT709_LIMITED;
+    }
+    return colorInfo;
   }
 }

@@ -22,7 +22,6 @@ import static androidx.media3.common.ColorInfo.isTransferHdr;
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.transformer.Composition.HDR_MODE_KEEP_HDR;
-import static androidx.media3.transformer.Composition.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC;
 import static androidx.media3.transformer.Composition.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL;
 import static androidx.media3.transformer.EncoderUtil.getSupportedEncodersForHdrEditing;
 
@@ -74,18 +73,6 @@ import org.checkerframework.dataflow.qual.Pure;
 
   private boolean hasMuxedTimestampZero;
 
-  // TODO: b/307952514 - Move this method to a color utility.
-  /**
-   * Adjust for invalid {@link ColorInfo} values, by defaulting to {@link
-   * ColorInfo#SDR_BT709_LIMITED}.
-   */
-  public static ColorInfo getValidColor(@Nullable ColorInfo colorInfo) {
-    if (colorInfo == null || !colorInfo.isDataSpaceValid()) {
-      return ColorInfo.SDR_BT709_LIMITED;
-    }
-    return colorInfo;
-  }
-
   public VideoSampleExporter(
       Context context,
       Format firstInputFormat,
@@ -107,29 +94,20 @@ import org.checkerframework.dataflow.qual.Pure;
     this.initialTimestampOffsetUs = initialTimestampOffsetUs;
     finalFramePresentationTimeUs = C.TIME_UNSET;
 
-    ColorInfo decoderInputColor = getValidColor(firstInputFormat.colorInfo);
     encoderWrapper =
         new EncoderWrapper(
             encoderFactory,
-            firstInputFormat.buildUpon().setColorInfo(decoderInputColor).build(),
+            firstInputFormat,
             muxerWrapper.getSupportedSampleMimeTypes(C.TRACK_TYPE_VIDEO),
             transformationRequest,
             fallbackListener);
     encoderOutputBuffer =
         new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);
 
-    @Composition.HdrMode int hdrModeAfterFallback = encoderWrapper.getHdrModeAfterFallback();
-    boolean isMediaCodecToneMappingRequested =
-        hdrModeAfterFallback == HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC;
-    // TODO: b/278259383 - After solving the bug, we can use the decoder output format, and no
-    //  longer need to import this color conversion method.
-    ColorInfo videoGraphInputColor =
-        ExoAssetLoaderVideoRenderer.getDecoderOutputColor(
-            decoderInputColor, isMediaCodecToneMappingRequested);
-
+    ColorInfo videoGraphInputColor = checkNotNull(firstInputFormat.colorInfo);
     boolean isGlToneMapping =
-        hdrModeAfterFallback == HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL
-            && ColorInfo.isTransferHdr(decoderInputColor);
+        encoderWrapper.getHdrModeAfterFallback() == HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL
+            && ColorInfo.isTransferHdr(videoGraphInputColor);
     ColorInfo videoGraphOutputColor;
     if (videoGraphInputColor.colorTransfer == C.COLOR_TRANSFER_SRGB) {
       // The sRGB color transfer is only used for images, so when an image gets transcoded into a

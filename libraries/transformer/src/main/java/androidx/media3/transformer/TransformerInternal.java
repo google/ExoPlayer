@@ -23,11 +23,14 @@ import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Util.contains;
 import static androidx.media3.transformer.AssetLoader.SUPPORTED_OUTPUT_TYPE_DECODED;
 import static androidx.media3.transformer.AssetLoader.SUPPORTED_OUTPUT_TYPE_ENCODED;
+import static androidx.media3.transformer.Composition.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC;
+import static androidx.media3.transformer.ExoAssetLoaderVideoRenderer.getDecoderOutputColor;
 import static androidx.media3.transformer.ExportException.ERROR_CODE_FAILED_RUNTIME_CHECK;
 import static androidx.media3.transformer.ExportException.ERROR_CODE_MUXING_FAILED;
 import static androidx.media3.transformer.Transformer.PROGRESS_STATE_AVAILABLE;
 import static androidx.media3.transformer.Transformer.PROGRESS_STATE_NOT_STARTED;
 import static androidx.media3.transformer.TransformerUtil.getProcessedTrackType;
+import static androidx.media3.transformer.TransformerUtil.getValidColor;
 import static androidx.media3.transformer.TransformerUtil.maybeSetMuxerWrapperAdditionalRotationDegrees;
 import static androidx.media3.transformer.TransformerUtil.shouldTranscodeAudio;
 import static androidx.media3.transformer.TransformerUtil.shouldTranscodeVideo;
@@ -45,6 +48,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
+import androidx.media3.common.ColorInfo;
 import androidx.media3.common.DebugViewProvider;
 import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
@@ -642,11 +646,18 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                 fallbackListener));
       } else {
         // TODO(b/267301878): Pass firstAssetLoaderOutputFormat once surface creation not in VSP.
+        boolean isMediaCodecToneMappingRequested =
+            transformationRequest.hdrMode == HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC;
+        ColorInfo decoderOutputColor =
+            getDecoderOutputColor(
+                getValidColor(firstAssetLoaderInputFormat.colorInfo),
+                isMediaCodecToneMappingRequested);
+
         assetLoaderInputTracker.registerSampleExporter(
             C.TRACK_TYPE_VIDEO,
             new VideoSampleExporter(
                 context,
-                firstAssetLoaderInputFormat,
+                firstAssetLoaderInputFormat.buildUpon().setColorInfo(decoderOutputColor).build(),
                 transformationRequest,
                 composition.videoCompositorSettings,
                 composition.effects.videoEffects,
