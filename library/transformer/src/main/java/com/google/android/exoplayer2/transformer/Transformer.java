@@ -1512,10 +1512,10 @@ public final class Transformer {
   }
 
   private boolean doesFormatsMatch(Mp4Info mediaItemInfo, EditedMediaItem firstMediaItem) {
+    Format videoFormat = checkNotNull(remuxingMuxerWrapper).getTrackFormat(C.TRACK_TYPE_VIDEO);
     boolean videoFormatMatches =
-        checkNotNull(remuxingMuxerWrapper)
-            .getTrackFormat(C.TRACK_TYPE_VIDEO)
-            .initializationDataEquals(checkNotNull(mediaItemInfo.videoFormat));
+        MuxerWrapper.isInitializationDataCompatible(
+            videoFormat, checkNotNull(mediaItemInfo.videoFormat));
     boolean audioFormatMatches =
         mediaItemInfo.audioFormat == null
             || firstMediaItem.removeAudio

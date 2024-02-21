@@ -27,10 +27,14 @@ import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSE
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_URI_STRING;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_FORMAT;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING;
+import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_TRIM_OPTIMIZATION_PIXEL_URI_STRING;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.recordTestSkipped;
+import static com.google.android.exoplayer2.transformer.ExportResult.CONVERSION_PROCESS_TRANSMUXED_AND_TRANSCODED;
+import static com.google.android.exoplayer2.transformer.ExportResult.OPTIMIZATION_SUCCEEDED;
 import static com.google.android.exoplayer2.util.Util.SDK_INT;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assume.assumeFalse;
+import static org.junit.Assume.assumeTrue;
 
 import android.content.Context;
 import android.net.Uri;
@@ -381,5 +385,43 @@ public class ExportTest {
     new TransformerAndroidTestRunner.Builder(context, transformer)
         .build()
         .run(testId, editedMediaItem);
+  }
+
+  @Test
+  public void clippedMedia_trimOptimizationEnabled_pixel7Plus_completesWithOptimizationApplied()
+      throws Exception {
+    String testId =
+        TAG + "_clippedMedia_trimOptimizationEnabled_pixel_completesWithOptimizationApplied";
+    Context context = ApplicationProvider.getApplicationContext();
+    // Devices with Tensor G2 & G3 chipsets should work, but Pixel 7a is flaky.
+    assumeTrue(
+        Ascii.toLowerCase(Util.MODEL).contains("pixel")
+            && (Ascii.toLowerCase(Util.MODEL).contains("7")
+                || Ascii.toLowerCase(Util.MODEL).contains("8")
+                || Ascii.toLowerCase(Util.MODEL).contains("fold")
+                || Ascii.toLowerCase(Util.MODEL).contains("tablet")));
+    assumeFalse(Ascii.toLowerCase(Util.MODEL).contains("7a"));
+    Transformer transformer =
+        new Transformer.Builder(context).experimentalSetTrimOptimizationEnabled(true).build();
+    MediaItem mediaItem =
+        new MediaItem.Builder()
+            .setUri(MP4_TRIM_OPTIMIZATION_PIXEL_URI_STRING)
+            .setClippingConfiguration(
+                new MediaItem.ClippingConfiguration.Builder()
+                    .setStartPositionMs(500)
+                    .setEndPositionMs(1200)
+                    .build())
+            .build();
+    EditedMediaItem editedMediaItem = new EditedMediaItem.Builder(mediaItem).build();
+
+    ExportTestResult result =
+        new TransformerAndroidTestRunner.Builder(context, transformer)
+            .build()
+            .run(testId, editedMediaItem);
+
+    assertThat(result.exportResult.optimizationResult).isEqualTo(OPTIMIZATION_SUCCEEDED);
+    assertThat(result.exportResult.durationMs).isAtMost(700);
+    assertThat(result.exportResult.videoConversionProcess)
+        .isEqualTo(CONVERSION_PROCESS_TRANSMUXED_AND_TRANSCODED);
   }
 }

@@ -36,6 +36,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.effect.DebugTraceUtil;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.util.NalUnitUtil;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import java.io.File;
@@ -44,6 +45,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.Objects;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
@@ -155,6 +158,72 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   /**
+   * Returns whether the initialization data of two video formats can be muxed together.
+   *
+   * @param existingVideoTrackFormat The starting video format to compare.
+   * @param newVideoTrackFormat The candidate format of the video bitstream to be appended after the
+   *     existing format.
+   * @return {@code true} if both input formats can be muxed together in the same container.
+   */
+  public static boolean isInitializationDataCompatible(
+      Format existingVideoTrackFormat, Format newVideoTrackFormat) {
+    if (existingVideoTrackFormat.initializationDataEquals(newVideoTrackFormat)) {
+      return true;
+    }
+    if (!Objects.equals(newVideoTrackFormat.sampleMimeType, MimeTypes.VIDEO_H264)
+        || !Objects.equals(existingVideoTrackFormat.sampleMimeType, MimeTypes.VIDEO_H264)) {
+      return false;
+    }
+    // For H.264 we allow a different level number. This is not spec-compliant, but such videos are
+    // already common on Android. See, for example: {@link MediaFormat#KEY_LEVEL}.
+    // Android players are advised to support level mismatch between container
+    // and bitstream: see {@link android.media.MediaExtractor#getTrackFormat(int)}.
+    if (newVideoTrackFormat.initializationData.size() != 2
+        || existingVideoTrackFormat.initializationData.size() != 2) {
+      return false;
+    }
+    // Check picture parameter sets match.
+    if (!Arrays.equals(
+        newVideoTrackFormat.initializationData.get(1),
+        existingVideoTrackFormat.initializationData.get(1))) {
+      return false;
+    }
+    // Allow level_idc to be lower in the new stream.
+    // Note: the SPS doesn't need to be unescaped because it's not possible to have two
+    // consecutive 0 bytes at/before level_idc.
+    byte[] newSps = newVideoTrackFormat.initializationData.get(0);
+    byte[] existingSps = existingVideoTrackFormat.initializationData.get(0);
+    // Skip 3 bytes: NAL unit type, profile, and reserved fields.
+    int spsLevelIndex = NalUnitUtil.NAL_START_CODE.length + 3;
+    if (spsLevelIndex >= newSps.length) {
+      return false;
+    }
+    if (newSps.length != existingSps.length) {
+      return false;
+    }
+    for (int i = 0; i < newSps.length; i++) {
+      if (i != spsLevelIndex && newSps[i] != existingSps[i]) {
+        return false;
+      }
+    }
+    for (int i = 0; i < NalUnitUtil.NAL_START_CODE.length; i++) {
+      if (newSps[i] != NalUnitUtil.NAL_START_CODE[i]) {
+        return false;
+      }
+    }
+    int nalUnitTypeMask = 0x1F;
+    if ((newSps[NalUnitUtil.NAL_START_CODE.length] & nalUnitTypeMask)
+        != NalUnitUtil.NAL_UNIT_TYPE_SPS) {
+      return false;
+    }
+    // Check that H.264 profile is non-zero.
+    if (newSps[NalUnitUtil.NAL_START_CODE.length + 1] == 0) {
+      return false;
+    }
+    return true;
+  }
+
+  /**
    * Changes {@link MuxerMode} to {@link #MUXER_MODE_APPEND}.
    *
    * <p>This method must be called only after partial file is muxed using {@link
@@ -261,7 +330,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         checkArgument(areEqual(existingFormat.sampleMimeType, format.sampleMimeType));
         checkArgument(existingFormat.width == format.width);
         checkArgument(existingFormat.height == format.height);
-        checkArgument(existingFormat.initializationDataEquals(format));
+        checkArgument(isInitializationDataCompatible(existingFormat, format));
       } else if (trackType == C.TRACK_TYPE_AUDIO) {
         checkState(contains(trackTypeToInfo, C.TRACK_TYPE_AUDIO));
         TrackInfo audioTrackInfo = trackTypeToInfo.get(C.TRACK_TYPE_AUDIO);
