@@ -362,21 +362,25 @@ public class TestUtil {
     return Uri.parse("asset:///" + assetPath);
   }
 
-  /** Returns the {@linkplain Format track format} from the media file. */
+  /**
+   * Returns the {@link Format} for a given {@link C.TrackType} from a media file.
+   *
+   * <p>If more than one track is present for the given {@link C.TrackType} then only one track's
+   * {@link Format} is returned.
+   *
+   * @param context The {@link Context};
+   * @param filePath The media file path.
+   * @param trackType The {@link C.TrackType}.
+   * @return The {@link Format} for the given {@link C.TrackType}.
+   * @throws ExecutionException If an error occurred while retrieving file's metadata.
+   * @throws InterruptedException If interrupted while retrieving file's metadata.
+   */
   public static Format retrieveTrackFormat(
-      Context context, String filePath, @C.TrackType int trackType) {
+      Context context, String filePath, @C.TrackType int trackType)
+      throws ExecutionException, InterruptedException {
     TrackGroupArray trackGroupArray;
-    try {
-      trackGroupArray =
-          MetadataRetriever.retrieveMetadata(context, MediaItem.fromUri("file://" + filePath))
-              .get();
-    } catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
-      throw new IllegalStateException(e);
-    } catch (ExecutionException e) {
-      throw new IllegalStateException(e);
-    }
-
+    trackGroupArray =
+        MetadataRetriever.retrieveMetadata(context, MediaItem.fromUri("file://" + filePath)).get();
     for (int i = 0; i < trackGroupArray.length; i++) {
       TrackGroup trackGroup = trackGroupArray.get(i);
       if (trackGroup.type == trackType) {
