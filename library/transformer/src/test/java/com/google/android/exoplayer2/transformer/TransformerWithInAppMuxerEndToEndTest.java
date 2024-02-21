@@ -39,6 +39,7 @@ import com.google.android.exoplayer2.testutil.FakeExtractorOutput;
 import com.google.android.exoplayer2.text.DefaultSubtitleParserFactory;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.base.Predicate;
+import java.util.concurrent.ExecutionException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -273,7 +274,8 @@ public class TransformerWithInAppMuxerEndToEndTest {
    */
   @Nullable
   private static Metadata.Entry retrieveMetadata(
-      Context context, @Nullable String filePath, Predicate<Metadata.Entry> predicate) {
+      Context context, @Nullable String filePath, Predicate<Metadata.Entry> predicate)
+      throws ExecutionException, InterruptedException {
     Format videoTrackFormat = retrieveTrackFormat(context, filePath, C.TRACK_TYPE_VIDEO);
     @Nullable
     Metadata.Entry metadataEntryFromVideoTrack = findMetadataEntry(videoTrackFormat, predicate);
