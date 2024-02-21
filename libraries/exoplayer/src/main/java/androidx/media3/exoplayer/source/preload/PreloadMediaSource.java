@@ -368,7 +368,8 @@ public final class PreloadMediaSource extends WrappingMediaSource {
         Log.e(TAG, "Failed to select tracks", e);
       }
       if (trackSelectorResult != null) {
-        preloadMediaPeriod.selectTracksForPreloading(trackSelectorResult, periodStartPositionUs);
+        preloadMediaPeriod.selectTracksForPreloading(
+            trackSelectorResult.selections, periodStartPositionUs);
         if (preloadControl.onPrepared(PreloadMediaSource.this)) {
           preloadMediaPeriod.continueLoading(
               new LoadingInfo.Builder().setPlaybackPositionUs(periodStartPositionUs).build());

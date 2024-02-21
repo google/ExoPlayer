@@ -4,6 +4,8 @@
 
 *   Common Library:
 *   ExoPlayer:
+    *   Fix issue where `PreloadMediaPeriod` cannot retain the streams when it
+        is preloaded again.
 *   Transformer:
     *   Add `audioConversionProcess` and `videoConversionProcess` to
         `ExportResult` indicating how the respective track in the output file

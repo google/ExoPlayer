@@ -27,7 +27,6 @@ import androidx.media3.exoplayer.source.MediaPeriod;
 import androidx.media3.exoplayer.source.SampleStream;
 import androidx.media3.exoplayer.source.TrackGroupArray;
 import androidx.media3.exoplayer.trackselection.ExoTrackSelection;
-import androidx.media3.exoplayer.trackselection.TrackSelectorResult;
 import java.io.IOException;
 import java.util.Objects;
 
@@ -107,6 +106,16 @@ import java.util.Objects;
       @NullableType SampleStream[] streams,
       boolean[] streamResetFlags,
       long positionUs) {
+    return selectTracksInternal(
+        selections, mayRetainStreamFlags, streams, streamResetFlags, positionUs);
+  }
+
+  private long selectTracksInternal(
+      @NullableType ExoTrackSelection[] selections,
+      boolean[] mayRetainStreamFlags,
+      @NullableType SampleStream[] streams,
+      boolean[] streamResetFlags,
+      long positionUs) {
     if (preloadTrackSelectionHolder == null) {
       // No preload track selection was done.
       return mediaPeriod.selectTracks(
@@ -134,7 +143,7 @@ import java.util.Objects;
       preloadStreamResetFlags = new boolean[preloadStreamResetFlags.length];
       trackSelectionPositionUs =
           mediaPeriod.selectTracks(
-              holder.trackSelectorResult.selections,
+              holder.selections,
               holder.mayRetainStreamFlags,
               holder.streams,
               preloadStreamResetFlags,
@@ -157,8 +166,7 @@ import java.util.Objects;
       @NullableType ExoTrackSelection[] selections,
       PreloadTrackSelectionHolder preloadTrackSelectionHolder) {
     @NullableType
-    ExoTrackSelection[] preloadSelections =
-        checkNotNull(preloadTrackSelectionHolder).trackSelectorResult.selections;
+    ExoTrackSelection[] preloadSelections = checkNotNull(preloadTrackSelectionHolder).selections;
     boolean needsReselection = false;
     for (int i = 0; i < selections.length; i++) {
       ExoTrackSelection selection = selections[i];
@@ -169,15 +177,15 @@ import java.util.Objects;
       preloadTrackSelectionHolder.mayRetainStreamFlags[i] = false;
       if (selection == null) {
         // Preloaded track got disabled. Discard preloaded stream.
-        preloadTrackSelectionHolder.trackSelectorResult.selections[i] = null;
+        preloadTrackSelectionHolder.selections[i] = null;
         needsReselection = true;
       } else if (preloadSelection == null) {
         // Enabled track not preloaded. Update selection.
-        preloadTrackSelectionHolder.trackSelectorResult.selections[i] = selection;
+        preloadTrackSelectionHolder.selections[i] = selection;
         needsReselection = true;
       } else if (!isSameAdaptionSet(selection, preloadSelection)) {
         // Adaption set has changed. Discard preloaded stream.
-        preloadTrackSelectionHolder.trackSelectorResult.selections[i] = selection;
+        preloadTrackSelectionHolder.selections[i] = selection;
         needsReselection = true;
       } else if (selection.getTrackGroup().type == C.TRACK_TYPE_VIDEO
           || selection.getTrackGroup().type == C.TRACK_TYPE_AUDIO
@@ -188,7 +196,7 @@ import java.util.Objects;
         preloadTrackSelectionHolder.mayRetainStreamFlags[i] = true;
       } else {
         // The selection in a non-audio or non-video track has changed. Discard preloaded stream.
-        preloadTrackSelectionHolder.trackSelectorResult.selections[i] = selection;
+        preloadTrackSelectionHolder.selections[i] = selection;
         needsReselection = true;
       }
     }
@@ -210,20 +218,12 @@ import java.util.Objects;
   }
 
   /* package */ long selectTracksForPreloading(
-      TrackSelectorResult trackSelectorResult, long positionUs) {
-    @NullableType ExoTrackSelection[] selections = trackSelectorResult.selections;
+      @NullableType ExoTrackSelection[] selections, long positionUs) {
     @NullableType SampleStream[] preloadedSampleStreams = new SampleStream[selections.length];
     boolean[] preloadedStreamResetFlags = new boolean[selections.length];
     boolean[] mayRetainStreamFlags = new boolean[selections.length];
-    if (preloadTrackSelectionHolder != null) {
-      for (int i = 0; i < trackSelectorResult.length; i++) {
-        mayRetainStreamFlags[i] =
-            trackSelectorResult.isEquivalent(
-                checkNotNull(preloadTrackSelectionHolder).trackSelectorResult, i);
-      }
-    }
     long trackSelectionPositionUs =
-        mediaPeriod.selectTracks(
+        selectTracksInternal(
             selections,
             mayRetainStreamFlags,
             preloadedSampleStreams,
@@ -231,7 +231,7 @@ import java.util.Objects;
             positionUs);
     preloadTrackSelectionHolder =
         new PreloadTrackSelectionHolder(
-            trackSelectorResult,
+            selections,
             mayRetainStreamFlags,
             preloadedSampleStreams,
             preloadedStreamResetFlags,
@@ -285,19 +285,19 @@ import java.util.Objects;
   }
 
   private static class PreloadTrackSelectionHolder {
-    public final TrackSelectorResult trackSelectorResult;
+    public final @NullableType ExoTrackSelection[] selections;
     public final boolean[] mayRetainStreamFlags;
     public final @NullableType SampleStream[] streams;
     public final boolean[] streamResetFlags;
     public final long trackSelectionPositionUs;
 
     public PreloadTrackSelectionHolder(
-        TrackSelectorResult trackSelectorResult,
+        @NullableType ExoTrackSelection[] selections,
         boolean[] mayRetainStreamFlags,
         @NullableType SampleStream[] streams,
         boolean[] streamResetFlags,
         long trackSelectionPositionUs) {
-      this.trackSelectorResult = trackSelectorResult;
+      this.selections = selections;
       this.mayRetainStreamFlags = mayRetainStreamFlags;
       this.streams = streams;
       this.streamResetFlags = streamResetFlags;
