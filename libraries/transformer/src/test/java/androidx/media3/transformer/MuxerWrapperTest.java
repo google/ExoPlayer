@@ -17,6 +17,7 @@ package androidx.media3.transformer;
 
 import static androidx.media3.common.MimeTypes.AUDIO_AAC;
 import static androidx.media3.common.MimeTypes.VIDEO_H264;
+import static androidx.media3.common.MimeTypes.VIDEO_H265;
 import static androidx.media3.transformer.MuxerWrapper.MUXER_MODE_DEFAULT;
 import static androidx.media3.transformer.MuxerWrapper.MUXER_MODE_MUX_PARTIAL;
 import static androidx.media3.transformer.TestUtil.getDumpFileName;
@@ -333,6 +334,107 @@ public class MuxerWrapperTest {
     muxerWrapper.addTrackFormat(FAKE_VIDEO_TRACK_FORMAT);
 
     assertThat(muxerWrapper.isEnded()).isFalse();
+  }
+
+  @Test
+  public void isInitializationDataCompatible_h265_differentCSD_returnsFalse() {
+    Format existingFormat =
+        new Format.Builder()
+            .setSampleMimeType(VIDEO_H265)
+            .setInitializationData(ImmutableList.of(new byte[] {1, 2, 3, 0}))
+            .build();
+    Format otherFormat =
+        new Format.Builder()
+            .setSampleMimeType(VIDEO_H265)
+            .setInitializationData(ImmutableList.of(new byte[] {1, 2, 3, 4}))
+            .build();
+
+    assertThat(MuxerWrapper.isInitializationDataCompatible(existingFormat, otherFormat)).isFalse();
+  }
+
+  @Test
+  public void isInitializationDataCompatible_h265_matchingCSD_returnsTrue() {
+    Format existingFormat =
+        new Format.Builder()
+            .setSampleMimeType(VIDEO_H265)
+            .setInitializationData(ImmutableList.of(new byte[] {1, 2, 3, 4}))
+            .build();
+    Format otherFormat =
+        new Format.Builder()
+            .setSampleMimeType(VIDEO_H265)
+            .setInitializationData(ImmutableList.of(new byte[] {1, 2, 3, 4}))
+            .build();
+
+    assertThat(MuxerWrapper.isInitializationDataCompatible(existingFormat, otherFormat)).isTrue();
+  }
+
+  @Test
+  public void isInitializationDataCompatible_h264_matchingCSD_returnsTrue() {
+    Format existingFormat =
+        new Format.Builder()
+            .setSampleMimeType(VIDEO_H264)
+            .setInitializationData(ImmutableList.of(new byte[] {1, 2, 3, 4}))
+            .build();
+    Format otherFormat =
+        new Format.Builder()
+            .setSampleMimeType(VIDEO_H264)
+            .setInitializationData(ImmutableList.of(new byte[] {1, 2, 3, 4}))
+            .build();
+
+    assertThat(MuxerWrapper.isInitializationDataCompatible(existingFormat, otherFormat)).isTrue();
+  }
+
+  @Test
+  public void isInitializationDataCompatible_h264_ignoresLevel_returnsTrue() {
+    Format existingFormat =
+        new Format.Builder()
+            .setSampleMimeType(VIDEO_H264)
+            .setInitializationData(
+                ImmutableList.of(new byte[] {0, 0, 0, 1, 103, 100, 0, 40}, new byte[] {0, 0, 0, 1}))
+            .build();
+    Format otherFormat =
+        new Format.Builder()
+            .setSampleMimeType(VIDEO_H264)
+            .setInitializationData(
+                ImmutableList.of(new byte[] {0, 0, 0, 1, 103, 100, 0, 41}, new byte[] {0, 0, 0, 1}))
+            .build();
+
+    assertThat(MuxerWrapper.isInitializationDataCompatible(existingFormat, otherFormat)).isTrue();
+  }
+
+  @Test
+  public void isInitializationDataCompatible_h264_mismatchProfile_returnsFalse() {
+    Format existingFormat =
+        new Format.Builder()
+            .setSampleMimeType(VIDEO_H264)
+            .setInitializationData(
+                ImmutableList.of(new byte[] {0, 0, 0, 1, 103, 110, 0, 41}, new byte[] {0, 0, 0, 1}))
+            .build();
+    Format otherFormat =
+        new Format.Builder()
+            .setSampleMimeType(VIDEO_H264)
+            .setInitializationData(
+                ImmutableList.of(new byte[] {0, 0, 0, 1, 103, 100, 0, 41}, new byte[] {0, 0, 0, 1}))
+            .build();
+
+    assertThat(MuxerWrapper.isInitializationDataCompatible(existingFormat, otherFormat)).isFalse();
+  }
+
+  @Test
+  public void isInitializationDataCompatible_h264_missingMimeType_returnsFalse() {
+    Format existingFormat =
+        new Format.Builder()
+            .setSampleMimeType(VIDEO_H264)
+            .setInitializationData(
+                ImmutableList.of(new byte[] {0, 0, 0, 1, 103, 100, 0, 40}, new byte[] {0, 0, 0, 1}))
+            .build();
+    Format otherFormat =
+        new Format.Builder()
+            .setInitializationData(
+                ImmutableList.of(new byte[] {0, 0, 0, 1, 103, 100, 0, 41}, new byte[] {0, 0, 0, 1}))
+            .build();
+
+    assertThat(MuxerWrapper.isInitializationDataCompatible(existingFormat, otherFormat)).isFalse();
   }
 
   private static final class NoOpMuxerListenerImpl implements MuxerWrapper.Listener {
