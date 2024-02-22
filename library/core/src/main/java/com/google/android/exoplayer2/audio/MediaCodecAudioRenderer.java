@@ -744,7 +744,13 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       fullyConsumed = audioSink.handleBuffer(buffer, bufferPresentationTimeUs, sampleCount);
     } catch (InitializationException e) {
       throw createRendererException(
-          e, inputFormat, e.isRecoverable, PlaybackException.ERROR_CODE_AUDIO_TRACK_INIT_FAILED);
+          e,
+          inputFormat,
+          e.isRecoverable,
+          isBypassEnabled()
+                  && getConfiguration().offloadModePreferred != AudioSink.OFFLOAD_MODE_DISABLED
+              ? PlaybackException.ERROR_CODE_AUDIO_TRACK_OFFLOAD_INIT_FAILED
+              : PlaybackException.ERROR_CODE_AUDIO_TRACK_INIT_FAILED);
     } catch (WriteException e) {
       throw createRendererException(
           e,
