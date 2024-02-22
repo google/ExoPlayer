@@ -30,6 +30,7 @@ import android.media.MediaCodec;
 import androidx.media3.common.C;
 import androidx.media3.common.ColorInfo;
 import androidx.media3.common.Format;
+import androidx.media3.container.Mp4LocationData;
 import androidx.media3.muxer.FragmentedMp4Writer.SampleMetadata;
 import androidx.media3.test.utils.DumpFileAsserts;
 import androidx.media3.test.utils.DumpableMp4Box;
@@ -162,7 +163,7 @@ public class BoxesTest {
 
   @Test
   public void createUdtaBox_matchesExpected() throws IOException {
-    Mp4Location mp4Location = new Mp4Location(33.0f, -120f);
+    Mp4LocationData mp4Location = new Mp4LocationData(33.0f, -120f);
 
     ByteBuffer udtaBox = Boxes.udta(mp4Location);
 

@@ -18,6 +18,7 @@ package androidx.media3.muxer;
 import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.container.Mp4TimestampData.unixTimeToMp4TimeSeconds;
 
+import androidx.media3.container.Mp4LocationData;
 import androidx.media3.container.Mp4TimestampData;
 import java.nio.ByteBuffer;
 import java.util.LinkedHashMap;
@@ -27,7 +28,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 /** Collects and provides metadata: location, FPS, XMP data, etc. */
 /* package */ final class MetadataCollector {
   public int orientation;
-  public @MonotonicNonNull Mp4Location location;
+  public @MonotonicNonNull Mp4LocationData locationData;
   public Map<String, Object> metadataPairs;
   public Mp4TimestampData timestampData;
   public @MonotonicNonNull ByteBuffer xmpData;
@@ -52,7 +53,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   public void setLocation(float latitude, float longitude) {
-    location = new Mp4Location(latitude, longitude);
+    locationData = new Mp4LocationData(latitude, longitude);
   }
 
   public void setCaptureFps(float captureFps) {

@@ -32,6 +32,7 @@ import androidx.media3.common.ColorInfo;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.Util;
+import androidx.media3.container.Mp4LocationData;
 import androidx.media3.container.NalUnitUtil;
 import androidx.media3.muxer.FragmentedMp4Writer.SampleMetadata;
 import com.google.common.collect.ImmutableList;
@@ -360,7 +361,7 @@ import java.util.Locale;
    *
    * <p>This box contains user data like location info.
    */
-  public static ByteBuffer udta(@Nullable Mp4Location location) {
+  public static ByteBuffer udta(@Nullable Mp4LocationData location) {
     // We can just omit the entire box if there is no location info available.
     if (location == null) {
       return ByteBuffer.allocate(0);
