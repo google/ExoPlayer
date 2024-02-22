@@ -1801,12 +1801,17 @@ import java.util.concurrent.atomic.AtomicBoolean;
     MediaPeriodHolder readingPeriodHolder = queue.getReadingPeriod();
     boolean selectionsChangedForReadPeriod = true;
     TrackSelectorResult newTrackSelectorResult;
+    // Keep playing period result in case of track selection change for reading period only.
+    TrackSelectorResult newPlayingPeriodTrackSelectorResult = null;
     while (true) {
       if (periodHolder == null || !periodHolder.prepared) {
         // The reselection did not change any prepared periods.
         return;
       }
       newTrackSelectorResult = periodHolder.selectTracks(playbackSpeed, playbackInfo.timeline);
+      if (periodHolder == queue.getPlayingPeriod()) {
+        newPlayingPeriodTrackSelectorResult = newTrackSelectorResult;
+      }
       if (!newTrackSelectorResult.isEquivalent(periodHolder.getTrackSelectorResult())) {
         // Selected tracks have changed for this period.
         break;
@@ -1826,7 +1831,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
       boolean[] streamResetFlags = new boolean[renderers.length];
       long periodPositionUs =
           playingPeriodHolder.applyTrackSelection(
-              newTrackSelectorResult, playbackInfo.positionUs, recreateStreams, streamResetFlags);
+              checkNotNull(newPlayingPeriodTrackSelectorResult),
+              playbackInfo.positionUs,
+              recreateStreams,
+              streamResetFlags);
       boolean hasDiscontinuity =
           playbackInfo.playbackState != Player.STATE_ENDED
               && periodPositionUs != playbackInfo.positionUs;

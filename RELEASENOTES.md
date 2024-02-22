@@ -6,6 +6,8 @@
 *   ExoPlayer:
     *   Fix issue where `PreloadMediaPeriod` cannot retain the streams when it
         is preloaded again.
+    *   Apply the correct corresponding `TrackSelectionResult` to the playing
+        period in track reselection.
 *   Transformer:
     *   Add `audioConversionProcess` and `videoConversionProcess` to
         `ExportResult` indicating how the respective track in the output file
