@@ -29,6 +29,7 @@ import android.media.MediaCodec.BufferInfo;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.container.Mp4LocationData;
 import com.google.android.exoplayer2.muxer.FragmentedMp4Writer.SampleMetadata;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.NalUnitUtil;
@@ -366,7 +367,7 @@ import java.util.Locale;
    *
    * <p>This box contains user data like location info.
    */
-  public static ByteBuffer udta(@Nullable Mp4Location location) {
+  public static ByteBuffer udta(@Nullable Mp4LocationData location) {
     // We can just omit the entire box if there is no location info available.
     if (location == null) {
       return ByteBuffer.allocate(0);

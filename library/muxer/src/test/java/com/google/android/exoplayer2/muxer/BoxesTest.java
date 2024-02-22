@@ -31,6 +31,7 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.container.Mp4LocationData;
 import com.google.android.exoplayer2.muxer.FragmentedMp4Writer.SampleMetadata;
 import com.google.android.exoplayer2.testutil.DumpFileAsserts;
 import com.google.android.exoplayer2.testutil.DumpableMp4Box;
@@ -162,7 +163,7 @@ public class BoxesTest {
 
   @Test
   public void createUdtaBox_matchesExpected() throws IOException {
-    Mp4Location mp4Location = new Mp4Location(33.0f, -120f);
+    Mp4LocationData mp4Location = new Mp4LocationData(33.0f, -120f);
 
     ByteBuffer udtaBox = Boxes.udta(mp4Location);
 

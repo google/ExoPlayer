@@ -186,7 +186,7 @@ import org.checkerframework.checker.nullness.qual.PolyNull;
     ByteBuffer mvhdBox =
         Boxes.mvhd(
             nextTrackId, creationTimestampSeconds, modificationTimestampSeconds, videoDurationUs);
-    ByteBuffer udtaBox = Boxes.udta(metadataCollector.location);
+    ByteBuffer udtaBox = Boxes.udta(metadataCollector.locationData);
     ByteBuffer metaBox =
         metadataCollector.metadataPairs.isEmpty()
             ? ByteBuffer.allocate(0)
