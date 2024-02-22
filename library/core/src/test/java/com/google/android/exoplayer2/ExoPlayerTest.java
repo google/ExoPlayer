@@ -120,6 +120,7 @@ import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.MetadataOutput;
 import com.google.android.exoplayer2.metadata.id3.BinaryFrame;
 import com.google.android.exoplayer2.metadata.id3.TextInformationFrame;
+import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.robolectric.ShadowMediaCodecConfig;
 import com.google.android.exoplayer2.robolectric.TestPlayerRunHelper;
 import com.google.android.exoplayer2.source.ClippingMediaSource;
@@ -130,6 +131,7 @@ import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.MediaSourceEventListener;
+import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.source.ShuffleOrder;
 import com.google.android.exoplayer2.source.SinglePeriodTimeline;
 import com.google.android.exoplayer2.source.TrackGroup;
@@ -162,6 +164,8 @@ import com.google.android.exoplayer2.testutil.FakeTrackSelector;
 import com.google.android.exoplayer2.testutil.FakeVideoRenderer;
 import com.google.android.exoplayer2.testutil.TestExoPlayerBuilder;
 import com.google.android.exoplayer2.text.TextOutput;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
+import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionParameters;
 import com.google.android.exoplayer2.trackselection.TrackSelectionParameters.AudioOffloadPreferences;
 import com.google.android.exoplayer2.upstream.Allocation;
@@ -172,6 +176,7 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.HandlerWrapper;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.util.NullableType;
 import com.google.android.exoplayer2.util.SystemClock;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
@@ -1398,6 +1403,88 @@ public final class ExoPlayerTest {
     // expect two track selections, one of which will have been enabled twice.
     assertThat(createdTrackSelections).hasSize(2);
     assertThat(numSelectionsEnabled).isEqualTo(3);
+  }
+
+  @Test
+  public void setTrackSelectionParameters_onlyAffectingReadingPeriodMediaItem_selectsCorrectTracks()
+      throws Exception {
+    Format audioFormat1 =
+        ExoPlayerTestRunner.AUDIO_FORMAT.buildUpon().setAverageBitrate(50_000).build();
+    Format audioFormat2 = audioFormat1.buildUpon().setAverageBitrate(100_000).build();
+    Format audioFormat3 = audioFormat1.buildUpon().setAverageBitrate(60_000).build();
+    DefaultTrackSelector defaultTrackSelector = new DefaultTrackSelector(context);
+    defaultTrackSelector.setParameters(
+        defaultTrackSelector
+            .buildUponParameters()
+            .setExceedAudioConstraintsIfNecessary(false)
+            .build());
+    Timeline timeline = new FakeTimeline();
+    AtomicInteger createMediaPeriodCounter = new AtomicInteger();
+    AtomicReference<ExoTrackSelection[]> exoTrackSelectionAtomicReferenceMediaItem1 =
+        new AtomicReference<>();
+    AtomicReference<ExoTrackSelection[]> exoTrackSelectionAtomicReferenceMediaItem2 =
+        new AtomicReference<>();
+    ExoPlayer player =
+        new TestExoPlayerBuilder(context).setTrackSelector(defaultTrackSelector).build();
+    player.addMediaSources(
+        ImmutableList.of(
+            new FakeMediaSource(timeline, audioFormat1) {
+              @Override
+              public MediaPeriod createPeriod(
+                  MediaPeriodId id, Allocator allocator, long startPositionUs) {
+                return new ForwardingMediaPeriod(
+                    super.createPeriod(id, allocator, startPositionUs),
+                    exoTrackSelectionAtomicReferenceMediaItem1);
+              }
+
+              @Override
+              public void releasePeriod(MediaPeriod mediaPeriod) {
+                if (mediaPeriod instanceof ForwardingMediaPeriod) {
+                  super.releasePeriod(((ForwardingMediaPeriod) mediaPeriod).mediaPeriod);
+                } else {
+                  super.releasePeriod(mediaPeriod);
+                }
+              }
+            },
+            new FakeMediaSource(timeline, audioFormat2, audioFormat3) {
+              @Override
+              public MediaPeriod createPeriod(
+                  MediaPeriodId id, Allocator allocator, long startPositionUs) {
+                createMediaPeriodCounter.getAndIncrement();
+                return new ForwardingMediaPeriod(
+                    super.createPeriod(id, allocator, startPositionUs),
+                    exoTrackSelectionAtomicReferenceMediaItem2);
+              }
+
+              @Override
+              public void releasePeriod(MediaPeriod mediaPeriod) {
+                if (mediaPeriod instanceof ForwardingMediaPeriod) {
+                  super.releasePeriod(((ForwardingMediaPeriod) mediaPeriod).mediaPeriod);
+                } else {
+                  super.releasePeriod(mediaPeriod);
+                }
+              }
+            }));
+    player.prepare();
+
+    TestPlayerRunHelper.playUntilPosition(
+        player, /* mediaItemIndex= */ 0, /* positionMs= */ 5 * C.MICROS_PER_SECOND);
+    assertThat(exoTrackSelectionAtomicReferenceMediaItem2.get()[1]).isNotNull();
+    assertThat(exoTrackSelectionAtomicReferenceMediaItem2.get()[1].getFormat(0))
+        .isEqualTo(audioFormat2);
+    // Alter track selection parameters to invalidate track selection on second media item only.
+    player.setTrackSelectionParameters(
+        player.getTrackSelectionParameters().buildUpon().setMaxAudioBitrate(70_000).build());
+    TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_ENDED);
+    player.release();
+
+    assertThat(createMediaPeriodCounter.get()).isEqualTo(2);
+    assertThat(exoTrackSelectionAtomicReferenceMediaItem1.get()[1]).isNotNull();
+    assertThat(exoTrackSelectionAtomicReferenceMediaItem1.get()[1].getFormat(0))
+        .isEqualTo(audioFormat1);
+    assertThat(exoTrackSelectionAtomicReferenceMediaItem2.get()[1]).isNotNull();
+    assertThat(exoTrackSelectionAtomicReferenceMediaItem2.get()[1].getFormat(0))
+        .isEqualTo(audioFormat3);
   }
 
   @Test
@@ -14550,6 +14637,100 @@ public final class ExoPlayerTest {
         return playbackParameters;
       }
       return PlaybackParameters.DEFAULT;
+    }
+  }
+
+  /** Forwarding {@link MediaPeriod} class with tracked reference for {@link #selectTracks}. */
+  private static final class ForwardingMediaPeriod implements MediaPeriod {
+
+    /** The wrapped {@link MediaPeriod} that method calls are forwarded to. */
+    public final MediaPeriod mediaPeriod;
+
+    /** Reference to last tracks selected through {@linkplain #selectTracks}. */
+    public final AtomicReference<ExoTrackSelection[]> exoTrackSelectionReferenceList;
+
+    public ForwardingMediaPeriod(
+        MediaPeriod mediaPeriod,
+        AtomicReference<ExoTrackSelection[]> exoTrackSelectionReferenceList) {
+      this.mediaPeriod = mediaPeriod;
+      this.exoTrackSelectionReferenceList = exoTrackSelectionReferenceList;
+    }
+
+    @Override
+    public void prepare(Callback callback, long positionUs) {
+      mediaPeriod.prepare(callback, positionUs);
+    }
+
+    @Override
+    public void maybeThrowPrepareError() throws IOException {
+      mediaPeriod.maybeThrowPrepareError();
+    }
+
+    @Override
+    public TrackGroupArray getTrackGroups() {
+      return mediaPeriod.getTrackGroups();
+    }
+
+    @Override
+    public List<StreamKey> getStreamKeys(List<ExoTrackSelection> trackSelections) {
+      return mediaPeriod.getStreamKeys(trackSelections);
+    }
+
+    @Override
+    public long selectTracks(
+        @NullableType ExoTrackSelection[] selections,
+        boolean[] mayRetainStreamFlags,
+        @NullableType SampleStream[] streams,
+        boolean[] streamResetFlags,
+        long positionUs) {
+      exoTrackSelectionReferenceList.set(selections);
+      return mediaPeriod.selectTracks(
+          selections, mayRetainStreamFlags, streams, streamResetFlags, positionUs);
+    }
+
+    @Override
+    public void discardBuffer(long positionUs, boolean toKeyframe) {
+      mediaPeriod.discardBuffer(positionUs, toKeyframe);
+    }
+
+    @Override
+    public long readDiscontinuity() {
+      return mediaPeriod.readDiscontinuity();
+    }
+
+    @Override
+    public long seekToUs(long positionUs) {
+      return mediaPeriod.seekToUs(positionUs);
+    }
+
+    @Override
+    public long getAdjustedSeekPositionUs(long positionUs, SeekParameters seekParameters) {
+      return mediaPeriod.getAdjustedSeekPositionUs(positionUs, seekParameters);
+    }
+
+    @Override
+    public long getBufferedPositionUs() {
+      return mediaPeriod.getBufferedPositionUs();
+    }
+
+    @Override
+    public long getNextLoadPositionUs() {
+      return mediaPeriod.getNextLoadPositionUs();
+    }
+
+    @Override
+    public boolean continueLoading(LoadingInfo loadingInfo) {
+      return mediaPeriod.continueLoading(loadingInfo);
+    }
+
+    @Override
+    public boolean isLoading() {
+      return mediaPeriod.isLoading();
+    }
+
+    @Override
+    public void reevaluateBuffer(long positionUs) {
+      mediaPeriod.reevaluateBuffer(positionUs);
     }
   }
 
