@@ -28,7 +28,9 @@ import androidx.media3.extractor.ExtractorInput;
 import androidx.media3.extractor.ExtractorOutput;
 import androidx.media3.extractor.ExtractorsFactory;
 import androidx.media3.extractor.PositionHolder;
+import androidx.media3.extractor.SniffFailure;
 import androidx.media3.extractor.mp3.Mp3Extractor;
+import com.google.common.collect.ImmutableList;
 import java.io.EOFException;
 import java.io.IOException;
 import java.util.List;
@@ -70,6 +72,8 @@ public final class BundledExtractorsAdapter implements ProgressiveMediaExtractor
       return;
     }
     Extractor[] extractors = extractorsFactory.createExtractors(uri, responseHeaders);
+    ImmutableList.Builder<SniffFailure> sniffFailures =
+        ImmutableList.builderWithExpectedSize(extractors.length);
     if (extractors.length == 1) {
       this.extractor = extractors[0];
     } else {
@@ -78,6 +82,9 @@ public final class BundledExtractorsAdapter implements ProgressiveMediaExtractor
           if (extractor.sniff(extractorInput)) {
             this.extractor = extractor;
             break;
+          } else {
+            List<SniffFailure> sniffFailureDetails = extractor.getSniffFailureDetails();
+            sniffFailures.addAll(sniffFailureDetails);
           }
         } catch (EOFException e) {
           // Do nothing.
@@ -91,7 +98,8 @@ public final class BundledExtractorsAdapter implements ProgressiveMediaExtractor
             "None of the available extractors ("
                 + Util.getCommaDelimitedSimpleClassNames(extractors)
                 + ") could read the stream.",
-            Assertions.checkNotNull(uri));
+            Assertions.checkNotNull(uri),
+            sniffFailures.build());
       }
     }
     extractor.init(output);

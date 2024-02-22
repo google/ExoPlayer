@@ -49,6 +49,7 @@ import androidx.media3.extractor.ExtractorsFactory;
 import androidx.media3.extractor.GaplessInfoHolder;
 import androidx.media3.extractor.PositionHolder;
 import androidx.media3.extractor.SeekMap;
+import androidx.media3.extractor.SniffFailure;
 import androidx.media3.extractor.TrackOutput;
 import androidx.media3.extractor.metadata.emsg.EventMessage;
 import androidx.media3.extractor.metadata.emsg.EventMessageEncoder;
@@ -187,6 +188,7 @@ public class FragmentedMp4Extractor implements Extractor {
   private final ArrayDeque<MetadataSampleInfo> pendingMetadataSampleInfos;
   @Nullable private final TrackOutput additionalEmsgTrackOutput;
 
+  private ImmutableList<SniffFailure> lastSniffFailures;
   private int parserState;
   private int atomType;
   private long atomSize;
@@ -383,6 +385,7 @@ public class FragmentedMp4Extractor implements Extractor {
     containerAtoms = new ArrayDeque<>();
     pendingMetadataSampleInfos = new ArrayDeque<>();
     trackBundles = new SparseArray<>();
+    lastSniffFailures = ImmutableList.of();
     durationUs = C.TIME_UNSET;
     pendingSeekTimeUs = C.TIME_UNSET;
     segmentIndexEarliestPresentationTimeUs = C.TIME_UNSET;
@@ -393,7 +396,14 @@ public class FragmentedMp4Extractor implements Extractor {
 
   @Override
   public boolean sniff(ExtractorInput input) throws IOException {
-    return Sniffer.sniffFragmented(input);
+    @Nullable SniffFailure sniffFailure = Sniffer.sniffFragmented(input);
+    lastSniffFailures = sniffFailure != null ? ImmutableList.of(sniffFailure) : ImmutableList.of();
+    return sniffFailure == null;
+  }
+
+  @Override
+  public ImmutableList<SniffFailure> getSniffFailureDetails() {
+    return lastSniffFailures;
   }
 
   @Override

@@ -45,6 +45,7 @@ import androidx.media3.extractor.GaplessInfoHolder;
 import androidx.media3.extractor.PositionHolder;
 import androidx.media3.extractor.SeekMap;
 import androidx.media3.extractor.SeekPoint;
+import androidx.media3.extractor.SniffFailure;
 import androidx.media3.extractor.TrackOutput;
 import androidx.media3.extractor.TrueHdSampleRechunker;
 import androidx.media3.extractor.metadata.mp4.MotionPhotoMetadata;
@@ -52,6 +53,7 @@ import androidx.media3.extractor.metadata.mp4.SlowMotionData;
 import androidx.media3.extractor.mp4.Atom.ContainerAtom;
 import androidx.media3.extractor.text.SubtitleParser;
 import androidx.media3.extractor.text.SubtitleTranscodingExtractorOutput;
+import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -182,6 +184,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
   private final SefReader sefReader;
   private final List<Metadata.Entry> slowMotionMetadataEntries;
 
+  private ImmutableList<SniffFailure> lastSniffFailures;
   private @State int parserState;
   private int atomType;
   private long atomSize;
@@ -241,6 +244,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
   public Mp4Extractor(SubtitleParser.Factory subtitleParserFactory, @Flags int flags) {
     this.subtitleParserFactory = subtitleParserFactory;
     this.flags = flags;
+    lastSniffFailures = ImmutableList.of();
     parserState =
         ((flags & FLAG_READ_SEF_DATA) != 0) ? STATE_READING_SEF : STATE_READING_ATOM_HEADER;
     sefReader = new SefReader();
@@ -257,8 +261,17 @@ public final class Mp4Extractor implements Extractor, SeekMap {
 
   @Override
   public boolean sniff(ExtractorInput input) throws IOException {
-    return Sniffer.sniffUnfragmented(
-        input, /* acceptHeic= */ (flags & FLAG_READ_MOTION_PHOTO_METADATA) != 0);
+    @Nullable
+    SniffFailure sniffFailure =
+        Sniffer.sniffUnfragmented(
+            input, /* acceptHeic= */ (flags & FLAG_READ_MOTION_PHOTO_METADATA) != 0);
+    lastSniffFailures = sniffFailure != null ? ImmutableList.of(sniffFailure) : ImmutableList.of();
+    return sniffFailure == null;
+  }
+
+  @Override
+  public ImmutableList<SniffFailure> getSniffFailureDetails() {
+    return lastSniffFailures;
   }
 
   @Override

@@ -33,9 +33,12 @@ import org.robolectric.ParameterizedRobolectricTestRunner;
 import org.robolectric.ParameterizedRobolectricTestRunner.Parameter;
 import org.robolectric.ParameterizedRobolectricTestRunner.Parameters;
 
-/** Tests for {@link FragmentedMp4Extractor} that test behaviours where sniffing must be tested. */
+/**
+ * Tests for {@link FragmentedMp4Extractor} that test behaviours where sniffing must be tested using
+ * parameterization and {@link ExtractorAsserts}.
+ */
 @RunWith(ParameterizedRobolectricTestRunner.class)
-public final class FragmentedMp4ExtractorTest {
+public final class FragmentedMp4ExtractorParameterizedTest {
 
   @Parameters(name = "{0},subtitlesParsedDuringExtraction={1}")
   public static List<Object[]> params() {

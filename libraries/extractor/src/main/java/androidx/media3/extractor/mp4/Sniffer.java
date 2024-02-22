@@ -15,9 +15,11 @@
  */
 package androidx.media3.extractor.mp4;
 
+import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.util.ParsableByteArray;
 import androidx.media3.extractor.ExtractorInput;
+import androidx.media3.extractor.SniffFailure;
 import java.io.IOException;
 
 /**
@@ -69,45 +71,40 @@ import java.io.IOException;
       };
 
   /**
-   * Returns whether data peeked from the current position in {@code input} is consistent with the
-   * input being a fragmented MP4 file.
+   * Returns {@code null} if data peeked from the current position in {@code input} is consistent
+   * with the input being a fragmented MP4 file, otherwise returns a {@link SniffFailure} describing
+   * the first detected inconsistency..
    *
    * @param input The extractor input from which to peek data. The peek position will be modified.
-   * @return Whether the input appears to be in the fragmented MP4 format.
+   * @return {@code null} if the input appears to be in the fragmented MP4 format, otherwise a
+   *     {@link SniffFailure} describing why the input isn't deemed to be a fragmented MP4.
    * @throws IOException If an error occurs reading from the input.
    */
-  public static boolean sniffFragmented(ExtractorInput input) throws IOException {
+  @Nullable
+  public static SniffFailure sniffFragmented(ExtractorInput input) throws IOException {
     return sniffInternal(input, /* fragmented= */ true, /* acceptHeic= */ false);
   }
 
   /**
-   * Returns whether data peeked from the current position in {@code input} is consistent with the
-   * input being an unfragmented MP4 file.
+   * Returns {@code null} if data peeked from the current position in {@code input} is consistent
+   * with the input being an unfragmented MP4 file, otherwise returns a {@link SniffFailure}
+   * describing the first detected inconsistency.
    *
    * @param input The extractor input from which to peek data. The peek position will be modified.
-   * @return Whether the input appears to be in the unfragmented MP4 format.
+   * @param acceptHeic Whether {@code null} should be returned for HEIC photos.
+   * @return {@code null} if the input appears to be in the fragmented MP4 format, otherwise a
+   *     {@link SniffFailure} describing why the input isn't deemed to be a fragmented MP4.
    * @throws IOException If an error occurs reading from the input.
    */
-  public static boolean sniffUnfragmented(ExtractorInput input) throws IOException {
-    return sniffInternal(input, /* fragmented= */ false, /* acceptHeic= */ false);
-  }
-
-  /**
-   * Returns whether data peeked from the current position in {@code input} is consistent with the
-   * input being an unfragmented MP4 file.
-   *
-   * @param input The extractor input from which to peek data. The peek position will be modified.
-   * @param acceptHeic Whether {@code true} should be returned for HEIC photos.
-   * @return Whether the input appears to be in the unfragmented MP4 format.
-   * @throws IOException If an error occurs reading from the input.
-   */
-  public static boolean sniffUnfragmented(ExtractorInput input, boolean acceptHeic)
+  @Nullable
+  public static SniffFailure sniffUnfragmented(ExtractorInput input, boolean acceptHeic)
       throws IOException {
     return sniffInternal(input, /* fragmented= */ false, acceptHeic);
   }
 
-  private static boolean sniffInternal(ExtractorInput input, boolean fragmented, boolean acceptHeic)
-      throws IOException {
+  @Nullable
+  private static SniffFailure sniffInternal(
+      ExtractorInput input, boolean fragmented, boolean acceptHeic) throws IOException {
     long inputLength = input.getLength();
     int bytesToSearch =
         (int)
@@ -148,7 +145,7 @@ import java.io.IOException;
 
       if (atomSize < headerSize) {
         // The file is invalid because the atom size is too small for its header.
-        return false;
+        return new AtomSizeTooSmallSniffFailure(atomType, atomSize, headerSize);
       }
       bytesSearched += headerSize;
 
@@ -186,30 +183,46 @@ import java.io.IOException;
       if (atomType == Atom.TYPE_ftyp) {
         // Parse the atom and check the file type/brand is compatible with the extractors.
         if (atomDataSize < 8) {
-          return false;
+          return new AtomSizeTooSmallSniffFailure(atomType, atomDataSize, 8);
         }
         buffer.reset(atomDataSize);
         input.peekFully(buffer.getData(), 0, atomDataSize);
-        int brandsCount = atomDataSize / 4;
-        for (int i = 0; i < brandsCount; i++) {
-          if (i == 1) {
-            // This index refers to the minorVersion, not a brand, so skip it.
-            buffer.skipBytes(4);
-          } else if (isCompatibleBrand(buffer.readInt(), acceptHeic)) {
-            foundGoodFileType = true;
-            break;
+        int majorBrand = buffer.readInt();
+        if (isCompatibleBrand(majorBrand, acceptHeic)) {
+          foundGoodFileType = true;
+        }
+        // Skip the minorVersion.
+        buffer.skipBytes(4);
+        int compatibleBrandsCount = buffer.bytesLeft() / 4;
+        @Nullable int[] compatibleBrands = null;
+        if (!foundGoodFileType && compatibleBrandsCount > 0) {
+          compatibleBrands = new int[compatibleBrandsCount];
+          for (int i = 0; i < compatibleBrandsCount; i++) {
+            compatibleBrands[i] = buffer.readInt();
+            if (isCompatibleBrand(compatibleBrands[i], acceptHeic)) {
+              foundGoodFileType = true;
+              break;
+            }
           }
         }
         if (!foundGoodFileType) {
           // The types were not compatible and there is only one ftyp atom, so reject the file.
-          return false;
+          return new UnsupportedBrandsSniffFailure(majorBrand, compatibleBrands);
         }
       } else if (atomDataSize != 0) {
         // Skip the atom.
         input.advancePeekPosition(atomDataSize);
       }
     }
-    return foundGoodFileType && fragmented == isFragmented;
+    if (!foundGoodFileType) {
+      return NoDeclaredBrandSniffFailure.INSTANCE;
+    } else if (fragmented != isFragmented) {
+      return isFragmented
+          ? IncorrectFragmentationSniffFailure.FILE_FRAGMENTED
+          : IncorrectFragmentationSniffFailure.FILE_NOT_FRAGMENTED;
+    } else {
+      return null;
+    }
   }
 
   /**
