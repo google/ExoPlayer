@@ -154,7 +154,6 @@ public class TransformerWithInAppMuxerEndToEndTest {
         new MdtaMetadataEntry(
             MdtaMetadataEntry.KEY_ANDROID_CAPTURE_FPS,
             /* value= */ Util.toByteArray(captureFps),
-            /* localeIndicator= */ 0,
             MdtaMetadataEntry.TYPE_INDICATOR_FLOAT32);
     Muxer.Factory inAppMuxerFactory =
         new InAppMuxer.Factory.Builder()
@@ -215,15 +214,11 @@ public class TransformerWithInAppMuxerEndToEndTest {
   public void transmux_withCustomMetadata_writesSameCustomMetadata() throws Exception {
     MdtaMetadataEntry expectedStringMetadata =
         new MdtaMetadataEntry(
-            "StringKey",
-            Util.getUtf8Bytes("StringValue"),
-            /* localeIndicator= */ 0,
-            MdtaMetadataEntry.TYPE_INDICATOR_STRING);
+            "StringKey", Util.getUtf8Bytes("StringValue"), MdtaMetadataEntry.TYPE_INDICATOR_STRING);
     MdtaMetadataEntry expectedFloatMetadata =
         new MdtaMetadataEntry(
             "FloatKey",
             /* value= */ Util.toByteArray(600.0f),
-            /* localeIndicator= */ 0,
             MdtaMetadataEntry.TYPE_INDICATOR_FLOAT32);
     Muxer.Factory inAppMuxerFactory =
         new InAppMuxer.Factory.Builder()

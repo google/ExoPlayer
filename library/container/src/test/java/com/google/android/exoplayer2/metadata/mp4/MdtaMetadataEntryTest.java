@@ -29,7 +29,11 @@ public final class MdtaMetadataEntryTest {
   @Test
   public void parcelable() {
     MdtaMetadataEntry mdtaMetadataEntryToParcel =
-        new MdtaMetadataEntry("test", new byte[] {1, 2}, 3, 4);
+        new MdtaMetadataEntry(
+            /* key= */ "test",
+            /* value= */ new byte[] {1, 2},
+            /* localeIndicator= */ 3,
+            /* typeIndicator= */ 4);
 
     Parcel parcel = Parcel.obtain();
     mdtaMetadataEntryToParcel.writeToParcel(parcel, 0);
