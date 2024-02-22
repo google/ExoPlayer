@@ -24,10 +24,12 @@ import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.extractor.PositionHolder;
+import com.google.android.exoplayer2.extractor.SniffFailure;
 import com.google.android.exoplayer2.extractor.mp3.Mp3Extractor;
 import com.google.android.exoplayer2.upstream.DataReader;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.collect.ImmutableList;
 import java.io.EOFException;
 import java.io.IOException;
 import java.util.List;
@@ -74,6 +76,8 @@ public final class BundledExtractorsAdapter implements ProgressiveMediaExtractor
       return;
     }
     Extractor[] extractors = extractorsFactory.createExtractors(uri, responseHeaders);
+    ImmutableList.Builder<SniffFailure> sniffFailures =
+        ImmutableList.builderWithExpectedSize(extractors.length);
     if (extractors.length == 1) {
       this.extractor = extractors[0];
     } else {
@@ -82,6 +86,9 @@ public final class BundledExtractorsAdapter implements ProgressiveMediaExtractor
           if (extractor.sniff(extractorInput)) {
             this.extractor = extractor;
             break;
+          } else {
+            List<SniffFailure> sniffFailureDetails = extractor.getSniffFailureDetails();
+            sniffFailures.addAll(sniffFailureDetails);
           }
         } catch (EOFException e) {
           // Do nothing.
@@ -95,7 +102,8 @@ public final class BundledExtractorsAdapter implements ProgressiveMediaExtractor
             "None of the available extractors ("
                 + Util.getCommaDelimitedSimpleClassNames(extractors)
                 + ") could read the stream.",
-            Assertions.checkNotNull(uri));
+            Assertions.checkNotNull(uri),
+            sniffFailures.build());
       }
     }
     extractor.init(output);

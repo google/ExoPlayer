@@ -39,6 +39,7 @@ import com.google.android.exoplayer2.extractor.GaplessInfoHolder;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.SeekPoint;
+import com.google.android.exoplayer2.extractor.SniffFailure;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.extractor.TrueHdSampleRechunker;
 import com.google.android.exoplayer2.extractor.mp4.Atom.ContainerAtom;
@@ -51,6 +52,7 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.NalUnitUtil;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -188,6 +190,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
   private final SefReader sefReader;
   private final List<Metadata.Entry> slowMotionMetadataEntries;
 
+  private ImmutableList<SniffFailure> lastSniffFailures;
   private @State int parserState;
   private int atomType;
   private long atomSize;
@@ -247,6 +250,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
   public Mp4Extractor(SubtitleParser.Factory subtitleParserFactory, @Flags int flags) {
     this.subtitleParserFactory = subtitleParserFactory;
     this.flags = flags;
+    lastSniffFailures = ImmutableList.of();
     parserState =
         ((flags & FLAG_READ_SEF_DATA) != 0) ? STATE_READING_SEF : STATE_READING_ATOM_HEADER;
     sefReader = new SefReader();
@@ -263,8 +267,17 @@ public final class Mp4Extractor implements Extractor, SeekMap {
 
   @Override
   public boolean sniff(ExtractorInput input) throws IOException {
-    return Sniffer.sniffUnfragmented(
-        input, /* acceptHeic= */ (flags & FLAG_READ_MOTION_PHOTO_METADATA) != 0);
+    @Nullable
+    SniffFailure sniffFailure =
+        Sniffer.sniffUnfragmented(
+            input, /* acceptHeic= */ (flags & FLAG_READ_MOTION_PHOTO_METADATA) != 0);
+    lastSniffFailures = sniffFailure != null ? ImmutableList.of(sniffFailure) : ImmutableList.of();
+    return sniffFailure == null;
+  }
+
+  @Override
+  public ImmutableList<SniffFailure> getSniffFailureDetails() {
+    return lastSniffFailures;
   }
 
   @Override
