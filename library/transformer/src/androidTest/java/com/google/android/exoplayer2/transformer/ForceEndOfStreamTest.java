@@ -36,7 +36,10 @@ import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import org.json.JSONException;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 
 /**
@@ -50,10 +53,17 @@ import org.junit.runner.RunWith;
 public class ForceEndOfStreamTest {
 
   private final Context context = ApplicationProvider.getApplicationContext();
+  @Rule public final TestName testName = new TestName();
+
+  private String testId;
+
+  @Before
+  public void setUpTestId() {
+    testId = testName.getMethodName();
+  }
 
   @Test
   public void transcode_decoderDroppingLastFourFrames_exportSucceeds() throws Exception {
-    String testId = "transcode_decoderDroppingLastFourFrames_exportSucceeds";
     if (skipTestBelowApi29(context, testId)) {
       return;
     }
@@ -79,7 +89,6 @@ public class ForceEndOfStreamTest {
 
   @Test
   public void transcode_decoderDroppingNoFrame_exportSucceeds() throws Exception {
-    String testId = "transcode_decoderDroppingNoFrame_exportSucceeds";
     if (skipTestBelowApi29(context, testId)) {
       return;
     }

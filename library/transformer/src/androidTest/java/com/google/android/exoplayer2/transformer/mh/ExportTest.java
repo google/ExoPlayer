@@ -59,18 +59,27 @@ import com.google.android.exoplayer2.util.Util;
 import com.google.common.base.Ascii;
 import com.google.common.collect.ImmutableList;
 import org.junit.AssumptionViolatedException;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 
 /** {@link Transformer} instrumentation tests. */
 @RunWith(AndroidJUnit4.class)
 public class ExportTest {
-
   private static final String TAG = "ExportTest";
+  @Rule public final TestName testName = new TestName();
+
+  private String testId;
+
+  @Before
+  public void setUpTestId() {
+    testId = TAG + "_" + testName.getMethodName();
+  }
 
   @Test
   public void export() throws Exception {
-    String testId = TAG + "_export";
     Context context = ApplicationProvider.getApplicationContext();
     // Note: throughout this class we only check decoding capability as tests should still run if
     // Transformer is able to succeed by falling back to a lower resolution.
@@ -99,7 +108,6 @@ public class ExportTest {
 
   @Test
   public void exportWithoutDecodeEncode() throws Exception {
-    String testId = TAG + "_exportWithoutDecodeEncode";
     Context context = ApplicationProvider.getApplicationContext();
     Transformer transformer = new Transformer.Builder(context).build();
     MediaItem mediaItem =
@@ -110,7 +118,6 @@ public class ExportTest {
 
   @Test
   public void exportToSpecificBitrate() throws Exception {
-    String testId = TAG + "_exportToSpecificBitrate";
     Context context = ApplicationProvider.getApplicationContext();
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context,
@@ -143,7 +150,6 @@ public class ExportTest {
 
   @Test
   public void export4K60() throws Exception {
-    String testId = TAG + "_export4K60";
     Context context = ApplicationProvider.getApplicationContext();
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context,
@@ -172,8 +178,6 @@ public class ExportTest {
 
   @Test
   public void export8K24() throws Exception {
-    String testId = TAG + "_export8K24";
-
     // Reference: b/244711282#comment5
     assumeFalse(
         "Some devices are capable of instantiating only either one 8K decoder or one 8K encoder",
@@ -205,7 +209,6 @@ public class ExportTest {
   @Test
   public void export8K24_withDownscaling() throws Exception {
     // This test is to cover devices that are able to either decode or encode 8K, but not transcode.
-    String testId = TAG + "_export8K24_withDownscaling";
     int downscaledWidth = 320;
     int downscaledHeight = 240;
 
@@ -241,7 +244,6 @@ public class ExportTest {
 
   @Test
   public void exportNoAudio() throws Exception {
-    String testId = TAG + "_exportNoAudio";
     Context context = ApplicationProvider.getApplicationContext();
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context,
@@ -270,7 +272,6 @@ public class ExportTest {
 
   @Test
   public void exportNoVideo() throws Exception {
-    String testId = TAG + "_exportNoVideo";
     Context context = ApplicationProvider.getApplicationContext();
     Transformer transformer =
         new Transformer.Builder(context)
@@ -287,7 +288,6 @@ public class ExportTest {
 
   @Test
   public void exportSef() throws Exception {
-    String testId = TAG + "_exportSef";
     Context context = ApplicationProvider.getApplicationContext();
 
     if (SDK_INT < 25) {
@@ -313,7 +313,6 @@ public class ExportTest {
 
   @Test
   public void exportSefH265() throws Exception {
-    String testId = TAG + "_exportSefH265";
     Context context = ApplicationProvider.getApplicationContext();
 
     if (SDK_INT < 25) {
@@ -335,7 +334,6 @@ public class ExportTest {
 
   @Test
   public void exportFrameRotation() throws Exception {
-    String testId = TAG + "_exportFrameRotation";
     Context context = ApplicationProvider.getApplicationContext();
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context,
@@ -361,7 +359,6 @@ public class ExportTest {
 
   @Test
   public void exportTranscodeBt2020Sdr() throws Exception {
-    String testId = TAG + "exportBt2020Sdr";
     Context context = ApplicationProvider.getApplicationContext();
     // Reference: b/262732842#comment51
     if (SDK_INT <= 27 && Util.MANUFACTURER.equals("samsung")) {

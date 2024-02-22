@@ -33,7 +33,10 @@ import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.effect.Presentation;
 import com.google.android.exoplayer2.util.VideoFrameProcessor;
 import com.google.common.collect.ImmutableList;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 
 /**
@@ -47,11 +50,18 @@ import org.junit.runner.RunWith;
 public class TransformerMixedInputEndToEndTest {
 
   private final Context context = ApplicationProvider.getApplicationContext();
+  @Rule public final TestName testName = new TestName();
+
+  private String testId;
+
+  @Before
+  public void setUpTestId() {
+    testId = testName.getMethodName();
+  }
 
   @Test
   public void videoEditing_withImageThenVideoInputs_completesWithCorrectFrameCount()
       throws Exception {
-    String testId = "videoEditing_withImageThenVideoInputs_completesWithCorrectFrameCount";
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context,
         testId,
@@ -83,7 +93,6 @@ public class TransformerMixedInputEndToEndTest {
   @Test
   public void videoEditing_withVideoThenImageInputs_completesWithCorrectFrameCount()
       throws Exception {
-    String testId = "videoEditing_withVideoThenImageInputs_completesWithCorrectFrameCount";
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context,
         testId,
@@ -115,8 +124,6 @@ public class TransformerMixedInputEndToEndTest {
   public void
       videoEditing_withComplexVideoAndImageInputsEndWithVideo_completesWithCorrectFrameCount()
           throws Exception {
-    String testId =
-        "videoEditing_withComplexVideoAndImageInputsEndWithVideo_completesWithCorrectFrameCount";
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context,
         testId,
@@ -159,8 +166,6 @@ public class TransformerMixedInputEndToEndTest {
   public void
       videoEditing_withComplexVideoAndImageInputsEndWithImage_completesWithCorrectFrameCount()
           throws Exception {
-    String testId =
-        "videoEditing_withComplexVideoAndImageInputsEndWithImage_completesWithCorrectFrameCount";
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context,
         testId,

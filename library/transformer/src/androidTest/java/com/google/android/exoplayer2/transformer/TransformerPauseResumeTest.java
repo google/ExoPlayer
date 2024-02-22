@@ -41,9 +41,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeoutException;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 
 /** End-to-end instrumentation tests for {@link Transformer} pause and resume scenarios. */
@@ -56,10 +58,17 @@ public class TransformerPauseResumeTest {
   private static final int MP4_ASSET_FRAME_COUNT = 932;
 
   private final Context context = getApplicationContext();
+  @Rule public final TestName testName = new TestName();
+
+  private String testId;
+
+  @Before
+  public void setUpTestId() {
+    testId = testName.getMethodName();
+  }
 
   @Test
   public void resume_withSingleMediaItem_outputMatchesExpected() throws Exception {
-    String testId = "resume_withSingleMediaItem_outputMatchesExpected";
     if (shouldSkipDevice(testId)) {
       return;
     }
@@ -108,7 +117,6 @@ public class TransformerPauseResumeTest {
   @Test
   public void resume_withSingleMediaItemAfterImmediateCancellation_restartsExport()
       throws Exception {
-    String testId = "resume_withSingleMediaItemAfterImmediateCancellation_restartsExport";
     if (shouldSkipDevice(testId)) {
       return;
     }
@@ -140,7 +148,6 @@ public class TransformerPauseResumeTest {
 
   @Test
   public void resume_withSingleMediaItem_outputMatchesWithoutResume() throws Exception {
-    String testId = "resume_withSingleMediaItem_outputMatchesWithoutResume";
     if (shouldSkipDevice(testId)) {
       return;
     }
@@ -193,7 +200,6 @@ public class TransformerPauseResumeTest {
   @Test
   public void resume_withSingleMediaItemHavingClippingConfig_outputMatchesWithoutResume()
       throws Exception {
-    String testId = "resume_withSingleMediaItemHavingClippingConfig_outputMatchesWithoutResume";
     if (shouldSkipDevice(testId)) {
       return;
     }
@@ -243,7 +249,6 @@ public class TransformerPauseResumeTest {
 
   @Test
   public void resume_withTwoMediaItems_outputMatchesExpected() throws Exception {
-    String testId = "resume_withTwoMediaItems_outputMatchesExpected";
     if (shouldSkipDevice(testId)) {
       return;
     }
@@ -294,7 +299,6 @@ public class TransformerPauseResumeTest {
 
   @Test
   public void resume_withTwoMediaItems_outputMatchesWithoutResume() throws Exception {
-    String testId = "resume_withTwoMediaItems_outputMatchesWithoutResume";
     if (shouldSkipDevice(testId)) {
       return;
     }

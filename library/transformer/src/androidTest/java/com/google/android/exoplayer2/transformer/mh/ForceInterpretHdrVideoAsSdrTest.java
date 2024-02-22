@@ -39,7 +39,10 @@ import com.google.android.exoplayer2.transformer.ExportTestResult;
 import com.google.android.exoplayer2.transformer.Transformer;
 import com.google.android.exoplayer2.transformer.TransformerAndroidTestRunner;
 import com.google.android.exoplayer2.video.ColorInfo;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 
 /**
@@ -49,10 +52,17 @@ import org.junit.runner.RunWith;
  */
 @RunWith(AndroidJUnit4.class)
 public class ForceInterpretHdrVideoAsSdrTest {
+  @Rule public final TestName testName = new TestName();
+
+  private String testId;
+
+  @Before
+  public void setUpTestId() {
+    testId = testName.getMethodName();
+  }
 
   @Test
   public void forceInterpretHdrVideoAsSdrTest_hdr10File_transformsOrThrows() throws Exception {
-    String testId = "forceInterpretHdrVideoAsSdrTest_hdr10File_transformsOrThrows";
     Context context = ApplicationProvider.getApplicationContext();
 
     if (SDK_INT < 29) {
@@ -96,7 +106,6 @@ public class ForceInterpretHdrVideoAsSdrTest {
 
   @Test
   public void forceInterpretHdrVideoAsSdrTest_hlg10File_transformsOrThrows() throws Exception {
-    String testId = "forceInterpretHdrVideoAsSdrTest_hlg10File_transformsOrThrows";
     Context context = ApplicationProvider.getApplicationContext();
 
     if (SDK_INT < 29) {

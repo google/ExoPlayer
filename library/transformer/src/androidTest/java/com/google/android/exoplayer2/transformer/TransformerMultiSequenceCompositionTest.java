@@ -46,7 +46,10 @@ import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.util.List;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 
 /** Tests for using multiple {@link EditedMediaItemSequence} in a composition. */
@@ -65,10 +68,17 @@ public final class TransformerMultiSequenceCompositionTest {
   private static final int EXPORT_HEIGHT = 240;
 
   private final Context context = ApplicationProvider.getApplicationContext();
+  @Rule public final TestName testName = new TestName();
+
+  private String testId;
+
+  @Before
+  public void setUpTestId() {
+    testId = testName.getMethodName();
+  }
 
   @Test
   public void export_withTwoSequencesEachWithOneVideoMediaItem_succeeds() throws Exception {
-    String testId = "export_withTwoSequencesEachWithOneVideoMediaItem_succeeds";
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context,
         testId,
@@ -108,7 +118,6 @@ public final class TransformerMultiSequenceCompositionTest {
 
   @Test
   public void export_withTwoSequencesOneWithVideoOneWithImage_succeeds() throws Exception {
-    String testId = "export_withTwoSequencesOneWithVideoOneWithImage_succeeds";
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context,
         testId,
@@ -148,7 +157,6 @@ public final class TransformerMultiSequenceCompositionTest {
 
   @Test
   public void export_withTwoSequencesWithVideoCompositorSettings_succeeds() throws Exception {
-    String testId = "export_withTwoSequencesWithVideoCompositorSettings_succeeds";
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context,
         testId,

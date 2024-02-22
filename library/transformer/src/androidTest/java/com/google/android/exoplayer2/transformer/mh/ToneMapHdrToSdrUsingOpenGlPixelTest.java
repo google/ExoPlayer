@@ -36,7 +36,10 @@ import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.collect.ImmutableList;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 
 /**
@@ -110,7 +113,15 @@ public final class ToneMapHdrToSdrUsingOpenGlPixelTest {
           .setColorTransfer(C.COLOR_TRANSFER_GAMMA_2_2)
           .build();
 
+  @Rule public final TestName testName = new TestName();
+
+  private String testId;
   private @MonotonicNonNull VideoFrameProcessorTestRunner videoFrameProcessorTestRunner;
+
+  @Before
+  public void setUpTestId() {
+    testId = testName.getMethodName();
+  }
 
   @After
   public void release() {
@@ -121,7 +132,6 @@ public final class ToneMapHdrToSdrUsingOpenGlPixelTest {
 
   @Test
   public void toneMap_hlgFrame_matchesGoldenFile() throws Exception {
-    String testId = "toneMap_hlgFrame_matchesGoldenFile";
     if (skipAndLogIfOpenGlToneMappingUnsupported(testId, HLG_ASSET_FORMAT)) {
       return;
     }
@@ -159,7 +169,6 @@ public final class ToneMapHdrToSdrUsingOpenGlPixelTest {
 
   @Test
   public void toneMapWithNoOpEffect_hlgFrame_matchesGoldenFile() throws Exception {
-    String testId = "toneMapWithNoOpEffect_hlgFrame_matchesGoldenFile";
     if (skipAndLogIfOpenGlToneMappingUnsupported(testId, HLG_ASSET_FORMAT)) {
       return;
     }
@@ -198,7 +207,6 @@ public final class ToneMapHdrToSdrUsingOpenGlPixelTest {
 
   @Test
   public void toneMap_pqFrame_matchesGoldenFile() throws Exception {
-    String testId = "toneMap_pqFrame_matchesGoldenFile";
     if (skipAndLogIfOpenGlToneMappingUnsupported(testId, PQ_ASSET_FORMAT)) {
       return;
     }
@@ -237,7 +245,6 @@ public final class ToneMapHdrToSdrUsingOpenGlPixelTest {
 
   @Test
   public void toneMapWithNoOpEffect_pqFrame_matchesGoldenFile() throws Exception {
-    String testId = "toneMapWithNoOpEffect_pqFrame_matchesGoldenFile";
     if (skipAndLogIfOpenGlToneMappingUnsupported(testId, PQ_ASSET_FORMAT)) {
       return;
     }

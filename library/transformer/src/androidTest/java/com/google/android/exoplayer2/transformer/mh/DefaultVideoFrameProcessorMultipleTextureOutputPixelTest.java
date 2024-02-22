@@ -37,7 +37,10 @@ import java.util.List;
 import java.util.Set;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 
 /**
@@ -48,6 +51,7 @@ import org.junit.runner.RunWith;
  */
 @RunWith(AndroidJUnit4.class)
 public class DefaultVideoFrameProcessorMultipleTextureOutputPixelTest {
+
   private static final String ORIGINAL_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/electrical_colors/original.png";
   private static final String MEDIA3_TEST_PNG_ASSET_PATH =
@@ -57,9 +61,18 @@ public class DefaultVideoFrameProcessorMultipleTextureOutputPixelTest {
   private static final String SRGB_TO_ELECTRICAL_MEDIA3_TEST_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/electrical_colors/srgb_to_electrical_media3test.png";
 
+  @Rule public final TestName testName = new TestName();
+
   private @MonotonicNonNull VideoFrameProcessorTestRunner videoFrameProcessorTestRunner;
 
   private @MonotonicNonNull TextureBitmapReader textureBitmapReader;
+
+  private String testId;
+
+  @Before
+  public void setUpTestId() {
+    testId = testName.getMethodName();
+  }
 
   @After
   public void release() {
@@ -68,7 +81,6 @@ public class DefaultVideoFrameProcessorMultipleTextureOutputPixelTest {
 
   @Test
   public void textureOutput_queueBitmap_matchesGoldenFile() throws Exception {
-    String testId = "textureOutput_queueBitmap_matchesGoldenFile";
     videoFrameProcessorTestRunner = getFrameProcessorTestRunnerBuilder(testId).build();
     ImmutableList<Long> inputTimestamps = ImmutableList.of(1_000_000L, 2_000_000L, 3_000_000L);
 
@@ -89,7 +101,6 @@ public class DefaultVideoFrameProcessorMultipleTextureOutputPixelTest {
 
   @Test
   public void textureOutput_queueTwoBitmaps_matchesGoldenFiles() throws Exception {
-    String testId = "textureOutput_queueTwoBitmaps_matchesGoldenFiles";
     videoFrameProcessorTestRunner = getFrameProcessorTestRunnerBuilder(testId).build();
     ImmutableList<Long> inputTimestamps1 = ImmutableList.of(1_000_000L, 1_500_000L);
     ImmutableList<Long> inputTimestamps2 = ImmutableList.of(2_000_000L, 3_000_000L, 4_000_000L);
@@ -126,7 +137,6 @@ public class DefaultVideoFrameProcessorMultipleTextureOutputPixelTest {
   // TODO: b/302695659 - Make this test more deterministic.
   @Test
   public void textureOutput_queueFiveBitmapsAndFlush_outputsOnlyAfterFlush() throws Exception {
-    String testId = "textureOutput_queueFiveBitmapsAndFlush_outputsOnlyAfterFlush";
     videoFrameProcessorTestRunner = getFrameProcessorTestRunnerBuilder(testId).build();
     ImmutableList<Long> inputTimestamps1 = ImmutableList.of(1_000_000L, 2_000_000L, 3_000_000L);
     ImmutableList<Long> inputTimestamps2 = ImmutableList.of(4_000_000L, 5_000_000L, 6_000_000L);

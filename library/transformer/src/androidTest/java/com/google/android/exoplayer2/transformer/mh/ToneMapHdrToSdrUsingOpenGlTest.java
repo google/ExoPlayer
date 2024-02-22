@@ -36,7 +36,10 @@ import com.google.android.exoplayer2.transformer.EditedMediaItemSequence;
 import com.google.android.exoplayer2.transformer.ExportTestResult;
 import com.google.android.exoplayer2.transformer.Transformer;
 import com.google.android.exoplayer2.transformer.TransformerAndroidTestRunner;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 
 /**
@@ -45,12 +48,18 @@ import org.junit.runner.RunWith;
  */
 @RunWith(AndroidJUnit4.class)
 public class ToneMapHdrToSdrUsingOpenGlTest {
-
+  @Rule public final TestName testName = new TestName();
   private final Context context = ApplicationProvider.getApplicationContext();
+
+  private String testId;
+
+  @Before
+  public void setUpTestId() {
+    testId = testName.getMethodName();
+  }
 
   @Test
   public void export_toneMap_hlg10File_toneMaps() throws Exception {
-    String testId = "export_glToneMap_hlg10File_toneMaps";
     if (skipAndLogIfOpenGlToneMappingUnsupported(
         testId, /* inputFormat= */ MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT)) {
       return;
@@ -61,7 +70,6 @@ public class ToneMapHdrToSdrUsingOpenGlTest {
 
   @Test
   public void export_toneMap_hdr10File_toneMaps() throws Exception {
-    String testId = "export_glToneMap_hdr10File_toneMaps";
     if (skipAndLogIfOpenGlToneMappingUnsupported(
         testId, /* inputFormat= */ MP4_ASSET_720P_4_SECOND_HDR10_FORMAT)) {
       return;
@@ -72,7 +80,6 @@ public class ToneMapHdrToSdrUsingOpenGlTest {
 
   @Test
   public void export_toneMap_dolbyVisionFile_toneMaps() throws Exception {
-    String testId = "export_toneMap_dolbyVisionFile_toneMaps";
     if (skipAndLogIfOpenGlToneMappingUnsupported(
         testId, /* inputFormat= */ MP4_ASSET_DOLBY_VISION_HDR_FORMAT)) {
       return;
