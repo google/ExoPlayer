@@ -50,7 +50,10 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.base.Ascii;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 
 /**
@@ -66,10 +69,17 @@ public final class TransformerSequenceEffectTest {
   private static final int EXPORT_HEIGHT = 240;
 
   private final Context context = ApplicationProvider.getApplicationContext();
+  @Rule public final TestName testName = new TestName();
+
+  private String testId;
+
+  @Before
+  public void setUpTestId() {
+    testId = testName.getMethodName();
+  }
 
   @Test
   public void export_withNoCompositionPresentationAndWithPerMediaItemEffects() throws Exception {
-    String testId = "export_withNoCompositionPresentationAndWithPerMediaItemEffects";
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context,
         testId,
@@ -114,8 +124,6 @@ public final class TransformerSequenceEffectTest {
 
   @Test
   public void export_withCompositionPresentationAndWithPerMediaItemEffects() throws Exception {
-    String testId = "export_withCompositionPresentationAndWithPerMediaItemEffects";
-
     // Reference: b/296225823#comment5
     assumeFalse(
         "Some older MediaTek encoders have a pixel alignment of 16, which results in a 360 pixel"
@@ -166,7 +174,6 @@ public final class TransformerSequenceEffectTest {
 
   @Test
   public void export_withCompositionPresentationAndNoVideoEffects() throws Exception {
-    String testId = "export_withCompositionPresentationAndNoVideoEffects";
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context,
         testId,
@@ -196,7 +203,6 @@ public final class TransformerSequenceEffectTest {
   @Test
   public void export_withCompositionPresentationAndNoVideoEffectsForFirstMediaItem()
       throws Exception {
-    String testId = "export_withCompositionPresentationAndNoVideoEffectsForFirstMediaItem";
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context,
         testId,

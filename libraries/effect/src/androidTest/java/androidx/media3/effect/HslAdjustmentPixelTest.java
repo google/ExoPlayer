@@ -41,7 +41,9 @@ import java.io.IOException;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 
 /**
@@ -72,7 +74,9 @@ public final class HslAdjustmentPixelTest {
       "media/bitmap/sample_mp4_first_frame/linear_colors/adjust_all_hsl_settings.png";
 
   private final Context context = getApplicationContext();
+  @Rule public final TestName testName = new TestName();
 
+  private String testId;
   private @MonotonicNonNull EGLDisplay eglDisplay;
   private @MonotonicNonNull EGLContext eglContext;
   private @MonotonicNonNull BaseGlShaderProgram hslProcessor;
@@ -80,6 +84,11 @@ public final class HslAdjustmentPixelTest {
   private int inputTexId;
   private int inputWidth;
   private int inputHeight;
+
+  @Before
+  public void setUpTestId() {
+    testId = testName.getMethodName();
+  }
 
   @Before
   public void createGlObjects() throws IOException, GlUtil.GlException {
@@ -109,7 +118,6 @@ public final class HslAdjustmentPixelTest {
 
   @Test
   public void drawFrame_noOpAdjustment_leavesFrameUnchanged() throws Exception {
-    String testId = "drawFrame_noOpAdjustment";
     HslAdjustment noOpAdjustment = new HslAdjustment.Builder().build();
     hslProcessor = noOpAdjustment.toGlShaderProgram(context, /* useHdr= */ false);
     Size outputSize = hslProcessor.configure(inputWidth, inputHeight);
@@ -127,7 +135,6 @@ public final class HslAdjustmentPixelTest {
 
   @Test
   public void drawFrame_minimumSaturation_producesGrayFrame() throws Exception {
-    String testId = "drawFrame_minimumSaturation";
     HslAdjustment minimumSaturation = new HslAdjustment.Builder().adjustSaturation(-100).build();
     hslProcessor = minimumSaturation.toGlShaderProgram(context, /* useHdr= */ false);
     Size outputSize = hslProcessor.configure(inputWidth, inputHeight);
@@ -145,7 +152,6 @@ public final class HslAdjustmentPixelTest {
 
   @Test
   public void drawFrame_maximumSaturation_producesHighlySaturatedFrame() throws Exception {
-    String testId = "drawFrame_maximumSaturation";
     HslAdjustment maximumSaturation = new HslAdjustment.Builder().adjustSaturation(100).build();
     hslProcessor = maximumSaturation.toGlShaderProgram(context, /* useHdr= */ false);
     Size outputSize = hslProcessor.configure(inputWidth, inputHeight);
@@ -163,7 +169,6 @@ public final class HslAdjustmentPixelTest {
 
   @Test
   public void drawFrame_rotateHueByNegative90Degrees_matchesGoldenFile() throws Exception {
-    String testId = "drawFrame_rotateHueByNegative90Degrees";
     HslAdjustment negativeHueRotation90Degrees = new HslAdjustment.Builder().adjustHue(-90).build();
     hslProcessor = negativeHueRotation90Degrees.toGlShaderProgram(context, /* useHdr= */ false);
     Size outputSize = hslProcessor.configure(inputWidth, inputHeight);
@@ -181,7 +186,6 @@ public final class HslAdjustmentPixelTest {
 
   @Test
   public void drawFrame_rotateHueBy60Degrees_matchesGoldenFile() throws Exception {
-    String testId = "drawFrame_rotateHueBy60Degrees";
     HslAdjustment hueRotation60Degrees = new HslAdjustment.Builder().adjustHue(60).build();
     hslProcessor = hueRotation60Degrees.toGlShaderProgram(context, /* useHdr= */ false);
     Size outputSize = hslProcessor.configure(inputWidth, inputHeight);
@@ -200,7 +204,6 @@ public final class HslAdjustmentPixelTest {
   @Test
   public void drawFrame_rotateHueByNegative300Degrees_producesSameOutputAsRotateBy60DegreesHue()
       throws Exception {
-    String testId = "drawFrame_rotateHueByNegative300Degrees";
     HslAdjustment hueRotation420Degrees = new HslAdjustment.Builder().adjustHue(-300).build();
     hslProcessor = hueRotation420Degrees.toGlShaderProgram(context, /* useHdr= */ false);
     Size outputSize = hslProcessor.configure(inputWidth, inputHeight);
@@ -218,7 +221,6 @@ public final class HslAdjustmentPixelTest {
 
   @Test
   public void drawFrame_rotateHueBy360Degrees_leavesFrameUnchanged() throws Exception {
-    String testId = "drawFrame_rotateHueBy360Degrees";
     HslAdjustment hueRotation360Degrees = new HslAdjustment.Builder().adjustHue(360).build();
     hslProcessor = hueRotation360Degrees.toGlShaderProgram(context, /* useHdr= */ false);
     Size outputSize = hslProcessor.configure(inputWidth, inputHeight);
@@ -236,7 +238,6 @@ public final class HslAdjustmentPixelTest {
 
   @Test
   public void drawFrame_minimumLightness_producesBlackFrame() throws Exception {
-    String testId = "drawFrame_minimumLightness";
     HslAdjustment minimumLightness = new HslAdjustment.Builder().adjustLightness(-100).build();
     hslProcessor = minimumLightness.toGlShaderProgram(context, /* useHdr= */ false);
     Size outputSize = hslProcessor.configure(inputWidth, inputHeight);
@@ -255,7 +256,6 @@ public final class HslAdjustmentPixelTest {
 
   @Test
   public void drawFrame_decreaseLightness_producesDarkerFrame() throws Exception {
-    String testId = "drawFrame_decreaseLightness";
     HslAdjustment decreasedLightness = new HslAdjustment.Builder().adjustLightness(-50).build();
     hslProcessor = decreasedLightness.toGlShaderProgram(context, /* useHdr= */ false);
     Size outputSize = hslProcessor.configure(inputWidth, inputHeight);
@@ -273,7 +273,6 @@ public final class HslAdjustmentPixelTest {
 
   @Test
   public void drawFrame_increaseLightness_producesBrighterFrame() throws Exception {
-    String testId = "drawFrame_increaseLightness";
     HslAdjustment increasedLightness = new HslAdjustment.Builder().adjustLightness(50).build();
     hslProcessor = increasedLightness.toGlShaderProgram(context, /* useHdr= */ false);
     Size outputSize = hslProcessor.configure(inputWidth, inputHeight);
@@ -291,7 +290,6 @@ public final class HslAdjustmentPixelTest {
 
   @Test
   public void drawFrame_maximumLightness_producesWhiteFrame() throws Exception {
-    String testId = "drawFrame_maximumLightness";
     HslAdjustment maximumLightness = new HslAdjustment.Builder().adjustLightness(100).build();
     hslProcessor = maximumLightness.toGlShaderProgram(context, /* useHdr= */ false);
     Size outputSize = hslProcessor.configure(inputWidth, inputHeight);
@@ -310,7 +308,6 @@ public final class HslAdjustmentPixelTest {
 
   @Test
   public void drawFrame_adjustAllHslSettings_matchesGoldenFile() throws Exception {
-    String testId = "drawFrame_adjustAllHslSettings";
     HslAdjustment allHslSettingsAdjusted =
         new HslAdjustment.Builder().adjustHue(60).adjustSaturation(30).adjustLightness(50).build();
     hslProcessor = allHslSettingsAdjusted.toGlShaderProgram(context, /* useHdr= */ false);

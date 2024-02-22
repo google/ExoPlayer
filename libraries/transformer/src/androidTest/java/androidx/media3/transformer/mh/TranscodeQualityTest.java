@@ -33,17 +33,28 @@ import androidx.media3.transformer.TransformerAndroidTestRunner;
 import androidx.media3.transformer.VideoEncoderSettings;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 
 /** Checks transcoding quality. */
 @RunWith(AndroidJUnit4.class)
 public final class TranscodeQualityTest {
+  @Rule public final TestName testName = new TestName();
+
+  private String testId;
+
+  @Before
+  public void setUpTestId() {
+    testId = testName.getMethodName();
+  }
+
   @Test
   public void exportHighQualityTargetingAvcToAvc1920x1080_ssimIsGreaterThan95Percent()
       throws Exception {
     Context context = ApplicationProvider.getApplicationContext();
-    String testId = "transformHighQualityTargetingAvcToAvc1920x1080_ssim";
 
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context,
@@ -89,7 +100,6 @@ public final class TranscodeQualityTest {
   @Test
   public void transcodeAvcToHevc_ssimIsGreaterThan90Percent() throws Exception {
     Context context = ApplicationProvider.getApplicationContext();
-    String testId = "transcodeAvcToHevc_ssim";
 
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context,
@@ -126,7 +136,6 @@ public final class TranscodeQualityTest {
   @Test
   public void transcodeAvcToAvc320x240_ssimIsGreaterThan90Percent() throws Exception {
     Context context = ApplicationProvider.getApplicationContext();
-    String testId = "transcodeAvcToAvc320x240_ssim";
 
     // Don't skip based on format support as input and output formats should be within CDD
     // requirements on all supported API versions, except for wearable devices.

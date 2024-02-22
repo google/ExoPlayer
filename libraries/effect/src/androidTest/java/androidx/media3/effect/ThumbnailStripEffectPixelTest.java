@@ -40,7 +40,9 @@ import com.google.common.collect.ImmutableList;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 
 /** Pixel tests for {@link ThumbnailStripEffect}. */
@@ -50,19 +52,26 @@ public final class ThumbnailStripEffectPixelTest {
       "media/bitmap/sample_mp4_first_frame/linear_colors/original.png";
   private static final String TWO_THUMBNAILS_STRIP_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/linear_colors/two_thumbnails_strip.png";
-
+  @Rule public final TestName testName = new TestName();
   private final Context context = getApplicationContext();
 
   private @MonotonicNonNull EGLDisplay eglDisplay;
   private @MonotonicNonNull EGLContext eglContext;
   private @MonotonicNonNull EGLSurface placeholderEglSurface;
   private @MonotonicNonNull ThumbnailStripShaderProgram thumbnailStripShaderProgram;
+  private String testId;
+
   private int inputTexId;
   private int inputWidth;
   private int inputHeight;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUpTestId() {
+    testId = testName.getMethodName();
+  }
+
+  @Before
+  public void createGlObjects() throws Exception {
     eglDisplay = GlUtil.getDefaultEglDisplay();
     eglContext = GlUtil.createEglContext(eglDisplay);
     placeholderEglSurface = GlUtil.createFocusedPlaceholderEglSurface(eglContext, eglDisplay);
@@ -85,7 +94,7 @@ public final class ThumbnailStripEffectPixelTest {
   }
 
   @After
-  public void tearDown() throws GlUtil.GlException, VideoFrameProcessingException {
+  public void releaseGlObjects() throws GlUtil.GlException, VideoFrameProcessingException {
     if (thumbnailStripShaderProgram != null) {
       thumbnailStripShaderProgram.release();
     }
@@ -94,7 +103,6 @@ public final class ThumbnailStripEffectPixelTest {
 
   @Test
   public void drawFrame_withOneTimestampAndOriginalSize_producesOriginalFrame() throws Exception {
-    String testId = "drawFrame_withOneTimestampAndOriginalSize";
     ThumbnailStripEffect thumbnailStripEffect = new ThumbnailStripEffect(inputWidth, inputHeight);
     thumbnailStripEffect.setTimestampsMs(ImmutableList.of(0L));
     thumbnailStripShaderProgram =
@@ -112,7 +120,6 @@ public final class ThumbnailStripEffectPixelTest {
 
   @Test
   public void drawFrame_zeroTimestamps_producesEmptyFrame() throws Exception {
-    String testId = "drawFrame_zeroTimestamps";
     ThumbnailStripEffect thumbnailStripEffect = new ThumbnailStripEffect(inputWidth, inputHeight);
     thumbnailStripEffect.setTimestampsMs(ImmutableList.of());
     thumbnailStripShaderProgram =
@@ -131,7 +138,6 @@ public final class ThumbnailStripEffectPixelTest {
 
   @Test
   public void drawFrame_lateTimestamp_producesEmptyFrame() throws Exception {
-    String testId = "drawFrame_lateTimestamp";
     ThumbnailStripEffect thumbnailStripEffect = new ThumbnailStripEffect(inputWidth, inputHeight);
     thumbnailStripEffect.setTimestampsMs(ImmutableList.of(1L));
     thumbnailStripShaderProgram =
@@ -150,7 +156,6 @@ public final class ThumbnailStripEffectPixelTest {
 
   @Test
   public void drawFrame_twoTimestamps_producesStrip() throws Exception {
-    String testId = "drawFrame_twoTimestamps";
     ThumbnailStripEffect thumbnailStripEffect = new ThumbnailStripEffect(inputWidth, inputHeight);
     thumbnailStripEffect.setTimestampsMs(ImmutableList.of(0L, 1L));
     thumbnailStripShaderProgram =

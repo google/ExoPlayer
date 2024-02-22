@@ -86,7 +86,10 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.nio.ByteBuffer;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 
 /**
@@ -98,12 +101,19 @@ public class TransformerEndToEndTest {
 
   private static final GlEffect NO_OP_EFFECT = new Contrast(0f);
   private final Context context = ApplicationProvider.getApplicationContext();
+  @Rule public final TestName testName = new TestName();
+
+  private String testId;
 
   private volatile @MonotonicNonNull TextureAssetLoader textureAssetLoader;
 
+  @Before
+  public void setUpTestId() {
+    testId = testName.getMethodName();
+  }
+
   @Test
   public void compositionEditing_withThreeSequences_completes() throws Exception {
-    String testId = "compositionEditing_withThreeSequences_completes";
     Transformer transformer = new Transformer.Builder(context).build();
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context,
@@ -176,7 +186,6 @@ public class TransformerEndToEndTest {
   @Test
   public void videoEditing_withImageInput_completesWithCorrectFrameCountAndDuration()
       throws Exception {
-    String testId = "videoEditing_withImageInput_completesWithCorrectFrameCountAndDuration";
     Transformer transformer = new Transformer.Builder(context).build();
     ImmutableList<Effect> videoEffects = ImmutableList.of(Presentation.createForHeight(480));
     Effects effects = new Effects(/* audioProcessors= */ ImmutableList.of(), videoEffects);
@@ -201,7 +210,6 @@ public class TransformerEndToEndTest {
   @Test
   public void videoTranscoding_withImageInput_completesWithCorrectFrameCountAndDuration()
       throws Exception {
-    String testId = "videoTranscoding_withImageInput_completesWithCorrectFrameCountAndDuration";
     Transformer transformer = new Transformer.Builder(context).build();
     int expectedFrameCount = 40;
     EditedMediaItem editedMediaItem =
@@ -223,7 +231,6 @@ public class TransformerEndToEndTest {
   @Test
   public void videoEditing_withTextureInput_completesWithCorrectFrameCountAndDuration()
       throws Exception {
-    String testId = "videoEditing_withTextureInput_completesWithCorrectFrameCountAndDuration";
     Bitmap bitmap =
         new DataSourceBitmapLoader(context).loadBitmap(Uri.parse(PNG_ASSET_URI_STRING)).get();
     int expectedFrameCount = 2;
@@ -277,7 +284,6 @@ public class TransformerEndToEndTest {
   @Test
   public void videoTranscoding_withTextureInput_completesWithCorrectFrameCountAndDuration()
       throws Exception {
-    String testId = "videoTranscoding_withTextureInput_completesWithCorrectFrameCountAndDuration";
     Bitmap bitmap =
         new DataSourceBitmapLoader(context).loadBitmap(Uri.parse(PNG_ASSET_URI_STRING)).get();
     int expectedFrameCount = 2;
@@ -327,7 +333,6 @@ public class TransformerEndToEndTest {
 
   @Test
   public void videoEditing_completesWithConsistentFrameCount() throws Exception {
-    String testId = "videoEditing_completesWithConsistentFrameCount";
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context,
         testId,
@@ -359,7 +364,6 @@ public class TransformerEndToEndTest {
 
   @Test
   public void videoEditing_effectsOverTime_completesWithConsistentFrameCount() throws Exception {
-    String testId = "videoEditing_effectsOverTime_completesWithConsistentFrameCount";
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context,
         testId,
@@ -400,7 +404,6 @@ public class TransformerEndToEndTest {
 
   @Test
   public void videoOnly_completesWithConsistentDuration() throws Exception {
-    String testId = "videoOnly_completesWithConsistentDuration";
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context,
         testId,
@@ -430,7 +433,6 @@ public class TransformerEndToEndTest {
 
   @Test
   public void clippedMedia_completesWithClippedDuration() throws Exception {
-    String testId = "clippedMedia_completesWithClippedDuration";
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context,
         testId,
@@ -506,7 +508,6 @@ public class TransformerEndToEndTest {
   @Test
   public void clippedMedia_trimOptimizationEnabled_fallbackToNormalExportUponFormatMismatch()
       throws Exception {
-    String testId = "clippedMedia_trimOptimizationEnabled_fallbackToNormalExportUponFormatMismatch";
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context,
         testId,
@@ -672,7 +673,6 @@ public class TransformerEndToEndTest {
   @Test
   public void clippedMedia_trimOptimizationEnabled_completesWithOptimizationApplied()
       throws Exception {
-    String testId = "clippedMedia_trimOptimizationEnabled_completesWithOptimizationApplied";
     if (!isRunningOnEmulator() || Util.SDK_INT != 33) {
       // The trim optimization is only guaranteed to work on emulator for this (emulator-transcoded)
       // file.
@@ -757,7 +757,6 @@ public class TransformerEndToEndTest {
 
   @Test
   public void videoEditing_trimOptimizationEnabled_fallbackToNormalExport() throws Exception {
-    String testId = "videoEditing_trimOptimizationEnabled_fallbackToNormalExport";
     Transformer transformer =
         new Transformer.Builder(context).experimentalSetTrimOptimizationEnabled(true).build();
     if (!isRunningOnEmulator()) {
@@ -794,7 +793,6 @@ public class TransformerEndToEndTest {
 
   @Test
   public void videoEncoderFormatUnsupported_completesWithError() throws Exception {
-    String testId = "videoEncoderFormatUnsupported_completesWithError";
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context,
         testId,
@@ -827,7 +825,6 @@ public class TransformerEndToEndTest {
   @Test
   public void audioVideoTranscodedFromDifferentSequences_producesExpectedResult() throws Exception {
     Transformer transformer = new Transformer.Builder(context).build();
-    String testId = "audioVideoTranscodedFromDifferentSequences_producesExpectedResult";
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context,
         testId,
@@ -878,7 +875,6 @@ public class TransformerEndToEndTest {
   @Test
   public void loopingTranscodedAudio_producesExpectedResult() throws Exception {
     Transformer transformer = new Transformer.Builder(context).build();
-    String testId = "loopingTranscodedAudio_producesExpectedResult";
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context,
         testId,
@@ -916,7 +912,6 @@ public class TransformerEndToEndTest {
   @Test
   public void loopingTranscodedVideo_producesExpectedResult() throws Exception {
     Transformer transformer = new Transformer.Builder(context).build();
-    String testId = "loopingTranscodedVideo_producesExpectedResult";
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context,
         testId,
@@ -952,7 +947,6 @@ public class TransformerEndToEndTest {
   @Test
   public void loopingImage_producesExpectedResult() throws Exception {
     Transformer transformer = new Transformer.Builder(context).build();
-    String testId = "loopingImage_producesExpectedResult";
     EditedMediaItem audioEditedMediaItem =
         new EditedMediaItem.Builder(MediaItem.fromUri(MP3_ASSET_URI_STRING)).build();
     EditedMediaItemSequence audioSequence =
@@ -982,7 +976,6 @@ public class TransformerEndToEndTest {
   @Test
   public void loopingImage_loopingSequenceIsLongest_producesExpectedResult() throws Exception {
     Transformer transformer = new Transformer.Builder(context).build();
-    String testId = "loopingImage_producesExpectedResult";
     EditedMediaItem audioEditedMediaItem =
         new EditedMediaItem.Builder(MediaItem.fromUri(MP3_ASSET_URI_STRING)).build();
     EditedMediaItemSequence audioSequence = new EditedMediaItemSequence(audioEditedMediaItem);
@@ -1008,7 +1001,6 @@ public class TransformerEndToEndTest {
 
   @Test
   public void audioTranscode_processesInInt16Pcm() throws Exception {
-    String testId = "audioTranscode_processesInInt16Pcm";
     FormatTrackingAudioBufferSink audioFormatTracker = new FormatTrackingAudioBufferSink();
 
     Transformer transformer = new Transformer.Builder(context).build();
@@ -1032,7 +1024,6 @@ public class TransformerEndToEndTest {
 
   @Test
   public void audioEditing_monoToStereo_outputsStereo() throws Exception {
-    String testId = "audioEditing_monoToStereo_outputsStereo";
 
     ChannelMixingAudioProcessor channelMixingAudioProcessor = new ChannelMixingAudioProcessor();
     channelMixingAudioProcessor.putChannelMixingMatrix(
@@ -1056,7 +1047,6 @@ public class TransformerEndToEndTest {
 
   @Test
   public void transcode_withOutputVideoMimeTypeAv1_completesSuccessfully() throws Exception {
-    String testId = "transcode_withOutputVideoMimeTypeAv1_completesSuccessfully";
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context,
         testId,
@@ -1089,7 +1079,6 @@ public class TransformerEndToEndTest {
 
   @Test
   public void transcode_withOutputAudioMimeTypeAac_completesSuccessfully() throws Exception {
-    String testId = "transcode_withOutputAudioMimeTypeAac_completesSuccessfully";
     MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP3_ASSET_URI_STRING));
     EditedMediaItem editedMediaItem = new EditedMediaItem.Builder(mediaItem).build();
     Transformer transformer =
@@ -1111,7 +1100,6 @@ public class TransformerEndToEndTest {
 
   @Test
   public void transmux_audioWithEditList_preservesDuration() throws Exception {
-    String testId = "transmux_audioWithEditList_preservesDuration";
     Context context = ApplicationProvider.getApplicationContext();
     Transformer transformer = new Transformer.Builder(context).build();
     MediaItem mediaItem =
@@ -1151,7 +1139,6 @@ public class TransformerEndToEndTest {
 
   @Test
   public void transmux_audioWithEditListUsingInAppMuxer_preservesDuration() throws Exception {
-    String testId = "transmux_AudioWithEditListUsingInAppMuxer_preservesDuration";
     Context context = ApplicationProvider.getApplicationContext();
     Transformer transformer =
         new Transformer.Builder(context)
@@ -1191,7 +1178,6 @@ public class TransformerEndToEndTest {
 
   @Test
   public void transmux_videoWithEditList_trimsFirstIDRFrameDuration() throws Exception {
-    String testId = "transmux_videoWithEditList_trimsFirstIDRFrameDuration";
     Context context = ApplicationProvider.getApplicationContext();
     assumeTrue(
         "MediaMuxer doesn't support B frames reliably on older SDK versions", Util.SDK_INT >= 29);

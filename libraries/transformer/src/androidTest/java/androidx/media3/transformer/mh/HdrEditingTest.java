@@ -51,7 +51,10 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 
 /**
@@ -61,9 +64,17 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public final class HdrEditingTest {
 
+  @Rule public final TestName testName = new TestName();
+
+  private String testId;
+
+  @Before
+  public void setUpTestId() {
+    testId = testName.getMethodName();
+  }
+
   @Test
   public void export_transmuxHdr10File() throws Exception {
-    String testId = "export_transmuxHdr10File";
     Context context = ApplicationProvider.getApplicationContext();
 
     if (Util.SDK_INT < 24) {
@@ -97,7 +108,6 @@ public final class HdrEditingTest {
 
   @Test
   public void export_transmuxHlg10File() throws Exception {
-    String testId = "export_transmuxHlg10File";
     Context context = ApplicationProvider.getApplicationContext();
 
     if (Util.SDK_INT < 24) {
@@ -131,7 +141,6 @@ public final class HdrEditingTest {
 
   @Test
   public void exportAndTranscode_hdr10File_whenHdrEditingIsSupported() throws Exception {
-    String testId = "exportAndTranscode_hdr10File_whenHdrEditingIsSupported";
     Context context = ApplicationProvider.getApplicationContext();
     Format format = MP4_ASSET_720P_4_SECOND_HDR10_FORMAT;
     if (!deviceSupportsHdrEditing(VIDEO_H265, format.colorInfo)) {
@@ -163,7 +172,6 @@ public final class HdrEditingTest {
 
   @Test
   public void exportAndTranscode_hlg10File_whenHdrEditingIsSupported() throws Exception {
-    String testId = "exportAndTranscode_hlg10File_whenHdrEditingIsSupported";
     Context context = ApplicationProvider.getApplicationContext();
     Format format = MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT;
     if (!deviceSupportsHdrEditing(VIDEO_H265, format.colorInfo)) {
@@ -195,7 +203,6 @@ public final class HdrEditingTest {
 
   @Test
   public void exportAndTranscode_dolbyVisionFile_whenHdrEditingIsSupported() throws Exception {
-    String testId = "exportAndTranscode_dolbyVisionFile_whenHdrEditingIsSupported";
     Context context = ApplicationProvider.getApplicationContext();
     Format format = MP4_ASSET_DOLBY_VISION_HDR_FORMAT;
     if (!deviceSupportsHdrEditing(VIDEO_H265, format.colorInfo)) {
@@ -228,7 +235,6 @@ public final class HdrEditingTest {
   @Test
   public void exportAndTranscode_hdr10File_whenHdrEditingUnsupported_toneMapsOrThrows()
       throws Exception {
-    String testId = "exportAndTranscode_hdr10File_whenHdrEditingUnsupported_toneMapsOrThrows";
     Context context = ApplicationProvider.getApplicationContext();
     Format format = MP4_ASSET_720P_4_SECOND_HDR10_FORMAT;
     if (deviceSupportsHdrEditing(VIDEO_H265, format.colorInfo)) {
@@ -294,7 +300,6 @@ public final class HdrEditingTest {
   @Test
   public void exportAndTranscode_hlg10File_whenHdrEditingUnsupported_toneMapsOrThrows()
       throws Exception {
-    String testId = "exportAndTranscode_hlg10File_whenHdrEditingUnsupported_toneMapsOrThrows";
     Context context = ApplicationProvider.getApplicationContext();
     Format format = MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT;
     if (deviceSupportsHdrEditing(VIDEO_H265, format.colorInfo)) {

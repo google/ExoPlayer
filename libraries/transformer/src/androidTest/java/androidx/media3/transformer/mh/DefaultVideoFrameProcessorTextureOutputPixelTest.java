@@ -54,7 +54,10 @@ import com.google.common.collect.ImmutableList;
 import java.util.List;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 
 /**
@@ -87,7 +90,16 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
   /** Input HLG video of which we only use the first frame. */
   private static final String INPUT_HLG10_MP4_ASSET_STRING = "media/mp4/hlg-1080p.mp4";
 
+  @Rule public final TestName testName = new TestName();
+
+  private String testId;
+
   private @MonotonicNonNull VideoFrameProcessorTestRunner videoFrameProcessorTestRunner;
+
+  @Before
+  public void setUpTestId() {
+    testId = testName.getMethodName();
+  }
 
   @After
   public void release() {
@@ -98,7 +110,6 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
 
   @Test
   public void noEffects_matchesGoldenFile() throws Exception {
-    String testId = "noEffects_matchesGoldenFile";
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         getApplicationContext(),
         testId,
@@ -121,7 +132,6 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
 
   @Test
   public void noEffects_textureInput_matchesGoldenFile() throws Exception {
-    String testId = "noEffects_textureInput_matchesGoldenFile";
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         getApplicationContext(),
         testId,
@@ -152,7 +162,6 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
 
   @Test
   public void bitmapOverlay_matchesGoldenFile() throws Exception {
-    String testId = "bitmapOverlay_matchesGoldenFile";
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         getApplicationContext(),
         testId,
@@ -179,7 +188,6 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
 
   @Test
   public void bitmapOverlay_textureInput_matchesGoldenFile() throws Exception {
-    String testId = "bitmapOverlay_textureInput_matchesGoldenFile";
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         getApplicationContext(),
         testId,
@@ -210,7 +218,6 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
 
   @Test
   public void noEffects_hlg10Input_matchesGoldenFile() throws Exception {
-    String testId = "noEffects_hlg10Input_matchesGoldenFile";
     Context context = getApplicationContext();
     Format format = MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT;
     if (!deviceSupportsHdrEditing(format)) {
@@ -242,7 +249,6 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
 
   @Test
   public void noEffects_hlg10TextureInput_matchesGoldenFile() throws Exception {
-    String testId = "noEffects_hlg10TextureInput_matchesGoldenFile";
     Context context = getApplicationContext();
     Format format = MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT;
     if (!deviceSupportsHdrEditing(format)) {
@@ -278,7 +284,6 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
 
   @Test
   public void noEffects_hdr10Input_matchesGoldenFile() throws Exception {
-    String testId = "noEffects_hdr10Input_matchesGoldenFile";
     Context context = getApplicationContext();
     Format format = MP4_ASSET_720P_4_SECOND_HDR10_FORMAT;
     if (!deviceSupportsHdrEditing(format)) {
@@ -310,7 +315,6 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
 
   @Test
   public void noEffects_hdr10TextureInput_matchesGoldenFile() throws Exception {
-    String testId = "noEffects_hdr10TextureInput_matchesGoldenFile";
     Context context = getApplicationContext();
     Format format = MP4_ASSET_720P_4_SECOND_HDR10_FORMAT;
     if (!deviceSupportsHdrEditing(format)) {
@@ -346,7 +350,6 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
 
   @Test
   public void noOpEffect_hlg10Input_matchesGoldenFile() throws Exception {
-    String testId = "noOpEffect_hlg10Input_matchesGoldenFile";
     Context context = getApplicationContext();
     Format format = MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT;
     if (!deviceSupportsHdrEditing(format)) {
@@ -379,7 +382,6 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
 
   @Test
   public void noOpEffect_hlg10TextureInput_matchesGoldenFile() throws Exception {
-    String testId = "noOpEffect_hlg10TextureInput_matchesGoldenFile";
     Context context = getApplicationContext();
     Format format = MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT;
     if (!deviceSupportsHdrEditing(format)) {
@@ -415,7 +417,6 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
 
   @Test
   public void noOpEffect_hdr10Input_matchesGoldenFile() throws Exception {
-    String testId = "noOpEffect_hdr10Input_matchesGoldenFile";
     Context context = getApplicationContext();
     Format format = MP4_ASSET_720P_4_SECOND_HDR10_FORMAT;
     if (!deviceSupportsHdrEditing(format)) {
@@ -448,7 +449,6 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
 
   @Test
   public void noOpEffect_hdr10TextureInput_matchesGoldenFile() throws Exception {
-    String testId = "noOpEffect_hdr10TextureInput_matchesGoldenFile";
     Context context = getApplicationContext();
     Format format = MP4_ASSET_720P_4_SECOND_HDR10_FORMAT;
     if (!deviceSupportsHdrEditing(format)) {
