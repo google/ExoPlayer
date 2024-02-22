@@ -17,6 +17,8 @@
 package androidx.media3.exoplayer;
 
 import static androidx.media3.container.MdtaMetadataEntry.KEY_ANDROID_CAPTURE_FPS;
+import static androidx.media3.container.MdtaMetadataEntry.TYPE_INDICATOR_FLOAT32;
+import static androidx.media3.container.MdtaMetadataEntry.TYPE_INDICATOR_STRING;
 import static androidx.media3.exoplayer.MetadataRetriever.retrieveMetadata;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
@@ -160,13 +162,11 @@ public class MetadataRetrieverTest {
         new MdtaMetadataEntry(
             /* key= */ "com.android.version",
             /* value= */ Util.getUtf8Bytes("10"),
-            /* localeIndicator= */ 0,
-            MdtaMetadataEntry.TYPE_INDICATOR_STRING);
+            TYPE_INDICATOR_STRING);
     MdtaMetadataEntry expectedTemporalLayersCountMetdata =
         new MdtaMetadataEntry(
             /* key= */ "com.android.video.temporal_layers_count",
             /* value= */ Util.toByteArray(4),
-            /* localeIndicator= */ 0,
             MdtaMetadataEntry.TYPE_INDICATOR_INT32);
     SmtaMetadataEntry expectedSmtaEntry =
         new SmtaMetadataEntry(/* captureFrameRate= */ 240, /* svcTemporalLayerCount= */ 4);
@@ -185,10 +185,7 @@ public class MetadataRetrieverTest {
             /* timescale= */ 1000);
     MdtaMetadataEntry expectedMdtaEntry =
         new MdtaMetadataEntry(
-            KEY_ANDROID_CAPTURE_FPS,
-            /* value= */ new byte[] {67, 112, 0, 0},
-            /* localeIndicator= */ 0,
-            /* typeIndicator= */ 23);
+            KEY_ANDROID_CAPTURE_FPS, /* value= */ Util.toByteArray(240.0f), TYPE_INDICATOR_FLOAT32);
 
     ListenableFuture<TrackGroupArray> trackGroupsFuture =
         retrieveMetadata(context, mediaItem, clock);
@@ -227,8 +224,7 @@ public class MetadataRetrieverTest {
         new MdtaMetadataEntry(
             /* key= */ "com.android.version",
             /* value= */ Util.getUtf8Bytes("13"),
-            /* localeIndicator= */ 0,
-            MdtaMetadataEntry.TYPE_INDICATOR_STRING);
+            TYPE_INDICATOR_STRING);
     SmtaMetadataEntry expectedSmtaEntry =
         new SmtaMetadataEntry(/* captureFrameRate= */ 240, /* svcTemporalLayerCount= */ 4);
     SlowMotionData expectedSlowMotionData =
@@ -238,11 +234,7 @@ public class MetadataRetrieverTest {
                     /* startTimeMs= */ 2128, /* endTimeMs= */ 9856, /* speedDivisor= */ 8)));
     MdtaMetadataEntry expectedCaptureFpsMdtaEntry =
         new MdtaMetadataEntry(
-            KEY_ANDROID_CAPTURE_FPS,
-            /* value= */ new byte[] {67, 112, 0, 0},
-            /* localeIndicator= */ 0,
-            /* typeIndicator= */ 23);
-
+            KEY_ANDROID_CAPTURE_FPS, /* value= */ Util.toByteArray(240.0f), TYPE_INDICATOR_FLOAT32);
     ListenableFuture<TrackGroupArray> trackGroupsFuture =
         retrieveMetadata(context, mediaItem, clock);
     ShadowLooper.idleMainLooper();

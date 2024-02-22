@@ -33,6 +33,9 @@ public final class MdtaMetadataEntry implements Metadata.Entry {
   /** Key for the capture frame rate (in frames per second). */
   public static final String KEY_ANDROID_CAPTURE_FPS = "com.android.capture.fps";
 
+  /** The default locale indicator which implies all speakers in all countries. */
+  public static final int DEFAULT_LOCALE_INDICATOR = 0;
+
   /** The type indicator for UTF-8 string. */
   public static final int TYPE_INDICATOR_STRING = 1;
 
@@ -53,6 +56,14 @@ public final class MdtaMetadataEntry implements Metadata.Entry {
 
   /** The four byte type indicator. */
   public final int typeIndicator;
+
+  /**
+   * Creates a new metadata entry for the specified metadata key/value with {@linkplain
+   * #DEFAULT_LOCALE_INDICATOR default locale indicator}.
+   */
+  public MdtaMetadataEntry(String key, byte[] value, int typeIndicator) {
+    this(key, value, DEFAULT_LOCALE_INDICATOR, typeIndicator);
+  }
 
   /** Creates a new metadata entry for the specified metadata key/value. */
   public MdtaMetadataEntry(String key, byte[] value, int localeIndicator, int typeIndicator) {
