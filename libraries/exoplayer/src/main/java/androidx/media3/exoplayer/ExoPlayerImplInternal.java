@@ -622,6 +622,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
       }
       if (e.isRecoverable
           && (pendingRecoverableRendererError == null
+              || e.errorCode == PlaybackException.ERROR_CODE_AUDIO_TRACK_OFFLOAD_INIT_FAILED
               || e.errorCode == PlaybackException.ERROR_CODE_AUDIO_TRACK_OFFLOAD_WRITE_FAILED)) {
         // If pendingRecoverableRendererError != null and error was
         // ERROR_CODE_AUDIO_TRACK_OFFLOAD_WRITE_FAILED then upon retry, renderer will attempt with

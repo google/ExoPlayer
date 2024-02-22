@@ -17,6 +17,8 @@
 *   Track Selection:
 *   Extractors:
 *   Audio:
+    *   Allow renderer recovery by disabling offload if audio track fails to
+        initialize in offload mode.
 *   Video:
 *   Text:
 *   Metadata:
