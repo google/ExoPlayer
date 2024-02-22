@@ -203,4 +203,9 @@ public class ForwardingAudioSink implements AudioSink {
   public void reset() {
     sink.reset();
   }
+
+  @Override
+  public void release() {
+    sink.release();
+  }
 }
