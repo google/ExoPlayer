@@ -59,7 +59,7 @@ import com.google.android.exoplayer2.util.Util;
   }
 
   private static final float ZOOM_DURATION_SECONDS = 2f;
-  private static final float DIZZY_CROP_ROTATION_PERIOD_US = 1_500_000f;
+  private static final float DIZZY_CROP_ROTATION_PERIOD_US = 5_000_000f;
 
   private static Matrix calculateZoomInTransitionMatrix(long presentationTimeUs) {
     Matrix transformationMatrix = new Matrix();
