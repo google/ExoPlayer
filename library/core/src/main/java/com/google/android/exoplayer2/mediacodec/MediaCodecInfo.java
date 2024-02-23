@@ -28,7 +28,8 @@ import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.REUSE
 import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.REUSE_RESULT_YES_WITHOUT_RECONFIGURATION;
 import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.REUSE_RESULT_YES_WITH_FLUSH;
 import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.REUSE_RESULT_YES_WITH_RECONFIGURATION;
-import static java.lang.annotation.ElementType.TYPE_USE;
+import static com.google.android.exoplayer2.mediacodec.MediaCodecPerformancePointCoverageProvider.COVERAGE_RESULT_NO;
+import static com.google.android.exoplayer2.mediacodec.MediaCodecPerformancePointCoverageProvider.COVERAGE_RESULT_YES;
 
 import android.graphics.Point;
 import android.media.MediaCodec;
@@ -36,10 +37,7 @@ import android.media.MediaCodecInfo.AudioCapabilities;
 import android.media.MediaCodecInfo.CodecCapabilities;
 import android.media.MediaCodecInfo.CodecProfileLevel;
 import android.media.MediaCodecInfo.VideoCapabilities;
-import android.media.MediaCodecInfo.VideoCapabilities.PerformancePoint;
 import android.util.Pair;
-import androidx.annotation.DoNotInline;
-import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
@@ -51,11 +49,6 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-import java.util.List;
 
 /**
  * Information about a {@link MediaCodec} for a given MIME type.
@@ -526,10 +519,10 @@ public final class MediaCodecInfo {
     }
 
     if (Util.SDK_INT >= 29) {
-      @PerformancePointCoverageResult
+      @MediaCodecPerformancePointCoverageProvider.PerformancePointCoverageResult
       int evaluation =
-          Api29.areResolutionAndFrameRateCovered(
-              videoCapabilities, mimeType, width, height, frameRate);
+          MediaCodecPerformancePointCoverageProvider.areResolutionAndFrameRateCovered(
+              videoCapabilities, width, height, frameRate);
       if (evaluation == COVERAGE_RESULT_YES) {
         return true;
       } else if (evaluation == COVERAGE_RESULT_NO) {
@@ -877,81 +870,5 @@ public final class MediaCodecInfo {
     return MimeTypes.VIDEO_H265.equals(mimeType)
         && CodecProfileLevel.HEVCProfileMain10 == profile
         && ("sailfish".equals(Util.DEVICE) || "marlin".equals(Util.DEVICE));
-  }
-
-  /** Possible outcomes of evaluating PerformancePoint coverage */
-  @Documented
-  @Retention(RetentionPolicy.SOURCE)
-  @Target(TYPE_USE)
-  @IntDef({
-    COVERAGE_RESULT_NO_PERFORMANCE_POINTS_UNSUPPORTED,
-    COVERAGE_RESULT_NO,
-    COVERAGE_RESULT_YES
-  })
-  private @interface PerformancePointCoverageResult {}
-
-  /**
-   * The VideoCapabilities does not contain any PerformancePoints or its PerformancePoints do not
-   * cover CDD requirements.
-   */
-  private static final int COVERAGE_RESULT_NO_PERFORMANCE_POINTS_UNSUPPORTED = 0;
-
-  /**
-   * The decoder has at least one PerformancePoint, but none cover the resolution and frame rate.
-   */
-  private static final int COVERAGE_RESULT_NO = 1;
-
-  /** The decoder has a PerformancePoint that covers the resolution and frame rate. */
-  private static final int COVERAGE_RESULT_YES = 2;
-
-  @RequiresApi(29)
-  private static final class Api29 {
-    @DoNotInline
-    public static @PerformancePointCoverageResult int areResolutionAndFrameRateCovered(
-        VideoCapabilities videoCapabilities,
-        String mimeType,
-        int width,
-        int height,
-        double frameRate) {
-      List<PerformancePoint> performancePointList =
-          videoCapabilities.getSupportedPerformancePoints();
-      if (performancePointList == null || performancePointList.isEmpty()) {
-        return COVERAGE_RESULT_NO_PERFORMANCE_POINTS_UNSUPPORTED;
-      }
-
-      // Round frame rate down to to avoid situations where a range check in
-      // covers fails due to slightly exceeding the limits for a standard format
-      // (e.g., 1080p at 30 fps). [Internal ref: b/134706676]
-      PerformancePoint targetPerformancePoint =
-          new PerformancePoint(width, height, (int) frameRate);
-
-      @PerformancePointCoverageResult
-      int performancePointCoverageResult =
-          evaluatePerformancePointCoverage(performancePointList, targetPerformancePoint);
-
-      if (performancePointCoverageResult == COVERAGE_RESULT_NO
-          && mimeType.equals(MimeTypes.VIDEO_H264)) {
-        if (evaluatePerformancePointCoverage(
-                performancePointList,
-                new PerformancePoint(/* width= */ 1280, /* height= */ 720, /* frameRate= */ 60))
-            != COVERAGE_RESULT_YES) {
-          // See https://github.com/google/ExoPlayer/issues/10898,
-          // https://github.com/androidx/media/issues/693 and [internal ref: b/267324685].
-          return COVERAGE_RESULT_NO_PERFORMANCE_POINTS_UNSUPPORTED;
-        }
-      }
-
-      return performancePointCoverageResult;
-    }
-
-    private static @PerformancePointCoverageResult int evaluatePerformancePointCoverage(
-        List<PerformancePoint> performancePointList, PerformancePoint targetPerformancePoint) {
-      for (int i = 0; i < performancePointList.size(); i++) {
-        if (performancePointList.get(i).covers(targetPerformancePoint)) {
-          return COVERAGE_RESULT_YES;
-        }
-      }
-      return COVERAGE_RESULT_NO;
-    }
   }
 }
