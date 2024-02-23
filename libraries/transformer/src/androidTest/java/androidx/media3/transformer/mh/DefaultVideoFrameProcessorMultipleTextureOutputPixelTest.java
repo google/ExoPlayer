@@ -54,8 +54,7 @@ public class DefaultVideoFrameProcessorMultipleTextureOutputPixelTest {
 
   private static final String ORIGINAL_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/electrical_colors/original.png";
-  private static final String MEDIA3_TEST_PNG_ASSET_PATH =
-      "media/bitmap/input_images/media3test.png";
+  private static final String MEDIA3_TEST_PNG_ASSET_PATH = "media/png/media3test.png";
   private static final String SRGB_TO_ELECTRICAL_ORIGINAL_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/electrical_colors/srgb_to_electrical_original.png";
   private static final String SRGB_TO_ELECTRICAL_MEDIA3_TEST_PNG_ASSET_PATH =

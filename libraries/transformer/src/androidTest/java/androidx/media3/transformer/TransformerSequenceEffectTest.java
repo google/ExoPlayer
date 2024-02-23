@@ -64,7 +64,7 @@ import org.junit.runner.RunWith;
 public final class TransformerSequenceEffectTest {
 
   private static final ImmutableList<Effect> NO_EFFECT = ImmutableList.of();
-  private static final String OVERLAY_PNG_ASSET_PATH = "media/bitmap/input_images/media3test.png";
+  private static final String OVERLAY_PNG_ASSET_PATH = "media/png/media3test.png";
   private static final int EXPORT_WIDTH = 360;
   private static final int EXPORT_HEIGHT = 240;
 

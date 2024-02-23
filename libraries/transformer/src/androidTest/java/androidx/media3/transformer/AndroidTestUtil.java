@@ -65,11 +65,9 @@ public final class AndroidTestUtil {
           ImmutableList.of(
               new ScaleAndRotateTransformation.Builder().setRotationDegrees(45).build()));
 
-  public static final String PNG_ASSET_URI_STRING =
-      "asset:///media/bitmap/input_images/media3test.png";
-  public static final String JPG_ASSET_URI_STRING = "asset:///media/bitmap/input_images/london.jpg";
-  public static final String JPG_PORTRAIT_ASSET_URI_STRING =
-      "asset:///media/bitmap/input_images/tokyo.jpg";
+  public static final String PNG_ASSET_URI_STRING = "asset:///media/png/media3test.png";
+  public static final String JPG_ASSET_URI_STRING = "asset:///media/jpeg/london.jpg";
+  public static final String JPG_PORTRAIT_ASSET_URI_STRING = "asset:///media/jpeg/tokyo.jpg";
 
   public static final String MP4_TRIM_OPTIMIZATION_URI_STRING =
       "asset:///media/mp4/internal_emulator_transformer_output.mp4";

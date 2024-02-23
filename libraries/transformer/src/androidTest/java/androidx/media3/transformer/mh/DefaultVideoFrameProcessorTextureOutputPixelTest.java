@@ -74,7 +74,7 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
       "media/bitmap/sample_mp4_first_frame/electrical_colors/original.png";
   private static final String BITMAP_OVERLAY_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/electrical_colors/overlay_bitmap_FrameProcessor.png";
-  private static final String OVERLAY_PNG_ASSET_PATH = "media/bitmap/input_images/media3test.png";
+  private static final String OVERLAY_PNG_ASSET_PATH = "media/png/media3test.png";
 
   private static final String ORIGINAL_HLG10_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/electrical_colors/original_hlg10.png";

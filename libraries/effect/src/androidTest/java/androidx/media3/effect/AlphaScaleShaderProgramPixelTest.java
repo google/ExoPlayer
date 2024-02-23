@@ -60,8 +60,7 @@ public final class AlphaScaleShaderProgramPixelTest {
   // TODO: b/262694346 - Use media3test_srgb instead of media3test, throughout our tests. This is
   //  this test image is intended to be interpreted as sRGB, but media3test is stored in a niche
   //  color transfer, which can make alpha tests more difficult to debug.
-  private static final String ORIGINAL_PNG_ASSET_PATH =
-      "media/bitmap/input_images/media3test_srgb.png";
+  private static final String ORIGINAL_PNG_ASSET_PATH = "media/png/media3test_srgb.png";
   private static final String DECREASE_ALPHA_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/electrical_colors/decrease_alpha.png";
   private static final String INCREASE_ALPHA_PNG_ASSET_PATH =

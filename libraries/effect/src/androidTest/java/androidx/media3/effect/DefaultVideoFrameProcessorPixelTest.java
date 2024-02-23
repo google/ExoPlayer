@@ -60,8 +60,8 @@ public final class DefaultVideoFrameProcessorPixelTest {
 
   private static final String ORIGINAL_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/electrical_colors/original.png";
-  private static final String OVERLAY_PNG_ASSET_PATH = "media/bitmap/input_images/media3test.png";
-  private static final String IMAGE_JPG_ASSET_PATH = "media/bitmap/input_images/london.jpg";
+  private static final String OVERLAY_PNG_ASSET_PATH = "media/png/media3test.png";
+  private static final String IMAGE_JPG_ASSET_PATH = "media/jpeg/london.jpg";
   private static final String IMAGE_TO_VIDEO_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/electrical_colors/london_image_to_video.png";
   private static final String IMAGE_TO_CROPPED_VIDEO_PNG_ASSET_PATH =
