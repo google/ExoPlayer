@@ -1332,7 +1332,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer
     }
 
     // We are not rendering on a surface, the renderer will wait until a surface is set.
-    if (displaySurface == placeholderSurface) {
+    // Opportunistically render to VideoFrameProcessor if effects are enabled.
+    if (displaySurface == placeholderSurface && !videoSinkProvider.isInitialized()) {
       // Skip frames in sync with playback, so we'll be at the right frame if the mode changes.
       if (videoFrameReleaseInfo.getEarlyUs() < 30_000) {
         skipOutputBuffer(codec, bufferIndex, presentationTimeUs);
