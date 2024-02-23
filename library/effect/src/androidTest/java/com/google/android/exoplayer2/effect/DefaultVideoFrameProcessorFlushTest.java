@@ -38,8 +38,7 @@ import org.junit.runner.RunWith;
 /** Test for {@link DefaultVideoFrameProcessor} flushing. */
 @RunWith(AndroidJUnit4.class)
 public class DefaultVideoFrameProcessorFlushTest {
-  private static final String ORIGINAL_PNG_ASSET_PATH =
-      "media/bitmap/input_images/media3test_srgb.png";
+  private static final String ORIGINAL_PNG_ASSET_PATH = "media/png/media3test_srgb.png";
 
   @Rule public final TestName testName = new TestName();
 

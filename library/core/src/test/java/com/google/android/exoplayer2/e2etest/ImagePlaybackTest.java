@@ -49,7 +49,7 @@ public class ImagePlaybackTest {
     PlaybackOutput playbackOutput = PlaybackOutput.register(player, renderersFactory);
     MediaItem mediaItem1 =
         new MediaItem.Builder()
-            .setUri("asset:///media/bitmap/input_images/media3test.png")
+            .setUri("asset:///media/png/media3test.png")
             .setImageDurationMs(3000L)
             .build();
     MediaItem mediaItem2 =

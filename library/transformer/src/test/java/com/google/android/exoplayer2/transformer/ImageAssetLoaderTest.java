@@ -116,8 +116,7 @@ public class ImageAssetLoaderTest {
 
   private static AssetLoader getAssetLoader(AssetLoader.Listener listener) {
     EditedMediaItem editedMediaItem =
-        new EditedMediaItem.Builder(
-                MediaItem.fromUri("asset:///media/bitmap/input_images/media3test.png"))
+        new EditedMediaItem.Builder(MediaItem.fromUri("asset:///media/png/media3test.png"))
             .setDurationUs(1_000_000)
             .setFrameRate(30)
             .build();

@@ -55,12 +55,12 @@ public class ParameterizedImagePlaybackTest {
     // Robolectric's ShadowNativeBitmapFactory doesn't support decoding HEIF format, so we don't
     // test that here.
     // TODO b/300457060 - Find out why jpegs cause flaky failures in this test and then add jpegs to
-    // this list if possible.
+    //  this list if possible.
     return new ArrayList<>(
         Collections2.filter(
             Sets.powerSet(
                 ImmutableSet.of(
-                    "bitmap/input_images/media3test.png",
+                    "png/media3test.png",
                     "bmp/non-motion-photo-shortened-cropped.bmp",
                     "png/non-motion-photo-shortened.png",
                     "webp/ic_launcher_round.webp")),
