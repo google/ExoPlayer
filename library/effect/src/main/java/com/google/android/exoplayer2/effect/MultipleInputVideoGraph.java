@@ -65,7 +65,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 @Deprecated
 public abstract class MultipleInputVideoGraph implements VideoGraph {
 
-  private static final String SHARED_EXECUTOR_NAME = "Transformer:MultipleInputVideoGraph:Thread";
+  private static final String SHARED_EXECUTOR_NAME = "Effect:MultipleInputVideoGraph:Thread";
 
   private static final long RELEASE_WAIT_TIME_MS = 1_000;
   private static final int PRE_COMPOSITOR_TEXTURE_OUTPUT_CAPACITY = 2;
