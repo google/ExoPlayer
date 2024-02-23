@@ -1478,20 +1478,23 @@ import java.util.concurrent.atomic.AtomicBoolean;
   }
 
   private void releaseInternal() {
-    resetInternal(
-        /* resetRenderers= */ true,
-        /* resetPosition= */ false,
-        /* releaseMediaSourceList= */ true,
-        /* resetError= */ false);
-    releaseRenderers();
-    loadControl.onReleased();
-    setState(Player.STATE_IDLE);
-    if (internalPlaybackThread != null) {
-      internalPlaybackThread.quit();
-    }
-    synchronized (this) {
-      released = true;
-      notifyAll();
+    try {
+      resetInternal(
+          /* resetRenderers= */ true,
+          /* resetPosition= */ false,
+          /* releaseMediaSourceList= */ true,
+          /* resetError= */ false);
+      releaseRenderers();
+      loadControl.onReleased();
+      setState(Player.STATE_IDLE);
+    } finally {
+      if (internalPlaybackThread != null) {
+        internalPlaybackThread.quit();
+      }
+      synchronized (this) {
+        released = true;
+        notifyAll();
+      }
     }
   }
 

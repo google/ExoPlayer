@@ -85,6 +85,7 @@ import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -12932,6 +12933,39 @@ public final class ExoPlayerTest {
     ShadowLooper.runMainLooperToNextTask();
 
     verify(listener).onVolumeChanged(anyFloat());
+  }
+
+  /**
+   * This test verifies that {@link ExoPlayer#release()} will return without a timeout reported when
+   * there is a {@link RuntimeException} thrown on the playback thread during releasing the internal
+   * components.
+   */
+  @Test
+  public void release_internalFailure_noTimeoutError() {
+    Player.Listener listener = mock(Player.Listener.class);
+    LoadControl loadControl =
+        spy(
+            new DefaultLoadControl() {
+              @Override
+              public void onReleased() {
+                // Emulate a failure during player release.
+                throw new RuntimeException();
+              }
+            });
+    ExoPlayer player =
+        new TestExoPlayerBuilder(ApplicationProvider.getApplicationContext())
+            .setLoadControl(loadControl)
+            .build();
+    player.addListener(listener);
+    // Ensure load control has not thrown the exception yet.
+    verify(loadControl, never()).onReleased();
+
+    player.release();
+    ShadowLooper.idleMainLooper();
+
+    // Verify load control threw the exception.
+    verify(loadControl).onReleased();
+    verify(listener, never()).onPlayerError(any());
   }
 
   @Test
