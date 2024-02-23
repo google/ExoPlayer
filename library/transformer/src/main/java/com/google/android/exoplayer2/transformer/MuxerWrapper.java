@@ -84,6 +84,26 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   /** Used for appending the remaining samples with the previously muxed partial file. */
   public static final int MUXER_MODE_APPEND = 2;
 
+  /** Represents a reason for which the muxer is released. */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
+  @IntDef({
+    MUXER_RELEASE_REASON_COMPLETED,
+    MUXER_RELEASE_REASON_CANCELLED,
+    MUXER_RELEASE_REASON_ERROR
+  })
+  public @interface MuxerReleaseReason {}
+
+  /** Muxer is released after the export completed successfully. */
+  public static final int MUXER_RELEASE_REASON_COMPLETED = 0;
+
+  /** Muxer is released after the export was cancelled. */
+  public static final int MUXER_RELEASE_REASON_CANCELLED = 1;
+
+  /** Muxer is released after an error occurred during the export. */
+  public static final int MUXER_RELEASE_REASON_ERROR = 2;
+
   private static final String TIMER_THREAD_NAME = "Muxer:Timer";
   private static final String MUXER_TIMEOUT_ERROR_FORMAT_STRING =
       "Abort: no output sample written in the last %d milliseconds. DebugTrace: %s";
@@ -521,19 +541,21 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * mode} to {@link #MUXER_MODE_APPEND}. In all other modes the {@link MuxerWrapper} cannot be used
    * anymore once this method has been called.
    *
-   * @param forCancellation Whether the reason for releasing the resources is the transformation
-   *     cancellation.
+   * <p>The resources are always released when the {@code releaseReason} is {@link
+   * #MUXER_RELEASE_REASON_CANCELLED} or {@link #MUXER_RELEASE_REASON_ERROR}.
+   *
+   * @param releaseReason The reason to release the muxer.
    * @throws Muxer.MuxerException If the underlying {@link Muxer} fails to finish writing the output
-   *     and {@code forCancellation} is false.
+   *     and the {@code releaseReason} is not {@link #MUXER_RELEASE_REASON_CANCELLED}.
    */
-  public void release(boolean forCancellation) throws Muxer.MuxerException {
-    if (muxerMode == MUXER_MODE_MUX_PARTIAL && !forCancellation) {
+  public void release(@MuxerReleaseReason int releaseReason) throws Muxer.MuxerException {
+    if (releaseReason == MUXER_RELEASE_REASON_COMPLETED && muxerMode == MUXER_MODE_MUX_PARTIAL) {
       return;
     }
     isReady = false;
     abortScheduledExecutorService.shutdownNow();
     if (muxer != null) {
-      muxer.release(forCancellation);
+      muxer.release(releaseReason == MUXER_RELEASE_REASON_CANCELLED);
     }
   }
 

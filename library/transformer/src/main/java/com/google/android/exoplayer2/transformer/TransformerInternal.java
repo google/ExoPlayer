@@ -24,6 +24,9 @@ import static com.google.android.exoplayer2.transformer.Composition.HDR_MODE_TON
 import static com.google.android.exoplayer2.transformer.ExoAssetLoaderVideoRenderer.getDecoderOutputColor;
 import static com.google.android.exoplayer2.transformer.ExportException.ERROR_CODE_FAILED_RUNTIME_CHECK;
 import static com.google.android.exoplayer2.transformer.ExportException.ERROR_CODE_MUXING_FAILED;
+import static com.google.android.exoplayer2.transformer.MuxerWrapper.MUXER_RELEASE_REASON_CANCELLED;
+import static com.google.android.exoplayer2.transformer.MuxerWrapper.MUXER_RELEASE_REASON_COMPLETED;
+import static com.google.android.exoplayer2.transformer.MuxerWrapper.MUXER_RELEASE_REASON_ERROR;
 import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STATE_AVAILABLE;
 import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STATE_NOT_STARTED;
 import static com.google.android.exoplayer2.transformer.TransformerUtil.getProcessedTrackType;
@@ -404,7 +407,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         }
       }
       try {
-        muxerWrapper.release(forCancellation);
+        muxerWrapper.release(getMuxerReleaseReason(endReason));
       } catch (Muxer.MuxerException e) {
         if (releaseExportException == null) {
           releaseExportException = ExportException.createForMuxer(e, ERROR_CODE_MUXING_FAILED);
@@ -460,6 +463,18 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                       encoderFactory.getAudioEncoderName(),
                       encoderFactory.getVideoEncoderName())));
     }
+  }
+
+  private @MuxerWrapper.MuxerReleaseReason int getMuxerReleaseReason(
+      @EndReason int exportEndReason) {
+    if (exportEndReason == END_REASON_COMPLETED) {
+      return MUXER_RELEASE_REASON_COMPLETED;
+    } else if (exportEndReason == END_REASON_CANCELLED) {
+      return MUXER_RELEASE_REASON_CANCELLED;
+    } else if (exportEndReason == END_REASON_ERROR) {
+      return MUXER_RELEASE_REASON_ERROR;
+    }
+    throw new IllegalStateException("Unexpected end reason " + exportEndReason);
   }
 
   private void updateProgressInternal() {

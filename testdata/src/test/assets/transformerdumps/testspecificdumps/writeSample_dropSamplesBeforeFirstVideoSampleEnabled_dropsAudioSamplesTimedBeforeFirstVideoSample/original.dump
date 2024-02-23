@@ -42,4 +42,4 @@ sample:
   size = 4
   isKeyFrame = true
   presentationTimeUs = 15
-released = false
+released = true
