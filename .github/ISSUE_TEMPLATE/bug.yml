@@ -19,6 +19,7 @@ body:
       options:
         - Media3 main branch
         - Media3 pre-release (alpha, beta or RC not in this list)
+        - Media3 1.3.0
         - Media3 1.2.1
         - Media3 1.2.0
         - Media3 1.1.1 / ExoPlayer 2.19.1
