@@ -245,7 +245,8 @@ public final class Transformer {
 
     /**
      * @deprecated Set the {@linkplain AudioProcessor audio processors} in an {@link
-     *     EditedMediaItem}, and pass it to {@link #start(EditedMediaItem, String)} instead.
+     *     EditedMediaItem.Builder#setEffects(Effects)}, and pass it to {@link
+     *     #start(EditedMediaItem, String)} instead.
      */
     @CanIgnoreReturnValue
     @Deprecated
@@ -255,8 +256,9 @@ public final class Transformer {
     }
 
     /**
-     * @deprecated Set the {@linkplain Effect video effects} in an {@link EditedMediaItem}, and pass
-     *     it to {@link #start(EditedMediaItem, String)} instead.
+     * @deprecated Set the {@linkplain Effect video effects} in an {@link
+     *     EditedMediaItem.Builder#setEffects(Effects)}, and pass it to {@link
+     *     #start(EditedMediaItem, String)} instead.
      */
     @CanIgnoreReturnValue
     @Deprecated
