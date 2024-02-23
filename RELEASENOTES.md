@@ -22,6 +22,10 @@
     *   Allow renderer recovery by disabling offload if audio track fails to
         initialize in offload mode.
 *   Video:
+    *   Add workaround for a device issue on Galaxy Tab S7 FE, Chromecast with
+        Google TV, and Lenovo M10 FHD Plus that causes 60fps H265 streams to be
+        marked as unsupported
+        ([#966](https://github.com/androidx/media/issues/966)).
 *   Text:
 *   Metadata:
 *   Image:
