@@ -231,7 +231,6 @@ public final class TransformerSequenceEffectTest {
 
   @Test
   public void export_withBt601AndBt709MediaItems() throws Exception {
-    String testId = "export_withBt601AndBt709MediaItems";
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context,
         testId,
@@ -264,7 +263,6 @@ public final class TransformerSequenceEffectTest {
 
   @Test
   public void export_withBt601VideoAndBt709ImageMediaItems() throws Exception {
-    String testId = "export_withBt601VideoAndBt709ImageMediaItems";
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context,
         testId,
