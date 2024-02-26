@@ -51,7 +51,7 @@ import java.util.List;
   public static ByteBuffer wrapBoxesIntoBox(String boxType, List<ByteBuffer> boxes) {
     int totalSize = BOX_TYPE_BYTES + BOX_SIZE_BYTES;
     for (int i = 0; i < boxes.size(); i++) {
-      totalSize += boxes.get(i).limit();
+      totalSize += boxes.get(i).remaining();
     }
 
     ByteBuffer result = ByteBuffer.allocate(totalSize);
@@ -72,7 +72,7 @@ import java.util.List;
   public static ByteBuffer concatenateBuffers(ByteBuffer... buffers) {
     int totalSize = 0;
     for (ByteBuffer buffer : buffers) {
-      totalSize += buffer.limit();
+      totalSize += buffer.remaining();
     }
 
     ByteBuffer result = ByteBuffer.allocate(totalSize);
