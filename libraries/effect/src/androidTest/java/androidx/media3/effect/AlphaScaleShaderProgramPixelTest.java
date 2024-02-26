@@ -62,11 +62,11 @@ public final class AlphaScaleShaderProgramPixelTest {
   //  color transfer, which can make alpha tests more difficult to debug.
   private static final String ORIGINAL_PNG_ASSET_PATH = "media/png/media3test_srgb.png";
   private static final String DECREASE_ALPHA_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/electrical_colors/decrease_alpha.png";
+      "test-generated-goldens/sample_mp4_first_frame/electrical_colors/decrease_alpha.png";
   private static final String INCREASE_ALPHA_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/electrical_colors/increase_alpha.png";
+      "test-generated-goldens/sample_mp4_first_frame/electrical_colors/increase_alpha.png";
   private static final String ZERO_ALPHA_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/electrical_colors/zero_alpha.png";
+      "test-generated-goldens/sample_mp4_first_frame/electrical_colors/zero_alpha.png";
 
   private final Context context = getApplicationContext();
 

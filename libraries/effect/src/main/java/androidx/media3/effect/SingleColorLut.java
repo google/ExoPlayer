@@ -104,7 +104,8 @@ public final class SingleColorLut implements ColorLut {
     //           [(0, 1, 0), (0, 1, 1)],
     //           [(1, 0, 0), (1, 0, 1)],
     //           [(1, 1, 0), (1, 1, 1)]];
-    // media/bitmap/lut/identity.png is an example of how a 32x32x32 3D LUT looks like as an
+    // test-generated-goldens/lut/identity.png is an example of how a 32x32x32 3D LUT looks like as
+    // an
     // 32x32^2 bitmap.
     int length = cube.length;
     int[] bitmapColorsArray = new int[length * length * length];

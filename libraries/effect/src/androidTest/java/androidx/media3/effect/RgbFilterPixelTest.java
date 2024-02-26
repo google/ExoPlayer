@@ -60,11 +60,11 @@ public final class RgbFilterPixelTest {
   @Rule public final TestName testName = new TestName();
 
   private static final String ORIGINAL_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/linear_colors/original.png";
+      "test-generated-goldens/sample_mp4_first_frame/linear_colors/original.png";
   private static final String GRAYSCALE_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/linear_colors/grayscale.png";
+      "test-generated-goldens/sample_mp4_first_frame/linear_colors/grayscale.png";
   private static final String INVERT_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/linear_colors/invert.png";
+      "test-generated-goldens/sample_mp4_first_frame/linear_colors/invert.png";
 
   private final Context context = getApplicationContext();
 

@@ -45,11 +45,11 @@ public class DefaultVideoFrameProcessorImageFrameOutputTest {
   @Rule public final TestName testName = new TestName();
 
   private static final String ORIGINAL_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/electrical_colors/original.png";
+      "test-generated-goldens/sample_mp4_first_frame/electrical_colors/original.png";
   private static final String SCALE_WIDE_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/electrical_colors/scale_wide.png";
+      "test-generated-goldens/sample_mp4_first_frame/electrical_colors/scale_wide.png";
   private static final String BITMAP_OVERLAY_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/electrical_colors/overlay_bitmap_FrameProcessor.png";
+      "test-generated-goldens/sample_mp4_first_frame/electrical_colors/overlay_bitmap_FrameProcessor.png";
 
   private @MonotonicNonNull String testId;
   private @MonotonicNonNull VideoFrameProcessorTestRunner videoFrameProcessorTestRunner;

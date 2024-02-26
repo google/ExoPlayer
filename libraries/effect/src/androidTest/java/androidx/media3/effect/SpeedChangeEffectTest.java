@@ -45,7 +45,7 @@ public class SpeedChangeEffectTest {
   @Rule public final TestName testName = new TestName();
 
   private static final String IMAGE_PATH =
-      "media/bitmap/sample_mp4_first_frame/electrical_colors/original.png";
+      "test-generated-goldens/sample_mp4_first_frame/electrical_colors/original.png";
 
   @Test
   public void increaseSpeed_outputsFramesAtTheCorrectPresentationTimesUs() throws Exception {

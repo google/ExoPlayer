@@ -66,30 +66,30 @@ public class OverlayShaderProgramPixelTest {
 
   private static final String OVERLAY_PNG_ASSET_PATH = "media/png/media3test.png";
   private static final String ORIGINAL_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/electrical_colors/original.png";
+      "test-generated-goldens/sample_mp4_first_frame/electrical_colors/original.png";
   private static final String OVERLAY_BITMAP_DEFAULT =
-      "media/bitmap/sample_mp4_first_frame/electrical_colors/overlay_bitmap_default.png";
+      "test-generated-goldens/sample_mp4_first_frame/electrical_colors/overlay_bitmap_default.png";
   private static final String OVERLAY_BITMAP_DOUBLY_ANCHORED =
-      "media/bitmap/sample_mp4_first_frame/electrical_colors/overlay_bitmap_anchored.png";
+      "test-generated-goldens/sample_mp4_first_frame/electrical_colors/overlay_bitmap_anchored.png";
 
   private static final String OVERLAY_BITMAP_OVERLAY_ANCHORED =
-      "media/bitmap/sample_mp4_first_frame/electrical_colors/overlay_bitmap_overlayAnchored.png";
+      "test-generated-goldens/sample_mp4_first_frame/electrical_colors/overlay_bitmap_overlayAnchored.png";
   private static final String OVERLAY_BITMAP_SCALED =
-      "media/bitmap/sample_mp4_first_frame/electrical_colors/overlay_bitmap_scaled.png";
+      "test-generated-goldens/sample_mp4_first_frame/electrical_colors/overlay_bitmap_scaled.png";
   private static final String OVERLAY_BITMAP_ROTATED90 =
-      "media/bitmap/sample_mp4_first_frame/electrical_colors/overlay_bitmap_rotated90.png";
+      "test-generated-goldens/sample_mp4_first_frame/electrical_colors/overlay_bitmap_rotated90.png";
   private static final String OVERLAY_BITMAP_TRANSLUCENT =
-      "media/bitmap/sample_mp4_first_frame/electrical_colors/overlay_bitmap_translucent.png";
+      "test-generated-goldens/sample_mp4_first_frame/electrical_colors/overlay_bitmap_translucent.png";
   private static final String OVERLAY_TEXT_DEFAULT =
-      "media/bitmap/sample_mp4_first_frame/electrical_colors/overlay_text_default.png";
+      "test-generated-goldens/sample_mp4_first_frame/electrical_colors/overlay_text_default.png";
   private static final String OVERLAY_TEXT_SPAN_SCALED =
-      "media/bitmap/sample_mp4_first_frame/electrical_colors/overlay_text_span_scaled.png";
+      "test-generated-goldens/sample_mp4_first_frame/electrical_colors/overlay_text_span_scaled.png";
   private static final String OVERLAY_TEXT_TRANSLATE =
-      "media/bitmap/sample_mp4_first_frame/electrical_colors/overlay_text_translate.png";
+      "test-generated-goldens/sample_mp4_first_frame/electrical_colors/overlay_text_translate.png";
   private static final String OVERLAY_MULTIPLE =
-      "media/bitmap/sample_mp4_first_frame/electrical_colors/overlay_multiple.png";
+      "test-generated-goldens/sample_mp4_first_frame/electrical_colors/overlay_multiple.png";
   private static final String OVERLAY_OVERLAP =
-      "media/bitmap/sample_mp4_first_frame/electrical_colors/overlay_overlap.png";
+      "test-generated-goldens/sample_mp4_first_frame/electrical_colors/overlay_overlap.png";
 
   private final Context context = getApplicationContext();
 

@@ -60,7 +60,7 @@ public final class TransformerMultiSequenceCompositionTest {
   // TODO: b/301242589 - Fix this test on the crow emulator, and re-generate bitmaps using the crow
   //  emulator, for consistency with other pixel tests.
   private static final String PNG_ASSET_BASE_PATH =
-      "media/bitmap/transformer_multi_sequence_composition_test";
+      "test-generated-goldens/transformer_multi_sequence_composition_test";
 
   // The duration of one frame of the 30 FPS test video, in milliseconds.
   private static final long ONE_FRAME_DURATION_MS = 35;
