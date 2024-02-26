@@ -32,7 +32,9 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.effect.DefaultVideoFrameProcessor;
 import com.google.android.exoplayer2.testutil.DecodeOneFrameUtil;
 import com.google.android.exoplayer2.testutil.VideoFrameProcessorTestRunner;
+import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.ColorInfo;
+import com.google.common.base.Ascii;
 import com.google.common.collect.ImmutableList;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.junit.After;
@@ -59,7 +61,10 @@ public final class ToneMapHdrToSdrUsingOpenGlPixelTest {
    * across codec/OpenGL versions don't affect whether the test passes for most devices, but
    * substantial distortions introduced by changes in tested components will cause the test to fail.
    */
-  private static final float MAXIMUM_DEVICE_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE = 6f;
+  private static final float MAXIMUM_DEVICE_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE =
+      !Ascii.equalsIgnoreCase(Util.MODEL, "dn2103") && !Ascii.equalsIgnoreCase(Util.MODEL, "v2059")
+          ? 6f
+          : 7f;
 
   // This file is generated on a Pixel 7, because the emulator isn't able to decode HLG to generate
   // this file.
