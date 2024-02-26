@@ -57,21 +57,21 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public final class HslAdjustmentPixelTest {
   private static final String ORIGINAL_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/linear_colors/original.png";
+      "test-generated-goldens/sample_mp4_first_frame/linear_colors/original.png";
   private static final String MINIMUM_SATURATION_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/linear_colors/minimum_saturation.png";
+      "test-generated-goldens/sample_mp4_first_frame/linear_colors/minimum_saturation.png";
   private static final String MAXIMUM_SATURATION_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/linear_colors/maximum_saturation.png";
+      "test-generated-goldens/sample_mp4_first_frame/linear_colors/maximum_saturation.png";
   private static final String ROTATE_HUE_BY_NEGATIVE_90_DEGREES_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/linear_colors/rotate_hue_by_negative_90_degrees.png";
+      "test-generated-goldens/sample_mp4_first_frame/linear_colors/rotate_hue_by_negative_90_degrees.png";
   private static final String ROTATE_HUE_BY_60_DEGREES_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/linear_colors/rotate_hue_by_60_degrees.png";
+      "test-generated-goldens/sample_mp4_first_frame/linear_colors/rotate_hue_by_60_degrees.png";
   private static final String DECREASE_LIGHTNESS_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/linear_colors/decrease_lightness.png";
+      "test-generated-goldens/sample_mp4_first_frame/linear_colors/decrease_lightness.png";
   private static final String INCREASE_LIGHTNESS_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/linear_colors/increase_lightness.png";
+      "test-generated-goldens/sample_mp4_first_frame/linear_colors/increase_lightness.png";
   private static final String ADJUST_ALL_HSL_SETTINGS_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/linear_colors/adjust_all_hsl_settings.png";
+      "test-generated-goldens/sample_mp4_first_frame/linear_colors/adjust_all_hsl_settings.png";
 
   private final Context context = getApplicationContext();
   @Rule public final TestName testName = new TestName();

@@ -64,7 +64,7 @@ import org.junit.runners.Parameterized.Parameters;
 @RunWith(Parameterized.class)
 public class EffectPlaybackTest {
 
-  private static final String TEST_DIRECTORY = "media/bitmap/ExoPlayerPlaybackTest/";
+  private static final String TEST_DIRECTORY = "test-generated-goldens/ExoPlayerPlaybackTest/";
   private static final String MP4_ASSET_URI_STRING = "asset:///media/mp4/sample.mp4";
   private static final Format MP4_ASSET_FORMAT =
       new Format.Builder()

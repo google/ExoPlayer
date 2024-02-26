@@ -44,7 +44,7 @@ import org.junit.runner.RunWith;
 public class FrameDropTest {
   @Rule public final TestName testName = new TestName();
 
-  private static final String ASSET_PATH = "media/bitmap/FrameDropTest";
+  private static final String ASSET_PATH = "test-generated-goldens/FrameDropTest";
 
   private @MonotonicNonNull TextureBitmapReader textureBitmapReader;
   private @MonotonicNonNull String testId;

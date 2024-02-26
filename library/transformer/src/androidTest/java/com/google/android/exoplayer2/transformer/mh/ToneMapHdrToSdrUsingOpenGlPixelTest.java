@@ -69,11 +69,11 @@ public final class ToneMapHdrToSdrUsingOpenGlPixelTest {
   // This file is generated on a Pixel 7, because the emulator isn't able to decode HLG to generate
   // this file.
   private static final String TONE_MAP_HLG_TO_SDR_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/electrical_colors/tone_map_hlg_to_sdr.png";
+      "test-generated-goldens/sample_mp4_first_frame/electrical_colors/tone_map_hlg_to_sdr.png";
   // This file is generated on a Pixel 7, because the emulator isn't able to decode PQ to generate
   // this file.
   private static final String TONE_MAP_PQ_TO_SDR_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/electrical_colors/tone_map_pq_to_sdr.png";
+      "test-generated-goldens/sample_mp4_first_frame/electrical_colors/tone_map_pq_to_sdr.png";
 
   /** Input HLG video of which we only use the first frame. */
   private static final String HLG_ASSET_STRING = "media/mp4/hlg10-color-test.mp4";

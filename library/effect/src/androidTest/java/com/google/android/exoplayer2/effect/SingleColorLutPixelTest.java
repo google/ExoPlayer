@@ -60,16 +60,19 @@ public class SingleColorLutPixelTest {
   @Rule public final TestName testName = new TestName();
 
   private static final String ORIGINAL_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/linear_colors/original.png";
+      "test-generated-goldens/sample_mp4_first_frame/linear_colors/original.png";
   private static final String LUT_MAP_WHITE_TO_GREEN_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/linear_colors/lut_map_white_to_green.png";
+      "test-generated-goldens/sample_mp4_first_frame/linear_colors/lut_map_white_to_green.png";
   private static final String GRAYSCALE_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/linear_colors/grayscale.png";
+      "test-generated-goldens/sample_mp4_first_frame/linear_colors/grayscale.png";
   private static final String INVERT_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/linear_colors/invert.png";
-  private static final String VERTICAL_HALD_IDENTITY_LUT = "media/bitmap/lut/identity.png";
-  private static final String VERTICAL_HALD_GRAYSCALE_LUT = "media/bitmap/lut/grayscale.png";
-  private static final String VERTICAL_HALD_INVERTED_LUT = "media/bitmap/lut/inverted.png";
+      "test-generated-goldens/sample_mp4_first_frame/linear_colors/invert.png";
+  private static final String VERTICAL_HALD_IDENTITY_LUT =
+      "test-generated-goldens/lut/identity.png";
+  private static final String VERTICAL_HALD_GRAYSCALE_LUT =
+      "test-generated-goldens/lut/grayscale.png";
+  private static final String VERTICAL_HALD_INVERTED_LUT =
+      "test-generated-goldens/lut/inverted.png";
 
   private final Context context = getApplicationContext();
 

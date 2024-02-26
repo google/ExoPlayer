@@ -58,13 +58,13 @@ public final class DefaultShaderProgramPixelTest {
   @Rule public final TestName testName = new TestName();
 
   private static final String ORIGINAL_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/electrical_colors/original.png";
+      "test-generated-goldens/sample_mp4_first_frame/electrical_colors/original.png";
   private static final String TRANSLATE_RIGHT_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/electrical_colors/translate_right.png";
+      "test-generated-goldens/sample_mp4_first_frame/electrical_colors/translate_right.png";
   private static final String SCALE_NARROW_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/electrical_colors/scale_narrow.png";
+      "test-generated-goldens/sample_mp4_first_frame/electrical_colors/scale_narrow.png";
   private static final String ROTATE_90_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/electrical_colors/rotate90.png";
+      "test-generated-goldens/sample_mp4_first_frame/electrical_colors/rotate90.png";
 
   private final Context context = getApplicationContext();
 

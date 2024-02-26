@@ -63,13 +63,13 @@ public final class RgbAdjustmentPixelTest {
   @Rule public final TestName testName = new TestName();
 
   private static final String ORIGINAL_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/linear_colors/original.png";
+      "test-generated-goldens/sample_mp4_first_frame/linear_colors/original.png";
   private static final String ONLY_RED_CHANNEL_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/linear_colors/only_red_channel.png";
+      "test-generated-goldens/sample_mp4_first_frame/linear_colors/only_red_channel.png";
   private static final String INCREASE_RED_CHANNEL_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/linear_colors/increase_red_channel.png";
+      "test-generated-goldens/sample_mp4_first_frame/linear_colors/increase_red_channel.png";
   private static final String INCREASE_BRIGHTNESS_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/linear_colors/increase_brightness.png";
+      "test-generated-goldens/sample_mp4_first_frame/linear_colors/increase_brightness.png";
 
   private final Context context = getApplicationContext();
 

@@ -71,15 +71,15 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
   private static final String ORIGINAL_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/electrical_colors/original.png";
+      "test-generated-goldens/sample_mp4_first_frame/electrical_colors/original.png";
   private static final String BITMAP_OVERLAY_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/electrical_colors/overlay_bitmap_FrameProcessor.png";
+      "test-generated-goldens/sample_mp4_first_frame/electrical_colors/overlay_bitmap_FrameProcessor.png";
   private static final String OVERLAY_PNG_ASSET_PATH = "media/png/media3test.png";
 
   private static final String ORIGINAL_HLG10_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/electrical_colors/original_hlg10.png";
+      "test-generated-goldens/sample_mp4_first_frame/electrical_colors/original_hlg10.png";
   private static final String ORIGINAL_HDR10_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/electrical_colors/original_hdr10.png";
+      "test-generated-goldens/sample_mp4_first_frame/electrical_colors/original_hdr10.png";
 
   /** Input SDR video of which we only use the first frame. */
   private static final String INPUT_SDR_MP4_ASSET_STRING = "media/mp4/sample.mp4";

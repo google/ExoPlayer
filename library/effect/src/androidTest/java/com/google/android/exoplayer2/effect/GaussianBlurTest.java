@@ -44,7 +44,7 @@ import org.junit.runner.RunWith;
 public class GaussianBlurTest {
   @Rule public final TestName testName = new TestName();
 
-  private static final String ASSET_PATH = "media/bitmap/GaussianBlurTest";
+  private static final String ASSET_PATH = "test-generated-goldens/GaussianBlurTest";
   private static final int BLANK_FRAME_WIDTH = 200;
   private static final int BLANK_FRAME_HEIGHT = 100;
   private static final Consumer<SpannableString> TEXT_SPAN_CONSUMER =

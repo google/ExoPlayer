@@ -49,9 +49,9 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public final class ThumbnailStripEffectPixelTest {
   private static final String ORIGINAL_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/linear_colors/original.png";
+      "test-generated-goldens/sample_mp4_first_frame/linear_colors/original.png";
   private static final String TWO_THUMBNAILS_STRIP_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/linear_colors/two_thumbnails_strip.png";
+      "test-generated-goldens/sample_mp4_first_frame/linear_colors/two_thumbnails_strip.png";
   @Rule public final TestName testName = new TestName();
   private final Context context = getApplicationContext();
 
