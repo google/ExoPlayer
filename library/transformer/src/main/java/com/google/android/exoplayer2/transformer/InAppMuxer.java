@@ -21,15 +21,10 @@ import static com.google.android.exoplayer2.muxer.Mp4Muxer.SUPPORTED_VIDEO_SAMPL
 import android.media.MediaCodec.BufferInfo;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.container.Mp4LocationData;
-import com.google.android.exoplayer2.container.Mp4TimestampData;
-import com.google.android.exoplayer2.container.XmpData;
 import com.google.android.exoplayer2.metadata.Metadata;
-import com.google.android.exoplayer2.metadata.mp4.MdtaMetadataEntry;
 import com.google.android.exoplayer2.muxer.Mp4Muxer;
 import com.google.android.exoplayer2.muxer.Mp4Muxer.TrackToken;
 import com.google.android.exoplayer2.util.MimeTypes;
-import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.io.FileNotFoundException;
@@ -62,14 +57,7 @@ public final class InAppMuxer implements Muxer {
      * <p>A {@link Metadata.Entry} can be added or removed. To modify an existing {@link
      * Metadata.Entry}, first remove it and then add a new one.
      *
-     * <p>List of supported {@linkplain Metadata.Entry metadata entries}:
-     *
-     * <ul>
-     *   <li>{@link Mp4LocationData}
-     *   <li>{@link XmpData}
-     *   <li>{@link Mp4TimestampData}
-     *   <li>{@link MdtaMetadataEntry}
-     * </ul>
+     * <p>For the list of supported metadata refer to {@link Mp4Muxer#addMetadata(Metadata.Entry)}.
      */
     void updateMetadataEntries(Set<Metadata.Entry> metadataEntries);
   }
@@ -247,17 +235,7 @@ public final class InAppMuxer implements Muxer {
   public void addMetadata(Metadata metadata) {
     for (int i = 0; i < metadata.length(); i++) {
       Metadata.Entry entry = metadata.get(i);
-      // Keep only supported metadata.
-      // LINT.IfChange(added_metadata)
-      if (entry instanceof Mp4LocationData
-          || entry instanceof XmpData
-          || entry instanceof Mp4TimestampData
-          || (entry instanceof MdtaMetadataEntry
-              && (((MdtaMetadataEntry) entry).key.equals(MdtaMetadataEntry.KEY_ANDROID_CAPTURE_FPS)
-                  || ((MdtaMetadataEntry) entry).typeIndicator
-                      == MdtaMetadataEntry.TYPE_INDICATOR_STRING
-                  || ((MdtaMetadataEntry) entry).typeIndicator
-                      == MdtaMetadataEntry.TYPE_INDICATOR_FLOAT32))) {
+      if (Mp4Muxer.isMetadataSupported(entry)) {
         metadataEntries.add(entry);
       }
     }
@@ -288,29 +266,7 @@ public final class InAppMuxer implements Muxer {
     }
 
     for (Metadata.Entry entry : metadataEntries) {
-      // LINT.IfChange(written_metadata)
-      if (entry instanceof Mp4LocationData) {
-        mp4Muxer.setLocation(
-            ((Mp4LocationData) entry).latitude, ((Mp4LocationData) entry).longitude);
-      } else if (entry instanceof XmpData) {
-        mp4Muxer.addXmp(ByteBuffer.wrap(((XmpData) entry).data));
-      } else if (entry instanceof Mp4TimestampData) {
-        mp4Muxer.setTimestampData((Mp4TimestampData) entry);
-      } else if (entry instanceof MdtaMetadataEntry) {
-        MdtaMetadataEntry mdtaMetadataEntry = (MdtaMetadataEntry) entry;
-        if (mdtaMetadataEntry.key.equals(MdtaMetadataEntry.KEY_ANDROID_CAPTURE_FPS)) {
-          byte[] captureFps = mdtaMetadataEntry.value;
-          mp4Muxer.setCaptureFps(ByteBuffer.wrap(captureFps).getFloat());
-        } else if (mdtaMetadataEntry.typeIndicator == MdtaMetadataEntry.TYPE_INDICATOR_STRING) {
-          mp4Muxer.addMetadata(mdtaMetadataEntry.key, Util.fromUtf8Bytes(mdtaMetadataEntry.value));
-        } else if (mdtaMetadataEntry.typeIndicator == MdtaMetadataEntry.TYPE_INDICATOR_FLOAT32) {
-          mp4Muxer.addMetadata(mdtaMetadataEntry.key, Util.toFloat(mdtaMetadataEntry.value));
-        } else {
-          throw new IllegalStateException("Unsupported MdtaMetadataEntry " + mdtaMetadataEntry.key);
-        }
-      } else {
-        throw new IllegalStateException("Unsupported Metadata.Entry " + entry.getClass().getName());
-      }
+      mp4Muxer.addMetadata(entry);
     }
   }
 }

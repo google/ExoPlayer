@@ -32,10 +32,12 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.container.Mp4LocationData;
+import com.google.android.exoplayer2.metadata.mp4.MdtaMetadataEntry;
 import com.google.android.exoplayer2.muxer.FragmentedMp4Writer.SampleMetadata;
 import com.google.android.exoplayer2.testutil.DumpFileAsserts;
 import com.google.android.exoplayer2.testutil.DumpableMp4Box;
 import com.google.android.exoplayer2.testutil.TestUtil;
+import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.BaseEncoding;
@@ -173,9 +175,19 @@ public class BoxesTest {
 
   @Test
   public void createKeysBox_matchesExpected() throws Exception {
-    List<String> keyNames = ImmutableList.of("com.android.version", "com.android.capture.fps");
+    List<MdtaMetadataEntry> metadataEntries = new ArrayList<>();
+    metadataEntries.add(
+        new MdtaMetadataEntry(
+            "com.android.version",
+            Util.getUtf8Bytes("11"),
+            MdtaMetadataEntry.TYPE_INDICATOR_STRING));
+    metadataEntries.add(
+        new MdtaMetadataEntry(
+            "com.android.capture.fps",
+            Util.toByteArray(120.0f),
+            MdtaMetadataEntry.TYPE_INDICATOR_FLOAT32));
 
-    ByteBuffer keysBox = Boxes.keys(keyNames);
+    ByteBuffer keysBox = Boxes.keys(metadataEntries);
 
     DumpableMp4Box dumpableBox = new DumpableMp4Box(keysBox);
     DumpFileAsserts.assertOutput(context, dumpableBox, getExpectedDumpFilePath("keys_box"));
@@ -183,9 +195,19 @@ public class BoxesTest {
 
   @Test
   public void createIlstBox_matchesExpected() throws Exception {
-    List<Object> values = ImmutableList.of("11", 120.0f);
+    List<MdtaMetadataEntry> metadataEntries = new ArrayList<>();
+    metadataEntries.add(
+        new MdtaMetadataEntry(
+            "com.android.version",
+            Util.getUtf8Bytes("11"),
+            MdtaMetadataEntry.TYPE_INDICATOR_STRING));
+    metadataEntries.add(
+        new MdtaMetadataEntry(
+            "com.android.capture.fps",
+            Util.toByteArray(120.0f),
+            MdtaMetadataEntry.TYPE_INDICATOR_FLOAT32));
 
-    ByteBuffer ilstBox = Boxes.ilst(values);
+    ByteBuffer ilstBox = Boxes.ilst(metadataEntries);
 
     DumpableMp4Box dumpableBox = new DumpableMp4Box(ilstBox);
     DumpFileAsserts.assertOutput(context, dumpableBox, getExpectedDumpFilePath("ilst_box"));

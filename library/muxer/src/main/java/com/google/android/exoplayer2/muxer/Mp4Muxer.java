@@ -25,8 +25,13 @@ import androidx.annotation.FloatRange;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.container.Mp4LocationData;
 import com.google.android.exoplayer2.container.Mp4TimestampData;
+import com.google.android.exoplayer2.container.XmpData;
+import com.google.android.exoplayer2.metadata.Metadata;
+import com.google.android.exoplayer2.metadata.mp4.MdtaMetadataEntry;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.io.FileOutputStream;
@@ -210,6 +215,20 @@ public final class Mp4Muxer {
   }
 
   /**
+   * Returns whether a given {@link Metadata.Entry metadata} is supported.
+   *
+   * <p>For the list of supported metadata refer to {@link Mp4Muxer#addMetadata(Metadata.Entry)}.
+   */
+  public static boolean isMetadataSupported(Metadata.Entry metadata) {
+    return metadata instanceof Mp4LocationData
+        || (metadata instanceof Mp4TimestampData
+            && isMp4TimestampDataSupported((Mp4TimestampData) metadata))
+        || (metadata instanceof MdtaMetadataEntry
+            && isMdtaMetadataEntrySupported((MdtaMetadataEntry) metadata))
+        || metadata instanceof XmpData;
+  }
+
+  /**
    * Sets the orientation hint for the video playback.
    *
    * @param orientation The orientation, in degrees.
@@ -219,57 +238,85 @@ public final class Mp4Muxer {
   }
 
   /**
-   * Sets the location.
-   *
-   * @param latitude The latitude, in degrees. Its value must be in the range [-90, 90].
-   * @param longitude The longitude, in degrees. Its value must be in the range [-180, 180].
+   * @deprecated Use {@link #addMetadata(Metadata.Entry)} with {@link Mp4LocationData} instead.
    */
+  @Deprecated
   public void setLocation(
       @FloatRange(from = -90.0, to = 90.0) float latitude,
       @FloatRange(from = -180.0, to = 180.0) float longitude) {
-    metadataCollector.setLocation(latitude, longitude);
+    addMetadata(new Mp4LocationData(latitude, longitude));
   }
 
   /**
-   * Sets the capture frame rate.
-   *
-   * @param captureFps The frame rate.
+   * @deprecated Use {@link #addMetadata(Metadata.Entry)} with {@link MdtaMetadataEntry} instead.
    */
+  @Deprecated
   public void setCaptureFps(float captureFps) {
-    metadataCollector.setCaptureFps(captureFps);
+    addMetadata(
+        new MdtaMetadataEntry(
+            MdtaMetadataEntry.KEY_ANDROID_CAPTURE_FPS,
+            Util.toByteArray(captureFps),
+            MdtaMetadataEntry.TYPE_INDICATOR_FLOAT32));
   }
 
   /**
-   * Sets the timestamp data (creation time and modification time) for the output file.
-   *
-   * <p>If this method is not called, the file creation time and modification time will be when the
-   * {@link Mp4Muxer} was {@linkplain Builder#build() created}.
+   * @deprecated Use {@link #addMetadata(Metadata.Entry)} with {@link Mp4TimestampData} instead.
    */
+  @Deprecated
   public void setTimestampData(Mp4TimestampData timestampData) {
-    checkArgument(
-        timestampData.creationTimestampSeconds <= UNSIGNED_INT_MAX_VALUE
-            && timestampData.modificationTimestampSeconds <= UNSIGNED_INT_MAX_VALUE,
-        "Only 32-bit long timestamp is supported");
-    metadataCollector.setTimestampData(timestampData);
+    addMetadata(timestampData);
   }
 
   /**
-   * Adds custom metadata.
-   *
-   * @param key The metadata key in {@link String} format.
-   * @param value The metadata value in {@link String} or {@link Float} format.
+   * @deprecated Use {@link #addMetadata(Metadata.Entry)} with {@link MdtaMetadataEntry} instead.
    */
+  @Deprecated
   public void addMetadata(String key, Object value) {
-    metadataCollector.addMetadata(key, value);
+    MdtaMetadataEntry mdtaMetadataEntry = null;
+    if (value instanceof String) {
+      mdtaMetadataEntry =
+          new MdtaMetadataEntry(
+              key, Util.getUtf8Bytes((String) value), MdtaMetadataEntry.TYPE_INDICATOR_STRING);
+    } else if (value instanceof Float) {
+      mdtaMetadataEntry =
+          new MdtaMetadataEntry(
+              key, Util.toByteArray((Float) value), MdtaMetadataEntry.TYPE_INDICATOR_FLOAT32);
+    } else {
+      throw new IllegalArgumentException("Unsupported metadata");
+    }
+    addMetadata(mdtaMetadataEntry);
   }
 
   /**
-   * Adds xmp data.
+   * Adds metadata for the output file.
    *
-   * @param xmp The xmp {@link ByteBuffer}.
+   * <p>List of supported {@linkplain Metadata.Entry metadata entries}:
+   *
+   * <ul>
+   *   <li>{@link Mp4LocationData}
+   *   <li>{@link Mp4TimestampData}
+   *   <li>{@link MdtaMetadataEntry}: Only {@linkplain MdtaMetadataEntry#TYPE_INDICATOR_STRING
+   *       string type} or {@linkplain MdtaMetadataEntry#TYPE_INDICATOR_FLOAT32 float type} value is
+   *       supported.
+   *   <li>{@link XmpData}
+   * </ul>
+   *
+   * @param metadata The {@linkplain Metadata.Entry metadata}. An {@link IllegalArgumentException}
+   *     is throw if the {@linkplain Metadata.Entry metadata} is not supported.
    */
+  public void addMetadata(Metadata.Entry metadata) {
+    checkArgument(isMetadataSupported(metadata), "Unsupported metadata");
+    metadataCollector.addMetadata(metadata);
+  }
+
+  /**
+   * @deprecated Use {@link #addMetadata(Metadata.Entry)} with {@link XmpData} instead.
+   */
+  @Deprecated
   public void addXmp(ByteBuffer xmp) {
-    metadataCollector.addXmp(xmp);
+    byte[] xmpData = new byte[xmp.remaining()];
+    xmp.get(xmpData, 0, xmpData.length);
+    addMetadata(new XmpData(xmpData));
   }
 
   /**
@@ -311,5 +358,15 @@ public final class Mp4Muxer {
   /** Closes the MP4 file. */
   public void close() throws IOException {
     mp4Writer.close();
+  }
+
+  private static boolean isMdtaMetadataEntrySupported(MdtaMetadataEntry mdtaMetadataEntry) {
+    return mdtaMetadataEntry.typeIndicator == MdtaMetadataEntry.TYPE_INDICATOR_STRING
+        || mdtaMetadataEntry.typeIndicator == MdtaMetadataEntry.TYPE_INDICATOR_FLOAT32;
+  }
+
+  private static boolean isMp4TimestampDataSupported(Mp4TimestampData timestampData) {
+    return timestampData.creationTimestampSeconds <= UNSIGNED_INT_MAX_VALUE
+        && timestampData.modificationTimestampSeconds <= UNSIGNED_INT_MAX_VALUE;
   }
 }
