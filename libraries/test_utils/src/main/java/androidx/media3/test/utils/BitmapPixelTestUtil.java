@@ -15,6 +15,7 @@
  */
 package androidx.media3.test.utils;
 
+import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Util.SDK_INT;
@@ -55,6 +56,23 @@ import org.junit.AssumptionViolatedException;
 //  move this back to the effect tests directory.
 @UnstableApi
 public class BitmapPixelTestUtil {
+
+  /** Represents a {@link ByteBuffer} read from an {@link Image}. */
+  public static final class ImageBuffer {
+    public final ByteBuffer buffer;
+    public final int width;
+    public final int height;
+    public final int rowStride;
+    public final int pixelStride;
+
+    public ImageBuffer(ByteBuffer buffer, int width, int height, int rowStride, int pixelStride) {
+      this.buffer = buffer;
+      this.width = width;
+      this.height = height;
+      this.rowStride = rowStride;
+      this.pixelStride = pixelStride;
+    }
+  }
 
   private static final String TAG = "BitmapPixelTestUtil";
 
@@ -161,24 +179,48 @@ public class BitmapPixelTestUtil {
    * component image.
    */
   public static Bitmap createArgb8888BitmapFromRgba8888Image(Image image) {
-    int width = image.getWidth();
-    int height = image.getHeight();
+    checkArgument(image.getPlanes().length == 1);
+    checkArgument(image.getFormat() == PixelFormat.RGBA_8888);
+    Image.Plane plane = image.getPlanes()[0];
+    return createArgb8888BitmapFromRgba8888ImageBuffer(
+        new ImageBuffer(
+            plane.getBuffer(),
+            image.getWidth(),
+            image.getHeight(),
+            plane.getRowStride(),
+            plane.getPixelStride()));
+  }
+
+  /** Returns the {@link ImageBuffer} that is copied from the {@link Image}'s internal buffer. */
+  public static ImageBuffer copyByteBufferFromRbga8888Image(Image image) {
     assertThat(image.getPlanes()).hasLength(1);
     assertThat(image.getFormat()).isEqualTo(PixelFormat.RGBA_8888);
     Image.Plane plane = image.getPlanes()[0];
-    ByteBuffer buffer = plane.getBuffer();
-    int[] colors = new int[width * height];
-    for (int y = 0; y < height; y++) {
-      for (int x = 0; x < width; x++) {
-        int offset = y * plane.getRowStride() + x * plane.getPixelStride();
-        int r = buffer.get(offset) & 0xFF;
-        int g = buffer.get(offset + 1) & 0xFF;
-        int b = buffer.get(offset + 2) & 0xFF;
-        int a = buffer.get(offset + 3) & 0xFF;
-        colors[y * width + x] = Color.argb(a, r, g, b);
+    ByteBuffer copiedBuffer = ByteBuffer.allocate(plane.getBuffer().remaining());
+    copiedBuffer.put(plane.getBuffer());
+    copiedBuffer.flip();
+    return new ImageBuffer(
+        copiedBuffer,
+        image.getWidth(),
+        image.getHeight(),
+        plane.getRowStride(),
+        plane.getPixelStride());
+  }
+
+  public static Bitmap createArgb8888BitmapFromRgba8888ImageBuffer(ImageBuffer imageBuffer) {
+    int[] colors = new int[imageBuffer.width * imageBuffer.height];
+    for (int y = 0; y < imageBuffer.height; y++) {
+      for (int x = 0; x < imageBuffer.width; x++) {
+        int offset = y * imageBuffer.rowStride + x * imageBuffer.pixelStride;
+        int r = imageBuffer.buffer.get(offset) & 0xFF;
+        int g = imageBuffer.buffer.get(offset + 1) & 0xFF;
+        int b = imageBuffer.buffer.get(offset + 2) & 0xFF;
+        int a = imageBuffer.buffer.get(offset + 3) & 0xFF;
+        colors[y * imageBuffer.width + x] = Color.argb(a, r, g, b);
       }
     }
-    return Bitmap.createBitmap(colors, width, height, Bitmap.Config.ARGB_8888);
+    return Bitmap.createBitmap(
+        colors, imageBuffer.width, imageBuffer.height, Bitmap.Config.ARGB_8888);
   }
 
   /**
@@ -348,7 +390,6 @@ public class BitmapPixelTestUtil {
    */
   public static float getBitmapAveragePixelAbsoluteDifferenceArgb8888(
       Bitmap expected, Bitmap actual, @Nullable String testId) {
-    Log.e("TEST", "testId = " + testId);
     return getBitmapAveragePixelAbsoluteDifferenceArgb8888(
         expected, actual, testId, /* differencesBitmapPath= */ null);
   }
