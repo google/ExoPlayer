@@ -22,8 +22,11 @@ import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import android.util.SparseArray;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.audio.AudioProcessingPipeline;
+import com.google.android.exoplayer2.audio.AudioProcessor;
 import com.google.android.exoplayer2.audio.AudioProcessor.AudioFormat;
 import com.google.android.exoplayer2.audio.AudioProcessor.UnhandledAudioFormatException;
+import com.google.common.collect.ImmutableList;
 import java.nio.ByteBuffer;
 import java.util.Objects;
 
@@ -39,17 +42,19 @@ import java.util.Objects;
 /* package */ final class AudioGraph {
   private final AudioMixer mixer;
   private final SparseArray<AudioGraphInput> inputs;
+  private final AudioProcessingPipeline audioProcessingPipeline;
 
-  private AudioFormat outputAudioFormat;
+  private AudioFormat mixerAudioFormat;
   private int finishedInputs;
-  private ByteBuffer currentOutput;
+  private ByteBuffer mixerOutput;
 
   /** Creates an instance. */
-  public AudioGraph(AudioMixer.Factory mixerFactory) {
+  public AudioGraph(AudioMixer.Factory mixerFactory, ImmutableList<AudioProcessor> effects) {
     mixer = mixerFactory.create();
     inputs = new SparseArray<>();
-    currentOutput = EMPTY_BUFFER;
-    outputAudioFormat = AudioFormat.NOT_SET;
+    audioProcessingPipeline = new AudioProcessingPipeline(effects);
+    mixerOutput = EMPTY_BUFFER;
+    mixerAudioFormat = AudioFormat.NOT_SET;
   }
 
   /** Returns whether an {@link AudioFormat} is valid as an input format. */
@@ -73,13 +78,15 @@ import java.util.Objects;
    *
    * <p>Should be called at most once, before {@link #registerInput registering input}.
    *
-   * @param requestedAudioFormat The {@link AudioFormat} requested for output from the mixer.
+   * @param mixerAudioFormat The {@link AudioFormat} requested for output from the mixer.
    * @throws UnhandledAudioFormatException If the audio format is not supported by the {@link
    *     AudioMixer}.
    */
-  public void configure(AudioFormat requestedAudioFormat) throws UnhandledAudioFormatException {
-    this.outputAudioFormat = requestedAudioFormat;
-    mixer.configure(requestedAudioFormat, /* bufferSizeMs= */ C.LENGTH_UNSET, /* startTimeUs= */ 0);
+  public void configure(AudioFormat mixerAudioFormat) throws UnhandledAudioFormatException {
+    this.mixerAudioFormat = mixerAudioFormat;
+    mixer.configure(mixerAudioFormat, /* bufferSizeMs= */ C.LENGTH_UNSET, /* startTimeUs= */ 0);
+    audioProcessingPipeline.configure(mixerAudioFormat);
+    audioProcessingPipeline.flush();
   }
 
   /**
@@ -93,9 +100,9 @@ import java.util.Objects;
     checkArgument(format.pcmEncoding != Format.NO_VALUE);
     try {
       AudioGraphInput audioGraphInput =
-          new AudioGraphInput(outputAudioFormat, editedMediaItem, format);
+          new AudioGraphInput(mixerAudioFormat, editedMediaItem, format);
 
-      if (Objects.equals(outputAudioFormat, AudioFormat.NOT_SET)) {
+      if (Objects.equals(mixerAudioFormat, AudioFormat.NOT_SET)) {
         // Graph not configured, configure before doing anything else.
         configure(audioGraphInput.getOutputAudioFormat());
       }
@@ -113,7 +120,7 @@ import java.util.Objects;
    * AudioFormat#NOT_SET} if not {@linkplain #configure configured}.
    */
   public AudioFormat getOutputAudioFormat() {
-    return outputAudioFormat;
+    return audioProcessingPipeline.getOutputAudioFormat();
   }
 
   /**
@@ -125,11 +132,16 @@ import java.util.Objects;
     if (!mixer.isEnded()) {
       feedMixer();
     }
-    if (currentOutput.hasRemaining()) {
-      return currentOutput;
+    if (!mixerOutput.hasRemaining()) {
+      mixerOutput = mixer.getOutput();
     }
-    currentOutput = mixer.getOutput();
-    return currentOutput;
+
+    if (audioProcessingPipeline.isOperational()) {
+      feedProcessingPipelineFromMixer();
+      return audioProcessingPipeline.getOutput();
+    }
+
+    return mixerOutput;
   }
 
   /** Resets the graph to an unconfigured state, releasing any underlying resources. */
@@ -139,15 +151,31 @@ import java.util.Objects;
     }
     inputs.clear();
     mixer.reset();
+    audioProcessingPipeline.reset();
 
     finishedInputs = 0;
-    currentOutput = EMPTY_BUFFER;
-    outputAudioFormat = AudioFormat.NOT_SET;
+    mixerOutput = EMPTY_BUFFER;
+    mixerAudioFormat = AudioFormat.NOT_SET;
   }
 
   /** Returns whether the input has ended and all queued data has been output. */
   public boolean isEnded() {
-    return !currentOutput.hasRemaining() && finishedInputs >= inputs.size() && mixer.isEnded();
+    if (audioProcessingPipeline.isOperational()) {
+      return audioProcessingPipeline.isEnded();
+    }
+    return isMixerEnded();
+  }
+
+  private boolean isMixerEnded() {
+    return !mixerOutput.hasRemaining() && finishedInputs >= inputs.size() && mixer.isEnded();
+  }
+
+  private void feedProcessingPipelineFromMixer() {
+    if (isMixerEnded()) {
+      audioProcessingPipeline.queueEndOfStream();
+      return;
+    }
+    audioProcessingPipeline.queueInput(mixerOutput);
   }
 
   private void feedMixer() throws ExportException {

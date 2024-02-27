@@ -101,6 +101,9 @@ import com.google.common.collect.ImmutableList;
     if (!firstEditedMediaItem.effects.audioProcessors.isEmpty()) {
       return true;
     }
+    if (!composition.effects.audioProcessors.isEmpty()) {
+      return true;
+    }
     return false;
   }
 
