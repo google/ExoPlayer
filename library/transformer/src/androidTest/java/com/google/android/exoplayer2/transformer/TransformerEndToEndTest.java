@@ -1046,6 +1046,45 @@ public class TransformerEndToEndTest {
   }
 
   @Test
+  public void audioComposition_noEffects_transmuxes() throws Exception {
+    String testId = "audioComposition_noEffects_transmuxes";
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem.Builder(MediaItem.fromUri(Uri.parse(MP4_ASSET_URI_STRING)))
+            .setRemoveVideo(true)
+            .build();
+    Composition composition =
+        new Composition.Builder(new EditedMediaItemSequence(editedMediaItem)).build();
+
+    ExportTestResult result =
+        new TransformerAndroidTestRunner.Builder(context, new Transformer.Builder(context).build())
+            .build()
+            .run(testId, composition);
+
+    assertThat(result.exportResult.audioConversionProcess).isEqualTo(CONVERSION_PROCESS_TRANSMUXED);
+  }
+
+  @Test
+  public void audioComposition_compositionEffects_transcodes() throws Exception {
+    String testId = "audioComposition_compositionEffects_transcodes";
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem.Builder(MediaItem.fromUri(Uri.parse(MP4_ASSET_URI_STRING)))
+            .setRemoveVideo(true)
+            .build();
+    Composition composition =
+        new Composition.Builder(new EditedMediaItemSequence(editedMediaItem))
+            .setEffects(
+                new Effects(ImmutableList.of(createSonic(/* pitch= */ 2f)), ImmutableList.of()))
+            .build();
+
+    ExportTestResult result =
+        new TransformerAndroidTestRunner.Builder(context, new Transformer.Builder(context).build())
+            .build()
+            .run(testId, composition);
+
+    assertThat(result.exportResult.audioConversionProcess).isEqualTo(CONVERSION_PROCESS_TRANSCODED);
+  }
+
+  @Test
   public void transcode_withOutputVideoMimeTypeAv1_completesSuccessfully() throws Exception {
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context,

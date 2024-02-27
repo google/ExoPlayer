@@ -25,7 +25,9 @@ import static com.google.android.exoplayer2.transformer.TestUtil.FILE_AUDIO_VIDE
 import static com.google.android.exoplayer2.transformer.TestUtil.FILE_VIDEO_ONLY;
 import static com.google.android.exoplayer2.transformer.TestUtil.addAudioDecoders;
 import static com.google.android.exoplayer2.transformer.TestUtil.addAudioEncoders;
+import static com.google.android.exoplayer2.transformer.TestUtil.createAudioEffects;
 import static com.google.android.exoplayer2.transformer.TestUtil.createTransformerBuilder;
+import static com.google.android.exoplayer2.transformer.TestUtil.createVolumeScalingAudioProcessor;
 import static com.google.android.exoplayer2.transformer.TestUtil.getDumpFileName;
 import static com.google.android.exoplayer2.transformer.TestUtil.removeEncodersAndDecoders;
 import static org.junit.Assume.assumeFalse;
@@ -136,5 +138,54 @@ public final class ParameterizedItemExportTest {
         ApplicationProvider.getApplicationContext(),
         muxerFactory.getCreatedMuxer(),
         getDumpFileName(assetFile, /* modifications...= */ "silence"));
+  }
+
+  @Test
+  public void generateSilenceWithItemEffect() throws Exception {
+    assumeFalse(VIDEO_ONLY_ASSETS.contains(assetFile));
+    assumeFalse(
+        "Audio effects in Robolectric tests require PCM input",
+        assetFile.equals(FILE_AUDIO_VIDEO) || assetFile.equals(FILE_AUDIO_AMR_NB));
+    Transformer transformer =
+        createTransformerBuilder(muxerFactory, /* enableFallback= */ false).build();
+
+    EditedMediaItem item =
+        new EditedMediaItem.Builder(MediaItem.fromUri(ASSET_URI_PREFIX + assetFile))
+            .setEffects(createAudioEffects(createVolumeScalingAudioProcessor(0f)))
+            .build();
+    Composition composition = new Composition.Builder(new EditedMediaItemSequence(item)).build();
+
+    transformer.start(composition, outputDir.newFile().getPath());
+    TransformerTestRunner.runLooper(transformer);
+
+    DumpFileAsserts.assertOutput(
+        ApplicationProvider.getApplicationContext(),
+        muxerFactory.getCreatedMuxer(),
+        getDumpFileName(assetFile, /* modifications...= */ "silenceFromEffect"));
+  }
+
+  @Test
+  public void generateSilenceWithCompositionEffect() throws Exception {
+    assumeFalse(VIDEO_ONLY_ASSETS.contains(assetFile));
+    assumeFalse(
+        "Audio effects in Robolectric tests require PCM input",
+        assetFile.equals(FILE_AUDIO_VIDEO) || assetFile.equals(FILE_AUDIO_AMR_NB));
+    Transformer transformer =
+        createTransformerBuilder(muxerFactory, /* enableFallback= */ false).build();
+
+    EditedMediaItem item =
+        new EditedMediaItem.Builder(MediaItem.fromUri(ASSET_URI_PREFIX + assetFile)).build();
+    Composition composition =
+        new Composition.Builder(new EditedMediaItemSequence(item))
+            .setEffects(createAudioEffects(createVolumeScalingAudioProcessor(0f)))
+            .build();
+
+    transformer.start(composition, outputDir.newFile().getPath());
+    TransformerTestRunner.runLooper(transformer);
+
+    DumpFileAsserts.assertOutput(
+        ApplicationProvider.getApplicationContext(),
+        muxerFactory.getCreatedMuxer(),
+        getDumpFileName(assetFile, /* modifications...= */ "silenceFromEffect"));
   }
 }

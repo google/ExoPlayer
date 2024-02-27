@@ -92,6 +92,16 @@ public final class TestUtil {
     return audioProcessor;
   }
 
+  public static ChannelMixingAudioProcessor createChannelCountChangingAudioProcessor(
+      int outputChannelCount) {
+    ChannelMixingAudioProcessor audioProcessor = new ChannelMixingAudioProcessor();
+    for (int inputChannelCount = 1; inputChannelCount <= 2; inputChannelCount++) {
+      audioProcessor.putChannelMixingMatrix(
+          ChannelMixingMatrix.create(inputChannelCount, outputChannelCount));
+    }
+    return audioProcessor;
+  }
+
   public static String getDumpFileName(String originalFileName, String... modifications) {
     String fileName = DUMP_FILE_OUTPUT_DIRECTORY + '/' + originalFileName + '/';
     if (modifications.length == 0) {

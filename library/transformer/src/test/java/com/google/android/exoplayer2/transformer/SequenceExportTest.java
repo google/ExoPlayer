@@ -25,6 +25,7 @@ import static com.google.android.exoplayer2.transformer.TestUtil.FILE_AUDIO_VIDE
 import static com.google.android.exoplayer2.transformer.TestUtil.addAudioDecoders;
 import static com.google.android.exoplayer2.transformer.TestUtil.addAudioEncoders;
 import static com.google.android.exoplayer2.transformer.TestUtil.createAudioEffects;
+import static com.google.android.exoplayer2.transformer.TestUtil.createChannelCountChangingAudioProcessor;
 import static com.google.android.exoplayer2.transformer.TestUtil.createPitchChangingAudioProcessor;
 import static com.google.android.exoplayer2.transformer.TestUtil.createTransformerBuilder;
 import static com.google.android.exoplayer2.transformer.TestUtil.getDumpFileName;
@@ -35,6 +36,7 @@ import android.content.Context;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.audio.SonicAudioProcessor;
 import com.google.android.exoplayer2.effect.RgbFilter;
 import com.google.android.exoplayer2.testutil.DumpFileAsserts;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -641,5 +643,71 @@ public final class SequenceExportTest {
             /* originalFileName= */ FILE_AUDIO_RAW_STEREO_48000KHZ,
             /* modifications...= */ "highPitch",
             "sample.wavLowPitch"));
+  }
+
+  @Test
+  public void concatenateTwoAudioItems_withDiffFormatAndCompositionEffects_completesSuccessfully()
+      throws Exception {
+    Transformer transformer =
+        createTransformerBuilder(muxerFactory, /* enableFallback= */ false).build();
+    MediaItem stereo48000Audio =
+        MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW_STEREO_48000KHZ);
+    MediaItem mono44100Audio = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW);
+    Composition composition =
+        new Composition.Builder(
+                new EditedMediaItemSequence(
+                    new EditedMediaItem.Builder(stereo48000Audio).build(),
+                    new EditedMediaItem.Builder(mono44100Audio).build()))
+            .setEffects(createAudioEffects(createPitchChangingAudioProcessor(2f)))
+            .build();
+
+    transformer.start(composition, outputDir.newFile().getPath());
+    ExportResult exportResult = TransformerTestRunner.runLooper(transformer);
+
+    assertThat(exportResult.sampleRate).isEqualTo(48_000);
+    assertThat(exportResult.channelCount).isEqualTo(2);
+    DumpFileAsserts.assertOutput(
+        context,
+        muxerFactory.getCreatedMuxer(),
+        getDumpFileName(
+            /* originalFileName= */ FILE_AUDIO_RAW_STEREO_48000KHZ,
+            /* modifications...= */ "original",
+            "sample.wav",
+            "highPitch"));
+  }
+
+  @Test
+  public void concatenateTwoAudioItems_withDiffEffectsAndCompositionEffects_completesSuccessfully()
+      throws Exception {
+    Transformer transformer =
+        createTransformerBuilder(muxerFactory, /* enableFallback= */ false).build();
+    MediaItem audioOnlyMediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW);
+    EditedMediaItem twoChannelMediaItem =
+        new EditedMediaItem.Builder(audioOnlyMediaItem)
+            .setRemoveVideo(true)
+            .setEffects(
+                createAudioEffects(
+                    createChannelCountChangingAudioProcessor(/* outputChannelCount= */ 2)))
+            .build();
+    EditedMediaItem oneChannelMediaItem =
+        new EditedMediaItem.Builder(audioOnlyMediaItem)
+            .setRemoveVideo(true)
+            .setEffects(
+                createAudioEffects(
+                    createChannelCountChangingAudioProcessor(/* outputChannelCount= */ 1)))
+            .build();
+    SonicAudioProcessor sonicAudioProcessor = new SonicAudioProcessor();
+    sonicAudioProcessor.setOutputSampleRateHz(48_000);
+    Composition composition =
+        new Composition.Builder(
+                new EditedMediaItemSequence(twoChannelMediaItem, oneChannelMediaItem))
+            .setEffects(createAudioEffects(sonicAudioProcessor))
+            .build();
+
+    transformer.start(composition, outputDir.newFile().getPath());
+    ExportResult exportResult = TransformerTestRunner.runLooper(transformer);
+
+    assertThat(exportResult.sampleRate).isEqualTo(48_000);
+    assertThat(exportResult.channelCount).isEqualTo(2);
   }
 }

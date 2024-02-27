@@ -1,0 +1,97 @@
+format audio:
+  averageBitrate = 131072
+  sampleMimeType = audio/mp4a-latm
+  channelCount = 2
+  sampleRate = 48000
+  pcmEncoding = 2
+sample:
+  trackType = audio
+  dataHashCode = -226169394
+  size = 15528
+  isKeyFrame = true
+  presentationTimeUs = 0
+sample:
+  trackType = audio
+  dataHashCode = -1654106973
+  size = 17436
+  isKeyFrame = true
+  presentationTimeUs = 80875
+sample:
+  trackType = audio
+  dataHashCode = 1078555669
+  size = 19384
+  isKeyFrame = true
+  presentationTimeUs = 171687
+sample:
+  trackType = audio
+  dataHashCode = -1783495042
+  size = 8904
+  isKeyFrame = true
+  presentationTimeUs = 272645
+sample:
+  trackType = audio
+  dataHashCode = 1415708326
+  size = 19232
+  isKeyFrame = true
+  presentationTimeUs = 319020
+sample:
+  trackType = audio
+  dataHashCode = -907128755
+  size = 9688
+  isKeyFrame = true
+  presentationTimeUs = 419187
+sample:
+  trackType = audio
+  dataHashCode = -855583041
+  size = 28564
+  isKeyFrame = true
+  presentationTimeUs = 469645
+sample:
+  trackType = audio
+  dataHashCode = -141401047
+  size = 19388
+  isKeyFrame = true
+  presentationTimeUs = 618416
+sample:
+  trackType = audio
+  dataHashCode = -1258167167
+  size = 19680
+  isKeyFrame = true
+  presentationTimeUs = 719395
+sample:
+  trackType = audio
+  dataHashCode = -1950277707
+  size = 19796
+  isKeyFrame = true
+  presentationTimeUs = 821895
+sample:
+  trackType = audio
+  dataHashCode = -71854735
+  size = 9096
+  isKeyFrame = true
+  presentationTimeUs = 925000
+sample:
+  trackType = audio
+  dataHashCode = -1667813033
+  size = 28344
+  isKeyFrame = true
+  presentationTimeUs = 972375
+sample:
+  trackType = audio
+  dataHashCode = 473686109
+  size = 18848
+  isKeyFrame = true
+  presentationTimeUs = 1120000
+sample:
+  trackType = audio
+  dataHashCode = 283620169
+  size = 19384
+  isKeyFrame = true
+  presentationTimeUs = 1218166
+sample:
+  trackType = audio
+  dataHashCode = 581004623
+  size = 5668
+  isKeyFrame = true
+  presentationTimeUs = 1319125
+released = true

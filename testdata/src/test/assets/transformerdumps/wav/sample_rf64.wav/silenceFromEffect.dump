@@ -1,0 +1,31 @@
+format audio:
+  averageBitrate = 131072
+  sampleMimeType = audio/mp4a-latm
+  channelCount = 2
+  sampleRate = 48000
+  pcmEncoding = 2
+sample:
+  trackType = audio
+  dataHashCode = -119496703
+  size = 19200
+  isKeyFrame = true
+  presentationTimeUs = 0
+sample:
+  trackType = audio
+  dataHashCode = -119496703
+  size = 19200
+  isKeyFrame = true
+  presentationTimeUs = 100000
+sample:
+  trackType = audio
+  dataHashCode = -119496703
+  size = 19200
+  isKeyFrame = true
+  presentationTimeUs = 200000
+sample:
+  trackType = audio
+  dataHashCode = 197067009
+  size = 9336
+  isKeyFrame = true
+  presentationTimeUs = 300000
+released = true
