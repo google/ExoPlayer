@@ -35,6 +35,7 @@ import static com.google.common.truth.Truth.assertThat;
 import android.content.Context;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MimeTypes;
+import androidx.media3.common.audio.SonicAudioProcessor;
 import androidx.media3.test.utils.DumpFileAsserts;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -313,6 +314,62 @@ public class CompositionExportTest {
             "repeated3Times",
             "mixed",
             "loopingAudio" + getFileName(FILE_AUDIO_RAW_VIDEO)));
+  }
+
+  @Test
+  public void start_adjustSampleRateWithComposition_completesSuccessfully() throws Exception {
+    SonicAudioProcessor sonicAudioProcessor = new SonicAudioProcessor();
+    sonicAudioProcessor.setOutputSampleRateHz(48000);
+    Transformer transformer =
+        createTransformerBuilder(muxerFactory, /* enableFallback= */ false).build();
+    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW);
+    EditedMediaItem editedMediaItem = new EditedMediaItem.Builder(mediaItem).build();
+    Composition composition =
+        new Composition.Builder(new EditedMediaItemSequence(editedMediaItem))
+            .setEffects(createAudioEffects(sonicAudioProcessor))
+            .build();
+
+    transformer.start(composition, outputDir.newFile().getPath());
+    TransformerTestRunner.runLooper(transformer);
+
+    // TODO: b/311614619 - Use the same dump as
+    //  {@link MediaItemExportTest#start_adjustSampleRate_completesSuccessfully}.
+    DumpFileAsserts.assertOutput(
+        context,
+        muxerFactory.getCreatedMuxer(),
+        getDumpFileName(
+            /* originalFileName= */ FILE_AUDIO_RAW,
+            /* modifications...= */ "48000hzViaComposition"));
+  }
+
+  @Test
+  public void start_compositionOfConcurrentAudio_changesSampleRateWithEffect() throws Exception {
+    SonicAudioProcessor sonicAudioProcessor = new SonicAudioProcessor();
+    sonicAudioProcessor.setOutputSampleRateHz(48000);
+    Transformer transformer =
+        createTransformerBuilder(muxerFactory, /* enableFallback= */ false).build();
+    EditedMediaItem rawAudioEditedMediaItem =
+        new EditedMediaItem.Builder(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW)).build();
+    Composition composition =
+        new Composition.Builder(
+                new EditedMediaItemSequence(rawAudioEditedMediaItem),
+                new EditedMediaItemSequence(rawAudioEditedMediaItem))
+            .setEffects(createAudioEffects(sonicAudioProcessor))
+            .build();
+
+    transformer.start(composition, outputDir.newFile().getPath());
+    ExportResult exportResult = TransformerTestRunner.runLooper(transformer);
+
+    assertThat(exportResult.processedInputs).hasSize(2);
+    assertThat(exportResult.sampleRate).isEqualTo(48000);
+    DumpFileAsserts.assertOutput(
+        context,
+        muxerFactory.getCreatedMuxer(),
+        getDumpFileName(
+            FILE_AUDIO_RAW,
+            /* modifications...= */ "mixed",
+            getFileName(FILE_AUDIO_RAW),
+            "48000hz"));
   }
 
   private static String getFileName(String filePath) {

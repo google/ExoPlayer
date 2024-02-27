@@ -1,0 +1,67 @@
+format audio:
+  averageBitrate = 131072
+  sampleMimeType = audio/mp4a-latm
+  channelCount = 1
+  sampleRate = 44100
+  pcmEncoding = 2
+sample:
+  trackType = audio
+  dataHashCode = -1157240447
+  size = 8820
+  isKeyFrame = true
+  presentationTimeUs = 0
+sample:
+  trackType = audio
+  dataHashCode = -1157240447
+  size = 8820
+  isKeyFrame = true
+  presentationTimeUs = 100000
+sample:
+  trackType = audio
+  dataHashCode = -1157240447
+  size = 8820
+  isKeyFrame = true
+  presentationTimeUs = 200000
+sample:
+  trackType = audio
+  dataHashCode = -1157240447
+  size = 8820
+  isKeyFrame = true
+  presentationTimeUs = 300000
+sample:
+  trackType = audio
+  dataHashCode = -1157240447
+  size = 8820
+  isKeyFrame = true
+  presentationTimeUs = 400000
+sample:
+  trackType = audio
+  dataHashCode = -1157240447
+  size = 8820
+  isKeyFrame = true
+  presentationTimeUs = 500000
+sample:
+  trackType = audio
+  dataHashCode = -1157240447
+  size = 8820
+  isKeyFrame = true
+  presentationTimeUs = 600000
+sample:
+  trackType = audio
+  dataHashCode = -1157240447
+  size = 8820
+  isKeyFrame = true
+  presentationTimeUs = 700000
+sample:
+  trackType = audio
+  dataHashCode = -1157240447
+  size = 8820
+  isKeyFrame = true
+  presentationTimeUs = 800000
+sample:
+  trackType = audio
+  dataHashCode = -1157240447
+  size = 8820
+  isKeyFrame = true
+  presentationTimeUs = 900000
+released = true
