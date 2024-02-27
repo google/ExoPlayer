@@ -24,9 +24,11 @@ import static java.lang.Math.min;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
+import androidx.media3.common.audio.AudioProcessor;
 import androidx.media3.common.audio.AudioProcessor.AudioFormat;
 import androidx.media3.common.util.Util;
 import androidx.media3.decoder.DecoderInputBuffer;
+import com.google.common.collect.ImmutableList;
 import java.nio.ByteBuffer;
 import org.checkerframework.dataflow.qual.Pure;
 
@@ -50,13 +52,14 @@ import org.checkerframework.dataflow.qual.Pure;
       Format firstInputFormat,
       TransformationRequest transformationRequest,
       EditedMediaItem firstEditedMediaItem,
+      ImmutableList<AudioProcessor> compositionAudioProcessors,
       AudioMixer.Factory mixerFactory,
       Codec.EncoderFactory encoderFactory,
       MuxerWrapper muxerWrapper,
       FallbackListener fallbackListener)
       throws ExportException {
     super(firstAssetLoaderTrackFormat, muxerWrapper);
-    audioGraph = new AudioGraph(mixerFactory);
+    audioGraph = new AudioGraph(mixerFactory, compositionAudioProcessors);
     this.firstInputFormat = firstInputFormat;
     firstInput = audioGraph.registerInput(firstEditedMediaItem, firstInputFormat);
     encoderInputAudioFormat = audioGraph.getOutputAudioFormat();

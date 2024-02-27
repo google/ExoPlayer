@@ -655,6 +655,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                 /* firstInputFormat= */ assetLoaderOutputFormat,
                 transformationRequest,
                 firstEditedMediaItem,
+                composition.effects.audioProcessors,
                 audioMixerFactory,
                 encoderFactory,
                 muxerWrapper,

@@ -16,6 +16,7 @@
         negative presentation timestamps before API 30.
     *   Relax trim optimization H.264 level checks.
     *   Add support for changing between SDR and HDR input media in a sequence.
+    *   Add support for composition-level audio effects.
 *   Track Selection:
 *   Extractors:
 *   Audio:

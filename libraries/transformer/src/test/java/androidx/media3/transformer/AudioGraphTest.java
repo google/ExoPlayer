@@ -21,7 +21,9 @@ import static com.google.common.truth.Truth.assertThat;
 import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.audio.AudioProcessor.AudioFormat;
+import androidx.media3.common.audio.SonicAudioProcessor;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.common.collect.ImmutableList;
 import java.nio.ByteBuffer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,7 +46,7 @@ public class AudioGraphTest {
 
   @Test
   public void silentItem_outputsCorrectAmountOfBytes() throws Exception {
-    AudioGraph audioGraph = new AudioGraph(new DefaultAudioMixer.Factory());
+    AudioGraph audioGraph = new AudioGraph(new DefaultAudioMixer.Factory(), ImmutableList.of());
 
     GraphInput input = audioGraph.registerInput(FAKE_ITEM, getPcmFormat(SURROUND_50000));
     input.onMediaItemChanged(
@@ -57,15 +59,32 @@ public class AudioGraphTest {
   }
 
   @Test
+  public void silentItem_withSampleRateChange_outputsCorrectAmountOfBytes() throws Exception {
+    SonicAudioProcessor changeTo100000Hz = new SonicAudioProcessor();
+    changeTo100000Hz.setOutputSampleRateHz(100_000);
+    AudioGraph audioGraph =
+        new AudioGraph(new DefaultAudioMixer.Factory(), ImmutableList.of(changeTo100000Hz));
+
+    GraphInput input = audioGraph.registerInput(FAKE_ITEM, getPcmFormat(SURROUND_50000));
+    input.onMediaItemChanged(
+        FAKE_ITEM, /* durationUs= */ 3_000_000, /* trackFormat= */ null, /* isLast= */ true);
+    int bytesOutput = drainAudioGraph(audioGraph);
+
+    // 3 second stream with 100_000 frames per second.
+    // 16 bit PCM has 2 bytes per channel.
+    assertThat(bytesOutput).isEqualTo(3 * 100_000 * 2 * 6);
+  }
+
+  @Test
   public void getOutputAudioFormat_afterInitialization_isNotSet() throws Exception {
-    AudioGraph audioGraph = new AudioGraph(new DefaultAudioMixer.Factory());
+    AudioGraph audioGraph = new AudioGraph(new DefaultAudioMixer.Factory(), ImmutableList.of());
 
     assertThat(audioGraph.getOutputAudioFormat()).isEqualTo(AudioFormat.NOT_SET);
   }
 
   @Test
   public void getOutputAudioFormat_afterRegisterInput_matchesInputFormat() throws Exception {
-    AudioGraph audioGraph = new AudioGraph(new DefaultAudioMixer.Factory());
+    AudioGraph audioGraph = new AudioGraph(new DefaultAudioMixer.Factory(), ImmutableList.of());
 
     audioGraph.registerInput(FAKE_ITEM, getPcmFormat(MONO_48000));
 
@@ -74,18 +93,18 @@ public class AudioGraphTest {
 
   @Test
   public void getOutputAudioFormat_afterConfigure_matchesConfiguredFormat() throws Exception {
-    AudioGraph audioGraph = new AudioGraph(new DefaultAudioMixer.Factory());
+    AudioGraph audioGraph = new AudioGraph(new DefaultAudioMixer.Factory(), ImmutableList.of());
 
-    audioGraph.configure(SURROUND_50000);
+    audioGraph.configure(/* mixerAudioFormat= */ SURROUND_50000);
 
     assertThat(audioGraph.getOutputAudioFormat()).isEqualTo(SURROUND_50000);
   }
 
   @Test
   public void registerInput_afterConfigure_doesNotChangeOutputFormat() throws Exception {
-    AudioGraph audioGraph = new AudioGraph(new DefaultAudioMixer.Factory());
+    AudioGraph audioGraph = new AudioGraph(new DefaultAudioMixer.Factory(), ImmutableList.of());
 
-    audioGraph.configure(STEREO_44100);
+    audioGraph.configure(/* mixerAudioFormat= */ STEREO_44100);
     audioGraph.registerInput(FAKE_ITEM, getPcmFormat(STEREO_48000));
     audioGraph.registerInput(FAKE_ITEM, getPcmFormat(MONO_44100));
 
@@ -94,12 +113,62 @@ public class AudioGraphTest {
 
   @Test
   public void registerInput_afterRegisterInput_doesNotChangeOutputFormat() throws Exception {
-    AudioGraph audioGraph = new AudioGraph(new DefaultAudioMixer.Factory());
+    AudioGraph audioGraph = new AudioGraph(new DefaultAudioMixer.Factory(), ImmutableList.of());
 
     audioGraph.registerInput(FAKE_ITEM, getPcmFormat(STEREO_48000));
     audioGraph.registerInput(FAKE_ITEM, getPcmFormat(MONO_44100));
 
     assertThat(audioGraph.getOutputAudioFormat()).isEqualTo(STEREO_48000);
+  }
+
+  @Test
+  public void registerInput_afterReset_changesOutputFormat() throws Exception {
+    AudioGraph audioGraph = new AudioGraph(new DefaultAudioMixer.Factory(), ImmutableList.of());
+
+    audioGraph.registerInput(FAKE_ITEM, getPcmFormat(STEREO_48000));
+    audioGraph.reset();
+    audioGraph.registerInput(FAKE_ITEM, getPcmFormat(MONO_44100));
+
+    assertThat(audioGraph.getOutputAudioFormat()).isEqualTo(MONO_44100);
+  }
+
+  @Test
+  public void configure_withAudioProcessor_affectsOutputFormat() throws Exception {
+    SonicAudioProcessor sonicAudioProcessor = new SonicAudioProcessor();
+    sonicAudioProcessor.setOutputSampleRateHz(48_000);
+    AudioGraph audioGraph =
+        new AudioGraph(new DefaultAudioMixer.Factory(), ImmutableList.of(sonicAudioProcessor));
+
+    audioGraph.configure(/* mixerAudioFormat= */ SURROUND_50000);
+
+    assertThat(audioGraph.getOutputAudioFormat().sampleRate).isEqualTo(48_000);
+  }
+
+  @Test
+  public void registerInput_withAudioProcessor_affectsOutputFormat() throws Exception {
+    SonicAudioProcessor sonicAudioProcessor = new SonicAudioProcessor();
+    sonicAudioProcessor.setOutputSampleRateHz(48_000);
+    AudioGraph audioGraph =
+        new AudioGraph(new DefaultAudioMixer.Factory(), ImmutableList.of(sonicAudioProcessor));
+
+    audioGraph.registerInput(FAKE_ITEM, getPcmFormat(SURROUND_50000));
+
+    assertThat(audioGraph.getOutputAudioFormat().sampleRate).isEqualTo(48_000);
+  }
+
+  @Test
+  public void registerInput_withMultipleAudioProcessors_affectsOutputFormat() throws Exception {
+    SonicAudioProcessor changeTo96000Hz = new SonicAudioProcessor();
+    changeTo96000Hz.setOutputSampleRateHz(96_000);
+    SonicAudioProcessor changeTo48000Hz = new SonicAudioProcessor();
+    changeTo48000Hz.setOutputSampleRateHz(48_000);
+    AudioGraph audioGraph =
+        new AudioGraph(
+            new DefaultAudioMixer.Factory(), ImmutableList.of(changeTo96000Hz, changeTo48000Hz));
+
+    audioGraph.registerInput(FAKE_ITEM, getPcmFormat(SURROUND_50000));
+
+    assertThat(audioGraph.getOutputAudioFormat().sampleRate).isEqualTo(48_000);
   }
 
   /** Drains the graph and returns the number of bytes output. */

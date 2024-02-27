@@ -950,8 +950,6 @@ public final class Transformer {
    * <p>This method is under development. A {@link Composition} must meet the following conditions:
    *
    * <ul>
-   *   <li>The {@linkplain Composition#effects composition effects} must contain no {@linkplain
-   *       Effects#audioProcessors audio effects}.
    *   <li>The video composition {@link Presentation} effect is applied after input streams are
    *       composited. Other composition effects are ignored.
    * </ul>
@@ -1539,7 +1537,6 @@ public final class Transformer {
       ComponentListener componentListener,
       long initialTimestampOffsetUs,
       boolean useDefaultAssetLoaderFactory) {
-    checkArgument(composition.effects.audioProcessors.isEmpty());
     checkState(transformerInternal == null, "There is already an export in progress.");
     TransformationRequest transformationRequest = this.transformationRequest;
     if (composition.hdrMode != Composition.HDR_MODE_KEEP_HDR) {
