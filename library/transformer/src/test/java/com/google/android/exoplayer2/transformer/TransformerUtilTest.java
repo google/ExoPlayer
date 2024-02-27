@@ -70,7 +70,8 @@ public final class TransformerUtilTest {
             new DefaultMuxer.Factory(),
             new NoOpMuxerListenerImpl(),
             MUXER_MODE_DEFAULT,
-            /* dropSamplesBeforeFirstVideoSample= */ false);
+            /* dropSamplesBeforeFirstVideoSample= */ false,
+            /* appendVideoFormat= */ null);
 
     assertThat(
             shouldTranscodeVideo(
@@ -102,7 +103,8 @@ public final class TransformerUtilTest {
             new DefaultMuxer.Factory(),
             new NoOpMuxerListenerImpl(),
             MUXER_MODE_DEFAULT,
-            /* dropSamplesBeforeFirstVideoSample= */ false);
+            /* dropSamplesBeforeFirstVideoSample= */ false,
+            /* appendVideoFormat= */ null);
 
     assertThat(
             shouldTranscodeVideo(

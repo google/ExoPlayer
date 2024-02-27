@@ -17,6 +17,7 @@
 package com.google.android.exoplayer2.transformer;
 
 import static com.google.android.exoplayer2.audio.AacUtil.AAC_LC_AUDIO_SAMPLE_COUNT;
+import static com.google.android.exoplayer2.transformer.ExportException.ERROR_CODE_MUXING_APPEND;
 import static com.google.android.exoplayer2.transformer.ExportResult.OPTIMIZATION_ABANDONED_KEYFRAME_PLACEMENT_OPTIMAL_FOR_TRIM;
 import static com.google.android.exoplayer2.transformer.ExportResult.OPTIMIZATION_ABANDONED_OTHER;
 import static com.google.android.exoplayer2.transformer.ExportResult.OPTIMIZATION_ABANDONED_TRIM_AND_TRANSCODING_TRANSFORMATION_REQUESTED;
@@ -1008,7 +1009,8 @@ public final class Transformer {
               muxerFactory,
               componentListener,
               MuxerWrapper.MUXER_MODE_DEFAULT,
-              /* dropSamplesBeforeFirstVideoSample= */ fileStartsOnVideoFrameEnabled),
+              /* dropSamplesBeforeFirstVideoSample= */ fileStartsOnVideoFrameEnabled,
+              /* appendVideoFormat= */ null),
           componentListener,
           /* initialTimestampOffsetUs= */ 0,
           /* useDefaultAssetLoaderFactory= */ false);
@@ -1127,7 +1129,7 @@ public final class Transformer {
       return PROGRESS_STATE_UNAVAILABLE;
     }
 
-    if (transformerState != TRANSFORMER_STATE_PROCESS_FULL_INPUT) {
+    if (isExportTrimOptimization()) {
       return getTrimOptimizationProgress(progressHolder);
     }
 
@@ -1141,6 +1143,11 @@ public final class Transformer {
         || transformerState == TRANSFORMER_STATE_PROCESS_REMAINING_VIDEO
         || transformerState == TRANSFORMER_STATE_PROCESS_AUDIO
         || transformerState == TRANSFORMER_STATE_COPY_OUTPUT;
+  }
+
+  private boolean isExportTrimOptimization() {
+    return transformerState == TRANSFORMER_STATE_PROCESS_MEDIA_START
+        || transformerState == TRANSFORMER_STATE_REMUX_REMAINING_MEDIA;
   }
 
   private @ProgressState int getTrimOptimizationProgress(ProgressHolder progressHolder) {
@@ -1252,7 +1259,8 @@ public final class Transformer {
             muxerFactory,
             componentListener,
             MuxerWrapper.MUXER_MODE_DEFAULT,
-            /* dropSamplesBeforeFirstVideoSample= */ false),
+            /* dropSamplesBeforeFirstVideoSample= */ false,
+            /* appendVideoFormat= */ null),
         componentListener,
         /* initialTimestampOffsetUs= */ 0,
         /* useDefaultAssetLoaderFactory= */ false);
@@ -1284,7 +1292,8 @@ public final class Transformer {
                     muxerFactory,
                     componentListener,
                     MuxerWrapper.MUXER_MODE_MUX_PARTIAL,
-                    /* dropSamplesBeforeFirstVideoSample= */ false);
+                    /* dropSamplesBeforeFirstVideoSample= */ false,
+                    /* appendVideoFormat= */ resumeMetadata.videoFormat);
 
             startInternal(
                 TransmuxTranscodeHelper.createVideoOnlyComposition(
@@ -1328,15 +1337,19 @@ public final class Transformer {
   private void processAudio() {
     transformerState = TRANSFORMER_STATE_PROCESS_AUDIO;
 
-    startInternal(
-        TransmuxTranscodeHelper.createAudioTranscodeAndVideoTransmuxComposition(
-            checkNotNull(composition), checkNotNull(outputFilePath)),
+    MuxerWrapper muxerWrapper =
         new MuxerWrapper(
             checkNotNull(oldFilePath),
             muxerFactory,
             componentListener,
             MuxerWrapper.MUXER_MODE_DEFAULT,
-            /* dropSamplesBeforeFirstVideoSample= */ false),
+            /* dropSamplesBeforeFirstVideoSample= */ false,
+            /* appendVideoFormat= */ null);
+
+    startInternal(
+        TransmuxTranscodeHelper.createAudioTranscodeAndVideoTransmuxComposition(
+            checkNotNull(composition), checkNotNull(outputFilePath)),
+        muxerWrapper,
         componentListener,
         /* initialTimestampOffsetUs= */ 0,
         /* useDefaultAssetLoaderFactory= */ false);
@@ -1425,7 +1438,8 @@ public final class Transformer {
                     muxerFactory,
                     componentListener,
                     MuxerWrapper.MUXER_MODE_MUX_PARTIAL,
-                    /* dropSamplesBeforeFirstVideoSample= */ false);
+                    /* dropSamplesBeforeFirstVideoSample= */ false,
+                    mp4Info.videoFormat);
             if (shouldTranscodeVideo(
                     checkNotNull(mp4Info.videoFormat),
                     composition,
@@ -1482,14 +1496,6 @@ public final class Transformer {
     EditedMediaItem firstEditedMediaItem =
         checkNotNull(composition).sequences.get(0).editedMediaItems.get(0);
     Mp4Info mediaItemInfo = checkNotNull(this.mediaItemInfo);
-    if (!doesFormatsMatch(mediaItemInfo, firstEditedMediaItem)) {
-      remuxingMuxerWrapper = null;
-      transformerInternal = null;
-      exportResultBuilder.reset();
-      exportResultBuilder.setOptimizationResult(OPTIMIZATION_FAILED_FORMAT_MISMATCH);
-      processFullInput();
-      return;
-    }
     long trimStartTimeUs = firstEditedMediaItem.mediaItem.clippingConfiguration.startPositionUs;
     long trimEndTimeUs = firstEditedMediaItem.mediaItem.clippingConfiguration.endPositionUs;
     Composition transmuxComposition =
@@ -1509,19 +1515,6 @@ public final class Transformer {
         /* initialTimestampOffsetUs= */ mediaItemInfo.firstSyncSampleTimestampUsAfterTimeUs
             - trimStartTimeUs,
         /* useDefaultAssetLoaderFactory= */ false);
-  }
-
-  private boolean doesFormatsMatch(Mp4Info mediaItemInfo, EditedMediaItem firstMediaItem) {
-    Format videoFormat = checkNotNull(remuxingMuxerWrapper).getTrackFormat(C.TRACK_TYPE_VIDEO);
-    boolean videoFormatMatches =
-        MuxerWrapper.isInitializationDataCompatible(
-            videoFormat, checkNotNull(mediaItemInfo.videoFormat));
-    boolean audioFormatMatches =
-        mediaItemInfo.audioFormat == null
-            || firstMediaItem.removeAudio
-            || mediaItemInfo.audioFormat.initializationDataEquals(
-                checkNotNull(remuxingMuxerWrapper).getTrackFormat(C.TRACK_TYPE_AUDIO));
-    return videoFormatMatches && audioFormatMatches;
   }
 
   private boolean isMultiAsset() {
@@ -1640,6 +1633,16 @@ public final class Transformer {
         @Nullable String audioEncoderName,
         @Nullable String videoEncoderName,
         ExportException exportException) {
+      if (exportException.errorCode == ERROR_CODE_MUXING_APPEND
+          && (isExportTrimOptimization() || isExportResumed())) {
+        remuxingMuxerWrapper = null;
+        transformerInternal = null;
+        exportResultBuilder.reset();
+        exportResultBuilder.setOptimizationResult(OPTIMIZATION_FAILED_FORMAT_MISMATCH);
+        processFullInput();
+        return;
+      }
+
       exportResultBuilder.addProcessedInputs(processedInputs);
 
       // When an export is resumed, the audio and video encoder name (if any) can comes from
