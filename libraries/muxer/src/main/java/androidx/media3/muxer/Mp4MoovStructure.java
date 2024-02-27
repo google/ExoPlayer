@@ -180,12 +180,12 @@ import org.checkerframework.checker.nullness.qual.PolyNull;
             nextTrackId, creationTimestampSeconds, modificationTimestampSeconds, videoDurationUs);
     ByteBuffer udtaBox = Boxes.udta(metadataCollector.locationData);
     ByteBuffer metaBox =
-        metadataCollector.metadataPairs.isEmpty()
+        metadataCollector.metadataEntries.isEmpty()
             ? ByteBuffer.allocate(0)
             : Boxes.meta(
                 Boxes.hdlr(/* handlerType= */ "mdta", /* handlerName= */ ""),
-                Boxes.keys(Lists.newArrayList(metadataCollector.metadataPairs.keySet())),
-                Boxes.ilst(Lists.newArrayList(metadataCollector.metadataPairs.values())));
+                Boxes.keys(Lists.newArrayList(metadataCollector.metadataEntries)),
+                Boxes.ilst(Lists.newArrayList(metadataCollector.metadataEntries)));
 
     ByteBuffer moovBox;
     moovBox =
@@ -199,7 +199,7 @@ import org.checkerframework.checker.nullness.qual.PolyNull;
     // Also add XMP if needed
     if (metadataCollector.xmpData != null) {
       return BoxUtils.concatenateBuffers(
-          moovBox, Boxes.uuid(Boxes.XMP_UUID, metadataCollector.xmpData.duplicate()));
+          moovBox, Boxes.uuid(Boxes.XMP_UUID, ByteBuffer.wrap(metadataCollector.xmpData.data)));
     } else {
       // No need for another copy if there is no XMP to be appended.
       return moovBox;

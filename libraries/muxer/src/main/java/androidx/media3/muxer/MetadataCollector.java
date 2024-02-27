@@ -15,27 +15,28 @@
  */
 package androidx.media3.muxer;
 
-import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.container.Mp4TimestampData.unixTimeToMp4TimeSeconds;
 
+import androidx.media3.common.Metadata;
+import androidx.media3.container.MdtaMetadataEntry;
 import androidx.media3.container.Mp4LocationData;
 import androidx.media3.container.Mp4TimestampData;
-import java.nio.ByteBuffer;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import androidx.media3.container.XmpData;
+import java.util.ArrayList;
+import java.util.List;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** Collects and provides metadata: location, FPS, XMP data, etc. */
 /* package */ final class MetadataCollector {
   public int orientation;
   public @MonotonicNonNull Mp4LocationData locationData;
-  public Map<String, Object> metadataPairs;
+  public List<MdtaMetadataEntry> metadataEntries;
   public Mp4TimestampData timestampData;
-  public @MonotonicNonNull ByteBuffer xmpData;
+  public @MonotonicNonNull XmpData xmpData;
 
   public MetadataCollector() {
     orientation = 0;
-    metadataPairs = new LinkedHashMap<>();
+    metadataEntries = new ArrayList<>();
     long currentTimeInMp4TimeSeconds = unixTimeToMp4TimeSeconds(System.currentTimeMillis());
     timestampData =
         new Mp4TimestampData(
@@ -43,28 +44,21 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             /* modificationTimestampSeconds= */ currentTimeInMp4TimeSeconds);
   }
 
-  public void addXmp(ByteBuffer xmpData) {
-    checkState(this.xmpData == null);
-    this.xmpData = xmpData;
-  }
-
   public void setOrientation(int orientation) {
     this.orientation = orientation;
   }
 
-  public void setLocation(float latitude, float longitude) {
-    locationData = new Mp4LocationData(latitude, longitude);
-  }
-
-  public void setCaptureFps(float captureFps) {
-    metadataPairs.put("com.android.capture.fps", captureFps);
-  }
-
-  public void addMetadata(String key, Object value) {
-    metadataPairs.put(key, value);
-  }
-
-  public void setTimestampData(Mp4TimestampData timestampData) {
-    this.timestampData = timestampData;
+  public void addMetadata(Metadata.Entry metadata) {
+    if (metadata instanceof Mp4LocationData) {
+      locationData = (Mp4LocationData) metadata;
+    } else if (metadata instanceof Mp4TimestampData) {
+      timestampData = (Mp4TimestampData) metadata;
+    } else if (metadata instanceof MdtaMetadataEntry) {
+      metadataEntries.add((MdtaMetadataEntry) metadata);
+    } else if (metadata instanceof XmpData) {
+      xmpData = (XmpData) metadata;
+    } else {
+      throw new IllegalArgumentException("Unsupported metadata");
+    }
   }
 }

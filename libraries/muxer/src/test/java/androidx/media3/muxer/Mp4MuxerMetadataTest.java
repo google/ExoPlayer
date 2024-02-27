@@ -52,7 +52,7 @@ public class Mp4MuxerMetadataTest {
     Mp4Muxer muxer = new Mp4Muxer.Builder(new FileOutputStream(outputFilePath)).build();
 
     try {
-      muxer.setTimestampData(
+      muxer.addMetadata(
           new Mp4TimestampData(
               /* creationTimestampSeconds= */ 1_000_000L,
               /* modificationTimestampSeconds= */ 5_000_000L));
@@ -77,7 +77,7 @@ public class Mp4MuxerMetadataTest {
     Mp4Muxer muxer = new Mp4Muxer.Builder(new FileOutputStream(outputFilePath)).build();
 
     try {
-      muxer.setTimestampData(
+      muxer.addMetadata(
           new Mp4TimestampData(
               /* creationTimestampSeconds= */ 1_000_000L,
               /* modificationTimestampSeconds= */ 5_000_000L));
@@ -104,7 +104,7 @@ public class Mp4MuxerMetadataTest {
     Mp4Muxer muxer = new Mp4Muxer.Builder(new FileOutputStream(outputFilePath)).build();
 
     try {
-      muxer.setTimestampData(
+      muxer.addMetadata(
           new Mp4TimestampData(
               /* creationTimestampSeconds= */ 1_000_000L,
               /* modificationTimestampSeconds= */ 5_000_000L));
@@ -131,7 +131,7 @@ public class Mp4MuxerMetadataTest {
     Mp4Muxer muxer = new Mp4Muxer.Builder(new FileOutputStream(outputFilePath)).build();
 
     try {
-      muxer.setTimestampData(
+      muxer.addMetadata(
           new Mp4TimestampData(
               /* creationTimestampSeconds= */ 1_000_000L,
               /* modificationTimestampSeconds= */ 5_000_000L));
@@ -158,7 +158,7 @@ public class Mp4MuxerMetadataTest {
     Mp4Muxer muxer = new Mp4Muxer.Builder(new FileOutputStream(outputFilePath)).build();
 
     try {
-      muxer.setTimestampData(
+      muxer.addMetadata(
           new Mp4TimestampData(
               /* creationTimestampSeconds= */ 1_000_000L,
               /* modificationTimestampSeconds= */ 5_000_000L));
@@ -184,7 +184,7 @@ public class Mp4MuxerMetadataTest {
     Mp4Muxer muxer = new Mp4Muxer.Builder(new FileOutputStream(outputFilePath)).build();
 
     try {
-      muxer.setTimestampData(
+      muxer.addMetadata(
           new Mp4TimestampData(
               /* creationTimestampSeconds= */ 1_000_000L,
               /* modificationTimestampSeconds= */ 5_000_000L));
@@ -209,7 +209,7 @@ public class Mp4MuxerMetadataTest {
     Mp4Muxer muxer = new Mp4Muxer.Builder(new FileOutputStream(outputFilePath)).build();
 
     try {
-      muxer.setTimestampData(
+      muxer.addMetadata(
           new Mp4TimestampData(
               /* creationTimestampSeconds= */ 1_000_000L,
               /* modificationTimestampSeconds= */ 5_000_000L));
@@ -235,7 +235,7 @@ public class Mp4MuxerMetadataTest {
     Mp4Muxer muxer = new Mp4Muxer.Builder(new FileOutputStream(outputFilePath)).build();
 
     try {
-      muxer.setTimestampData(
+      muxer.addMetadata(
           new Mp4TimestampData(
               /* creationTimestampSeconds= */ 1_000_000L,
               /* modificationTimestampSeconds= */ 5_000_000L));
@@ -261,7 +261,7 @@ public class Mp4MuxerMetadataTest {
     Mp4Muxer muxer = new Mp4Muxer.Builder(new FileOutputStream(outputFilePath)).build();
 
     try {
-      muxer.setTimestampData(
+      muxer.addMetadata(
           new Mp4TimestampData(
               /* creationTimestampSeconds= */ 1_000_000L,
               /* modificationTimestampSeconds= */ 5_000_000L));

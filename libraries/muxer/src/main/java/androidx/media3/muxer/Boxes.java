@@ -32,6 +32,7 @@ import androidx.media3.common.ColorInfo;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.Util;
+import androidx.media3.container.MdtaMetadataEntry;
 import androidx.media3.container.Mp4LocationData;
 import androidx.media3.container.NalUnitUtil;
 import androidx.media3.muxer.FragmentedMp4Writer.SampleMetadata;
@@ -395,14 +396,13 @@ import java.util.Locale;
    *
    * <p>This box contains a list of metadata keys.
    */
-  public static ByteBuffer keys(List<String> keyNames) {
-    // This should be an adaptive size here; we don't yet care since it's usually small.
+  public static ByteBuffer keys(List<MdtaMetadataEntry> mdtaMetadataEntries) {
     ByteBuffer contents = ByteBuffer.allocate(Mp4Utils.MAX_FIXED_LEAF_BOX_SIZE);
-    contents.putInt(0x0); // version and flags.
-    contents.putInt(keyNames.size()); // num of entries
+    contents.putInt(0x0); // version and flags
+    contents.putInt(mdtaMetadataEntries.size()); // Entry count
 
-    for (int i = 0; i < keyNames.size(); i++) {
-      ByteBuffer keyNameBuffer = ByteBuffer.wrap(Util.getUtf8Bytes(keyNames.get(i)));
+    for (int i = 0; i < mdtaMetadataEntries.size(); i++) {
+      ByteBuffer keyNameBuffer = ByteBuffer.wrap(Util.getUtf8Bytes(mdtaMetadataEntries.get(i).key));
       contents.put(BoxUtils.wrapIntoBox("mdta", keyNameBuffer));
     }
 
@@ -415,31 +415,18 @@ import java.util.Locale;
    *
    * <p>This box contains a list of metadata values.
    */
-  public static ByteBuffer ilst(List<Object> values) {
-    // This should be an adaptive size here; we don't yet care since it's usually small.
+  public static ByteBuffer ilst(List<MdtaMetadataEntry> mdtaMetadataEntries) {
     ByteBuffer contents = ByteBuffer.allocate(Mp4Utils.MAX_FIXED_LEAF_BOX_SIZE);
 
-    for (int i = 0; i < values.size(); i++) {
+    for (int i = 0; i < mdtaMetadataEntries.size(); i++) {
       int keyId = i + 1;
-      Object value = values.get(i);
+      MdtaMetadataEntry currentMdtaMetadataEntry = mdtaMetadataEntries.get(i);
 
-      ByteBuffer valueContents;
-      if (value instanceof String) {
-        String valueString = (String) value;
-        byte[] valueBytes = Util.getUtf8Bytes(valueString);
-        valueContents = ByteBuffer.allocate(valueBytes.length + 8);
-        valueContents.putInt(1); // type code for UTF-8 string
-        valueContents.putInt(0); // default country / language
-        valueContents.put(valueBytes);
-
-      } else if (value instanceof Float) {
-        valueContents = ByteBuffer.allocate(12);
-        valueContents.putInt(23); // float32
-        valueContents.putInt(0); // language / country
-        valueContents.putFloat((float) value);
-      } else {
-        throw new IllegalArgumentException("Unknown metadata type: " + value.getClass());
-      }
+      ByteBuffer valueContents =
+          ByteBuffer.allocate(2 * BYTES_PER_INTEGER + currentMdtaMetadataEntry.value.length);
+      valueContents.putInt(currentMdtaMetadataEntry.typeIndicator);
+      valueContents.putInt(currentMdtaMetadataEntry.localeIndicator);
+      valueContents.put(currentMdtaMetadataEntry.value);
 
       valueContents.flip();
       ByteBuffer valueBox = BoxUtils.wrapIntoBox("data", valueContents);

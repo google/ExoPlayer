@@ -24,7 +24,11 @@ import static org.junit.Assert.assertThrows;
 import android.content.Context;
 import android.media.MediaCodec.BufferInfo;
 import android.util.Pair;
+import androidx.media3.common.util.Util;
+import androidx.media3.container.MdtaMetadataEntry;
+import androidx.media3.container.Mp4LocationData;
 import androidx.media3.container.Mp4TimestampData;
+import androidx.media3.container.XmpData;
 import androidx.media3.extractor.mp4.Mp4Extractor;
 import androidx.media3.muxer.Mp4Muxer.TrackToken;
 import androidx.media3.test.utils.DumpFileAsserts;
@@ -56,7 +60,11 @@ public class Mp4MuxerEndToEndTest {
     try {
       mp4Muxer.addTrack(/* sortKey= */ 0, FAKE_VIDEO_FORMAT);
       mp4Muxer.setOrientation(90);
-      mp4Muxer.addMetadata("key", "value");
+      mp4Muxer.addMetadata(
+          new MdtaMetadataEntry(
+              "key",
+              /* value= */ Util.getUtf8Bytes("value"),
+              MdtaMetadataEntry.TYPE_INDICATOR_STRING));
     } finally {
       mp4Muxer.close();
     }
@@ -69,7 +77,7 @@ public class Mp4MuxerEndToEndTest {
   public void createMp4File_withSameTracksOffset_matchesExpected() throws IOException {
     String outputFilePath = temporaryFolder.newFile().getPath();
     Mp4Muxer mp4Muxer = new Mp4Muxer.Builder(new FileOutputStream(outputFilePath)).build();
-    mp4Muxer.setTimestampData(
+    mp4Muxer.addMetadata(
         new Mp4TimestampData(
             /* creationTimestampSeconds= */ 100_000_000L,
             /* modificationTimestampSeconds= */ 500_000_000L));
@@ -112,7 +120,7 @@ public class Mp4MuxerEndToEndTest {
   public void createMp4File_withDifferentTracksOffset_matchesExpected() throws IOException {
     String outputFilePath = temporaryFolder.newFile().getPath();
     Mp4Muxer mp4Muxer = new Mp4Muxer.Builder(new FileOutputStream(outputFilePath)).build();
-    mp4Muxer.setTimestampData(
+    mp4Muxer.addMetadata(
         new Mp4TimestampData(
             /* creationTimestampSeconds= */ 100_000_000L,
             /* modificationTimestampSeconds= */ 500_000_000L));
@@ -174,7 +182,7 @@ public class Mp4MuxerEndToEndTest {
   public void createMp4File_withOneTrackEmpty_doesNotWriteEmptyTrack() throws Exception {
     String outputFilePath = temporaryFolder.newFile().getPath();
     Mp4Muxer mp4Muxer = new Mp4Muxer.Builder(new FileOutputStream(outputFilePath)).build();
-    mp4Muxer.setTimestampData(
+    mp4Muxer.addMetadata(
         new Mp4TimestampData(
             /* creationTimestampSeconds= */ 100_000_000L,
             /* modificationTimestampSeconds= */ 500_000_000L));
@@ -209,18 +217,26 @@ public class Mp4MuxerEndToEndTest {
     Pair<ByteBuffer, BufferInfo> sampleAndSampleInfo =
         getFakeSampleAndSampleInfo(/* presentationTimeUs= */ 0L);
     byte[] xmpBytes = TestUtil.getByteArray(context, XMP_SAMPLE_DATA);
-    ByteBuffer xmp = ByteBuffer.wrap(xmpBytes);
 
     try {
       muxer.setOrientation(90);
-      muxer.setLocation(/* latitude= */ 33.0f, /* longitude= */ -120f);
-      muxer.setCaptureFps(120.0f);
-      muxer.setTimestampData(
+      muxer.addMetadata(new Mp4LocationData(/* latitude= */ 33.0f, /* longitude= */ -120f));
+      float captureFps = 120.0f;
+      muxer.addMetadata(
+          new MdtaMetadataEntry(
+              MdtaMetadataEntry.KEY_ANDROID_CAPTURE_FPS,
+              /* value= */ Util.toByteArray(captureFps),
+              MdtaMetadataEntry.TYPE_INDICATOR_FLOAT32));
+      muxer.addMetadata(
           new Mp4TimestampData(
               /* creationTimestampSeconds= */ 1_000_000L,
               /* modificationTimestampSeconds= */ 5_000_000L));
-      muxer.addMetadata("StringKey1", "StringValue");
-      muxer.addXmp(xmp);
+      muxer.addMetadata(
+          new MdtaMetadataEntry(
+              "StringKey1",
+              /* value= */ Util.getUtf8Bytes("StringValue"),
+              MdtaMetadataEntry.TYPE_INDICATOR_STRING));
+      muxer.addMetadata(new XmpData(xmpBytes));
       TrackToken token = muxer.addTrack(/* sortKey= */ 0, FAKE_VIDEO_FORMAT);
       muxer.writeSampleData(token, sampleAndSampleInfo.first, sampleAndSampleInfo.second);
     } finally {

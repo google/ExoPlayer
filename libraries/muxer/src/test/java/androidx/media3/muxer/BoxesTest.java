@@ -30,6 +30,8 @@ import android.media.MediaCodec;
 import androidx.media3.common.C;
 import androidx.media3.common.ColorInfo;
 import androidx.media3.common.Format;
+import androidx.media3.common.util.Util;
+import androidx.media3.container.MdtaMetadataEntry;
 import androidx.media3.container.Mp4LocationData;
 import androidx.media3.muxer.FragmentedMp4Writer.SampleMetadata;
 import androidx.media3.test.utils.DumpFileAsserts;
@@ -173,9 +175,19 @@ public class BoxesTest {
 
   @Test
   public void createKeysBox_matchesExpected() throws Exception {
-    List<String> keyNames = ImmutableList.of("com.android.version", "com.android.capture.fps");
+    List<MdtaMetadataEntry> metadataEntries = new ArrayList<>();
+    metadataEntries.add(
+        new MdtaMetadataEntry(
+            "com.android.version",
+            Util.getUtf8Bytes("11"),
+            MdtaMetadataEntry.TYPE_INDICATOR_STRING));
+    metadataEntries.add(
+        new MdtaMetadataEntry(
+            "com.android.capture.fps",
+            Util.toByteArray(120.0f),
+            MdtaMetadataEntry.TYPE_INDICATOR_FLOAT32));
 
-    ByteBuffer keysBox = Boxes.keys(keyNames);
+    ByteBuffer keysBox = Boxes.keys(metadataEntries);
 
     DumpableMp4Box dumpableBox = new DumpableMp4Box(keysBox);
     DumpFileAsserts.assertOutput(context, dumpableBox, getExpectedDumpFilePath("keys_box"));
@@ -183,9 +195,19 @@ public class BoxesTest {
 
   @Test
   public void createIlstBox_matchesExpected() throws Exception {
-    List<Object> values = ImmutableList.of("11", 120.0f);
+    List<MdtaMetadataEntry> metadataEntries = new ArrayList<>();
+    metadataEntries.add(
+        new MdtaMetadataEntry(
+            "com.android.version",
+            Util.getUtf8Bytes("11"),
+            MdtaMetadataEntry.TYPE_INDICATOR_STRING));
+    metadataEntries.add(
+        new MdtaMetadataEntry(
+            "com.android.capture.fps",
+            Util.toByteArray(120.0f),
+            MdtaMetadataEntry.TYPE_INDICATOR_FLOAT32));
 
-    ByteBuffer ilstBox = Boxes.ilst(values);
+    ByteBuffer ilstBox = Boxes.ilst(metadataEntries);
 
     DumpableMp4Box dumpableBox = new DumpableMp4Box(ilstBox);
     DumpFileAsserts.assertOutput(context, dumpableBox, getExpectedDumpFilePath("ilst_box"));
