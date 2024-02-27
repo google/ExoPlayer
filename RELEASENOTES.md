@@ -19,6 +19,8 @@
     *   Add support for composition-level audio effects.
 *   Track Selection:
 *   Extractors:
+    *   Fix issue where padding was not skipped when reading odd-sized chunks
+        from WAV files ([#1117](https://github.com/androidx/media/pull/1117)).
 *   Audio:
     *   Allow renderer recovery by disabling offload if audio track fails to
         initialize in offload mode.
