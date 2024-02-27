@@ -45,6 +45,11 @@ import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.Util;
 import androidx.media3.effect.Presentation;
 import androidx.media3.effect.ScaleAndRotateTransformation;
+import androidx.media3.extractor.mp4.Mp4Extractor;
+import androidx.media3.extractor.text.DefaultSubtitleParserFactory;
+import androidx.media3.test.utils.FakeExtractorOutput;
+import androidx.media3.test.utils.FakeTrackOutput;
+import androidx.media3.test.utils.TestUtil;
 import androidx.media3.transformer.AndroidTestUtil;
 import androidx.media3.transformer.AndroidTestUtil.ForceEncodeEncoderFactory;
 import androidx.media3.transformer.DefaultEncoderFactory;
@@ -387,8 +392,6 @@ public class ExportTest {
   @Test
   public void clippedMedia_trimOptimizationEnabled_pixel7Plus_completesWithOptimizationApplied()
       throws Exception {
-    String testId =
-        TAG + "_clippedMedia_trimOptimizationEnabled_pixel_completesWithOptimizationApplied";
     Context context = ApplicationProvider.getApplicationContext();
     // Devices with Tensor G2 & G3 chipsets should work, but Pixel 7a is flaky.
     assumeTrue(
@@ -415,10 +418,19 @@ public class ExportTest {
         new TransformerAndroidTestRunner.Builder(context, transformer)
             .build()
             .run(testId, editedMediaItem);
+    Mp4Extractor mp4Extractor = new Mp4Extractor(new DefaultSubtitleParserFactory());
+    FakeExtractorOutput fakeExtractorOutput =
+        TestUtil.extractAllSamplesFromFilePath(mp4Extractor, result.filePath);
+    FakeTrackOutput videoTrack = fakeExtractorOutput.trackOutputs.get(0);
+    byte[] sps = videoTrack.lastFormat.initializationData.get(0);
+    // Skip 7 bytes: NAL unit start code (4) and NAL unit type, profile, and reserved fields.
+    int spsLevelIndex = 7;
 
     assertThat(result.exportResult.optimizationResult).isEqualTo(OPTIMIZATION_SUCCEEDED);
     assertThat(result.exportResult.durationMs).isAtMost(700);
     assertThat(result.exportResult.videoConversionProcess)
         .isEqualTo(CONVERSION_PROCESS_TRANSMUXED_AND_TRANSCODED);
+    int higherVideoLevel = 41;
+    assertThat(sps[spsLevelIndex]).isEqualTo(higherVideoLevel);
   }
 }

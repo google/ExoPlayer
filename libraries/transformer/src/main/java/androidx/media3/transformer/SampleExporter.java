@@ -111,6 +111,8 @@ import java.util.List;
         muxerWrapper.addTrackFormat(inputFormat);
       } catch (Muxer.MuxerException e) {
         throw ExportException.createForMuxer(e, ExportException.ERROR_CODE_MUXING_FAILED);
+      } catch (MuxerWrapper.AppendTrackFormatException e) {
+        throw ExportException.createForMuxer(e, ExportException.ERROR_CODE_MUXING_APPEND);
       }
       muxerWrapperTrackAdded = true;
     }

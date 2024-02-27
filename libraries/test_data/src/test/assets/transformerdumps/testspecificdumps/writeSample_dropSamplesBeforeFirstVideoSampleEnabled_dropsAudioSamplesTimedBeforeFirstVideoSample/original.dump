@@ -11,6 +11,7 @@ format video:
     colorRange = 2
     colorTransfer = 3
   initializationData:
+    data = length 28, hash D27A8A6F
     data = length 4, hash E93C3
 sample:
   trackType = audio

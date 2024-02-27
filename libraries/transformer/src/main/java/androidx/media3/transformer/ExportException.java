@@ -185,6 +185,13 @@ public final class ExportException extends Exception {
    */
   public static final int ERROR_CODE_MUXING_TIMEOUT = 7002;
 
+  /**
+   * Caused by mismatching formats in MuxerWrapper.
+   *
+   * @see MuxerWrapper.AppendTrackFormatException
+   */
+  public static final int ERROR_CODE_MUXING_APPEND = 7003;
+
   /* package */ static final ImmutableBiMap<String, @ErrorCode Integer> NAME_TO_ERROR_CODE =
       new ImmutableBiMap.Builder<String, @ErrorCode Integer>()
           .put("ERROR_CODE_FAILED_RUNTIME_CHECK", ERROR_CODE_FAILED_RUNTIME_CHECK)
@@ -207,6 +214,7 @@ public final class ExportException extends Exception {
           .put("ERROR_CODE_AUDIO_PROCESSING_FAILED", ERROR_CODE_AUDIO_PROCESSING_FAILED)
           .put("ERROR_CODE_MUXING_FAILED", ERROR_CODE_MUXING_FAILED)
           .put("ERROR_CODE_MUXING_TIMEOUT", ERROR_CODE_MUXING_TIMEOUT)
+          .put("ERROR_CODE_MUXING_APPEND", ERROR_CODE_MUXING_APPEND)
           .buildOrThrow();
 
   /** Returns the name of a given {@code errorCode}. */

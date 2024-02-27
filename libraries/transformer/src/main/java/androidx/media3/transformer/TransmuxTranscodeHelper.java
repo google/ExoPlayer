@@ -21,6 +21,7 @@ import android.content.Context;
 import android.util.Pair;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
+import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.util.Util;
 import com.google.common.collect.ImmutableList;
@@ -51,11 +52,16 @@ import java.util.List;
      */
     public final ImmutableList<Pair<Integer, Long>> firstMediaItemIndexAndOffsetInfo;
 
+    /** The video {@link Format} or {@code null} if there is no video track. */
+    @Nullable public final Format videoFormat;
+
     public ResumeMetadata(
         long lastSyncSampleTimestampUs,
-        ImmutableList<Pair<Integer, Long>> firstMediaItemIndexAndOffsetInfo) {
+        ImmutableList<Pair<Integer, Long>> firstMediaItemIndexAndOffsetInfo,
+        @Nullable Format videoFormat) {
       this.lastSyncSampleTimestampUs = lastSyncSampleTimestampUs;
       this.firstMediaItemIndexAndOffsetInfo = firstMediaItemIndexAndOffsetInfo;
+      this.videoFormat = videoFormat;
     }
   }
 
@@ -268,8 +274,8 @@ import java.util.List;
           if (resumeMetadataSettableFuture.isCancelled()) {
             return;
           }
-          long lastSyncSampleTimestampUs =
-              Mp4Info.create(context, filePath).lastSyncSampleTimestampUs;
+          Mp4Info mp4Info = Mp4Info.create(context, filePath);
+          long lastSyncSampleTimestampUs = mp4Info.lastSyncSampleTimestampUs;
 
           ImmutableList.Builder<Pair<Integer, Long>> firstMediaItemIndexAndOffsetInfoBuilder =
               new ImmutableList.Builder<>();
@@ -301,7 +307,9 @@ import java.util.List;
           }
           resumeMetadataSettableFuture.set(
               new ResumeMetadata(
-                  lastSyncSampleTimestampUs, firstMediaItemIndexAndOffsetInfoBuilder.build()));
+                  lastSyncSampleTimestampUs,
+                  firstMediaItemIndexAndOffsetInfoBuilder.build(),
+                  mp4Info.videoFormat));
         } catch (Exception ex) {
           resumeMetadataSettableFuture.setException(ex);
         }
