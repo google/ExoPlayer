@@ -175,7 +175,7 @@ import java.io.IOException;
       // To align RIFF chunks to certain boundaries the RIFF specification includes a JUNK chunk.
       // Its contents are to be skipped when reading.
       if (chunkHeader.size % 2 != 0) {
-        bytesToSkip ++; // padding present if size is odd, skip it.
+        bytesToSkip++; // padding present if size is odd, skip it.
       }
       if (bytesToSkip > Integer.MAX_VALUE) {
         throw ParserException.createForUnsupportedContainerFeature(
