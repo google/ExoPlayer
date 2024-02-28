@@ -373,6 +373,22 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     checkArgument(
         trackType == C.TRACK_TYPE_AUDIO || trackType == C.TRACK_TYPE_VIDEO,
         "Unsupported track format: " + sampleMimeType);
+    if (trackType == C.TRACK_TYPE_VIDEO) {
+      format =
+          format
+              .buildUpon()
+              .setRotationDegrees((format.rotationDegrees + additionalRotationDegrees) % 360)
+              .build();
+      if (muxerMode == MUXER_MODE_MUX_PARTIAL) {
+        List<byte[]> mostCompatibleInitializationData =
+            getMostComatibleInitializationData(format, checkNotNull(appendVideoFormat));
+        if (mostCompatibleInitializationData == null) {
+          throw new AppendTrackFormatException("Switching to MUXER_MODE_APPEND will fail.");
+        }
+        format = format.buildUpon().setInitializationData(mostCompatibleInitializationData).build();
+      }
+    }
+
     if (muxerMode == MUXER_MODE_APPEND) {
       if (trackType == C.TRACK_TYPE_VIDEO) {
         checkState(contains(trackTypeToInfo, C.TRACK_TYPE_VIDEO));
@@ -397,6 +413,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         if (existingFormat.height != format.height) {
           throw new AppendTrackFormatException(
               "Video format mismatch - height: " + existingFormat.height + " != " + format.height);
+        }
+        if (existingFormat.rotationDegrees != format.rotationDegrees) {
+          throw new AppendTrackFormatException(
+              "Video format mismatch - rotationDegrees: "
+                  + existingFormat.rotationDegrees
+                  + " != "
+                  + format.rotationDegrees);
         }
         // The initialization data of the existing format is already compatible with
         // appendVideoFormat.
@@ -444,22 +467,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     checkState(trackTypeToInfo.size() < trackCount, "All track formats have already been added.");
     checkState(
         !contains(trackTypeToInfo, trackType), "There is already a track of type " + trackType);
-
-    if (trackType == C.TRACK_TYPE_VIDEO) {
-      format =
-          format
-              .buildUpon()
-              .setRotationDegrees((format.rotationDegrees + additionalRotationDegrees) % 360)
-              .build();
-      if (muxerMode == MUXER_MODE_MUX_PARTIAL) {
-        List<byte[]> mostCompatibleInitializationData =
-            getMostComatibleInitializationData(format, checkNotNull(appendVideoFormat));
-        if (mostCompatibleInitializationData == null) {
-          throw new AppendTrackFormatException("Switching to MUXER_MODE_APPEND will fail.");
-        }
-        format = format.buildUpon().setInitializationData(mostCompatibleInitializationData).build();
-      }
-    }
 
     ensureMuxerInitialized();
     TrackInfo trackInfo = new TrackInfo(format, muxer.addTrack(format));

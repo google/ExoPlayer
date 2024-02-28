@@ -309,6 +309,10 @@ import org.checkerframework.dataflow.qual.Pure;
       // frame before encoding, so the encoded frame's width >= height, and sets
       // rotationDegrees in the output Format to ensure the frame is displayed in the correct
       // orientation.
+      // VideoGraph rotates the decoded video frames counter-clockwise by outputRotationDegrees.
+      // Instruct the muxer to signal clockwise rotation by outputRotationDegrees.
+      // When both VideoGraph and muxer rotations are applied, the video will be displayed the right
+      // way up.
       if (requestedWidth < requestedHeight) {
         int temp = requestedWidth;
         requestedWidth = requestedHeight;
@@ -316,6 +320,15 @@ import org.checkerframework.dataflow.qual.Pure;
         outputRotationDegrees = 90;
       }
 
+      // Try to match the inputFormat's rotation, but preserve landscape mode.
+      // This is a best-effort attempt to preserve input video properties
+      // (helpful for trim optimization), but is not guaranteed to work when effects are applied.
+      if (inputFormat.rotationDegrees % 180 == outputRotationDegrees % 180) {
+        outputRotationDegrees = inputFormat.rotationDegrees;
+      }
+
+      // Rotation is handled by this class. The encoder must see a landscape video with zero
+      // degrees rotation.
       Format requestedEncoderFormat =
           new Format.Builder()
               .setWidth(requestedWidth)
