@@ -1497,9 +1497,10 @@ public interface ExoPlayer extends Player {
    * frame.
    *
    * <p>If {@linkplain #setVideoSurface passing a surface to the player directly}, the output
-   * resolution needs to be signaled by passing a renderer message with type {@link
-   * Renderer#MSG_SET_VIDEO_OUTPUT_RESOLUTION} after calling this method. For {@link SurfaceView},
-   * {@link TextureView} and {@link SurfaceHolder} output this happens automatically.
+   * resolution needs to be signaled by passing a {@linkplain #createMessage(PlayerMessage.Target)
+   * message} to the {@linkplain Renderer video renderer} with type {@link
+   * Renderer#MSG_SET_VIDEO_OUTPUT_RESOLUTION} after calling this method. For {@link SurfaceView}
+   * and {@link SurfaceHolder} output this happens automatically.
    *
    * <p>The following limitations exist for using {@linkplain Effect video effects}:
    *
@@ -1510,7 +1511,8 @@ public interface ExoPlayer extends Player {
    *       version as the rest of the {@code androidx.media3} modules being used by the app.
    *   <li>This feature works only with the default {@link MediaCodecVideoRenderer} and not custom
    *       or extension {@linkplain Renderer video renderers}.
-   *   <li>This feature does not work with {@linkplain Effect effects} updating the timestamps.
+   *   <li>This feature does not work with {@linkplain Effect effects} that update the frame
+   *       timestamps.
    *   <li>This feature does not work with DRM-protected content.
    *   <li>This method should be called before calling {@link #prepare()}.
    * </ul>
