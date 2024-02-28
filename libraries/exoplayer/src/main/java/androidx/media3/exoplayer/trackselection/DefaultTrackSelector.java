@@ -2366,9 +2366,6 @@ public class DefaultTrackSelector extends MappingTrackSelector
                   ? (second == Format.NO_VALUE ? 0 : -1)
                   : (second == Format.NO_VALUE ? 1 : (first - second)));
 
-  /** Ordering where all elements are equal. */
-  private static final Ordering<Integer> NO_ORDER = Ordering.from((first, second) -> 0);
-
   private final Object lock;
   @Nullable public final Context context;
   private final ExoTrackSelection.Factory trackSelectionFactory;
@@ -3715,11 +3712,12 @@ public class DefaultTrackSelector extends MappingTrackSelector
           info1.isWithinMaxConstraints && info1.isWithinRendererCapabilities
               ? FORMAT_VALUE_ORDERING
               : FORMAT_VALUE_ORDERING.reverse();
-      return ComparisonChain.start()
-          .compare(
-              info1.bitrate,
-              info2.bitrate,
-              info1.parameters.forceLowestBitrate ? FORMAT_VALUE_ORDERING.reverse() : NO_ORDER)
+      ComparisonChain comparisonChain = ComparisonChain.start();
+      if (info1.parameters.forceLowestBitrate) {
+        comparisonChain =
+            comparisonChain.compare(info1.bitrate, info2.bitrate, FORMAT_VALUE_ORDERING.reverse());
+      }
+      return comparisonChain
           .compare(info1.pixelCount, info2.pixelCount, qualityOrdering)
           .compare(info1.bitrate, info2.bitrate, qualityOrdering)
           .result();
@@ -3905,45 +3903,48 @@ public class DefaultTrackSelector extends MappingTrackSelector
           isWithinConstraints && isWithinRendererCapabilities
               ? FORMAT_VALUE_ORDERING
               : FORMAT_VALUE_ORDERING.reverse();
-      return ComparisonChain.start()
-          .compareFalseFirst(this.isWithinRendererCapabilities, other.isWithinRendererCapabilities)
-          // 1. Compare match with specific content preferences set by the parameters.
-          .compare(
-              this.preferredLanguageIndex,
-              other.preferredLanguageIndex,
-              Ordering.natural().reverse())
-          .compare(this.preferredLanguageScore, other.preferredLanguageScore)
-          .compare(this.preferredRoleFlagsScore, other.preferredRoleFlagsScore)
-          // 2. Compare match with implicit content preferences set by the media or the system.
-          .compareFalseFirst(this.isDefaultSelectionFlag, other.isDefaultSelectionFlag)
-          .compareFalseFirst(this.hasMainOrNoRoleFlag, other.hasMainOrNoRoleFlag)
-          .compare(
-              this.localeLanguageMatchIndex,
-              other.localeLanguageMatchIndex,
-              Ordering.natural().reverse())
-          .compare(this.localeLanguageScore, other.localeLanguageScore)
-          // 3. Compare match with technical preferences set by the parameters.
-          .compareFalseFirst(this.isWithinConstraints, other.isWithinConstraints)
-          .compare(
-              this.preferredMimeTypeMatchIndex,
-              other.preferredMimeTypeMatchIndex,
-              Ordering.natural().reverse())
-          .compare(
-              this.bitrate,
-              other.bitrate,
-              parameters.forceLowestBitrate ? FORMAT_VALUE_ORDERING.reverse() : NO_ORDER)
-          // 4. Compare match with renderer capability preferences.
-          .compareFalseFirst(this.usesPrimaryDecoder, other.usesPrimaryDecoder)
-          .compareFalseFirst(this.usesHardwareAcceleration, other.usesHardwareAcceleration)
-          // 5. Compare technical quality.
-          .compare(this.channelCount, other.channelCount, qualityOrdering)
-          .compare(this.sampleRate, other.sampleRate, qualityOrdering)
-          .compare(
-              this.bitrate,
-              other.bitrate,
-              // Only compare bit rates of tracks with matching language information.
-              Util.areEqual(this.language, other.language) ? qualityOrdering : NO_ORDER)
-          .result();
+      ComparisonChain comparisonChain =
+          ComparisonChain.start()
+              .compareFalseFirst(
+                  this.isWithinRendererCapabilities, other.isWithinRendererCapabilities)
+              // 1. Compare match with specific content preferences set by the parameters.
+              .compare(
+                  this.preferredLanguageIndex,
+                  other.preferredLanguageIndex,
+                  Ordering.natural().reverse())
+              .compare(this.preferredLanguageScore, other.preferredLanguageScore)
+              .compare(this.preferredRoleFlagsScore, other.preferredRoleFlagsScore)
+              // 2. Compare match with implicit content preferences set by the media or the system.
+              .compareFalseFirst(this.isDefaultSelectionFlag, other.isDefaultSelectionFlag)
+              .compareFalseFirst(this.hasMainOrNoRoleFlag, other.hasMainOrNoRoleFlag)
+              .compare(
+                  this.localeLanguageMatchIndex,
+                  other.localeLanguageMatchIndex,
+                  Ordering.natural().reverse())
+              .compare(this.localeLanguageScore, other.localeLanguageScore)
+              // 3. Compare match with technical preferences set by the parameters.
+              .compareFalseFirst(this.isWithinConstraints, other.isWithinConstraints)
+              .compare(
+                  this.preferredMimeTypeMatchIndex,
+                  other.preferredMimeTypeMatchIndex,
+                  Ordering.natural().reverse());
+      if (parameters.forceLowestBitrate) {
+        comparisonChain =
+            comparisonChain.compare(this.bitrate, other.bitrate, FORMAT_VALUE_ORDERING.reverse());
+      }
+      // 4. Compare match with renderer capability preferences.
+      comparisonChain =
+          comparisonChain
+              .compareFalseFirst(this.usesPrimaryDecoder, other.usesPrimaryDecoder)
+              .compareFalseFirst(this.usesHardwareAcceleration, other.usesHardwareAcceleration)
+              // 5. Compare technical quality.
+              .compare(this.channelCount, other.channelCount, qualityOrdering)
+              .compare(this.sampleRate, other.sampleRate, qualityOrdering);
+      if (Util.areEqual(this.language, other.language)) {
+        // Only compare bit rates of tracks with matching language information.
+        comparisonChain = comparisonChain.compare(this.bitrate, other.bitrate, qualityOrdering);
+      }
+      return comparisonChain.result();
     }
 
     private @SelectionEligibility int evaluateSelectionEligibility(
