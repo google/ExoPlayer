@@ -234,6 +234,14 @@ public final class Mp4ExtractorParameterizedTest {
         simulationConfig);
   }
 
+  @Test
+  public void mp4SampleWithTwoTracksOneWithSingleFrame() throws Exception {
+    ExtractorAsserts.assertBehavior(
+        getExtractorFactory(subtitlesParsedDuringExtraction),
+        "media/mp4/pixel-motion-photo-2-hevc-tracks.mp4",
+        simulationConfig);
+  }
+
   private static ExtractorAsserts.ExtractorFactory getExtractorFactory(
       boolean subtitlesParsedDuringExtraction) {
     SubtitleParser.Factory subtitleParserFactory;
