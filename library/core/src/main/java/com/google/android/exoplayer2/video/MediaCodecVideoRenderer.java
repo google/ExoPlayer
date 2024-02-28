@@ -147,6 +147,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer
 
   private final Context context;
   private final VideoSinkProvider videoSinkProvider;
+  private final boolean ownsVideoSinkProvider;
   private final EventDispatcher eventDispatcher;
   private final int maxDroppedFramesToNotify;
   private final boolean deviceNeedsNoPostProcessWorkaround;
@@ -396,9 +397,11 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer
     this.maxDroppedFramesToNotify = maxDroppedFramesToNotify;
     this.context = context.getApplicationContext();
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
+    ownsVideoSinkProvider = videoSinkProvider == null;
     if (videoSinkProvider == null) {
       videoSinkProvider = new CompositingVideoSinkProvider.Builder(this.context).build();
     }
+
     if (videoSinkProvider.getVideoFrameReleaseControl() == null) {
       @SuppressWarnings("nullness:assignment")
       VideoFrameReleaseControl.@Initialized FrameTimingEvaluator thisRef = this;
@@ -733,7 +736,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer
   @Override
   protected void onRelease() {
     super.onRelease();
-    if (videoSinkProvider.isInitialized()) {
+    if (ownsVideoSinkProvider && videoSinkProvider.isInitialized()) {
       videoSinkProvider.release();
     }
   }
