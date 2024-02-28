@@ -18,6 +18,12 @@
     *   Add support for changing between SDR and HDR input media in a sequence.
     *   Add support for composition-level audio effects.
 *   Track Selection:
+    *   `DefaultTrackSelector`: Prefer video tracks with a 'reasonable' frame
+        rate (>=10fps) over those with a lower or unset frame rate. This ensures
+        the player selects the 'real' video track in MP4s extracted from motion
+        photos that can contain two HEVC tracks where one has a higher
+        resolution but a very small number of frames
+        ([#1051](https://github.com/androidx/media/issues/1051)).
 *   Extractors:
 *   Audio:
     *   Allow renderer recovery by disabling offload if audio track fails to

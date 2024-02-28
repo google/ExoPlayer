@@ -3516,6 +3516,12 @@ public class DefaultTrackSelector extends MappingTrackSelector
 
   private static final class VideoTrackInfo extends TrackInfo<VideoTrackInfo> {
 
+    /**
+     * Frame rate below which video playback will definitely not be considered smooth by the human
+     * eye.
+     */
+    private static final float MIN_REASONABLE_FRAME_RATE = 10;
+
     public static ImmutableList<VideoTrackInfo> createForTrackGroup(
         int rendererIndex,
         TrackGroup trackGroup,
@@ -3551,6 +3557,12 @@ public class DefaultTrackSelector extends MappingTrackSelector
     private final Parameters parameters;
     private final boolean isWithinMinConstraints;
     private final boolean isWithinRendererCapabilities;
+
+    /**
+     * True if {@link Format#frameRate} is set and is at least {@link #MIN_REASONABLE_FRAME_RATE}.
+     */
+    private final boolean hasReasonableFrameRate;
+
     private final int bitrate;
     private final int pixelCount;
     private final int preferredMimeTypeMatchIndex;
@@ -3599,6 +3611,8 @@ public class DefaultTrackSelector extends MappingTrackSelector
                   || format.bitrate >= parameters.minVideoBitrate);
       isWithinRendererCapabilities =
           isSupported(formatSupport, /* allowExceedsCapabilities= */ false);
+      hasReasonableFrameRate =
+          format.frameRate != Format.NO_VALUE && format.frameRate >= MIN_REASONABLE_FRAME_RATE;
       bitrate = format.bitrate;
       pixelCount = format.getPixelCount();
       preferredRoleFlagsScore =
@@ -3669,16 +3683,19 @@ public class DefaultTrackSelector extends MappingTrackSelector
               .compare(info1.preferredRoleFlagsScore, info2.preferredRoleFlagsScore)
               // 2. Compare match with implicit content preferences set by the media.
               .compareFalseFirst(info1.hasMainOrNoRoleFlag, info2.hasMainOrNoRoleFlag)
-              // 3. Compare match with technical preferences set by the parameters.
+              // 3. Compare match with 'reasonable' frame rate threshold.
+              .compareFalseFirst(info1.hasReasonableFrameRate, info2.hasReasonableFrameRate)
+              // 4. Compare match with technical preferences set by the parameters.
               .compareFalseFirst(info1.isWithinMaxConstraints, info2.isWithinMaxConstraints)
               .compareFalseFirst(info1.isWithinMinConstraints, info2.isWithinMinConstraints)
               .compare(
                   info1.preferredMimeTypeMatchIndex,
                   info2.preferredMimeTypeMatchIndex,
                   Ordering.natural().reverse())
-              // 4. Compare match with renderer capability preferences.
+              // 5. Compare match with renderer capability preferences.
               .compareFalseFirst(info1.usesPrimaryDecoder, info2.usesPrimaryDecoder)
               .compareFalseFirst(info1.usesHardwareAcceleration, info2.usesHardwareAcceleration);
+
       if (info1.usesPrimaryDecoder && info1.usesHardwareAcceleration) {
         chain = chain.compare(info1.codecPreferenceScore, info2.codecPreferenceScore);
       }

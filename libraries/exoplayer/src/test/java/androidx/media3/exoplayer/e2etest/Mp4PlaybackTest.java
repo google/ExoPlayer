@@ -46,6 +46,7 @@ public class Mp4PlaybackTest {
         "midroll-5s.mp4",
         "postroll-5s.mp4",
         "preroll-5s.mp4",
+        "pixel-motion-photo-2-hevc-tracks.mp4",
         "sample_ac3_fragmented.mp4",
         "sample_ac3.mp4",
         "sample_ac4_fragmented.mp4",
