@@ -501,6 +501,7 @@ public final class Util {
     String deviceName = Ascii.toLowerCase(Util.DEVICE);
     return deviceName.contains("emulator")
         || deviceName.contains("emu64a")
+        || deviceName.contains("emu64x")
         || deviceName.contains("generic");
   }
 
