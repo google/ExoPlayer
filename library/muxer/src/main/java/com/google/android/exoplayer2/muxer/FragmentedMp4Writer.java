@@ -35,6 +35,7 @@ import com.google.common.collect.ImmutableList;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.List;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -49,7 +50,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  *     migration guide</a> for more details, including a script to help with the migration.
  */
 @Deprecated
-/* package */ final class FragmentedMp4Writer extends Mp4Writer {
+/* package */ final class FragmentedMp4Writer implements Mp4Writer {
   /** Provides a limited set of sample metadata. */
   public static class SampleMetadata {
     public final long durationVu;
@@ -63,6 +64,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
   }
 
+  private final FileOutputStream outputStream;
+  private final FileChannel output;
+  private final Mp4MoovStructure moovGenerator;
+  private final AnnexBToAvccConverter annexBToAvccConverter;
+  private final List<Track> tracks;
   private final int fragmentDurationUs;
 
   private @MonotonicNonNull Track videoTrack;
@@ -76,7 +82,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       Mp4MoovStructure moovGenerator,
       AnnexBToAvccConverter annexBToAvccConverter,
       int fragmentDurationUs) {
-    super(outputStream, moovGenerator, annexBToAvccConverter);
+    this.outputStream = outputStream;
+    this.output = outputStream.getChannel();
+    this.moovGenerator = moovGenerator;
+    this.annexBToAvccConverter = annexBToAvccConverter;
+    tracks = new ArrayList<>();
     this.fragmentDurationUs = fragmentDurationUs;
     minInputPresentationTimeUs = Long.MAX_VALUE;
     currentFragmentSequenceNumber = 1;

@@ -30,7 +30,10 @@ import com.google.common.collect.Range;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -43,9 +46,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *     migration guide</a> for more details, including a script to help with the migration.
  */
 @Deprecated
-/* package */ final class DefaultMp4Writer extends Mp4Writer {
+/* package */ final class DefaultMp4Writer implements Mp4Writer {
   private static final long INTERLEAVE_DURATION_US = 1_000_000L;
 
+  private final FileOutputStream outputStream;
+  private final FileChannel output;
+  private final Mp4MoovStructure moovGenerator;
+  private final AnnexBToAvccConverter annexBToAvccConverter;
+  private final List<Track> tracks;
   private final AtomicBoolean hasWrittenSamples;
 
   private long mdatStart;
@@ -68,7 +76,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
       FileOutputStream outputStream,
       Mp4MoovStructure moovGenerator,
       AnnexBToAvccConverter annexBToAvccConverter) {
-    super(outputStream, moovGenerator, annexBToAvccConverter);
+    this.outputStream = outputStream;
+    this.output = outputStream.getChannel();
+    this.moovGenerator = moovGenerator;
+    this.annexBToAvccConverter = annexBToAvccConverter;
+    tracks = new ArrayList<>();
     hasWrittenSamples = new AtomicBoolean(false);
     lastMoovWritten = Range.closed(0L, 0L);
   }

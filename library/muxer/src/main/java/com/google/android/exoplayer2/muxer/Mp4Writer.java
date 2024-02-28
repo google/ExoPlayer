@@ -24,10 +24,8 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.muxer.Mp4Muxer.TrackToken;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.common.collect.ImmutableList;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -42,42 +40,16 @@ import java.util.List;
  *     migration guide</a> for more details, including a script to help with the migration.
  */
 @Deprecated
-/* package */ abstract class Mp4Writer {
-  protected final FileOutputStream outputStream;
-  protected final FileChannel output;
-  protected final Mp4MoovStructure moovGenerator;
-  protected final AnnexBToAvccConverter annexBToAvccConverter;
-  protected final List<Track> tracks;
+/* package */ interface Mp4Writer {
 
-  /**
-   * Creates an instance.
-   *
-   * @param outputStream The {@link FileOutputStream} to write the data to.
-   * @param moovGenerator An {@link Mp4MoovStructure} instance to generate the moov box.
-   * @param annexBToAvccConverter The {@link AnnexBToAvccConverter} to be used to convert H.264 and
-   *     H.265 NAL units from the Annex-B format (using start codes to delineate NAL units) to the
-   *     AVCC format (which uses length prefixes).
-   */
-  public Mp4Writer(
-      FileOutputStream outputStream,
-      Mp4MoovStructure moovGenerator,
-      AnnexBToAvccConverter annexBToAvccConverter) {
-    this.outputStream = outputStream;
-    this.output = outputStream.getChannel();
-    this.moovGenerator = moovGenerator;
-    this.annexBToAvccConverter = annexBToAvccConverter;
-    tracks = new ArrayList<>();
-  }
+  TrackToken addTrack(int sortKey, Format format);
 
-  public abstract TrackToken addTrack(int sortKey, Format format);
+  void writeSampleData(Mp4Muxer.TrackToken token, ByteBuffer byteBuffer, BufferInfo bufferInfo)
+      throws IOException;
 
-  public abstract void writeSampleData(
-      Mp4Muxer.TrackToken token, ByteBuffer byteBuffer, BufferInfo bufferInfo) throws IOException;
+  void close() throws IOException;
 
-  public abstract void close() throws IOException;
-
-  protected static class Track
-      implements Mp4Muxer.TrackToken, Mp4MoovStructure.TrackMetadataProvider {
+  class Track implements Mp4Muxer.TrackToken, Mp4MoovStructure.TrackMetadataProvider {
     public final Format format;
     public final int sortKey;
     public final List<BufferInfo> writtenSamples;
