@@ -27,7 +27,11 @@
   <application
       android:allowBackup="false"
       tools:ignore="MissingApplicationIcon,HardcodedDebugMode"
-      android:usesCleartextTraffic="true"/>
+      android:usesCleartextTraffic="true">
+
+    <activity android:name="androidx.media3.transformer.SurfaceTestActivity"
+      android:configChanges="keyboardHidden|orientation|screenSize"/>
+  </application>
 
   <instrumentation
       android:targetPackage="androidx.media3.transformer.test"

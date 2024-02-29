@@ -31,6 +31,7 @@ public final class PlayerTestListener implements Player.Listener, AnalyticsListe
 
   private final ConditionVariable playerReady;
   private final ConditionVariable playerEnded;
+  private final ConditionVariable firstFrameRendered;
   private final AtomicReference<@NullableType PlaybackException> playbackException;
   private final long testTimeoutMs;
   private @MonotonicNonNull DecoderCounters decoderCounters;
@@ -44,6 +45,7 @@ public final class PlayerTestListener implements Player.Listener, AnalyticsListe
   public PlayerTestListener(long testTimeoutMs) {
     playerReady = new ConditionVariable();
     playerEnded = new ConditionVariable();
+    firstFrameRendered = new ConditionVariable();
     playbackException = new AtomicReference<>();
     this.testTimeoutMs = testTimeoutMs;
   }
@@ -56,6 +58,14 @@ public final class PlayerTestListener implements Player.Listener, AnalyticsListe
   /** Waits until the {@link Player player} is {@linkplain Player#STATE_ENDED ended}. */
   public void waitUntilPlayerEnded() throws PlaybackException, TimeoutException {
     waitOrThrow(playerEnded);
+  }
+
+  /**
+   * Waits until the {@link Player player} {@linkplain Player.Listener#onRenderedFirstFrame()
+   * renders the first frame}.
+   */
+  public void waitUntilFirstFrameRendered() throws PlaybackException, TimeoutException {
+    waitOrThrow(firstFrameRendered);
   }
 
   /**
@@ -79,10 +89,16 @@ public final class PlayerTestListener implements Player.Listener, AnalyticsListe
   }
 
   @Override
+  public void onRenderedFirstFrame() {
+    firstFrameRendered.open();
+  }
+
+  @Override
   public void onPlayerError(PlaybackException error) {
     playbackException.set(error);
     playerReady.open();
     playerEnded.open();
+    firstFrameRendered.open();
   }
 
   // AnalyticsListener methods
