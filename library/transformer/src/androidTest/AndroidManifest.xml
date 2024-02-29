@@ -27,7 +27,11 @@
   <application
       android:allowBackup="false"
       tools:ignore="MissingApplicationIcon,HardcodedDebugMode"
-      android:usesCleartextTraffic="true"/>
+      android:usesCleartextTraffic="true">
+
+    <activity android:name="com.google.android.exoplayer2.transformer.SurfaceTestActivity"
+      android:configChanges="keyboardHidden|orientation|screenSize"/>
+  </application>
 
   <instrumentation
       android:targetPackage="com.google.android.exoplayer2.transformer.test"
