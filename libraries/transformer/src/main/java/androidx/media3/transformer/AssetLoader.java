@@ -61,10 +61,14 @@ public interface AssetLoader {
      *     been created.
      * @param listener The {@link Listener} on which the {@link AssetLoader} should notify of
      *     events.
+     * @param compositionSettings The {@link CompositionSettings}.
      * @return An {@link AssetLoader}.
      */
     AssetLoader createAssetLoader(
-        EditedMediaItem editedMediaItem, Looper looper, Listener listener);
+        EditedMediaItem editedMediaItem,
+        Looper looper,
+        Listener listener,
+        CompositionSettings compositionSettings);
   }
 
   /** A listener of {@link AssetLoader} events. */
@@ -131,6 +135,24 @@ public interface AssetLoader {
      * <p>Can be called from any thread.
      */
     void onError(ExportException exportException);
+  }
+
+  /**
+   * Customizations set on the {@linkplain Composition composition-level} that are needed when
+   * {@linkplain AssetLoader loading} each of the {@linkplain EditedMediaItem individual assets} in
+   * the {@link Composition}.
+   */
+  /* package */ class CompositionSettings {
+
+    public final @Composition.HdrMode int hdrMode;
+
+    public CompositionSettings() {
+      this.hdrMode = Composition.HDR_MODE_KEEP_HDR;
+    }
+
+    public CompositionSettings(@Composition.HdrMode int hdrMode) {
+      this.hdrMode = hdrMode;
+    }
   }
 
   /**

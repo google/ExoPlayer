@@ -34,6 +34,7 @@ import androidx.media3.common.util.Util;
 import androidx.media3.datasource.DataSourceBitmapLoader;
 import androidx.media3.datasource.DefaultDataSource;
 import androidx.media3.exoplayer.source.MediaSource;
+import androidx.media3.transformer.AssetLoader.CompositionSettings;
 import com.google.common.base.Ascii;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.util.Objects;
@@ -46,7 +47,6 @@ public final class DefaultAssetLoaderFactory implements AssetLoader.Factory {
 
   private final Context context;
   private final Codec.DecoderFactory decoderFactory;
-  private final @Composition.HdrMode int hdrMode;
   private final Clock clock;
   private final MediaSource.@MonotonicNonNull Factory mediaSourceFactory;
   private final BitmapLoader bitmapLoader;
@@ -64,21 +64,13 @@ public final class DefaultAssetLoaderFactory implements AssetLoader.Factory {
    * @param context The {@link Context}.
    * @param decoderFactory The {@link Codec.DecoderFactory} to use to decode the samples (if
    *     necessary).
-   * @param hdrMode The {@link Composition.HdrMode} to apply. Only {@link
-   *     Composition#HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC} and {@link
-   *     Composition#HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR} are applied in this
-   *     component.
    * @param clock The {@link Clock} to use. It should always be {@link Clock#DEFAULT}, except for
    *     testing.
    */
   public DefaultAssetLoaderFactory(
-      Context context,
-      Codec.DecoderFactory decoderFactory,
-      @Composition.HdrMode int hdrMode,
-      Clock clock) {
+      Context context, Codec.DecoderFactory decoderFactory, Clock clock) {
     this.context = context.getApplicationContext();
     this.decoderFactory = decoderFactory;
-    this.hdrMode = hdrMode;
     this.clock = clock;
     this.mediaSourceFactory = null;
     @Nullable BitmapFactory.Options options = null;
@@ -109,7 +101,6 @@ public final class DefaultAssetLoaderFactory implements AssetLoader.Factory {
       Context context, @Composition.HdrMode int hdrMode, BitmapLoader bitmapLoader) {
     this.context = context.getApplicationContext();
     this.decoderFactory = new DefaultDecoderFactory(context);
-    this.hdrMode = hdrMode;
     this.clock = Clock.DEFAULT;
     this.mediaSourceFactory = null;
     this.bitmapLoader = bitmapLoader;
@@ -121,9 +112,6 @@ public final class DefaultAssetLoaderFactory implements AssetLoader.Factory {
    * @param context The {@link Context}.
    * @param decoderFactory The {@link Codec.DecoderFactory} to use to decode the samples (if
    *     necessary).
-   * @param hdrMode The {@link Composition.HdrMode} to apply. Only {@link
-   *     Composition#HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC} and {@link
-   *     Composition#HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR} are applied.
    * @param clock The {@link Clock} to use. It should always be {@link Clock#DEFAULT}, except for
    *     testing.
    * @param mediaSourceFactory The {@link MediaSource.Factory} to use to retrieve the samples to
@@ -133,13 +121,11 @@ public final class DefaultAssetLoaderFactory implements AssetLoader.Factory {
   public DefaultAssetLoaderFactory(
       Context context,
       Codec.DecoderFactory decoderFactory,
-      @Composition.HdrMode int hdrMode,
       Clock clock,
       MediaSource.Factory mediaSourceFactory,
       BitmapLoader bitmapLoader) {
     this.context = context.getApplicationContext();
     this.decoderFactory = decoderFactory;
-    this.hdrMode = hdrMode;
     this.clock = clock;
     this.mediaSourceFactory = mediaSourceFactory;
     this.bitmapLoader = bitmapLoader;
@@ -147,22 +133,26 @@ public final class DefaultAssetLoaderFactory implements AssetLoader.Factory {
 
   @Override
   public AssetLoader createAssetLoader(
-      EditedMediaItem editedMediaItem, Looper looper, AssetLoader.Listener listener) {
+      EditedMediaItem editedMediaItem,
+      Looper looper,
+      AssetLoader.Listener listener,
+      CompositionSettings compositionSettings) {
     MediaItem mediaItem = editedMediaItem.mediaItem;
     if (isImage(mediaItem.localConfiguration)) {
       if (imageAssetLoaderFactory == null) {
         imageAssetLoaderFactory = new ImageAssetLoader.Factory(bitmapLoader);
       }
-      return imageAssetLoaderFactory.createAssetLoader(editedMediaItem, looper, listener);
+      return imageAssetLoaderFactory.createAssetLoader(
+          editedMediaItem, looper, listener, compositionSettings);
     }
     if (exoPlayerAssetLoaderFactory == null) {
       exoPlayerAssetLoaderFactory =
           mediaSourceFactory != null
-              ? new ExoPlayerAssetLoader.Factory(
-                  context, decoderFactory, hdrMode, clock, mediaSourceFactory)
-              : new ExoPlayerAssetLoader.Factory(context, decoderFactory, hdrMode, clock);
+              ? new ExoPlayerAssetLoader.Factory(context, decoderFactory, clock, mediaSourceFactory)
+              : new ExoPlayerAssetLoader.Factory(context, decoderFactory, clock);
     }
-    return exoPlayerAssetLoaderFactory.createAssetLoader(editedMediaItem, looper, listener);
+    return exoPlayerAssetLoaderFactory.createAssetLoader(
+        editedMediaItem, looper, listener, compositionSettings);
   }
 
   private boolean isImage(@Nullable MediaItem.LocalConfiguration localConfiguration) {

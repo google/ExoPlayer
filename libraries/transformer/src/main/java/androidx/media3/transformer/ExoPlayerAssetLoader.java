@@ -65,7 +65,6 @@ public final class ExoPlayerAssetLoader implements AssetLoader {
 
     private final Context context;
     private final Codec.DecoderFactory decoderFactory;
-    private final @Composition.HdrMode int hdrMode;
     private final Clock clock;
     @Nullable private final MediaSource.Factory mediaSourceFactory;
 
@@ -75,20 +74,12 @@ public final class ExoPlayerAssetLoader implements AssetLoader {
      * @param context The {@link Context}.
      * @param decoderFactory The {@link Codec.DecoderFactory} to use to decode the samples (if
      *     necessary).
-     * @param hdrMode The {@link Composition.HdrMode} to apply. Only {@link
-     *     Composition#HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC} and {@link
-     *     Composition#HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR} are applied.
      * @param clock The {@link Clock} to use. It should always be {@link Clock#DEFAULT}, except for
      *     testing.
      */
-    public Factory(
-        Context context,
-        Codec.DecoderFactory decoderFactory,
-        @Composition.HdrMode int hdrMode,
-        Clock clock) {
+    public Factory(Context context, Codec.DecoderFactory decoderFactory, Clock clock) {
       this.context = context;
       this.decoderFactory = decoderFactory;
-      this.hdrMode = hdrMode;
       this.clock = clock;
       this.mediaSourceFactory = null;
     }
@@ -99,9 +90,6 @@ public final class ExoPlayerAssetLoader implements AssetLoader {
      * @param context The {@link Context}.
      * @param decoderFactory The {@link Codec.DecoderFactory} to use to decode the samples (if
      *     necessary).
-     * @param hdrMode The {@link Composition.HdrMode} to apply. Only {@link
-     *     Composition#HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC} and {@link
-     *     Composition#HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR} are applied.
      * @param clock The {@link Clock} to use. It should always be {@link Clock#DEFAULT}, except for
      *     testing.
      * @param mediaSourceFactory The {@link MediaSource.Factory} to use to retrieve the samples to
@@ -110,19 +98,20 @@ public final class ExoPlayerAssetLoader implements AssetLoader {
     public Factory(
         Context context,
         Codec.DecoderFactory decoderFactory,
-        @Composition.HdrMode int hdrMode,
         Clock clock,
         MediaSource.Factory mediaSourceFactory) {
       this.context = context;
       this.decoderFactory = decoderFactory;
-      this.hdrMode = hdrMode;
       this.clock = clock;
       this.mediaSourceFactory = mediaSourceFactory;
     }
 
     @Override
     public AssetLoader createAssetLoader(
-        EditedMediaItem editedMediaItem, Looper looper, Listener listener) {
+        EditedMediaItem editedMediaItem,
+        Looper looper,
+        Listener listener,
+        CompositionSettings compositionSettings) {
       MediaSource.Factory mediaSourceFactory = this.mediaSourceFactory;
       if (mediaSourceFactory == null) {
         DefaultExtractorsFactory defaultExtractorsFactory = new DefaultExtractorsFactory();
@@ -136,7 +125,7 @@ public final class ExoPlayerAssetLoader implements AssetLoader {
           editedMediaItem,
           mediaSourceFactory,
           decoderFactory,
-          hdrMode,
+          compositionSettings.hdrMode,
           looper,
           listener,
           clock);

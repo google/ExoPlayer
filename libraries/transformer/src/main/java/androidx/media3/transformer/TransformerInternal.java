@@ -60,6 +60,7 @@ import androidx.media3.common.VideoFrameProcessor;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.ConditionVariable;
 import androidx.media3.common.util.HandlerWrapper;
+import androidx.media3.transformer.AssetLoader.CompositionSettings;
 import com.google.common.collect.ImmutableList;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -222,9 +223,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               sequence,
               composition.forceAudioTrack,
               assetLoaderFactory,
-              internalLooper,
+              new CompositionSettings(transformationRequest.hdrMode),
               sequenceAssetLoaderListener,
-              clock));
+              clock,
+              internalLooper));
       if (!sequence.isLooping) {
         // All sequences have a non-final duration at this point, as the AssetLoaders haven't
         // started loading yet.

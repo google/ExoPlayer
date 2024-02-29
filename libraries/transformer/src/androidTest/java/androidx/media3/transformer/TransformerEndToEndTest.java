@@ -82,6 +82,7 @@ import androidx.media3.extractor.text.DefaultSubtitleParserFactory;
 import androidx.media3.test.utils.FakeExtractorOutput;
 import androidx.media3.test.utils.FakeTrackOutput;
 import androidx.media3.test.utils.TestUtil;
+import androidx.media3.transformer.AssetLoader.CompositionSettings;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
@@ -1340,7 +1341,10 @@ public class TransformerEndToEndTest {
 
     @Override
     public TextureAssetLoader createAssetLoader(
-        EditedMediaItem editedMediaItem, Looper looper, AssetLoader.Listener listener) {
+        EditedMediaItem editedMediaItem,
+        Looper looper,
+        AssetLoader.Listener listener,
+        CompositionSettings compositionSettings) {
       Format format = new Format.Builder().setWidth(width).setHeight(height).build();
       OnInputFrameProcessedListener frameProcessedListener =
           (texId, syncObject) -> {

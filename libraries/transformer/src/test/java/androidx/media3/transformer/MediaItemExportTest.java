@@ -917,7 +917,6 @@ public final class MediaItemExportTest {
         new ExoPlayerAssetLoader.Factory(
             context,
             decoderFactory,
-            Composition.HDR_MODE_KEEP_HDR,
             new FakeClock(/* isAutoAdvancing= */ true),
             mediaSourceFactory);
     CapturingMuxer.Factory muxerFactory =
@@ -1617,7 +1616,10 @@ public final class MediaItemExportTest {
 
       @Override
       public AssetLoader createAssetLoader(
-          EditedMediaItem editedMediaItem, Looper looper, Listener listener) {
+          EditedMediaItem editedMediaItem,
+          Looper looper,
+          Listener listener,
+          CompositionSettings compositionSettings) {
         return new FakeAssetLoader(listener, supportedOutputTypes, sampleConsumerRef);
       }
     }
