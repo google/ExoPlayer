@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.source.smoothstreaming;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.util.Base64;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.SeekParameters;

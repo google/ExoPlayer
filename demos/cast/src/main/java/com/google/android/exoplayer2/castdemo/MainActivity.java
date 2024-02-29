@@ -17,13 +17,9 @@ package com.google.android.exoplayer2.castdemo;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.v4.graphics.ColorUtils;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.RecyclerView.ViewHolder;
-import android.support.v7.widget.helper.ItemTouchHelper;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.ColorUtils;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -33,6 +29,9 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.castdemo.DemoUtil.Sample;
@@ -250,7 +249,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener,
     }
 
     @Override
-    public void clearView(RecyclerView recyclerView, ViewHolder viewHolder) {
+    public void clearView(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
       super.clearView(recyclerView, viewHolder);
       if (draggingFromPosition != C.INDEX_UNSET) {
         // A drag has ended. We reflect the media queue change in the player.

@@ -22,7 +22,7 @@ import android.content.res.AssetManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.util.JsonReader;
 import android.view.Menu;
 import android.view.MenuInflater;

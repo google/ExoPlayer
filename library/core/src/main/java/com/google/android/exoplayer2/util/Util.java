@@ -35,7 +35,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Parcel;
 import android.security.NetworkSecurityPolicy;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.view.Display;
@@ -285,6 +285,25 @@ public final class Util {
   @EnsuresNonNull("#1")
   public static <T> T[] castNonNullTypeArray(@NullableType T[] value) {
     return value;
+  }
+
+  /**
+   * Creates a new array containing the concatenation of two non-null type arrays.
+   *
+   * @param first The first array.
+   * @param second The second array.
+   * @return The concatenated result.
+   */
+  @SuppressWarnings({"nullness:assignment.type.incompatible"})
+  public static <T> T[] nullSafeArrayConcatenation(T[] first, T[] second) {
+    T[] concatenation = Arrays.copyOf(first, first.length + second.length);
+    System.arraycopy(
+        /* src= */ second,
+        /* srcPos= */ 0,
+        /* dest= */ concatenation,
+        /* destPos= */ first.length,
+        /* length= */ second.length);
+    return concatenation;
   }
 
   /**

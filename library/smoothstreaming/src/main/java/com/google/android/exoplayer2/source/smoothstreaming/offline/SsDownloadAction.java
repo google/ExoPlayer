@@ -16,7 +16,7 @@
 package com.google.android.exoplayer2.source.smoothstreaming.offline;
 
 import android.net.Uri;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.offline.DownloadAction;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
 import com.google.android.exoplayer2.offline.SegmentDownloadAction;

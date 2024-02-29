@@ -58,6 +58,7 @@ android {
 
 dependencies {
     implementation 'com.android.support:support-annotations:' + supportLibraryVersion
+    implementation 'org.jetbrains:annotations:15.0'
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
     compileOnly 'org.checkerframework:checker-compat-qual:' + checkerframeworkVersion
     androidTestImplementation 'androidx.test:runner:' + testRunnerVersion
@@ -73,6 +74,9 @@ dependencies {
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
     testImplementation 'com.google.auto.value:auto-value-annotations:' + autoValueVersion
     testAnnotationProcessor 'com.google.auto.value:auto-value:' + autoValueVersion
+    implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
+    implementation 'androidx.appcompat:appcompat:1.1.0-alpha01'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
 }
 
 ext {

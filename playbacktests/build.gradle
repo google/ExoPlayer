@@ -38,4 +38,6 @@ dependencies {
     androidTestImplementation project(modulePrefix + 'library-dash')
     androidTestImplementation project(modulePrefix + 'library-hls')
     androidTestImplementation project(modulePrefix + 'testutils')
+    implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
+
 }

@@ -21,7 +21,7 @@ import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.MediaCodec;
 import android.media.MediaFormat;
-import android.support.annotation.IntDef;
+import androidx.annotation.IntDef;
 import android.view.Surface;
 import com.google.android.exoplayer2.PlayerMessage.Target;
 import com.google.android.exoplayer2.audio.AuxEffectInfo;
@@ -977,6 +977,79 @@ public final class C {
    * Bluetooth).
    */
   public static final int NETWORK_TYPE_OTHER = 8;
+
+  /**
+   * Track role flags. Possible flag values are {@link #ROLE_FLAG_MAIN}, {@link
+   * #ROLE_FLAG_ALTERNATE}, {@link #ROLE_FLAG_SUPPLEMENTARY}, {@link #ROLE_FLAG_COMMENTARY}, {@link
+   * #ROLE_FLAG_DUB}, {@link #ROLE_FLAG_EMERGENCY}, {@link #ROLE_FLAG_CAPTION}, {@link
+   * #ROLE_FLAG_SUBTITLE}, {@link #ROLE_FLAG_SIGN}, {@link #ROLE_FLAG_DESCRIBES_VIDEO}, {@link
+   * #ROLE_FLAG_DESCRIBES_MUSIC_AND_SOUND}, {@link #ROLE_FLAG_ENHANCED_DIALOG_INTELLIGIBILITY},
+   * {@link #ROLE_FLAG_TRANSCRIBES_DIALOG} and {@link #ROLE_FLAG_EASY_TO_READ}.
+   */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @androidx.annotation.IntDef(
+      flag = true,
+      value = {
+          ROLE_FLAG_MAIN,
+          ROLE_FLAG_ALTERNATE,
+          ROLE_FLAG_SUPPLEMENTARY,
+          ROLE_FLAG_COMMENTARY,
+          ROLE_FLAG_DUB,
+          ROLE_FLAG_EMERGENCY,
+          ROLE_FLAG_CAPTION,
+          ROLE_FLAG_SUBTITLE,
+          ROLE_FLAG_SIGN,
+          ROLE_FLAG_DESCRIBES_VIDEO,
+          ROLE_FLAG_DESCRIBES_MUSIC_AND_SOUND,
+          ROLE_FLAG_ENHANCED_DIALOG_INTELLIGIBILITY,
+          ROLE_FLAG_TRANSCRIBES_DIALOG,
+          ROLE_FLAG_EASY_TO_READ
+      })
+  public @interface RoleFlags {}
+  /** Indicates a main track. */
+  public static final int ROLE_FLAG_MAIN = 1;
+  /**
+   * Indicates an alternate track. For example a video track recorded from an different view point
+   * than the main track(s).
+   */
+  public static final int ROLE_FLAG_ALTERNATE = 1 << 1;
+  /**
+   * Indicates a supplementary track, meaning the track has lower importance than the main track(s).
+   * For example a video track that provides a visual accompaniment to a main audio track.
+   */
+  public static final int ROLE_FLAG_SUPPLEMENTARY = 1 << 2;
+  /** Indicates the track contains commentary, for example from the director. */
+  public static final int ROLE_FLAG_COMMENTARY = 1 << 3;
+  /**
+   * Indicates the track is in a different language from the original, for example dubbed audio or
+   * translated captions.
+   */
+  public static final int ROLE_FLAG_DUB = 1 << 4;
+  /** Indicates the track contains information about a current emergency. */
+  public static final int ROLE_FLAG_EMERGENCY = 1 << 5;
+  /**
+   * Indicates the track contains captions. This flag may be set on video tracks to indicate the
+   * presence of burned in captions.
+   */
+  public static final int ROLE_FLAG_CAPTION = 1 << 6;
+  /**
+   * Indicates the track contains subtitles. This flag may be set on video tracks to indicate the
+   * presence of burned in subtitles.
+   */
+  public static final int ROLE_FLAG_SUBTITLE = 1 << 7;
+  /** Indicates the track contains a visual sign-language interpretation of an audio track. */
+  public static final int ROLE_FLAG_SIGN = 1 << 8;
+  /** Indicates the track contains an audio or textual description of a video track. */
+  public static final int ROLE_FLAG_DESCRIBES_VIDEO = 1 << 9;
+  /** Indicates the track contains a textual description of music and sound. */
+  public static final int ROLE_FLAG_DESCRIBES_MUSIC_AND_SOUND = 1 << 10;
+  /** Indicates the track is designed for improved intelligibility of dialogue. */
+  public static final int ROLE_FLAG_ENHANCED_DIALOG_INTELLIGIBILITY = 1 << 11;
+  /** Indicates the track contains a transcription of spoken dialog. */
+  public static final int ROLE_FLAG_TRANSCRIBES_DIALOG = 1 << 12;
+  /** Indicates the track contains a text that has been edited for ease of reading. */
+  public static final int ROLE_FLAG_EASY_TO_READ = 1 << 13;
 
   /**
    * Converts a time in microseconds to the corresponding time in milliseconds, preserving

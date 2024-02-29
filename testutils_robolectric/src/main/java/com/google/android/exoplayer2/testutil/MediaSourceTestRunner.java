@@ -22,7 +22,7 @@ import android.os.ConditionVariable;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.util.Pair;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.MediaPeriod;

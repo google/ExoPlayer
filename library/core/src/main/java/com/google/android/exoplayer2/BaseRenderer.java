@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
@@ -37,6 +37,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   private SampleStream stream;
   private Format[] streamFormats;
   private long streamOffsetUs;
+  private long readingPositionUs;
   private boolean readEndOfStream;
   private boolean streamIsFinal;
 
@@ -47,6 +48,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   public BaseRenderer(int trackType) {
     this.trackType = trackType;
     readEndOfStream = true;
+    readingPositionUs = C.TIME_END_OF_SOURCE;
   }
 
   @Override
@@ -98,7 +100,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
       throws ExoPlaybackException {
     Assertions.checkState(!streamIsFinal);
     this.stream = stream;
-    readEndOfStream = false;
+    readingPositionUs = offsetUs;
     streamFormats = formats;
     streamOffsetUs = offsetUs;
     onStreamChanged(formats, offsetUs);
@@ -111,7 +113,12 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
 
   @Override
   public final boolean hasReadStreamToEnd() {
-    return readEndOfStream;
+    return readingPositionUs == C.TIME_END_OF_SOURCE;
+  }
+
+  @Override
+  public final long getReadingPositionUs() {
+    return readingPositionUs;
   }
 
   @Override
@@ -132,7 +139,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   @Override
   public final void resetPosition(long positionUs) throws ExoPlaybackException {
     streamIsFinal = false;
-    readEndOfStream = false;
+    readingPositionUs = positionUs;
     onPositionReset(positionUs, false);
   }
 

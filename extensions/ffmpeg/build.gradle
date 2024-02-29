@@ -38,7 +38,9 @@ android {
 dependencies {
     implementation project(modulePrefix + 'library-core')
     implementation 'com.android.support:support-annotations:' + supportLibraryVersion
+    implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
+
 }
 
 ext {

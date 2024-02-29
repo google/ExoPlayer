@@ -39,6 +39,8 @@ android {
 dependencies {
     implementation project(modulePrefix + 'library-core')
     androidTestImplementation 'androidx.test:runner:' + testRunnerVersion
+    implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
+
 }
 
 ext {

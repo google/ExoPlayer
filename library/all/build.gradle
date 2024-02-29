@@ -30,6 +30,10 @@ dependencies {
     api project(modulePrefix + 'library-hls')
     api project(modulePrefix + 'library-smoothstreaming')
     api project(modulePrefix + 'library-ui')
+    implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
+    implementation 'androidx.appcompat:appcompat:1.1.0-alpha01'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+
 }
 
 ext {

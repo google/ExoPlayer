@@ -41,6 +41,8 @@ dependencies {
     implementation 'com.android.support:support-annotations:' + supportLibraryVersion
     androidTestImplementation 'androidx.test:runner:' + testRunnerVersion
     androidTestImplementation 'com.google.truth:truth:' + truthVersion
+    implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
+
 }
 
 ext {

@@ -20,7 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 import android.content.Context;
 import android.os.HandlerThread;
 import android.os.Looper;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;

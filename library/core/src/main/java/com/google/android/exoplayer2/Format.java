@@ -17,7 +17,7 @@ package com.google.android.exoplayer2;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -1275,6 +1275,37 @@ public final class Format implements Parcelable {
   }
 
   public Format copyWithRotationDegrees(int rotationDegrees) {
+    return new Format(
+        id,
+        label,
+        containerMimeType,
+        sampleMimeType,
+        codecs,
+        bitrate,
+        maxInputSize,
+        width,
+        height,
+        frameRate,
+        rotationDegrees,
+        pixelWidthHeightRatio,
+        projectionData,
+        stereoMode,
+        colorInfo,
+        channelCount,
+        sampleRate,
+        pcmEncoding,
+        encoderDelay,
+        encoderPadding,
+        selectionFlags,
+        language,
+        accessibilityChannel,
+        subsampleOffsetUs,
+        initializationData,
+        drmInitData,
+        metadata);
+  }
+
+  public Format copyWithVideoSize(int width, int height) {
     return new Format(
         id,
         label,

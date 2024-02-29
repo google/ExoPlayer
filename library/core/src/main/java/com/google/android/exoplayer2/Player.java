@@ -16,8 +16,8 @@
 package com.google.android.exoplayer2;
 
 import android.os.Looper;
-import android.support.annotation.IntDef;
-import android.support.annotation.Nullable;
+import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -340,6 +340,51 @@ public interface Player {
         Timeline timeline, @Nullable Object manifest, @TimelineChangeReason int reason) {}
 
     /**
+     * Playback state. One of {@link #STATE_IDLE}, {@link #STATE_BUFFERING}, {@link #STATE_READY} or
+     * {@link #STATE_ENDED}.
+     */
+    @Documented
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({STATE_IDLE, STATE_BUFFERING, STATE_READY, STATE_ENDED})
+    @interface State {}
+    /**
+     * The player does not have any media to play.
+     */
+    int STATE_IDLE = 1;
+    /**
+     * The player is not able to immediately play from its current position. This state typically
+     * occurs when more data needs to be loaded.
+     */
+    int STATE_BUFFERING = 2;
+    /**
+     * The player is able to immediately play from its current position. The player will be playing if
+     * {@link #getPlayWhenReady()} is true, and paused otherwise.
+     */
+    int STATE_READY = 3;
+    /**
+     * The player has finished playing the media.
+     */
+    int STATE_ENDED = 4;
+
+    /**
+     * Reason why playback is suppressed even though {@link #getPlayWhenReady()} is {@code true}. One
+     * of {@link #PLAYBACK_SUPPRESSION_REASON_NONE} or {@link
+     * #PLAYBACK_SUPPRESSION_REASON_TRANSIENT_AUDIO_FOCUS_LOSS}.
+     */
+    @Documented
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({
+        PLAYBACK_SUPPRESSION_REASON_NONE,
+        PLAYBACK_SUPPRESSION_REASON_TRANSIENT_AUDIO_FOCUS_LOSS
+    })
+    @interface PlaybackSuppressionReason {}
+    /** Playback is not suppressed. */
+    int PLAYBACK_SUPPRESSION_REASON_NONE = 0;
+    /** Playback is suppressed due to transient audio focus loss. */
+    int PLAYBACK_SUPPRESSION_REASON_TRANSIENT_AUDIO_FOCUS_LOSS = 1;
+
+
+    /**
      * Called when the available or selected tracks change.
      *
      * @param trackGroups The available tracks. Never null, but may be of length zero.
@@ -364,6 +409,16 @@ public interface Player {
      * @param playbackState One of the {@code STATE} constants.
      */
     default void onPlayerStateChanged(boolean playWhenReady, int playbackState) {}
+
+    /**
+     * Called when the value returned from changes.
+     * TODO: add the removed link here
+     *
+     * @param playbackSuppressionReason The current {@link PlaybackSuppressionReason}.
+     */
+    default void onPlaybackSuppressionReasonChanged(
+        @PlaybackSuppressionReason int playbackSuppressionReason) {}
+
 
     /**
      * Called when the value of {@link #getRepeatMode()} changes.
@@ -444,6 +499,14 @@ public interface Player {
   }
 
   /**
+   * Playback state. One of {@link #STATE_IDLE}, {@link #STATE_BUFFERING}, {@link #STATE_READY} or
+   * {@link #STATE_ENDED}.
+   */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @androidx.annotation.IntDef({STATE_IDLE, STATE_BUFFERING, STATE_READY, STATE_ENDED})
+  @interface State {}
+  /**
    * The player does not have any media to play.
    */
   int STATE_IDLE = 1;
@@ -461,6 +524,24 @@ public interface Player {
    * The player has finished playing the media.
    */
   int STATE_ENDED = 4;
+
+  /**
+   * Reason why playback is suppressed even though {@link #getPlayWhenReady()} is {@code true}. One
+   * of {@link #PLAYBACK_SUPPRESSION_REASON_NONE} or {@link
+   * #PLAYBACK_SUPPRESSION_REASON_TRANSIENT_AUDIO_FOCUS_LOSS}.
+   */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @androidx.annotation.IntDef({
+      PLAYBACK_SUPPRESSION_REASON_NONE,
+      PLAYBACK_SUPPRESSION_REASON_TRANSIENT_AUDIO_FOCUS_LOSS
+  })
+  @interface PlaybackSuppressionReason {}
+  /** Playback is not suppressed. */
+  int PLAYBACK_SUPPRESSION_REASON_NONE = 0;
+  /** Playback is suppressed due to transient audio focus loss. */
+  int PLAYBACK_SUPPRESSION_REASON_TRANSIENT_AUDIO_FOCUS_LOSS = 1;
+
 
   /**
    * Repeat modes for playback. One of {@link #REPEAT_MODE_OFF}, {@link #REPEAT_MODE_ONE} or {@link

@@ -61,6 +61,7 @@ dependencies {
     implementation 'com.android.support:support-v4:' + supportLibraryVersion
     implementation 'com.android.support:appcompat-v7:' + supportLibraryVersion
     implementation 'com.android.support:recyclerview-v7:' + supportLibraryVersion
+    implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
 }
 
 apply plugin: 'com.google.android.gms.strict-version-matcher-plugin'

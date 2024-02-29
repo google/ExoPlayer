@@ -15,8 +15,8 @@
  */
 package com.google.android.exoplayer2.offline;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 /**
  * Identifies a given track by the index of the containing period, the index of the containing group

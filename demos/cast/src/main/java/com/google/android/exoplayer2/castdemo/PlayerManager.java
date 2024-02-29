@@ -17,7 +17,7 @@ package com.google.android.exoplayer2.castdemo;
 
 import android.content.Context;
 import android.net.Uri;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.view.KeyEvent;
 import android.view.View;
 import com.google.android.exoplayer2.C;

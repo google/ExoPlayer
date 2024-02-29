@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.testutil;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;

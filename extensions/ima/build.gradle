@@ -32,6 +32,7 @@ android {
 
 dependencies {
     api 'com.google.ads.interactivemedia.v3:interactivemedia:3.10.6'
+    implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
     implementation project(modulePrefix + 'library-core')
     implementation 'com.google.android.gms:play-services-ads:17.1.2'
     // These dependencies are necessary to force the supportLibraryVersion of

@@ -21,7 +21,7 @@ if (project.ext.has("exoplayerPublishEnabled")
         repoName = getBintrayRepo()
         userOrg = 'google'
         groupId = 'com.google.android.exoplayer'
-        website = 'https://github.com/google/ExoPlayer'
+        website = 'https://jfrog.fkinternal.com/ui/packages'
     }
 }
 

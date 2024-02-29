@@ -42,6 +42,8 @@ dependencies {
     androidTestImplementation 'androidx.test:runner:' + testRunnerVersion
     androidTestImplementation project(modulePrefix + 'testutils')
     testImplementation project(modulePrefix + 'testutils-robolectric')
+    implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
+
 }
 
 ext {

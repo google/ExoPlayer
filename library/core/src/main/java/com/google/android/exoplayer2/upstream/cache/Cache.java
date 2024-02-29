@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.upstream.cache;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.util.NavigableSet;

@@ -15,7 +15,8 @@
  */
 package com.google.android.exoplayer2.analytics;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
 import android.view.Surface;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -43,6 +44,9 @@ import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.video.VideoListener;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 import java.io.IOException;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -467,6 +471,15 @@ public class AnalyticsCollector
     EventTime eventTime = generatePlayingMediaPeriodEventTime();
     for (AnalyticsListener listener : listeners) {
       listener.onPlayerStateChanged(eventTime, playWhenReady, playbackState);
+    }
+  }
+
+  @Override
+  public void onPlaybackSuppressionReasonChanged(
+      @PlaybackSuppressionReason int playbackSuppressionReason) {
+    EventTime eventTime = generatePlayingMediaPeriodEventTime();
+    for (AnalyticsListener listener : listeners) {
+      listener.onPlaybackSuppressionReasonChanged(eventTime, playbackSuppressionReason);
     }
   }
 

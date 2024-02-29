@@ -44,4 +44,6 @@ dependencies {
     implementation 'com.google.auto.value:auto-value-annotations:' + autoValueVersion
     annotationProcessor 'com.google.auto.value:auto-value:' + autoValueVersion
     testImplementation project(modulePrefix + 'testutils-robolectric')
+    implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
+
 }

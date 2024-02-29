@@ -19,9 +19,9 @@ project.ext {
     // components provided by the library may be of use on older devices.
     // However, please note that the core media playback functionality provided
     // by the library requires API level 16 or greater.
-    minSdkVersion = 14
-    targetSdkVersion = 28
-    compileSdkVersion = 28
+    minSdkVersion = 16
+    targetSdkVersion = 31
+    compileSdkVersion = 31
     buildToolsVersion = '28.0.2'
     testSupportLibraryVersion = '0.5'
     supportLibraryVersion = '27.1.1'
@@ -33,6 +33,7 @@ project.ext {
     autoValueVersion = '1.6'
     checkerframeworkVersion = '2.5.0'
     testRunnerVersion = '1.1.0-alpha3'
+    androidxAnnotationVersion = '1.1.0'
     modulePrefix = ':'
     if (gradle.ext.has('exoplayerModulePrefix')) {
         modulePrefix += gradle.ext.exoplayerModulePrefix

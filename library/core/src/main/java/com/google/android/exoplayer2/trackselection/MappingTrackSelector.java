@@ -15,14 +15,16 @@
  */
 package com.google.android.exoplayer2.trackselection;
 
-import android.support.annotation.IntDef;
-import android.support.annotation.Nullable;
+import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
 import android.util.Pair;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.RendererConfiguration;
+import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.util.Util;
@@ -328,20 +330,25 @@ public abstract class MappingTrackSelector extends TrackSelector {
   }
 
   @Override
-  public final TrackSelectorResult selectTracks(RendererCapabilities[] rendererCapabilities,
-      TrackGroupArray trackGroups) throws ExoPlaybackException {
+  public final TrackSelectorResult selectTracks(
+      RendererCapabilities[] rendererCapabilities,
+      TrackGroupArray trackGroups,
+      MediaSource.MediaPeriodId periodId,
+      Timeline timeline)
+      throws ExoPlaybackException {
     // Structures into which data will be written during the selection. The extra item at the end
     // of each array is to store data associated with track groups that cannot be associated with
     // any renderer.
     int[] rendererTrackGroupCounts = new int[rendererCapabilities.length + 1];
     TrackGroup[][] rendererTrackGroups = new TrackGroup[rendererCapabilities.length + 1][];
-    int[][][] rendererFormatSupports = new int[rendererCapabilities.length + 1][][];
+    @RendererCapabilities.Capabilities int[][][] rendererFormatSupports = new int[rendererCapabilities.length + 1][][];
     for (int i = 0; i < rendererTrackGroups.length; i++) {
       rendererTrackGroups[i] = new TrackGroup[trackGroups.length];
       rendererFormatSupports[i] = new int[trackGroups.length][];
     }
 
     // Determine the extent to which each renderer supports mixed mimeType adaptation.
+    @RendererCapabilities.AdaptiveSupport
     int[] rendererMixedMimeTypeAdaptationSupports =
         getMixedMimeTypeAdaptationSupports(rendererCapabilities);
 
@@ -352,8 +359,11 @@ public abstract class MappingTrackSelector extends TrackSelector {
       // Associate the group to a preferred renderer.
       int rendererIndex = findRenderer(rendererCapabilities, group);
       // Evaluate the support that the renderer provides for each track in the group.
-      int[] rendererFormatSupport = rendererIndex == rendererCapabilities.length
-          ? new int[group.length] : getFormatSupport(rendererCapabilities[rendererIndex], group);
+      @RendererCapabilities.Capabilities
+      int[] rendererFormatSupport =
+          rendererIndex == rendererCapabilities.length
+              ? new int[group.length]
+              : getFormatSupport(rendererCapabilities[rendererIndex], group);
       // Stash the results.
       int rendererTrackGroupCount = rendererTrackGroupCounts[rendererIndex];
       rendererTrackGroups[rendererIndex][rendererTrackGroupCount] = group;
@@ -395,6 +405,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
             mappedTrackInfo, rendererFormatSupports, rendererMixedMimeTypeAdaptationSupports);
     return new TrackSelectorResult(result.first, result.second, mappedTrackInfo);
   }
+
 
   /**
    * Given mapped track information, returns a track selection and configuration for each renderer.

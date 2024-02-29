@@ -20,7 +20,7 @@ import android.content.Context;
 import android.media.MediaCodec;
 import android.media.MediaCrypto;
 import android.os.Handler;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;

@@ -23,7 +23,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static java.lang.Long.MIN_VALUE;
 import static java.util.Arrays.copyOfRange;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;

@@ -35,6 +35,8 @@ dependencies {
     implementation 'com.android.support:support-annotations:' + supportLibraryVersion
     testImplementation 'junit:junit:' + junitVersion
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
+    implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
+
 }
 
 ext {
