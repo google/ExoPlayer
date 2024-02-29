@@ -2348,6 +2348,7 @@ public class MediaControllerStateMaskingTest {
                     createMediaItems(firstMediaId, secondMediaId, thirdMediaId)))
             .setCurrentMediaItemIndex(initialMediaItemIndex)
             .setCurrentPeriodIndex(initialMediaItemIndex)
+            .setCurrentPosition(2000L)
             .build();
     remoteSession.setPlayer(playerConfig);
 
@@ -2409,6 +2410,7 @@ public class MediaControllerStateMaskingTest {
         /* testLastPeriodIndex= */ testCurrentMediaItemIndex);
     assertThat(newMediaItemRef.get().mediaId).isEqualTo(testCurrentMediaId);
     assertThat(newPositionInfoRef.get().mediaItemIndex).isEqualTo(testCurrentMediaItemIndex);
+    assertThat(newPositionInfoRef.get().positionMs).isEqualTo(0L);
     assertThat(getEventsAsList(onEventsRef.get()))
         .containsExactly(
             Player.EVENT_TIMELINE_CHANGED,
@@ -3439,12 +3441,14 @@ public class MediaControllerStateMaskingTest {
         new RemoteMediaSession.MockPlayerConfigBuilder()
             .setTimeline(MediaTestUtils.createTimeline(3))
             .setCurrentMediaItemIndex(1)
+            .setCurrentPosition(2000L)
             .build();
     remoteSession.setPlayer(playerConfig);
     MediaController controller = controllerTestRule.createController(remoteSession.getToken());
     CountDownLatch latch = new CountDownLatch(2);
     AtomicReference<Timeline> newTimelineRef = new AtomicReference<>();
     AtomicReference<Player.Events> onEventsRef = new AtomicReference<>();
+    AtomicReference<PositionInfo> newPositionInfoRef = new AtomicReference<>();
     Player.Listener listener =
         new Player.Listener() {
           @Override
@@ -3457,6 +3461,14 @@ public class MediaControllerStateMaskingTest {
           public void onEvents(Player player, Player.Events events) {
             onEventsRef.set(events);
             latch.countDown();
+          }
+
+          @Override
+          public void onPositionDiscontinuity(
+              PositionInfo oldPosition,
+              PositionInfo newPosition,
+              @Player.DiscontinuityReason int reason) {
+            newPositionInfoRef.set(newPosition);
           }
         };
     threadTestRule.getHandler().postAndSync(() -> controller.addListener(listener));
@@ -3478,6 +3490,7 @@ public class MediaControllerStateMaskingTest {
             Player.EVENT_TIMELINE_CHANGED,
             Player.EVENT_POSITION_DISCONTINUITY,
             Player.EVENT_MEDIA_ITEM_TRANSITION);
+    assertThat(newPositionInfoRef.get().positionMs).isEqualTo(2000L);
   }
 
   @Test

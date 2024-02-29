@@ -970,7 +970,9 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     }
     // Add media items to the end of the timeline if the index exceeds the window count.
     index = min(index, playerInfo.timeline.getWindowCount());
-    PlayerInfo newPlayerInfo = maskPlaybackInfoForAddedItems(playerInfo, index, mediaItems);
+    PlayerInfo newPlayerInfo =
+        maskPlayerInfoForAddedItems(
+            playerInfo, index, mediaItems, getCurrentPosition(), getContentPosition());
     @Nullable
     @Player.MediaItemTransitionReason
     Integer mediaItemTransitionReason =
@@ -983,8 +985,23 @@ import org.checkerframework.checker.nullness.qual.NonNull;
         /* mediaItemTransitionReason= */ mediaItemTransitionReason);
   }
 
-  private static PlayerInfo maskPlaybackInfoForAddedItems(
-      PlayerInfo playerInfo, int index, List<MediaItem> mediaItems) {
+  /**
+   * Returns a masking {@link PlayerInfo} for the added {@linkplain MediaItem media items} with the
+   * provided information.
+   *
+   * @param playerInfo The {@link PlayerInfo} that the new masking {@link PlayerInfo} is based on.
+   * @param index The index at which the {@linkplain MediaItem media items} are added.
+   * @param mediaItems The {@linkplain MediaItem media items} added.
+   * @param currentPositionMs The current position in milliseconds.
+   * @param currentContentPositionMs The current content position in milliseconds.
+   * @return A masking {@link PlayerInfo}.
+   */
+  private static PlayerInfo maskPlayerInfoForAddedItems(
+      PlayerInfo playerInfo,
+      int index,
+      List<MediaItem> mediaItems,
+      long currentPositionMs,
+      long currentContentPositionMs) {
     Timeline oldTimeline = playerInfo.timeline;
     List<Window> newWindows = new ArrayList<>();
     List<Period> newPeriods = new ArrayList<>();
@@ -1017,6 +1034,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
         newTimeline,
         newMediaItemIndex,
         newPeriodIndex,
+        currentPositionMs,
+        currentContentPositionMs,
         Player.DISCONTINUITY_REASON_INTERNAL);
   }
 
@@ -1066,7 +1085,14 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     }
     boolean wasCurrentItemRemoved =
         getCurrentMediaItemIndex() >= fromIndex && getCurrentMediaItemIndex() < toIndex;
-    PlayerInfo newPlayerInfo = maskPlayerInfoForRemovedItems(playerInfo, fromIndex, toIndex);
+    PlayerInfo newPlayerInfo =
+        maskPlayerInfoForRemovedItems(
+            playerInfo,
+            fromIndex,
+            toIndex,
+            /* isReplacingItems= */ false,
+            getCurrentPosition(),
+            getContentPosition());
     boolean didMediaItemTransitionHappen =
         playerInfo.sessionPositionInfo.positionInfo.mediaItemIndex >= fromIndex
             && playerInfo.sessionPositionInfo.positionInfo.mediaItemIndex < toIndex;
@@ -1082,8 +1108,30 @@ import org.checkerframework.checker.nullness.qual.NonNull;
             : null);
   }
 
+  /**
+   * Returns a masking {@link PlayerInfo} for the removed {@linkplain MediaItem media items} with
+   * the provided information.
+   *
+   * @param playerInfo The {@link PlayerInfo} that the new masking {@link PlayerInfo} is based on.
+   * @param fromIndex The index at which to start removing media items (inclusive).
+   * @param toIndex The index of the first item to be kept (exclusive).
+   * @param isReplacingItems A boolean indicating whether the media items are removed due to
+   *     replacing.
+   * @param currentPositionMs The current position in milliseconds. This value will be used in the
+   *     new masking {@link PlayerInfo} if the removal of the media items doesn't affect the current
+   *     playback position.
+   * @param currentContentPositionMs The current content position in milliseconds. This value will
+   *     be used in the new masking {@link PlayerInfo} if the removal of the media items doesn't
+   *     affect the current playback position.
+   * @return A masking {@link PlayerInfo}.
+   */
   private static PlayerInfo maskPlayerInfoForRemovedItems(
-      PlayerInfo playerInfo, int fromIndex, int toIndex) {
+      PlayerInfo playerInfo,
+      int fromIndex,
+      int toIndex,
+      boolean isReplacingItems,
+      long currentPositionMs,
+      long currentContentPositionMs) {
     Timeline oldTimeline = playerInfo.timeline;
     List<Window> newWindows = new ArrayList<>();
     List<Period> newPeriods = new ArrayList<>();
@@ -1141,6 +1189,16 @@ import org.checkerframework.checker.nullness.qual.NonNull;
                 newPositionInfo,
                 SessionPositionInfo.DEFAULT,
                 Player.DISCONTINUITY_REASON_REMOVE);
+      } else if (isReplacingItems) {
+        newPlayerInfo =
+            maskTimelineAndPositionInfo(
+                playerInfo,
+                newTimeline,
+                newMediaItemIndex,
+                newPeriodIndex,
+                currentPositionMs,
+                currentContentPositionMs,
+                Player.DISCONTINUITY_REASON_REMOVE);
       } else {
         Window newWindow = newTimeline.getWindow(newMediaItemIndex, new Window());
         long defaultPositionMs = newWindow.getDefaultPositionMs();
@@ -1182,6 +1240,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
               newTimeline,
               newMediaItemIndex,
               newPeriodIndex,
+              currentPositionMs,
+              currentContentPositionMs,
               Player.DISCONTINUITY_REASON_REMOVE);
     }
 
@@ -1290,8 +1350,17 @@ import org.checkerframework.checker.nullness.qual.NonNull;
       return;
     }
     toIndex = min(toIndex, playlistSize);
-    PlayerInfo newPlayerInfo = maskPlaybackInfoForAddedItems(playerInfo, toIndex, mediaItems);
-    newPlayerInfo = maskPlayerInfoForRemovedItems(newPlayerInfo, fromIndex, toIndex);
+    PlayerInfo newPlayerInfo =
+        maskPlayerInfoForAddedItems(
+            playerInfo, toIndex, mediaItems, getCurrentPosition(), getContentPosition());
+    newPlayerInfo =
+        maskPlayerInfoForRemovedItems(
+            newPlayerInfo,
+            fromIndex,
+            toIndex,
+            /* isReplacingItems= */ true,
+            getCurrentPosition(),
+            getContentPosition());
     boolean wasCurrentItemReplaced =
         playerInfo.sessionPositionInfo.positionInfo.mediaItemIndex >= fromIndex
             && playerInfo.sessionPositionInfo.positionInfo.mediaItemIndex < toIndex;
@@ -2111,6 +2180,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
               newTimeline,
               newWindowIndex,
               newPeriodIndex,
+              getCurrentPosition(),
+              getContentPosition(),
               Player.DISCONTINUITY_REASON_INTERNAL);
 
       updatePlayerInfo(
@@ -2972,6 +3043,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
       Timeline timeline,
       int newMediaItemIndex,
       int newPeriodIndex,
+      long newPositionMs,
+      long newContentPositionMs,
       int discontinuityReason) {
     PositionInfo newPositionInfo =
         new PositionInfo(
@@ -2980,8 +3053,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
             timeline.getWindow(newMediaItemIndex, new Window()).mediaItem,
             /* periodUid= */ null,
             newPeriodIndex,
-            playerInfo.sessionPositionInfo.positionInfo.positionMs,
-            playerInfo.sessionPositionInfo.positionInfo.contentPositionMs,
+            newPositionMs,
+            newContentPositionMs,
             playerInfo.sessionPositionInfo.positionInfo.adGroupIndex,
             playerInfo.sessionPositionInfo.positionInfo.adIndexInAdGroup);
     return maskTimelineAndPositionInfo(
