@@ -37,8 +37,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * The default implementation of {@link Mp4Writer} which writes all the samples in a single mdat
- * box.
+ * The basic implementation of {@link Mp4Writer} which writes all the samples in a single mdat box.
  *
  * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
  *     contains the same ExoPlayer code). See <a
@@ -46,7 +45,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *     migration guide</a> for more details, including a script to help with the migration.
  */
 @Deprecated
-/* package */ final class DefaultMp4Writer implements Mp4Writer {
+/* package */ final class BasicMp4Writer implements Mp4Writer {
   private static final long INTERLEAVE_DURATION_US = 1_000_000L;
 
   private final FileOutputStream outputStream;
@@ -72,7 +71,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
    *     H.265 NAL units from the Annex-B format (using start codes to delineate NAL units) to the
    *     AVCC format (which uses length prefixes).
    */
-  public DefaultMp4Writer(
+  public BasicMp4Writer(
       FileOutputStream outputStream,
       Mp4MoovStructure moovGenerator,
       AnnexBToAvccConverter annexBToAvccConverter) {

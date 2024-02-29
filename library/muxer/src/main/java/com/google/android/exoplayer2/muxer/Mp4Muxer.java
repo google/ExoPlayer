@@ -185,7 +185,7 @@ public final class Mp4Muxer {
           fragmentedMp4Enabled
               ? new FragmentedMp4Writer(
                   fileOutputStream, moovStructure, avccConverter, fragmentDurationUs)
-              : new DefaultMp4Writer(fileOutputStream, moovStructure, avccConverter);
+              : new BasicMp4Writer(fileOutputStream, moovStructure, avccConverter);
 
       return new Mp4Muxer(mp4Writer, metadataCollector);
     }
