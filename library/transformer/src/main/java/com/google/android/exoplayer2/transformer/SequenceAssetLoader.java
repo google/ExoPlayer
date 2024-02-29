@@ -66,8 +66,9 @@ import java.util.concurrent.atomic.AtomicInteger;
   private final boolean isLooping;
   private final boolean forceAudioTrack;
   private final AssetLoader.Factory assetLoaderFactory;
-  private final HandlerWrapper handler;
+  private final CompositionSettings compositionSettings;
   private final Listener sequenceAssetLoaderListener;
+  private final HandlerWrapper handler;
 
   /**
    * A mapping from track types to {@link SampleConsumer} instances.
@@ -108,13 +109,15 @@ import java.util.concurrent.atomic.AtomicInteger;
       EditedMediaItemSequence sequence,
       boolean forceAudioTrack,
       AssetLoader.Factory assetLoaderFactory,
-      Looper looper,
+      CompositionSettings compositionSettings,
       Listener listener,
-      Clock clock) {
+      Clock clock,
+      Looper looper) {
     editedMediaItems = sequence.editedMediaItems;
     isLooping = sequence.isLooping;
     this.forceAudioTrack = forceAudioTrack;
     this.assetLoaderFactory = assetLoaderFactory;
+    this.compositionSettings = compositionSettings;
     sequenceAssetLoaderListener = listener;
     handler = clock.createHandler(looper, /* callback= */ null);
     sampleConsumersByTrackType = new HashMap<>();
@@ -126,7 +129,8 @@ import java.util.concurrent.atomic.AtomicInteger;
     // constructor.
     @SuppressWarnings("nullness:argument.type.incompatible")
     AssetLoader currentAssetLoader =
-        assetLoaderFactory.createAssetLoader(editedMediaItems.get(0), looper, /* listener= */ this);
+        assetLoaderFactory.createAssetLoader(
+            editedMediaItems.get(0), looper, /* listener= */ this, compositionSettings);
     this.currentAssetLoader = currentAssetLoader;
   }
 
@@ -511,7 +515,8 @@ import java.util.concurrent.atomic.AtomicInteger;
                   assetLoaderFactory.createAssetLoader(
                       editedMediaItem,
                       checkNotNull(Looper.myLooper()),
-                      /* listener= */ SequenceAssetLoader.this);
+                      /* listener= */ SequenceAssetLoader.this,
+                      compositionSettings);
               currentAssetLoader.start();
             } catch (RuntimeException e) {
               onError(

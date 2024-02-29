@@ -76,7 +76,10 @@ public final class ImageAssetLoader implements AssetLoader {
 
     @Override
     public AssetLoader createAssetLoader(
-        EditedMediaItem editedMediaItem, Looper looper, Listener listener) {
+        EditedMediaItem editedMediaItem,
+        Looper looper,
+        Listener listener,
+        CompositionSettings compositionSettings) {
       return new ImageAssetLoader(editedMediaItem, listener, bitmapLoader);
     }
   }

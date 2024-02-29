@@ -77,6 +77,7 @@ import com.google.android.exoplayer2.testutil.FakeExtractorOutput;
 import com.google.android.exoplayer2.testutil.FakeTrackOutput;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.text.DefaultSubtitleParserFactory;
+import com.google.android.exoplayer2.transformer.AssetLoader.CompositionSettings;
 import com.google.android.exoplayer2.upstream.DataSourceBitmapLoader;
 import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.GlUtil;
@@ -1340,7 +1341,10 @@ public class TransformerEndToEndTest {
 
     @Override
     public TextureAssetLoader createAssetLoader(
-        EditedMediaItem editedMediaItem, Looper looper, AssetLoader.Listener listener) {
+        EditedMediaItem editedMediaItem,
+        Looper looper,
+        AssetLoader.Listener listener,
+        CompositionSettings compositionSettings) {
       Format format = new Format.Builder().setWidth(width).setHeight(height).build();
       OnInputFrameProcessedListener frameProcessedListener =
           (texId, syncObject) -> {

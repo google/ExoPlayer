@@ -24,6 +24,7 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.transformer.AssetLoader.CompositionSettings;
 import com.google.android.exoplayer2.upstream.DataSourceBitmapLoader;
 import com.google.android.exoplayer2.util.TimestampIterator;
 import java.time.Duration;
@@ -122,7 +123,7 @@ public class ImageAssetLoaderTest {
             .build();
     return new ImageAssetLoader.Factory(
             new DataSourceBitmapLoader(ApplicationProvider.getApplicationContext()))
-        .createAssetLoader(editedMediaItem, Looper.myLooper(), listener);
+        .createAssetLoader(editedMediaItem, Looper.myLooper(), listener, new CompositionSettings());
   }
 
   private static final class FakeSampleConsumer implements SampleConsumer {

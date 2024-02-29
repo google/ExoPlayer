@@ -1545,8 +1545,7 @@ public final class Transformer {
     AssetLoader.Factory assetLoaderFactory = this.assetLoaderFactory;
     if (useDefaultAssetLoaderFactory || assetLoaderFactory == null) {
       assetLoaderFactory =
-          new DefaultAssetLoaderFactory(
-              context, new DefaultDecoderFactory(context), transformationRequest.hdrMode, clock);
+          new DefaultAssetLoaderFactory(context, new DefaultDecoderFactory(context), clock);
     }
     DebugTraceUtil.reset();
     transformerInternal =

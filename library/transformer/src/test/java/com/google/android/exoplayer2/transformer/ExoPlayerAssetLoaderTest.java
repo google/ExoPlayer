@@ -28,6 +28,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
+import com.google.android.exoplayer2.transformer.AssetLoader.CompositionSettings;
 import com.google.android.exoplayer2.util.Clock;
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -143,9 +144,8 @@ public class ExoPlayerAssetLoaderTest {
     Codec.DecoderFactory decoderFactory = new DefaultDecoderFactory(context);
     EditedMediaItem editedMediaItem =
         new EditedMediaItem.Builder(MediaItem.fromUri("asset:///media/mp4/sample.mp4")).build();
-    return new ExoPlayerAssetLoader.Factory(
-            context, decoderFactory, Composition.HDR_MODE_KEEP_HDR, clock)
-        .createAssetLoader(editedMediaItem, Looper.myLooper(), listener);
+    return new ExoPlayerAssetLoader.Factory(context, decoderFactory, clock)
+        .createAssetLoader(editedMediaItem, Looper.myLooper(), listener, new CompositionSettings());
   }
 
   private static final class FakeSampleConsumer implements SampleConsumer {

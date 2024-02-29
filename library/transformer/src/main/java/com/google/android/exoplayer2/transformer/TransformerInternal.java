@@ -53,6 +53,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.transformer.AssetLoader.CompositionSettings;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.ConditionVariable;
 import com.google.android.exoplayer2.util.DebugViewProvider;
@@ -223,9 +224,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               sequence,
               composition.forceAudioTrack,
               assetLoaderFactory,
-              internalLooper,
+              new CompositionSettings(transformationRequest.hdrMode),
               sequenceAssetLoaderListener,
-              clock));
+              clock,
+              internalLooper));
       if (!sequence.isLooping) {
         // All sequences have a non-final duration at this point, as the AssetLoaders haven't
         // started loading yet.
