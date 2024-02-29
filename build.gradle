@@ -50,4 +50,14 @@ allprojects {
     }
 }
 
+def rootDir = file(".")
+if (!gradle.ext.has('exoplayerSettingsDir')) {
+    gradle.ext.exoplayerSettingsDir = rootDir.getCanonicalPath()
+}
+
+def modulePrefix = ':'
+if (gradle.ext.has('exoplayerModulePrefix')) {
+    modulePrefix += gradle.ext.exoplayerModulePrefix
+}
+
 apply from: 'javadoc_combined.gradle'

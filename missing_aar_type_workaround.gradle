@@ -1,0 +1,103 @@
+// Copyright 2021 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// Workaround for https://github.com/gradle/gradle/issues/3170, adding
+// <type>aar</type> in the POM to all dependencies that have AAR files.
+def addMissingAarTypeToXml(xml) {
+    // Dependencies that have JARs only (=don't contain an AAR file).
+    def jar_only_dependencies = [
+        "androidx.annotation:annotation",
+        "androidx.collection:collection",
+        "androidx.concurrent:concurrent-futures",
+        "junit:junit",
+        "com.google.ads.interactivemedia.v3:interactivemedia",
+        "com.google.guava:guava",
+        "com.google.truth:truth",
+        "com.google.truth.extensions:truth-java8-extension",
+        "com.squareup.okhttp3:okhttp",
+        "com.squareup.okhttp3:mockwebserver",
+        "org.mockito:mockito-core",
+        "org.robolectric:robolectric",
+    ]
+    // Dependencies that have AAR files.
+    def aar_dependencies = [
+        "androidx.annotation:annotation-experimental",
+        "androidx.appcompat:appcompat",
+        "androidx.core:core",
+        "androidx.core:core-ktx",
+        "androidx.leanback:leanback",
+        "androidx.media:media",
+        "androidx.media2:media2-session",
+        "androidx.multidex:multidex",
+        "androidx.recyclerview:recyclerview",
+        "androidx.test:core",
+        "androidx.test.ext:junit",
+        "androidx.test.ext:truth",
+        "androidx.work:work-runtime",
+        "com.google.android.gms:play-services-cast-framework",
+        "com.google.android.gms:play-services-cronet",
+        "com.google.android.material:material",
+        "io.antmedia:rtmp-client",
+    ]
+    xml.asNode().children().stream()
+        .filter { it.name().toString().endsWith("dependencies") }
+        .forEach {
+            it.children().stream()
+                .forEach {
+                    String groupId =
+                        it.children().stream()
+                            .filter { it.name().toString().endsWith("groupId") }
+                            .findFirst()
+                            .get()
+                            .children()[0]
+                    String artifactId =
+                        it.children().stream()
+                            .filter {
+                                it.name().toString().endsWith("artifactId")
+                            }
+                            .findFirst()
+                            .get()
+                            .children()[0]
+                    String dependencyName = groupId + ":" + artifactId
+                    boolean isProjectLibrary =
+     groupId == 'com.google.android.exoplayer'
+                    boolean hasJar =
+                        jar_only_dependencies.contains(dependencyName)
+                    boolean hasAar =
+                        (isProjectLibrary
+                            || aar_dependencies.contains(dependencyName))
+                    if (!hasJar && !hasAar) {
+                        // To look for what kind of dependency it is i.e. aar or jar type,
+                        // please expand the External Libraries in Project view in Android Studio
+                        // and search for your dependency inside Gradle Script dependencies.
+                        // .aar files have @aar suffix at the end of their name,
+                        // while .jar files have nothing.
+                        throw new IllegalStateException(
+                            dependencyName + " is not on the JAR or AAR list in missing_aar_type_workaround.gradle")
+                    }
+                    boolean hasTypeDeclaration =
+                        it.children().stream()
+                            .filter { it.name().toString().endsWith("type") }
+                            .findFirst()
+                            .isPresent()
+                    if (hasAar && !hasTypeDeclaration) {
+                        it.appendNode("type", "aar")
+                    }
+                }
+        }
+}
+
+ext {
+    addMissingAarTypeToXml = this.&addMissingAarTypeToXml
+}
