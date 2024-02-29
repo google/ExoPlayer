@@ -76,8 +76,10 @@
         `AnalyticsListener.onVideoCodecError`). Use the new
         `TestPlayerRunHelper.run(player).ignoringNonFatalErrors().untilXXX()`
         method chain to disable this behavior.
-*   Remove deprecated symbols:
 *   Demo app:
+*   Remove deprecated symbols:
+    *   Remove `CronetDataSourceFactory`. Use `CronetDataSource.Factory`
+        instead.
 
 ## 1.3
 
