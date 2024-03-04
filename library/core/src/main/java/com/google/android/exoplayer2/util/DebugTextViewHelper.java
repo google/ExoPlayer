@@ -24,6 +24,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.video.ColorInfo;
+import com.google.android.exoplayer2.video.VideoSize;
 import java.util.Locale;
 
 /**
@@ -127,6 +128,7 @@ public class DebugTextViewHelper {
   /** Returns a string containing video debugging information. */
   protected String getVideoString() {
     Format format = player.getVideoFormat();
+    VideoSize videoSize = player.getVideoSize();
     DecoderCounters decoderCounters = player.getVideoDecoderCounters();
     if (format == null || decoderCounters == null) {
       return "";
@@ -136,11 +138,11 @@ public class DebugTextViewHelper {
         + "(id:"
         + format.id
         + " r:"
-        + format.width
+        + videoSize.width
         + "x"
-        + format.height
+        + videoSize.height
         + getColorInfoString(format.colorInfo)
-        + getPixelAspectRatioString(format.pixelWidthHeightRatio)
+        + getPixelAspectRatioString(videoSize.pixelWidthHeightRatio)
         + getDecoderCountersBufferCountString(decoderCounters)
         + " vfpo: "
         + getVideoFrameProcessingOffsetAverageString(
