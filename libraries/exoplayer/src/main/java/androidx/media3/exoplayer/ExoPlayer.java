@@ -1568,8 +1568,8 @@ public interface ExoPlayer extends Player {
    * <p>If {@linkplain #setVideoSurface passing a surface to the player directly}, the output
    * resolution needs to be signaled by passing a {@linkplain #createMessage(PlayerMessage.Target)
    * message} to the {@linkplain Renderer video renderer} with type {@link
-   * Renderer#MSG_SET_VIDEO_OUTPUT_RESOLUTION} after calling this method. For {@link SurfaceView}
-   * and {@link SurfaceHolder} output this happens automatically.
+   * Renderer#MSG_SET_VIDEO_OUTPUT_RESOLUTION} after calling this method. For {@link SurfaceView},
+   * {@link TextureView} and {@link SurfaceHolder} output this happens automatically.
    *
    * <p>The following limitations exist for using {@linkplain Effect video effects}:
    *
