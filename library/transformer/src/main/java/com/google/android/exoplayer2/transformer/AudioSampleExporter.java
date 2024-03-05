@@ -67,7 +67,8 @@ import org.checkerframework.dataflow.qual.Pure;
       FallbackListener fallbackListener)
       throws ExportException {
     super(firstAssetLoaderTrackFormat, muxerWrapper);
-    audioGraph = new AudioGraph(mixerFactory, compositionAudioProcessors);
+    audioGraph = new AudioGraph(mixerFactory);
+    audioGraph.configure(compositionAudioProcessors);
     this.firstInputFormat = firstInputFormat;
     firstInput = audioGraph.registerInput(firstEditedMediaItem, firstInputFormat);
     encoderInputAudioFormat = audioGraph.getOutputAudioFormat();

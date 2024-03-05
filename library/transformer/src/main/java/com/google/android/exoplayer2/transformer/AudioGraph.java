@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.transformer;
 
 import static com.google.android.exoplayer2.audio.AudioProcessor.EMPTY_BUFFER;
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
+import static com.google.android.exoplayer2.util.Assertions.checkState;
 
 import android.util.SparseArray;
 import com.google.android.exoplayer2.C;
@@ -42,17 +43,17 @@ import java.util.Objects;
 /* package */ final class AudioGraph {
   private final AudioMixer mixer;
   private final SparseArray<AudioGraphInput> inputs;
-  private final AudioProcessingPipeline audioProcessingPipeline;
 
+  private AudioProcessingPipeline audioProcessingPipeline;
   private AudioFormat mixerAudioFormat;
   private int finishedInputs;
   private ByteBuffer mixerOutput;
 
   /** Creates an instance. */
-  public AudioGraph(AudioMixer.Factory mixerFactory, ImmutableList<AudioProcessor> effects) {
+  public AudioGraph(AudioMixer.Factory mixerFactory) {
     mixer = mixerFactory.create();
     inputs = new SparseArray<>();
-    audioProcessingPipeline = new AudioProcessingPipeline(effects);
+    audioProcessingPipeline = new AudioProcessingPipeline(ImmutableList.of());
     mixerOutput = EMPTY_BUFFER;
     mixerAudioFormat = AudioFormat.NOT_SET;
   }
@@ -72,28 +73,26 @@ import java.util.Objects;
   }
 
   /**
-   * Configures the graph.
+   * Configures the composition-level audio effects to be applied after mixing.
    *
-   * <p>Must be called before {@linkplain #getOutput() accessing output}.
+   * <p>Must be called before {@linkplain #registerInput(EditedMediaItem, Format) registering
+   * inputs}.
    *
-   * <p>Should be called at most once, before {@link #registerInput registering input}.
-   *
-   * @param mixerAudioFormat The {@link AudioFormat} requested for output from the mixer.
-   * @throws UnhandledAudioFormatException If the audio format is not supported by the {@link
-   *     AudioMixer}.
+   * @param effects The composition-level audio effects.
+   * @throws IllegalStateException If {@link #registerInput(EditedMediaItem, Format)} was already
+   *     called.
    */
-  public void configure(AudioFormat mixerAudioFormat) throws UnhandledAudioFormatException {
-    this.mixerAudioFormat = mixerAudioFormat;
-    mixer.configure(mixerAudioFormat, /* bufferSizeMs= */ C.LENGTH_UNSET, /* startTimeUs= */ 0);
-    audioProcessingPipeline.configure(mixerAudioFormat);
-    audioProcessingPipeline.flush();
+  public void configure(ImmutableList<AudioProcessor> effects) {
+    checkState(
+        mixerAudioFormat.equals(AudioFormat.NOT_SET),
+        "AudioGraph can't configure effects after input registration.");
+    audioProcessingPipeline = new AudioProcessingPipeline(effects);
   }
 
   /**
    * Returns a new {@link AudioGraphInput} instance.
    *
-   * <p>Calls {@link #configure} if not already configured, using the {@linkplain
-   * AudioGraphInput#getOutputAudioFormat() outputAudioFormat} of the input.
+   * <p>Must be called before {@linkplain #getOutput() accessing output}.
    */
   public AudioGraphInput registerInput(EditedMediaItem editedMediaItem, Format format)
       throws ExportException {
@@ -103,8 +102,8 @@ import java.util.Objects;
           new AudioGraphInput(mixerAudioFormat, editedMediaItem, format);
 
       if (Objects.equals(mixerAudioFormat, AudioFormat.NOT_SET)) {
-        // Graph not configured, configure before doing anything else.
-        configure(audioGraphInput.getOutputAudioFormat());
+        // Mixer not configured, configure before doing anything else.
+        configureMixer(audioGraphInput.getOutputAudioFormat());
       }
 
       int sourceId = mixer.addSource(audioGraphInput.getOutputAudioFormat(), /* startTimeUs= */ 0);
@@ -117,7 +116,8 @@ import java.util.Objects;
 
   /**
    * Returns the {@link AudioFormat} of the {@linkplain #getOutput() output}, or {@link
-   * AudioFormat#NOT_SET} if not {@linkplain #configure configured}.
+   * AudioFormat#NOT_SET} if no inputs were {@linkplain #registerInput(EditedMediaItem, Format)
+   * registered} previously.
    */
   public AudioFormat getOutputAudioFormat() {
     return audioProcessingPipeline.getOutputAudioFormat();
@@ -144,7 +144,11 @@ import java.util.Objects;
     return mixerOutput;
   }
 
-  /** Resets the graph to an unconfigured state, releasing any underlying resources. */
+  /**
+   * Resets the graph, un-registering inputs and releasing any underlying resources.
+   *
+   * <p>Call {@link #registerInput(EditedMediaItem, Format)} to prepare the audio graph again.
+   */
   public void reset() {
     for (int i = 0; i < inputs.size(); i++) {
       inputs.valueAt(i).release();
@@ -164,6 +168,22 @@ import java.util.Objects;
       return audioProcessingPipeline.isEnded();
     }
     return isMixerEnded();
+  }
+
+  /**
+   * Configures the mixer.
+   *
+   * <p>Must be called before {@linkplain #getOutput() accessing output}.
+   *
+   * @param mixerAudioFormat The {@link AudioFormat} requested for output from the mixer.
+   * @throws UnhandledAudioFormatException If the audio format is not supported by the {@link
+   *     AudioMixer}.
+   */
+  private void configureMixer(AudioFormat mixerAudioFormat) throws UnhandledAudioFormatException {
+    this.mixerAudioFormat = mixerAudioFormat;
+    mixer.configure(mixerAudioFormat, /* bufferSizeMs= */ C.LENGTH_UNSET, /* startTimeUs= */ 0);
+    audioProcessingPipeline.configure(mixerAudioFormat);
+    audioProcessingPipeline.flush();
   }
 
   private boolean isMixerEnded() {
