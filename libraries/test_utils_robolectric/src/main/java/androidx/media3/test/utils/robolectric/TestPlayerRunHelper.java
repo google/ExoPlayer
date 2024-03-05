@@ -71,7 +71,7 @@ public final class TestPlayerRunHelper {
    * <p>If an error occurs while a {@code untilXXX(...)} method is waiting for the condition to
    * become true, most methods will throw that error (exceptions to this are documented on specific
    * methods below). Use {@link #ignoringNonFatalErrors()} to ignore non-fatal errors and only fail
-   * on {@linkplain Player.Listener#getPlayerError() fatal playback errors}.
+   * on {@linkplain Player#getPlayerError() fatal playback errors}.
    *
    * <p>Instances of this class should only be used for a single {@code untilXXX()} invocation and
    * not be re-used.

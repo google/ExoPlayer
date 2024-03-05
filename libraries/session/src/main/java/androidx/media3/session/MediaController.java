@@ -163,8 +163,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * the {@link MediaSessionCompat.Callback#onAddQueueItem onAddQueueItem} and {@link
  * MediaSessionCompat.Callback#onRemoveQueueItem} onRemoveQueueItem} callbacks. Check {@link
  * #getAvailableCommands()} to see if playlist modifications are {@linkplain
- * androidx.media3.common.Player.Command#COMMAND_CHANGE_MEDIA_ITEMS supported} by the legacy
- * session.
+ * androidx.media3.common.Player#COMMAND_CHANGE_MEDIA_ITEMS supported} by the legacy session.
  */
 @DoNotMock
 public class MediaController implements Player {

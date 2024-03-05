@@ -1367,7 +1367,7 @@ public class MediaSession {
      *   <li>{@link MediaControllerCompat.TransportControls#playFromMediaId playFromMediaId}
      *   <li>{@link MediaControllerCompat.TransportControls#prepareFromSearch prepareFromSearch}
      *   <li>{@link MediaControllerCompat.TransportControls#playFromSearch playFromSearch}
-     *   <li>{@link MediaControllerCompat.TransportControls#addQueueItem addQueueItem}
+     *   <li>{@link MediaControllerCompat#addQueueItem addQueueItem}
      * </ul>
      *
      * The values of {@link MediaItem#mediaId}, {@link MediaItem.RequestMetadata#mediaUri}, {@link
@@ -1433,7 +1433,7 @@ public class MediaSession {
      *   <li>{@link MediaControllerCompat.TransportControls#playFromMediaId playFromMediaId}
      *   <li>{@link MediaControllerCompat.TransportControls#prepareFromSearch prepareFromSearch}
      *   <li>{@link MediaControllerCompat.TransportControls#playFromSearch playFromSearch}
-     *   <li>{@link MediaControllerCompat.TransportControls#addQueueItem addQueueItem}
+     *   <li>{@link MediaControllerCompat#addQueueItem addQueueItem}
      * </ul>
      *
      * The values of {@link MediaItem#mediaId}, {@link MediaItem.RequestMetadata#mediaUri}, {@link
