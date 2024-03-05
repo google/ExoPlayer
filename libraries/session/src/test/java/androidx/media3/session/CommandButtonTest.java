@@ -48,23 +48,6 @@ public class CommandButtonTest {
   }
 
   @Test
-  public void isEnabled_playerCommandAvailableOrUnavailableInSessionCommands_isEnabledCorrectly() {
-    CommandButton button =
-        new CommandButton.Builder()
-            .setDisplayName("button")
-            .setIconResId(R.drawable.media3_notification_small_icon)
-            .setPlayerCommand(Player.COMMAND_SEEK_TO_NEXT)
-            .build();
-    SessionCommands availableSessionCommands =
-        SessionCommands.EMPTY.buildUpon().add(Player.COMMAND_SEEK_TO_NEXT).build();
-
-    assertThat(CommandButton.isEnabled(button, SessionCommands.EMPTY, Player.Commands.EMPTY))
-        .isFalse();
-    assertThat(CommandButton.isEnabled(button, availableSessionCommands, Player.Commands.EMPTY))
-        .isTrue();
-  }
-
-  @Test
   public void isEnabled_sessionCommandAvailableOrUnavailable_isEnabledCorrectly() {
     SessionCommand command1 = new SessionCommand("command1", Bundle.EMPTY);
     CommandButton button =
