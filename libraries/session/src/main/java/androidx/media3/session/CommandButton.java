@@ -75,7 +75,9 @@ public final class CommandButton implements Bundleable {
     ICON_REWIND,
     ICON_REPEAT_ALL,
     ICON_REPEAT_ONE,
-    ICON_SHUFFLE,
+    ICON_REPEAT_OFF,
+    ICON_SHUFFLE_ON,
+    ICON_SHUFFLE_OFF,
     ICON_SHUFFLE_STAR,
     ICON_HEART_FILLED,
     ICON_HEART_UNFILLED,
@@ -211,8 +213,20 @@ public final class CommandButton implements Bundleable {
   /** An icon showing a repeat one symbol (two open clockwise arrows with an overlaid number 1). */
   @UnstableApi public static final int ICON_REPEAT_ONE = 0xe041;
 
+  /**
+   * An icon showing a disabled repeat symbol (two open clockwise arrows, in a color representing a
+   * disabled state).
+   */
+  @UnstableApi public static final int ICON_REPEAT_OFF = 0xfe040;
+
   /** An icon showing a shuffle symbol (two diagonal upward and downward facing arrows). */
-  @UnstableApi public static final int ICON_SHUFFLE = 0xe043;
+  @UnstableApi public static final int ICON_SHUFFLE_ON = 0xe043;
+
+  /**
+   * An icon showing a disabled shuffle symbol (two diagonal upward and downward facing arrows, in a
+   * color representing a disabled state).
+   */
+  @UnstableApi public static final int ICON_SHUFFLE_OFF = 0xfe044;
 
   /**
    * An icon showing a shuffle symbol with a start (two diagonal upward and downward facing arrows
