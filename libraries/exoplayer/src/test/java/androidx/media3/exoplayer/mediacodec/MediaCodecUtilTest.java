@@ -70,6 +70,15 @@ public final class MediaCodecUtilTest {
   }
 
   @Test
+  public void getCodecProfileAndLevel_handlesDolbyVisionProfile10CodecString() {
+    assertCodecProfileAndLevelForCodecsString(
+        MimeTypes.VIDEO_DOLBY_VISION,
+        "dav1.10.09",
+        MediaCodecInfo.CodecProfileLevel.DolbyVisionProfileDvav110,
+        MediaCodecInfo.CodecProfileLevel.DolbyVisionLevelUhd60);
+  }
+
+  @Test
   public void getCodecProfileAndLevel_handlesAv1ProfileMain8CodecString() {
     assertCodecProfileAndLevelForCodecsString(
         MimeTypes.VIDEO_AV1,
