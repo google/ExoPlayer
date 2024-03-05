@@ -8,6 +8,12 @@
         is preloaded again.
     *   Apply the correct corresponding `TrackSelectionResult` to the playing
         period in track reselection.
+    *   Add `BasePreloadManager` which coordinates the preloading for multiple
+        sources based on the priorities defined by their `rankingData`.
+        Customization is possible by extending this class. Add
+        `DefaultPreloadManager` which uses `PreloadMediaSource` to preload media
+        samples of the sources into memory, and uses an integer `rankingData`
+        that indicates the index of an item on the UI.
 *   Transformer:
     *   Add `audioConversionProcess` and `videoConversionProcess` to
         `ExportResult` indicating how the respective track in the output file
