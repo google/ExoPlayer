@@ -1348,6 +1348,8 @@ public final class MediaCodecUtil {
         return CodecProfileLevel.DolbyVisionProfileDvheSt;
       case "09":
         return CodecProfileLevel.DolbyVisionProfileDvavSe;
+      case "10":
+        return CodecProfileLevel.DolbyVisionProfileDvav110;
       default:
         return null;
     }
