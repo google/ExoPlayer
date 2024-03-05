@@ -164,7 +164,8 @@ import java.util.List;
     List<Bundle> commandButtonArrayList = bundle.getParcelableArrayList(FIELD_CUSTOM_LAYOUT);
     ImmutableList<CommandButton> customLayout =
         commandButtonArrayList != null
-            ? BundleCollectionUtil.fromBundleList(CommandButton::fromBundle, commandButtonArrayList)
+            ? BundleCollectionUtil.fromBundleList(
+                b -> CommandButton.fromBundle(b, sessionInterfaceVersion), commandButtonArrayList)
             : ImmutableList.of();
     @Nullable Bundle sessionCommandsBundle = bundle.getBundle(FIELD_SESSION_COMMANDS);
     SessionCommands sessionCommands =

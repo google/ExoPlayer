@@ -123,32 +123,31 @@ public class MediaControllerTest {
 
   @Test
   public void builder() throws Exception {
-    MediaController.Builder builder;
     SessionToken token = remoteSession.getToken();
 
     try {
-      builder = new MediaController.Builder(null, token);
+      new MediaController.Builder(null, token);
       assertWithMessage("null context shouldn't be allowed").fail();
     } catch (NullPointerException e) {
       // expected. pass-through
     }
 
     try {
-      builder = new MediaController.Builder(context, null);
+      new MediaController.Builder(context, null);
       assertWithMessage("null token shouldn't be allowed").fail();
     } catch (NullPointerException e) {
       // expected. pass-through
     }
 
     try {
-      builder = new MediaController.Builder(context, token).setListener(null);
+      new MediaController.Builder(context, token).setListener(null);
       assertWithMessage("null listener shouldn't be allowed").fail();
     } catch (NullPointerException e) {
       // expected. pass-through
     }
 
     try {
-      builder = new MediaController.Builder(context, token).setApplicationLooper(null);
+      new MediaController.Builder(context, token).setApplicationLooper(null);
       assertWithMessage("null looper shouldn't be allowed").fail();
     } catch (NullPointerException e) {
       // expected. pass-through
@@ -182,6 +181,7 @@ public class MediaControllerTest {
     CommandButton button2 =
         new CommandButton.Builder()
             .setDisplayName("button2")
+            .setEnabled(false)
             .setIconResId(R.drawable.media3_notification_small_icon)
             .setSessionCommand(new SessionCommand("command2", Bundle.EMPTY))
             .build();
@@ -191,11 +191,28 @@ public class MediaControllerTest {
             .setIconResId(R.drawable.media3_notification_small_icon)
             .setSessionCommand(new SessionCommand("command3", Bundle.EMPTY))
             .build();
-    setupCustomLayout(session, ImmutableList.of(button1, button2, button3));
+    CommandButton button4 =
+        new CommandButton.Builder()
+            .setDisplayName("button4")
+            .setIconResId(R.drawable.media3_notification_small_icon)
+            .setPlayerCommand(Player.COMMAND_PLAY_PAUSE)
+            .build();
+    CommandButton button5 =
+        new CommandButton.Builder()
+            .setDisplayName("button5")
+            .setIconResId(R.drawable.media3_notification_small_icon)
+            .setPlayerCommand(Player.COMMAND_GET_TRACKS)
+            .build();
+    setupCustomLayout(session, ImmutableList.of(button1, button2, button3, button4, button5));
     MediaController controller = controllerTestRule.createController(session.getToken());
 
     assertThat(threadTestRule.getHandler().postAndSync(controller::getCustomLayout))
-        .containsExactly(button1.copyWithIsEnabled(true), button2.copyWithIsEnabled(true), button3)
+        .containsExactly(
+            button1.copyWithIsEnabled(true),
+            button2.copyWithIsEnabled(false),
+            button3.copyWithIsEnabled(false),
+            button4.copyWithIsEnabled(true),
+            button5.copyWithIsEnabled(false))
         .inOrder();
 
     session.cleanUp();
@@ -214,6 +231,7 @@ public class MediaControllerTest {
     CommandButton button2 =
         new CommandButton.Builder()
             .setDisplayName("button2")
+            .setEnabled(false)
             .setIconResId(R.drawable.media3_notification_small_icon)
             .setSessionCommand(new SessionCommand("command2", Bundle.EMPTY))
             .build();
@@ -229,7 +247,19 @@ public class MediaControllerTest {
             .setIconResId(R.drawable.media3_notification_small_icon)
             .setSessionCommand(new SessionCommand("command4", Bundle.EMPTY))
             .build();
-    setupCustomLayout(session, ImmutableList.of(button1, button2));
+    CommandButton button5 =
+        new CommandButton.Builder()
+            .setDisplayName("button5")
+            .setIconResId(R.drawable.media3_notification_small_icon)
+            .setPlayerCommand(Player.COMMAND_PLAY_PAUSE)
+            .build();
+    CommandButton button6 =
+        new CommandButton.Builder()
+            .setDisplayName("button6")
+            .setIconResId(R.drawable.media3_notification_small_icon)
+            .setPlayerCommand(Player.COMMAND_GET_TRACKS)
+            .build();
+    setupCustomLayout(session, ImmutableList.of(button1, button3));
     CountDownLatch latch = new CountDownLatch(2);
     AtomicReference<List<CommandButton>> reportedCustomLayout = new AtomicReference<>();
     AtomicReference<List<CommandButton>> reportedCustomLayoutChanged = new AtomicReference<>();
@@ -255,23 +285,32 @@ public class MediaControllerTest {
             });
     ImmutableList<CommandButton> initialCustomLayoutFromGetter =
         threadTestRule.getHandler().postAndSync(controller::getCustomLayout);
-    session.setCustomLayout(ImmutableList.of(button3, button4));
+    session.setCustomLayout(ImmutableList.of(button1, button2, button4, button5, button6));
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
 
     ImmutableList<CommandButton> newCustomLayoutFromGetter =
         threadTestRule.getHandler().postAndSync(controller::getCustomLayout);
 
     assertThat(initialCustomLayoutFromGetter)
-        .containsExactly(button1.copyWithIsEnabled(true), button2.copyWithIsEnabled(true))
+        .containsExactly(button1.copyWithIsEnabled(true), button3.copyWithIsEnabled(false))
         .inOrder();
-    assertThat(newCustomLayoutFromGetter).containsExactly(button3, button4).inOrder();
-    assertThat(reportedCustomLayout.get()).containsExactly(button3, button4).inOrder();
-    assertThat(reportedCustomLayoutChanged.get()).containsExactly(button3, button4).inOrder();
+    ImmutableList<CommandButton> expectedNewButtons =
+        ImmutableList.of(
+            button1.copyWithIsEnabled(true),
+            button2.copyWithIsEnabled(false),
+            button4.copyWithIsEnabled(false),
+            button5.copyWithIsEnabled(true),
+            button6.copyWithIsEnabled(false));
+    assertThat(newCustomLayoutFromGetter).containsExactlyElementsIn(expectedNewButtons).inOrder();
+    assertThat(reportedCustomLayout.get()).containsExactlyElementsIn(expectedNewButtons).inOrder();
+    assertThat(reportedCustomLayoutChanged.get())
+        .containsExactlyElementsIn(expectedNewButtons)
+        .inOrder();
     session.cleanUp();
   }
 
   @Test
-  public void getCustomLayout_setAvailableCommandsAddOrRemoveCommands_reportsCustomLayoutChanged()
+  public void getCustomLayout_setAvailableCommandsOnSession_reportsCustomLayoutChanged()
       throws Exception {
     RemoteMediaSession session = createRemoteMediaSession(TEST_GET_CUSTOM_LAYOUT, null);
     CommandButton button1 =
@@ -283,10 +322,23 @@ public class MediaControllerTest {
     CommandButton button2 =
         new CommandButton.Builder()
             .setDisplayName("button2")
+            .setEnabled(false)
             .setIconResId(R.drawable.media3_notification_small_icon)
             .setSessionCommand(new SessionCommand("command2", Bundle.EMPTY))
             .build();
-    setupCustomLayout(session, ImmutableList.of(button1, button2));
+    CommandButton button3 =
+        new CommandButton.Builder()
+            .setDisplayName("button3")
+            .setIconResId(R.drawable.media3_notification_small_icon)
+            .setPlayerCommand(Player.COMMAND_PLAY_PAUSE)
+            .build();
+    CommandButton button4 =
+        new CommandButton.Builder()
+            .setDisplayName("button4")
+            .setIconResId(R.drawable.media3_notification_small_icon)
+            .setPlayerCommand(Player.COMMAND_GET_TRACKS)
+            .build();
+    setupCustomLayout(session, ImmutableList.of(button1, button2, button3, button4));
     CountDownLatch latch = new CountDownLatch(2);
     List<List<CommandButton>> reportedCustomLayoutChanged = new ArrayList<>();
     List<List<CommandButton>> getterCustomLayoutChanged = new ArrayList<>();
@@ -308,23 +360,95 @@ public class MediaControllerTest {
 
     // Remove commands in custom layout from available commands.
     session.setAvailableCommands(SessionCommands.EMPTY, Player.Commands.EMPTY);
-    // Add one command back.
+    // Add one sesion and player command back.
     session.setAvailableCommands(
-        new SessionCommands.Builder().add(button2.sessionCommand).build(), Player.Commands.EMPTY);
+        new SessionCommands.Builder().add(button2.sessionCommand).build(),
+        new Player.Commands.Builder().add(Player.COMMAND_GET_TRACKS).build());
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(initialCustomLayout)
-        .containsExactly(button1.copyWithIsEnabled(true), button2.copyWithIsEnabled(true));
+        .containsExactly(
+            button1.copyWithIsEnabled(true),
+            button2.copyWithIsEnabled(false),
+            button3.copyWithIsEnabled(true),
+            button4.copyWithIsEnabled(false));
     assertThat(reportedCustomLayoutChanged).hasSize(2);
-    assertThat(reportedCustomLayoutChanged.get(0)).containsExactly(button1, button2).inOrder();
+    assertThat(reportedCustomLayoutChanged.get(0))
+        .containsExactly(
+            button1.copyWithIsEnabled(false),
+            button2.copyWithIsEnabled(false),
+            button3.copyWithIsEnabled(false),
+            button4.copyWithIsEnabled(false))
+        .inOrder();
     assertThat(reportedCustomLayoutChanged.get(1))
-        .containsExactly(button1, button2.copyWithIsEnabled(true))
+        .containsExactly(
+            button1.copyWithIsEnabled(false),
+            button2.copyWithIsEnabled(false),
+            button3.copyWithIsEnabled(false),
+            button4.copyWithIsEnabled(true))
         .inOrder();
     assertThat(getterCustomLayoutChanged).hasSize(2);
-    assertThat(getterCustomLayoutChanged.get(0)).containsExactly(button1, button2).inOrder();
-    assertThat(getterCustomLayoutChanged.get(1))
-        .containsExactly(button1, button2.copyWithIsEnabled(true))
+    assertThat(getterCustomLayoutChanged.get(0))
+        .containsExactly(
+            button1.copyWithIsEnabled(false),
+            button2.copyWithIsEnabled(false),
+            button3.copyWithIsEnabled(false),
+            button4.copyWithIsEnabled(false))
         .inOrder();
+    assertThat(getterCustomLayoutChanged.get(1))
+        .containsExactly(
+            button1.copyWithIsEnabled(false),
+            button2.copyWithIsEnabled(false),
+            button3.copyWithIsEnabled(false),
+            button4.copyWithIsEnabled(true))
+        .inOrder();
+  }
+
+  @Test
+  public void getCustomLayout_setAvailableCommandsOnPlayer_reportsCustomLayoutChanged()
+      throws Exception {
+    RemoteMediaSession session = createRemoteMediaSession(TEST_GET_CUSTOM_LAYOUT, null);
+    CommandButton button =
+        new CommandButton.Builder()
+            .setDisplayName("button")
+            .setIconResId(R.drawable.media3_notification_small_icon)
+            .setPlayerCommand(Player.COMMAND_PLAY_PAUSE)
+            .build();
+    setupCustomLayout(session, ImmutableList.of(button));
+    CountDownLatch latch = new CountDownLatch(2);
+    List<List<CommandButton>> reportedCustomLayouts = new ArrayList<>();
+    List<List<CommandButton>> getterCustomLayouts = new ArrayList<>();
+    MediaController.Listener listener =
+        new MediaController.Listener() {
+          @Override
+          public void onCustomLayoutChanged(
+              MediaController controller, List<CommandButton> layout) {
+            reportedCustomLayouts.add(layout);
+            getterCustomLayouts.add(controller.getCustomLayout());
+            latch.countDown();
+          }
+        };
+    MediaController controller =
+        controllerTestRule.createController(
+            session.getToken(), /* connectionHints= */ Bundle.EMPTY, listener);
+    ImmutableList<CommandButton> initialCustomLayout =
+        threadTestRule.getHandler().postAndSync(controller::getCustomLayout);
+
+    // Disable player command and then add it back.
+    session.getMockPlayer().notifyAvailableCommandsChanged(Player.Commands.EMPTY);
+    session
+        .getMockPlayer()
+        .notifyAvailableCommandsChanged(
+            new Player.Commands.Builder().add(Player.COMMAND_PLAY_PAUSE).build());
+
+    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(initialCustomLayout).containsExactly(button.copyWithIsEnabled(true));
+    assertThat(reportedCustomLayouts).hasSize(2);
+    assertThat(reportedCustomLayouts.get(0)).containsExactly(button.copyWithIsEnabled(false));
+    assertThat(reportedCustomLayouts.get(1)).containsExactly(button.copyWithIsEnabled(true));
+    assertThat(getterCustomLayouts).hasSize(2);
+    assertThat(getterCustomLayouts.get(0)).containsExactly(button.copyWithIsEnabled(false));
+    assertThat(getterCustomLayouts.get(1)).containsExactly(button.copyWithIsEnabled(true));
   }
 
   @Test
@@ -341,6 +465,7 @@ public class MediaControllerTest {
     CommandButton button2 =
         new CommandButton.Builder()
             .setDisplayName("button2")
+            .setEnabled(false)
             .setIconResId(R.drawable.media3_notification_small_icon)
             .setSessionCommand(new SessionCommand("command2", Bundle.EMPTY))
             .build();
@@ -393,27 +518,31 @@ public class MediaControllerTest {
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     CommandButton button1Enabled = button1.copyWithIsEnabled(true);
-    CommandButton button2Enabled = button2.copyWithIsEnabled(true);
-    assertThat(initialCustomLayout).containsExactly(button1Enabled, button2Enabled).inOrder();
+    CommandButton button2Disabled = button2.copyWithIsEnabled(false);
+    CommandButton button3Disabled = button3.copyWithIsEnabled(false);
+    CommandButton button4Disabled = button4.copyWithIsEnabled(false);
+    assertThat(initialCustomLayout).containsExactly(button1Enabled, button2Disabled).inOrder();
     assertThat(reportedCustomLayout)
         .containsExactly(
-            ImmutableList.of(button1Enabled, button2Enabled),
-            ImmutableList.of(button3, button4),
-            ImmutableList.of(button1Enabled, button2Enabled))
+            ImmutableList.of(button1Enabled, button2Disabled),
+            ImmutableList.of(button3Disabled, button4Disabled),
+            ImmutableList.of(button1Enabled, button2Disabled))
         .inOrder();
     assertThat(getterCustomLayout)
         .containsExactly(
-            ImmutableList.of(button1Enabled, button2Enabled),
-            ImmutableList.of(button3, button4),
-            ImmutableList.of(button1Enabled, button2Enabled))
+            ImmutableList.of(button1Enabled, button2Disabled),
+            ImmutableList.of(button3Disabled, button4Disabled),
+            ImmutableList.of(button1Enabled, button2Disabled))
         .inOrder();
     assertThat(reportedCustomLayoutChanged)
         .containsExactly(
-            ImmutableList.of(button3, button4), ImmutableList.of(button1Enabled, button2Enabled))
+            ImmutableList.of(button3Disabled, button4Disabled),
+            ImmutableList.of(button1Enabled, button2Disabled))
         .inOrder();
     assertThat(getterCustomLayoutChanged)
         .containsExactly(
-            ImmutableList.of(button3, button4), ImmutableList.of(button1Enabled, button2Enabled))
+            ImmutableList.of(button3Disabled, button4Disabled),
+            ImmutableList.of(button1Enabled, button2Disabled))
         .inOrder();
     session.cleanUp();
   }

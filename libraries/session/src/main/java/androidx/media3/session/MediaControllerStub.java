@@ -112,8 +112,18 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     }
     List<CommandButton> layout;
     try {
+      @Nullable MediaControllerImplBase controller = this.controller.get();
+      @Nullable
+      SessionToken connectedToken = controller == null ? null : controller.getConnectedToken();
+      if (connectedToken == null) {
+        // Stale event.
+        return;
+      }
+      int sessionInterfaceVersion = connectedToken.getInterfaceVersion();
       layout =
-          BundleCollectionUtil.fromBundleList(CommandButton::fromBundle, commandButtonBundleList);
+          BundleCollectionUtil.fromBundleList(
+              bundle -> CommandButton.fromBundle(bundle, sessionInterfaceVersion),
+              commandButtonBundleList);
     } catch (RuntimeException e) {
       Log.w(TAG, "Ignoring malformed Bundle for CommandButton", e);
       return;

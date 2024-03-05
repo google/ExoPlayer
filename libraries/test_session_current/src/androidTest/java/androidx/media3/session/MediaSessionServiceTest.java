@@ -319,7 +319,9 @@ public class MediaSessionServiceTest {
         .isTrue();
     assertThat(mediaControllerCompat.getPlaybackState().getActions())
         .isEqualTo(PlaybackStateCompat.ACTION_SET_RATING);
-    assertThat(remoteController.getCustomLayout()).containsExactly(button1, button2).inOrder();
+    assertThat(remoteController.getCustomLayout())
+        .containsExactly(button1.copyWithIsEnabled(false), button2.copyWithIsEnabled(false))
+        .inOrder();
     assertThat(initialCustomLayoutInControllerCompat).isEmpty();
     assertThat(LegacyConversions.convertToCustomLayout(mediaControllerCompat.getPlaybackState()))
         .containsExactly(button1.copyWithIsEnabled(true), button3.copyWithIsEnabled(true))

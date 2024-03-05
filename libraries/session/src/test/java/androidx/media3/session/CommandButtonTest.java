@@ -31,7 +31,8 @@ import org.junit.runner.RunWith;
 public class CommandButtonTest {
 
   @Test
-  public void isEnabled_playerCommandAvailableOrUnavailableInPlayerCommands_isEnabledCorrectly() {
+  public void
+      isButtonCommandAvailable_playerCommandAvailableOrUnavailableInPlayerCommands_isEnabledCorrectly() {
     CommandButton button =
         new CommandButton.Builder()
             .setDisplayName("button")
@@ -41,14 +42,18 @@ public class CommandButtonTest {
     Player.Commands availablePlayerCommands =
         Player.Commands.EMPTY.buildUpon().add(Player.COMMAND_SEEK_TO_NEXT).build();
 
-    assertThat(CommandButton.isEnabled(button, SessionCommands.EMPTY, Player.Commands.EMPTY))
+    assertThat(
+            CommandButton.isButtonCommandAvailable(
+                button, SessionCommands.EMPTY, Player.Commands.EMPTY))
         .isFalse();
-    assertThat(CommandButton.isEnabled(button, SessionCommands.EMPTY, availablePlayerCommands))
+    assertThat(
+            CommandButton.isButtonCommandAvailable(
+                button, SessionCommands.EMPTY, availablePlayerCommands))
         .isTrue();
   }
 
   @Test
-  public void isEnabled_sessionCommandAvailableOrUnavailable_isEnabledCorrectly() {
+  public void isButtonCommandAvailable_sessionCommandAvailableOrUnavailable_isEnabledCorrectly() {
     SessionCommand command1 = new SessionCommand("command1", Bundle.EMPTY);
     CommandButton button =
         new CommandButton.Builder()
@@ -59,14 +64,18 @@ public class CommandButtonTest {
     SessionCommands availableSessionCommands =
         SessionCommands.EMPTY.buildUpon().add(command1).build();
 
-    assertThat(CommandButton.isEnabled(button, SessionCommands.EMPTY, Player.Commands.EMPTY))
+    assertThat(
+            CommandButton.isButtonCommandAvailable(
+                button, SessionCommands.EMPTY, Player.Commands.EMPTY))
         .isFalse();
-    assertThat(CommandButton.isEnabled(button, availableSessionCommands, Player.Commands.EMPTY))
+    assertThat(
+            CommandButton.isButtonCommandAvailable(
+                button, availableSessionCommands, Player.Commands.EMPTY))
         .isTrue();
   }
 
   @Test
-  public void getEnabledCommandButtons() {
+  public void copyWithUnavailableButtonsDisabled() {
     CommandButton button1 =
         new CommandButton.Builder()
             .setDisplayName("button1")
@@ -86,11 +95,11 @@ public class CommandButtonTest {
         Player.Commands.EMPTY.buildUpon().add(Player.COMMAND_SEEK_TO_PREVIOUS).build();
 
     assertThat(
-            CommandButton.getEnabledCommandButtons(
+            CommandButton.copyWithUnavailableButtonsDisabled(
                 ImmutableList.of(button1, button2), SessionCommands.EMPTY, Player.Commands.EMPTY))
-        .containsExactly(button1, button2);
+        .containsExactly(button1.copyWithIsEnabled(false), button2.copyWithIsEnabled(false));
     assertThat(
-            CommandButton.getEnabledCommandButtons(
+            CommandButton.copyWithUnavailableButtonsDisabled(
                 ImmutableList.of(button1, button2),
                 availableSessionCommands,
                 availablePlayerCommands))
@@ -134,7 +143,8 @@ public class CommandButtonTest {
             .setPlayerCommand(Player.COMMAND_SEEK_TO_PREVIOUS)
             .build();
 
-    CommandButton serialisedButton = CommandButton.fromBundle(button.toBundle());
+    CommandButton serialisedButton =
+        CommandButton.fromBundle(button.toBundle(), MediaSessionStub.VERSION_INT);
 
     assertThat(serialisedButton.iconUri).isEqualTo(uri);
   }
@@ -148,7 +158,8 @@ public class CommandButtonTest {
             .setPlayerCommand(Player.COMMAND_SEEK_TO_PREVIOUS)
             .build();
 
-    CommandButton serialisedButton = CommandButton.fromBundle(button.toBundle());
+    CommandButton serialisedButton =
+        CommandButton.fromBundle(button.toBundle(), MediaSessionStub.VERSION_INT);
 
     assertThat(serialisedButton.iconUri).isNull();
   }
@@ -180,7 +191,8 @@ public class CommandButtonTest {
             .setPlayerCommand(Player.COMMAND_SEEK_TO_NEXT)
             .build();
 
-    assertThat(button).isEqualTo(CommandButton.fromBundle(button.toBundle()));
+    assertThat(button)
+        .isEqualTo(CommandButton.fromBundle(button.toBundle(), MediaSessionStub.VERSION_INT));
     assertThat(button)
         .isNotEqualTo(
             new CommandButton.Builder()
@@ -205,7 +217,7 @@ public class CommandButtonTest {
     assertThat(button)
         .isNotEqualTo(
             new CommandButton.Builder()
-                .setEnabled(true)
+                .setEnabled(false)
                 .setDisplayName("button")
                 .setIconResId(R.drawable.media3_notification_small_icon)
                 .setPlayerCommand(Player.COMMAND_SEEK_TO_NEXT)
@@ -380,16 +392,31 @@ public class CommandButtonTest {
         new CommandButton.Builder().setPlayerCommand(Player.COMMAND_PLAY_PAUSE).build();
 
     CommandButton restoredButtonWithSessionCommand =
-        CommandButton.fromBundle(buttonWithSessionCommand.toBundle());
+        CommandButton.fromBundle(buttonWithSessionCommand.toBundle(), MediaSessionStub.VERSION_INT);
     CommandButton restoredButtonWithPlayerCommand =
-        CommandButton.fromBundle(buttonWithPlayerCommand.toBundle());
+        CommandButton.fromBundle(buttonWithPlayerCommand.toBundle(), MediaSessionStub.VERSION_INT);
     CommandButton restoredButtonWithDefaultValues =
-        CommandButton.fromBundle(buttonWithDefaultValues.toBundle());
+        CommandButton.fromBundle(buttonWithDefaultValues.toBundle(), MediaSessionStub.VERSION_INT);
 
     assertThat(restoredButtonWithSessionCommand).isEqualTo(buttonWithSessionCommand);
     assertThat(restoredButtonWithSessionCommand.extras.get("key")).isEqualTo("value");
     assertThat(restoredButtonWithPlayerCommand).isEqualTo(buttonWithPlayerCommand);
     assertThat(restoredButtonWithPlayerCommand.extras.get("key")).isEqualTo("value");
     assertThat(restoredButtonWithDefaultValues).isEqualTo(buttonWithDefaultValues);
+  }
+
+  @Test
+  public void fromBundle_withSessionInterfaceVersionLessThan3_setsEnabledToTrue() {
+    CommandButton buttonWithEnabledFalse =
+        new CommandButton.Builder()
+            .setEnabled(false)
+            .setSessionCommand(new SessionCommand(SessionCommand.COMMAND_CODE_SESSION_SET_RATING))
+            .build();
+
+    CommandButton restoredButtonAssumingOldSessionInterface =
+        CommandButton.fromBundle(
+            buttonWithEnabledFalse.toBundle(), /* sessionInterfaceVersion= */ 2);
+
+    assertThat(restoredButtonAssumingOldSessionInterface.isEnabled).isTrue();
   }
 }

@@ -381,7 +381,7 @@ public class RemoteMediaController {
     ArrayList<Bundle> list = customLayoutBundle.getParcelableArrayList(KEY_COMMAND_BUTTON_LIST);
     ImmutableList.Builder<CommandButton> customLayout = new ImmutableList.Builder<>();
     for (Bundle bundle : list) {
-      customLayout.add(CommandButton.fromBundle(bundle));
+      customLayout.add(CommandButton.fromBundle(bundle, MediaSessionStub.VERSION_INT));
     }
     return customLayout.build();
   }

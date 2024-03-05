@@ -388,6 +388,9 @@ public class MediaSession {
      * <p>Use {@code MediaSession.setCustomLayout(..)} to update the custom layout during the life
      * time of the session.
      *
+     * <p>On the controller side, the {@linkplain CommandButton#isEnabled enabled} flag is set to
+     * {@code false} if the available commands of a controller do not allow to use a button.
+     *
      * @param customLayout The ordered list of {@link CommandButton command buttons}.
      * @return The builder to allow chaining.
      */
@@ -911,7 +914,8 @@ public class MediaSession {
    * MediaController#getCustomLayout() controller already has available}. Note that this comparison
    * uses {@link CommandButton#equals} and therefore ignores {@link CommandButton#extras}.
    *
-   * <p>It's up to controller's decision how to represent the layout in its own UI.
+   * <p>On the controller side, the {@linkplain CommandButton#isEnabled enabled} flag is set to
+   * {@code false} if the available commands of the controller do not allow to use a button.
    *
    * <p>Interoperability: This call has no effect when called for a {@linkplain
    * ControllerInfo#LEGACY_CONTROLLER_VERSION legacy controller}.
@@ -933,9 +937,8 @@ public class MediaSession {
    * <p>Calling this method broadcasts the custom layout to all connected Media3 controllers,
    * including the {@linkplain #getMediaNotificationControllerInfo() media notification controller}.
    *
-   * <p>On the controller side, the {@linkplain CommandButton#isEnabled enabled} flag is set
-   * according to the available commands of the controller which overrides a value that has been set
-   * by the session.
+   * <p>On the controller side, the {@linkplain CommandButton#isEnabled enabled} flag is set to
+   * {@code false} if the available commands of a controller do not allow to use a button.
    *
    * <p>{@link MediaController.Listener#onCustomLayoutChanged(MediaController, List)} is only called
    * if the new custom layout is different to the custom layout the {@linkplain
@@ -1653,7 +1656,9 @@ public class MediaSession {
        *
        * <p>Make sure to have the session commands of all command buttons of the custom layout
        * included in the {@linkplain #setAvailableSessionCommands(SessionCommands)} available
-       * session commands}.
+       * session commands} On the controller side, the {@linkplain CommandButton#isEnabled enabled}
+       * flag is set to {@code false} if the available commands of the controller do not allow to
+       * use a button.
        */
       @CanIgnoreReturnValue
       public AcceptedResultBuilder setCustomLayout(@Nullable List<CommandButton> customLayout) {

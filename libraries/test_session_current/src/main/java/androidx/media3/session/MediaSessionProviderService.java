@@ -207,7 +207,7 @@ public class MediaSessionProviderService extends Service {
                             .add(new SessionCommand("command1", Bundle.EMPTY))
                             .add(new SessionCommand("command2", Bundle.EMPTY))
                             .build(),
-                        Player.Commands.EMPTY);
+                        new Player.Commands.Builder().add(Player.COMMAND_PLAY_PAUSE).build());
                   }
                 });
             break;
@@ -549,7 +549,7 @@ public class MediaSessionProviderService extends Service {
           () -> {
             ImmutableList.Builder<CommandButton> builder = new ImmutableList.Builder<>();
             for (Bundle bundle : layout) {
-              builder.add(CommandButton.fromBundle(bundle));
+              builder.add(CommandButton.fromBundle(bundle, MediaSessionStub.VERSION_INT));
             }
             MediaSession session = sessionMap.get(sessionId);
             session.setCustomLayout(builder.build());

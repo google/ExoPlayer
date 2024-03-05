@@ -113,7 +113,7 @@ import java.util.concurrent.ExecutionException;
   private static final String TAG = "MediaSessionStub";
 
   /** The version of the IMediaSession interface. */
-  public static final int VERSION_INT = 2;
+  public static final int VERSION_INT = 3;
 
   /**
    * Sequence number used when a controller method is triggered on the sesison side that wasn't

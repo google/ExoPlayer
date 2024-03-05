@@ -412,6 +412,7 @@ public final class CommandButton implements Bundleable {
       extras = Bundle.EMPTY;
       playerCommand = Player.COMMAND_INVALID;
       icon = ICON_UNDEFINED;
+      enabled = true;
     }
 
     /**
@@ -507,6 +508,12 @@ public final class CommandButton implements Bundleable {
     /**
      * Sets whether the button is enabled.
      *
+     * <p>Note that this value will be set to {@code false} for {@link MediaController} instances if
+     * the corresponding command is not available to this controller (see {@link #setPlayerCommand}
+     * and {@link #setSessionCommand}).
+     *
+     * <p>The default value is {@code true}.
+     *
      * @param enabled Whether the button is enabled.
      * @return This builder for chaining.
      */
@@ -571,7 +578,13 @@ public final class CommandButton implements Bundleable {
    */
   @UnstableApi public final Bundle extras;
 
-  /** Whether it's enabled. */
+  /**
+   * Whether the button is enabled.
+   *
+   * <p>Note that this value will be set to {@code false} for {@link MediaController} instances if
+   * the corresponding command is not available to this controller (see {@link #playerCommand} and
+   * {@link #sessionCommand}).
+   */
   public final boolean isEnabled;
 
   private CommandButton(
@@ -639,31 +652,35 @@ public final class CommandButton implements Bundleable {
   }
 
   /**
-   * Returns a list of command buttons with the {@link CommandButton#isEnabled} flag set according
-   * to the available commands passed in.
+   * Returns a list of command buttons with the {@link CommandButton#isEnabled} flag set to false if
+   * the corresponding command is not available.
    */
-  /* package */ static ImmutableList<CommandButton> getEnabledCommandButtons(
+  /* package */ static ImmutableList<CommandButton> copyWithUnavailableButtonsDisabled(
       List<CommandButton> commandButtons,
       SessionCommands sessionCommands,
       Player.Commands playerCommands) {
-    ImmutableList.Builder<CommandButton> enabledButtons = new ImmutableList.Builder<>();
+    ImmutableList.Builder<CommandButton> updatedButtons = new ImmutableList.Builder<>();
     for (int i = 0; i < commandButtons.size(); i++) {
       CommandButton button = commandButtons.get(i);
-      enabledButtons.add(
-          button.copyWithIsEnabled(isEnabled(button, sessionCommands, playerCommands)));
+      if (isButtonCommandAvailable(button, sessionCommands, playerCommands)) {
+        updatedButtons.add(button);
+      } else {
+        updatedButtons.add(button.copyWithIsEnabled(false));
+      }
     }
-    return enabledButtons.build();
+    return updatedButtons.build();
   }
 
   /**
-   * Returns whether the {@link CommandButton} is enabled given the available commands passed in.
+   * Returns whether the required command ({@link #playerCommand} or {@link #sessionCommand}) for
+   * the button is available.
    *
    * @param button The command button.
    * @param sessionCommands The available session commands.
    * @param playerCommands The available player commands.
-   * @return Whether the button is enabled given the available commands.
+   * @return Whether the command required for this button is available.
    */
-  /* package */ static boolean isEnabled(
+  /* package */ static boolean isButtonCommandAvailable(
       CommandButton button, SessionCommands sessionCommands, Player.Commands playerCommands) {
     return (button.sessionCommand != null && sessionCommands.contains(button.sessionCommand))
         || (button.playerCommand != Player.COMMAND_INVALID
@@ -706,7 +723,7 @@ public final class CommandButton implements Bundleable {
     if (iconUri != null) {
       bundle.putParcelable(FIELD_ICON_URI, iconUri);
     }
-    if (isEnabled) {
+    if (!isEnabled) {
       bundle.putBoolean(FIELD_ENABLED, isEnabled);
     }
     return bundle;
@@ -722,9 +739,18 @@ public final class CommandButton implements Bundleable {
   @SuppressWarnings("deprecation") // Deprecated instance of deprecated class
   public static final Creator<CommandButton> CREATOR = CommandButton::fromBundle;
 
-  /** Restores a {@code CommandButton} from a {@link Bundle}. */
+  /**
+   * @deprecated Use {@link #fromBundle(Bundle, int)} instead.
+   */
+  @Deprecated
   @UnstableApi
   public static CommandButton fromBundle(Bundle bundle) {
+    return fromBundle(bundle, MediaSessionStub.VERSION_INT);
+  }
+
+  /** Restores a {@code CommandButton} from a {@link Bundle}. */
+  @UnstableApi
+  public static CommandButton fromBundle(Bundle bundle, int sessionInterfaceVersion) {
     @Nullable Bundle sessionCommandBundle = bundle.getBundle(FIELD_SESSION_COMMAND);
     @Nullable
     SessionCommand sessionCommand =
@@ -735,7 +761,10 @@ public final class CommandButton implements Bundleable {
     int iconResId = bundle.getInt(FIELD_ICON_RES_ID, /* defaultValue= */ 0);
     CharSequence displayName = bundle.getCharSequence(FIELD_DISPLAY_NAME, /* defaultValue= */ "");
     @Nullable Bundle extras = bundle.getBundle(FIELD_EXTRAS);
-    boolean enabled = bundle.getBoolean(FIELD_ENABLED, /* defaultValue= */ false);
+    // Before sessionInterfaceVersion == 3, the session expected this value to be meaningless and we
+    // can only assume it was meant to be true.
+    boolean enabled =
+        sessionInterfaceVersion < 3 || bundle.getBoolean(FIELD_ENABLED, /* defaultValue= */ true);
     @Nullable Uri iconUri = bundle.getParcelable(FIELD_ICON_URI);
     @Icon int icon = bundle.getInt(FIELD_ICON, /* defaultValue= */ ICON_UNDEFINED);
     Builder builder = new Builder();

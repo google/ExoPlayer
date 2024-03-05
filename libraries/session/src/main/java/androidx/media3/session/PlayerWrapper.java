@@ -1043,25 +1043,23 @@ import java.util.List;
 
     for (int i = 0; i < customLayout.size(); i++) {
       CommandButton commandButton = customLayout.get(i);
-      if (commandButton.sessionCommand != null) {
-        SessionCommand sessionCommand = commandButton.sessionCommand;
-        if (sessionCommand.commandCode == SessionCommand.COMMAND_CODE_CUSTOM
-            && CommandButton.isEnabled(
-                commandButton, availableSessionCommands, availablePlayerCommands)) {
-          Bundle actionExtras = sessionCommand.customExtras;
-          if (commandButton.icon != CommandButton.ICON_UNDEFINED) {
-            actionExtras = new Bundle(sessionCommand.customExtras);
-            actionExtras.putInt(
-                MediaConstants.EXTRAS_KEY_COMMAND_BUTTON_ICON_COMPAT, commandButton.icon);
-          }
-          builder.addCustomAction(
-              new PlaybackStateCompat.CustomAction.Builder(
-                      sessionCommand.customAction,
-                      commandButton.displayName,
-                      commandButton.iconResId)
-                  .setExtras(actionExtras)
-                  .build());
+      SessionCommand sessionCommand = commandButton.sessionCommand;
+      if (sessionCommand != null
+          && commandButton.isEnabled
+          && sessionCommand.commandCode == SessionCommand.COMMAND_CODE_CUSTOM
+          && CommandButton.isButtonCommandAvailable(
+              commandButton, availableSessionCommands, availablePlayerCommands)) {
+        Bundle actionExtras = sessionCommand.customExtras;
+        if (commandButton.icon != CommandButton.ICON_UNDEFINED) {
+          actionExtras = new Bundle(sessionCommand.customExtras);
+          actionExtras.putInt(
+              MediaConstants.EXTRAS_KEY_COMMAND_BUTTON_ICON_COMPAT, commandButton.icon);
         }
+        builder.addCustomAction(
+            new PlaybackStateCompat.CustomAction.Builder(
+                    sessionCommand.customAction, commandButton.displayName, commandButton.iconResId)
+                .setExtras(actionExtras)
+                .build());
       }
     }
     if (playerError != null) {

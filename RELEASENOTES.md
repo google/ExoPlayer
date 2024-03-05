@@ -58,6 +58,9 @@
     *   Fix issue where the current position jumps back when the controller
         replaces the current item
         ([#951](https://github.com/androidx/media/issues/951)).
+    *   Change default of `CommandButton.enabled` to `true` and ensure the value
+        can stay false for controllers even if the associated command is
+        available.
 *   UI:
     *   Fallback to include audio track language name if `Locale` cannot
         identify a display name
