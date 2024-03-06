@@ -15,9 +15,9 @@
  */
 package androidx.media3.transformer;
 
-import static androidx.media3.common.ColorInfo.SDR_BT709_LIMITED;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
+import static androidx.media3.transformer.TransformerUtil.getDecoderOutputColor;
 
 import android.media.MediaCodec;
 import androidx.annotation.Nullable;
@@ -55,14 +55,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     this.decoderFactory = decoderFactory;
     this.hdrMode = hdrMode;
     decodeOnlyPresentationTimestamps = new ArrayList<>();
-  }
-
-  public static ColorInfo getDecoderOutputColor(
-      ColorInfo decoderInputColor, boolean isMediaCodecToneMappingRequested) {
-    if (isMediaCodecToneMappingRequested && ColorInfo.isTransferHdr(decoderInputColor)) {
-      return SDR_BT709_LIMITED;
-    }
-    return decoderInputColor;
   }
 
   @Override

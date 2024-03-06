@@ -16,6 +16,7 @@
 
 package androidx.media3.transformer;
 
+import static androidx.media3.common.ColorInfo.SDR_BT709_LIMITED;
 import static androidx.media3.transformer.Composition.HDR_MODE_KEEP_HDR;
 import static java.lang.Math.round;
 
@@ -222,5 +223,14 @@ import com.google.common.collect.ImmutableList;
       return ColorInfo.SDR_BT709_LIMITED;
     }
     return colorInfo;
+  }
+
+  /** Returns the decoder output color taking tone mapping into account. */
+  public static ColorInfo getDecoderOutputColor(
+      ColorInfo decoderInputColor, boolean isMediaCodecToneMappingRequested) {
+    if (isMediaCodecToneMappingRequested && ColorInfo.isTransferHdr(decoderInputColor)) {
+      return SDR_BT709_LIMITED;
+    }
+    return decoderInputColor;
   }
 }
