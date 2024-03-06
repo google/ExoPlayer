@@ -83,8 +83,8 @@ public final class SeekParameters {
    * Resolves a seek based on the parameters, given the requested seek position and two candidate
    * sync points.
    *
-   * @param positionUs The requested seek position, in microseocnds.
-   * @param firstSyncUs The first candidate seek point, in micrseconds.
+   * @param positionUs The requested seek position, in microseconds.
+   * @param firstSyncUs The first candidate seek point, in microseconds.
    * @param secondSyncUs The second candidate seek point, in microseconds. May equal {@code
    *     firstSyncUs} if there's only one candidate.
    * @return The resolved seek position, in microseconds.
