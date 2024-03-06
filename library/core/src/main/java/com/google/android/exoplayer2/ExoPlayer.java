@@ -36,6 +36,7 @@ import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.analytics.AnalyticsCollector;
 import com.google.android.exoplayer2.analytics.AnalyticsListener;
 import com.google.android.exoplayer2.analytics.DefaultAnalyticsCollector;
+import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.audio.AudioSink;
 import com.google.android.exoplayer2.audio.AuxEffectInfo;
@@ -472,6 +473,7 @@ public interface ExoPlayer extends Player {
     @Nullable /* package */ Looper playbackLooper;
     /* package */ boolean buildCalled;
     /* package */ boolean suppressPlaybackOnUnsuitableOutput;
+    /* package */ String playerName;
 
     /**
      * Creates a builder.
@@ -668,6 +670,7 @@ public interface ExoPlayer extends Player {
       releaseTimeoutMs = DEFAULT_RELEASE_TIMEOUT_MS;
       detachSurfaceTimeoutMs = DEFAULT_DETACH_SURFACE_TIMEOUT_MS;
       usePlatformDiagnostics = true;
+      playerName = "";
     }
 
     /**
@@ -1150,6 +1153,23 @@ public interface ExoPlayer extends Player {
     public Builder setPlaybackLooper(Looper playbackLooper) {
       checkState(!buildCalled);
       this.playbackLooper = playbackLooper;
+      return this;
+    }
+
+    /**
+     * Sets the player name that is included in the {@link PlayerId} for informational purpose to
+     * recognize the player by its {@link PlayerId}.
+     *
+     * <p>The default is an empty string.
+     *
+     * @param playerName A name for the player in the {@link PlayerId}.
+     * @return This builder.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    @CanIgnoreReturnValue
+    public Builder setName(String playerName) {
+      checkState(!buildCalled);
+      this.playerName = playerName;
       return this;
     }
 

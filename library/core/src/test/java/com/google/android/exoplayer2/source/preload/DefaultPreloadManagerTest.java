@@ -62,7 +62,6 @@ import org.mockito.Mock;
 @RunWith(AndroidJUnit4.class)
 public class DefaultPreloadManagerTest {
   @Mock private TargetPreloadStatusControl<Integer> mockTargetPreloadStatusControl;
-  private PlayerId playerId;
   private TrackSelector trackSelector;
   private Allocator allocator;
   private BandwidthMeter bandwidthMeter;
@@ -70,7 +69,6 @@ public class DefaultPreloadManagerTest {
 
   @Before
   public void setUp() {
-    playerId = new PlayerId();
     trackSelector = new DefaultTrackSelector(ApplicationProvider.getApplicationContext());
     allocator = new DefaultAllocator(/* trimOnReset= */ true, C.DEFAULT_BUFFER_SEGMENT_SIZE);
     bandwidthMeter =
@@ -252,7 +250,7 @@ public class DefaultPreloadManagerTest {
     PreloadMediaSource preloadMediaSource2 =
         (PreloadMediaSource) preloadManager.getMediaSource(mediaItem2);
     preloadMediaSource2.prepareSource(
-        externalCaller, bandwidthMeter.getTransferListener(), playerId);
+        externalCaller, bandwidthMeter.getTransferListener(), PlayerId.UNSET);
     preloadManager.setCurrentPlayingIndex(2);
     preloadManager.invalidate();
     shadowOf(Looper.getMainLooper()).idle();
@@ -303,7 +301,7 @@ public class DefaultPreloadManagerTest {
     PreloadMediaSource preloadMediaSource0 =
         (PreloadMediaSource) preloadManager.getMediaSource(mediaItem0);
     preloadMediaSource0.prepareSource(
-        externalCaller, bandwidthMeter.getTransferListener(), playerId);
+        externalCaller, bandwidthMeter.getTransferListener(), PlayerId.UNSET);
     preloadManager.setCurrentPlayingIndex(0);
     preloadManager.invalidate();
     shadowOf(Looper.getMainLooper()).idle();
@@ -314,7 +312,7 @@ public class DefaultPreloadManagerTest {
     PreloadMediaSource preloadMediaSource2 =
         (PreloadMediaSource) preloadManager.getMediaSource(mediaItem2);
     preloadMediaSource2.prepareSource(
-        externalCaller, bandwidthMeter.getTransferListener(), playerId);
+        externalCaller, bandwidthMeter.getTransferListener(), PlayerId.UNSET);
     preloadManager.setCurrentPlayingIndex(2);
     preloadManager.invalidate();
     shadowOf(Looper.getMainLooper()).idle();

@@ -112,6 +112,7 @@ import com.google.android.exoplayer2.Player.PlayWhenReadyChangeReason;
 import com.google.android.exoplayer2.Player.PositionInfo;
 import com.google.android.exoplayer2.Timeline.Window;
 import com.google.android.exoplayer2.analytics.AnalyticsListener;
+import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
@@ -5921,12 +5922,20 @@ public final class ExoPlayerTest {
         new DefaultLoadControl() {
           @Override
           public boolean shouldContinueLoading(
-              long playbackPositionUs, long bufferedDurationUs, float playbackSpeed) {
+              PlayerId playerId,
+              Timeline timeline,
+              MediaPeriodId mediaPeriodid,
+              long playbackPositionUs,
+              long bufferedDurationUs,
+              float playbackSpeed) {
             return false;
           }
 
           @Override
           public boolean shouldStartPlayback(
+              PlayerId playerId,
+              Timeline timeline,
+              MediaPeriodId mediaPeriodid,
               long bufferedDurationUs,
               float playbackSpeed,
               boolean rebuffering,
@@ -5968,12 +5977,20 @@ public final class ExoPlayerTest {
         new DefaultLoadControl() {
           @Override
           public boolean shouldContinueLoading(
-              long playbackPositionUs, long bufferedDurationUs, float playbackSpeed) {
+              PlayerId playerId,
+              Timeline timeline,
+              MediaPeriodId mediaPeriodid,
+              long playbackPositionUs,
+              long bufferedDurationUs,
+              float playbackSpeed) {
             return bufferedDurationUs < maxBufferUs;
           }
 
           @Override
           public boolean shouldStartPlayback(
+              PlayerId playerId,
+              Timeline timeline,
+              MediaPeriodId mediaPeriodid,
               long bufferedDurationUs,
               float playbackSpeed,
               boolean rebuffering,
@@ -6048,12 +6065,20 @@ public final class ExoPlayerTest {
         new DefaultLoadControl() {
           @Override
           public boolean shouldContinueLoading(
-              long playbackPositionUs, long bufferedDurationUs, float playbackSpeed) {
+              PlayerId playerId,
+              Timeline timeline,
+              MediaPeriodId mediaPeriodid,
+              long playbackPositionUs,
+              long bufferedDurationUs,
+              float playbackSpeed) {
             return true;
           }
 
           @Override
           public boolean shouldStartPlayback(
+              PlayerId playerId,
+              Timeline timeline,
+              MediaPeriodId mediaPeriodid,
               long bufferedDurationUs,
               float playbackSpeed,
               boolean rebuffering,
@@ -12937,7 +12962,7 @@ public final class ExoPlayerTest {
         spy(
             new DefaultLoadControl() {
               @Override
-              public void onReleased() {
+              public void onReleased(PlayerId playerId) {
                 // Emulate a failure during player release.
                 throw new RuntimeException();
               }
@@ -12948,13 +12973,13 @@ public final class ExoPlayerTest {
             .build();
     player.addListener(listener);
     // Ensure load control has not thrown the exception yet.
-    verify(loadControl, never()).onReleased();
+    verify(loadControl, never()).onReleased(any());
 
     player.release();
     ShadowLooper.idleMainLooper();
 
     // Verify load control threw the exception.
-    verify(loadControl).onReleased();
+    verify(loadControl).onReleased(any());
     verify(listener, never()).onPlayerError(any());
   }
 
