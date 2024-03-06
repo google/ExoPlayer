@@ -17,6 +17,7 @@
 package com.google.android.exoplayer2.transformer;
 
 import static com.google.android.exoplayer2.transformer.Composition.HDR_MODE_KEEP_HDR;
+import static com.google.android.exoplayer2.video.ColorInfo.SDR_BT709_LIMITED;
 import static java.lang.Math.round;
 
 import android.media.MediaCodec;
@@ -230,5 +231,14 @@ import com.google.common.collect.ImmutableList;
       return ColorInfo.SDR_BT709_LIMITED;
     }
     return colorInfo;
+  }
+
+  /** Returns the decoder output color taking tone mapping into account. */
+  public static ColorInfo getDecoderOutputColor(
+      ColorInfo decoderInputColor, boolean isMediaCodecToneMappingRequested) {
+    if (isMediaCodecToneMappingRequested && ColorInfo.isTransferHdr(decoderInputColor)) {
+      return SDR_BT709_LIMITED;
+    }
+    return decoderInputColor;
   }
 }

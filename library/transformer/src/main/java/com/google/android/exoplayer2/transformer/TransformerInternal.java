@@ -21,7 +21,6 @@ import static com.google.android.exoplayer2.C.TRACK_TYPE_VIDEO;
 import static com.google.android.exoplayer2.transformer.AssetLoader.SUPPORTED_OUTPUT_TYPE_DECODED;
 import static com.google.android.exoplayer2.transformer.AssetLoader.SUPPORTED_OUTPUT_TYPE_ENCODED;
 import static com.google.android.exoplayer2.transformer.Composition.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC;
-import static com.google.android.exoplayer2.transformer.ExoAssetLoaderVideoRenderer.getDecoderOutputColor;
 import static com.google.android.exoplayer2.transformer.ExportException.ERROR_CODE_FAILED_RUNTIME_CHECK;
 import static com.google.android.exoplayer2.transformer.ExportException.ERROR_CODE_MUXING_FAILED;
 import static com.google.android.exoplayer2.transformer.MuxerWrapper.MUXER_RELEASE_REASON_CANCELLED;
@@ -29,6 +28,7 @@ import static com.google.android.exoplayer2.transformer.MuxerWrapper.MUXER_RELEA
 import static com.google.android.exoplayer2.transformer.MuxerWrapper.MUXER_RELEASE_REASON_ERROR;
 import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STATE_AVAILABLE;
 import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STATE_NOT_STARTED;
+import static com.google.android.exoplayer2.transformer.TransformerUtil.getDecoderOutputColor;
 import static com.google.android.exoplayer2.transformer.TransformerUtil.getProcessedTrackType;
 import static com.google.android.exoplayer2.transformer.TransformerUtil.getValidColor;
 import static com.google.android.exoplayer2.transformer.TransformerUtil.maybeSetMuxerWrapperAdditionalRotationDegrees;
@@ -664,13 +664,22 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                 muxerWrapper,
                 fallbackListener));
       } else {
-        // TODO(b/267301878): Pass firstAssetLoaderOutputFormat once surface creation not in VSP.
-        boolean isMediaCodecToneMappingRequested =
-            transformationRequest.hdrMode == HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC;
-        ColorInfo decoderOutputColor =
-            getDecoderOutputColor(
-                getValidColor(firstAssetLoaderInputFormat.colorInfo),
-                isMediaCodecToneMappingRequested);
+        ColorInfo decoderOutputColor;
+        if (MimeTypes.isVideo(assetLoaderOutputFormat.sampleMimeType)) {
+          // TODO(b/267301878): Pass firstAssetLoaderOutputFormat once surface creation not in VSP.
+          boolean isMediaCodecToneMappingRequested =
+              transformationRequest.hdrMode == HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC;
+          decoderOutputColor =
+              getDecoderOutputColor(
+                  getValidColor(firstAssetLoaderInputFormat.colorInfo),
+                  isMediaCodecToneMappingRequested);
+        } else if (MimeTypes.isImage(assetLoaderOutputFormat.sampleMimeType)) {
+          decoderOutputColor = getValidColor(assetLoaderOutputFormat.colorInfo);
+        } else {
+          throw ExportException.createForUnexpected(
+              new IllegalArgumentException(
+                  "assetLoaderOutputFormat has to have a audio, video or image mimetype."));
+        }
 
         assetLoaderInputTracker.registerSampleExporter(
             C.TRACK_TYPE_VIDEO,

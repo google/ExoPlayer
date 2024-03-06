@@ -15,9 +15,9 @@
  */
 package com.google.android.exoplayer2.transformer;
 
+import static com.google.android.exoplayer2.transformer.TransformerUtil.getDecoderOutputColor;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
-import static com.google.android.exoplayer2.video.ColorInfo.SDR_BT709_LIMITED;
 
 import android.media.MediaCodec;
 import androidx.annotation.Nullable;
@@ -56,14 +56,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     this.decoderFactory = decoderFactory;
     this.hdrMode = hdrMode;
     decodeOnlyPresentationTimestamps = new ArrayList<>();
-  }
-
-  public static ColorInfo getDecoderOutputColor(
-      ColorInfo decoderInputColor, boolean isMediaCodecToneMappingRequested) {
-    if (isMediaCodecToneMappingRequested && ColorInfo.isTransferHdr(decoderInputColor)) {
-      return SDR_BT709_LIMITED;
-    }
-    return decoderInputColor;
   }
 
   @Override
