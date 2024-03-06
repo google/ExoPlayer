@@ -23,6 +23,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
+import androidx.media3.exoplayer.ExoPlayer.Builder;
+import java.util.Objects;
 
 /** Identifier for a player instance. */
 @UnstableApi
@@ -32,28 +34,69 @@ public final class PlayerId {
    * A player identifier with unset default values that can be used as a placeholder or for testing.
    */
   public static final PlayerId UNSET =
-      Util.SDK_INT < 31 ? new PlayerId() : new PlayerId(LogSessionIdApi31.UNSET);
+      Util.SDK_INT < 31
+          ? new PlayerId(/* playerName= */ "")
+          : new PlayerId(LogSessionIdApi31.UNSET, /* playerName= */ "");
+
+  /**
+   * A name to identify the player. Use {@link Builder#setName(String)} to set the name, otherwise
+   * an empty string is used as the default.
+   */
+  public final String name;
 
   @Nullable private final LogSessionIdApi31 logSessionIdApi31;
 
-  /** Creates an instance for API &lt; 31. */
-  public PlayerId() {
+  /**
+   * An object used for equals/hashCode below API 31 or when the MediaMetricsService is unavailable.
+   */
+  @Nullable private final Object equalityToken;
+
+  /**
+   * Creates an instance for API &lt; 31.
+   *
+   * @param playerName The name of the player, for informational purpose only.
+   */
+  public PlayerId(String playerName) {
     checkState(Util.SDK_INT < 31);
+    this.name = playerName;
     this.logSessionIdApi31 = null;
+    equalityToken = new Object();
   }
 
   /**
    * Creates an instance for API &ge; 31.
    *
    * @param logSessionId The {@link LogSessionId} used for this player.
+   * @param playerName The name of the player, for informational purpose only.
    */
   @RequiresApi(31)
-  public PlayerId(LogSessionId logSessionId) {
-    this(new LogSessionIdApi31(logSessionId));
+  public PlayerId(LogSessionId logSessionId, String playerName) {
+    this(new LogSessionIdApi31(logSessionId), playerName);
   }
 
-  private PlayerId(LogSessionIdApi31 logSessionIdApi31) {
+  private PlayerId(LogSessionIdApi31 logSessionIdApi31, String playerName) {
     this.logSessionIdApi31 = logSessionIdApi31;
+    this.name = playerName;
+    equalityToken = new Object();
+  }
+
+  @Override
+  public boolean equals(@Nullable Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof PlayerId)) {
+      return false;
+    }
+    PlayerId playerId = (PlayerId) o;
+    return Objects.equals(name, playerId.name)
+        && Objects.equals(logSessionIdApi31, playerId.logSessionIdApi31)
+        && Objects.equals(equalityToken, playerId.equalityToken);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(name, logSessionIdApi31, equalityToken);
   }
 
   /** Returns the {@link LogSessionId} for this player instance. */

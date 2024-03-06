@@ -14,6 +14,8 @@
         `DefaultPreloadManager` which uses `PreloadMediaSource` to preload media
         samples of the sources into memory, and uses an integer `rankingData`
         that indicates the index of an item on the UI.
+    *   Add `PlayerId` to most methods of `LoadControl` to enable `LoadControl`
+        implementations to support multiple players.
 *   Transformer:
     *   Add `audioConversionProcess` and `videoConversionProcess` to
         `ExportResult` indicating how the respective track in the output file

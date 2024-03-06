@@ -347,9 +347,12 @@ import java.util.concurrent.TimeoutException;
       analyticsCollector.setPlayer(this.wrappingPlayer, applicationLooper);
       PlayerId playerId =
           Util.SDK_INT < 31
-              ? new PlayerId()
+              ? new PlayerId(builder.playerName)
               : Api31.registerMediaMetricsListener(
-                  applicationContext, /* player= */ this, builder.usePlatformDiagnostics);
+                  applicationContext,
+                  /* player= */ this,
+                  builder.usePlatformDiagnostics,
+                  builder.playerName);
       internalPlayer =
           new ExoPlayerImplInternal(
               renderers,
@@ -3386,16 +3389,16 @@ import java.util.concurrent.TimeoutException;
 
     @DoNotInline
     public static PlayerId registerMediaMetricsListener(
-        Context context, ExoPlayerImpl player, boolean usePlatformDiagnostics) {
+        Context context, ExoPlayerImpl player, boolean usePlatformDiagnostics, String playerName) {
       @Nullable MediaMetricsListener listener = MediaMetricsListener.create(context);
       if (listener == null) {
         Log.w(TAG, "MediaMetricsService unavailable.");
-        return new PlayerId(LogSessionId.LOG_SESSION_ID_NONE);
+        return new PlayerId(LogSessionId.LOG_SESSION_ID_NONE, playerName);
       }
       if (usePlatformDiagnostics) {
         player.addAnalyticsListener(listener);
       }
-      return new PlayerId(listener.getLogSessionId());
+      return new PlayerId(listener.getLogSessionId(), playerName);
     }
   }
 

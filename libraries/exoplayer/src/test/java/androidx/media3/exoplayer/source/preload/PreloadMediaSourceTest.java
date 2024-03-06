@@ -80,7 +80,6 @@ public final class PreloadMediaSourceTest {
   private Allocator allocator;
   private BandwidthMeter bandwidthMeter;
   private RenderersFactory renderersFactory;
-  private PlayerId playerId;
 
   @Before
   public void setUp() {
@@ -97,7 +96,6 @@ public final class PreloadMediaSourceTest {
                   SystemClock.DEFAULT.createHandler(handler.getLooper(), /* callback= */ null),
                   audioListener)
             };
-    playerId = new PlayerId();
   }
 
   @Test
@@ -326,7 +324,7 @@ public final class PreloadMediaSourceTest {
           }
         };
     preloadMediaSource.prepareSource(
-        externalCaller, bandwidthMeter.getTransferListener(), playerId);
+        externalCaller, bandwidthMeter.getTransferListener(), PlayerId.UNSET);
     shadowOf(Looper.getMainLooper()).idle();
     preloadMediaSource.preload(/* startPositionUs= */ 0L);
     shadowOf(Looper.getMainLooper()).idle();
@@ -391,7 +389,7 @@ public final class PreloadMediaSourceTest {
           }
         };
     preloadMediaSource.prepareSource(
-        externalCaller, bandwidthMeter.getTransferListener(), playerId);
+        externalCaller, bandwidthMeter.getTransferListener(), PlayerId.UNSET);
     wrappedMediaSource.setAllowPreparation(true);
     shadowOf(Looper.getMainLooper()).idle();
 
@@ -453,7 +451,7 @@ public final class PreloadMediaSourceTest {
           }
         };
     preloadMediaSource.prepareSource(
-        externalCaller, bandwidthMeter.getTransferListener(), playerId);
+        externalCaller, bandwidthMeter.getTransferListener(), PlayerId.UNSET);
 
     assertThat(onTimelineRefreshedCalled.get()).isTrue();
     assertThat(onPreparedCalled.get()).isTrue();
@@ -551,7 +549,7 @@ public final class PreloadMediaSourceTest {
           }
         };
     preloadMediaSource.prepareSource(
-        externalCaller, bandwidthMeter.getTransferListener(), playerId);
+        externalCaller, bandwidthMeter.getTransferListener(), PlayerId.UNSET);
     Pair<Object, Long> periodPosition =
         externalCallerSourceInfoTimelineReference
             .get()
@@ -658,7 +656,7 @@ public final class PreloadMediaSourceTest {
           }
         };
     preloadMediaSource.prepareSource(
-        externalCaller, bandwidthMeter.getTransferListener(), playerId);
+        externalCaller, bandwidthMeter.getTransferListener(), PlayerId.UNSET);
     // Create a period from different position.
     Pair<Object, Long> periodPosition =
         externalCallerSourceInfoTimelineReference
@@ -740,7 +738,7 @@ public final class PreloadMediaSourceTest {
           }
         };
     preloadMediaSource.prepareSource(
-        externalCaller, bandwidthMeter.getTransferListener(), playerId);
+        externalCaller, bandwidthMeter.getTransferListener(), PlayerId.UNSET);
     shadowOf(Looper.getMainLooper()).idle();
     preloadMediaSource.releaseSource(externalCaller);
 
@@ -819,7 +817,7 @@ public final class PreloadMediaSourceTest {
     preloadMediaSource.preload(/* startPositionUs= */ 0L);
     shadowOf(Looper.getMainLooper()).idle();
     preloadMediaSource.prepareSource(
-        externalCaller, bandwidthMeter.getTransferListener(), playerId);
+        externalCaller, bandwidthMeter.getTransferListener(), PlayerId.UNSET);
     preloadMediaSource.releaseSource(externalCaller);
 
     assertThat(onTimelineRefreshedCalled.get()).isTrue();
@@ -903,9 +901,9 @@ public final class PreloadMediaSourceTest {
           }
         };
     preloadMediaSource.prepareSource(
-        externalCaller1, bandwidthMeter.getTransferListener(), playerId);
+        externalCaller1, bandwidthMeter.getTransferListener(), PlayerId.UNSET);
     preloadMediaSource.prepareSource(
-        externalCaller2, bandwidthMeter.getTransferListener(), playerId);
+        externalCaller2, bandwidthMeter.getTransferListener(), PlayerId.UNSET);
     // Only releaseSource by externalCaller1.
     preloadMediaSource.releaseSource(externalCaller1);
 
@@ -1054,7 +1052,7 @@ public final class PreloadMediaSourceTest {
     preloadMediaSource.preload(/* startPositionUs= */ 0L);
     shadowOf(Looper.getMainLooper()).idle();
     preloadMediaSource.prepareSource(
-        externalCaller, bandwidthMeter.getTransferListener(), playerId);
+        externalCaller, bandwidthMeter.getTransferListener(), PlayerId.UNSET);
     shadowOf(Looper.getMainLooper()).idle();
     preloadMediaSource.releasePreloadMediaSource();
     shadowOf(Looper.getMainLooper()).idle();
