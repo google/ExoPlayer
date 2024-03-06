@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2;
 
+import static com.google.android.exoplayer2.Renderer.STATE_STARTED;
+
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
@@ -198,12 +200,14 @@ import com.google.android.exoplayer2.util.StandaloneMediaClock;
   }
 
   private boolean shouldUseStandaloneClock(boolean isReadingAhead) {
-    // Use the standalone clock if the clock providing renderer is not set or has ended. Also use
+    // Use the standalone clock if the clock providing renderer is not set or has ended. Use the
+    // standalone clock if reading ahead and the renderer is not in a started state. Also use
     // the standalone clock if the renderer is not ready and we have finished reading the stream or
     // are reading ahead to avoid getting stuck if tracks in the current period have uneven
     // durations. See: https://github.com/google/ExoPlayer/issues/1874.
     return rendererClockSource == null
         || rendererClockSource.isEnded()
+        || (isReadingAhead && rendererClockSource.getState() != STATE_STARTED)
         || (!rendererClockSource.isReady()
             && (isReadingAhead || rendererClockSource.hasReadStreamToEnd()));
   }
