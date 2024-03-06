@@ -89,6 +89,7 @@
 *   Remove deprecated symbols:
     *   Remove `CronetDataSourceFactory`. Use `CronetDataSource.Factory`
         instead.
+    *   Remove some `DataSpec` constructors. Use `DataSpec.Builder` instead.
 
 ## 1.3
 

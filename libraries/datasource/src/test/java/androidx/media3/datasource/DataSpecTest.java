@@ -20,7 +20,6 @@ import static com.google.common.truth.Truth.assertThat;
 import static junit.framework.TestCase.fail;
 
 import android.net.Uri;
-import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import java.util.HashMap;
@@ -40,59 +39,7 @@ public class DataSpecTest {
     DataSpec dataSpec = new DataSpec(uri);
     assertDefaultDataSpec(dataSpec, uri);
 
-    dataSpec = new DataSpec(uri, /* flags= */ 0);
-    assertDefaultDataSpec(dataSpec, uri);
-
     dataSpec = new DataSpec(uri, /* position= */ 0, C.LENGTH_UNSET, /* key= */ null);
-    assertDefaultDataSpec(dataSpec, uri);
-
-    dataSpec =
-        new DataSpec(uri, /* position= */ 0, C.LENGTH_UNSET, /* key= */ null, /* flags= */ 0);
-    assertDefaultDataSpec(dataSpec, uri);
-
-    dataSpec =
-        new DataSpec(
-            uri,
-            /* position= */ 0,
-            /* length= */ C.LENGTH_UNSET,
-            /* key= */ null,
-            /* flags= */ 0,
-            new HashMap<>());
-    assertDefaultDataSpec(dataSpec, uri);
-
-    dataSpec =
-        new DataSpec(
-            uri,
-            /* absoluteStreamPosition= */ 0,
-            /* position= */ 0,
-            /* length= */ C.LENGTH_UNSET,
-            null,
-            /* flags= */ 0);
-    assertDefaultDataSpec(dataSpec, uri);
-
-    dataSpec =
-        new DataSpec(
-            uri,
-            DataSpec.HTTP_METHOD_GET,
-            /* httpBody= */ null,
-            /* absoluteStreamPosition= */ 0,
-            /* position= */ 0,
-            /* length= */ C.LENGTH_UNSET,
-            /* key= */ null,
-            /* flags= */ 0);
-    assertDefaultDataSpec(dataSpec, uri);
-
-    dataSpec =
-        new DataSpec(
-            uri,
-            DataSpec.HTTP_METHOD_GET,
-            /* httpBody= */ null,
-            /* absoluteStreamPosition= */ 0,
-            /* position= */ 0,
-            /* length= */ C.LENGTH_UNSET,
-            /* key= */ null,
-            /* flags= */ 0,
-            new HashMap<>());
     assertDefaultDataSpec(dataSpec, uri);
   }
 
@@ -106,34 +53,22 @@ public class DataSpecTest {
 
   @SuppressWarnings("deprecation")
   @Test
-  public void createDataSpec_setsValues() {
+  public void createDataSpec_deprecatedConstructor_setsSomeValues() {
     Uri uri = Uri.parse("www.google.com");
-    Map<String, String> httpRequestHeaders = createHttpRequestHeaders(3);
-    byte[] httpBody = new byte[] {0, 1, 2, 3};
 
-    DataSpec dataSpec =
-        new DataSpec(
-            uri,
-            DataSpec.HTTP_METHOD_POST,
-            httpBody,
-            /* absoluteStreamPosition= */ 200,
-            /* position= */ 150,
-            /* length= */ 5,
-            /* key= */ "key",
-            /* flags= */ DataSpec.FLAG_ALLOW_GZIP,
-            httpRequestHeaders);
+    DataSpec dataSpec = new DataSpec(uri, /* position= */ 150, /* length= */ 5, /* key= */ "key");
 
     assertThat(dataSpec.uri).isEqualTo(uri);
-    // uriPositionOffset = absoluteStreamPosition - position
-    assertThat(dataSpec.uriPositionOffset).isEqualTo(50);
-    assertThat(dataSpec.httpMethod).isEqualTo(DataSpec.HTTP_METHOD_POST);
-    assertThat(dataSpec.httpBody).isEqualTo(httpBody);
-    assertThat(dataSpec.httpRequestHeaders).isEqualTo(httpRequestHeaders);
-    assertThat(dataSpec.absoluteStreamPosition).isEqualTo(200);
+    assertThat(dataSpec.httpMethod).isEqualTo(DataSpec.HTTP_METHOD_GET);
+    assertThat(dataSpec.httpBody).isNull();
+    assertThat(dataSpec.httpRequestHeaders).isEmpty();
+    assertThat(dataSpec.absoluteStreamPosition).isEqualTo(150);
     assertThat(dataSpec.position).isEqualTo(150);
+    // uriPositionOffset = absoluteStreamPosition - position
+    assertThat(dataSpec.uriPositionOffset).isEqualTo(0);
     assertThat(dataSpec.length).isEqualTo(5);
     assertThat(dataSpec.key).isEqualTo("key");
-    assertThat(dataSpec.flags).isEqualTo(DataSpec.FLAG_ALLOW_GZIP);
+    assertThat(dataSpec.flags).isEqualTo(0);
     assertHttpRequestHeadersReadOnly(dataSpec);
   }
 
@@ -212,51 +147,6 @@ public class DataSpecTest {
     assertThat(dataSpec.flags).isEqualTo(DataSpec.FLAG_ALLOW_GZIP);
     assertThat(dataSpec.customData).isEqualTo(customData);
     assertHttpRequestHeadersReadOnly(dataSpec);
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test
-  public void createDataSpec_setsHttpMethodAndPostBody() {
-    Uri uri = Uri.parse("www.google.com");
-
-    @Nullable byte[] postBody = new byte[] {0, 1, 2, 3};
-    DataSpec dataSpec =
-        new DataSpec(
-            uri,
-            postBody,
-            /* absoluteStreamPosition= */ 0,
-            /* position= */ 0,
-            /* length= */ C.LENGTH_UNSET,
-            /* key= */ null,
-            /* flags= */ 0);
-    assertThat(dataSpec.httpMethod).isEqualTo(DataSpec.HTTP_METHOD_POST);
-    assertThat(dataSpec.httpBody).isEqualTo(postBody);
-
-    postBody = new byte[0];
-    dataSpec =
-        new DataSpec(
-            uri,
-            postBody,
-            /* absoluteStreamPosition= */ 0,
-            /* position= */ 0,
-            /* length= */ C.LENGTH_UNSET,
-            /* key= */ null,
-            /* flags= */ 0);
-    assertThat(dataSpec.httpMethod).isEqualTo(DataSpec.HTTP_METHOD_POST);
-    assertThat(dataSpec.httpBody).isNull();
-
-    postBody = null;
-    dataSpec =
-        new DataSpec(
-            uri,
-            postBody,
-            /* absoluteStreamPosition= */ 0,
-            /* position= */ 0,
-            /* length= */ C.LENGTH_UNSET,
-            /* key= */ null,
-            /* flags= */ 0);
-    assertThat(dataSpec.httpMethod).isEqualTo(DataSpec.HTTP_METHOD_GET);
-    assertThat(dataSpec.httpBody).isNull();
   }
 
   @Test
