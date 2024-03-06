@@ -16,6 +16,9 @@
         that indicates the index of an item on the UI.
     *   Add `PlayerId` to most methods of `LoadControl` to enable `LoadControl`
         implementations to support multiple players.
+    *   Start early-enabled renderers only after advancing the playing period
+        when transitioning between media items
+        ([#1017](https://github.com/androidx/media/issues/1017)).
 *   Transformer:
     *   Add `audioConversionProcess` and `videoConversionProcess` to
         `ExportResult` indicating how the respective track in the output file

@@ -18,6 +18,9 @@ package androidx.media3.exoplayer;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Util.castNonNull;
 import static androidx.media3.common.util.Util.msToUs;
+import static androidx.media3.exoplayer.Renderer.STATE_DISABLED;
+import static androidx.media3.exoplayer.Renderer.STATE_ENABLED;
+import static androidx.media3.exoplayer.Renderer.STATE_STARTED;
 import static androidx.media3.exoplayer.audio.AudioSink.OFFLOAD_MODE_DISABLED;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
@@ -76,6 +79,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -1779,7 +1783,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   }
 
   private void ensureStopped(Renderer renderer) {
-    if (renderer.getState() == Renderer.STATE_STARTED) {
+    if (renderer.getState() == STATE_STARTED) {
       renderer.stop();
     }
   }
@@ -2322,6 +2326,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
               Player.DISCONTINUITY_REASON_AUTO_TRANSITION);
       resetPendingPauseAtEndOfPeriod();
       updatePlaybackPositions();
+      if (playbackInfo.playbackState == Player.STATE_READY) {
+        for (int i = 0; i < renderers.length; i++) {
+          if (renderers[i].getState() == STATE_ENABLED
+              && queue.getPlayingPeriod() != null
+              && Objects.equals(
+                  renderers[i].getStream(), queue.getPlayingPeriod().sampleStreams[i])) {
+            renderers[i].start();
+          }
+        }
+      }
       allowRenderersToRenderStartOfStreams();
       advancedPlayingPeriod = true;
     }
@@ -2678,7 +2692,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
       return;
     }
     MediaPeriodHolder periodHolder = queue.getReadingPeriod();
-    boolean mayRenderStartOfStream = periodHolder == queue.getPlayingPeriod();
+    boolean arePlayingAndReadingTheSamePeriod = periodHolder == queue.getPlayingPeriod();
     TrackSelectorResult trackSelectorResult = periodHolder.getTrackSelectorResult();
     RendererConfiguration rendererConfiguration =
         trackSelectorResult.rendererConfigurations[rendererIndex];
@@ -2697,7 +2711,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
         periodHolder.sampleStreams[rendererIndex],
         rendererPositionUs,
         joining,
-        mayRenderStartOfStream,
+        /* mayRenderStartOfStream= */ arePlayingAndReadingTheSamePeriod,
         startPositionUs,
         periodHolder.getRendererOffset(),
         periodHolder.info.id);
@@ -2716,8 +2730,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
         });
 
     mediaClock.onRendererEnabled(renderer);
-    // Start the renderer if playing.
-    if (playing) {
+    // Start the renderer if playing and the Playing and Reading periods are the same.
+    if (playing && arePlayingAndReadingTheSamePeriod) {
       renderer.start();
     }
   }
@@ -3238,7 +3252,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   }
 
   private static boolean isRendererEnabled(Renderer renderer) {
-    return renderer.getState() != Renderer.STATE_DISABLED;
+    return renderer.getState() != STATE_DISABLED;
   }
 
   private static final class SeekPosition {

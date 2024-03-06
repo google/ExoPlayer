@@ -15,6 +15,9 @@
  */
 package androidx.media3.exoplayer.e2etest;
 
+import static com.google.common.truth.Truth.assertThat;
+import static org.robolectric.annotation.GraphicsMode.Mode.NATIVE;
+
 import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.net.Uri;
@@ -23,6 +26,7 @@ import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.Player;
+import androidx.media3.common.util.Clock;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory;
 import androidx.media3.exoplayer.source.MediaSource;
@@ -38,9 +42,11 @@ import com.google.common.collect.ImmutableList;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.annotation.GraphicsMode;
 
 /** End-to-end tests for playlists. */
 @RunWith(AndroidJUnit4.class)
+@GraphicsMode(value = NATIVE)
 public final class PlaylistPlaybackTest {
 
   @Rule
@@ -140,5 +146,40 @@ public final class PlaylistPlaybackTest {
 
     DumpFileAsserts.assertOutput(
         applicationContext, playbackOutput, "playbackdumps/playlists/playlist_with_subtitles.dump");
+  }
+
+  @Test
+  public void testPlaylist_withImageAndAudioVideoItems_rendersExpectedContent() throws Exception {
+    Context applicationContext = ApplicationProvider.getApplicationContext();
+    CapturingRenderersFactory renderersFactory = new CapturingRenderersFactory(applicationContext);
+    Clock clock = new FakeClock(/* isAutoAdvancing= */ true);
+    ExoPlayer player =
+        new ExoPlayer.Builder(applicationContext, renderersFactory).setClock(clock).build();
+    PlaybackOutput playbackOutput = PlaybackOutput.register(player, renderersFactory);
+    long durationMs = 5 * C.MILLIS_PER_SECOND;
+    player.setMediaItems(
+        ImmutableList.of(
+            new MediaItem.Builder()
+                .setUri("asset:///media/png/media3test.png")
+                .setImageDurationMs(durationMs)
+                .build(),
+            new MediaItem.Builder()
+                .setUri("asset:///media/png/media3test.png")
+                .setImageDurationMs(durationMs)
+                .build(),
+            MediaItem.fromUri("asset:///media/mp4/sample.mp4")));
+    player.prepare();
+
+    TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_READY);
+    long playerStartedMs = clock.elapsedRealtime();
+    player.play();
+    TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_ENDED);
+    long playbackDurationMs = clock.elapsedRealtime() - playerStartedMs;
+    player.release();
+
+    // Playback duration should be greater than the sum of the image item durations.
+    assertThat(playbackDurationMs).isGreaterThan(durationMs * 2);
+    DumpFileAsserts.assertOutput(
+        applicationContext, playbackOutput, "playbackdumps/playlists/image_av_playlist.dump");
   }
 }
