@@ -655,8 +655,12 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
   }
 
   private static boolean acquisitionFailedIndicatingResourceShortage(DrmSession session) {
-    return session.getState() == DrmSession.STATE_ERROR
-        && checkNotNull(session.getError()).getCause() instanceof ResourceBusyException;
+    if (session.getState() != DrmSession.STATE_ERROR) {
+      return false;
+    }
+    @Nullable Throwable cause = checkNotNull(session.getError()).getCause();
+    return cause instanceof ResourceBusyException
+        || DrmUtil.isFailureToConstructResourceBusyException(cause);
   }
 
   /**

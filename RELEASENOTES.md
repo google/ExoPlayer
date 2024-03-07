@@ -48,6 +48,10 @@
 *   Metadata:
 *   Image:
 *   DRM:
+    *   Work around a `NoSuchMethodError` which can be thrown by the `MediaDrm`
+        framework instead of `ResourceBusyException` or
+        `NotProvisionedException` on some Android 14 devices
+        ([#1145](https://github.com/androidx/media/issues/1145)).
 *   DataSource:
     *   Implement support for `android.resource://package/id` raw resource URIs
         where `package` is different to the package of the current application.
