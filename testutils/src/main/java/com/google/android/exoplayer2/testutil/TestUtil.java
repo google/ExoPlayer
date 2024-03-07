@@ -23,7 +23,6 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.media.MediaCodec;
 import android.net.Uri;
@@ -217,11 +216,6 @@ public class TestUtil {
   /** Returns a {@link String} read from an asset file. */
   public static String getString(Context context, String fileName) throws IOException {
     return Util.fromUtf8Bytes(getByteArray(context, fileName));
-  }
-
-  /** Returns a {@link Bitmap} read from an asset file. */
-  public static Bitmap getBitmap(Context context, String fileName) throws IOException {
-    return BitmapFactory.decodeStream(getInputStream(context, fileName));
   }
 
   /** Returns a {@link DatabaseProvider} that provides an in-memory database. */
