@@ -108,6 +108,47 @@ public class AudioGraphInputTest {
   }
 
   @Test
+  public void getOutputAudioFormat_afterFlush_isSet() throws Exception {
+    AudioGraphInput audioGraphInput =
+        new AudioGraphInput(
+            /* requestedOutputAudioFormat= */ STEREO_44100,
+            /* editedMediaItem= */ FAKE_ITEM,
+            /* inputFormat= */ getPcmFormat(MONO_48000));
+
+    audioGraphInput.flush();
+
+    assertThat(audioGraphInput.getOutputAudioFormat()).isEqualTo(STEREO_44100);
+  }
+
+  @Test
+  public void getInputBuffer_afterFlush_returnsEmptyBuffer() throws Exception {
+    AudioGraphInput audioGraphInput =
+        new AudioGraphInput(
+            /* requestedOutputAudioFormat= */ AudioFormat.NOT_SET,
+            /* editedMediaItem= */ FAKE_ITEM,
+            /* inputFormat= */ getPcmFormat(STEREO_44100));
+    byte[] inputData = TestUtil.buildTestData(/* length= */ 100 * STEREO_44100.bytesPerFrame);
+
+    audioGraphInput.onMediaItemChanged(
+        /* editedMediaItem= */ FAKE_ITEM,
+        /* durationUs= */ 1_000_000,
+        /* decodedFormat= */ getPcmFormat(STEREO_44100),
+        /* isLast= */ true);
+
+    // Force the media item change to be processed.
+    checkState(!audioGraphInput.getOutput().hasRemaining());
+
+    // Fill input buffer.
+    DecoderInputBuffer inputBuffer = audioGraphInput.getInputBuffer();
+    inputBuffer.ensureSpaceForWrite(inputData.length);
+    inputBuffer.data.put(inputData).flip();
+
+    audioGraphInput.flush();
+
+    assertThat(audioGraphInput.getInputBuffer().data.remaining()).isEqualTo(0);
+  }
+
+  @Test
   public void isEnded_whenInitialized_returnsFalse() throws Exception {
     AudioGraphInput audioGraphInput =
         new AudioGraphInput(
@@ -141,6 +182,35 @@ public class AudioGraphInputTest {
 
     assertThat(audioGraphInput.getOutput().hasRemaining()).isFalse();
     assertThat(audioGraphInput.isEnded()).isTrue();
+  }
+
+  @Test
+  public void isEnded_afterFlush_returnsFalse() throws Exception {
+    AudioGraphInput audioGraphInput =
+        new AudioGraphInput(
+            /* requestedOutputAudioFormat= */ AudioFormat.NOT_SET,
+            /* editedMediaItem= */ FAKE_ITEM,
+            /* inputFormat= */ getPcmFormat(MONO_44100));
+
+    audioGraphInput.onMediaItemChanged(
+        /* editedMediaItem= */ FAKE_ITEM,
+        /* durationUs= */ C.TIME_UNSET,
+        /* decodedFormat= */ getPcmFormat(MONO_44100),
+        /* isLast= */ false);
+
+    // Force the media item change to be processed.
+    checkState(!audioGraphInput.getOutput().hasRemaining());
+
+    // Queue EOS.
+    audioGraphInput.getInputBuffer().setFlags(C.BUFFER_FLAG_END_OF_STREAM);
+    checkState(audioGraphInput.queueInputBuffer());
+
+    drainAudioGraphInputUntilEnded(audioGraphInput);
+    checkState(audioGraphInput.isEnded());
+
+    audioGraphInput.flush();
+
+    assertThat(audioGraphInput.isEnded()).isFalse();
   }
 
   @Test
@@ -222,6 +292,80 @@ public class AudioGraphInputTest {
     int bytesOutput = drainAudioGraphInputUntilEnded(audioGraphInput).size();
     long expectedSampleCount = Util.durationUsToSampleCount(1_000_000, STEREO_44100.sampleRate);
     assertThat(bytesOutput).isEqualTo(expectedSampleCount * STEREO_44100.bytesPerFrame);
+  }
+
+  @Test
+  public void getOutput_afterFlush_returnsEmptyBuffer() throws Exception {
+    AudioGraphInput audioGraphInput =
+        new AudioGraphInput(
+            /* requestedOutputAudioFormat= */ AudioFormat.NOT_SET,
+            /* editedMediaItem= */ FAKE_ITEM,
+            /* inputFormat= */ getPcmFormat(STEREO_44100));
+    byte[] inputData = TestUtil.buildTestData(/* length= */ 100 * STEREO_44100.bytesPerFrame);
+
+    audioGraphInput.onMediaItemChanged(
+        /* editedMediaItem= */ FAKE_ITEM,
+        /* durationUs= */ 1_000_000,
+        /* decodedFormat= */ getPcmFormat(STEREO_44100),
+        /* isLast= */ true);
+
+    // Force the media item change to be processed.
+    checkState(!audioGraphInput.getOutput().hasRemaining());
+
+    // Queue inputData.
+    DecoderInputBuffer inputBuffer = audioGraphInput.getInputBuffer();
+    inputBuffer.ensureSpaceForWrite(inputData.length);
+    inputBuffer.data.put(inputData).flip();
+    checkState(audioGraphInput.queueInputBuffer());
+
+    audioGraphInput.flush();
+
+    // Queue EOS.
+    audioGraphInput.getInputBuffer().setFlags(C.BUFFER_FLAG_END_OF_STREAM);
+    checkState(audioGraphInput.queueInputBuffer());
+
+    List<Byte> outputBytes = drainAudioGraphInputUntilEnded(audioGraphInput);
+    assertThat(outputBytes).isEmpty();
+  }
+
+  @Test
+  public void getOutput_afterFlushAndInput_returnsCorrectAmountOfBytes() throws Exception {
+    AudioGraphInput audioGraphInput =
+        new AudioGraphInput(
+            /* requestedOutputAudioFormat= */ AudioFormat.NOT_SET,
+            /* editedMediaItem= */ FAKE_ITEM,
+            /* inputFormat= */ getPcmFormat(STEREO_44100));
+    byte[] inputData = TestUtil.buildTestData(/* length= */ 100 * STEREO_44100.bytesPerFrame);
+
+    audioGraphInput.onMediaItemChanged(
+        /* editedMediaItem= */ FAKE_ITEM,
+        /* durationUs= */ 1_000_000,
+        /* decodedFormat= */ getPcmFormat(STEREO_44100),
+        /* isLast= */ true);
+
+    // Force the media item change to be processed.
+    checkState(!audioGraphInput.getOutput().hasRemaining());
+
+    // Queue inputData.
+    DecoderInputBuffer inputBuffer = audioGraphInput.getInputBuffer();
+    inputBuffer.ensureSpaceForWrite(inputData.length);
+    inputBuffer.data.put(inputData).flip();
+    checkState(audioGraphInput.queueInputBuffer());
+
+    audioGraphInput.flush();
+
+    // Queue inputData.
+    inputBuffer = audioGraphInput.getInputBuffer();
+    inputBuffer.ensureSpaceForWrite(inputData.length);
+    inputBuffer.data.put(inputData).flip();
+    checkState(audioGraphInput.queueInputBuffer());
+
+    // Queue EOS.
+    audioGraphInput.getInputBuffer().setFlags(C.BUFFER_FLAG_END_OF_STREAM);
+    checkState(audioGraphInput.queueInputBuffer());
+
+    List<Byte> outputBytes = drainAudioGraphInputUntilEnded(audioGraphInput);
+    assertThat(outputBytes).containsExactlyElementsIn(Bytes.asList(inputData));
   }
 
   /** Drains the graph and returns the bytes output. */

@@ -89,6 +89,33 @@ public class SilentAudioGeneratorTest {
     assertThat(generator.getBuffer().remaining()).isEqualTo(960);
   }
 
+  @Test
+  public void addSilence_afterFlush_producesCorrectNumberOfBytes() {
+    SilentAudioGenerator generator =
+        new SilentAudioGenerator(
+            new AudioFormat(/* sampleRate= */ 88_200, /* channelCount= */ 6, C.ENCODING_PCM_16BIT));
+
+    generator.addSilence(/* durationUs= */ 3_000_000);
+    generator.flush();
+    generator.addSilence(/* durationUs= */ 1_500_000);
+    int bytesOutput = drainGenerator(generator);
+
+    // 88_200 * 12 * 1.5s = 1_587_600
+    assertThat(bytesOutput).isEqualTo(1_587_600);
+  }
+
+  @Test
+  public void hasRemaining_afterFlush_isFalse() {
+    SilentAudioGenerator generator =
+        new SilentAudioGenerator(
+            new AudioFormat(/* sampleRate= */ 88_200, /* channelCount= */ 6, C.ENCODING_PCM_16BIT));
+
+    generator.addSilence(/* durationUs= */ 3_000_000);
+    generator.flush();
+
+    assertThat(generator.hasRemaining()).isFalse();
+  }
+
   /** Drains the generator and returns the number of bytes output. */
   private static int drainGenerator(SilentAudioGenerator generator) {
     int bytesOutput = 0;

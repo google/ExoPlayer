@@ -73,4 +73,10 @@ import java.util.concurrent.atomic.AtomicLong;
   public boolean hasRemaining() {
     return internalBuffer.hasRemaining() || remainingBytesToOutput.get() > 0;
   }
+
+  public void flush() {
+    remainingBytesToOutput.set(0);
+    internalBuffer.position(0);
+    internalBuffer.limit(0);
+  }
 }
