@@ -47,8 +47,10 @@ import android.os.Looper;
 import android.util.SparseArray;
 import android.util.SparseLongArray;
 import androidx.media3.common.C;
+import androidx.media3.test.utils.TestUtil;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.io.ByteStreams;
+import com.google.common.primitives.Bytes;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
@@ -75,6 +77,33 @@ import org.robolectric.shadows.ShadowLooper;
 public class UtilTest {
 
   private static final int TIMEOUT_MS = 10000;
+
+  @Test
+  public void toByteArray_fromIntArray() {
+    assertThat(Util.toByteArray(Integer.MIN_VALUE, -1, 0, 1, Integer.MAX_VALUE))
+        .isEqualTo(
+            Bytes.concat(
+                TestUtil.createByteArray(0x80, 0, 0, 0),
+                TestUtil.createByteArray(0xFF, 0xFF, 0xFF, 0xFF),
+                TestUtil.createByteArray(0, 0, 0, 0),
+                TestUtil.createByteArray(0, 0, 0, 1),
+                TestUtil.createByteArray(0x7F, 0xFF, 0xFF, 0xFF)));
+  }
+
+  @Test
+  public void toByteArray_fromFloat() {
+    assertThat(Util.toByteArray(Float.MAX_VALUE))
+        .isEqualTo(TestUtil.createByteArray(0x7F, 0x7F, 0xFF, 0xFF));
+
+    assertThat(Util.toByteArray(Float.MIN_VALUE))
+        .isEqualTo(TestUtil.createByteArray(0x00, 0x00, 0x00, 0x01));
+
+    assertThat(Util.toByteArray(0)).isEqualTo(TestUtil.createByteArray(0x00, 0x00, 0x00, 0x00));
+
+    assertThat(Util.toByteArray(1.0f)).isEqualTo(TestUtil.createByteArray(0x3F, 0x80, 0x00, 0x00));
+
+    assertThat(Util.toByteArray(-1.0f)).isEqualTo(TestUtil.createByteArray(0xBF, 0x80, 0x00, 0x00));
+  }
 
   @Test
   public void addWithOverflowDefault_withoutOverFlow_returnsSum() {
