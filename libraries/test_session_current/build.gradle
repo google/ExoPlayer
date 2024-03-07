@@ -11,8 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-apply from: "$gradle.ext.androidxMediaSettingsDir/constants.gradle"
-apply plugin: 'com.android.application'
+apply from: "$gradle.ext.androidxMediaSettingsDir/common_library_config.gradle"
 
 // TODO(b/178560255): Remove the "group" override after the "group" in build.gradle changed
 group 'androidx.media3'
