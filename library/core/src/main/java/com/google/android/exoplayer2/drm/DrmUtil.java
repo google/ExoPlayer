@@ -25,6 +25,7 @@ import android.media.DeniedByServerException;
 import android.media.MediaDrm;
 import android.media.MediaDrmResetException;
 import android.media.NotProvisionedException;
+import android.media.ResourceBusyException;
 import androidx.annotation.DoNotInline;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
@@ -81,12 +82,13 @@ public final class DrmUtil {
    *     exception.
    */
   public static @PlaybackException.ErrorCode int getErrorCodeForMediaDrmException(
-      Exception exception, @ErrorSource int errorSource) {
+      Throwable exception, @ErrorSource int errorSource) {
     if (Util.SDK_INT >= 21 && Api21.isMediaDrmStateException(exception)) {
       return Api21.mediaDrmStateExceptionToErrorCode(exception);
     } else if (Util.SDK_INT >= 23 && Api23.isMediaDrmResetException(exception)) {
       return PlaybackException.ERROR_CODE_DRM_SYSTEM_ERROR;
-    } else if (exception instanceof NotProvisionedException) {
+    } else if (exception instanceof NotProvisionedException
+        || isFailureToConstructNotProvisionedException(exception)) {
       return PlaybackException.ERROR_CODE_DRM_PROVISIONING_FAILED;
     } else if (exception instanceof DeniedByServerException) {
       return PlaybackException.ERROR_CODE_DRM_DEVICE_REVOKED;
@@ -108,6 +110,28 @@ public final class DrmUtil {
       // Should never happen.
       throw new IllegalArgumentException();
     }
+  }
+
+  /**
+   * Returns true if {@code e} represents a failure to construct a {@link NotProvisionedException}.
+   * See b/291440132.
+   */
+  public static boolean isFailureToConstructNotProvisionedException(@Nullable Throwable e) {
+    return Util.SDK_INT == 34
+        && e instanceof NoSuchMethodError
+        && e.getMessage() != null
+        && e.getMessage().contains("Landroid/media/NotProvisionedException;.<init>(");
+  }
+
+  /**
+   * Returns true if {@code e} represents a failure to construct a {@link ResourceBusyException}.
+   * See b/291440132.
+   */
+  public static boolean isFailureToConstructResourceBusyException(@Nullable Throwable e) {
+    return Util.SDK_INT == 34
+        && e instanceof NoSuchMethodError
+        && e.getMessage() != null
+        && e.getMessage().contains("Landroid/media/ResourceBusyException;.<init>(");
   }
 
   // Internal classes.
