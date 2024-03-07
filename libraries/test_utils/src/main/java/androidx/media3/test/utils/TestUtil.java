@@ -191,23 +191,26 @@ public class TestUtil {
 
   /** Writes test data with the specified length to the file and returns it. */
   public static File createTestFile(File file, long length) throws IOException {
-    FileOutputStream output = new FileOutputStream(file);
-    for (long i = 0; i < length; i++) {
-      output.write((int) i);
+    try (FileOutputStream output = new FileOutputStream(file)) {
+      for (long i = 0; i < length; i++) {
+        output.write((int) i);
+      }
     }
-    output.close();
     return file;
   }
 
   /** Returns the bytes of an asset file. */
   public static byte[] getByteArray(Context context, String fileName) throws IOException {
-    return Util.toByteArray(getInputStream(context, fileName));
+    try (InputStream inputStream = getInputStream(context, fileName)) {
+      return Util.toByteArray(inputStream);
+    }
   }
 
   /** Returns the bytes of a file using its file path. */
   public static byte[] getByteArrayFromFilePath(String filePath) throws IOException {
-    InputStream inputStream = new FileInputStream(filePath);
-    return Util.toByteArray(inputStream);
+    try (InputStream inputStream = new FileInputStream(filePath)) {
+      return Util.toByteArray(inputStream);
+    }
   }
 
   /** Returns an {@link InputStream} for reading from an asset file. */
