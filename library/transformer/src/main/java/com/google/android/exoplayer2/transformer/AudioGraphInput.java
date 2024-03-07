@@ -190,12 +190,34 @@ import java.util.concurrent.atomic.AtomicReference;
   }
 
   /**
+   * Clears any pending input and output data.
+   *
+   * <p>Should only be called by the processing thread.
+   */
+  public void flush() {
+    pendingMediaItemChange.set(null);
+    processedFirstMediaItemChange = true;
+    if (!availableInputBuffers.isEmpty()) {
+      // Clear first available buffer in case the caller wrote data in the input buffer without
+      // queueing it.
+      clearAndAddToAvailableBuffers(availableInputBuffers.remove());
+    }
+    while (!pendingInputBuffers.isEmpty()) {
+      clearAndAddToAvailableBuffers(pendingInputBuffers.remove());
+    }
+    silentAudioGenerator.flush();
+    audioProcessingPipeline.flush();
+    currentInputBufferBeingOutput = null;
+    receivedEndOfStreamFromInput = false;
+    queueEndOfStreamAfterSilence = false;
+  }
+
+  /**
    * Releases any underlying resources.
    *
    * <p>Should only be called by the processing thread.
    */
   public void release() {
-    // TODO(b/303029174): Impl flush(), reset() & decide if a separate release() is still needed.
     audioProcessingPipeline.reset();
   }
 
