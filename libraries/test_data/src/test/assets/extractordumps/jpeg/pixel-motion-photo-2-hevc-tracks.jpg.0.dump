@@ -270,6 +270,7 @@ track 1:
     maxInputSize = 151345
     width = 2048
     height = 1536
+    frameRate = 2.142245
     rotationDegrees = 90
     colorInfo:
       colorSpace = 1
