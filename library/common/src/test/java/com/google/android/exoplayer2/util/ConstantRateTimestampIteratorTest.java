@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.util;
 
 import static com.google.common.truth.Truth.assertThat;
+import static java.lang.Math.round;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
@@ -35,6 +36,8 @@ public class ConstantRateTimestampIteratorTest {
 
     assertThat(generateList(constantRateTimestampIterator))
         .containsExactly(0L, C.MICROS_PER_SECOND / 2);
+    assertThat(constantRateTimestampIterator.getLastTimestampUs())
+        .isEqualTo(C.MICROS_PER_SECOND / 2);
   }
 
   @Test
@@ -44,6 +47,8 @@ public class ConstantRateTimestampIteratorTest {
         new ConstantRateTimestampIterator((long) (2.5 * C.MICROS_PER_SECOND), /* frameRate= */ 30);
 
     assertThat(generateList(constantRateTimestampIterator)).hasSize(75);
+    assertThat(constantRateTimestampIterator.getLastTimestampUs())
+        .isEqualTo(round((C.MICROS_PER_SECOND / 30.d) * 74));
   }
 
   @Test
@@ -69,6 +74,7 @@ public class ConstantRateTimestampIteratorTest {
         new ConstantRateTimestampIterator(/* durationUs= */ 1, /* frameRate= */ 2);
 
     assertThat(generateList(constantRateTimestampIterator)).isEmpty();
+    assertThat(constantRateTimestampIterator.getLastTimestampUs()).isEqualTo(C.TIME_UNSET);
   }
 
   @Test
@@ -80,6 +86,8 @@ public class ConstantRateTimestampIteratorTest {
             /* startingTimestampUs= */ 1234);
 
     assertThat(constantRateTimestampIterator.next()).isEqualTo(1234);
+    assertThat(constantRateTimestampIterator.getLastTimestampUs())
+        .isEqualTo(1234 + C.MICROS_PER_SECOND / 2);
   }
 
   @Test

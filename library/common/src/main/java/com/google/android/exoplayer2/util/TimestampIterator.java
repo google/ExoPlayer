@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.util;
 
+import com.google.android.exoplayer2.C;
+
 /**
  * A primitive long iterator used for generating sequences of timestamps.
  *
@@ -34,4 +36,12 @@ public interface TimestampIterator {
 
   /** Returns fresh copy of the iterator. */
   TimestampIterator copyOf();
+
+  /**
+   * Returns the last (final) timestamp this iterator generates, in microseconds; returns {@link
+   * C#TIME_UNSET} if the last timestamp is unknown, or when no timestamp will be generated.
+   */
+  default long getLastTimestampUs() {
+    return C.TIME_UNSET;
+  }
 }
