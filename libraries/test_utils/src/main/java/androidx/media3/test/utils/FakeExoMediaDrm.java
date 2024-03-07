@@ -16,6 +16,8 @@
 
 package androidx.media3.test.utils;
 
+import static androidx.media3.common.util.Assertions.checkArgument;
+import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
 
 import android.media.DeniedByServerException;
@@ -30,7 +32,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.media3.common.C;
 import androidx.media3.common.DrmInitData;
-import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import androidx.media3.decoder.CryptoConfig;
@@ -268,7 +269,7 @@ public final class FakeExoMediaDrm implements ExoMediaDrm {
 
   @Override
   public byte[] openSession() throws MediaDrmException {
-    Assertions.checkState(referenceCount > 0);
+    checkState(referenceCount > 0);
     if (!throwNotProvisionedExceptionFromGetKeyRequest && provisionsReceived < provisionsRequired) {
       throwNotProvisionedException();
     }
@@ -294,9 +295,9 @@ public final class FakeExoMediaDrm implements ExoMediaDrm {
 
   @Override
   public void closeSession(byte[] sessionId) {
-    Assertions.checkState(referenceCount > 0);
+    checkState(referenceCount > 0);
     // TODO: Store closed session IDs too?
-    Assertions.checkState(openSessionIds.remove(toByteList(sessionId)));
+    checkState(openSessionIds.remove(toByteList(sessionId)));
   }
 
   @Override
@@ -306,16 +307,16 @@ public final class FakeExoMediaDrm implements ExoMediaDrm {
       int keyType,
       @Nullable HashMap<String, String> optionalParameters)
       throws NotProvisionedException {
-    Assertions.checkState(referenceCount > 0);
+    checkState(referenceCount > 0);
     if (keyType == KEY_TYPE_OFFLINE || keyType == KEY_TYPE_RELEASE) {
       throw new UnsupportedOperationException("Offline key requests are not supported.");
     }
-    Assertions.checkArgument(keyType == KEY_TYPE_STREAMING, "Unrecognised keyType: " + keyType);
+    checkArgument(keyType == KEY_TYPE_STREAMING, "Unrecognised keyType: " + keyType);
     if (throwNotProvisionedExceptionFromGetKeyRequest && provisionsReceived < provisionsRequired) {
       throwNotProvisionedException();
     }
-    Assertions.checkState(openSessionIds.contains(toByteList(scope)));
-    Assertions.checkNotNull(schemeDatas);
+    checkState(openSessionIds.contains(toByteList(scope)));
+    checkNotNull(schemeDatas);
     KeyRequestData requestData =
         new KeyRequestData(
             schemeDatas,
@@ -332,7 +333,7 @@ public final class FakeExoMediaDrm implements ExoMediaDrm {
   @Override
   public byte[] provideKeyResponse(byte[] scope, byte[] response)
       throws NotProvisionedException, DeniedByServerException {
-    Assertions.checkState(referenceCount > 0);
+    checkState(referenceCount > 0);
     List<Byte> responseAsList = Bytes.asList(response);
     if (responseAsList.equals(KEY_DENIED_RESPONSE)) {
       throw new DeniedByServerException("Key request denied");
@@ -353,13 +354,13 @@ public final class FakeExoMediaDrm implements ExoMediaDrm {
 
   @Override
   public ProvisionRequest getProvisionRequest() {
-    Assertions.checkState(referenceCount > 0);
+    checkState(referenceCount > 0);
     return FAKE_PROVISION_REQUEST;
   }
 
   @Override
   public void provideProvisionResponse(byte[] response) throws DeniedByServerException {
-    Assertions.checkState(referenceCount > 0);
+    checkState(referenceCount > 0);
     if (Bytes.asList(response).equals(VALID_PROVISION_RESPONSE)) {
       provisionsReceived++;
     }
@@ -367,8 +368,8 @@ public final class FakeExoMediaDrm implements ExoMediaDrm {
 
   @Override
   public Map<String, String> queryKeyStatus(byte[] sessionId) {
-    Assertions.checkState(referenceCount > 0);
-    Assertions.checkState(openSessionIds.contains(toByteList(sessionId)));
+    checkState(referenceCount > 0);
+    checkState(openSessionIds.contains(toByteList(sessionId)));
     return ImmutableMap.of(
         KEY_STATUS_KEY,
         sessionIdsWithValidKeys.contains(toByteList(sessionId))
@@ -383,7 +384,7 @@ public final class FakeExoMediaDrm implements ExoMediaDrm {
 
   @Override
   public void acquire() {
-    Assertions.checkState(referenceCount > 0);
+    checkState(referenceCount > 0);
     referenceCount++;
   }
 
@@ -400,14 +401,14 @@ public final class FakeExoMediaDrm implements ExoMediaDrm {
   @Nullable
   @Override
   public PersistableBundle getMetrics() {
-    Assertions.checkState(referenceCount > 0);
+    checkState(referenceCount > 0);
 
     return null;
   }
 
   @Override
   public String getPropertyString(String propertyName) {
-    Assertions.checkState(referenceCount > 0);
+    checkState(referenceCount > 0);
     @Nullable String value = stringProperties.get(propertyName);
     if (value == null) {
       throw new IllegalArgumentException("Unrecognized propertyName: " + propertyName);
@@ -417,7 +418,7 @@ public final class FakeExoMediaDrm implements ExoMediaDrm {
 
   @Override
   public byte[] getPropertyByteArray(String propertyName) {
-    Assertions.checkState(referenceCount > 0);
+    checkState(referenceCount > 0);
     @Nullable byte[] value = byteProperties.get(propertyName);
     if (value == null) {
       throw new IllegalArgumentException("Unrecognized propertyName: " + propertyName);
@@ -427,20 +428,20 @@ public final class FakeExoMediaDrm implements ExoMediaDrm {
 
   @Override
   public void setPropertyString(String propertyName, String value) {
-    Assertions.checkState(referenceCount > 0);
+    checkState(referenceCount > 0);
     stringProperties.put(propertyName, value);
   }
 
   @Override
   public void setPropertyByteArray(String propertyName, byte[] value) {
-    Assertions.checkState(referenceCount > 0);
+    checkState(referenceCount > 0);
     byteProperties.put(propertyName, value);
   }
 
   @Override
   public CryptoConfig createCryptoConfig(byte[] sessionId) throws MediaCryptoException {
-    Assertions.checkState(referenceCount > 0);
-    Assertions.checkState(openSessionIds.contains(toByteList(sessionId)));
+    checkState(referenceCount > 0);
+    checkState(openSessionIds.contains(toByteList(sessionId)));
     return new FakeCryptoConfig();
   }
 
@@ -603,9 +604,9 @@ public final class FakeExoMediaDrm implements ExoMediaDrm {
       this.type = in.readInt();
 
       ImmutableMap.Builder<String, String> optionalParameters = new ImmutableMap.Builder<>();
-      List<String> optionalParameterKeys = Assertions.checkNotNull(in.createStringArrayList());
-      List<String> optionalParameterValues = Assertions.checkNotNull(in.createStringArrayList());
-      Assertions.checkArgument(optionalParameterKeys.size() == optionalParameterValues.size());
+      List<String> optionalParameterKeys = checkNotNull(in.createStringArrayList());
+      List<String> optionalParameterValues = checkNotNull(in.createStringArrayList());
+      checkArgument(optionalParameterKeys.size() == optionalParameterValues.size());
       for (int i = 0; i < optionalParameterKeys.size(); i++) {
         optionalParameters.put(optionalParameterKeys.get(i), optionalParameterValues.get(i));
       }
