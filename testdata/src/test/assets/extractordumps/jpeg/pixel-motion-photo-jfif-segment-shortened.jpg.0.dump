@@ -16,6 +16,7 @@ track 0:
     maxInputSize = 3895
     width = 180
     height = 120
+    frameRate = 1.1534026
     pixelWidthHeightRatio = 0.5
     colorInfo:
       lumaBitdepth = 8

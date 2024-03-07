@@ -637,7 +637,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
                       ? C.ROLE_FLAG_MAIN
                       : C.ROLE_FLAG_ALTERNATE));
         }
-        if (trackDurationUs > 0 && trackSampleTable.sampleCount > 1) {
+        if (trackDurationUs > 0 && trackSampleTable.sampleCount > 0) {
           float frameRate = trackSampleTable.sampleCount / (trackDurationUs / 1000000f);
           formatBuilder.setFrameRate(frameRate);
         }
