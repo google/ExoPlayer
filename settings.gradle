@@ -21,6 +21,8 @@ if (gradle.ext.has('androidxMediaModulePrefix')) {
 rootProject.name = 'androidx.media3'
 gradle.ext.rootProjectIsAndroidXMedia3 = true
 
+gradle.ext.androidxMediaEnableMidiModule = true
+
 include modulePrefix + 'demo'
 project(modulePrefix + 'demo').projectDir = new File(rootDir, 'demos/main')
 include modulePrefix + 'demo-cast'

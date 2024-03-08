@@ -87,6 +87,10 @@
     *   Skip empty session information values (i-tags) in SDP parsing
         ([#1087](https://github.com/androidx/media/issues/1087)).
 *   Decoder Extensions (FFmpeg, VP9, AV1, MIDI, etc.):
+    *   Disable the MIDI extension as a local dependency by default because it
+        requires an additional Maven repository to be configured. Users who need
+        this module from a local dependency
+        [can re-enable it](https://github.com/androidx/media/blob/main/README.md#midi-module).
 *   Leanback extension:
 *   Cast Extension:
 *   Test Utilities:
