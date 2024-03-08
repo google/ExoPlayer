@@ -23,6 +23,7 @@ import androidx.media3.test.utils.TestSpeedProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.ArrayList;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -348,6 +349,32 @@ public class SpeedChangingAudioProcessorTest {
     getAudioProcessorOutput(speedChangingAudioProcessor);
 
     assertThat(speedChangingAudioProcessor.isEnded()).isFalse();
+  }
+
+  @Test
+  public void getSpeedAdjustedTimeAsync_callbacksCalledWithCorrectParameters() throws Exception {
+    ArrayList<Long> outputTimesUs = new ArrayList<>();
+    // The speed change is at 113Us (5*MICROS_PER_SECOND/sampleRate).
+    SpeedProvider speedProvider =
+        TestSpeedProvider.createWithFrameCounts(
+            AUDIO_FORMAT, /* frameCounts= */ new int[] {5, 5}, /* speeds= */ new float[] {1, 2});
+    SpeedChangingAudioProcessor speedChangingAudioProcessor =
+        getConfiguredSpeedChangingAudioProcessor(speedProvider);
+    ByteBuffer inputBuffer = getInputBuffer(/* frameCount= */ 5);
+
+    speedChangingAudioProcessor.getSpeedAdjustedTimeAsync(
+        /* inputTimeUs= */ 50L, outputTimesUs::add);
+    speedChangingAudioProcessor.queueInput(inputBuffer);
+    getAudioProcessorOutput(speedChangingAudioProcessor);
+    inputBuffer.rewind();
+    speedChangingAudioProcessor.queueInput(inputBuffer);
+    getAudioProcessorOutput(speedChangingAudioProcessor);
+    speedChangingAudioProcessor.getSpeedAdjustedTimeAsync(
+        /* inputTimeUs= */ 100L, outputTimesUs::add);
+    speedChangingAudioProcessor.getSpeedAdjustedTimeAsync(
+        /* inputTimeUs= */ 150L, outputTimesUs::add);
+
+    assertThat(outputTimesUs).containsExactly(50L, 100L, 131L);
   }
 
   private static SpeedChangingAudioProcessor getConfiguredSpeedChangingAudioProcessor(

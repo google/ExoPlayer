@@ -141,6 +141,36 @@ public class SonicAudioProcessor implements AudioProcessor {
     }
   }
 
+  /**
+   * Returns the playout duration corresponding to the specified media duration, taking speed
+   * adjustment into account.
+   *
+   * <p>The scaling performed by this method will use the actual playback speed achieved by the
+   * audio processor, on average, since it was last flushed. This may differ very slightly from the
+   * target playback speed.
+   *
+   * @param mediaDuration The media duration to scale.
+   * @return The corresponding playout duration, in the same units as {@code mediaDuration}.
+   */
+  public final long getPlayoutDuration(long mediaDuration) {
+    if (outputBytes >= MIN_BYTES_FOR_DURATION_SCALING_CALCULATION) {
+      long processedInputBytes = inputBytes - checkNotNull(sonic).getPendingInputBytes();
+      return outputAudioFormat.sampleRate == inputAudioFormat.sampleRate
+          ? Util.scaleLargeTimestamp(mediaDuration, outputBytes, processedInputBytes)
+          : Util.scaleLargeTimestamp(
+              mediaDuration,
+              outputBytes * inputAudioFormat.sampleRate,
+              processedInputBytes * outputAudioFormat.sampleRate);
+    } else {
+      return (long) (mediaDuration / (double) speed);
+    }
+  }
+
+  /** Returns the number of bytes processed since last flush or reset. */
+  public final long getProcessedInputBytes() {
+    return inputBytes - checkNotNull(sonic).getPendingInputBytes();
+  }
+
   @Override
   public final AudioFormat configure(AudioFormat inputAudioFormat)
       throws UnhandledAudioFormatException {
