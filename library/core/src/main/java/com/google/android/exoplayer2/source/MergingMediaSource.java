@@ -44,6 +44,12 @@ import java.util.Map;
  *
  * <p>The {@link Timeline}s of the sources being merged must have the same number of periods.
  *
+ * <p>The values of {@link com.google.android.exoplayer2.source.TrackGroup#id} and {@link
+ * com.google.android.exoplayer2.Format#id} are modified to start with {@code i:}, where {@code i}
+ * is the 0-based index of the {@link MediaSource} passed to the constructor that created this
+ * {@link com.google.android.exoplayer2.source.TrackGroup} or {@link
+ * com.google.android.exoplayer2.Format}.
+ *
  * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
  *     contains the same ExoPlayer code). See <a
  *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
