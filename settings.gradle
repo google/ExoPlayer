@@ -20,6 +20,8 @@ def modulePrefix = ':'
 
  rootProject.name = 'exoplayer2'
 
+gradle.ext.androidxMediaEnableMidiModule = true
+
 include modulePrefix + 'demo'
 project(modulePrefix + 'demo').projectDir = new File(rootDir, 'demos/main')
 include modulePrefix + 'demo-cast'

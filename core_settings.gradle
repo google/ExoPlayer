@@ -76,8 +76,10 @@ include modulePrefix + 'extension-ffmpeg'
 project(modulePrefix + 'extension-ffmpeg').projectDir = new File(rootDir, 'extensions/ffmpeg')
 include modulePrefix + 'extension-flac'
 project(modulePrefix + 'extension-flac').projectDir = new File(rootDir, 'extensions/flac')
-include modulePrefix + 'extension-midi'
-project(modulePrefix + 'extension-midi').projectDir = new File(rootDir, 'extensions/midi')
+if (gradle.ext.has('androidxMediaEnableMidiModule') && gradle.ext.androidxMediaEnableMidiModule) {
+    include modulePrefix + 'extension-midi'
+    project(modulePrefix + 'extension-midi').projectDir = new File(rootDir, 'extensions/midi')
+}
 include modulePrefix + 'extension-opus'
 project(modulePrefix + 'extension-opus').projectDir = new File(rootDir, 'extensions/opus')
 include modulePrefix + 'extension-vp9'
