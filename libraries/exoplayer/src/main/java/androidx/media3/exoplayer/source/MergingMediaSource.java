@@ -44,6 +44,11 @@ import java.util.Map;
  * Merges multiple {@link MediaSource}s.
  *
  * <p>The {@link Timeline}s of the sources being merged must have the same number of periods.
+ *
+ * <p>The values of {@link androidx.media3.common.TrackGroup#id} and {@link
+ * androidx.media3.common.Format#id} are modified to start with {@code i:}, where {@code i} is the
+ * 0-based index of the {@link MediaSource} passed to the constructor that created this {@link
+ * androidx.media3.common.TrackGroup} or {@link androidx.media3.common.Format}.
  */
 @UnstableApi
 public final class MergingMediaSource extends CompositeMediaSource<Integer> {
