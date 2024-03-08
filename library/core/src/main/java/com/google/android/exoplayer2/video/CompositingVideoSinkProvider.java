@@ -722,8 +722,11 @@ public final class CompositingVideoSinkProvider
 
     @Override
     public boolean queueBitmap(Bitmap inputBitmap, TimestampIterator timestampIterator) {
-      return checkStateNotNull(videoFrameProcessor)
-          .queueInputBitmap(inputBitmap, timestampIterator);
+      if (checkStateNotNull(videoFrameProcessor).queueInputBitmap(inputBitmap, timestampIterator)) {
+        lastBufferPresentationTimeUs = timestampIterator.getLastTimestampUs();
+        return true;
+      }
+      return false;
     }
 
     @Override
