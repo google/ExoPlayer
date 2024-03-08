@@ -40,6 +40,7 @@ import androidx.media3.test.utils.FakeClock;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
+import com.google.common.primitives.Ints;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.List;
@@ -166,7 +167,7 @@ public class MetadataRetrieverTest {
     MdtaMetadataEntry expectedTemporalLayersCountMetdata =
         new MdtaMetadataEntry(
             /* key= */ "com.android.video.temporal_layers_count",
-            /* value= */ Util.toByteArray(4),
+            /* value= */ Ints.toByteArray(4),
             MdtaMetadataEntry.TYPE_INDICATOR_INT32);
     SmtaMetadataEntry expectedSmtaEntry =
         new SmtaMetadataEntry(/* captureFrameRate= */ 240, /* svcTemporalLayerCount= */ 4);

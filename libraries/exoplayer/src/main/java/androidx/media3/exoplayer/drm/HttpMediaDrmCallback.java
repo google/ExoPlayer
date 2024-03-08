@@ -30,6 +30,7 @@ import androidx.media3.datasource.StatsDataSource;
 import androidx.media3.exoplayer.drm.ExoMediaDrm.KeyRequest;
 import androidx.media3.exoplayer.drm.ExoMediaDrm.ProvisionRequest;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.io.ByteStreams;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -182,7 +183,7 @@ public final class HttpMediaDrmCallback implements MediaDrmCallback {
       while (true) {
         DataSourceInputStream inputStream = new DataSourceInputStream(dataSource, dataSpec);
         try {
-          return Util.toByteArray(inputStream);
+          return ByteStreams.toByteArray(inputStream);
         } catch (InvalidResponseCodeException e) {
           @Nullable String redirectUrl = getRedirectUrl(e, manualRedirectCount);
           if (redirectUrl == null) {

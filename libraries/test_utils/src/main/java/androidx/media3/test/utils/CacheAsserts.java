@@ -21,7 +21,6 @@ import static com.google.common.truth.Truth.assertWithMessage;
 import android.net.Uri;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.UnstableApi;
-import androidx.media3.common.util.Util;
 import androidx.media3.datasource.DataSource;
 import androidx.media3.datasource.DataSourceInputStream;
 import androidx.media3.datasource.DataSourceUtil;
@@ -30,6 +29,7 @@ import androidx.media3.datasource.PlaceholderDataSource;
 import androidx.media3.datasource.cache.Cache;
 import androidx.media3.datasource.cache.CacheDataSource;
 import androidx.media3.test.utils.FakeDataSet.FakeData;
+import com.google.common.io.ByteStreams;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -158,7 +158,7 @@ public final class CacheAsserts {
   public static void assertReadData(DataSource dataSource, DataSpec dataSpec, byte[] expected)
       throws IOException {
     try (DataSourceInputStream inputStream = new DataSourceInputStream(dataSource, dataSpec)) {
-      byte[] bytes = Util.toByteArray(inputStream);
+      byte[] bytes = ByteStreams.toByteArray(inputStream);
       assertThat(bytes).isEqualTo(expected);
     }
   }

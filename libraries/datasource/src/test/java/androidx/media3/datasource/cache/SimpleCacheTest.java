@@ -16,7 +16,6 @@
 package androidx.media3.datasource.cache;
 
 import static androidx.media3.common.C.LENGTH_UNSET;
-import static androidx.media3.common.util.Util.toByteArray;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.doAnswer;
@@ -28,6 +27,7 @@ import androidx.media3.datasource.cache.Cache.CacheException;
 import androidx.media3.test.utils.TestUtil;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.common.io.ByteStreams;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -646,7 +646,7 @@ public class SimpleCacheTest {
     assertThat(cacheSpan.isCached).isTrue();
     byte[] expected = generateData(cacheSpan.key, (int) cacheSpan.position, (int) cacheSpan.length);
     try (FileInputStream inputStream = new FileInputStream(cacheSpan.file)) {
-      assertThat(toByteArray(inputStream)).isEqualTo(expected);
+      assertThat(ByteStreams.toByteArray(inputStream)).isEqualTo(expected);
     }
   }
 

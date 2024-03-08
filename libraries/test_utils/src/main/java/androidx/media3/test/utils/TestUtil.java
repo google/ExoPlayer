@@ -36,7 +36,6 @@ import androidx.media3.common.MediaMetadata;
 import androidx.media3.common.StreamKey;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.TrackGroup;
-import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import androidx.media3.database.DatabaseProvider;
@@ -53,7 +52,9 @@ import androidx.media3.extractor.PositionHolder;
 import androidx.media3.extractor.SeekMap;
 import androidx.media3.extractor.metadata.MetadataInputBuffer;
 import com.google.common.collect.ImmutableList;
+import com.google.common.io.ByteStreams;
 import com.google.common.primitives.Bytes;
+import com.google.common.primitives.UnsignedBytes;
 import com.google.common.truth.Correspondence;
 import java.io.File;
 import java.io.FileInputStream;
@@ -140,8 +141,7 @@ public class TestUtil {
   public static byte[] createByteArray(int... bytes) {
     byte[] array = new byte[bytes.length];
     for (int i = 0; i < array.length; i++) {
-      Assertions.checkState(0x00 <= bytes[i] && bytes[i] <= 0xFF);
-      array[i] = (byte) bytes[i];
+      array[i] = UnsignedBytes.checkedCast(bytes[i]);
     }
     return array;
   }
@@ -202,14 +202,14 @@ public class TestUtil {
   /** Returns the bytes of an asset file. */
   public static byte[] getByteArray(Context context, String fileName) throws IOException {
     try (InputStream inputStream = getInputStream(context, fileName)) {
-      return Util.toByteArray(inputStream);
+      return ByteStreams.toByteArray(inputStream);
     }
   }
 
   /** Returns the bytes of a file using its file path. */
   public static byte[] getByteArrayFromFilePath(String filePath) throws IOException {
     try (InputStream inputStream = new FileInputStream(filePath)) {
-      return Util.toByteArray(inputStream);
+      return ByteStreams.toByteArray(inputStream);
     }
   }
 
