@@ -91,8 +91,10 @@ import com.google.android.exoplayer2.Player.Commands;
 import com.google.android.exoplayer2.audio.AudioProcessor;
 import com.google.common.base.Ascii;
 import com.google.common.base.Charsets;
+import com.google.common.io.ByteStreams;
 import com.google.common.math.DoubleMath;
 import com.google.common.math.LongMath;
+import com.google.common.primitives.Ints;
 import com.google.common.primitives.UnsignedBytes;
 import com.google.common.util.concurrent.AsyncFunction;
 import com.google.common.util.concurrent.Futures;
@@ -209,65 +211,35 @@ public final class Util {
   private Util() {}
 
   /**
-   * Converts the entirety of an {@link InputStream} to a byte array.
-   *
-   * @param inputStream the {@link InputStream} to be read. The input stream is not closed by this
-   *     method.
-   * @return a byte array containing all of the inputStream's bytes.
-   * @throws IOException if an error occurs reading from the stream.
+   * @deprecated Use Guava's {@link ByteStreams#toByteArray(InputStream)} instead.
    */
+  @Deprecated
   public static byte[] toByteArray(InputStream inputStream) throws IOException {
-    byte[] buffer = new byte[1024 * 4];
-    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    int bytesRead;
-    while ((bytesRead = inputStream.read(buffer)) != -1) {
-      outputStream.write(buffer, 0, bytesRead);
-    }
-    return outputStream.toByteArray();
-  }
-
-  /** Converts an integer into an equivalent byte array. */
-  public static byte[] toByteArray(int value) {
-    return new byte[] {
-      (byte) (value >> 24), (byte) (value >> 16), (byte) (value >> 8), (byte) value
-    };
+    return ByteStreams.toByteArray(inputStream);
   }
 
   /**
    * Converts an array of integers into an equivalent byte array.
    *
    * <p>Each integer is converted into 4 sequential bytes.
+   *
+   * <p>For a single integer, prefer Guava's {@link Ints#toByteArray(int)} implementation.
    */
   public static byte[] toByteArray(int... values) {
     byte[] array = new byte[values.length * 4];
     int index = 0;
     for (int value : values) {
-      byte[] byteArray = toByteArray(value);
-      array[index++] = byteArray[0];
-      array[index++] = byteArray[1];
-      array[index++] = byteArray[2];
-      array[index++] = byteArray[3];
+      array[index++] = (byte) (value >> 24);
+      array[index++] = (byte) (value >> 16);
+      array[index++] = (byte) (value >> 8);
+      array[index++] = (byte) (value);
     }
     return array;
   }
 
   /** Converts a float into an equivalent byte array. */
   public static byte[] toByteArray(float value) {
-    return toByteArray(Float.floatToIntBits(value));
-  }
-
-  /** Converts a byte array into a float. */
-  public static float toFloat(byte[] bytes) {
-    checkArgument(bytes.length == 4);
-    int intBits =
-        bytes[0] << 24 | (bytes[1] & 0xFF) << 16 | (bytes[2] & 0xFF) << 8 | (bytes[3] & 0xFF);
-    return Float.intBitsToFloat(intBits);
-  }
-
-  /** Converts a byte array into an integer. */
-  public static int toInteger(byte[] bytes) {
-    checkArgument(bytes.length == 4);
-    return bytes[0] << 24 | bytes[1] << 16 | bytes[2] << 8 | bytes[3];
+    return Ints.toByteArray(Float.floatToIntBits(value));
   }
 
   /**
@@ -1025,7 +997,7 @@ public final class Util {
     @Nullable InputStream inputStream = null;
     try {
       inputStream = context.getAssets().open(assetPath);
-      return Util.fromUtf8Bytes(Util.toByteArray(inputStream));
+      return Util.fromUtf8Bytes(ByteStreams.toByteArray(inputStream));
     } finally {
       Util.closeQuietly(inputStream);
     }

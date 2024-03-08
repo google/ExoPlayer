@@ -28,7 +28,7 @@ import com.google.android.exoplayer2.upstream.PlaceholderDataSource;
 import com.google.android.exoplayer2.upstream.cache.Cache;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
 import com.google.android.exoplayer2.util.Assertions;
-import com.google.android.exoplayer2.util.Util;
+import com.google.common.io.ByteStreams;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -156,7 +156,7 @@ public final class CacheAsserts {
   public static void assertReadData(DataSource dataSource, DataSpec dataSpec, byte[] expected)
       throws IOException {
     try (DataSourceInputStream inputStream = new DataSourceInputStream(dataSource, dataSpec)) {
-      byte[] bytes = Util.toByteArray(inputStream);
+      byte[] bytes = ByteStreams.toByteArray(inputStream);
       assertThat(bytes).isEqualTo(expected);
     }
   }

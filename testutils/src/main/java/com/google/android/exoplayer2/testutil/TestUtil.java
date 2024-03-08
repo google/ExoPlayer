@@ -49,10 +49,11 @@ import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSourceUtil;
 import com.google.android.exoplayer2.upstream.DataSpec;
-import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
+import com.google.common.io.ByteStreams;
 import com.google.common.primitives.Bytes;
+import com.google.common.primitives.UnsignedBytes;
 import com.google.common.truth.Correspondence;
 import java.io.File;
 import java.io.FileInputStream;
@@ -138,8 +139,7 @@ public class TestUtil {
   public static byte[] createByteArray(int... bytes) {
     byte[] array = new byte[bytes.length];
     for (int i = 0; i < array.length; i++) {
-      Assertions.checkState(0x00 <= bytes[i] && bytes[i] <= 0xFF);
-      array[i] = (byte) bytes[i];
+      array[i] = UnsignedBytes.checkedCast(bytes[i]);
     }
     return array;
   }
@@ -200,14 +200,14 @@ public class TestUtil {
   /** Returns the bytes of an asset file. */
   public static byte[] getByteArray(Context context, String fileName) throws IOException {
     try (InputStream inputStream = getInputStream(context, fileName)) {
-      return Util.toByteArray(inputStream);
+      return ByteStreams.toByteArray(inputStream);
     }
   }
 
   /** Returns the bytes of a file using its file path. */
   public static byte[] getByteArrayFromFilePath(String filePath) throws IOException {
     try (InputStream inputStream = new FileInputStream(filePath)) {
-      return Util.toByteArray(inputStream);
+      return ByteStreams.toByteArray(inputStream);
     }
   }
 

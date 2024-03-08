@@ -20,6 +20,7 @@ import android.os.Parcelable;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.primitives.Ints;
 import java.util.Arrays;
 
 /**
@@ -117,10 +118,10 @@ public final class MdtaMetadataEntry implements Metadata.Entry {
         formattedValue = Util.fromUtf8Bytes(value);
         break;
       case TYPE_INDICATOR_FLOAT32:
-        formattedValue = String.valueOf(Util.toFloat(value));
+        formattedValue = String.valueOf(Float.intBitsToFloat(Ints.fromByteArray(value)));
         break;
       case TYPE_INDICATOR_INT32:
-        formattedValue = String.valueOf(Util.toInteger(value));
+        formattedValue = String.valueOf(Ints.fromByteArray(value));
         break;
       default:
         formattedValue = Util.toHexString(value);

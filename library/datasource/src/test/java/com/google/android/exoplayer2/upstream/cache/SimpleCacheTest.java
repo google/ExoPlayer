@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.upstream.cache;
 
 import static com.google.android.exoplayer2.C.LENGTH_UNSET;
-import static com.google.android.exoplayer2.util.Util.toByteArray;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.doAnswer;
@@ -28,6 +27,7 @@ import com.google.android.exoplayer2.database.DatabaseProvider;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.upstream.cache.Cache.CacheException;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.io.ByteStreams;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -646,7 +646,7 @@ public class SimpleCacheTest {
     assertThat(cacheSpan.isCached).isTrue();
     byte[] expected = generateData(cacheSpan.key, (int) cacheSpan.position, (int) cacheSpan.length);
     try (FileInputStream inputStream = new FileInputStream(cacheSpan.file)) {
-      assertThat(toByteArray(inputStream)).isEqualTo(expected);
+      assertThat(ByteStreams.toByteArray(inputStream)).isEqualTo(expected);
     }
   }
 
