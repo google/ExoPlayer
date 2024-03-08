@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.upstream;
 
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.net.Uri;
@@ -479,7 +480,7 @@ public final class DataSpec {
     Assertions.checkArgument(uriPositionOffset + position >= 0);
     Assertions.checkArgument(position >= 0);
     Assertions.checkArgument(length > 0 || length == C.LENGTH_UNSET);
-    this.uri = uri;
+    this.uri = checkNotNull(uri);
     this.uriPositionOffset = uriPositionOffset;
     this.httpMethod = httpMethod;
     this.httpBody = httpBody != null && httpBody.length != 0 ? httpBody : null;
