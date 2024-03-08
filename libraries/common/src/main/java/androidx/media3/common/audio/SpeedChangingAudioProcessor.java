@@ -17,6 +17,7 @@
 package androidx.media3.common.audio;
 
 import static java.lang.Math.min;
+import static java.lang.Math.round;
 
 import androidx.media3.common.C;
 import androidx.media3.common.util.LongArray;
@@ -210,15 +211,24 @@ public final class SpeedChangingAudioProcessor extends BaseAudioProcessor {
       floorIndex--;
     }
     long lastSegmentInputDuration = inputTimeUs - inputSegmentStartTimesUs.get(floorIndex);
-    long lastSegmentOutputDuration =
-        floorIndex == inputSegmentStartTimesUs.size() - 1
-            ? getPlayoutDurationAtCurrentSpeed(lastSegmentInputDuration)
-            : lastSegmentInputDuration
-                * (inputSegmentStartTimesUs.get(floorIndex + 1)
-                    - inputSegmentStartTimesUs.get(floorIndex))
-                / (outputSegmentStartTimesUs.get(floorIndex + 1)
-                    - outputSegmentStartTimesUs.get(floorIndex));
+    long lastSegmentOutputDuration;
+    if (floorIndex == inputSegmentStartTimesUs.size() - 1) {
+      lastSegmentOutputDuration = getPlayoutDurationAtCurrentSpeed(lastSegmentInputDuration);
+    } else {
+      lastSegmentOutputDuration =
+          round(
+              lastSegmentInputDuration
+                  * divide(
+                      outputSegmentStartTimesUs.get(floorIndex + 1)
+                          - outputSegmentStartTimesUs.get(floorIndex),
+                      inputSegmentStartTimesUs.get(floorIndex + 1)
+                          - inputSegmentStartTimesUs.get(floorIndex)));
+    }
     return outputSegmentStartTimesUs.get(floorIndex) + lastSegmentOutputDuration;
+  }
+
+  private static double divide(long dividend, long divisor) {
+    return ((double) dividend) / divisor;
   }
 
   private void processPendingCallbacks() {
