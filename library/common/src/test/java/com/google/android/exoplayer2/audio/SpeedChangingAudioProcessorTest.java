@@ -357,7 +357,7 @@ public class SpeedChangingAudioProcessorTest {
     // The speed change is at 113Us (5*MICROS_PER_SECOND/sampleRate).
     SpeedProvider speedProvider =
         TestSpeedProvider.createWithFrameCounts(
-            AUDIO_FORMAT, /* frameCounts= */ new int[] {5, 5}, /* speeds= */ new float[] {1, 2});
+            AUDIO_FORMAT, /* frameCounts= */ new int[] {5, 5}, /* speeds= */ new float[] {2, 1});
     SpeedChangingAudioProcessor speedChangingAudioProcessor =
         getConfiguredSpeedChangingAudioProcessor(speedProvider);
     ByteBuffer inputBuffer = getInputBuffer(/* frameCount= */ 5);
@@ -374,7 +374,8 @@ public class SpeedChangingAudioProcessorTest {
     speedChangingAudioProcessor.getSpeedAdjustedTimeAsync(
         /* inputTimeUs= */ 150L, outputTimesUs::add);
 
-    assertThat(outputTimesUs).containsExactly(50L, 100L, 131L);
+    // 150 is after the speed change so floor(113 / 2 + (150 - 113)*1) -> 93
+    assertThat(outputTimesUs).containsExactly(25L, 50L, 93L);
   }
 
   private static SpeedChangingAudioProcessor getConfiguredSpeedChangingAudioProcessor(
