@@ -57,6 +57,8 @@
         where `package` is different to the package of the current application.
         This wasn't previously documented to work, but is a more efficient way
         of accessing resources in another package than by name.
+    *   Eagerly check `url` is non-null in the `DataSpec` constructors. This
+        parameter was already annotated to be non-null.
 *   Effect:
     *   Improved PQ to SDR tone-mapping by converting color spaces.
     *   Support multiple speed changes within the same `EditedMediaItem` or
