@@ -15,6 +15,7 @@
  */
 package androidx.media3.exoplayer.mediacodec;
 
+import android.content.Context;
 import android.media.MediaCodec;
 import android.media.MediaCrypto;
 import android.media.MediaFormat;
@@ -120,8 +121,22 @@ public interface MediaCodecAdapter {
   /** A factory for {@link MediaCodecAdapter} instances. */
   interface Factory {
 
-    /** Default factory used in most cases. */
+    /**
+     * @deprecated Use {@link #getDefault} instead.
+     */
+    @Deprecated
+    @SuppressWarnings("deprecation") // Forwarding to deprecated method.
     Factory DEFAULT = new DefaultMediaCodecAdapterFactory();
+
+    /**
+     * Returns the default factory that should be used in most cases.
+     *
+     * @param context A {@link Context}.
+     * @return The default factory.
+     */
+    static Factory getDefault(Context context) {
+      return new DefaultMediaCodecAdapterFactory(context);
+    }
 
     /** Creates a {@link MediaCodecAdapter} instance. */
     MediaCodecAdapter createAdapter(Configuration configuration) throws IOException;

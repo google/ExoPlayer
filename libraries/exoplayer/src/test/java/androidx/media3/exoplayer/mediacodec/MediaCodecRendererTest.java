@@ -44,6 +44,7 @@ import androidx.media3.exoplayer.drm.DrmSessionManager;
 import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.exoplayer.upstream.DefaultAllocator;
 import androidx.media3.test.utils.FakeSampleStream;
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
 import java.nio.ByteBuffer;
@@ -480,7 +481,7 @@ public class MediaCodecRendererTest {
     public TestRenderer() {
       super(
           C.TRACK_TYPE_AUDIO,
-          MediaCodecAdapter.Factory.DEFAULT,
+          MediaCodecAdapter.Factory.getDefault(ApplicationProvider.getApplicationContext()),
           /* mediaCodecSelector= */ (mimeType, requiresSecureDecoder, requiresTunnelingDecoder) ->
               Collections.singletonList(
                   MediaCodecInfo.newInstance(
