@@ -14,11 +14,5 @@
      limitations under the License.
 -->
 <resources>
-  <drawable name="media3_notification_play">@android:drawable/ic_media_play</drawable>
-  <drawable name="media3_notification_pause">@android:drawable/ic_media_pause</drawable>
-  <drawable name="media3_notification_seek_to_next">@android:drawable/ic_media_next</drawable>
-  <drawable name="media3_notification_seek_to_previous">@android:drawable/ic_media_previous</drawable>
-  <drawable name="media3_notification_seek_forward">@android:drawable/ic_media_ff</drawable>
-  <drawable name="media3_notification_seek_back">@android:drawable/ic_media_rew</drawable>
   <drawable name="media3_notification_small_icon">@drawable/media3_icon_circular_play</drawable>
 </resources>

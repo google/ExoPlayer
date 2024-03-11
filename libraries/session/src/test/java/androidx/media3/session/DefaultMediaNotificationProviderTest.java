@@ -133,13 +133,11 @@ public class DefaultMediaNotificationProviderTest {
 
     assertThat(mediaButtonsWhenPlaying).hasSize(3);
     assertThat(mediaButtonsWhenPlaying.get(1).playerCommand).isEqualTo(Player.COMMAND_PLAY_PAUSE);
-    assertThat(mediaButtonsWhenPlaying.get(1).iconResId)
-        .isEqualTo(R.drawable.media3_notification_pause);
+    assertThat(mediaButtonsWhenPlaying.get(1).iconResId).isEqualTo(R.drawable.media3_icon_pause);
     assertThat(String.valueOf(mediaButtonsWhenPlaying.get(1).displayName)).isEqualTo("Pause");
     assertThat(mediaButtonWhenPaused).hasSize(3);
     assertThat(mediaButtonWhenPaused.get(1).playerCommand).isEqualTo(Player.COMMAND_PLAY_PAUSE);
-    assertThat(mediaButtonWhenPaused.get(1).iconResId)
-        .isEqualTo(R.drawable.media3_notification_play);
+    assertThat(mediaButtonWhenPaused.get(1).iconResId).isEqualTo(R.drawable.media3_icon_play);
     assertThat(String.valueOf(mediaButtonWhenPaused.get(1).displayName)).isEqualTo("Play");
   }
 
@@ -151,7 +149,7 @@ public class DefaultMediaNotificationProviderTest {
     Commands commands = new Commands.Builder().addAllCommands().build();
     SessionCommand customSessionCommand = new SessionCommand("", Bundle.EMPTY);
     CommandButton customCommandButton =
-        new CommandButton.Builder()
+        new CommandButton.Builder(CommandButton.ICON_UNDEFINED)
             .setDisplayName("displayName")
             .setIconResId(R.drawable.media3_icon_circular_play)
             .setSessionCommand(customSessionCommand)
@@ -184,7 +182,7 @@ public class DefaultMediaNotificationProviderTest {
     Commands commands = new Commands.Builder().build();
     SessionCommand customSessionCommand = new SessionCommand("action1", Bundle.EMPTY);
     CommandButton customCommandButton =
-        new CommandButton.Builder()
+        new CommandButton.Builder(CommandButton.ICON_UNDEFINED)
             .setDisplayName("displayName")
             .setIconResId(R.drawable.media3_icon_circular_play)
             .setSessionCommand(customSessionCommand)
@@ -213,7 +211,7 @@ public class DefaultMediaNotificationProviderTest {
         new NotificationCompat.Builder(
             ApplicationProvider.getApplicationContext(), TEST_CHANNEL_ID);
     CommandButton commandButton1 =
-        new CommandButton.Builder()
+        new CommandButton.Builder(CommandButton.ICON_UNDEFINED)
             .setPlayerCommand(Player.COMMAND_PLAY_PAUSE)
             .setDisplayName("displayName")
             .setIconResId(R.drawable.media3_icon_circular_play)
@@ -221,7 +219,7 @@ public class DefaultMediaNotificationProviderTest {
     Bundle commandButton2Bundle = new Bundle();
     commandButton2Bundle.putInt(DefaultMediaNotificationProvider.COMMAND_KEY_COMPACT_VIEW_INDEX, 0);
     CommandButton commandButton2 =
-        new CommandButton.Builder()
+        new CommandButton.Builder(CommandButton.ICON_UNDEFINED)
             .setDisplayName("displayName")
             .setIconResId(R.drawable.media3_icon_circular_play)
             .setSessionCommand(new SessionCommand("action2", Bundle.EMPTY))
@@ -230,7 +228,7 @@ public class DefaultMediaNotificationProviderTest {
     Bundle commandButton3Bundle = new Bundle();
     commandButton3Bundle.putInt(DefaultMediaNotificationProvider.COMMAND_KEY_COMPACT_VIEW_INDEX, 2);
     CommandButton commandButton3 =
-        new CommandButton.Builder()
+        new CommandButton.Builder(CommandButton.ICON_UNDEFINED)
             .setDisplayName("displayName")
             .setIconResId(R.drawable.media3_icon_circular_play)
             .setSessionCommand(new SessionCommand("action3", Bundle.EMPTY))
@@ -239,7 +237,7 @@ public class DefaultMediaNotificationProviderTest {
     Bundle commandButton4Bundle = new Bundle();
     commandButton4Bundle.putInt(DefaultMediaNotificationProvider.COMMAND_KEY_COMPACT_VIEW_INDEX, 1);
     CommandButton commandButton4 =
-        new CommandButton.Builder()
+        new CommandButton.Builder(CommandButton.ICON_UNDEFINED)
             .setDisplayName("displayName")
             .setIconResId(R.drawable.media3_icon_circular_play)
             .setSessionCommand(new SessionCommand("action4", Bundle.EMPTY))
@@ -286,25 +284,25 @@ public class DefaultMediaNotificationProviderTest {
         new NotificationCompat.Builder(
             ApplicationProvider.getApplicationContext(), TEST_CHANNEL_ID);
     CommandButton commandButton1 =
-        new CommandButton.Builder()
+        new CommandButton.Builder(CommandButton.ICON_UNDEFINED)
             .setDisplayName("displayName")
             .setIconResId(R.drawable.media3_icon_circular_play)
             .setSessionCommand(new SessionCommand("action1", Bundle.EMPTY))
             .build();
     CommandButton commandButton2 =
-        new CommandButton.Builder()
+        new CommandButton.Builder(CommandButton.ICON_UNDEFINED)
             .setPlayerCommand(Player.COMMAND_PLAY_PAUSE)
             .setDisplayName("displayName")
             .setIconResId(R.drawable.media3_icon_circular_play)
             .build();
     CommandButton commandButton3 =
-        new CommandButton.Builder()
+        new CommandButton.Builder(CommandButton.ICON_UNDEFINED)
             .setPlayerCommand(Player.COMMAND_SEEK_TO_PREVIOUS)
             .setDisplayName("displayName")
             .setIconResId(R.drawable.media3_icon_circular_play)
             .build();
     CommandButton commandButton4 =
-        new CommandButton.Builder()
+        new CommandButton.Builder(CommandButton.ICON_UNDEFINED)
             .setPlayerCommand(Player.COMMAND_SEEK_TO_NEXT)
             .setDisplayName("displayName")
             .setIconResId(R.drawable.media3_icon_circular_play)
@@ -352,19 +350,19 @@ public class DefaultMediaNotificationProviderTest {
         new NotificationCompat.Builder(
             ApplicationProvider.getApplicationContext(), TEST_CHANNEL_ID);
     CommandButton commandButton1 =
-        new CommandButton.Builder()
+        new CommandButton.Builder(CommandButton.ICON_UNDEFINED)
             .setDisplayName("displayName")
             .setIconResId(R.drawable.media3_icon_circular_play)
             .setSessionCommand(new SessionCommand("action1", Bundle.EMPTY))
             .build();
     CommandButton commandButton2 =
-        new CommandButton.Builder()
+        new CommandButton.Builder(CommandButton.ICON_UNDEFINED)
             .setPlayerCommand(Player.COMMAND_PLAY_PAUSE)
             .setDisplayName("displayName")
             .setIconResId(R.drawable.media3_icon_circular_play)
             .build();
     CommandButton commandButton3 =
-        new CommandButton.Builder()
+        new CommandButton.Builder(CommandButton.ICON_UNDEFINED)
             .setPlayerCommand(Player.COMMAND_SEEK_TO_PREVIOUS)
             .setDisplayName("displayName")
             .setIconResId(R.drawable.media3_icon_circular_play)
@@ -408,7 +406,7 @@ public class DefaultMediaNotificationProviderTest {
         new NotificationCompat.Builder(
             ApplicationProvider.getApplicationContext(), TEST_CHANNEL_ID);
     CommandButton commandButton1 =
-        new CommandButton.Builder()
+        new CommandButton.Builder(CommandButton.ICON_UNDEFINED)
             .setDisplayName("displayName")
             .setIconResId(R.drawable.media3_icon_circular_play)
             .setSessionCommand(new SessionCommand("action1", Bundle.EMPTY))
@@ -441,7 +439,7 @@ public class DefaultMediaNotificationProviderTest {
     Bundle commandButtonBundle1 = new Bundle();
     commandButtonBundle1.putInt(DefaultMediaNotificationProvider.COMMAND_KEY_COMPACT_VIEW_INDEX, 2);
     CommandButton commandButton1 =
-        new CommandButton.Builder()
+        new CommandButton.Builder(CommandButton.ICON_UNDEFINED)
             .setDisplayName("displayName")
             .setIconResId(R.drawable.media3_icon_circular_play)
             .setSessionCommand(new SessionCommand("action1", Bundle.EMPTY))
@@ -451,7 +449,7 @@ public class DefaultMediaNotificationProviderTest {
     commandButtonBundle2.putInt(
         DefaultMediaNotificationProvider.COMMAND_KEY_COMPACT_VIEW_INDEX, -1);
     CommandButton commandButton2 =
-        new CommandButton.Builder()
+        new CommandButton.Builder(CommandButton.ICON_UNDEFINED)
             .setDisplayName("displayName2")
             .setIconResId(R.drawable.media3_icon_circular_play)
             .setSessionCommand(new SessionCommand("action1", Bundle.EMPTY))
@@ -491,7 +489,7 @@ public class DefaultMediaNotificationProviderTest {
     Bundle commandButtonBundle = new Bundle();
     commandButtonBundle.putInt(DefaultMediaNotificationProvider.COMMAND_KEY_COMPACT_VIEW_INDEX, 1);
     CommandButton commandButton1 =
-        new CommandButton.Builder()
+        new CommandButton.Builder(CommandButton.ICON_UNDEFINED)
             .setDisplayName("displayName")
             .setIconResId(R.drawable.media3_icon_circular_play)
             .setSessionCommand(new SessionCommand("action1", Bundle.EMPTY))
@@ -528,9 +526,8 @@ public class DefaultMediaNotificationProviderTest {
     Bundle commandButtonBundle = new Bundle();
     commandButtonBundle.putString("testKey", "testValue");
     CommandButton commandButton1 =
-        new CommandButton.Builder()
+        new CommandButton.Builder(CommandButton.ICON_PLAY)
             .setDisplayName("displayName1")
-            .setIconResId(R.drawable.media3_notification_play)
             .setSessionCommand(new SessionCommand("action1", Bundle.EMPTY))
             .setExtras(commandButtonBundle)
             .build();
@@ -633,20 +630,20 @@ public class DefaultMediaNotificationProviderTest {
                 new TestExoPlayerBuilder(context).build())
             .build();
     CommandButton button1 =
-        new CommandButton.Builder()
+        new CommandButton.Builder(CommandButton.ICON_UNDEFINED)
             .setDisplayName("button1")
             .setIconResId(R.drawable.media3_notification_small_icon)
             .setPlayerCommand(Player.COMMAND_SEEK_TO_PREVIOUS)
             .build();
     CommandButton button2 =
-        new CommandButton.Builder()
+        new CommandButton.Builder(CommandButton.ICON_UNDEFINED)
             .setDisplayName("button2")
             .setIconResId(R.drawable.media3_notification_small_icon)
             .setSessionCommand(new SessionCommand("command2", Bundle.EMPTY))
             .build()
             .copyWithIsEnabled(true);
     CommandButton button3 =
-        new CommandButton.Builder()
+        new CommandButton.Builder(CommandButton.ICON_UNDEFINED)
             .setDisplayName("button3")
             .setIconResId(R.drawable.media3_notification_small_icon)
             .setPlayerCommand(Player.COMMAND_PLAY_PAUSE)

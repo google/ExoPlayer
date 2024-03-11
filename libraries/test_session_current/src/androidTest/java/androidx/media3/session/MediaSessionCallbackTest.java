@@ -41,7 +41,6 @@ import androidx.media3.common.StarRating;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.session.MediaSession.ConnectionResult.AcceptedResultBuilder;
 import androidx.media3.session.MediaSession.ControllerInfo;
-import androidx.media3.test.session.R;
 import androidx.media3.test.session.common.HandlerThreadTestRule;
 import androidx.media3.test.session.common.MainLooperTestRule;
 import androidx.media3.test.session.common.TestHandler;
@@ -153,17 +152,15 @@ public class MediaSessionCallbackTest {
   public void onConnect_acceptWithMissingSessionCommand_buttonDisabledAndPermissionDenied()
       throws Exception {
     CommandButton button1 =
-        new CommandButton.Builder()
+        new CommandButton.Builder(CommandButton.ICON_PLAY)
             .setDisplayName("button1")
-            .setIconResId(R.drawable.media3_notification_play)
             .setSessionCommand(new SessionCommand("command1", Bundle.EMPTY))
             .setEnabled(true)
             .build();
     CommandButton button1Disabled = button1.copyWithIsEnabled(false);
     CommandButton button2 =
-        new CommandButton.Builder()
+        new CommandButton.Builder(CommandButton.ICON_PAUSE)
             .setDisplayName("button2")
-            .setIconResId(R.drawable.media3_notification_pause)
             .setSessionCommand(new SessionCommand("command2", Bundle.EMPTY))
             .setEnabled(true)
             .build();

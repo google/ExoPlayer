@@ -40,18 +40,17 @@ open class DemoMediaLibrarySessionCallback(context: Context) :
     MediaItemTree.initialize(context.assets)
   }
 
+  @OptIn(UnstableApi::class) // TODO: b/328238954 - Remove once new CommandButton icons are stable.
   private val customLayoutCommandButtons: List<CommandButton> =
     listOf(
-      CommandButton.Builder()
+      CommandButton.Builder(CommandButton.ICON_SHUFFLE_OFF)
         .setDisplayName(context.getString(R.string.exo_controls_shuffle_on_description))
         .setSessionCommand(SessionCommand(CUSTOM_COMMAND_TOGGLE_SHUFFLE_MODE_ON, Bundle.EMPTY))
-        .setIconResId(R.drawable.exo_icon_shuffle_off)
         .build(),
-      CommandButton.Builder()
+      CommandButton.Builder(CommandButton.ICON_SHUFFLE_ON)
         .setDisplayName(context.getString(R.string.exo_controls_shuffle_off_description))
         .setSessionCommand(SessionCommand(CUSTOM_COMMAND_TOGGLE_SHUFFLE_MODE_OFF, Bundle.EMPTY))
-        .setIconResId(R.drawable.exo_icon_shuffle_on)
-        .build()
+        .build(),
     )
 
   @OptIn(UnstableApi::class) // MediaSession.ConnectionResult.DEFAULT_SESSION_AND_LIBRARY_COMMANDS
@@ -70,7 +69,7 @@ open class DemoMediaLibrarySessionCallback(context: Context) :
   @OptIn(UnstableApi::class)
   override fun onConnect(
     session: MediaSession,
-    controller: MediaSession.ControllerInfo
+    controller: MediaSession.ControllerInfo,
   ): MediaSession.ConnectionResult {
     if (
       session.isMediaNotificationController(controller) ||
@@ -93,7 +92,7 @@ open class DemoMediaLibrarySessionCallback(context: Context) :
     session: MediaSession,
     controller: MediaSession.ControllerInfo,
     customCommand: SessionCommand,
-    args: Bundle
+    args: Bundle,
   ): ListenableFuture<SessionResult> {
     if (CUSTOM_COMMAND_TOGGLE_SHUFFLE_MODE_ON == customCommand.customAction) {
       // Enable shuffling.
@@ -101,7 +100,7 @@ open class DemoMediaLibrarySessionCallback(context: Context) :
       // Change the custom layout to contain the `Disable shuffling` command.
       session.setCustomLayout(
         session.mediaNotificationControllerInfo!!,
-        ImmutableList.of(customLayoutCommandButtons[1])
+        ImmutableList.of(customLayoutCommandButtons[1]),
       )
       return Futures.immediateFuture(SessionResult(SessionResult.RESULT_SUCCESS))
     } else if (CUSTOM_COMMAND_TOGGLE_SHUFFLE_MODE_OFF == customCommand.customAction) {
@@ -110,7 +109,7 @@ open class DemoMediaLibrarySessionCallback(context: Context) :
       // Change the custom layout to contain the `Enable shuffling` command.
       session.setCustomLayout(
         session.mediaNotificationControllerInfo!!,
-        ImmutableList.of(customLayoutCommandButtons[0])
+        ImmutableList.of(customLayoutCommandButtons[0]),
       )
       return Futures.immediateFuture(SessionResult(SessionResult.RESULT_SUCCESS))
     }
@@ -120,7 +119,7 @@ open class DemoMediaLibrarySessionCallback(context: Context) :
   override fun onGetLibraryRoot(
     session: MediaLibraryService.MediaLibrarySession,
     browser: MediaSession.ControllerInfo,
-    params: MediaLibraryService.LibraryParams?
+    params: MediaLibraryService.LibraryParams?,
   ): ListenableFuture<LibraryResult<MediaItem>> {
     return Futures.immediateFuture(LibraryResult.ofItem(MediaItemTree.getRootItem(), params))
   }
@@ -128,7 +127,7 @@ open class DemoMediaLibrarySessionCallback(context: Context) :
   override fun onGetItem(
     session: MediaLibraryService.MediaLibrarySession,
     browser: MediaSession.ControllerInfo,
-    mediaId: String
+    mediaId: String,
   ): ListenableFuture<LibraryResult<MediaItem>> {
     MediaItemTree.getItem(mediaId)?.let {
       return Futures.immediateFuture(LibraryResult.ofItem(it, /* params= */ null))
@@ -142,7 +141,7 @@ open class DemoMediaLibrarySessionCallback(context: Context) :
     parentId: String,
     page: Int,
     pageSize: Int,
-    params: MediaLibraryService.LibraryParams?
+    params: MediaLibraryService.LibraryParams?,
   ): ListenableFuture<LibraryResult<ImmutableList<MediaItem>>> {
     val children = MediaItemTree.getChildren(parentId)
     if (children.isNotEmpty()) {
@@ -154,7 +153,7 @@ open class DemoMediaLibrarySessionCallback(context: Context) :
   override fun onAddMediaItems(
     mediaSession: MediaSession,
     controller: MediaSession.ControllerInfo,
-    mediaItems: List<MediaItem>
+    mediaItems: List<MediaItem>,
   ): ListenableFuture<List<MediaItem>> {
     return Futures.immediateFuture(resolveMediaItems(mediaItems))
   }
@@ -165,7 +164,7 @@ open class DemoMediaLibrarySessionCallback(context: Context) :
     browser: MediaSession.ControllerInfo,
     mediaItems: List<MediaItem>,
     startIndex: Int,
-    startPositionMs: Long
+    startPositionMs: Long,
   ): ListenableFuture<MediaItemsWithStartPosition> {
     if (mediaItems.size == 1) {
       // Try to expand a single item to a playlist.
@@ -194,7 +193,7 @@ open class DemoMediaLibrarySessionCallback(context: Context) :
   private fun maybeExpandSingleItemToPlaylist(
     mediaItem: MediaItem,
     startIndex: Int,
-    startPositionMs: Long
+    startPositionMs: Long,
   ): MediaItemsWithStartPosition? {
     var playlist = listOf<MediaItem>()
     var indexInPlaylist = startIndex
@@ -223,7 +222,7 @@ open class DemoMediaLibrarySessionCallback(context: Context) :
     session: MediaLibraryService.MediaLibrarySession,
     browser: MediaSession.ControllerInfo,
     query: String,
-    params: MediaLibraryService.LibraryParams?
+    params: MediaLibraryService.LibraryParams?,
   ): ListenableFuture<LibraryResult<Void>> {
     session.notifySearchResultChanged(browser, query, MediaItemTree.search(query).size, params)
     return Futures.immediateFuture(LibraryResult.ofVoid())
@@ -235,7 +234,7 @@ open class DemoMediaLibrarySessionCallback(context: Context) :
     query: String,
     page: Int,
     pageSize: Int,
-    params: MediaLibraryService.LibraryParams?
+    params: MediaLibraryService.LibraryParams?,
   ): ListenableFuture<LibraryResult<ImmutableList<MediaItem>>> {
     return Futures.immediateFuture(LibraryResult.ofItemList(MediaItemTree.search(query), params))
   }

@@ -45,7 +45,6 @@ import androidx.media3.common.util.Consumer;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.session.MediaSession.ConnectionResult;
 import androidx.media3.session.MediaSession.ConnectionResult.AcceptedResultBuilder;
-import androidx.media3.test.session.R;
 import androidx.media3.test.session.common.HandlerThreadTestRule;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -1451,20 +1450,17 @@ public class MediaControllerCompatPlaybackStateCompatActionsWithMediaSessionTest
     SessionCommand command3 = new SessionCommand("command3", Bundle.EMPTY);
     ImmutableList<CommandButton> customLayout =
         ImmutableList.of(
-            new CommandButton.Builder()
+            new CommandButton.Builder(CommandButton.ICON_PLAY)
                 .setDisplayName("button1")
-                .setIconResId(R.drawable.media3_notification_play)
                 .setSessionCommand(command1)
                 .build(),
-            new CommandButton.Builder()
+            new CommandButton.Builder(CommandButton.ICON_PAUSE)
                 .setDisplayName("button2")
-                .setIconResId(R.drawable.media3_notification_pause)
                 .setSessionCommand(command2)
                 .build(),
-            new CommandButton.Builder()
+            new CommandButton.Builder(CommandButton.ICON_PAUSE)
                 .setDisplayName("button3")
                 .setEnabled(false)
-                .setIconResId(R.drawable.media3_notification_pause)
                 .setSessionCommand(command3)
                 .build());
     MediaSession.Callback callback =
@@ -1504,14 +1500,12 @@ public class MediaControllerCompatPlaybackStateCompatActionsWithMediaSessionTest
     SessionCommand command2 = new SessionCommand("command2", extras2);
     ImmutableList<CommandButton> customLayout =
         ImmutableList.of(
-            new CommandButton.Builder()
+            new CommandButton.Builder(CommandButton.ICON_PLAY)
                 .setDisplayName("button1")
-                .setIconResId(R.drawable.media3_notification_play)
                 .setSessionCommand(command1)
                 .build(),
-            new CommandButton.Builder()
+            new CommandButton.Builder(CommandButton.ICON_PAUSE)
                 .setDisplayName("button2")
-                .setIconResId(R.drawable.media3_notification_pause)
                 .setSessionCommand(command2)
                 .build());
     MediaSession.Callback callback =
@@ -1565,15 +1559,12 @@ public class MediaControllerCompatPlaybackStateCompatActionsWithMediaSessionTest
     SessionCommand command2 = new SessionCommand("command2", extras2);
     ImmutableList<CommandButton> customLayout =
         ImmutableList.of(
-            new CommandButton.Builder()
+            new CommandButton.Builder(CommandButton.ICON_PLAY)
                 .setDisplayName("button1")
-                .setIconResId(R.drawable.media3_notification_play)
                 .setSessionCommand(command1)
                 .build(),
-            new CommandButton.Builder()
+            new CommandButton.Builder(CommandButton.ICON_PAUSE)
                 .setDisplayName("button2")
-                .setIcon(CommandButton.ICON_FAST_FORWARD)
-                .setIconResId(R.drawable.media3_notification_pause)
                 .setSessionCommand(command2)
                 .build());
     MediaSession.Callback callback =

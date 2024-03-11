@@ -1,0 +1,23 @@
+<!-- Copyright 2024 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="960"
+    android:viewportHeight="960">
+  <path
+      android:fillColor="@android:color/white"
+      android:pathData="M478.75,40L318.75,200L478.75,360L534.77,302.03L472.73,240L478.75,240C556.75,240 622.93,267.15 677.27,321.48C731.6,375.82 758.75,442 758.75,520C758.75,598 731.6,664.18 677.27,718.52C622.93,772.85 556.75,800 478.75,800C400.75,800 334.57,772.85 280.23,718.52C225.9,664.18 198.75,598 198.75,520L118.75,520C118.75,570 128.27,616.8 147.27,660.47C166.27,704.14 191.89,742.2 224.22,774.53C256.55,806.86 294.61,832.48 338.28,851.48C381.95,870.48 428.75,880 478.75,880C528.75,880 575.55,870.48 619.22,851.48C662.89,832.48 700.95,806.86 733.28,774.53C765.61,742.2 791.23,704.14 810.23,660.47C829.23,616.8 838.75,570 838.75,520C838.75,470 829.23,423.2 810.23,379.53C791.23,335.86 765.61,297.8 733.28,265.47C700.95,233.14 662.89,207.52 619.22,188.52C575.55,169.52 528.75,160 478.75,160L472.73,160L534.77,97.97L478.75,40zM297.5,399.84L297.5,459.84L357.5,459.84L357.5,639.84L417.5,639.84L417.5,399.84L297.5,399.84zM459.38,399.84L459.38,539.84L579.38,539.84L579.38,579.84L459.38,579.84L459.38,639.84L599.38,639.84C610.71,639.84 620.22,636.03 627.89,628.36C635.56,620.69 639.38,611.18 639.38,599.84L639.38,539.84C639.38,528.51 635.56,519.07 627.89,511.41C620.22,503.74 610.71,499.84 599.38,499.84L519.38,499.84L519.38,459.84L639.38,459.84L639.38,399.84L459.38,399.84z"/>
+</vector>

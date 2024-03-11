@@ -242,19 +242,19 @@ public class MediaSessionServiceTest {
     SessionCommand command2 = new SessionCommand("command2", Bundle.EMPTY);
     SessionCommand command3 = new SessionCommand("command3", Bundle.EMPTY);
     CommandButton button1 =
-        new CommandButton.Builder()
+        new CommandButton.Builder(CommandButton.ICON_UNDEFINED)
             .setDisplayName("button1")
             .setIconResId(R.drawable.media3_notification_small_icon)
             .setSessionCommand(command1)
             .build();
     CommandButton button2 =
-        new CommandButton.Builder()
+        new CommandButton.Builder(CommandButton.ICON_UNDEFINED)
             .setDisplayName("button2")
             .setIconResId(R.drawable.media3_notification_small_icon)
             .setSessionCommand(command2)
             .build();
     CommandButton button3 =
-        new CommandButton.Builder()
+        new CommandButton.Builder(CommandButton.ICON_UNDEFINED)
             .setDisplayName("button3")
             .setIconResId(R.drawable.media3_notification_small_icon)
             .setSessionCommand(command3)

@@ -49,6 +49,8 @@ import java.util.List;
  */
 public final class CommandButton implements Bundleable {
 
+  // TODO: b/328238954 - Stabilize these constants and the corresponding methods, and deprecate the
+  //  methods that do not use these constants.
   /** An icon constant for a button. Must be one of the {@code CommandButton.ICON_} constants. */
   @UnstableApi
   @Documented
@@ -406,8 +408,31 @@ public final class CommandButton implements Bundleable {
     private Bundle extras;
     private boolean enabled;
 
-    /** Creates a builder. */
+    /**
+     * [will be deprecated] Use {@link #Builder(int)} instead to define the {@link Icon} for this
+     * button. A separate resource id via {@link #setIconResId(int)} is no longer required unless
+     * for {@link #ICON_UNDEFINED}.
+     */
     public Builder() {
+      this(ICON_UNDEFINED);
+    }
+
+    /**
+     * Creates a builder.
+     *
+     * @param icon The {@link Icon} that should be shown for this button.
+     */
+    @UnstableApi
+    public Builder(@Icon int icon) {
+      this(icon, getIconResIdForIconConstant(icon));
+    }
+
+    // Internal version of constructor that assigns an additionally known icon resource id
+    // immediately. This is needed for R8 resource shrinking efficiency to know that the icon
+    // doesn't need to be resolved to any of the bundled icon drawables.
+    /* package */ Builder(@Icon int icon, @DrawableRes int iconResId) {
+      this.icon = icon;
+      this.iconResId = iconResId;
       displayName = "";
       extras = Bundle.EMPTY;
       playerCommand = Player.COMMAND_INVALID;
@@ -416,10 +441,12 @@ public final class CommandButton implements Bundleable {
     }
 
     /**
-     * Sets the {@link SessionCommand} that will be sent to the session when the button is clicked.
-     * Cannot set this if player command is already set via {@link #setPlayerCommand(int)}.
+     * Sets the {@link SessionCommand} that is required to be {@linkplain
+     * MediaController#isSessionCommandAvailable available} when the button is clicked.
      *
-     * @param sessionCommand The session command.
+     * <p>Cannot set this if a player command is already set via {@link #setPlayerCommand(int)}.
+     *
+     * @param sessionCommand The {@link SessionCommand}.
      * @return This builder for chaining.
      */
     @CanIgnoreReturnValue
@@ -434,11 +461,13 @@ public final class CommandButton implements Bundleable {
     }
 
     /**
-     * Sets the {@link Player.Command} that would be sent to the session when the button is clicked.
-     * Cannot set this if session command is already set via {@link
+     * Sets the {@link Player.Command} that is required to be {@linkplain
+     * MediaController#isCommandAvailable available} when the button is clicked.
+     *
+     * <p>Cannot set this if a session command is already set via {@link
      * #setSessionCommand(SessionCommand)}.
      *
-     * @param playerCommand The player command.
+     * @param playerCommand The {@link Player.Command}.
      * @return This builder for chaining.
      */
     @CanIgnoreReturnValue
@@ -452,30 +481,25 @@ public final class CommandButton implements Bundleable {
     }
 
     /**
-     * Sets the icon of this button.
+     * [will be deprecated] The icon should be defined with the constructor {@link Icon} parameter
+     * in {@link #Builder(int)} instead. Only in case the existing list of icons is not sufficient,
+     * use {@link #ICON_UNDEFINED} and set a separate resource id with {@link #setCustomIconResId}.
+     */
+    @CanIgnoreReturnValue
+    public Builder setIconResId(@DrawableRes int resId) {
+      return setCustomIconResId(resId);
+    }
+
+    /**
+     * Sets the resource id of an icon that is used when the predefined {@link Icon} is not
+     * available or set to {@link #ICON_UNDEFINED}.
      *
-     * @param icon The {@link Icon} that should be shown for this button.
+     * @param resId The resource id of a custom icon.
      * @return This builder for chaining.
      */
     @UnstableApi
     @CanIgnoreReturnValue
-    public Builder setIcon(@Icon int icon) {
-      this.icon = icon;
-      return this;
-    }
-
-    /**
-     * Sets the resource id of a bitmap (e.g. PNG) icon of this button.
-     *
-     * <p>Non-bitmap (e.g. VectorDrawable) may cause unexpected behavior in a {@link
-     * MediaController} app, so please avoid using it especially for the older platforms ({@code
-     * SDK_INT < 21}).
-     *
-     * @param resId The resource id of an icon.
-     * @return This builder for chaining.
-     */
-    @CanIgnoreReturnValue
-    public Builder setIconResId(@DrawableRes int resId) {
+    public Builder setCustomIconResId(@DrawableRes int resId) {
       iconResId = resId;
       return this;
     }
@@ -543,6 +567,154 @@ public final class CommandButton implements Bundleable {
       return new CommandButton(
           sessionCommand, playerCommand, icon, iconResId, iconUri, displayName, extras, enabled);
     }
+
+    @DrawableRes
+    private static int getIconResIdForIconConstant(@Icon int icon) {
+      switch (icon) {
+        case ICON_PLAY:
+          return R.drawable.media3_icon_play;
+        case ICON_PAUSE:
+          return R.drawable.media3_icon_pause;
+        case ICON_STOP:
+          return R.drawable.media3_icon_stop;
+        case ICON_NEXT:
+          return R.drawable.media3_icon_next;
+        case ICON_PREVIOUS:
+          return R.drawable.media3_icon_previous;
+        case ICON_SKIP_FORWARD:
+          return R.drawable.media3_icon_skip_forward;
+        case ICON_SKIP_FORWARD_5:
+          return R.drawable.media3_icon_skip_forward_5;
+        case ICON_SKIP_FORWARD_10:
+          return R.drawable.media3_icon_skip_forward_10;
+        case ICON_SKIP_FORWARD_15:
+          return R.drawable.media3_icon_skip_forward_15;
+        case ICON_SKIP_FORWARD_30:
+          return R.drawable.media3_icon_skip_forward_30;
+        case ICON_SKIP_BACK:
+          return R.drawable.media3_icon_skip_back;
+        case ICON_SKIP_BACK_5:
+          return R.drawable.media3_icon_skip_back_5;
+        case ICON_SKIP_BACK_10:
+          return R.drawable.media3_icon_skip_back_10;
+        case ICON_SKIP_BACK_15:
+          return R.drawable.media3_icon_skip_back_15;
+        case ICON_SKIP_BACK_30:
+          return R.drawable.media3_icon_skip_back_30;
+        case ICON_FAST_FORWARD:
+          return R.drawable.media3_icon_fast_forward;
+        case ICON_REWIND:
+          return R.drawable.media3_icon_rewind;
+        case ICON_REPEAT_ALL:
+          return R.drawable.media3_icon_repeat_all;
+        case ICON_REPEAT_ONE:
+          return R.drawable.media3_icon_repeat_one;
+        case ICON_REPEAT_OFF:
+          return R.drawable.media3_icon_repeat_off;
+        case ICON_SHUFFLE_ON:
+          return R.drawable.media3_icon_shuffle_on;
+        case ICON_SHUFFLE_OFF:
+          return R.drawable.media3_icon_shuffle_off;
+        case ICON_SHUFFLE_STAR:
+          return R.drawable.media3_icon_shuffle_star;
+        case ICON_HEART_FILLED:
+          return R.drawable.media3_icon_heart_filled;
+        case ICON_HEART_UNFILLED:
+          return R.drawable.media3_icon_heart_unfilled;
+        case ICON_STAR_FILLED:
+          return R.drawable.media3_icon_star_filled;
+        case ICON_STAR_UNFILLED:
+          return R.drawable.media3_icon_star_unfilled;
+        case ICON_BOOKMARK_FILLED:
+          return R.drawable.media3_icon_bookmark_filled;
+        case ICON_BOOKMARK_UNFILLED:
+          return R.drawable.media3_icon_bookmark_unfilled;
+        case ICON_THUMB_UP_FILLED:
+          return R.drawable.media3_icon_thumb_up_filled;
+        case ICON_THUMB_UP_UNFILLED:
+          return R.drawable.media3_icon_thumb_up_unfilled;
+        case ICON_THUMB_DOWN_FILLED:
+          return R.drawable.media3_icon_thumb_down_filled;
+        case ICON_THUMB_DOWN_UNFILLED:
+          return R.drawable.media3_icon_thumb_down_unfilled;
+        case ICON_FLAG_FILLED:
+          return R.drawable.media3_icon_flag_filled;
+        case ICON_FLAG_UNFILLED:
+          return R.drawable.media3_icon_flag_unfilled;
+        case ICON_PLUS:
+          return R.drawable.media3_icon_plus;
+        case ICON_MINUS:
+          return R.drawable.media3_icon_minus;
+        case ICON_PLAYLIST_ADD:
+          return R.drawable.media3_icon_playlist_add;
+        case ICON_PLAYLIST_REMOVE:
+          return R.drawable.media3_icon_playlist_remove;
+        case ICON_BLOCK:
+          return R.drawable.media3_icon_block;
+        case ICON_PLUS_CIRCLE_FILLED:
+          return R.drawable.media3_icon_plus_circle_filled;
+        case ICON_PLUS_CIRCLE_UNFILLED:
+          return R.drawable.media3_icon_plus_circle_unfilled;
+        case ICON_MINUS_CIRCLE_FILLED:
+          return R.drawable.media3_icon_minus_circle_filled;
+        case ICON_MINUS_CIRCLE_UNFILLED:
+          return R.drawable.media3_icon_minus_circle_unfilled;
+        case ICON_CHECK_CIRCLE_FILLED:
+          return R.drawable.media3_icon_check_circle_filled;
+        case ICON_CHECK_CIRCLE_UNFILLED:
+          return R.drawable.media3_icon_check_circle_unfilled;
+        case ICON_PLAYBACK_SPEED:
+          return R.drawable.media3_icon_playback_speed;
+        case ICON_PLAYBACK_SPEED_0_5:
+          return R.drawable.media3_icon_playback_speed_0_5;
+        case ICON_PLAYBACK_SPEED_0_8:
+          return R.drawable.media3_icon_playback_speed_0_8;
+        case ICON_PLAYBACK_SPEED_1_0:
+          return R.drawable.media3_icon_playback_speed_1_0;
+        case ICON_PLAYBACK_SPEED_1_2:
+          return R.drawable.media3_icon_playback_speed_1_2;
+        case ICON_PLAYBACK_SPEED_1_5:
+          return R.drawable.media3_icon_playback_speed_1_5;
+        case ICON_PLAYBACK_SPEED_1_8:
+          return R.drawable.media3_icon_playback_speed_1_8;
+        case ICON_PLAYBACK_SPEED_2_0:
+          return R.drawable.media3_icon_playback_speed_2_0;
+        case ICON_SETTINGS:
+          return R.drawable.media3_icon_settings;
+        case ICON_QUALITY:
+          return R.drawable.media3_icon_quality;
+        case ICON_SUBTITLES:
+          return R.drawable.media3_icon_subtitles;
+        case ICON_SUBTITLES_OFF:
+          return R.drawable.media3_icon_subtitles_off;
+        case ICON_CLOSED_CAPTIONS:
+          return R.drawable.media3_icon_closed_captions;
+        case ICON_CLOSED_CAPTIONS_OFF:
+          return R.drawable.media3_icon_closed_captions_off;
+        case ICON_SYNC:
+          return R.drawable.media3_icon_sync;
+        case ICON_SHARE:
+          return R.drawable.media3_icon_share;
+        case ICON_VOLUME_UP:
+          return R.drawable.media3_icon_volume_up;
+        case ICON_VOLUME_DOWN:
+          return R.drawable.media3_icon_volume_down;
+        case ICON_VOLUME_OFF:
+          return R.drawable.media3_icon_volume_off;
+        case ICON_ARTIST:
+          return R.drawable.media3_icon_artist;
+        case ICON_ALBUM:
+          return R.drawable.media3_icon_album;
+        case ICON_RADIO:
+          return R.drawable.media3_icon_radio;
+        case ICON_SIGNAL:
+          return R.drawable.media3_icon_signal;
+        case ICON_FEED:
+          return R.drawable.media3_icon_feed;
+        default:
+          return 0;
+      }
+    }
   }
 
   /** The session command of the button. Will be {@code null} if {@link #playerCommand} is set. */
@@ -558,8 +730,8 @@ public final class CommandButton implements Bundleable {
   @UnstableApi public final @Icon int icon;
 
   /**
-   * The icon resource id of the button. Can be {@code 0} if the command is predefined and a custom
-   * icon isn't needed.
+   * The icon resource id of the button that is used when the predefined {@link #icon} is not
+   * available or set to {@link #ICON_UNDEFINED}. Can be {@code 0} if not needed.
    */
   @DrawableRes public final int iconResId;
 
@@ -767,7 +939,7 @@ public final class CommandButton implements Bundleable {
         sessionInterfaceVersion < 3 || bundle.getBoolean(FIELD_ENABLED, /* defaultValue= */ true);
     @Nullable Uri iconUri = bundle.getParcelable(FIELD_ICON_URI);
     @Icon int icon = bundle.getInt(FIELD_ICON, /* defaultValue= */ ICON_UNDEFINED);
-    Builder builder = new Builder();
+    Builder builder = new Builder(icon, iconResId);
     if (sessionCommand != null) {
       builder.setSessionCommand(sessionCommand);
     }
@@ -778,8 +950,6 @@ public final class CommandButton implements Bundleable {
       builder.setIconUri(iconUri);
     }
     return builder
-        .setIcon(icon)
-        .setIconResId(iconResId)
         .setDisplayName(displayName)
         .setExtras(extras == null ? Bundle.EMPTY : extras)
         .setEnabled(enabled)

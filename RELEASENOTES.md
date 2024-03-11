@@ -72,6 +72,8 @@
     *   Change default of `CommandButton.enabled` to `true` and ensure the value
         can stay false for controllers even if the associated command is
         available.
+    *   Add icon constants for `CommandButton` that should be used instead of
+        custom icon resources.
 *   UI:
     *   Fallback to include audio track language name if `Locale` cannot
         identify a display name

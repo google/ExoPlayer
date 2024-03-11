@@ -1266,12 +1266,10 @@ import java.util.concurrent.TimeoutException;
                   /* defaultValue= */ CommandButton.ICON_UNDEFINED)
               : CommandButton.ICON_UNDEFINED;
       CommandButton button =
-          new CommandButton.Builder()
+          new CommandButton.Builder(icon, customAction.getIcon())
               .setSessionCommand(new SessionCommand(action, extras == null ? Bundle.EMPTY : extras))
               .setDisplayName(customAction.getName())
               .setEnabled(true)
-              .setIcon(icon)
-              .setIconResId(customAction.getIcon())
               .build();
       layout.add(button);
     }

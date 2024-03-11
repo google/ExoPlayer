@@ -124,10 +124,9 @@ public class DefaultActionFactoryTest {
     Bundle buttonBundle = new Bundle();
     buttonBundle.putString("button-key", "button-value");
     CommandButton customSessionCommand =
-        new CommandButton.Builder()
+        new CommandButton.Builder(CommandButton.ICON_PAUSE)
             .setSessionCommand(new SessionCommand("a", commandBundle))
             .setExtras(buttonBundle)
-            .setIconResId(R.drawable.media3_notification_pause)
             .setDisplayName("name")
             .build();
 
@@ -138,7 +137,7 @@ public class DefaultActionFactoryTest {
     assertThat(shadowPendingIntent.getSavedIntent().getData()).isEqualTo(mediaSession.getUri());
     assertThat(String.valueOf(notificationAction.title)).isEqualTo("name");
     assertThat(notificationAction.getIconCompat().getResId())
-        .isEqualTo(R.drawable.media3_notification_pause);
+        .isEqualTo(R.drawable.media3_icon_pause);
     assertThat(notificationAction.getExtras().size()).isEqualTo(0);
     assertThat(notificationAction.getActionIntent()).isNotNull();
   }
@@ -149,9 +148,8 @@ public class DefaultActionFactoryTest {
     DefaultActionFactory actionFactory =
         new DefaultActionFactory(Robolectric.setupService(TestService.class));
     CommandButton customSessionCommand =
-        new CommandButton.Builder()
+        new CommandButton.Builder(CommandButton.ICON_PAUSE)
             .setPlayerCommand(Player.COMMAND_PLAY_PAUSE)
-            .setIconResId(R.drawable.media3_notification_pause)
             .setDisplayName("name")
             .build();
 

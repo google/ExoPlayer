@@ -1,0 +1,23 @@
+<!-- Copyright 2024 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="960"
+    android:viewportHeight="960">
+  <path
+      android:fillColor="@android:color/white"
+      android:pathData="M480,40L423.98,97.97L486.02,160L480,160C430,160 383.2,169.52 339.53,188.52C295.86,207.52 257.8,233.14 225.47,265.47C193.14,297.8 167.52,335.86 148.52,379.53C129.52,423.2 120,470 120,520C120,570 129.52,616.8 148.52,660.47C167.52,704.14 193.14,742.2 225.47,774.53C257.8,806.86 295.86,832.48 339.53,851.48C383.2,870.48 430,880 480,880C530,880 576.8,870.48 620.47,851.48C664.14,832.48 702.2,806.86 734.53,774.53C766.86,742.2 792.48,704.14 811.48,660.47C830.48,616.8 840,570 840,520L760,520C760,598 732.85,664.18 678.52,718.52C624.18,772.85 558,800 480,800C402,800 335.82,772.85 281.48,718.52C227.15,664.18 200,598 200,520C200,442 227.15,375.82 281.48,321.48C335.82,267.15 402,240 480,240L486.02,240L423.98,302.03L480,360L640,200L480,40zM459.38,399.84L459.38,539.84L579.38,539.84L579.38,579.84L459.38,579.84L459.38,639.84L599.38,639.84C610.71,639.84 620.22,636.03 627.89,628.36C635.56,620.69 639.38,611.18 639.38,599.84L639.38,539.84C639.38,528.51 635.56,519.07 627.89,511.41C620.22,503.74 610.71,499.84 599.38,499.84L519.38,499.84L519.38,459.84L639.38,459.84L639.38,399.84L459.38,399.84zM300,400L300,460L360,460L360,640L420,640L420,400L300,400z"/>
+</vector>

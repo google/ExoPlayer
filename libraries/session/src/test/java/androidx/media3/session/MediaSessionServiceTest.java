@@ -161,26 +161,26 @@ public class MediaSessionServiceTest {
     SessionCommand command3 = new SessionCommand("command3", Bundle.EMPTY);
     SessionCommand command4 = new SessionCommand("command4", Bundle.EMPTY);
     CommandButton button1 =
-        new CommandButton.Builder()
+        new CommandButton.Builder(CommandButton.ICON_UNDEFINED)
             .setDisplayName("customAction1")
             .setIconResId(R.drawable.media3_notification_small_icon)
             .setSessionCommand(command1)
             .build();
     CommandButton button2 =
-        new CommandButton.Builder()
+        new CommandButton.Builder(CommandButton.ICON_UNDEFINED)
             .setDisplayName("customAction2")
             .setIconResId(R.drawable.media3_notification_small_icon)
             .setSessionCommand(command2)
             .build();
     CommandButton button3 =
-        new CommandButton.Builder()
+        new CommandButton.Builder(CommandButton.ICON_UNDEFINED)
             .setDisplayName("customAction3")
             .setEnabled(false)
             .setIconResId(R.drawable.media3_notification_small_icon)
             .setSessionCommand(command3)
             .build();
     CommandButton button4 =
-        new CommandButton.Builder()
+        new CommandButton.Builder(CommandButton.ICON_UNDEFINED)
             .setDisplayName("customAction4")
             .setIconResId(R.drawable.media3_notification_small_icon)
             .setSessionCommand(command4)
@@ -265,13 +265,13 @@ public class MediaSessionServiceTest {
     SessionCommand command1 = new SessionCommand("command1", Bundle.EMPTY);
     SessionCommand command2 = new SessionCommand("command2", Bundle.EMPTY);
     CommandButton button1 =
-        new CommandButton.Builder()
+        new CommandButton.Builder(CommandButton.ICON_UNDEFINED)
             .setDisplayName("customAction1")
             .setIconResId(R.drawable.media3_notification_small_icon)
             .setSessionCommand(command1)
             .build();
     CommandButton button2 =
-        new CommandButton.Builder()
+        new CommandButton.Builder(CommandButton.ICON_UNDEFINED)
             .setDisplayName("customAction2")
             .setIconResId(R.drawable.media3_notification_small_icon)
             .setSessionCommand(command2)

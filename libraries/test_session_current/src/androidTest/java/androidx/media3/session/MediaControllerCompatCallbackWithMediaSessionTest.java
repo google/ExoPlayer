@@ -949,13 +949,13 @@ public class MediaControllerCompatCallbackWithMediaSessionTest {
     SessionCommand command2 = new SessionCommand("command2", extras2);
     ImmutableList<CommandButton> customLayout =
         ImmutableList.of(
-            new CommandButton.Builder()
+            new CommandButton.Builder(CommandButton.ICON_UNDEFINED)
                 .setSessionCommand(command1)
                 .setDisplayName("command1")
                 .setIconResId(1)
                 .build()
                 .copyWithIsEnabled(true),
-            new CommandButton.Builder()
+            new CommandButton.Builder(CommandButton.ICON_UNDEFINED)
                 .setSessionCommand(command2)
                 .setDisplayName("command2")
                 .setIconResId(2)

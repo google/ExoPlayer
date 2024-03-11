@@ -394,16 +394,14 @@ public class MediaControllerListenerWithMediaSessionCompatTest {
   @Test
   public void getCustomLayout() throws Exception {
     CommandButton button1 =
-        new CommandButton.Builder()
+        new CommandButton.Builder(CommandButton.ICON_UNDEFINED)
             .setDisplayName("button1")
             .setIconResId(R.drawable.media3_notification_small_icon)
             .setSessionCommand(new SessionCommand("command1", Bundle.EMPTY))
             .build();
     CommandButton button2 =
-        new CommandButton.Builder()
+        new CommandButton.Builder(CommandButton.ICON_FAST_FORWARD)
             .setDisplayName("button2")
-            .setIcon(CommandButton.ICON_FAST_FORWARD)
-            .setIconResId(R.drawable.media3_notification_small_icon)
             .setSessionCommand(new SessionCommand("command2", Bundle.EMPTY))
             .build();
     ConditionVariable onSetCustomLayoutCalled = new ConditionVariable();
@@ -443,7 +441,7 @@ public class MediaControllerListenerWithMediaSessionCompatTest {
         MediaConstants.EXTRAS_KEY_COMMAND_BUTTON_ICON_COMPAT, CommandButton.ICON_FAST_FORWARD);
     PlaybackStateCompat.CustomAction customAction2 =
         new PlaybackStateCompat.CustomAction.Builder(
-                "command2", "button2", /* icon= */ R.drawable.media3_notification_small_icon)
+                "command2", "button2", /* icon= */ R.drawable.media3_icon_fast_forward)
             .setExtras(extras2)
             .build();
     PlaybackStateCompat.Builder playbackState1 =

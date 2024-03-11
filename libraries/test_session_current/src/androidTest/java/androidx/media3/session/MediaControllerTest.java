@@ -173,32 +173,32 @@ public class MediaControllerTest {
     RemoteMediaSession session =
         createRemoteMediaSession(TEST_GET_CUSTOM_LAYOUT, /* tokenExtras= */ null);
     CommandButton button1 =
-        new CommandButton.Builder()
+        new CommandButton.Builder(CommandButton.ICON_UNDEFINED)
             .setDisplayName("button1")
             .setIconResId(R.drawable.media3_notification_small_icon)
             .setSessionCommand(new SessionCommand("command1", Bundle.EMPTY))
             .build();
     CommandButton button2 =
-        new CommandButton.Builder()
+        new CommandButton.Builder(CommandButton.ICON_UNDEFINED)
             .setDisplayName("button2")
             .setEnabled(false)
             .setIconResId(R.drawable.media3_notification_small_icon)
             .setSessionCommand(new SessionCommand("command2", Bundle.EMPTY))
             .build();
     CommandButton button3 =
-        new CommandButton.Builder()
+        new CommandButton.Builder(CommandButton.ICON_UNDEFINED)
             .setDisplayName("button3")
             .setIconResId(R.drawable.media3_notification_small_icon)
             .setSessionCommand(new SessionCommand("command3", Bundle.EMPTY))
             .build();
     CommandButton button4 =
-        new CommandButton.Builder()
+        new CommandButton.Builder(CommandButton.ICON_UNDEFINED)
             .setDisplayName("button4")
             .setIconResId(R.drawable.media3_notification_small_icon)
             .setPlayerCommand(Player.COMMAND_PLAY_PAUSE)
             .build();
     CommandButton button5 =
-        new CommandButton.Builder()
+        new CommandButton.Builder(CommandButton.ICON_UNDEFINED)
             .setDisplayName("button5")
             .setIconResId(R.drawable.media3_notification_small_icon)
             .setPlayerCommand(Player.COMMAND_GET_TRACKS)
@@ -223,38 +223,38 @@ public class MediaControllerTest {
     RemoteMediaSession session =
         createRemoteMediaSession(TEST_GET_CUSTOM_LAYOUT, /* tokenExtras= */ null);
     CommandButton button1 =
-        new CommandButton.Builder()
+        new CommandButton.Builder(CommandButton.ICON_UNDEFINED)
             .setDisplayName("button1")
             .setIconResId(R.drawable.media3_notification_small_icon)
             .setSessionCommand(new SessionCommand("command1", Bundle.EMPTY))
             .build();
     CommandButton button2 =
-        new CommandButton.Builder()
+        new CommandButton.Builder(CommandButton.ICON_UNDEFINED)
             .setDisplayName("button2")
             .setEnabled(false)
             .setIconResId(R.drawable.media3_notification_small_icon)
             .setSessionCommand(new SessionCommand("command2", Bundle.EMPTY))
             .build();
     CommandButton button3 =
-        new CommandButton.Builder()
+        new CommandButton.Builder(CommandButton.ICON_UNDEFINED)
             .setDisplayName("button3")
             .setIconResId(R.drawable.media3_notification_small_icon)
             .setSessionCommand(new SessionCommand("command3", Bundle.EMPTY))
             .build();
     CommandButton button4 =
-        new CommandButton.Builder()
+        new CommandButton.Builder(CommandButton.ICON_UNDEFINED)
             .setDisplayName("button4")
             .setIconResId(R.drawable.media3_notification_small_icon)
             .setSessionCommand(new SessionCommand("command4", Bundle.EMPTY))
             .build();
     CommandButton button5 =
-        new CommandButton.Builder()
+        new CommandButton.Builder(CommandButton.ICON_UNDEFINED)
             .setDisplayName("button5")
             .setIconResId(R.drawable.media3_notification_small_icon)
             .setPlayerCommand(Player.COMMAND_PLAY_PAUSE)
             .build();
     CommandButton button6 =
-        new CommandButton.Builder()
+        new CommandButton.Builder(CommandButton.ICON_UNDEFINED)
             .setDisplayName("button6")
             .setIconResId(R.drawable.media3_notification_small_icon)
             .setPlayerCommand(Player.COMMAND_GET_TRACKS)
@@ -314,26 +314,26 @@ public class MediaControllerTest {
       throws Exception {
     RemoteMediaSession session = createRemoteMediaSession(TEST_GET_CUSTOM_LAYOUT, null);
     CommandButton button1 =
-        new CommandButton.Builder()
+        new CommandButton.Builder(CommandButton.ICON_UNDEFINED)
             .setDisplayName("button1")
             .setIconResId(R.drawable.media3_notification_small_icon)
             .setSessionCommand(new SessionCommand("command1", Bundle.EMPTY))
             .build();
     CommandButton button2 =
-        new CommandButton.Builder()
+        new CommandButton.Builder(CommandButton.ICON_UNDEFINED)
             .setDisplayName("button2")
             .setEnabled(false)
             .setIconResId(R.drawable.media3_notification_small_icon)
             .setSessionCommand(new SessionCommand("command2", Bundle.EMPTY))
             .build();
     CommandButton button3 =
-        new CommandButton.Builder()
+        new CommandButton.Builder(CommandButton.ICON_UNDEFINED)
             .setDisplayName("button3")
             .setIconResId(R.drawable.media3_notification_small_icon)
             .setPlayerCommand(Player.COMMAND_PLAY_PAUSE)
             .build();
     CommandButton button4 =
-        new CommandButton.Builder()
+        new CommandButton.Builder(CommandButton.ICON_UNDEFINED)
             .setDisplayName("button4")
             .setIconResId(R.drawable.media3_notification_small_icon)
             .setPlayerCommand(Player.COMMAND_GET_TRACKS)
@@ -409,7 +409,7 @@ public class MediaControllerTest {
       throws Exception {
     RemoteMediaSession session = createRemoteMediaSession(TEST_GET_CUSTOM_LAYOUT, null);
     CommandButton button =
-        new CommandButton.Builder()
+        new CommandButton.Builder(CommandButton.ICON_UNDEFINED)
             .setDisplayName("button")
             .setIconResId(R.drawable.media3_notification_small_icon)
             .setPlayerCommand(Player.COMMAND_PLAY_PAUSE)
@@ -457,26 +457,26 @@ public class MediaControllerTest {
     RemoteMediaSession session =
         createRemoteMediaSession(TEST_GET_CUSTOM_LAYOUT, /* tokenExtras= */ null);
     CommandButton button1 =
-        new CommandButton.Builder()
+        new CommandButton.Builder(CommandButton.ICON_UNDEFINED)
             .setDisplayName("button1")
             .setIconResId(R.drawable.media3_notification_small_icon)
             .setSessionCommand(new SessionCommand("command1", Bundle.EMPTY))
             .build();
     CommandButton button2 =
-        new CommandButton.Builder()
+        new CommandButton.Builder(CommandButton.ICON_UNDEFINED)
             .setDisplayName("button2")
             .setEnabled(false)
             .setIconResId(R.drawable.media3_notification_small_icon)
             .setSessionCommand(new SessionCommand("command2", Bundle.EMPTY))
             .build();
     CommandButton button3 =
-        new CommandButton.Builder()
+        new CommandButton.Builder(CommandButton.ICON_UNDEFINED)
             .setDisplayName("button3")
             .setIconResId(R.drawable.media3_notification_small_icon)
             .setSessionCommand(new SessionCommand("command3", Bundle.EMPTY))
             .build();
     CommandButton button4 =
-        new CommandButton.Builder()
+        new CommandButton.Builder(CommandButton.ICON_UNDEFINED)
             .setDisplayName("button4")
             .setIconResId(R.drawable.media3_notification_small_icon)
             .setSessionCommand(new SessionCommand("command4", Bundle.EMPTY))
