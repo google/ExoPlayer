@@ -70,7 +70,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -879,6 +878,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
       updatePlaybackPositions();
     } else {
       if (playbackInfo.playbackState == Player.STATE_READY) {
+        updateRebufferingState(
+            /* isRebuffering= */ false, /* resetLastRebufferRealtimeMs= */ false);
+        mediaClock.start();
         startRenderers();
         handler.sendEmptyMessage(MSG_DO_SOME_WORK);
       } else if (playbackInfo.playbackState == Player.STATE_BUFFERING) {
@@ -951,11 +953,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
   }
 
   private void startRenderers() throws ExoPlaybackException {
-    updateRebufferingState(/* isRebuffering= */ false, /* resetLastRebufferRealtimeMs= */ false);
-    mediaClock.start();
-    for (Renderer renderer : renderers) {
-      if (isRendererEnabled(renderer)) {
-        renderer.start();
+    MediaPeriodHolder playingPeriodHolder = queue.getPlayingPeriod();
+    if (playingPeriodHolder == null) {
+      return;
+    }
+    TrackSelectorResult trackSelectorResult = playingPeriodHolder.getTrackSelectorResult();
+    for (int i = 0; i < renderers.length; i++) {
+      if (trackSelectorResult.isRendererEnabled(i) && renderers[i].getState() == STATE_ENABLED) {
+        renderers[i].start();
       }
     }
   }
@@ -1147,6 +1152,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
       setState(Player.STATE_READY);
       pendingRecoverableRendererError = null; // Any pending error was successfully recovered from.
       if (shouldPlayWhenReady()) {
+        updateRebufferingState(
+            /* isRebuffering= */ false, /* resetLastRebufferRealtimeMs= */ false);
+        mediaClock.start();
         startRenderers();
       }
     } else if (playbackInfo.playbackState == Player.STATE_READY
@@ -2326,14 +2334,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
       resetPendingPauseAtEndOfPeriod();
       updatePlaybackPositions();
       if (playbackInfo.playbackState == Player.STATE_READY) {
-        for (int i = 0; i < renderers.length; i++) {
-          if (renderers[i].getState() == STATE_ENABLED
-              && queue.getPlayingPeriod() != null
-              && Objects.equals(
-                  renderers[i].getStream(), queue.getPlayingPeriod().sampleStreams[i])) {
-            renderers[i].start();
-          }
-        }
+        startRenderers();
       }
       allowRenderersToRenderStartOfStreams();
       advancedPlayingPeriod = true;
