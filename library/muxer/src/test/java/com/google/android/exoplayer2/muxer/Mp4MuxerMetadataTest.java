@@ -23,6 +23,7 @@ import android.media.MediaCodec.BufferInfo;
 import android.util.Pair;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.container.Mp4OrientationData;
 import com.google.android.exoplayer2.container.Mp4TimestampData;
 import com.google.android.exoplayer2.extractor.mp4.Mp4Extractor;
 import com.google.android.exoplayer2.muxer.Mp4Muxer.TrackToken;
@@ -84,7 +85,7 @@ public class Mp4MuxerMetadataTest {
       TrackToken token = muxer.addTrack(/* sortKey= */ 0, FAKE_VIDEO_FORMAT);
       muxer.writeSampleData(token, sampleAndSampleInfo.first, sampleAndSampleInfo.second);
 
-      muxer.setOrientation(90);
+      muxer.addMetadata(new Mp4OrientationData(/* orientation= */ 90));
     } finally {
       muxer.close();
     }
@@ -111,7 +112,7 @@ public class Mp4MuxerMetadataTest {
       TrackToken token = muxer.addTrack(/* sortKey= */ 0, FAKE_VIDEO_FORMAT);
       muxer.writeSampleData(token, sampleAndSampleInfo.first, sampleAndSampleInfo.second);
 
-      muxer.setOrientation(180);
+      muxer.addMetadata(new Mp4OrientationData(/* orientation= */ 180));
     } finally {
       muxer.close();
     }
@@ -138,7 +139,7 @@ public class Mp4MuxerMetadataTest {
       TrackToken token = muxer.addTrack(/* sortKey= */ 0, FAKE_VIDEO_FORMAT);
       muxer.writeSampleData(token, sampleAndSampleInfo.first, sampleAndSampleInfo.second);
 
-      muxer.setOrientation(270);
+      muxer.addMetadata(new Mp4OrientationData(/* orientation= */ 270));
     } finally {
       muxer.close();
     }

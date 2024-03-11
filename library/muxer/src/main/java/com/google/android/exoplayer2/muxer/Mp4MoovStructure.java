@@ -165,7 +165,7 @@ import org.checkerframework.checker.nullness.qual.PolyNull;
                   (int) Mp4Utils.vuFromUs(trackDurationUs, MVHD_TIMEBASE),
                   creationTimestampSeconds,
                   modificationTimestampSeconds,
-                  metadataCollector.orientation,
+                  metadataCollector.orientationData.orientation,
                   format),
               Boxes.mdia(
                   Boxes.mdhd(

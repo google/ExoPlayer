@@ -26,6 +26,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.container.Mp4LocationData;
+import com.google.android.exoplayer2.container.Mp4OrientationData;
 import com.google.android.exoplayer2.container.Mp4TimestampData;
 import com.google.android.exoplayer2.container.XmpData;
 import com.google.android.exoplayer2.metadata.Metadata;
@@ -220,7 +221,8 @@ public final class Mp4Muxer {
    * <p>For the list of supported metadata refer to {@link Mp4Muxer#addMetadata(Metadata.Entry)}.
    */
   public static boolean isMetadataSupported(Metadata.Entry metadata) {
-    return metadata instanceof Mp4LocationData
+    return metadata instanceof Mp4OrientationData
+        || metadata instanceof Mp4LocationData
         || (metadata instanceof Mp4TimestampData
             && isMp4TimestampDataSupported((Mp4TimestampData) metadata))
         || (metadata instanceof MdtaMetadataEntry
@@ -229,12 +231,11 @@ public final class Mp4Muxer {
   }
 
   /**
-   * Sets the orientation hint for the video playback.
-   *
-   * @param orientation The orientation, in degrees.
+   * @deprecated Use {@link #addMetadata(Metadata.Entry)} with {@link Mp4OrientationData} instead.
    */
+  @Deprecated
   public void setOrientation(int orientation) {
-    metadataCollector.setOrientation(orientation);
+    addMetadata(new Mp4OrientationData(orientation));
   }
 
   /**
@@ -293,6 +294,7 @@ public final class Mp4Muxer {
    * <p>List of supported {@linkplain Metadata.Entry metadata entries}:
    *
    * <ul>
+   *   <li>{@link Mp4OrientationData}
    *   <li>{@link Mp4LocationData}
    *   <li>{@link Mp4TimestampData}
    *   <li>{@link MdtaMetadataEntry}: Only {@linkplain MdtaMetadataEntry#TYPE_INDICATOR_STRING

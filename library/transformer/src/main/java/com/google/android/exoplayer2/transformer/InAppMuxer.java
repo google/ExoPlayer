@@ -21,6 +21,7 @@ import static com.google.android.exoplayer2.muxer.Mp4Muxer.SUPPORTED_VIDEO_SAMPL
 import android.media.MediaCodec.BufferInfo;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.container.Mp4OrientationData;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.muxer.Mp4Muxer;
 import com.google.android.exoplayer2.muxer.Mp4Muxer.TrackToken;
@@ -190,7 +191,7 @@ public final class InAppMuxer implements Muxer {
     trackTokenList.add(trackToken);
 
     if (MimeTypes.isVideo(format.sampleMimeType)) {
-      mp4Muxer.setOrientation(format.rotationDegrees);
+      mp4Muxer.addMetadata(new Mp4OrientationData(format.rotationDegrees));
     }
 
     return trackTokenList.size() - 1;
