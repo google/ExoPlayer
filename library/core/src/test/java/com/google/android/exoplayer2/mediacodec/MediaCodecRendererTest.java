@@ -30,6 +30,7 @@ import android.media.MediaCrypto;
 import android.media.MediaFormat;
 import android.os.SystemClock;
 import androidx.annotation.Nullable;
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -480,7 +481,7 @@ public class MediaCodecRendererTest {
     public TestRenderer() {
       super(
           C.TRACK_TYPE_AUDIO,
-          MediaCodecAdapter.Factory.DEFAULT,
+          MediaCodecAdapter.Factory.getDefault(ApplicationProvider.getApplicationContext()),
           /* mediaCodecSelector= */ (mimeType, requiresSecureDecoder, requiresTunnelingDecoder) ->
               Collections.singletonList(
                   MediaCodecInfo.newInstance(

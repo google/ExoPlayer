@@ -192,7 +192,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       AudioSink audioSink) {
     this(
         context,
-        MediaCodecAdapter.Factory.DEFAULT,
+        MediaCodecAdapter.Factory.getDefault(context),
         mediaCodecSelector,
         /* enableDecoderFallback= */ false,
         eventHandler,
@@ -220,7 +220,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       AudioSink audioSink) {
     this(
         context,
-        MediaCodecAdapter.Factory.DEFAULT,
+        MediaCodecAdapter.Factory.getDefault(context),
         mediaCodecSelector,
         enableDecoderFallback,
         eventHandler,

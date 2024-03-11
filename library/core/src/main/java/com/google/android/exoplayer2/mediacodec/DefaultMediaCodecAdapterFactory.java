@@ -17,8 +17,10 @@ package com.google.android.exoplayer2.mediacodec;
 
 import static java.lang.annotation.ElementType.TYPE_USE;
 
+import android.content.Context;
 import android.media.MediaCodec;
 import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
@@ -58,10 +60,28 @@ public final class DefaultMediaCodecAdapterFactory implements MediaCodecAdapter.
 
   private static final String TAG = "DMCodecAdapterFactory";
 
+  @Nullable private final Context context;
+
   private @Mode int asynchronousMode;
   private boolean asyncCryptoFlagEnabled;
 
+  /**
+   * @deprecated Use {@link #DefaultMediaCodecAdapterFactory(Context)} instead.
+   */
+  @Deprecated
   public DefaultMediaCodecAdapterFactory() {
+    asynchronousMode = MODE_DEFAULT;
+    asyncCryptoFlagEnabled = true;
+    context = null;
+  }
+
+  /**
+   * Creates the default media codec adapter factory.
+   *
+   * @param context A {@link Context}.
+   */
+  public DefaultMediaCodecAdapterFactory(Context context) {
+    this.context = context;
     asynchronousMode = MODE_DEFAULT;
     asyncCryptoFlagEnabled = true;
   }
@@ -109,7 +129,7 @@ public final class DefaultMediaCodecAdapterFactory implements MediaCodecAdapter.
       throws IOException {
     if (Util.SDK_INT >= 23
         && (asynchronousMode == MODE_ENABLED
-            || (asynchronousMode == MODE_DEFAULT && Util.SDK_INT >= 31))) {
+            || (asynchronousMode == MODE_DEFAULT && shouldUseAsynchronousAdapterInDefaultMode()))) {
       int trackType = MimeTypes.getTrackType(configuration.format.sampleMimeType);
       Log.i(
           TAG,
@@ -121,5 +141,20 @@ public final class DefaultMediaCodecAdapterFactory implements MediaCodecAdapter.
       return factory.createAdapter(configuration);
     }
     return new SynchronousMediaCodecAdapter.Factory().createAdapter(configuration);
+  }
+
+  private boolean shouldUseAsynchronousAdapterInDefaultMode() {
+    if (Util.SDK_INT >= 31) {
+      // Asynchronous codec interactions started to be reliable for all devices on API 31+.
+      return true;
+    }
+    // Allow additional devices that work reliably with the asynchronous adapter and show
+    // performance problems when not using it.
+    if (context != null
+        && Util.SDK_INT >= 28
+        && context.getPackageManager().hasSystemFeature("com.amazon.hardware.tv_screen")) {
+      return true;
+    }
+    return false;
   }
 }
