@@ -20,6 +20,7 @@ import static androidx.media3.container.Mp4TimestampData.unixTimeToMp4TimeSecond
 import androidx.media3.common.Metadata;
 import androidx.media3.container.MdtaMetadataEntry;
 import androidx.media3.container.Mp4LocationData;
+import androidx.media3.container.Mp4OrientationData;
 import androidx.media3.container.Mp4TimestampData;
 import androidx.media3.container.XmpData;
 import java.util.ArrayList;
@@ -28,14 +29,15 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** Collects and provides metadata: location, FPS, XMP data, etc. */
 /* package */ final class MetadataCollector {
-  public int orientation;
+  public Mp4OrientationData orientationData;
   public @MonotonicNonNull Mp4LocationData locationData;
   public List<MdtaMetadataEntry> metadataEntries;
   public Mp4TimestampData timestampData;
   public @MonotonicNonNull XmpData xmpData;
 
+  /** Creates an instance. */
   public MetadataCollector() {
-    orientation = 0;
+    orientationData = new Mp4OrientationData(/* orientation= */ 0);
     metadataEntries = new ArrayList<>();
     long currentTimeInMp4TimeSeconds = unixTimeToMp4TimeSeconds(System.currentTimeMillis());
     timestampData =
@@ -44,12 +46,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             /* modificationTimestampSeconds= */ currentTimeInMp4TimeSeconds);
   }
 
-  public void setOrientation(int orientation) {
-    this.orientation = orientation;
-  }
-
+  /** Adds metadata for the output file. */
   public void addMetadata(Metadata.Entry metadata) {
-    if (metadata instanceof Mp4LocationData) {
+    if (metadata instanceof Mp4OrientationData) {
+      orientationData = (Mp4OrientationData) metadata;
+    } else if (metadata instanceof Mp4LocationData) {
       locationData = (Mp4LocationData) metadata;
     } else if (metadata instanceof Mp4TimestampData) {
       timestampData = (Mp4TimestampData) metadata;

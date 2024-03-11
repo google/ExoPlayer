@@ -24,6 +24,7 @@ import androidx.media3.common.Format;
 import androidx.media3.common.Metadata;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.container.Mp4OrientationData;
 import androidx.media3.muxer.Mp4Muxer;
 import androidx.media3.muxer.Mp4Muxer.TrackToken;
 import com.google.common.collect.ImmutableList;
@@ -184,7 +185,7 @@ public final class InAppMuxer implements Muxer {
     trackTokenList.add(trackToken);
 
     if (MimeTypes.isVideo(format.sampleMimeType)) {
-      mp4Muxer.setOrientation(format.rotationDegrees);
+      mp4Muxer.addMetadata(new Mp4OrientationData(format.rotationDegrees));
     }
 
     return trackTokenList.size() - 1;

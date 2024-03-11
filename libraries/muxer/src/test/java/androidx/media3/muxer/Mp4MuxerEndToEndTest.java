@@ -27,6 +27,7 @@ import android.util.Pair;
 import androidx.media3.common.util.Util;
 import androidx.media3.container.MdtaMetadataEntry;
 import androidx.media3.container.Mp4LocationData;
+import androidx.media3.container.Mp4OrientationData;
 import androidx.media3.container.Mp4TimestampData;
 import androidx.media3.container.XmpData;
 import androidx.media3.extractor.mp4.Mp4Extractor;
@@ -59,7 +60,7 @@ public class Mp4MuxerEndToEndTest {
 
     try {
       mp4Muxer.addTrack(/* sortKey= */ 0, FAKE_VIDEO_FORMAT);
-      mp4Muxer.setOrientation(90);
+      mp4Muxer.addMetadata(new Mp4OrientationData(/* orientation= */ 90));
       mp4Muxer.addMetadata(
           new MdtaMetadataEntry(
               "key",
@@ -219,7 +220,7 @@ public class Mp4MuxerEndToEndTest {
     byte[] xmpBytes = TestUtil.getByteArray(context, XMP_SAMPLE_DATA);
 
     try {
-      muxer.setOrientation(90);
+      muxer.addMetadata(new Mp4OrientationData(/* orientation= */ 90));
       muxer.addMetadata(new Mp4LocationData(/* latitude= */ 33.0f, /* longitude= */ -120f));
       float captureFps = 120.0f;
       muxer.addMetadata(
