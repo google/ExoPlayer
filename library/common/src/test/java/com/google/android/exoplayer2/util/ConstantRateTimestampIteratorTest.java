@@ -77,30 +77,6 @@ public class ConstantRateTimestampIteratorTest {
     assertThat(constantRateTimestampIterator.getLastTimestampUs()).isEqualTo(C.TIME_UNSET);
   }
 
-  @Test
-  public void timestampIterator_withNonZeroStartingTime_firstOutputsStartingTimestamp() {
-    ConstantRateTimestampIterator constantRateTimestampIterator =
-        new ConstantRateTimestampIterator(
-            /* durationUs= */ C.MICROS_PER_SECOND,
-            /* frameRate= */ 2,
-            /* startingTimestampUs= */ 1234);
-
-    assertThat(constantRateTimestampIterator.next()).isEqualTo(1234);
-    assertThat(constantRateTimestampIterator.getLastTimestampUs())
-        .isEqualTo(1234 + C.MICROS_PER_SECOND / 2);
-  }
-
-  @Test
-  public void copyOf_withNonZeroStartingTime_firstOutputsStartingTimestamp() {
-    ConstantRateTimestampIterator constantRateTimestampIterator =
-        new ConstantRateTimestampIterator(
-            /* durationUs= */ C.MICROS_PER_SECOND,
-            /* frameRate= */ 2,
-            /* startingTimestampUs= */ 1234);
-
-    assertThat(constantRateTimestampIterator.copyOf().next()).isEqualTo(1234);
-  }
-
   private static List<Long> generateList(TimestampIterator iterator) {
     ArrayList<Long> list = new ArrayList<>();
 

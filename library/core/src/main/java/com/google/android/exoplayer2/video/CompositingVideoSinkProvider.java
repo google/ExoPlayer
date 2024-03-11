@@ -707,12 +707,7 @@ public final class CompositingVideoSinkProvider
       // the duration of the first video. Thus this correction is need to correct for the different
       // handling of presentation timestamps in ExoPlayer and VideoFrameProcessor.
       long bufferPresentationTimeUs = framePresentationTimeUs + inputStreamOffsetUs;
-      if (pendingInputStreamOffsetChange) {
-        compositingVideoSinkProvider.onStreamOffsetChange(
-            /* bufferPresentationTimeUs= */ bufferPresentationTimeUs,
-            /* streamOffsetUs= */ inputStreamOffsetUs);
-        pendingInputStreamOffsetChange = false;
-      }
+      maybeSetStreamOffsetChange(bufferPresentationTimeUs);
       lastBufferPresentationTimeUs = bufferPresentationTimeUs;
       if (isLastFrame) {
         finalBufferPresentationTimeUs = bufferPresentationTimeUs;
@@ -722,11 +717,29 @@ public final class CompositingVideoSinkProvider
 
     @Override
     public boolean queueBitmap(Bitmap inputBitmap, TimestampIterator timestampIterator) {
-      if (checkStateNotNull(videoFrameProcessor).queueInputBitmap(inputBitmap, timestampIterator)) {
-        lastBufferPresentationTimeUs = timestampIterator.getLastTimestampUs();
-        return true;
+      if (!maybeRegisterPendingInputStream()) {
+        return false;
       }
-      return false;
+
+      // The sink takes bitmaps with monotonically increasing, non-offset frame timestamps. Ensure
+      // the produced timestamps include the stream offset.
+      OffsetTimestampIterator offsetTimestampIterator =
+          new OffsetTimestampIterator(timestampIterator, inputStreamOffsetUs);
+      if (!checkStateNotNull(videoFrameProcessor)
+          .queueInputBitmap(inputBitmap, offsetTimestampIterator)) {
+        return false;
+      }
+
+      // Create a copy of iterator because we need to take the next timestamp but we must not alter
+      // the state of the iterator.
+      TimestampIterator copyTimestampIterator = offsetTimestampIterator.copyOf();
+      long bufferPresentationTimeUs = copyTimestampIterator.next();
+      long lastBufferPresentationTimeUs = copyTimestampIterator.getLastTimestampUs();
+      checkState(lastBufferPresentationTimeUs != C.TIME_UNSET);
+      maybeSetStreamOffsetChange(bufferPresentationTimeUs);
+      this.lastBufferPresentationTimeUs = lastBufferPresentationTimeUs;
+      finalBufferPresentationTimeUs = lastBufferPresentationTimeUs;
+      return true;
     }
 
     @Override
@@ -767,6 +780,35 @@ public final class CompositingVideoSinkProvider
       inputStreamOffsetUs = streamOffsetUs;
     }
 
+    private void maybeSetStreamOffsetChange(long bufferPresentationTimeUs) {
+      if (pendingInputStreamOffsetChange) {
+        compositingVideoSinkProvider.onStreamOffsetChange(
+            /* bufferPresentationTimeUs= */ bufferPresentationTimeUs,
+            /* streamOffsetUs= */ inputStreamOffsetUs);
+        pendingInputStreamOffsetChange = false;
+      }
+    }
+
+    /**
+     * Attempt to register any pending input stream to the video graph input and returns {@code
+     * true} if a pending stream was registered and/or there is no pending input stream waiting for
+     * registration, hence it's safe to queue images or frames to the video graph input.
+     */
+    private boolean maybeRegisterPendingInputStream() {
+      if (pendingInputStreamBufferPresentationTimeUs == C.TIME_UNSET) {
+        return true;
+      }
+      // An input stream is fully decoded, wait until all of its frames are released before queueing
+      // input frame from the next input stream.
+      if (compositingVideoSinkProvider.hasReleasedFrame(
+          pendingInputStreamBufferPresentationTimeUs)) {
+        maybeRegisterInputStream();
+        pendingInputStreamBufferPresentationTimeUs = C.TIME_UNSET;
+        return true;
+      }
+      return false;
+    }
+
     private void maybeRegisterInputStream() {
       if (inputFormat == null) {
         return;
@@ -787,6 +829,7 @@ public final class CompositingVideoSinkProvider
                   inputFormat.height)
               .setPixelWidthHeightRatio(inputFormat.pixelWidthHeightRatio)
               .build());
+      finalBufferPresentationTimeUs = C.TIME_UNSET;
     }
 
     // CompositingVideoSinkProvider.Listener implementation
@@ -959,6 +1002,45 @@ public final class CompositingVideoSinkProvider
               renderFramesAutomatically,
               listenerExecutor,
               listener);
+    }
+  }
+
+  /**
+   * A {@link TimestampIterator} that wraps another {@link TimestampIterator} and adds an offset to
+   * the returnd timestamps.
+   */
+  private static class OffsetTimestampIterator implements TimestampIterator {
+
+    private final TimestampIterator timestampIterator;
+    private final long offset;
+
+    public OffsetTimestampIterator(TimestampIterator timestampIterator, long offset) {
+      this.timestampIterator = timestampIterator;
+      this.offset = offset;
+    }
+
+    @Override
+    public boolean hasNext() {
+      return timestampIterator.hasNext();
+    }
+
+    @Override
+    public long next() {
+      return offset + timestampIterator.next();
+    }
+
+    @Override
+    public long getLastTimestampUs() {
+      long last = timestampIterator.getLastTimestampUs();
+      if (last != C.TIME_UNSET) {
+        last += offset;
+      }
+      return last;
+    }
+
+    @Override
+    public TimestampIterator copyOf() {
+      return new OffsetTimestampIterator(timestampIterator.copyOf(), offset);
     }
   }
 }
