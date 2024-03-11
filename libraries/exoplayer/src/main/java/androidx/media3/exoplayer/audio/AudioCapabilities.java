@@ -157,10 +157,7 @@ public final class AudioCapabilities {
 
     ImmutableSet.Builder<Integer> supportedEncodings = new ImmutableSet.Builder<>();
     supportedEncodings.add(C.ENCODING_PCM_16BIT);
-    if (deviceMaySetExternalSurroundSoundGlobalSetting()
-        && Global.getInt(context.getContentResolver(), EXTERNAL_SURROUND_SOUND_KEY, 0) == 1) {
-      supportedEncodings.addAll(EXTERNAL_SURROUND_SOUND_ENCODINGS);
-    }
+
     // AudioTrack.isDirectPlaybackSupported returns true for encodings that are supported for audio
     // offload, as well as for encodings we want to list for passthrough mode. Therefore we only use
     // it on TV and automotive devices, which generally shouldn't support audio offload for surround
@@ -169,6 +166,11 @@ public final class AudioCapabilities {
       supportedEncodings.addAll(Api29.getDirectPlaybackSupportedEncodings(audioAttributes));
       return new AudioCapabilities(
           getAudioProfiles(Ints.toArray(supportedEncodings.build()), DEFAULT_MAX_CHANNEL_COUNT));
+    }
+
+    if (deviceMaySetExternalSurroundSoundGlobalSetting()
+        && Global.getInt(context.getContentResolver(), EXTERNAL_SURROUND_SOUND_KEY, 0) == 1) {
+      supportedEncodings.addAll(EXTERNAL_SURROUND_SOUND_ENCODINGS);
     }
 
     if (intent != null && intent.getIntExtra(AudioManager.EXTRA_AUDIO_PLUG_STATE, 0) == 1) {
