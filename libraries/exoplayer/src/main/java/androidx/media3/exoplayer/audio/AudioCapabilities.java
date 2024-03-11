@@ -20,6 +20,7 @@ import static androidx.media3.common.util.Assertions.checkNotNull;
 import static java.lang.Math.max;
 
 import android.annotation.SuppressLint;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -89,6 +90,13 @@ public final class AudioCapabilities {
 
   /** Global settings key for devices that can specify external surround sound. */
   private static final String EXTERNAL_SURROUND_SOUND_KEY = "external_surround_sound_enabled";
+
+  /**
+   * Global setting key for devices that want to force the usage of {@link
+   * #EXTERNAL_SURROUND_SOUND_KEY} over other signals like HDMI.
+   */
+  private static final String FORCE_EXTERNAL_SURROUND_SOUND_KEY =
+      "use_external_surround_sound_flag";
 
   /**
    * @deprecated Use {@link #getCapabilities(Context, AudioAttributes, AudioDeviceInfo)} instead.
@@ -168,12 +176,17 @@ public final class AudioCapabilities {
           getAudioProfiles(Ints.toArray(supportedEncodings.build()), DEFAULT_MAX_CHANNEL_COUNT));
     }
 
-    if (deviceMaySetExternalSurroundSoundGlobalSetting()
-        && Global.getInt(context.getContentResolver(), EXTERNAL_SURROUND_SOUND_KEY, 0) == 1) {
+    ContentResolver contentResolver = context.getContentResolver();
+    boolean forceExternalSurroundSoundSetting =
+        Global.getInt(contentResolver, FORCE_EXTERNAL_SURROUND_SOUND_KEY, 0) == 1;
+    if ((forceExternalSurroundSoundSetting || deviceMaySetExternalSurroundSoundGlobalSetting())
+        && Global.getInt(contentResolver, EXTERNAL_SURROUND_SOUND_KEY, 0) == 1) {
       supportedEncodings.addAll(EXTERNAL_SURROUND_SOUND_ENCODINGS);
     }
 
-    if (intent != null && intent.getIntExtra(AudioManager.EXTRA_AUDIO_PLUG_STATE, 0) == 1) {
+    if (intent != null
+        && !forceExternalSurroundSoundSetting
+        && intent.getIntExtra(AudioManager.EXTRA_AUDIO_PLUG_STATE, 0) == 1) {
       @Nullable int[] encodingsFromExtra = intent.getIntArrayExtra(AudioManager.EXTRA_ENCODINGS);
       if (encodingsFromExtra != null) {
         supportedEncodings.addAll(Ints.asList(encodingsFromExtra));
