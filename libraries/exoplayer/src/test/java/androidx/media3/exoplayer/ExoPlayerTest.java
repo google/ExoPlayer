@@ -60,6 +60,7 @@ import static androidx.media3.test.utils.TestUtil.timelinesAreSame;
 import static androidx.media3.test.utils.robolectric.RobolectricUtil.runMainLooperUntil;
 import static androidx.media3.test.utils.robolectric.TestPlayerRunHelper.playUntilPosition;
 import static androidx.media3.test.utils.robolectric.TestPlayerRunHelper.playUntilStartOfMediaItem;
+import static androidx.media3.test.utils.robolectric.TestPlayerRunHelper.run;
 import static androidx.media3.test.utils.robolectric.TestPlayerRunHelper.runUntilError;
 import static androidx.media3.test.utils.robolectric.TestPlayerRunHelper.runUntilPendingCommandsAreFullyHandled;
 import static androidx.media3.test.utils.robolectric.TestPlayerRunHelper.runUntilPlayWhenReady;
@@ -13228,6 +13229,82 @@ public final class ExoPlayerTest {
         .verify(mockListener)
         .onMediaItemTransition(any(), any(), eq(Player.MEDIA_ITEM_TRANSITION_REASON_AUTO));
     eventsInOrder.verify(mockListener).onPlayerError(any(), any());
+  }
+
+  @Test
+  public void play_withReadingAheadWithNewRenderer_enablesButNotStartsNewRenderer()
+      throws Exception {
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    Renderer videoRenderer = player.getRenderer(/* index= */ 0);
+    Renderer audioRenderer = player.getRenderer(/* index= */ 1);
+    // Set a playlist that allows a new renderer to be enabled early.
+    player.setMediaSources(
+        ImmutableList.of(
+            new FakeMediaSource(new FakeTimeline(), ExoPlayerTestRunner.VIDEO_FORMAT),
+            new FakeMediaSource(
+                new FakeTimeline(),
+                ExoPlayerTestRunner.VIDEO_FORMAT,
+                ExoPlayerTestRunner.AUDIO_FORMAT)));
+    player.prepare();
+
+    // Play a bit until the second renderer has been enabled, but not yet started.
+    run(player).untilPosition(/* mediaItemIndex= */ 0, /* positionMs= */ 5000);
+    @Renderer.State int videoState1 = videoRenderer.getState();
+    @Renderer.State int audioState1 = audioRenderer.getState();
+    // Play until we reached the start of the second item.
+    run(player).untilStartOfMediaItem(/* mediaItemIndex= */ 1);
+    run(player).untilPendingCommandsAreFullyHandled();
+    @Renderer.State int videoState2 = videoRenderer.getState();
+    @Renderer.State int audioState2 = audioRenderer.getState();
+    player.release();
+
+    assertThat(videoState1).isEqualTo(Renderer.STATE_STARTED);
+    assertThat(videoState2).isEqualTo(Renderer.STATE_STARTED);
+    assertThat(audioState1).isEqualTo(Renderer.STATE_ENABLED);
+    assertThat(audioState2).isEqualTo(Renderer.STATE_STARTED);
+  }
+
+  @Test
+  public void play_withReadingAheadWithNewRendererAndPausing_enablesButNotStartsNewRenderer()
+      throws Exception {
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    Renderer videoRenderer = player.getRenderer(/* index= */ 0);
+    Renderer audioRenderer = player.getRenderer(/* index= */ 1);
+    // Set a playlist that allows a new renderer to be enabled early.
+    player.setMediaSources(
+        ImmutableList.of(
+            new FakeMediaSource(new FakeTimeline(), ExoPlayerTestRunner.VIDEO_FORMAT),
+            new FakeMediaSource(
+                new FakeTimeline(),
+                ExoPlayerTestRunner.VIDEO_FORMAT,
+                ExoPlayerTestRunner.AUDIO_FORMAT)));
+    player.prepare();
+
+    // Play until the second renderer has been enabled, but has not yet started.
+    run(player).untilPosition(/* mediaItemIndex= */ 0, /* positionMs= */ 5000);
+    // Pause in this "Read Ahead" state.
+    player.pause();
+    run(player).untilPendingCommandsAreFullyHandled();
+    @Renderer.State int videoState1 = videoRenderer.getState();
+    @Renderer.State int audioState1 = audioRenderer.getState();
+    // Play in this "Read Ahead" state.
+    player.play();
+    run(player).untilPendingCommandsAreFullyHandled();
+    @Renderer.State int videoState2 = videoRenderer.getState();
+    @Renderer.State int audioState2 = audioRenderer.getState();
+    // Play until the start of the second item.
+    run(player).untilStartOfMediaItem(/* mediaItemIndex= */ 1);
+    run(player).untilPendingCommandsAreFullyHandled();
+    @Renderer.State int videoState3 = videoRenderer.getState();
+    @Renderer.State int audioState3 = audioRenderer.getState();
+    player.release();
+
+    assertThat(videoState1).isEqualTo(Renderer.STATE_ENABLED);
+    assertThat(videoState2).isEqualTo(Renderer.STATE_STARTED);
+    assertThat(videoState3).isEqualTo(Renderer.STATE_STARTED);
+    assertThat(audioState1).isEqualTo(Renderer.STATE_ENABLED);
+    assertThat(audioState2).isEqualTo(Renderer.STATE_ENABLED);
+    assertThat(audioState3).isEqualTo(Renderer.STATE_STARTED);
   }
 
   @Test
