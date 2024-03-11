@@ -35,6 +35,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.checkerframework.checker.initialization.qual.UnknownInitialization;
 
 /**
  * Fake {@link Clock} implementation that allows to {@link #advanceTime(long) advance the time}
@@ -171,7 +172,9 @@ public class FakeClock implements Clock {
   }
 
   @Override
-  public HandlerWrapper createHandler(Looper looper, @Nullable Callback callback) {
+  @SuppressWarnings({"nullness:argument", "nullness:return"})
+  public HandlerWrapper createHandler(
+      Looper looper, @Nullable @UnknownInitialization Callback callback) {
     return new ClockHandler(looper, callback);
   }
 

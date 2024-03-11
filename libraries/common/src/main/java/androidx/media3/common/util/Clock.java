@@ -18,6 +18,7 @@ package androidx.media3.common.util;
 import android.os.Handler;
 import android.os.Looper;
 import androidx.annotation.Nullable;
+import org.checkerframework.checker.initialization.qual.UnknownInitialization;
 
 /**
  * An interface through which system clocks can be read and {@link HandlerWrapper}s created. The
@@ -55,7 +56,8 @@ public interface Clock {
    *
    * @see Handler#Handler(Looper, Handler.Callback)
    */
-  HandlerWrapper createHandler(Looper looper, @Nullable Handler.Callback callback);
+  HandlerWrapper createHandler(
+      Looper looper, @Nullable Handler.@UnknownInitialization Callback callback);
 
   /**
    * Notifies the clock that the current thread is about to be blocked and won't return until a

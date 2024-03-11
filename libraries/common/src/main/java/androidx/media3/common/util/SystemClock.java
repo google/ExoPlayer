@@ -19,6 +19,7 @@ import android.os.Handler;
 import android.os.Handler.Callback;
 import android.os.Looper;
 import androidx.annotation.Nullable;
+import org.checkerframework.checker.initialization.qual.UnknownInitialization;
 
 /**
  * The standard implementation of {@link Clock}, an instance of which is available via {@link
@@ -50,7 +51,9 @@ public class SystemClock implements Clock {
   }
 
   @Override
-  public HandlerWrapper createHandler(Looper looper, @Nullable Callback callback) {
+  @SuppressWarnings({"nullness:argument", "nullness:return"})
+  public HandlerWrapper createHandler(
+      Looper looper, @Nullable @UnknownInitialization Callback callback) {
     return new SystemHandlerWrapper(new Handler(looper, callback));
   }
 
