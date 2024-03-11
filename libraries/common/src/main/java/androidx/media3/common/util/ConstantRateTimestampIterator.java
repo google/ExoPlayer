@@ -33,7 +33,6 @@ public final class ConstantRateTimestampIterator implements TimestampIterator {
   private final long durationUs;
   private final float frameRate;
   private final double framesDurationUs;
-  private final long startingTimestampUs;
   private final int totalNumberOfFramesToAdd;
 
   private int framesAdded;
@@ -47,26 +46,10 @@ public final class ConstantRateTimestampIterator implements TimestampIterator {
   public ConstantRateTimestampIterator(
       @IntRange(from = 1) long durationUs,
       @FloatRange(from = 0, fromInclusive = false) float frameRate) {
-    this(durationUs, frameRate, /* startingTimestampUs= */ 0);
-  }
-
-  /**
-   * Creates an instance that outputs timestamps from {@code startingTimestampUs}.
-   *
-   * @param durationUs The duration the timestamps should span over, in microseconds.
-   * @param frameRate The frame rate in frames per second.
-   * @param startingTimestampUs The first timestamp output from the iterator.
-   */
-  public ConstantRateTimestampIterator(
-      @IntRange(from = 1) long durationUs,
-      @FloatRange(from = 0, fromInclusive = false) float frameRate,
-      @IntRange(from = 0) long startingTimestampUs) {
     checkArgument(durationUs > 0);
     checkArgument(frameRate > 0);
-    checkArgument(startingTimestampUs >= 0);
     this.durationUs = durationUs;
     this.frameRate = frameRate;
-    this.startingTimestampUs = startingTimestampUs;
     this.totalNumberOfFramesToAdd = round(frameRate * (durationUs / (float) C.MICROS_PER_SECOND));
     framesDurationUs = C.MICROS_PER_SECOND / frameRate;
   }
@@ -84,7 +67,7 @@ public final class ConstantRateTimestampIterator implements TimestampIterator {
 
   @Override
   public ConstantRateTimestampIterator copyOf() {
-    return new ConstantRateTimestampIterator(durationUs, frameRate, startingTimestampUs);
+    return new ConstantRateTimestampIterator(durationUs, frameRate);
   }
 
   @Override
@@ -97,7 +80,7 @@ public final class ConstantRateTimestampIterator implements TimestampIterator {
 
   /** Returns the timestamp after {@code numberOfFrames}, in microseconds. */
   private long getTimestampUsAfter(int numberOfFrames) {
-    long timestampUs = round(startingTimestampUs + framesDurationUs * numberOfFrames);
+    long timestampUs = round(framesDurationUs * numberOfFrames);
     // Check for possible overflow.
     checkState(timestampUs >= 0);
     return timestampUs;
