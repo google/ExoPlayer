@@ -27,7 +27,6 @@ import androidx.media3.common.C;
 import androidx.media3.common.DrmInitData;
 import androidx.media3.common.DrmInitData.SchemeData;
 import androidx.media3.common.Format;
-import androidx.media3.common.Label;
 import androidx.media3.common.Metadata;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.ParserException;
@@ -472,13 +471,10 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
       line = mediaTags.get(i);
       String groupId = parseStringAttr(line, REGEX_GROUP_ID, variableDefinitions);
       String name = parseStringAttr(line, REGEX_NAME, variableDefinitions);
-      List<Label> labels = new ArrayList<>();
-      labels.add(new Label(null, null, name));
       Format.Builder formatBuilder =
           new Format.Builder()
               .setId(groupId + ":" + name)
               .setLabel(name)
-              .setLabels(labels)
               .setContainerMimeType(MimeTypes.APPLICATION_M3U8)
               .setSelectionFlags(parseSelectionFlags(line))
               .setRoleFlags(parseRoleFlags(line, variableDefinitions))

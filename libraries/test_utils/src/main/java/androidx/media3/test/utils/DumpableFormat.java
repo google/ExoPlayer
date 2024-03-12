@@ -104,11 +104,7 @@ public final class DumpableFormat implements Dumper.Dumpable {
     if (!format.labels.isEmpty()) {
       dumper.startBlock("labels");
       for (int i = 0; i < format.labels.size(); i++) {
-        String id = format.labels.get(i).id;
         String lang = format.labels.get(i).lang;
-        if (id != null) {
-          dumper.add("id", id);
-        }
         if (lang != null) {
           dumper.add("lang", lang);
         }

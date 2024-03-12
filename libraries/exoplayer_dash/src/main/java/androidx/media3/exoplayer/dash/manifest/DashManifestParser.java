@@ -506,9 +506,7 @@ public class DashManifestParser extends DefaultHandler
       } else if (XmlPullParserUtil.isStartTag(xpp, "InbandEventStream")) {
         inbandEventStreams.add(parseDescriptor(xpp, "InbandEventStream"));
       } else if (XmlPullParserUtil.isStartTag(xpp, "Label")) {
-        Label parsedLabel = parseLabel(xpp);
-        label = parsedLabel.value;
-        labels.add(parsedLabel);
+        labels.add(parseLabel(xpp));
       } else if (XmlPullParserUtil.isStartTag(xpp)) {
         parseAdaptationSetChild(xpp);
       }
@@ -861,7 +859,7 @@ public class DashManifestParser extends DefaultHandler
   protected Representation buildRepresentation(
       RepresentationInfo representationInfo,
       @Nullable String label,
-      @Nullable List<Label> labels,
+      List<Label> labels,
       @Nullable String extraDrmSchemeType,
       ArrayList<SchemeData> extraDrmSchemeDatas,
       ArrayList<Descriptor> extraInbandEventStreams) {
@@ -1413,10 +1411,9 @@ public class DashManifestParser extends DefaultHandler
    * @return The parsed label.
    */
   protected Label parseLabel(XmlPullParser xpp) throws XmlPullParserException, IOException {
-    String id = xpp.getAttributeValue(null, "id");
     String lang = xpp.getAttributeValue(null, "lang");
     String value = parseText(xpp, "Label");
-    return new Label(id, lang, value);
+    return new Label(lang, value);
   }
 
   /**

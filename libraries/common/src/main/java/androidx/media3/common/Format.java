@@ -18,6 +18,7 @@ package androidx.media3.common;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.os.Bundle;
+import android.text.TextUtils;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.media3.common.util.BundleCollectionUtil;
@@ -137,7 +138,6 @@ public final class Format implements Bundleable {
   public static final class Builder {
 
     @Nullable private String id;
-
     @Nullable private String label;
     @Nullable private List<Label> labels;
     @Nullable private String language;
@@ -756,12 +756,8 @@ public final class Format implements Bundleable {
   /** An identifier for the format, or null if unknown or not applicable. */
   @Nullable public final String id;
 
-  /**
-   * The human readable label, or null if unknown or not applicable.
-   *
-   * @deprecated Use {@link #labels} instead.
-   */
-  @Deprecated @Nullable public final String label;
+  /** The human readable label, or null if unknown or not applicable. */
+  @Nullable public final String label;
 
   /** The human readable list of labels, or null if unknown or not applicable. */
   @UnstableApi public final List<Label> labels;
@@ -954,9 +950,13 @@ public final class Format implements Bundleable {
 
   private Format(Builder builder) {
     id = builder.id;
-    label = builder.label;
-    labels = builder.labels == null ? Collections.emptyList() : builder.labels;
     language = Util.normalizeLanguageCode(builder.language);
+    @Nullable String tmpLabel = builder.label;
+    labels = builder.labels == null ? new ArrayList<>() : builder.labels;
+    if (labels.isEmpty() && tmpLabel != null && !tmpLabel.isEmpty()) {
+      labels.add(new Label(language, tmpLabel));
+    }
+    label = makeLabelIfNeeded(tmpLabel, labels);
     selectionFlags = builder.selectionFlags;
     roleFlags = builder.roleFlags;
     averageBitrate = builder.averageBitrate;
@@ -1002,6 +1002,20 @@ public final class Format implements Bundleable {
     } else {
       cryptoType = builder.cryptoType;
     }
+  }
+
+  private @Nullable String makeLabelIfNeeded(@Nullable String label, List<Label> labels) {
+    if (label == null || label.isEmpty()) {
+      for (Label l : labels) {
+        if (TextUtils.equals(l.lang, language)) {
+          return l.value;
+        }
+      }
+      if (!labels.isEmpty()) {
+        return labels.get(0).value;
+      }
+    }
+    return label;
   }
 
   /** Returns a {@link Format.Builder} initialized with the values of this instance. */

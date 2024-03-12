@@ -84,7 +84,7 @@ public final class FormatTest {
             .build();
 
     List<Label> labels = new ArrayList<>();
-    labels.add(new Label("id", "en", "label"));
+    labels.add(new Label("en", "label"));
     return new Format.Builder()
         .setId("id")
         .setLabel("label")

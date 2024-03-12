@@ -10,9 +10,6 @@ import androidx.media3.common.util.Util;
 /** A Label, as defined by ISO 23009-1, 4th edition, 5.3.7.2. */
 @UnstableApi
 public class Label implements Parcelable {
-  /** The Label identifier, if one exists. */
-  @Nullable public final String id;
-
   /** Declares the language code(s) for this Label. */
   @Nullable public final String lang;
 
@@ -20,18 +17,15 @@ public class Label implements Parcelable {
   public final String value;
 
   /**
-   * @param id The id.
    * @param lang The lang code.
    * @param value The value.
    */
-  public Label(@Nullable String id, @Nullable String lang, String value) {
-    this.id = id;
+  public Label(@Nullable String lang, String value) {
     this.lang = lang;
     this.value = value;
   }
 
   /* package */ Label(Parcel in) {
-    id = in.readString();
     lang = in.readString();
     value = in.readString();
   }
@@ -41,15 +35,13 @@ public class Label implements Parcelable {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     Label label = (Label) o;
-    return Util.areEqual(id, label.id)
-        && Util.areEqual(lang, label.lang)
+    return Util.areEqual(lang, label.lang)
         && Util.areEqual(value, label.value);
   }
 
   @Override
   public int hashCode() {
     int result = value.hashCode();
-    result = 31 * result + (id != null ? id.hashCode() : 0);
     result = 31 * result + (lang != null ? lang.hashCode() : 0);
     return result;
   }
@@ -61,7 +53,6 @@ public class Label implements Parcelable {
 
   @Override
   public void writeToParcel(@NonNull Parcel dest, int flags) {
-    dest.writeString(id);
     dest.writeString(lang);
     dest.writeString(value);
   }

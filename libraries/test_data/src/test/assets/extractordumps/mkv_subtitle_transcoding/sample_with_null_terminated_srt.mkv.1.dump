@@ -277,6 +277,7 @@ track 3:
     language = en
     label = Subs Label
     labels:
+      lang = en
       value = Subs Label
   sample 0:
     time = 0

@@ -21,7 +21,6 @@ import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
-import androidx.media3.common.Label;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.ParserException;
 import androidx.media3.common.util.Assertions;
@@ -43,7 +42,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.ArrayList;
-import java.util.List;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
@@ -516,12 +514,7 @@ public final class AviExtractor implements Extractor {
     }
     StreamNameChunk streamName = streamList.getChild(StreamNameChunk.class);
     if (streamName != null) {
-      String label = streamName.name;
-      builder.setLabel(label);
-
-      List<Label> labels = new ArrayList<>();
-      labels.add(new Label(null, null, label));
-      builder.setLabels(labels);
+      builder.setLabel(streamName.name);
     }
     int trackType = MimeTypes.getTrackType(streamFormat.sampleMimeType);
     if (trackType == C.TRACK_TYPE_AUDIO || trackType == C.TRACK_TYPE_VIDEO) {

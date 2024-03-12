@@ -437,25 +437,12 @@ public class DashManifestParserTest {
   public void parseLabel() throws Exception {
     DashManifestParser parser = new DashManifestParser();
     XmlPullParser xpp = XmlPullParserFactory.newInstance().newPullParser();
-    xpp.setInput(new StringReader("<Label id=\"1\" lang=\"en\">test label</Label>" + NEXT_TAG));
-    xpp.next();
-
-    Label label = parser.parseLabel(xpp);
-    assertThat(label.id).isEqualTo("1");
-    assertThat(label.lang).isEqualTo("en");
-    assertThat(label.value).isEqualTo("test label");
-    assertNextTag(xpp);
-  }
-
-  @Test
-  public void parseLabel_noId() throws Exception {
-    DashManifestParser parser = new DashManifestParser();
-    XmlPullParser xpp = XmlPullParserFactory.newInstance().newPullParser();
     xpp.setInput(new StringReader("<Label lang=\"en\">test label</Label>" + NEXT_TAG));
     xpp.next();
 
     Label label = parser.parseLabel(xpp);
-    assertThat(label.id).isEqualTo(null);
+    assertThat(label.lang).isEqualTo("en");
+    assertThat(label.value).isEqualTo("test label");
     assertNextTag(xpp);
   }
 

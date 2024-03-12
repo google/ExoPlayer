@@ -24,7 +24,6 @@ import androidx.media3.common.C;
 import androidx.media3.common.DrmInitData;
 import androidx.media3.common.DrmInitData.SchemeData;
 import androidx.media3.common.Format;
-import androidx.media3.common.Label;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.ParserException;
 import androidx.media3.common.util.Assertions;
@@ -741,16 +740,10 @@ public class SsManifestParser implements ParsingLoadable.Parser<SsManifest> {
         formatBuilder.setContainerMimeType(MimeTypes.APPLICATION_MP4);
       }
 
-      List<Label> labels = new ArrayList<>();
-      String label = (String) getNormalizedAttribute(KEY_NAME);
-      if (label != null) {
-        labels.add(new Label(null, null, label));
-      }
       format =
           formatBuilder
               .setId(parser.getAttributeValue(null, KEY_INDEX))
-              .setLabel(label)
-              .setLabels(labels)
+              .setLabel((String) getNormalizedAttribute(KEY_NAME))
               .setSampleMimeType(sampleMimeType)
               .setAverageBitrate(parseRequiredInt(parser, KEY_BITRATE))
               .setLanguage((String) getNormalizedAttribute(KEY_LANGUAGE))
