@@ -23,6 +23,10 @@ gradle.ext.rootProjectIsAndroidXMedia3 = true
 
 gradle.ext.androidxMediaEnableMidiModule = true
 
+// All library modules should be configured in core_settings.gradle. Below are
+// modules that no app should depend on.
+
+// Demo apps
 include modulePrefix + 'demo'
 project(modulePrefix + 'demo').projectDir = new File(rootDir, 'demos/main')
 include modulePrefix + 'demo-cast'
@@ -40,6 +44,7 @@ project(modulePrefix + 'demo-surface').projectDir = new File(rootDir, 'demos/sur
 include modulePrefix + 'demo-transformer'
 project(modulePrefix + 'demo-transformer').projectDir = new File(rootDir, 'demos/transformer')
 
+// Modules that only contain tests (not utils used by other test modules)
 include modulePrefix + 'test-exoplayer-playback'
 project(modulePrefix + 'test-exoplayer-playback').projectDir = new File(rootDir, 'libraries/test_exoplayer_playback')
 include modulePrefix + 'test-session-common'
