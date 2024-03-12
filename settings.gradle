@@ -42,5 +42,9 @@ project(modulePrefix + 'demo-transformer').projectDir = new File(rootDir, 'demos
 
 include modulePrefix + 'test-exoplayer-playback'
 project(modulePrefix + 'test-exoplayer-playback').projectDir = new File(rootDir, 'libraries/test_exoplayer_playback')
+include modulePrefix + 'test-session-common'
+project(modulePrefix + 'test-session-common').projectDir = new File(rootDir, 'libraries/test_session_common')
+include modulePrefix + 'test-session-current'
+project(modulePrefix + 'test-session-current').projectDir = new File(rootDir, 'libraries/test_session_current')
 
 apply from: 'core_settings.gradle'
