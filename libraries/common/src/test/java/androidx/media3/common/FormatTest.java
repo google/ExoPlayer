@@ -57,6 +57,48 @@ public final class FormatTest {
     assertThat(formatWithMetadataExcluded).isEqualTo(format.buildUpon().setMetadata(null).build());
   }
 
+  @Test
+  public void formatBuild_withLabelAndWithoutLabels_labelIsInLabels() {
+    Format format = createTestFormat();
+    format = format.buildUpon().setLabels(null).build();
+
+    assertThat(format.labels.size()).isEqualTo(1);
+    assertThat(format.labels.get(0).value).isEqualTo(format.label);
+  }
+
+  @Test
+  public void formatBuild_withLabelsAndLanguageMatchingAndWithoutLabel_theLanguageMatchIsInLabel() {
+    Format format = createTestFormat();
+    format.labels.add(new Label("language", "matchingLabel"));
+    format = format.buildUpon().setLabel(null).build();
+
+    assertThat(format.label).isEqualTo("matchingLabel");
+  }
+
+  @Test
+  public void formatBuild_withLabelsAndNoLanguageMatchingAndWithoutLabel_theFirstIsInLabel() {
+    Format format = createTestFormat();
+    format.labels.add(new Label("otherLanguage", "otherLabel"));
+    format = format.buildUpon().setLabel(null).build();
+
+    assertThat(format.label).isEqualTo("label");
+  }
+
+  @Test
+  public void formatBuild_withoutLabelsOrLabel_theyAreEmpty() {
+    Format format = createTestFormat();
+    format = format.buildUpon().setLabel(null).setLabels(null).build();
+
+    assertThat(format.label).isEqualTo(null);
+    assertThat(format.labels.size()).isEqualTo(0);
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void formatBuild_withLabelAndLabelsSetButNotMatching_throwsException() {
+    Format format = createTestFormat();
+    format.buildUpon().setLabel("otherLabel").build();
+  }
+
   private static Format createTestFormat() {
     byte[] initData1 = new byte[] {1, 2, 3};
     byte[] initData2 = new byte[] {4, 5, 6};

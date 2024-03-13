@@ -953,10 +953,11 @@ public final class Format implements Bundleable {
     language = Util.normalizeLanguageCode(builder.language);
     @Nullable String tmpLabel = builder.label;
     labels = builder.labels == null ? new ArrayList<>() : builder.labels;
-    if (labels.isEmpty() && tmpLabel != null && !tmpLabel.isEmpty()) {
+    if (labels.isEmpty() && !TextUtils.isEmpty(tmpLabel)) {
       labels.add(new Label(language, tmpLabel));
     }
     label = makeLabelIfNeeded(tmpLabel, labels);
+    checkLabels(label, labels);
     selectionFlags = builder.selectionFlags;
     roleFlags = builder.roleFlags;
     averageBitrate = builder.averageBitrate;
@@ -1005,7 +1006,7 @@ public final class Format implements Bundleable {
   }
 
   private @Nullable String makeLabelIfNeeded(@Nullable String label, List<Label> labels) {
-    if (label == null || label.isEmpty()) {
+    if (TextUtils.isEmpty(label)) {
       for (Label l : labels) {
         if (TextUtils.equals(l.lang, language)) {
           return l.value;
@@ -1016,6 +1017,15 @@ public final class Format implements Bundleable {
       }
     }
     return label;
+  }
+
+  private void checkLabels(@Nullable String label, List<Label> labels)
+      throws IllegalStateException {
+    if (!TextUtils.isEmpty(label)
+        && !labels.isEmpty()
+        && labels.stream().noneMatch(l -> TextUtils.equals(l.value, label))) {
+      throw new IllegalStateException();
+    }
   }
 
   /** Returns a {@link Format.Builder} initialized with the values of this instance. */
