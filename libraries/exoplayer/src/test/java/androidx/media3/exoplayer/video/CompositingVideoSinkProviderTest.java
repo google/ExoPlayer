@@ -122,22 +122,6 @@ public final class CompositingVideoSinkProviderTest {
         .isEqualTo(2_000_000);
   }
 
-  @Test
-  public void setListener_calledTwiceWithDifferentExecutor_throws()
-      throws VideoSink.VideoSinkException {
-    CompositingVideoSinkProvider provider = createCompositingVideoSinkProvider();
-    provider.setVideoEffects(ImmutableList.of());
-    provider.initialize(new Format.Builder().build());
-    VideoSink videoSink = provider.getSink();
-    VideoSink.Listener listener = Mockito.mock(VideoSink.Listener.class);
-
-    videoSink.setListener(listener, /* executor= */ command -> {});
-
-    assertThrows(
-        IllegalStateException.class,
-        () -> videoSink.setListener(listener, /* executor= */ command -> {}));
-  }
-
   private static CompositingVideoSinkProvider createCompositingVideoSinkProvider() {
     Context context = ApplicationProvider.getApplicationContext();
     VideoFrameReleaseControl.FrameTimingEvaluator frameTimingEvaluator =

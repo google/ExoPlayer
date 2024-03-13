@@ -62,7 +62,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.Executor;
 import org.checkerframework.checker.initialization.qual.Initialized;
@@ -656,11 +655,6 @@ public final class CompositingVideoSinkProvider
 
     @Override
     public void setListener(Listener listener, Executor executor) {
-      if (Objects.equals(listener, this.listener)) {
-        checkState(Objects.equals(executor, listenerExecutor));
-        return;
-      }
-
       this.listener = listener;
       listenerExecutor = executor;
     }
