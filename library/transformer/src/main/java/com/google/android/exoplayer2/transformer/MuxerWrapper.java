@@ -623,7 +623,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   /**
-   * Finishes writing the output and releases any resources associated with muxing.
+   * Finishes writing the output and may release any resources associated with muxing.
    *
    * <p>When this method is called in {@link #MUXER_MODE_MUX_PARTIAL} mode, the resources are not
    * released and the {@link MuxerWrapper} can be reused after {@link #changeToAppendMode() changing
@@ -637,7 +637,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @throws Muxer.MuxerException If the underlying {@link Muxer} fails to finish writing the output
    *     and the {@code releaseReason} is not {@link #MUXER_RELEASE_REASON_CANCELLED}.
    */
-  public void release(@MuxerReleaseReason int releaseReason) throws Muxer.MuxerException {
+  public void finishWritingAndMaybeRelease(@MuxerReleaseReason int releaseReason)
+      throws Muxer.MuxerException {
     if (releaseReason == MUXER_RELEASE_REASON_COMPLETED && muxerMode == MUXER_MODE_MUX_PARTIAL) {
       return;
     }

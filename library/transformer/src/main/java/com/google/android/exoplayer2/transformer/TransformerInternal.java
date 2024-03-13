@@ -409,7 +409,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         }
       }
       try {
-        muxerWrapper.release(getMuxerReleaseReason(endReason));
+        muxerWrapper.finishWritingAndMaybeRelease(getMuxerReleaseReason(endReason));
       } catch (Muxer.MuxerException e) {
         if (releaseExportException == null) {
           releaseExportException = ExportException.createForMuxer(e, ERROR_CODE_MUXING_FAILED);
