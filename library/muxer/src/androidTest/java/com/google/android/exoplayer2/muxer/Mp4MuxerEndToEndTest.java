@@ -86,7 +86,7 @@ public class Mp4MuxerEndToEndTest {
 
     try {
       mp4Muxer = new Mp4Muxer.Builder(checkNotNull(outputStream)).build();
-      mp4Muxer.setTimestampData(
+      mp4Muxer.addMetadata(
           new Mp4TimestampData(
               /* creationTimestampSeconds= */ 100_000_000L,
               /* modificationTimestampSeconds= */ 500_000_000L));
@@ -110,7 +110,7 @@ public class Mp4MuxerEndToEndTest {
     // ensure some data has been written after taking all the inputs but before closing the muxer.
     assumeTrue(checkNotNull(inputFile).equals(H265_HDR10_MP4));
     Mp4Muxer mp4Muxer = new Mp4Muxer.Builder(checkNotNull(outputStream)).build();
-    mp4Muxer.setTimestampData(
+    mp4Muxer.addMetadata(
         new Mp4TimestampData(
             /* creationTimestampSeconds= */ 100_000_000L,
             /* modificationTimestampSeconds= */ 500_000_000L));
@@ -139,7 +139,7 @@ public class Mp4MuxerEndToEndTest {
     try {
       mp4Muxer =
           new Mp4Muxer.Builder(checkNotNull(outputStream)).setFragmentedMp4Enabled(true).build();
-      mp4Muxer.setTimestampData(
+      mp4Muxer.addMetadata(
           new Mp4TimestampData(
               /* creationTimestampSeconds= */ 100_000_000L,
               /* modificationTimestampSeconds= */ 500_000_000L));
@@ -170,7 +170,7 @@ public class Mp4MuxerEndToEndTest {
     try {
       mp4Muxer =
           new Mp4Muxer.Builder(checkNotNull(outputStream)).setFragmentedMp4Enabled(true).build();
-      mp4Muxer.setTimestampData(
+      mp4Muxer.addMetadata(
           new Mp4TimestampData(
               /* creationTimestampSeconds= */ 100_000_000L,
               /* modificationTimestampSeconds= */ 500_000_000L));
