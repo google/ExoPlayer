@@ -15,15 +15,23 @@
  */
 package androidx.media3.muxer;
 
+import static androidx.media3.container.MdtaMetadataEntry.KEY_ANDROID_CAPTURE_FPS;
+import static androidx.media3.container.MdtaMetadataEntry.TYPE_INDICATOR_FLOAT32;
+import static androidx.media3.container.MdtaMetadataEntry.TYPE_INDICATOR_STRING;
 import static androidx.media3.muxer.MuxerTestUtil.FAKE_VIDEO_FORMAT;
 import static androidx.media3.muxer.MuxerTestUtil.XMP_SAMPLE_DATA;
 
 import android.content.Context;
 import android.media.MediaCodec.BufferInfo;
 import android.util.Pair;
+import androidx.media3.common.util.Util;
+import androidx.media3.container.MdtaMetadataEntry;
+import androidx.media3.container.Mp4LocationData;
 import androidx.media3.container.Mp4OrientationData;
 import androidx.media3.container.Mp4TimestampData;
+import androidx.media3.container.XmpData;
 import androidx.media3.extractor.mp4.Mp4Extractor;
+import androidx.media3.extractor.text.DefaultSubtitleParserFactory;
 import androidx.media3.muxer.Mp4Muxer.TrackToken;
 import androidx.media3.test.utils.DumpFileAsserts;
 import androidx.media3.test.utils.DumpableMp4Box;
@@ -64,7 +72,8 @@ public class Mp4MuxerMetadataTest {
     }
 
     FakeExtractorOutput fakeExtractorOutput =
-        TestUtil.extractAllSamplesFromFilePath(new Mp4Extractor(), outputFilePath);
+        TestUtil.extractAllSamplesFromFilePath(
+            new Mp4Extractor(new DefaultSubtitleParserFactory()), outputFilePath);
     // No rotationDegrees field in output dump.
     DumpFileAsserts.assertOutput(
         context,
@@ -91,7 +100,8 @@ public class Mp4MuxerMetadataTest {
     }
 
     FakeExtractorOutput fakeExtractorOutput =
-        TestUtil.extractAllSamplesFromFilePath(new Mp4Extractor(), outputFilePath);
+        TestUtil.extractAllSamplesFromFilePath(
+            new Mp4Extractor(new DefaultSubtitleParserFactory()), outputFilePath);
     // rotationDegrees = 90 in the output dump.
     DumpFileAsserts.assertOutput(
         context,
@@ -118,7 +128,8 @@ public class Mp4MuxerMetadataTest {
     }
 
     FakeExtractorOutput fakeExtractorOutput =
-        TestUtil.extractAllSamplesFromFilePath(new Mp4Extractor(), outputFilePath);
+        TestUtil.extractAllSamplesFromFilePath(
+            new Mp4Extractor(new DefaultSubtitleParserFactory()), outputFilePath);
     // rotationDegrees = 180 in the output dump.
     DumpFileAsserts.assertOutput(
         context,
@@ -145,7 +156,8 @@ public class Mp4MuxerMetadataTest {
     }
 
     FakeExtractorOutput fakeExtractorOutput =
-        TestUtil.extractAllSamplesFromFilePath(new Mp4Extractor(), outputFilePath);
+        TestUtil.extractAllSamplesFromFilePath(
+            new Mp4Extractor(new DefaultSubtitleParserFactory()), outputFilePath);
     // rotationDegrees = 270 in the output dump.
     DumpFileAsserts.assertOutput(
         context,
@@ -165,13 +177,14 @@ public class Mp4MuxerMetadataTest {
               /* modificationTimestampSeconds= */ 5_000_000L));
       TrackToken token = muxer.addTrack(/* sortKey= */ 0, FAKE_VIDEO_FORMAT);
       muxer.writeSampleData(token, sampleAndSampleInfo.first, sampleAndSampleInfo.second);
-      muxer.setLocation(33.0f, -120f);
+      muxer.addMetadata(new Mp4LocationData(/* latitude= */ 33.0f, /* longitude= */ -120f));
     } finally {
       muxer.close();
     }
 
     FakeExtractorOutput fakeExtractorOutput =
-        TestUtil.extractAllSamplesFromFilePath(new Mp4Extractor(), outputFilePath);
+        TestUtil.extractAllSamplesFromFilePath(
+            new Mp4Extractor(new DefaultSubtitleParserFactory()), outputFilePath);
     // Xyz data in track metadata dump.
     DumpFileAsserts.assertOutput(
         context,
@@ -196,7 +209,8 @@ public class Mp4MuxerMetadataTest {
     }
 
     FakeExtractorOutput fakeExtractorOutput =
-        TestUtil.extractAllSamplesFromFilePath(new Mp4Extractor(), outputFilePath);
+        TestUtil.extractAllSamplesFromFilePath(
+            new Mp4Extractor(new DefaultSubtitleParserFactory()), outputFilePath);
     // No xyz data in track metadata dump.
     DumpFileAsserts.assertOutput(
         context,
@@ -214,7 +228,10 @@ public class Mp4MuxerMetadataTest {
           new Mp4TimestampData(
               /* creationTimestampSeconds= */ 1_000_000L,
               /* modificationTimestampSeconds= */ 5_000_000L));
-      muxer.setCaptureFps(120.0f);
+      float captureFps = 120.0f;
+      muxer.addMetadata(
+          new MdtaMetadataEntry(
+              KEY_ANDROID_CAPTURE_FPS, Util.toByteArray(captureFps), TYPE_INDICATOR_FLOAT32));
       TrackToken token = muxer.addTrack(/* sortKey= */ 0, FAKE_VIDEO_FORMAT);
       muxer.writeSampleData(token, sampleAndSampleInfo.first, sampleAndSampleInfo.second);
     } finally {
@@ -222,7 +239,8 @@ public class Mp4MuxerMetadataTest {
     }
 
     FakeExtractorOutput fakeExtractorOutput =
-        TestUtil.extractAllSamplesFromFilePath(new Mp4Extractor(), outputFilePath);
+        TestUtil.extractAllSamplesFromFilePath(
+            new Mp4Extractor(new DefaultSubtitleParserFactory()), outputFilePath);
     // android.capture.fps data in the track metadata dump.
     DumpFileAsserts.assertOutput(
         context,
@@ -240,7 +258,9 @@ public class Mp4MuxerMetadataTest {
           new Mp4TimestampData(
               /* creationTimestampSeconds= */ 1_000_000L,
               /* modificationTimestampSeconds= */ 5_000_000L));
-      muxer.addMetadata("SomeStringKey", "Some Random String");
+      muxer.addMetadata(
+          new MdtaMetadataEntry(
+              "SomeStringKey", Util.getUtf8Bytes("Some Random String"), TYPE_INDICATOR_STRING));
       TrackToken token = muxer.addTrack(/* sortKey= */ 0, FAKE_VIDEO_FORMAT);
       muxer.writeSampleData(token, sampleAndSampleInfo.first, sampleAndSampleInfo.second);
     } finally {
@@ -248,7 +268,8 @@ public class Mp4MuxerMetadataTest {
     }
 
     FakeExtractorOutput fakeExtractorOutput =
-        TestUtil.extractAllSamplesFromFilePath(new Mp4Extractor(), outputFilePath);
+        TestUtil.extractAllSamplesFromFilePath(
+            new Mp4Extractor(new DefaultSubtitleParserFactory()), outputFilePath);
     // Added string metadata should be present in the track metadata dump.
     DumpFileAsserts.assertOutput(
         context,
@@ -266,7 +287,10 @@ public class Mp4MuxerMetadataTest {
           new Mp4TimestampData(
               /* creationTimestampSeconds= */ 1_000_000L,
               /* modificationTimestampSeconds= */ 5_000_000L));
-      muxer.addMetadata("SomeStringKey", 10.0f);
+      float floatValue = 10.0f;
+      muxer.addMetadata(
+          new MdtaMetadataEntry(
+              "SomeStringKey", Util.toByteArray(floatValue), TYPE_INDICATOR_FLOAT32));
       TrackToken token = muxer.addTrack(/* sortKey= */ 0, FAKE_VIDEO_FORMAT);
       muxer.writeSampleData(token, sampleAndSampleInfo.first, sampleAndSampleInfo.second);
     } finally {
@@ -274,7 +298,8 @@ public class Mp4MuxerMetadataTest {
     }
 
     FakeExtractorOutput fakeExtractorOutput =
-        TestUtil.extractAllSamplesFromFilePath(new Mp4Extractor(), outputFilePath);
+        TestUtil.extractAllSamplesFromFilePath(
+            new Mp4Extractor(new DefaultSubtitleParserFactory()), outputFilePath);
     // Added float metadata should be present in the track metadata dump.
     DumpFileAsserts.assertOutput(
         context,
@@ -288,15 +313,13 @@ public class Mp4MuxerMetadataTest {
     Mp4Muxer muxer = new Mp4Muxer.Builder(new FileOutputStream(outputFilePath)).build();
 
     try {
-      muxer.setTimestampData(
+      muxer.addMetadata(
           new Mp4TimestampData(
               /* creationTimestampSeconds= */ 1_000_000L,
               /* modificationTimestampSeconds= */ 5_000_000L));
       Context context = ApplicationProvider.getApplicationContext();
       byte[] xmpBytes = TestUtil.getByteArray(context, XMP_SAMPLE_DATA);
-      ByteBuffer xmp = ByteBuffer.wrap(xmpBytes);
-      muxer.addXmp(xmp);
-      xmp.rewind();
+      muxer.addMetadata(new XmpData(xmpBytes));
       TrackToken token = muxer.addTrack(0, FAKE_VIDEO_FORMAT);
       muxer.writeSampleData(token, sampleAndSampleInfo.first, sampleAndSampleInfo.second);
     } finally {
