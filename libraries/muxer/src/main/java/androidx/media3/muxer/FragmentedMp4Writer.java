@@ -179,8 +179,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private void createHeader() throws IOException {
     output.position(0L);
     output.write(Boxes.ftyp());
-    // TODO: b/262704382 - Add some free space in the moov box to fit any newly added metadata and
-    //  write moov box again in the close() method.
     // The minInputPtsUs is actually ignored as there are no pending samples to write.
     output.write(
         moovGenerator.moovMetadataHeader(
