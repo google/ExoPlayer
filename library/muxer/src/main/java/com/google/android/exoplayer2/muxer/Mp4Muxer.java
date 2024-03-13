@@ -200,7 +200,6 @@ public final class Mp4Muxer {
   public static final ImmutableList<String> SUPPORTED_AUDIO_SAMPLE_MIME_TYPES =
       ImmutableList.of(MimeTypes.AUDIO_AAC);
 
-  // TODO: b/262704382 - Optimize the default duration.
   /**
    * The default fragment duration for the {@linkplain Builder#setFragmentedMp4Enabled(boolean)
    * fragmented MP4}.
