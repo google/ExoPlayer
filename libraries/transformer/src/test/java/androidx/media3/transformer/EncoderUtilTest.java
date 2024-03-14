@@ -189,8 +189,8 @@ public class EncoderUtilTest {
   @Config(sdk = {30, 31})
   @Test
   public void getSupportedEncodersForHdrEditing_returnsEmptyList() {
-    // This test is run on 30 and 31 because the tested logic differentiate at API31.
-    // getSupportedEncoderNamesForHdrEditing returns an empty list for API < 31. It returns an empty
+    // This test is run on API 30 and 31 because the tested logic differentiates at API 31.
+    // getSupportedEncodersForHdrEditing returns an empty list for API < 31. It returns an empty
     // list for API >= 31 as well, because currently it is not possible to make ShadowMediaCodec
     // support HDR.
     assertThat(
