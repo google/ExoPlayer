@@ -15,6 +15,7 @@
  */
 package androidx.media3.transformer;
 
+import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Util.getPcmFormat;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
@@ -23,6 +24,8 @@ import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.audio.AudioProcessor.AudioFormat;
 import androidx.media3.common.audio.SonicAudioProcessor;
+import androidx.media3.decoder.DecoderInputBuffer;
+import androidx.media3.test.utils.TestUtil;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
 import java.nio.ByteBuffer;
@@ -88,6 +91,16 @@ public class AudioGraphTest {
     AudioGraph audioGraph = new AudioGraph(new DefaultAudioMixer.Factory());
 
     audioGraph.registerInput(FAKE_ITEM, getPcmFormat(MONO_48000));
+
+    assertThat(audioGraph.getOutputAudioFormat()).isEqualTo(MONO_48000);
+  }
+
+  @Test
+  public void getOutputAudioFormat_afterFlush_isSet() throws Exception {
+    AudioGraph audioGraph = new AudioGraph(new DefaultAudioMixer.Factory());
+    audioGraph.registerInput(FAKE_ITEM, getPcmFormat(MONO_48000));
+
+    audioGraph.flush();
 
     assertThat(audioGraph.getOutputAudioFormat()).isEqualTo(MONO_48000);
   }
@@ -162,6 +175,108 @@ public class AudioGraphTest {
     assertThrows(
         IllegalStateException.class,
         () -> audioGraph.configure(ImmutableList.of(sonicAudioProcessor)));
+  }
+
+  @Test
+  public void flush_withoutAudioProcessor_clearsPendingData() throws Exception {
+    AudioGraph audioGraph = new AudioGraph(new DefaultAudioMixer.Factory());
+    audioGraph.configure(ImmutableList.of());
+    AudioGraphInput audioGraphInput =
+        audioGraph.registerInput(FAKE_ITEM, getPcmFormat(STEREO_44100));
+    audioGraphInput.onMediaItemChanged(
+        FAKE_ITEM,
+        /* durationUs= */ 1_000_000,
+        /* decodedFormat= */ getPcmFormat(STEREO_44100),
+        /* isLast= */ true);
+    audioGraphInput.getOutput(); // Force the media item change to be processed.
+    DecoderInputBuffer inputBuffer = audioGraphInput.getInputBuffer();
+    byte[] inputData = TestUtil.buildTestData(/* length= */ 100 * STEREO_44100.bytesPerFrame);
+    inputBuffer.ensureSpaceForWrite(inputData.length);
+    inputBuffer.data.put(inputData).flip();
+    checkState(audioGraphInput.queueInputBuffer());
+    checkState(audioGraph.getOutput().hasRemaining());
+
+    audioGraph.flush();
+    audioGraphInput.getInputBuffer().setFlags(C.BUFFER_FLAG_END_OF_STREAM);
+    checkState(audioGraphInput.queueInputBuffer()); // Queue EOS.
+    int bytesOutput = drainAudioGraph(audioGraph);
+
+    assertThat(bytesOutput).isEqualTo(0);
+  }
+
+  @Test
+  public void flush_withAudioProcessor_clearsPendingData() throws Exception {
+    AudioGraph audioGraph = new AudioGraph(new DefaultAudioMixer.Factory());
+    SonicAudioProcessor sonicAudioProcessor = new SonicAudioProcessor();
+    sonicAudioProcessor.setOutputSampleRateHz(48_000);
+    audioGraph.configure(ImmutableList.of(sonicAudioProcessor));
+    AudioGraphInput audioGraphInput =
+        audioGraph.registerInput(FAKE_ITEM, getPcmFormat(STEREO_44100));
+    audioGraphInput.onMediaItemChanged(
+        FAKE_ITEM,
+        /* durationUs= */ 1_000_000,
+        /* decodedFormat= */ getPcmFormat(STEREO_44100),
+        /* isLast= */ true);
+    audioGraphInput.getOutput(); // Force the media item change to be processed.
+    DecoderInputBuffer inputBuffer = audioGraphInput.getInputBuffer();
+    byte[] inputData = TestUtil.buildTestData(/* length= */ 100 * STEREO_44100.bytesPerFrame);
+    inputBuffer.ensureSpaceForWrite(inputData.length);
+    inputBuffer.data.put(inputData).flip();
+    checkState(audioGraphInput.queueInputBuffer());
+    checkState(audioGraph.getOutput().hasRemaining());
+
+    audioGraph.flush();
+    audioGraphInput.getInputBuffer().setFlags(C.BUFFER_FLAG_END_OF_STREAM);
+    checkState(audioGraphInput.queueInputBuffer()); // Queue EOS.
+    int bytesOutput = drainAudioGraph(audioGraph);
+
+    assertThat(bytesOutput).isEqualTo(0);
+  }
+
+  @Test
+  public void isEnded_afterFlushAndWithoutAudioProcessor_isFalse() throws Exception {
+    AudioGraph audioGraph = new AudioGraph(new DefaultAudioMixer.Factory());
+    audioGraph.configure(ImmutableList.of());
+    AudioGraphInput audioGraphInput =
+        audioGraph.registerInput(FAKE_ITEM, getPcmFormat(STEREO_44100));
+    audioGraphInput.onMediaItemChanged(
+        FAKE_ITEM,
+        /* durationUs= */ 1_000_000,
+        /* decodedFormat= */ getPcmFormat(STEREO_44100),
+        /* isLast= */ true);
+    audioGraphInput.getOutput(); // Force the media item change to be processed.
+    audioGraphInput.getInputBuffer().setFlags(C.BUFFER_FLAG_END_OF_STREAM);
+    checkState(audioGraphInput.queueInputBuffer()); // Queue EOS.
+    drainAudioGraph(audioGraph);
+    checkState(audioGraph.isEnded());
+
+    audioGraph.flush();
+
+    assertThat(audioGraph.isEnded()).isFalse();
+  }
+
+  @Test
+  public void isEnded_afterFlushAndWithAudioProcessor_isFalse() throws Exception {
+    AudioGraph audioGraph = new AudioGraph(new DefaultAudioMixer.Factory());
+    SonicAudioProcessor sonicAudioProcessor = new SonicAudioProcessor();
+    sonicAudioProcessor.setOutputSampleRateHz(48_000);
+    audioGraph.configure(ImmutableList.of(sonicAudioProcessor));
+    AudioGraphInput audioGraphInput =
+        audioGraph.registerInput(FAKE_ITEM, getPcmFormat(STEREO_44100));
+    audioGraphInput.onMediaItemChanged(
+        FAKE_ITEM,
+        /* durationUs= */ 1_000_000,
+        /* decodedFormat= */ getPcmFormat(STEREO_44100),
+        /* isLast= */ true);
+    audioGraphInput.getOutput(); // Force the media item change to be processed.
+    audioGraphInput.getInputBuffer().setFlags(C.BUFFER_FLAG_END_OF_STREAM);
+    checkState(audioGraphInput.queueInputBuffer()); // Queue EOS.
+    drainAudioGraph(audioGraph);
+    checkState(audioGraph.isEnded());
+
+    audioGraph.flush();
+
+    assertThat(audioGraph.isEnded()).isFalse();
   }
 
   /** Drains the graph and returns the number of bytes output. */
