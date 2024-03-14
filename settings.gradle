@@ -32,6 +32,8 @@ include modulePrefix + 'demo-cast'
 project(modulePrefix + 'demo-cast').projectDir = new File(rootDir, 'demos/cast')
 include modulePrefix + 'demo-gl'
 project(modulePrefix + 'demo-gl').projectDir = new File(rootDir, 'demos/gl')
+include modulePrefix + 'demo-shortform'
+project(modulePrefix + 'demo-shortform').projectDir = new File(rootDir, 'demos/shortform')
 include modulePrefix + 'demo-surface'
 project(modulePrefix + 'demo-surface').projectDir = new File(rootDir, 'demos/surface')
 include modulePrefix + 'demo-transformer'
