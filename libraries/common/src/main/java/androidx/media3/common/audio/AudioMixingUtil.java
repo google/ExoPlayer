@@ -70,6 +70,8 @@ public final class AudioMixingUtil {
    * @param matrix Scaled channel mapping from input to output.
    * @param framesToMix Number of audio frames to mix. Must be within the bounds of both buffers.
    * @param accumulate Whether to accumulate with the existing samples in the mixing buffer.
+   * @param clipFloatOutput Whether to clip the output signal to be in the [-1.0, 1.0] range if the
+   *     output encoding is {@link C#ENCODING_PCM_FLOAT}.
    * @return The {@code mixingBuffer}, for convenience.
    */
   public static ByteBuffer mix(
@@ -79,7 +81,8 @@ public final class AudioMixingUtil {
       AudioFormat mixingAudioFormat,
       ChannelMixingMatrix matrix,
       int framesToMix,
-      boolean accumulate) {
+      boolean accumulate,
+      boolean clipFloatOutput) {
 
     boolean int16Input = inputAudioFormat.encoding == C.ENCODING_PCM_16BIT;
     boolean int16Output = mixingAudioFormat.encoding == C.ENCODING_PCM_16BIT;
@@ -114,7 +117,10 @@ public final class AudioMixingUtil {
               (short) constrainValue(outputFrame[outputChannel], Short.MIN_VALUE, Short.MAX_VALUE));
         } else {
           mixingBuffer.putFloat(
-              constrainValue(outputFrame[outputChannel], FLOAT_PCM_MIN_VALUE, FLOAT_PCM_MAX_VALUE));
+              clipFloatOutput
+                  ? constrainValue(
+                      outputFrame[outputChannel], FLOAT_PCM_MIN_VALUE, FLOAT_PCM_MAX_VALUE)
+                  : outputFrame[outputChannel]);
         }
 
         outputFrame[outputChannel] = 0;

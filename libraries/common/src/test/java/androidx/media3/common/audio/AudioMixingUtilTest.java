@@ -61,7 +61,8 @@ public final class AudioMixingUtilTest {
         STEREO_44100_PCM_FLOAT,
         STEREO_TO_STEREO.scaleBy(0.5f),
         /* framesToMix= */ 2,
-        /* accumulate= */ true);
+        /* accumulate= */ true,
+        /* clipFloatOutput= */ true);
 
     assertWithMessage("Source buffer").that(sourceBuffer.remaining()).isEqualTo(0);
     assertWithMessage("Mixing buffer").that(mixingBuffer.remaining()).isEqualTo(0);
@@ -81,7 +82,8 @@ public final class AudioMixingUtilTest {
         STEREO_44100_PCM_FLOAT,
         MONO_TO_STEREO.scaleBy(0.5f),
         /* framesToMix= */ 2,
-        /* accumulate= */ true);
+        /* accumulate= */ true,
+        /* clipFloatOutput= */ true);
 
     assertWithMessage("Source buffer").that(sourceBuffer.remaining()).isEqualTo(0);
     assertWithMessage("Mixing buffer").that(mixingBuffer.remaining()).isEqualTo(0);
@@ -108,7 +110,8 @@ public final class AudioMixingUtilTest {
         STEREO_44100_PCM_FLOAT,
         STEREO_TO_STEREO.scaleBy(0.5f),
         /* framesToMix= */ 2,
-        /* accumulate= */ true);
+        /* accumulate= */ true,
+        /* clipFloatOutput= */ true);
 
     assertWithMessage("Source buffer").that(sourceBuffer.remaining()).isEqualTo(0);
     assertWithMessage("Mixing buffer").that(mixingBuffer.remaining()).isEqualTo(0);
@@ -132,7 +135,8 @@ public final class AudioMixingUtilTest {
         STEREO_44100_PCM_FLOAT,
         MONO_TO_STEREO.scaleBy(0.5f),
         /* framesToMix= */ 2,
-        /* accumulate= */ true);
+        /* accumulate= */ true,
+        /* clipFloatOutput= */ true);
 
     assertWithMessage("Source buffer").that(sourceBuffer.remaining()).isEqualTo(0);
     assertWithMessage("Mixing buffer").that(mixingBuffer.remaining()).isEqualTo(0);
@@ -155,7 +159,8 @@ public final class AudioMixingUtilTest {
         MONO_44100_PCM_FLOAT,
         STEREO_TO_MONO.scaleBy(0.5f),
         /* framesToMix= */ 2,
-        /* accumulate= */ true);
+        /* accumulate= */ true,
+        /* clipFloatOutput= */ true);
 
     assertWithMessage("Source buffer").that(sourceBuffer.remaining()).isEqualTo(0);
     assertWithMessage("Mixing buffer").that(mixingBuffer.remaining()).isEqualTo(0);
@@ -175,7 +180,8 @@ public final class AudioMixingUtilTest {
         MONO_44100_PCM_FLOAT,
         MONO_TO_MONO.scaleBy(0.5f),
         /* framesToMix= */ 2,
-        /* accumulate= */ true);
+        /* accumulate= */ true,
+        /* clipFloatOutput= */ true);
 
     assertWithMessage("Source buffer").that(sourceBuffer.remaining()).isEqualTo(0);
     assertWithMessage("Mixing buffer").that(mixingBuffer.remaining()).isEqualTo(0);
@@ -202,7 +208,8 @@ public final class AudioMixingUtilTest {
         MONO_44100_PCM_FLOAT,
         STEREO_TO_MONO.scaleBy(0.5f),
         /* framesToMix= */ 2,
-        /* accumulate= */ true);
+        /* accumulate= */ true,
+        /* clipFloatOutput= */ true);
 
     assertWithMessage("Source buffer").that(sourceBuffer.remaining()).isEqualTo(0);
     assertWithMessage("Mixing buffer").that(mixingBuffer.remaining()).isEqualTo(0);
@@ -226,7 +233,8 @@ public final class AudioMixingUtilTest {
         MONO_44100_PCM_FLOAT,
         MONO_TO_MONO.scaleBy(0.5f),
         /* framesToMix= */ 2,
-        /* accumulate= */ true);
+        /* accumulate= */ true,
+        /* clipFloatOutput= */ true);
 
     assertWithMessage("Source buffer").that(sourceBuffer.remaining()).isEqualTo(0);
     assertWithMessage("Mixing buffer").that(mixingBuffer.remaining()).isEqualTo(0);
@@ -250,7 +258,8 @@ public final class AudioMixingUtilTest {
         STEREO_44100_PCM_16BIT,
         MONO_TO_STEREO,
         /* framesToMix= */ 3,
-        /* accumulate= */ true);
+        /* accumulate= */ true,
+        /* clipFloatOutput= */ true);
 
     assertWithMessage("Source buffer").that(sourceBuffer.remaining()).isEqualTo(0);
     assertWithMessage("Mixing buffer").that(mixingBuffer.remaining()).isEqualTo(0);
@@ -272,7 +281,8 @@ public final class AudioMixingUtilTest {
         MONO_44100_PCM_16BIT,
         MONO_TO_MONO,
         /* framesToMix= */ 2,
-        /* accumulate= */ true);
+        /* accumulate= */ true,
+        /* clipFloatOutput= */ true);
 
     assertWithMessage("Source buffer").that(sourceBuffer.remaining()).isEqualTo(0);
     assertWithMessage("Mixing buffer")
@@ -304,7 +314,8 @@ public final class AudioMixingUtilTest {
         MONO_44100_PCM_16BIT,
         MONO_TO_MONO,
         /* framesToMix= */ 4,
-        /* accumulate= */ true);
+        /* accumulate= */ true,
+        /* clipFloatOutput= */ true);
 
     assertWithMessage("Source buffer").that(sourceBuffer.remaining()).isEqualTo(0);
     assertWithMessage("Mixing buffer").that(mixingBuffer.remaining()).isEqualTo(0);
@@ -328,7 +339,8 @@ public final class AudioMixingUtilTest {
         STEREO_44100_PCM_16BIT,
         STEREO_TO_STEREO,
         /* framesToMix= */ 3,
-        /* accumulate= */ true);
+        /* accumulate= */ true,
+        /* clipFloatOutput= */ true);
 
     assertWithMessage("Source buffer").that(sourceBuffer.remaining()).isEqualTo(0);
     assertWithMessage("Mixing buffer").that(mixingBuffer.remaining()).isEqualTo(0);
@@ -350,7 +362,8 @@ public final class AudioMixingUtilTest {
         STEREO_44100_PCM_16BIT,
         STEREO_TO_STEREO,
         /* framesToMix= */ 2,
-        /* accumulate= */ false);
+        /* accumulate= */ false,
+        /* clipFloatOutput= */ true);
 
     assertWithMessage("Source buffer")
         .that(sourceBuffer.remaining())
@@ -361,5 +374,47 @@ public final class AudioMixingUtilTest {
 
     mixingBuffer.rewind();
     assertThat(mixingBuffer).isEqualTo(expectedBuffer);
+  }
+
+  @Test
+  public void mixToMonoFloat_withMonoFloatInput_withClipping() {
+    ByteBuffer mixingBuffer = createByteBuffer(new float[] {0.9f, -0.9f});
+    ByteBuffer sourceBuffer = createByteBuffer(new float[] {0.5f, -0.2f});
+
+    AudioMixingUtil.mix(
+        sourceBuffer,
+        MONO_44100_PCM_FLOAT,
+        mixingBuffer,
+        MONO_44100_PCM_FLOAT,
+        MONO_TO_MONO,
+        /* framesToMix= */ 2,
+        /* accumulate= */ true,
+        /* clipFloatOutput= */ true);
+
+    assertWithMessage("Source buffer").that(sourceBuffer.remaining()).isEqualTo(0);
+    assertWithMessage("Mixing buffer").that(mixingBuffer.remaining()).isEqualTo(0);
+    mixingBuffer.rewind();
+    assertThat(createFloatArray(mixingBuffer)).isEqualTo(new float[] {1f, -1f});
+  }
+
+  @Test
+  public void mixToMonoFloat_withMonoFloatInput_noClipping() {
+    ByteBuffer mixingBuffer = createByteBuffer(new float[] {0.9f, -0.9f});
+    ByteBuffer sourceBuffer = createByteBuffer(new float[] {0.5f, -0.2f});
+
+    AudioMixingUtil.mix(
+        sourceBuffer,
+        MONO_44100_PCM_FLOAT,
+        mixingBuffer,
+        MONO_44100_PCM_FLOAT,
+        MONO_TO_MONO,
+        /* framesToMix= */ 2,
+        /* accumulate= */ true,
+        /* clipFloatOutput= */ false);
+
+    assertWithMessage("Source buffer").that(sourceBuffer.remaining()).isEqualTo(0);
+    assertWithMessage("Mixing buffer").that(mixingBuffer.remaining()).isEqualTo(0);
+    mixingBuffer.rewind();
+    assertThat(createFloatArray(mixingBuffer)).isEqualTo(new float[] {1.4f, -1.1f});
   }
 }

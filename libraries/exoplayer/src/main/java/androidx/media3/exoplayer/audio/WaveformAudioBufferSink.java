@@ -140,7 +140,8 @@ public class WaveformAudioBufferSink implements TeeAudioProcessor.AudioBufferSin
           mixingAudioFormat,
           channelMixingMatrix,
           /* framesToMix= */ 1,
-          /* accumulate= */ false);
+          /* accumulate= */ false,
+          /* clipFloatOutput= */ true);
       mixingBuffer.rewind();
       for (int i = 0; i < outputChannels.size(); i++) {
         WaveformBar bar = outputChannels.get(i);

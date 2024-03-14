@@ -64,7 +64,9 @@ public interface AudioMixer {
    */
   @Deprecated
   static AudioMixer create() {
-    return new DefaultAudioMixer.Factory(/* outputSilenceWithNoSources= */ true).create();
+    return new DefaultAudioMixer.Factory(
+            /* outputSilenceWithNoSources= */ true, /* clipFloatOutput= */ true)
+        .create();
   }
 
   /**
