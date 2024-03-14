@@ -172,6 +172,12 @@ import java.io.IOException;
     while (chunkHeader.id != chunkId) {
       Log.w(TAG, "Ignoring unknown WAV chunk: " + chunkHeader.id);
       long bytesToSkip = ChunkHeader.SIZE_IN_BYTES + chunkHeader.size;
+      // According to the RIFF specification, if a chunk's body size is odd, it's followed by a
+      // padding byte of value 0. This ensures each chunk occupies an even number of bytes in the
+      // file. The padding byte isn't included in the size field.
+      if (chunkHeader.size % 2 != 0) {
+        bytesToSkip++; // padding present if size is odd, skip it.
+      }
       if (bytesToSkip > Integer.MAX_VALUE) {
         throw ParserException.createForUnsupportedContainerFeature(
             "Chunk is too large (~2GB+) to skip; id: " + chunkHeader.id);
