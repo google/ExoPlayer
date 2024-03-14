@@ -89,7 +89,8 @@ public final class ChannelMixingAudioProcessor extends BaseAudioProcessor {
         outputAudioFormat,
         channelMixingMatrix,
         framesToMix,
-        /* accumulate= */ false);
+        /* accumulate= */ false,
+        /* clipFloatOutput= */ true);
     outputBuffer.flip();
   }
 }
