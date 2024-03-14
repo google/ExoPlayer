@@ -21,14 +21,12 @@ import static androidx.media3.muxer.Mp4Utils.UNSIGNED_INT_MAX_VALUE;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.media.MediaCodec.BufferInfo;
-import androidx.annotation.FloatRange;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.media3.common.Format;
 import androidx.media3.common.Metadata;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.UnstableApi;
-import androidx.media3.common.util.Util;
 import androidx.media3.container.MdtaMetadataEntry;
 import androidx.media3.container.Mp4LocationData;
 import androidx.media3.container.Mp4OrientationData;
@@ -226,97 +224,6 @@ public final class Mp4Muxer {
   }
 
   /**
-   * @deprecated Use {@link #addMetadata(Metadata.Entry)} with {@link Mp4OrientationData} instead.
-   */
-  @Deprecated
-  public void setOrientation(int orientation) {
-    addMetadata(new Mp4OrientationData(orientation));
-  }
-
-  /**
-   * @deprecated Use {@link #addMetadata(Metadata.Entry)} with {@link Mp4LocationData} instead.
-   */
-  @Deprecated
-  public void setLocation(
-      @FloatRange(from = -90.0, to = 90.0) float latitude,
-      @FloatRange(from = -180.0, to = 180.0) float longitude) {
-    addMetadata(new Mp4LocationData(latitude, longitude));
-  }
-
-  /**
-   * @deprecated Use {@link #addMetadata(Metadata.Entry)} with {@link MdtaMetadataEntry} instead.
-   */
-  @Deprecated
-  public void setCaptureFps(float captureFps) {
-    addMetadata(
-        new MdtaMetadataEntry(
-            MdtaMetadataEntry.KEY_ANDROID_CAPTURE_FPS,
-            Util.toByteArray(captureFps),
-            MdtaMetadataEntry.TYPE_INDICATOR_FLOAT32));
-  }
-
-  /**
-   * @deprecated Use {@link #addMetadata(Metadata.Entry)} with {@link Mp4TimestampData} instead.
-   */
-  @Deprecated
-  public void setTimestampData(Mp4TimestampData timestampData) {
-    addMetadata(timestampData);
-  }
-
-  /**
-   * @deprecated Use {@link #addMetadata(Metadata.Entry)} with {@link MdtaMetadataEntry} instead.
-   */
-  @Deprecated
-  public void addMetadata(String key, Object value) {
-    MdtaMetadataEntry mdtaMetadataEntry = null;
-    if (value instanceof String) {
-      mdtaMetadataEntry =
-          new MdtaMetadataEntry(
-              key, Util.getUtf8Bytes((String) value), MdtaMetadataEntry.TYPE_INDICATOR_STRING);
-    } else if (value instanceof Float) {
-      mdtaMetadataEntry =
-          new MdtaMetadataEntry(
-              key, Util.toByteArray((Float) value), MdtaMetadataEntry.TYPE_INDICATOR_FLOAT32);
-    } else {
-      throw new IllegalArgumentException("Unsupported metadata");
-    }
-    addMetadata(mdtaMetadataEntry);
-  }
-
-  /**
-   * Adds metadata for the output file.
-   *
-   * <p>List of supported {@linkplain Metadata.Entry metadata entries}:
-   *
-   * <ul>
-   *   <li>{@link Mp4OrientationData}
-   *   <li>{@link Mp4LocationData}
-   *   <li>{@link Mp4TimestampData}
-   *   <li>{@link MdtaMetadataEntry}: Only {@linkplain MdtaMetadataEntry#TYPE_INDICATOR_STRING
-   *       string type} or {@linkplain MdtaMetadataEntry#TYPE_INDICATOR_FLOAT32 float type} value is
-   *       supported.
-   *   <li>{@link XmpData}
-   * </ul>
-   *
-   * @param metadata The {@linkplain Metadata.Entry metadata}. An {@link IllegalArgumentException}
-   *     is throw if the {@linkplain Metadata.Entry metadata} is not supported.
-   */
-  public void addMetadata(Metadata.Entry metadata) {
-    checkArgument(isMetadataSupported(metadata), "Unsupported metadata");
-    metadataCollector.addMetadata(metadata);
-  }
-
-  /**
-   * @deprecated Use {@link #addMetadata(Metadata.Entry)} with {@link XmpData} instead.
-   */
-  @Deprecated
-  public void addXmp(ByteBuffer xmp) {
-    byte[] xmpData = new byte[xmp.remaining()];
-    xmp.get(xmpData, 0, xmpData.length);
-    addMetadata(new XmpData(xmpData));
-  }
-
-  /**
    * Adds a track of the given media format.
    *
    * <p>Tracks can be added at any point before the muxer is closed, even after writing samples to
@@ -350,6 +257,29 @@ public final class Mp4Muxer {
   public void writeSampleData(TrackToken trackToken, ByteBuffer byteBuffer, BufferInfo bufferInfo)
       throws IOException {
     mp4Writer.writeSampleData(trackToken, byteBuffer, bufferInfo);
+  }
+
+  /**
+   * Adds metadata for the output file.
+   *
+   * <p>List of supported {@linkplain Metadata.Entry metadata entries}:
+   *
+   * <ul>
+   *   <li>{@link Mp4OrientationData}
+   *   <li>{@link Mp4LocationData}
+   *   <li>{@link Mp4TimestampData}
+   *   <li>{@link MdtaMetadataEntry}: Only {@linkplain MdtaMetadataEntry#TYPE_INDICATOR_STRING
+   *       string type} or {@linkplain MdtaMetadataEntry#TYPE_INDICATOR_FLOAT32 float type} value is
+   *       supported.
+   *   <li>{@link XmpData}
+   * </ul>
+   *
+   * @param metadata The {@linkplain Metadata.Entry metadata}. An {@link IllegalArgumentException}
+   *     is throw if the {@linkplain Metadata.Entry metadata} is not supported.
+   */
+  public void addMetadata(Metadata.Entry metadata) {
+    checkArgument(isMetadataSupported(metadata), "Unsupported metadata");
+    metadataCollector.addMetadata(metadata);
   }
 
   /** Closes the MP4 file. */
