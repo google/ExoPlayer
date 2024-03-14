@@ -25,6 +25,7 @@ import androidx.media3.common.util.BundleCollectionUtil;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -955,8 +956,12 @@ public final class Format implements Bundleable {
     labels = builder.labels == null ? new ArrayList<>() : builder.labels;
     if (labels.isEmpty() && !TextUtils.isEmpty(tmpLabel)) {
       labels.add(new Label(language, tmpLabel));
+      label = tmpLabel;
+    } else if (!labels.isEmpty() && TextUtils.isEmpty(tmpLabel)) {
+      label = getDefaultLabel(tmpLabel, labels);
+    } else {
+      label = tmpLabel;
     }
-    label = makeLabelIfNeeded(tmpLabel, labels);
     checkLabels(label, labels);
     selectionFlags = builder.selectionFlags;
     roleFlags = builder.roleFlags;
@@ -1005,7 +1010,7 @@ public final class Format implements Bundleable {
     }
   }
 
-  private @Nullable String makeLabelIfNeeded(@Nullable String label, List<Label> labels) {
+  private @Nullable String getDefaultLabel(@Nullable String label, List<Label> labels) {
     if (TextUtils.isEmpty(label)) {
       for (Label l : labels) {
         if (TextUtils.equals(l.lang, language)) {
@@ -1162,7 +1167,7 @@ public final class Format implements Bundleable {
       int result = 17;
       result = 31 * result + (id == null ? 0 : id.hashCode());
       result = 31 * result + (label == null ? 0 : label.hashCode());
-      // [Omitted] labels.
+      result = 31 * result + labels.hashCode();
       result = 31 * result + (language == null ? 0 : language.hashCode());
       result = 31 * result + selectionFlags;
       result = 31 * result + roleFlags;
@@ -1250,7 +1255,7 @@ public final class Format implements Bundleable {
         && Util.areEqual(colorInfo, other.colorInfo)
         && Util.areEqual(drmInitData, other.drmInitData)
         && initializationDataEquals(other)
-        && labelsEquals(other);
+        && labels.equals(other.labels);
   }
 
   /**
@@ -1268,32 +1273,6 @@ public final class Format implements Bundleable {
     }
     for (int i = 0; i < initializationData.size(); i++) {
       if (!Arrays.equals(initializationData.get(i), other.initializationData.get(i))) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  /**
-   * Returns whether the {@link #labels}s belonging to this format and {@code other} are equal.
-   *
-   * @param other The other format whose {@link #labels} is being compared.
-   * @return Whether the {@link #labels} belonging to this format and {@code other} are equal.
-   */
-  @UnstableApi
-  public boolean labelsEquals(Format other) {
-    if ((labels == null && other.labels != null) || (labels != null && other.labels == null)) {
-      return false;
-    }
-    if (labels == null && other.labels == null) {
-      return true;
-    }
-
-    if (labels.size() != other.labels.size()) {
-      return false;
-    }
-    for (int i = 0; i < labels.size(); i++) {
-      if (!Util.areEqual(labels.get(i), other.labels.get(i))) {
         return false;
       }
     }
@@ -1362,7 +1341,7 @@ public final class Format implements Bundleable {
     if (format.label != null) {
       builder.append(", label=").append(format.label);
     }
-    if (format.labels != null) {
+    if (format.labels.size() > 0) {
       builder.append(", labels=[");
       Joiner.on(',').appendTo(builder, format.labels);
       builder.append("]");
@@ -1384,37 +1363,37 @@ public final class Format implements Bundleable {
 
   private static final String FIELD_ID = Util.intToStringMaxRadix(0);
   private static final String FIELD_LABEL = Util.intToStringMaxRadix(1);
-  private static final String FIELD_LABELS = Util.intToStringMaxRadix(2);
-  private static final String FIELD_LANGUAGE = Util.intToStringMaxRadix(3);
-  private static final String FIELD_SELECTION_FLAGS = Util.intToStringMaxRadix(4);
-  private static final String FIELD_ROLE_FLAGS = Util.intToStringMaxRadix(5);
-  private static final String FIELD_AVERAGE_BITRATE = Util.intToStringMaxRadix(6);
-  private static final String FIELD_PEAK_BITRATE = Util.intToStringMaxRadix(7);
-  private static final String FIELD_CODECS = Util.intToStringMaxRadix(8);
-  private static final String FIELD_METADATA = Util.intToStringMaxRadix(9);
-  private static final String FIELD_CONTAINER_MIME_TYPE = Util.intToStringMaxRadix(10);
-  private static final String FIELD_SAMPLE_MIME_TYPE = Util.intToStringMaxRadix(11);
-  private static final String FIELD_MAX_INPUT_SIZE = Util.intToStringMaxRadix(12);
-  private static final String FIELD_INITIALIZATION_DATA = Util.intToStringMaxRadix(13);
-  private static final String FIELD_DRM_INIT_DATA = Util.intToStringMaxRadix(14);
-  private static final String FIELD_SUBSAMPLE_OFFSET_US = Util.intToStringMaxRadix(15);
-  private static final String FIELD_WIDTH = Util.intToStringMaxRadix(16);
-  private static final String FIELD_HEIGHT = Util.intToStringMaxRadix(17);
-  private static final String FIELD_FRAME_RATE = Util.intToStringMaxRadix(18);
-  private static final String FIELD_ROTATION_DEGREES = Util.intToStringMaxRadix(19);
-  private static final String FIELD_PIXEL_WIDTH_HEIGHT_RATIO = Util.intToStringMaxRadix(20);
-  private static final String FIELD_PROJECTION_DATA = Util.intToStringMaxRadix(21);
-  private static final String FIELD_STEREO_MODE = Util.intToStringMaxRadix(22);
-  private static final String FIELD_COLOR_INFO = Util.intToStringMaxRadix(23);
-  private static final String FIELD_CHANNEL_COUNT = Util.intToStringMaxRadix(24);
-  private static final String FIELD_SAMPLE_RATE = Util.intToStringMaxRadix(25);
-  private static final String FIELD_PCM_ENCODING = Util.intToStringMaxRadix(26);
-  private static final String FIELD_ENCODER_DELAY = Util.intToStringMaxRadix(27);
-  private static final String FIELD_ENCODER_PADDING = Util.intToStringMaxRadix(28);
-  private static final String FIELD_ACCESSIBILITY_CHANNEL = Util.intToStringMaxRadix(29);
-  private static final String FIELD_CRYPTO_TYPE = Util.intToStringMaxRadix(30);
-  private static final String FIELD_TILE_COUNT_HORIZONTAL = Util.intToStringMaxRadix(31);
-  private static final String FIELD_TILE_COUNT_VERTICAL = Util.intToStringMaxRadix(32);
+  private static final String FIELD_LANGUAGE = Util.intToStringMaxRadix(2);
+  private static final String FIELD_SELECTION_FLAGS = Util.intToStringMaxRadix(3);
+  private static final String FIELD_ROLE_FLAGS = Util.intToStringMaxRadix(4);
+  private static final String FIELD_AVERAGE_BITRATE = Util.intToStringMaxRadix(5);
+  private static final String FIELD_PEAK_BITRATE = Util.intToStringMaxRadix(6);
+  private static final String FIELD_CODECS = Util.intToStringMaxRadix(7);
+  private static final String FIELD_METADATA = Util.intToStringMaxRadix(8);
+  private static final String FIELD_CONTAINER_MIME_TYPE = Util.intToStringMaxRadix(9);
+  private static final String FIELD_SAMPLE_MIME_TYPE = Util.intToStringMaxRadix(10);
+  private static final String FIELD_MAX_INPUT_SIZE = Util.intToStringMaxRadix(11);
+  private static final String FIELD_INITIALIZATION_DATA = Util.intToStringMaxRadix(12);
+  private static final String FIELD_DRM_INIT_DATA = Util.intToStringMaxRadix(13);
+  private static final String FIELD_SUBSAMPLE_OFFSET_US = Util.intToStringMaxRadix(14);
+  private static final String FIELD_WIDTH = Util.intToStringMaxRadix(15);
+  private static final String FIELD_HEIGHT = Util.intToStringMaxRadix(16);
+  private static final String FIELD_FRAME_RATE = Util.intToStringMaxRadix(17);
+  private static final String FIELD_ROTATION_DEGREES = Util.intToStringMaxRadix(18);
+  private static final String FIELD_PIXEL_WIDTH_HEIGHT_RATIO = Util.intToStringMaxRadix(19);
+  private static final String FIELD_PROJECTION_DATA = Util.intToStringMaxRadix(20);
+  private static final String FIELD_STEREO_MODE = Util.intToStringMaxRadix(21);
+  private static final String FIELD_COLOR_INFO = Util.intToStringMaxRadix(22);
+  private static final String FIELD_CHANNEL_COUNT = Util.intToStringMaxRadix(23);
+  private static final String FIELD_SAMPLE_RATE = Util.intToStringMaxRadix(24);
+  private static final String FIELD_PCM_ENCODING = Util.intToStringMaxRadix(25);
+  private static final String FIELD_ENCODER_DELAY = Util.intToStringMaxRadix(26);
+  private static final String FIELD_ENCODER_PADDING = Util.intToStringMaxRadix(27);
+  private static final String FIELD_ACCESSIBILITY_CHANNEL = Util.intToStringMaxRadix(28);
+  private static final String FIELD_CRYPTO_TYPE = Util.intToStringMaxRadix(29);
+  private static final String FIELD_TILE_COUNT_HORIZONTAL = Util.intToStringMaxRadix(30);
+  private static final String FIELD_TILE_COUNT_VERTICAL = Util.intToStringMaxRadix(31);
+  private static final String FIELD_LABELS = Util.intToStringMaxRadix(32);
 
   @UnstableApi
   @Override
@@ -1431,11 +1410,8 @@ public final class Format implements Bundleable {
     Bundle bundle = new Bundle();
     bundle.putString(FIELD_ID, id);
     bundle.putString(FIELD_LABEL, label);
-    if (labels != null) {
-      for (int i = 0; i < labels.size(); i++) {
-        bundle.putParcelable(keyForLabel(i), labels.get(i));
-      }
-    }
+    bundle.putParcelableArrayList(
+        FIELD_LABELS, BundleCollectionUtil.toBundleArrayList(labels, Label::toBundle));
     bundle.putString(FIELD_LANGUAGE, language);
     bundle.putInt(FIELD_SELECTION_FLAGS, selectionFlags);
     bundle.putInt(FIELD_ROLE_FLAGS, roleFlags);
@@ -1503,14 +1479,11 @@ public final class Format implements Bundleable {
     builder
         .setId(defaultIfNull(bundle.getString(FIELD_ID), DEFAULT.id))
         .setLabel(defaultIfNull(bundle.getString(FIELD_LABEL), DEFAULT.label));
-    List<Label> labels = new ArrayList<>();
-    for (int i = 0; ; i++) {
-      @Nullable Label label = bundle.getParcelable(keyForLabel(i));
-      if (label == null) {
-        break;
-      }
-      labels.add(label);
-    }
+    @Nullable List<Bundle> labelsBundles = bundle.getParcelableArrayList(FIELD_LABELS);
+    List<Label> labels =
+        labelsBundles == null
+            ? ImmutableList.of()
+            : BundleCollectionUtil.fromBundleList(Label::fromBundle, labelsBundles);
     builder
         .setLabels(labels)
         .setLanguage(defaultIfNull(bundle.getString(FIELD_LANGUAGE), DEFAULT.language))
@@ -1577,10 +1550,6 @@ public final class Format implements Bundleable {
     return FIELD_INITIALIZATION_DATA
         + "_"
         + Integer.toString(initialisationDataIndex, Character.MAX_RADIX);
-  }
-
-  private static String keyForLabel(int labelIndex) {
-    return FIELD_LABELS + "_" + Integer.toString(labelIndex, Character.MAX_RADIX);
   }
 
   /**
