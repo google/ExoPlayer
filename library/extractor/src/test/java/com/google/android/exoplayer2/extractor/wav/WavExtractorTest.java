@@ -49,6 +49,15 @@ public final class WavExtractorTest {
   }
 
   @Test
+  public void sample_withOddMetadataChunkSize_extractsSameData() throws Exception {
+    ExtractorAsserts.assertBehavior(
+        WavExtractor::new,
+        "media/wav/sample_with_odd_metadata_chunk_size.wav",
+        new AssertionConfig.Builder().setDumpFilesPrefix("extractordumps/wav/sample.wav").build(),
+        simulationConfig);
+  }
+
+  @Test
   public void sample_imaAdpcm() throws Exception {
     ExtractorAsserts.assertBehavior(
         WavExtractor::new, "media/wav/sample_ima_adpcm.wav", simulationConfig);
