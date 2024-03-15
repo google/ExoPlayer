@@ -71,7 +71,8 @@ import java.util.concurrent.atomic.AtomicReference;
       maybeSaveTestBitmap(
           testId, String.valueOf(presentationTimeUs), actualBitmap, /* path= */ null);
       float averagePixelAbsoluteDifference =
-          getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
+          getBitmapAveragePixelAbsoluteDifferenceArgb8888(
+              expectedBitmap, actualBitmap, testId + "_" + i);
       assertThat(averagePixelAbsoluteDifference)
           .isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
     }
