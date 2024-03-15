@@ -69,5 +69,5 @@
 }
 -dontnote androidx.media3.effect.DefaultVideoFrameProcessor$Factory$Builder
 -keepclasseswithmembers class androidx.media3.effect.DefaultVideoFrameProcessor$Factory$Builder {
-  build();
+  androidx.media3.effect.DefaultVideoFrameProcessor$Factory build();
 }

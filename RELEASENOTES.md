@@ -19,6 +19,9 @@
     *   Start early-enabled renderers only after advancing the playing period
         when transitioning between media items
         ([#1017](https://github.com/androidx/media/issues/1017)).
+    *   Add missing return type to proguard `-keepclasseswithmembers` rule for
+        `DefaultVideoFrameProcessor.Factory.Builder.build()`
+        ([#1187](https://github.com/androidx/media/issues/1187)).
 *   Transformer:
     *   Add `audioConversionProcess` and `videoConversionProcess` to
         `ExportResult` indicating how the respective track in the output file
