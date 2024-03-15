@@ -17,12 +17,15 @@ package com.google.android.exoplayer2.transformer;
 
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
+import static java.lang.Math.max;
 
 import androidx.annotation.IntRange;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.audio.AudioProcessor;
 import com.google.android.exoplayer2.extractor.mp4.Mp4Extractor;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.util.Effect;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
 /**
@@ -303,5 +306,25 @@ public final class EditedMediaItem {
       }
     }
     return presentationDurationUs;
+  }
+
+  /* package */ long getDurationAfterEffectsApplied(long durationUs) {
+    long audioDurationUs = durationUs;
+    long videoDurationUs = durationUs;
+    if (removeAudio) {
+      audioDurationUs = C.TIME_UNSET;
+    } else {
+      for (AudioProcessor audioProcessor : effects.audioProcessors) {
+        audioDurationUs = audioProcessor.getDurationAfterProcessorApplied(audioDurationUs);
+      }
+    }
+    if (removeVideo) {
+      videoDurationUs = C.TIME_UNSET;
+    } else {
+      for (Effect videoEffect : effects.videoEffects) {
+        videoDurationUs = videoEffect.getDurationAfterEffectApplied(videoDurationUs);
+      }
+    }
+    return max(audioDurationUs, videoDurationUs);
   }
 }
