@@ -52,6 +52,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
+import android.util.Pair;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
@@ -62,6 +63,7 @@ import com.google.android.exoplayer2.audio.AudioProcessor.AudioFormat;
 import com.google.android.exoplayer2.audio.ChannelMixingAudioProcessor;
 import com.google.android.exoplayer2.audio.ChannelMixingMatrix;
 import com.google.android.exoplayer2.audio.SonicAudioProcessor;
+import com.google.android.exoplayer2.audio.SpeedProvider;
 import com.google.android.exoplayer2.audio.TeeAudioProcessor;
 import com.google.android.exoplayer2.effect.Contrast;
 import com.google.android.exoplayer2.effect.DefaultGlObjectsProvider;
@@ -75,6 +77,7 @@ import com.google.android.exoplayer2.effect.TimestampWrapper;
 import com.google.android.exoplayer2.extractor.mp4.Mp4Extractor;
 import com.google.android.exoplayer2.testutil.FakeExtractorOutput;
 import com.google.android.exoplayer2.testutil.FakeTrackOutput;
+import com.google.android.exoplayer2.testutil.TestSpeedProvider;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.text.DefaultSubtitleParserFactory;
 import com.google.android.exoplayer2.transformer.AssetLoader.CompositionSettings;
@@ -866,6 +869,40 @@ public class TransformerEndToEndTest {
         .isEqualTo(OPTIMIZATION_ABANDONED_TRIM_AND_TRANSCODING_TRANSFORMATION_REQUESTED);
     assertThat(result.exportResult.videoConversionProcess).isEqualTo(CONVERSION_PROCESS_TRANSCODED);
     assertThat(result.exportResult.audioConversionProcess).isEqualTo(CONVERSION_PROCESS_TRANSMUXED);
+  }
+
+  @Test
+  public void speedAdjustedMedia_completesWithCorrectDuration() throws Exception {
+    Transformer transformer = new Transformer.Builder(context).build();
+    SpeedProvider speedProvider =
+        TestSpeedProvider.createWithStartTimes(
+            new long[] {
+              0L,
+              3 * C.MICROS_PER_SECOND,
+              6 * C.MICROS_PER_SECOND,
+              9 * C.MICROS_PER_SECOND,
+              12 * C.MICROS_PER_SECOND
+            },
+            new float[] {0.5f, 0.75f, 1f, 1.5f, 2f});
+    Pair<AudioProcessor, Effect> speedEffect =
+        Effects.createExperimentalSpeedChangingEffect(speedProvider);
+    Effects effects =
+        new Effects(
+            /* audioProcessors= */ ImmutableList.of(speedEffect.first),
+            /* videoEffects= */ ImmutableList.of(speedEffect.second));
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem.Builder(
+                MediaItem.fromUri(MP4_ASSET_WITH_INCREASING_TIMESTAMPS_320W_240H_15S_URI_STRING))
+            .setEffects(effects)
+            .build();
+    ExportTestResult result =
+        new TransformerAndroidTestRunner.Builder(context, transformer)
+            .build()
+            .run(testId, editedMediaItem);
+
+    // The input video is 15.537 seconds.
+    // 3 / 0.5 + 3 / 0.75 + 3 + 3 / 1.5 + 3.537 / 2 rounds up to 16_770
+    assertThat(result.exportResult.durationMs).isAtMost(16_770);
   }
 
   @Test
