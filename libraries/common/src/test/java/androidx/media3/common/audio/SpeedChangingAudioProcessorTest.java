@@ -16,6 +16,7 @@
 package androidx.media3.common.audio;
 
 import static androidx.media3.common.audio.AudioProcessor.EMPTY_BUFFER;
+import static androidx.media3.common.util.Assertions.checkState;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.media3.common.C;
@@ -376,6 +377,61 @@ public class SpeedChangingAudioProcessorTest {
 
     // 150 is after the speed change so floor(113 / 2 + (150 - 113)*1) -> 93
     assertThat(outputTimesUs).containsExactly(25L, 50L, 93L);
+  }
+
+  @Test
+  public void getSpeedAdjustedTimeAsync_timeAfterEndTime_callbacksCalledWithCorrectParameters()
+      throws Exception {
+    ArrayList<Long> outputTimesUs = new ArrayList<>();
+    // The speed change is at 113Us (5*MICROS_PER_SECOND/sampleRate).
+    SpeedProvider speedProvider =
+        TestSpeedProvider.createWithFrameCounts(
+            AUDIO_FORMAT, /* frameCounts= */ new int[] {5, 5}, /* speeds= */ new float[] {2, 1});
+    SpeedChangingAudioProcessor speedChangingAudioProcessor =
+        getConfiguredSpeedChangingAudioProcessor(speedProvider);
+    ByteBuffer inputBuffer = getInputBuffer(/* frameCount= */ 3);
+
+    speedChangingAudioProcessor.getSpeedAdjustedTimeAsync(
+        /* inputTimeUs= */ 300L, outputTimesUs::add);
+    speedChangingAudioProcessor.queueInput(inputBuffer);
+    getAudioProcessorOutput(speedChangingAudioProcessor);
+    inputBuffer.rewind();
+    speedChangingAudioProcessor.queueInput(inputBuffer);
+    getAudioProcessorOutput(speedChangingAudioProcessor);
+    inputBuffer.rewind();
+    speedChangingAudioProcessor.queueInput(inputBuffer);
+    speedChangingAudioProcessor.queueEndOfStream();
+    getAudioProcessorOutput(speedChangingAudioProcessor);
+
+    // 150 is after the speed change so floor(113 / 2 + (300 - 113)*1) -> 243
+    assertThat(outputTimesUs).containsExactly(243L);
+  }
+
+  @Test
+  public void
+      getSpeedAdjustedTimeAsync_timeAfterEndTimeAfterProcessorEnded_callbacksCalledWithCorrectParameters()
+          throws Exception {
+    ArrayList<Long> outputTimesUs = new ArrayList<>();
+    // The speed change is at 113Us (5*MICROS_PER_SECOND/sampleRate).
+    SpeedProvider speedProvider =
+        TestSpeedProvider.createWithFrameCounts(
+            AUDIO_FORMAT, /* frameCounts= */ new int[] {5, 5}, /* speeds= */ new float[] {2, 1});
+    SpeedChangingAudioProcessor speedChangingAudioProcessor =
+        getConfiguredSpeedChangingAudioProcessor(speedProvider);
+    ByteBuffer inputBuffer = getInputBuffer(/* frameCount= */ 5);
+    speedChangingAudioProcessor.queueInput(inputBuffer);
+    getAudioProcessorOutput(speedChangingAudioProcessor);
+    inputBuffer.rewind();
+    speedChangingAudioProcessor.queueInput(inputBuffer);
+    speedChangingAudioProcessor.queueEndOfStream();
+    getAudioProcessorOutput(speedChangingAudioProcessor);
+    checkState(speedChangingAudioProcessor.isEnded());
+
+    speedChangingAudioProcessor.getSpeedAdjustedTimeAsync(
+        /* inputTimeUs= */ 300L, outputTimesUs::add);
+
+    // 150 is after the speed change so floor(113 / 2 + (300 - 113)*1) -> 243
+    assertThat(outputTimesUs).containsExactly(243L);
   }
 
   private static SpeedChangingAudioProcessor getConfiguredSpeedChangingAudioProcessor(

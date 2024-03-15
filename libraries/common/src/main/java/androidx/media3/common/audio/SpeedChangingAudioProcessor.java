@@ -182,6 +182,9 @@ public final class SpeedChangingAudioProcessor extends BaseAudioProcessor {
    * <p>Calls {@linkplain LongConsumer#accept(long) the callback} with the output time as soon as
    * enough audio has been processed to calculate it.
    *
+   * <p>If the audio processor has ended, speeds will come out at the last processed speed of the
+   * audio processor.
+   *
    * <p>Successive calls must have monotonically increasing {@code inputTimeUs}.
    *
    * <p>Can be called from any thread.
@@ -192,7 +195,7 @@ public final class SpeedChangingAudioProcessor extends BaseAudioProcessor {
    */
   public void getSpeedAdjustedTimeAsync(long inputTimeUs, LongConsumer callback) {
     synchronized (pendingCallbacksLock) {
-      if (inputTimeUs <= lastProcessedInputTime) {
+      if (inputTimeUs <= lastProcessedInputTime || isEnded()) {
         callback.accept(calculateSpeedAdjustedTime(inputTimeUs));
         return;
       }
@@ -234,7 +237,7 @@ public final class SpeedChangingAudioProcessor extends BaseAudioProcessor {
   private void processPendingCallbacks() {
     synchronized (pendingCallbacksLock) {
       while (!pendingCallbacks.isEmpty()
-          && pendingCallbackInputTimesUs.element() <= lastProcessedInputTime) {
+          && (pendingCallbackInputTimesUs.element() <= lastProcessedInputTime || isEnded())) {
         pendingCallbacks
             .remove()
             .accept(calculateSpeedAdjustedTime(pendingCallbackInputTimesUs.remove()));
