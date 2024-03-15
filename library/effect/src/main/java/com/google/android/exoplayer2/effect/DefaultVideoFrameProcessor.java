@@ -251,9 +251,8 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
      *
      * <p>Using HDR {@code outputColorInfo} requires OpenGL ES 3.0.
      *
-     * <p>If outputting HDR content to a display, {@code EGL_GL_COLORSPACE_BT2020_PQ_EXT} is
-     * required, and {@link ColorInfo#colorTransfer outputColorInfo.colorTransfer} must be {@link
-     * C#COLOR_TRANSFER_ST2084}.
+     * <p>If outputting HDR content to a display, {@code EGL_GL_COLORSPACE_BT2020_PQ_EXT} or {@code
+     * EGL_GL_COLORSPACE_BT2020_HLG_EXT} is required.
      *
      * <p>{@code outputColorInfo}'s {@link ColorInfo#colorRange} values are currently ignored, in
      * favor of {@link C#COLOR_RANGE_FULL}.
@@ -682,18 +681,6 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
     EGLContext eglContext =
         createFocusedEglContextWithFallback(glObjectsProvider, eglDisplay, configAttributes);
 
-    // Not renderFramesAutomatically means outputting to a display surface. HDR display surfaces
-    // require the BT2020 PQ GL extension.
-    if (!renderFramesAutomatically && ColorInfo.isTransferHdr(outputColorInfo)) {
-      // Display hardware supports PQ only.
-      checkArgument(outputColorInfo.colorTransfer == C.COLOR_TRANSFER_ST2084);
-      if (SDK_INT < 33 || !GlUtil.isBt2020PqExtensionSupported()) {
-        GlUtil.destroyEglContext(eglDisplay, eglContext);
-        // On API<33, the system cannot display PQ content correctly regardless of whether BT2020 PQ
-        // GL extension is supported.
-        throw new VideoFrameProcessingException("BT.2020 PQ OpenGL output isn't supported.");
-      }
-    }
     ColorInfo linearColorInfo =
         outputColorInfo
             .buildUpon()

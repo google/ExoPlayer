@@ -254,8 +254,10 @@ public final class CompositingVideoSinkProvider
 
     ColorInfo inputColorInfo = getAdjustedInputColorInfo(sourceFormat.colorInfo);
     ColorInfo outputColorInfo = inputColorInfo;
-    if (inputColorInfo.colorTransfer == C.COLOR_TRANSFER_HLG) {
-      // SurfaceView only supports BT2020 PQ input. Therefore, convert HLG to PQ.
+    if (inputColorInfo.colorTransfer == C.COLOR_TRANSFER_HLG && Util.SDK_INT < 34) {
+      // PQ SurfaceView output is supported from API 33, but HLG output is supported from API 34.
+      // Therefore, convert HLG to PQ below API 34, so that HLG input can be displayed properly on
+      // API 33.
       outputColorInfo =
           inputColorInfo.buildUpon().setColorTransfer(C.COLOR_TRANSFER_ST2084).build();
     }

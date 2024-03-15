@@ -103,6 +103,7 @@ public final class GlUtil {
   private static final String EXTENSION_YUV_TARGET = "GL_EXT_YUV_target";
   // https://registry.khronos.org/EGL/extensions/EXT/EGL_EXT_gl_colorspace_bt2020_linear.txt
   private static final String EXTENSION_COLORSPACE_BT2020_PQ = "EGL_EXT_gl_colorspace_bt2020_pq";
+  private static final String EXTENSION_COLORSPACE_BT2020_HLG = "EGL_EXT_gl_colorspace_bt2020_hlg";
   // https://registry.khronos.org/EGL/extensions/KHR/EGL_KHR_gl_colorspace.txt
   private static final int EGL_GL_COLORSPACE_KHR = 0x309D;
   // https://registry.khronos.org/EGL/extensions/EXT/EGL_EXT_gl_colorspace_bt2020_linear.txt
@@ -110,6 +111,11 @@ public final class GlUtil {
   private static final int[] EGL_WINDOW_SURFACE_ATTRIBUTES_BT2020_PQ =
       new int[] {
         EGL_GL_COLORSPACE_KHR, EGL_GL_COLORSPACE_BT2020_PQ_EXT, EGL14.EGL_NONE, EGL14.EGL_NONE
+      };
+  private static final int EGL_GL_COLORSPACE_BT2020_HLG_EXT = 0x3540;
+  private static final int[] EGL_WINDOW_SURFACE_ATTRIBUTES_BT2020_HLG =
+      new int[] {
+        EGL_GL_COLORSPACE_KHR, EGL_GL_COLORSPACE_BT2020_HLG_EXT, EGL14.EGL_NONE, EGL14.EGL_NONE
       };
   private static final int[] EGL_WINDOW_SURFACE_ATTRIBUTES_NONE = new int[] {EGL14.EGL_NONE};
 
@@ -228,7 +234,14 @@ public final class GlUtil {
 
   /** Returns whether {@link #EXTENSION_COLORSPACE_BT2020_PQ} is supported. */
   public static boolean isBt2020PqExtensionSupported() {
-    return isExtensionSupported(EXTENSION_COLORSPACE_BT2020_PQ);
+    // On API<33, the system cannot display PQ content correctly regardless of whether BT2020 PQ
+    // GL extension is supported. Context: http://b/252537203#comment5.
+    return Util.SDK_INT >= 33 && isExtensionSupported(EXTENSION_COLORSPACE_BT2020_PQ);
+  }
+
+  /** Returns whether {@link #EXTENSION_COLORSPACE_BT2020_HLG} is supported. */
+  public static boolean isBt2020HlgExtensionSupported() {
+    return isExtensionSupported(EXTENSION_COLORSPACE_BT2020_HLG);
   }
 
   /** Returns an initialized default {@link EGLDisplay}. */
@@ -308,7 +321,7 @@ public final class GlUtil {
    * @param surface The surface to wrap; must be a surface, surface texture or surface holder.
    * @param colorTransfer The {@linkplain C.ColorTransfer color transfer characteristics} to which
    *     the {@code surface} is configured. The only accepted values are {@link
-   *     C#COLOR_TRANSFER_SDR}, {@link C#COLOR_TRANSFER_HLG} and {@link C#COLOR_TRANSFER_ST2084}.
+   *     C#COLOR_TRANSFER_SDR}, {@link C#COLOR_TRANSFER_HLG}, and {@link C#COLOR_TRANSFER_ST2084}.
    * @param isEncoderInputSurface Whether the {@code surface} is the input surface of an encoder.
    */
   public static EGLSurface createEglSurface(
@@ -322,22 +335,28 @@ public final class GlUtil {
     if (colorTransfer == C.COLOR_TRANSFER_SDR || colorTransfer == C.COLOR_TRANSFER_GAMMA_2_2) {
       configAttributes = EGL_CONFIG_ATTRIBUTES_RGBA_8888;
       windowAttributes = EGL_WINDOW_SURFACE_ATTRIBUTES_NONE;
-    } else if (colorTransfer == C.COLOR_TRANSFER_ST2084) {
+    } else if (colorTransfer == C.COLOR_TRANSFER_HLG || colorTransfer == C.COLOR_TRANSFER_ST2084) {
       configAttributes = EGL_CONFIG_ATTRIBUTES_RGBA_1010102;
+      // !isEncoderInputSurface means outputting to a display surface. HDR display surfaces
+      // require EGL_GL_COLORSPACE_BT2020_PQ_EXT or EGL_GL_COLORSPACE_BT2020_HLG_EXT.
       if (isEncoderInputSurface) {
-        // Outputting BT2020 PQ with EGL_WINDOW_SURFACE_ATTRIBUTES_BT2020_PQ to an encoder causes
-        // the encoder to incorrectly switch to full range color, even if the encoder is configured
-        // with limited range color, because EGL_WINDOW_SURFACE_ATTRIBUTES_BT2020_PQ sets full range
-        // color output, and GL windowAttributes overrides encoder settings.
+        // Outputting BT2020 PQ or HLG with EGL_WINDOW_SURFACE_ATTRIBUTES_BT2020_PQ to an encoder
+        // causes the encoder to incorrectly switch to full range color, even if the encoder is
+        // configured with limited range color, because EGL_WINDOW_SURFACE_ATTRIBUTES_BT2020_PQ sets
+        // full range color output, and GL windowAttributes overrides encoder settings.
         windowAttributes = EGL_WINDOW_SURFACE_ATTRIBUTES_NONE;
-      } else {
-        // TODO(b/262259999): HDR10 PQ content looks dark on the screen.
+      } else if (colorTransfer == C.COLOR_TRANSFER_ST2084) {
+        if (!isBt2020PqExtensionSupported()) {
+          throw new GlException("BT.2020 PQ OpenGL output isn't supported.");
+        }
+        // TODO(b/262259999): HDR10 PQ content looks dark on the screen, on API 33.
         windowAttributes = EGL_WINDOW_SURFACE_ATTRIBUTES_BT2020_PQ;
+      } else {
+        if (!isBt2020HlgExtensionSupported()) {
+          throw new GlException("BT.2020 HLG OpenGL output isn't supported.");
+        }
+        windowAttributes = EGL_WINDOW_SURFACE_ATTRIBUTES_BT2020_HLG;
       }
-    } else if (colorTransfer == C.COLOR_TRANSFER_HLG) {
-      checkArgument(isEncoderInputSurface, "Outputting HLG to the screen is not supported.");
-      configAttributes = EGL_CONFIG_ATTRIBUTES_RGBA_1010102;
-      windowAttributes = EGL_WINDOW_SURFACE_ATTRIBUTES_NONE;
     } else {
       throw new IllegalArgumentException("Unsupported color transfer: " + colorTransfer);
     }
