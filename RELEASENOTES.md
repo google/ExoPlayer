@@ -36,8 +36,6 @@
         resolution but a very small number of frames
         ([#1051](https://github.com/androidx/media/issues/1051)).
 *   Extractors:
-    *   Fix issue where padding was not skipped when reading odd-sized chunks
-        from WAV files ([#1117](https://github.com/androidx/media/pull/1117)).
 *   Audio:
     *   Allow renderer recovery by disabling offload if audio track fails to
         initialize in offload mode.
@@ -68,6 +66,7 @@
     *   Improved PQ to SDR tone-mapping by converting color spaces.
     *   Support multiple speed changes within the same `EditedMediaItem` or
         `Composition` in `SpeedChangeEffect`.
+    *   Support for HLG and PQ output from ultra HDR bitmap input.
 *   Muxers:
 *   IMA extension:
 *   Session:

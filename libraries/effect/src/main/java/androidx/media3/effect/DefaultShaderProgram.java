@@ -20,8 +20,11 @@ import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkState;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Gainmap;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
+import androidx.annotation.RequiresApi;
 import androidx.media3.common.C;
 import androidx.media3.common.ColorInfo;
 import androidx.media3.common.Format;
@@ -29,12 +32,16 @@ import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.VideoFrameProcessor.InputType;
 import androidx.media3.common.util.GlProgram;
 import androidx.media3.common.util.GlUtil;
+import androidx.media3.common.util.GlUtil.GlException;
 import androidx.media3.common.util.Size;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.common.util.Util;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * Applies a sequence of {@link MatrixTransformation MatrixTransformations} in the vertex shader and
@@ -55,7 +62,7 @@ import java.util.List;
 @UnstableApi
 @SuppressWarnings("FunctionalInterfaceClash") // b/228192298
 /* package */ final class DefaultShaderProgram extends BaseGlShaderProgram
-    implements ExternalShaderProgram {
+    implements ExternalShaderProgram, GainmapShaderProgram {
 
   private static final String VERTEX_SHADER_TRANSFORMATION_PATH =
       "shaders/vertex_shader_transformation_es2.glsl";
@@ -73,6 +80,8 @@ import java.util.List;
       "shaders/fragment_shader_transformation_sdr_external_es2.glsl";
   private static final String FRAGMENT_SHADER_TRANSFORMATION_HDR_INTERNAL_ES3_PATH =
       "shaders/fragment_shader_transformation_hdr_internal_es3.glsl";
+  private static final String FRAGMENT_SHADER_TRANSFORMATION_ULTRA_HDR_ES3_PATH =
+      "shaders/fragment_shader_transformation_ultra_hdr_es3.glsl";
   private static final String FRAGMENT_SHADER_TRANSFORMATION_SDR_INTERNAL_PATH =
       "shaders/fragment_shader_transformation_sdr_internal_es2.glsl";
   private static final ImmutableList<float[]> NDC_SQUARE =
@@ -98,6 +107,8 @@ import java.util.List;
 
   private static final int GL_FALSE = 0;
   private static final int GL_TRUE = 1;
+
+  private final GlProgram glProgram;
 
   /** The {@link MatrixTransformation MatrixTransformations} to apply. */
   private final ImmutableList<GlMatrixTransformation> matrixTransformations;
@@ -142,7 +153,9 @@ import java.util.List;
    */
   private ImmutableList<float[]> visiblePolygon;
 
-  private final GlProgram glProgram;
+  private @MonotonicNonNull Gainmap lastGainmap;
+  private int lastGainmapGenerationId;
+  private int gainmapTexId;
   private @C.ColorTransfer int outputColorTransfer;
 
   /**
@@ -209,16 +222,27 @@ import java.util.List;
     checkState(
         inputColorInfo.colorTransfer != C.COLOR_TRANSFER_SRGB || inputType == INPUT_TYPE_BITMAP);
     boolean isInputTransferHdr = ColorInfo.isTransferHdr(inputColorInfo);
+    boolean isUsingUltraHdr =
+        inputType == INPUT_TYPE_BITMAP && outputColorInfo.colorSpace == C.COLOR_SPACE_BT2020;
     String vertexShaderFilePath =
-        isInputTransferHdr
+        isInputTransferHdr || isUsingUltraHdr
             ? VERTEX_SHADER_TRANSFORMATION_ES3_PATH
             : VERTEX_SHADER_TRANSFORMATION_PATH;
     String fragmentShaderFilePath =
-        isInputTransferHdr
-            ? FRAGMENT_SHADER_TRANSFORMATION_HDR_INTERNAL_ES3_PATH
-            : FRAGMENT_SHADER_TRANSFORMATION_SDR_INTERNAL_PATH;
+        isUsingUltraHdr
+            ? FRAGMENT_SHADER_TRANSFORMATION_ULTRA_HDR_ES3_PATH
+            : isInputTransferHdr
+                ? FRAGMENT_SHADER_TRANSFORMATION_HDR_INTERNAL_ES3_PATH
+                : FRAGMENT_SHADER_TRANSFORMATION_SDR_INTERNAL_PATH;
     GlProgram glProgram = createGlProgram(context, vertexShaderFilePath, fragmentShaderFilePath);
-    glProgram.setIntUniform("uInputColorTransfer", inputColorInfo.colorTransfer);
+    if (!isUsingUltraHdr) {
+      glProgram.setIntUniform("uInputColorTransfer", inputColorInfo.colorTransfer);
+    }
+    if (isInputTransferHdr) {
+      glProgram.setIntUniform(
+          "uApplyHdrToSdrToneMapping",
+          outputColorInfo.colorSpace != C.COLOR_SPACE_BT2020 ? GL_TRUE : GL_FALSE);
+    }
     return createWithSampler(glProgram, inputColorInfo, outputColorInfo, enableColorTransfers);
   }
 
@@ -272,6 +296,9 @@ import java.util.List;
               ? BT2020_FULL_RANGE_YUV_TO_RGB_COLOR_TRANSFORM_MATRIX
               : BT2020_LIMITED_RANGE_YUV_TO_RGB_COLOR_TRANSFORM_MATRIX);
       glProgram.setIntUniform("uInputColorTransfer", inputColorInfo.colorTransfer);
+      glProgram.setIntUniform(
+          "uApplyHdrToSdrToneMapping",
+          outputColorInfo.colorSpace != C.COLOR_SPACE_BT2020 ? GL_TRUE : GL_FALSE);
     }
 
     return createWithSampler(glProgram, inputColorInfo, outputColorInfo, enableColorTransfers);
@@ -343,20 +370,24 @@ import java.util.List;
       ColorInfo outputColorInfo,
       boolean enableColorTransfers) {
     boolean isInputTransferHdr = ColorInfo.isTransferHdr(inputColorInfo);
+    boolean isExpandingColorGamut =
+        (inputColorInfo.colorSpace == C.COLOR_SPACE_BT709
+                || inputColorInfo.colorSpace == C.COLOR_SPACE_BT601)
+            && outputColorInfo.colorSpace == C.COLOR_SPACE_BT2020;
     @C.ColorTransfer int outputColorTransfer = outputColorInfo.colorTransfer;
     if (isInputTransferHdr) {
       checkArgument(inputColorInfo.colorSpace == C.COLOR_SPACE_BT2020);
       checkArgument(enableColorTransfers);
       // TODO(b/239735341): Add a setBooleanUniform method to GlProgram.
-      glProgram.setIntUniform(
-          "uApplyHdrToSdrToneMapping",
-          /* value= */ (outputColorInfo.colorSpace != C.COLOR_SPACE_BT2020) ? GL_TRUE : GL_FALSE);
       checkArgument(outputColorTransfer != Format.NO_VALUE);
       if (outputColorTransfer == C.COLOR_TRANSFER_SDR) {
         // When tone-mapping from HDR to SDR, COLOR_TRANSFER_SDR is interpreted as
         // COLOR_TRANSFER_GAMMA_2_2.
         outputColorTransfer = C.COLOR_TRANSFER_GAMMA_2_2;
       }
+      glProgram.setIntUniform("uOutputColorTransfer", outputColorTransfer);
+    } else if (isExpandingColorGamut) {
+      checkArgument(enableColorTransfers);
       glProgram.setIntUniform("uOutputColorTransfer", outputColorTransfer);
     } else {
       glProgram.setIntUniform("uEnableColorTransfer", enableColorTransfers ? GL_TRUE : GL_FALSE);
@@ -372,7 +403,7 @@ import java.util.List;
         /* matrixTransformations= */ ImmutableList.of(),
         /* rgbMatrices= */ ImmutableList.of(),
         outputColorInfo.colorTransfer,
-        isInputTransferHdr);
+        /* useHdr= */ isInputTransferHdr || isExpandingColorGamut);
   }
 
   /**
@@ -406,6 +437,8 @@ import java.util.List;
     compositeRgbMatrixArray = GlUtil.create4x4IdentityMatrix();
     tempResultMatrix = new float[16];
     visiblePolygon = NDC_SQUARE;
+    gainmapTexId = C.INDEX_UNSET;
+    lastGainmapGenerationId = C.INDEX_UNSET;
   }
 
   private static GlProgram createGlProgram(
@@ -444,6 +477,7 @@ import java.util.List;
 
     try {
       glProgram.use();
+      setGainmapSamplerAndUniforms();
       glProgram.setSamplerTexIdUniform("uTexSampler", inputTexId, /* texUnitIndex= */ 0);
       glProgram.setFloatsUniform("uTransformationMatrix", compositeTransformationMatrixArray);
       glProgram.setFloatsUniform("uRgbMatrix", compositeRgbMatrixArray);
@@ -467,6 +501,31 @@ import java.util.List;
       glProgram.delete();
     } catch (GlUtil.GlException e) {
       throw new VideoFrameProcessingException(e);
+    }
+  }
+
+  /**
+   * Sets the {@link Gainmap} applied to the input frame to create a HDR output frame.
+   *
+   * <p>The gainmap is ignored if {@code useHdr} is {@code false}.
+   */
+  @Override
+  @RequiresApi(34) // getGainmapContents() added in API level 34.
+  public void setGainmap(Gainmap gainmap) throws GlException {
+    if (!useHdr) {
+      return;
+    }
+    int gainmapGenerationId = gainmap.getGainmapContents().getGenerationId();
+    if (Objects.equals(this.lastGainmap, gainmap)
+        && gainmapGenerationId == this.lastGainmapGenerationId) {
+      return;
+    }
+    this.lastGainmap = gainmap;
+    this.lastGainmapGenerationId = gainmapGenerationId;
+    if (gainmapTexId == C.INDEX_UNSET) {
+      gainmapTexId = GlUtil.createTexture(gainmap.getGainmapContents());
+    } else {
+      GlUtil.setTexture(gainmapTexId, gainmap.getGainmapContents());
     }
   }
 
@@ -591,5 +650,39 @@ import java.util.List;
       }
     }
     return matrixChanged;
+  }
+
+  private void setGainmapSamplerAndUniforms() throws GlUtil.GlException {
+    if (lastGainmap == null) {
+      return;
+    }
+    if (Util.SDK_INT < 34) {
+      throw new IllegalStateException("Gainmaps not supported under API 34.");
+    }
+    glProgram.setSamplerTexIdUniform("uGainmapTexSampler", gainmapTexId, /* texUnitIndex= */ 1);
+
+    boolean gainmapIsAlpha = lastGainmap.getGainmapContents().getConfig() == Bitmap.Config.ALPHA_8;
+    float[] gainmapGamma = lastGainmap.getGamma();
+    boolean noGamma = gainmapGamma[0] == 1f && gainmapGamma[1] == 1f && gainmapGamma[2] == 1f;
+    boolean singleChannel =
+        areAllChannelsEqual(gainmapGamma)
+            && areAllChannelsEqual(lastGainmap.getRatioMax())
+            && areAllChannelsEqual(lastGainmap.getRatioMin());
+
+    glProgram.setIntUniform("uGainmapIsAlpha", gainmapIsAlpha ? GL_TRUE : GL_FALSE);
+    glProgram.setIntUniform("uNoGamma", noGamma ? GL_TRUE : GL_FALSE);
+    glProgram.setIntUniform("uSingleChannel", singleChannel ? GL_TRUE : GL_FALSE);
+    glProgram.setFloatsUniform("uLogRatioMin", lastGainmap.getRatioMin());
+    glProgram.setFloatsUniform("uLogRatioMax", lastGainmap.getRatioMax());
+    glProgram.setFloatsUniform("uEpsilonSdr", lastGainmap.getEpsilonSdr());
+    glProgram.setFloatsUniform("uEpsilonHdr", lastGainmap.getEpsilonHdr());
+    glProgram.setFloatsUniform("uGainmapGamma", gainmapGamma);
+    glProgram.setFloatUniform("uDisplayRatioHdr", lastGainmap.getDisplayRatioForFullHdr());
+    glProgram.setFloatUniform("uDisplayRatioSdr", lastGainmap.getMinDisplayRatioForHdrTransition());
+    GlUtil.checkGlError();
+  }
+
+  private static boolean areAllChannelsEqual(float[] channels) {
+    return channels[0] == channels[1] && channels[1] == channels[2];
   }
 }

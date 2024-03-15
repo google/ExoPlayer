@@ -426,6 +426,13 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
     if (!inputStreamRegisteredCondition.isOpen()) {
       return false;
     }
+    if (ColorInfo.isTransferHdr(outputColorInfo)) {
+      checkArgument(
+          Util.SDK_INT >= 34 && inputBitmap.hasGainmap(),
+          "VideoFrameProcessor configured for HDR output, but either received SDR input, or is on"
+              + " an API level that doesn't support gainmaps. SDR to HDR tonemapping is not"
+              + " supported.");
+    }
     FrameInfo frameInfo = checkNotNull(this.nextInputFrameInfo);
     inputSwitcher
         .activeTextureManager()
@@ -906,14 +913,27 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
     checkArgument(outputColorInfo.colorTransfer != C.COLOR_TRANSFER_LINEAR);
 
     if (ColorInfo.isTransferHdr(inputColorInfo) != ColorInfo.isTransferHdr(outputColorInfo)) {
-      // OpenGL tone mapping is only implemented for BT2020 to BT709 and HDR to SDR.
-      checkArgument(inputColorInfo.colorSpace == C.COLOR_SPACE_BT2020);
-      checkArgument(outputColorInfo.colorSpace != C.COLOR_SPACE_BT2020);
-      checkArgument(ColorInfo.isTransferHdr(inputColorInfo));
       checkArgument(
-          outputColorInfo.colorTransfer == C.COLOR_TRANSFER_GAMMA_2_2
-              || outputColorInfo.colorTransfer == C.COLOR_TRANSFER_SDR);
+          isSupportedToneMapping(inputColorInfo, outputColorInfo)
+              || isUltraHdr(inputColorInfo, outputColorInfo));
     }
+  }
+
+  private static boolean isSupportedToneMapping(
+      ColorInfo inputColorInfo, ColorInfo outputColorInfo) {
+    // OpenGL tone mapping is only implemented for BT2020 to BT709 and HDR to SDR.
+    return inputColorInfo.colorSpace == C.COLOR_SPACE_BT2020
+        && outputColorInfo.colorSpace != C.COLOR_SPACE_BT2020
+        && ColorInfo.isTransferHdr(inputColorInfo)
+        && (outputColorInfo.colorTransfer == C.COLOR_TRANSFER_GAMMA_2_2
+            || outputColorInfo.colorTransfer == C.COLOR_TRANSFER_SDR);
+  }
+
+  private static boolean isUltraHdr(ColorInfo inputColorInfo, ColorInfo outputColorInfo) {
+    // UltraHDR is is only implemented from SRGB_BT709_FULL to BT2020 HDR.
+    return inputColorInfo.equals(ColorInfo.SRGB_BT709_FULL)
+        && outputColorInfo.colorSpace == C.COLOR_SPACE_BT2020
+        && ColorInfo.isTransferHdr(outputColorInfo);
   }
 
   /**

@@ -15,10 +15,6 @@
  */
 package androidx.media3.common;
 
-import static androidx.media3.common.util.Assertions.checkState;
-
-import android.graphics.Gainmap;
-import androidx.annotation.Nullable;
 import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.UnstableApi;
 
@@ -55,17 +51,8 @@ public final class GlTextureInfo {
   /** The height of the texture, in pixels, or {@link C#LENGTH_UNSET} if not specified. */
   public final int height;
 
-  /** The {@link Gainmap} associated to this texture, or {@code null} if not specified. */
-  @Nullable public final Gainmap gainmap;
-
   /**
-   * The OpenGL texture identifier for a gainmap associated to this contents of {@link #texId}, or
-   * {@link C#INDEX_UNSET} if not specified.
-   */
-  public final int gainmapTexId;
-
-  /**
-   * Creates a new instance with {@code null} {@link Gainmap} and unspecified {@code gainmapTexId}.
+   * Creates a new instance.
    *
    * @param texId The OpenGL texture identifier, or {@link C#INDEX_UNSET} if not specified.
    * @param fboId Identifier of a framebuffer object associated with the texture, or {@link
@@ -81,35 +68,6 @@ public final class GlTextureInfo {
     this.rboId = rboId;
     this.width = width;
     this.height = height;
-    this.gainmap = null;
-    this.gainmapTexId = C.INDEX_UNSET;
-  }
-
-  /**
-   * Creates a new instance.
-   *
-   * @param texId The OpenGL texture identifier, or {@link C#INDEX_UNSET} if not specified.
-   * @param fboId Identifier of a framebuffer object associated with the texture, or {@link
-   *     C#INDEX_UNSET} if not specified.
-   * @param rboId Identifier of a renderbuffer object associated with the texture, or {@link
-   *     C#INDEX_UNSET} if not specified.
-   * @param width The width of the texture, in pixels, or {@link C#LENGTH_UNSET} if not specified.
-   * @param height The height of the texture, in pixels, or {@link C#LENGTH_UNSET} if not specified.
-   * @param gainmap The {@link Gainmap} associated to this texture.
-   * @param gainmapTexId The OpenGL texture identifier for a gainmap associated with the contents of
-   *     {@link #texId}.
-   */
-  public GlTextureInfo(
-      int texId, int fboId, int rboId, int width, int height, Gainmap gainmap, int gainmapTexId) {
-    this.texId = texId;
-    this.fboId = fboId;
-    this.rboId = rboId;
-    this.width = width;
-    this.height = height;
-    this.gainmap = gainmap;
-    checkState(
-        gainmapTexId != C.INDEX_UNSET, "If gainmap is non-null, the gainmapTexId must be set");
-    this.gainmapTexId = gainmapTexId;
   }
 
   /** Releases all information associated with this instance. */
@@ -122,9 +80,6 @@ public final class GlTextureInfo {
     }
     if (rboId != C.INDEX_UNSET) {
       GlUtil.deleteRbo(rboId);
-    }
-    if (gainmapTexId != C.INDEX_UNSET) {
-      GlUtil.deleteTexture(gainmapTexId);
     }
   }
 }

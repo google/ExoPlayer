@@ -101,12 +101,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
                 context, inputColorInfo, outputColorInfo, enableColorTransfers);
         break;
       case INPUT_TYPE_BITMAP:
-        // HDR bitmap input is not supported.
-        checkState(!ColorInfo.isTransferHdr(inputColorInfo));
-        samplingShaderProgram =
-            DefaultShaderProgram.createWithInternalSampler(
-                context, inputColorInfo, outputColorInfo, enableColorTransfers, inputType);
-        break;
       case INPUT_TYPE_TEXTURE_ID:
         samplingShaderProgram =
             DefaultShaderProgram.createWithInternalSampler(
