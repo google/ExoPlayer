@@ -73,6 +73,9 @@
     *   Support multiple speed changes within the same `EditedMediaItem` or
         `Composition` in `SpeedChangeEffect`.
     *   Support for HLG and PQ output from ultra HDR bitmap input.
+    *   Add support for EGL_GL_COLORSPACE_BT2020_HLG_EXT, which improves HLG
+        surface output in ExoPlayer.setVideoEffect and Transformer's Debug
+        SurfaceView.
 *   Muxers:
 *   IMA extension:
 *   Session:

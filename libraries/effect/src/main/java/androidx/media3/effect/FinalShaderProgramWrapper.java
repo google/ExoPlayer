@@ -588,9 +588,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         @C.ColorTransfer int outputColorTransfer) {
       this.eglDisplay = eglDisplay;
       this.eglContext = eglContext;
-      // Screen output supports only BT.2020 PQ (ST2084) for HDR.
+      // PQ SurfaceView output is supported from API 33, but HLG output is supported from API 34.
+      // Therefore, convert HLG to PQ below API 34, so that HLG input can be displayed properly on
+      // API 33.
       this.outputColorTransfer =
-          outputColorTransfer == C.COLOR_TRANSFER_HLG
+          outputColorTransfer == C.COLOR_TRANSFER_HLG && Util.SDK_INT < 34
               ? C.COLOR_TRANSFER_ST2084
               : outputColorTransfer;
       surfaceView.getHolder().addCallback(this);
