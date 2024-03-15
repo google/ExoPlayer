@@ -57,7 +57,9 @@ import java.util.Objects;
 
   /** Returns whether an {@link AudioFormat} is valid as an input format. */
   public static boolean isInputAudioFormatValid(AudioFormat format) {
-    if (format.encoding == Format.NO_VALUE) {
+    // AudioGraphInput assumes PCM_16BIT -- see, for example, the automatic format conversions
+    // in AudioGraphInput.configureProcessing.
+    if (format.encoding != C.ENCODING_PCM_16BIT) {
       return false;
     }
     if (format.sampleRate == Format.NO_VALUE) {
