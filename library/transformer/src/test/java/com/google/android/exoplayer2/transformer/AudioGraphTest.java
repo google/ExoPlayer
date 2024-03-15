@@ -49,6 +49,15 @@ public class AudioGraphTest {
       new AudioFormat(/* sampleRate= */ 50_000, /* channelCount= */ 6, C.ENCODING_PCM_16BIT);
 
   @Test
+  public void floatPcmFormat_isNotValidInputFormat() {
+    assertThat(
+            AudioGraph.isInputAudioFormatValid(
+                new AudioFormat(
+                    /* sampleRate= */ 44_100, /* channelCount= */ 1, C.ENCODING_PCM_FLOAT)))
+        .isFalse();
+  }
+
+  @Test
   public void silentItem_outputsCorrectAmountOfBytes() throws Exception {
     AudioGraph audioGraph = new AudioGraph(new DefaultAudioMixer.Factory());
 
