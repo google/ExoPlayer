@@ -21,6 +21,7 @@ import android.content.Context;
 import androidx.annotation.FloatRange;
 import androidx.media3.common.C;
 import androidx.media3.common.audio.SpeedProvider;
+import androidx.media3.common.util.SpeedProviderUtil;
 import androidx.media3.common.util.UnstableApi;
 
 /**
@@ -71,5 +72,10 @@ public final class SpeedChangeEffect implements GlEffect {
   public boolean isNoOp(int inputWidth, int inputHeight) {
     return speedProvider.getSpeed(/* timeUs= */ 0) == 1
         && speedProvider.getNextSpeedChangeTimeUs(/* timeUs= */ 0) == C.TIME_UNSET;
+  }
+
+  @Override
+  public long getDurationAfterEffectApplied(long durationUs) {
+    return SpeedProviderUtil.getDurationAfterSpeedProviderApplied(speedProvider, durationUs);
   }
 }

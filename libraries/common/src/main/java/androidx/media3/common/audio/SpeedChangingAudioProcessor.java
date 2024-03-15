@@ -22,6 +22,7 @@ import static java.lang.Math.round;
 import androidx.media3.common.C;
 import androidx.media3.common.util.LongArray;
 import androidx.media3.common.util.LongArrayQueue;
+import androidx.media3.common.util.SpeedProviderUtil;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import java.nio.ByteBuffer;
@@ -73,6 +74,11 @@ public final class SpeedChangingAudioProcessor extends BaseAudioProcessor {
     inputSegmentStartTimesUs.add(0);
     outputSegmentStartTimesUs.add(0);
     currentSpeed = 1f;
+  }
+
+  @Override
+  public long getDurationAfterProcessorApplied(long durationUs) {
+    return SpeedProviderUtil.getDurationAfterSpeedProviderApplied(speedProvider, durationUs);
   }
 
   @Override

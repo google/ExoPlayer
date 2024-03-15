@@ -71,6 +71,13 @@ import java.nio.ByteBuffer;
   }
 
   @Override
+  public long getDurationAfterProcessorApplied(long durationUs) {
+    return durationUs
+        - Util.sampleCountToDurationUs(
+            /* sampleCount= */ trimEndFrames + trimStartFrames, inputAudioFormat.sampleRate);
+  }
+
+  @Override
   public AudioFormat onConfigure(AudioFormat inputAudioFormat)
       throws UnhandledAudioFormatException {
     if (inputAudioFormat.encoding != OUTPUT_ENCODING) {

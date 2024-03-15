@@ -129,6 +129,14 @@ public interface AudioProcessor {
   ByteBuffer EMPTY_BUFFER = ByteBuffer.allocateDirect(0).order(ByteOrder.nativeOrder());
 
   /**
+   * Returns the expected duration of the output stream when the processor is applied given a input
+   * {@code durationUs}.
+   */
+  default long getDurationAfterProcessorApplied(long durationUs) {
+    return durationUs;
+  }
+
+  /**
    * Configures the processor to process input audio with the specified format. After calling this
    * method, call {@link #isActive()} to determine whether the audio processor is active. Returns
    * the configured output audio format if this instance is active.
