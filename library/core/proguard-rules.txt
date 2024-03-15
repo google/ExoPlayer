@@ -69,5 +69,5 @@
 }
 -dontnote com.google.android.exoplayer2.effect.DefaultVideoFrameProcessor$Factory$Builder
 -keepclasseswithmembers class com.google.android.exoplayer2.effect.DefaultVideoFrameProcessor$Factory$Builder {
-  build();
+  com.google.android.exoplayer2.effect.DefaultVideoFrameProcessor$Factory build();
 }
