@@ -106,6 +106,8 @@ public class LegacySubtitleUtil {
     // It's safe to inspect element i+1, because we already exited the loop above if
     // i == getEventTimeCount() - 1.
     long durationUs = subtitle.getEventTime(eventIndex + 1) - subtitle.getEventTime(eventIndex);
-    output.accept(new CuesWithTiming(cuesForThisStartTime, startTimeUs, durationUs));
+    if (durationUs > 0) {
+      output.accept(new CuesWithTiming(cuesForThisStartTime, startTimeUs, durationUs));
+    }
   }
 }
