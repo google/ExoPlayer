@@ -15,10 +15,15 @@
  */
 package androidx.media3.transformer;
 
+import android.util.Pair;
 import androidx.media3.common.Effect;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.audio.AudioProcessor;
+import androidx.media3.common.audio.SpeedChangingAudioProcessor;
+import androidx.media3.common.audio.SpeedProvider;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.effect.SpeedChangeEffect;
+import androidx.media3.effect.TimestampAdjustment;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 
@@ -53,5 +58,29 @@ public final class Effects {
   public Effects(List<AudioProcessor> audioProcessors, List<Effect> videoEffects) {
     this.audioProcessors = ImmutableList.copyOf(audioProcessors);
     this.videoEffects = ImmutableList.copyOf(videoEffects);
+  }
+
+  /**
+   * Creates an interlinked {@linkplain AudioProcessor audio processor} and {@linkplain Effect video
+   * effect} that changes the speed to media samples in segments of the input file specified by the
+   * given {@link SpeedProvider}.
+   *
+   * <p>The {@linkplain AudioProcessor audio processor} and {@linkplain Effect video effect} are
+   * interlinked to help maintain A/V sync. When using Transformer, if the input file doesn't have
+   * audio, or audio is being removed, you may have to {@linkplain
+   * Composition.Builder#experimentalSetForceAudioTrack force an audio track} for the interlinked
+   * effects to function correctly. Alternatively, you can use {@link SpeedChangeEffect} when input
+   * has no audio.
+   *
+   * @param speedProvider The {@link SpeedProvider} determining the speed for the media at specific
+   *     timestamps.
+   */
+  public static Pair<AudioProcessor, Effect> createExperimentalSpeedChangingEffect(
+      SpeedProvider speedProvider) {
+    SpeedChangingAudioProcessor speedChangingAudioProcessor =
+        new SpeedChangingAudioProcessor(speedProvider);
+    Effect audioDrivenvideoEffect =
+        new TimestampAdjustment(speedChangingAudioProcessor::getSpeedAdjustedTimeAsync);
+    return Pair.create(speedChangingAudioProcessor, audioDrivenvideoEffect);
   }
 }
