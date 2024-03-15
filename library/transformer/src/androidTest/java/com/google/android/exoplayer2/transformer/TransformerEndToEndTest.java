@@ -471,8 +471,6 @@ public class TransformerEndToEndTest {
   public void
       clippedAndRotatedMedia_withNoOpEffect_completesWithClippedDurationAndCorrectOrientation()
           throws Exception {
-    String testId =
-        "clippedAndRotatedMedia_withNoOpEffect_completesWithClippedDurationAndCorrectOrientation";
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context,
         testId,
@@ -553,8 +551,6 @@ public class TransformerEndToEndTest {
   public void
       clippedAndRotatedMedia_trimOptimizationEnabledButFormatsMismatch_fallsbackWithCorrectOrientationOutput()
           throws Exception {
-    String testId =
-        "clippedAndRotatedMedia_trimOptimizationEnabledButFormatsMismatch_fallsbackWithCorrectOrientationOutput";
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context,
         testId,
@@ -603,8 +599,6 @@ public class TransformerEndToEndTest {
   public void
       clippedMedia_trimOptimizationEnabled_noKeyFrameBetweenClipTimes_fallbackToNormalExport()
           throws Exception {
-    String testId =
-        "clippedMedia_trimOptimizationEnabled_noKeyFrameBetweenClipTimes_fallbackToNormalExport";
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context,
         testId,
@@ -642,8 +636,6 @@ public class TransformerEndToEndTest {
   public void
       clippedMedia_trimOptimizationEnabled_noKeyFramesAfterClipStart_fallbackToNormalExport()
           throws Exception {
-    String testId =
-        "clippedMedia_trimOptimizationEnabled_noKeyFramesAfterClipStart_fallbackToNormalExport";
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context,
         testId,
@@ -788,8 +780,6 @@ public class TransformerEndToEndTest {
   public void
       clippedMediaAudioRemovedNoOpEffectAndRotated_trimOptimizationEnabled_completedWithOptimizationAppliedAndCorrectOrientation()
           throws Exception {
-    String testId =
-        "clippedMediaAudioRemovedNoOpEffectAndRotated_trimOptimizationEnabled_completedWithOptimizationAppliedAndCorrectOrientation";
     if (!isRunningOnEmulator() || Util.SDK_INT != 33) {
       // The trim optimization is only guaranteed to work on emulator for this (emulator-transcoded)
       // file.
@@ -1161,7 +1151,6 @@ public class TransformerEndToEndTest {
 
   @Test
   public void audioComposition_noEffects_transmuxes() throws Exception {
-    String testId = "audioComposition_noEffects_transmuxes";
     EditedMediaItem editedMediaItem =
         new EditedMediaItem.Builder(MediaItem.fromUri(Uri.parse(MP4_ASSET_URI_STRING)))
             .setRemoveVideo(true)
@@ -1179,7 +1168,6 @@ public class TransformerEndToEndTest {
 
   @Test
   public void audioComposition_compositionEffects_transcodes() throws Exception {
-    String testId = "audioComposition_compositionEffects_transcodes";
     EditedMediaItem editedMediaItem =
         new EditedMediaItem.Builder(MediaItem.fromUri(Uri.parse(MP4_ASSET_URI_STRING)))
             .setRemoveVideo(true)
