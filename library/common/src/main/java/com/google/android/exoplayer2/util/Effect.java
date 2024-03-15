@@ -25,4 +25,13 @@ package com.google.android.exoplayer2.util;
  *     migration guide</a> for more details, including a script to help with the migration.
  */
 @Deprecated
-public interface Effect {}
+public interface Effect {
+
+  /**
+   * Returns the expected duration of the output stream when the effect is applied given a input
+   * {@code durationUs}.
+   */
+  default long getDurationAfterEffectApplied(long durationUs) {
+    return durationUs;
+  }
+}

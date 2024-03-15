@@ -176,6 +176,11 @@ public class SonicAudioProcessor implements AudioProcessor {
   }
 
   @Override
+  public long getDurationAfterProcessorApplied(long durationUs) {
+    return getPlayoutDuration(durationUs);
+  }
+
+  @Override
   public final AudioFormat configure(AudioFormat inputAudioFormat)
       throws UnhandledAudioFormatException {
     if (inputAudioFormat.encoding != C.ENCODING_PCM_16BIT) {

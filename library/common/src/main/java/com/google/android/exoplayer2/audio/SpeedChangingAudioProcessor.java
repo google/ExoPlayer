@@ -22,6 +22,7 @@ import static java.lang.Math.round;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.LongArray;
 import com.google.android.exoplayer2.util.LongArrayQueue;
+import com.google.android.exoplayer2.util.SpeedProviderUtil;
 import com.google.android.exoplayer2.util.Util;
 import java.nio.ByteBuffer;
 import java.util.ArrayDeque;
@@ -77,6 +78,11 @@ public final class SpeedChangingAudioProcessor extends BaseAudioProcessor {
     inputSegmentStartTimesUs.add(0);
     outputSegmentStartTimesUs.add(0);
     currentSpeed = 1f;
+  }
+
+  @Override
+  public long getDurationAfterProcessorApplied(long durationUs) {
+    return SpeedProviderUtil.getDurationAfterSpeedProviderApplied(speedProvider, durationUs);
   }
 
   @Override

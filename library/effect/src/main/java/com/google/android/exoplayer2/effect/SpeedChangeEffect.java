@@ -21,6 +21,7 @@ import android.content.Context;
 import androidx.annotation.FloatRange;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.audio.SpeedProvider;
+import com.google.android.exoplayer2.util.SpeedProviderUtil;
 
 /**
  * Applies a speed change by updating the frame timestamps.
@@ -75,5 +76,10 @@ public final class SpeedChangeEffect implements GlEffect {
   public boolean isNoOp(int inputWidth, int inputHeight) {
     return speedProvider.getSpeed(/* timeUs= */ 0) == 1
         && speedProvider.getNextSpeedChangeTimeUs(/* timeUs= */ 0) == C.TIME_UNSET;
+  }
+
+  @Override
+  public long getDurationAfterEffectApplied(long durationUs) {
+    return SpeedProviderUtil.getDurationAfterSpeedProviderApplied(speedProvider, durationUs);
   }
 }
