@@ -335,6 +335,8 @@ import java.util.concurrent.atomic.AtomicInteger;
     checkArgument(
         durationUs != C.TIME_UNSET || currentMediaItemIndex == editedMediaItems.size() - 1,
         "Could not retrieve required duration for EditedMediaItem " + currentMediaItemIndex);
+    durationUs =
+        editedMediaItems.get(currentMediaItemIndex).getDurationAfterEffectsApplied(durationUs);
     currentAssetDurationUs = durationUs;
     if (editedMediaItems.size() == 1 && !isLooping) {
       sequenceAssetLoaderListener.onDurationUs(durationUs);

@@ -77,6 +77,7 @@ import androidx.media3.effect.GlEffect;
 import androidx.media3.effect.Presentation;
 import androidx.media3.effect.RgbFilter;
 import androidx.media3.effect.ScaleAndRotateTransformation;
+import androidx.media3.effect.SpeedChangeEffect;
 import androidx.media3.effect.TimestampWrapper;
 import androidx.media3.exoplayer.audio.TeeAudioProcessor;
 import androidx.media3.extractor.mp4.Mp4Extractor;
@@ -924,6 +925,67 @@ public class TransformerEndToEndTest {
     assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
     assertThat(exception.errorCode).isEqualTo(ExportException.ERROR_CODE_ENCODER_INIT_FAILED);
     assertThat(exception).hasMessageThat().contains("video");
+  }
+
+  @Test
+  public void durationAdjustedSequence_completesWithCorrectDuration() throws Exception {
+    Transformer transformer = new Transformer.Builder(context).build();
+    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
+        context,
+        testId,
+        /* inputFormat= */ MP4_ASSET_WITH_INCREASING_TIMESTAMPS_320W_240H_15S_FORMAT,
+        /* outputFormat= */ MP4_ASSET_WITH_INCREASING_TIMESTAMPS_320W_240H_15S_FORMAT)) {
+      return;
+    }
+    ImmutableList<Effect> videoEffects =
+        ImmutableList.of(new SpeedChangeEffect(1.5f), new SpeedChangeEffect(2f));
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem.Builder(
+                MediaItem.fromUri(
+                    Uri.parse(MP4_ASSET_WITH_INCREASING_TIMESTAMPS_320W_240H_15S_URI_STRING)))
+            .setEffects(new Effects(/* audioProcessors= */ ImmutableList.of(), videoEffects))
+            .setRemoveAudio(true)
+            .build();
+    Composition composition =
+        new Composition.Builder(new EditedMediaItemSequence(editedMediaItem, editedMediaItem))
+            .build();
+    ExportTestResult result =
+        new TransformerAndroidTestRunner.Builder(context, transformer)
+            .build()
+            .run(testId, composition);
+
+    assertThat(result.exportResult.durationMs).isEqualTo(10_351L);
+  }
+
+  @Test
+  public void durationAdjustedSequence_withForcedAudioTrack_completesWithCorrectDuration()
+      throws Exception {
+    Transformer transformer = new Transformer.Builder(context).build();
+    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
+        context,
+        testId,
+        /* inputFormat= */ MP4_ASSET_WITH_INCREASING_TIMESTAMPS_320W_240H_15S_FORMAT,
+        /* outputFormat= */ MP4_ASSET_WITH_INCREASING_TIMESTAMPS_320W_240H_15S_FORMAT)) {
+      return;
+    }
+    ImmutableList<Effect> videoEffects = ImmutableList.of(new SpeedChangeEffect(1.5f));
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem.Builder(
+                MediaItem.fromUri(
+                    Uri.parse(MP4_ASSET_WITH_INCREASING_TIMESTAMPS_320W_240H_15S_URI_STRING)))
+            .setEffects(new Effects(/* audioProcessors= */ ImmutableList.of(), videoEffects))
+            .setRemoveAudio(true)
+            .build();
+    Composition composition =
+        new Composition.Builder(new EditedMediaItemSequence(editedMediaItem, editedMediaItem))
+            .experimentalSetForceAudioTrack(true)
+            .build();
+    ExportTestResult result =
+        new TransformerAndroidTestRunner.Builder(context, transformer)
+            .build()
+            .run(testId, composition);
+
+    assertThat(result.exportResult.durationMs).isAtMost(20_720L);
   }
 
   @Test

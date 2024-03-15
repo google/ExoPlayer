@@ -17,10 +17,13 @@ package androidx.media3.transformer;
 
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkState;
+import static java.lang.Math.max;
 
 import androidx.annotation.IntRange;
 import androidx.media3.common.C;
+import androidx.media3.common.Effect;
 import androidx.media3.common.MediaItem;
+import androidx.media3.common.audio.AudioProcessor;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.extractor.mp4.Mp4Extractor;
@@ -297,5 +300,25 @@ public final class EditedMediaItem {
       }
     }
     return presentationDurationUs;
+  }
+
+  /* package */ long getDurationAfterEffectsApplied(long durationUs) {
+    long audioDurationUs = durationUs;
+    long videoDurationUs = durationUs;
+    if (removeAudio) {
+      audioDurationUs = C.TIME_UNSET;
+    } else {
+      for (AudioProcessor audioProcessor : effects.audioProcessors) {
+        audioDurationUs = audioProcessor.getDurationAfterProcessorApplied(audioDurationUs);
+      }
+    }
+    if (removeVideo) {
+      videoDurationUs = C.TIME_UNSET;
+    } else {
+      for (Effect videoEffect : effects.videoEffects) {
+        videoDurationUs = videoEffect.getDurationAfterEffectApplied(videoDurationUs);
+      }
+    }
+    return max(audioDurationUs, videoDurationUs);
   }
 }
