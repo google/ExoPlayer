@@ -503,6 +503,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     super.release();
     try {
       glProgram.delete();
+      if (gainmapTexId != C.INDEX_UNSET) {
+        GlUtil.deleteTexture(gainmapTexId);
+      }
     } catch (GlUtil.GlException e) {
       throw new VideoFrameProcessingException(e);
     }
