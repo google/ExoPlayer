@@ -25,9 +25,7 @@ import androidx.media3.common.C;
 import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.test.utils.VideoFrameProcessorTestRunner;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
-import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -43,11 +41,10 @@ public class DefaultVideoFrameProcessorFlushTest {
   @Rule public final TestName testName = new TestName();
 
   private int outputFrameCount;
-  private @MonotonicNonNull String testId;
+  private String testId;
   private @MonotonicNonNull VideoFrameProcessorTestRunner videoFrameProcessorTestRunner;
 
   @Before
-  @EnsuresNonNull({"testId"})
   public void setUp() {
     testId = testName.getMethodName();
   }
@@ -58,7 +55,6 @@ public class DefaultVideoFrameProcessorFlushTest {
   }
 
   @Test
-  @RequiresNonNull({"testId"})
   public void imageInput_flushBeforeInput_throwsException() throws Exception {
     videoFrameProcessorTestRunner = createDefaultVideoFrameProcessorTestRunner(testId);
 
@@ -71,7 +67,6 @@ public class DefaultVideoFrameProcessorFlushTest {
   // behavior at all, and in practice has succeeded every time on a 1000-time run.
   // TODO: b/302695659 - Make this test more deterministic.
   @Test
-  @RequiresNonNull({"testId"})
   public void imageInput_flushRightAfterInput_outputsPartialFrames() throws Exception {
     videoFrameProcessorTestRunner = createDefaultVideoFrameProcessorTestRunner(testId);
     Bitmap bitmap = readBitmapUnpremultipliedAlpha(ORIGINAL_PNG_ASSET_PATH);
@@ -91,7 +86,6 @@ public class DefaultVideoFrameProcessorFlushTest {
   }
 
   @Test
-  @RequiresNonNull({"testId"})
   public void imageInput_flushAfterAllFramesOutput_outputsAllFrames() throws Exception {
     videoFrameProcessorTestRunner = createDefaultVideoFrameProcessorTestRunner(testId);
     Bitmap bitmap = readBitmapUnpremultipliedAlpha(ORIGINAL_PNG_ASSET_PATH);

@@ -183,7 +183,7 @@ public class EffectPlaybackTest {
     private final Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
     private @MonotonicNonNull ExoPlayer player;
     private @MonotonicNonNull ImageReader outputImageReader;
-    private @MonotonicNonNull String testId;
+    private String testId;
 
     @Before
     public void setUpTestId() {

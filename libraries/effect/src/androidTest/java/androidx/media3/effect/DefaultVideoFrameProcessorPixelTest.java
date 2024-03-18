@@ -33,9 +33,7 @@ import androidx.media3.test.utils.BitmapPixelTestUtil;
 import androidx.media3.test.utils.VideoFrameProcessorTestRunner;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
-import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
-import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -97,11 +95,10 @@ public final class DefaultVideoFrameProcessorPixelTest {
   private static final GlEffect NO_OP_EFFECT =
       new GlEffectWrapper(new ScaleAndRotateTransformation.Builder().build());
 
-  private @MonotonicNonNull String testId;
+  private String testId;
   private @MonotonicNonNull VideoFrameProcessorTestRunner videoFrameProcessorTestRunner;
 
   @Before
-  @EnsuresNonNull("testId")
   public void setUpTestId() {
     testId = testName.getMethodName();
   }
@@ -112,7 +109,6 @@ public final class DefaultVideoFrameProcessorPixelTest {
   }
 
   @Test
-  @RequiresNonNull("testId")
   public void noEffects_matchesGoldenFile() throws Exception {
     videoFrameProcessorTestRunner = getDefaultFrameProcessorTestRunnerBuilder(testId).build();
     Bitmap expectedBitmap = readBitmap(ORIGINAL_PNG_ASSET_PATH);
@@ -127,7 +123,6 @@ public final class DefaultVideoFrameProcessorPixelTest {
   }
 
   @Test
-  @RequiresNonNull("testId")
   public void noEffects_withFrameCache_matchesGoldenFile() throws Exception {
     videoFrameProcessorTestRunner =
         getDefaultFrameProcessorTestRunnerBuilder(testId)
@@ -145,7 +140,6 @@ public final class DefaultVideoFrameProcessorPixelTest {
   }
 
   @Test
-  @RequiresNonNull("testId")
   public void noEffects_withDisabledColorTransfers_matchesGoldenFile() throws Exception {
     videoFrameProcessorTestRunner =
         getDefaultFrameProcessorTestRunnerBuilder(testId)
@@ -166,7 +160,6 @@ public final class DefaultVideoFrameProcessorPixelTest {
   }
 
   @Test
-  @RequiresNonNull("testId")
   public void noEffects_withImageInput_matchesGoldenFile() throws Exception {
     videoFrameProcessorTestRunner = getDefaultFrameProcessorTestRunnerBuilder(testId).build();
     Bitmap originalBitmap = readBitmap(IMAGE_JPG_ASSET_PATH);
@@ -184,7 +177,6 @@ public final class DefaultVideoFrameProcessorPixelTest {
   }
 
   @Test
-  @RequiresNonNull("testId")
   public void wrappedCrop_withImageInput_matchesGoldenFile() throws Exception {
     videoFrameProcessorTestRunner =
         getDefaultFrameProcessorTestRunnerBuilder(testId)
@@ -211,7 +203,6 @@ public final class DefaultVideoFrameProcessorPixelTest {
   }
 
   @Test
-  @RequiresNonNull("testId")
   public void noOpEffect_withImageInputAndDisabledColorTransfers_matchesGoldenFile()
       throws Exception {
     videoFrameProcessorTestRunner =
@@ -238,7 +229,6 @@ public final class DefaultVideoFrameProcessorPixelTest {
   }
 
   @Test
-  @RequiresNonNull("testId")
   public void setPixelWidthHeightRatio_matchesGoldenFile() throws Exception {
     videoFrameProcessorTestRunner =
         getDefaultFrameProcessorTestRunnerBuilder(testId).setPixelWidthHeightRatio(2f).build();
@@ -254,7 +244,6 @@ public final class DefaultVideoFrameProcessorPixelTest {
   }
 
   @Test
-  @RequiresNonNull("testId")
   public void matrixTransformation_matchesGoldenFile() throws Exception {
     Matrix translateRightMatrix = new Matrix();
     translateRightMatrix.postTranslate(/* dx= */ 1, /* dy= */ 0);
@@ -274,7 +263,6 @@ public final class DefaultVideoFrameProcessorPixelTest {
   }
 
   @Test
-  @RequiresNonNull("testId")
   public void matrixAndScaleAndRotateTransformation_matchesGoldenFile() throws Exception {
     Matrix translateRightMatrix = new Matrix();
     translateRightMatrix.postTranslate(/* dx= */ 1, /* dy= */ 0);
@@ -296,7 +284,6 @@ public final class DefaultVideoFrameProcessorPixelTest {
   }
 
   @Test
-  @RequiresNonNull("testId")
   public void bitmapOverlay_matchesGoldenFile() throws Exception {
     Bitmap overlayBitmap = readBitmap(OVERLAY_PNG_ASSET_PATH);
     BitmapOverlay bitmapOverlay = BitmapOverlay.createStaticBitmapOverlay(overlayBitmap);
@@ -316,7 +303,6 @@ public final class DefaultVideoFrameProcessorPixelTest {
   }
 
   @Test
-  @RequiresNonNull("testId")
   public void scaleAndRotateAndMatrixTransformation_matchesGoldenFile() throws Exception {
     Matrix translateRightMatrix = new Matrix();
     translateRightMatrix.postTranslate(/* dx= */ 1, /* dy= */ 0);
@@ -338,7 +324,6 @@ public final class DefaultVideoFrameProcessorPixelTest {
   }
 
   @Test
-  @RequiresNonNull("testId")
   public void presentation_createForHeight_matchesGoldenFile() throws Exception {
     videoFrameProcessorTestRunner =
         getDefaultFrameProcessorTestRunnerBuilder(testId)
@@ -356,7 +341,6 @@ public final class DefaultVideoFrameProcessorPixelTest {
   }
 
   @Test
-  @RequiresNonNull("testId")
   public void cropThenPresentation_matchesGoldenFile() throws Exception {
     videoFrameProcessorTestRunner =
         getDefaultFrameProcessorTestRunnerBuilder(testId)
@@ -378,7 +362,6 @@ public final class DefaultVideoFrameProcessorPixelTest {
   }
 
   @Test
-  @RequiresNonNull("testId")
   public void scaleAndRotateTransformation_rotate45_matchesGoldenFile() throws Exception {
     videoFrameProcessorTestRunner =
         getDefaultFrameProcessorTestRunnerBuilder(testId)
@@ -396,7 +379,6 @@ public final class DefaultVideoFrameProcessorPixelTest {
   }
 
   @Test
-  @RequiresNonNull("testId")
   public void twoWrappedScaleAndRotateTransformations_matchesGoldenFile() throws Exception {
     videoFrameProcessorTestRunner =
         getDefaultFrameProcessorTestRunnerBuilder(testId)
@@ -420,7 +402,6 @@ public final class DefaultVideoFrameProcessorPixelTest {
   }
 
   @Test
-  @RequiresNonNull("testId")
   public void manyComposedMatrixEffects_matchesSingleEffect() throws Exception {
     Crop centerCrop =
         new Crop(/* left= */ -0.5f, /* right= */ 0.5f, /* bottom= */ -0.5f, /* top= */ 0.5f);
@@ -454,7 +435,6 @@ public final class DefaultVideoFrameProcessorPixelTest {
   }
 
   @Test
-  @RequiresNonNull("testId")
   public void increaseBrightness_matchesGoldenFile() throws Exception {
     videoFrameProcessorTestRunner =
         getDefaultFrameProcessorTestRunnerBuilder(testId).setEffects(new Brightness(0.5f)).build();
@@ -470,7 +450,6 @@ public final class DefaultVideoFrameProcessorPixelTest {
   }
 
   @Test
-  @RequiresNonNull("testId")
   public void manyComposedMatrixAndRgbEffects_producesSameOutputAsCombinedEffects()
       throws Exception {
     Crop centerCrop =
@@ -516,7 +495,6 @@ public final class DefaultVideoFrameProcessorPixelTest {
   }
 
   @Test
-  @RequiresNonNull("testId")
   public void manyComposedMatrixAndRgbEffects_withFrameCache_producesSameOutputAsCombinedEffects()
       throws Exception {
     Crop centerCrop =
@@ -563,7 +541,6 @@ public final class DefaultVideoFrameProcessorPixelTest {
   }
 
   @Test
-  @RequiresNonNull("testId")
   public void grayscaleThenIncreaseRedChannel_matchesGoldenFile() throws Exception {
     videoFrameProcessorTestRunner =
         getDefaultFrameProcessorTestRunnerBuilder(testId)

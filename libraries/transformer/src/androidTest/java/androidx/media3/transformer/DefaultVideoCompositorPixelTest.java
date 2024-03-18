@@ -73,10 +73,8 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicReference;
-import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -109,11 +107,10 @@ public final class DefaultVideoCompositorPixelTest {
           ImmutableList.of(
               new ScaleAndRotateTransformation.Builder().setRotationDegrees(180).build()));
 
-  private @MonotonicNonNull String testId;
+  private String testId;
   private @MonotonicNonNull VideoCompositorTestRunner compositorTestRunner;
 
   @Before
-  @EnsuresNonNull("testId")
   public void setUpTestId() {
     testId = testName.getMethodName();
   }
@@ -128,7 +125,6 @@ public final class DefaultVideoCompositorPixelTest {
   // Tests for alpha and frame alpha/occlusion.
 
   @Test
-  @RequiresNonNull("testId")
   public void compositeTwoInputs_withOneFrameFromEach_differentTimestamp_matchesExpectedBitmap()
       throws Exception {
     compositorTestRunner =
@@ -154,7 +150,6 @@ public final class DefaultVideoCompositorPixelTest {
   }
 
   @Test
-  @RequiresNonNull("testId")
   public void compositeTwoInputs_withPrimaryTransparent_differentTimestamp_matchesExpectedBitmap()
       throws Exception {
     ImmutableList<ImmutableList<Effect>> inputEffectLists =
@@ -186,7 +181,6 @@ public final class DefaultVideoCompositorPixelTest {
   }
 
   @Test
-  @RequiresNonNull("testId")
   public void compositeTwoInputs_withPrimaryOpaque_differentTimestamp_matchesExpectedBitmap()
       throws Exception {
     ImmutableList<ImmutableList<Effect>> inputEffectLists =
@@ -218,7 +212,6 @@ public final class DefaultVideoCompositorPixelTest {
   }
 
   @Test
-  @RequiresNonNull("testId")
   public void compositeTwoInputs_withSecondaryTransparent_differentTimestamp_matchesExpectedBitmap()
       throws Exception {
     ImmutableList<ImmutableList<Effect>> inputEffectLists =
@@ -251,7 +244,6 @@ public final class DefaultVideoCompositorPixelTest {
   // Tests for mixing different frame rates and timestamps.
 
   @Test
-  @RequiresNonNull("testId")
   public void compositeTwoInputs_withFiveFramesFromEach_matchesExpectedTimestamps()
       throws Exception {
     compositorTestRunner =
@@ -276,7 +268,6 @@ public final class DefaultVideoCompositorPixelTest {
   }
 
   @Test
-  @RequiresNonNull("testId")
   public void composite_onePrimaryAndFiveSecondaryFrames_matchesExpectedTimestamps()
       throws Exception {
     compositorTestRunner =
@@ -302,7 +293,6 @@ public final class DefaultVideoCompositorPixelTest {
   }
 
   @Test
-  @RequiresNonNull("testId")
   public void composite_fivePrimaryAndOneSecondaryFrames_matchesExpectedTimestamps()
       throws Exception {
     compositorTestRunner =
@@ -329,7 +319,6 @@ public final class DefaultVideoCompositorPixelTest {
   }
 
   @Test
-  @RequiresNonNull("testId")
   public void composite_primaryDoubleSecondaryFrameRate_matchesExpectedTimestamps()
       throws Exception {
     compositorTestRunner =
@@ -356,7 +345,6 @@ public final class DefaultVideoCompositorPixelTest {
   }
 
   @Test
-  @RequiresNonNull("testId")
   public void composite_primaryHalfSecondaryFrameRate_matchesExpectedTimestamps() throws Exception {
     compositorTestRunner =
         new VideoCompositorTestRunner(testId, useSharedExecutor, TWO_INPUT_COMPOSITOR_EFFECT_LISTS);
@@ -382,7 +370,6 @@ public final class DefaultVideoCompositorPixelTest {
   }
 
   @Test
-  @RequiresNonNull("testId")
   public void composite_primaryVariableFrameRateWithOffset_matchesExpectedTimestampsAndBitmaps()
       throws Exception {
     compositorTestRunner =
@@ -409,7 +396,6 @@ public final class DefaultVideoCompositorPixelTest {
   }
 
   @Test
-  @RequiresNonNull("testId")
   public void composite_secondaryVariableFrameRateWithOffset_matchesExpectedTimestampsAndBitmaps()
       throws Exception {
     compositorTestRunner =
@@ -438,7 +424,6 @@ public final class DefaultVideoCompositorPixelTest {
   // Tests for "many" inputs/frames.
 
   @Test
-  @RequiresNonNull("testId")
   public void compositeTwoInputs_withTenFramesFromEach_matchesExpectedFrameCount()
       throws Exception {
     compositorTestRunner =
@@ -456,7 +441,6 @@ public final class DefaultVideoCompositorPixelTest {
   }
 
   @Test
-  @RequiresNonNull("testId")
   public void compositeFiveInputs_withFiveFramesFromEach_matchesExpectedFrameCount()
       throws Exception {
     compositorTestRunner =
@@ -480,7 +464,6 @@ public final class DefaultVideoCompositorPixelTest {
   // Tests for different amounts of inputs.
 
   @Test
-  @RequiresNonNull("testId")
   public void compositeOneInput_matchesExpectedBitmap() throws Exception {
     compositorTestRunner =
         new VideoCompositorTestRunner(
@@ -501,7 +484,6 @@ public final class DefaultVideoCompositorPixelTest {
   }
 
   @Test
-  @RequiresNonNull("testId")
   public void compositeThreeInputs_matchesExpectedBitmap() throws Exception {
     compositorTestRunner =
         new VideoCompositorTestRunner(
@@ -540,7 +522,6 @@ public final class DefaultVideoCompositorPixelTest {
   // Tests for different layouts.
 
   @Test
-  @RequiresNonNull("testId")
   public void compositeTwoInputs_pictureInPicture_matchesExpectedBitmap() throws Exception {
     ImmutableList<ImmutableList<Effect>> inputEffectLists =
         ImmutableList.of(ImmutableList.of(), ImmutableList.of(RgbFilter.createGrayscaleFilter()));
@@ -579,7 +560,6 @@ public final class DefaultVideoCompositorPixelTest {
   }
 
   @Test
-  @RequiresNonNull("testId")
   public void compositeTwoInputs_differentDimensions_matchesExpectedBitmap() throws Exception {
     ImmutableList<ImmutableList<Effect>> inputEffectLists =
         ImmutableList.of(
@@ -613,7 +593,6 @@ public final class DefaultVideoCompositorPixelTest {
   }
 
   @Test
-  @RequiresNonNull("testId")
   public void compositeTwoInputs_stacked_matchesExpectedBitmap() throws Exception {
     ImmutableList<ImmutableList<Effect>> inputEffectLists =
         ImmutableList.of(

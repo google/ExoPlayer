@@ -71,10 +71,10 @@ public class GaussianBlurTest {
             Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
       };
 
-  private @MonotonicNonNull String testId;
+  private String testId;
   private @MonotonicNonNull TextureBitmapReader textureBitmapReader;
 
-  @EnsuresNonNull({"textureBitmapReader", "testId"})
+  @EnsuresNonNull({"textureBitmapReader"})
   @Before
   public void setUp() {
     textureBitmapReader = new TextureBitmapReader();
@@ -85,7 +85,7 @@ public class GaussianBlurTest {
   // different text rendering implementation that leads to a larger pixel difference.
 
   @Test
-  @RequiresNonNull({"textureBitmapReader", "testId"})
+  @RequiresNonNull({"textureBitmapReader"})
   public void gaussianBlur_blursFrame() throws Exception {
     ImmutableList<Long> frameTimesUs = ImmutableList.of(22_000L);
     ImmutableList<Long> actualPresentationTimesUs =

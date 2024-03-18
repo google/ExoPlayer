@@ -36,9 +36,7 @@ import androidx.media3.common.util.Size;
 import androidx.media3.test.utils.BitmapPixelTestUtil;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import java.io.IOException;
-import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
-import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -67,7 +65,7 @@ public final class CropPixelTest {
 
   private final Context context = getApplicationContext();
 
-  private @MonotonicNonNull String testId;
+  private String testId;
   private @MonotonicNonNull EGLDisplay eglDisplay;
   private @MonotonicNonNull EGLContext eglContext;
   private @MonotonicNonNull BaseGlShaderProgram cropShaderProgram;
@@ -89,7 +87,6 @@ public final class CropPixelTest {
   }
 
   @Before
-  @EnsuresNonNull("testId")
   public void setUpTestId() {
     testId = testName.getMethodName();
   }
@@ -105,7 +102,6 @@ public final class CropPixelTest {
   }
 
   @Test
-  @RequiresNonNull("testId")
   public void drawFrame_noEdits_matchesGoldenFile() throws Exception {
     cropShaderProgram =
         new Crop(/* left= */ -1, /* right= */ 1, /* bottom= */ -1, /* top= */ 1)
@@ -126,7 +122,6 @@ public final class CropPixelTest {
   }
 
   @Test
-  @RequiresNonNull("testId")
   public void drawFrame_cropSmaller_matchesGoldenFile() throws Exception {
     cropShaderProgram =
         new Crop(/* left= */ -0.9f, /* right= */ 0.1f, /* bottom= */ -1f, /* top= */ 0.5f)
@@ -147,7 +142,6 @@ public final class CropPixelTest {
   }
 
   @Test
-  @RequiresNonNull("testId")
   public void drawFrame_cropLarger_matchesGoldenFile() throws Exception {
     cropShaderProgram =
         new Crop(/* left= */ -2f, /* right= */ 2f, /* bottom= */ -1f, /* top= */ 2f)

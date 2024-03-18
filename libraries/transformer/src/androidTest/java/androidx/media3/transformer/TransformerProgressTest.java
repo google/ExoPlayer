@@ -53,9 +53,6 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
-import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
-import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -71,10 +68,9 @@ public class TransformerProgressTest {
 
   private final Context context = ApplicationProvider.getApplicationContext();
 
-  private @MonotonicNonNull String testId;
+  private String testId;
 
   @Before
-  @EnsuresNonNull({"testId"})
   public void setUp() {
     testId = testName.getMethodName();
   }
@@ -86,7 +82,6 @@ public class TransformerProgressTest {
    * long enough for the test thread to collect at least two progress updates.
    */
   @Test
-  @RequiresNonNull("testId")
   @SuppressWarnings("PreferJavaTimeOverload")
   public void getProgress_monotonicallyIncreasingUpdates() throws InterruptedException {
     AtomicBoolean completed = new AtomicBoolean();
@@ -168,7 +163,6 @@ public class TransformerProgressTest {
   }
 
   @Test
-  @RequiresNonNull("testId")
   public void getProgress_trimOptimizationEnabledAndApplied_givesIncreasingPercentages()
       throws Exception {
     // The trim optimization is only guaranteed to work on emulator for this file.
@@ -249,7 +243,6 @@ public class TransformerProgressTest {
   }
 
   @Test
-  @RequiresNonNull("testId")
   public void getProgress_trimOptimizationEnabledAndActive_returnsConsistentStates()
       throws Exception {
     // The trim optimization is only guaranteed to work on emulator for this file.

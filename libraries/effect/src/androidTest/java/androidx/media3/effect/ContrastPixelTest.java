@@ -38,9 +38,7 @@ import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.Size;
 import androidx.media3.test.utils.BitmapPixelTestUtil;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
-import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -74,7 +72,7 @@ public class ContrastPixelTest {
 
   private final Context context = getApplicationContext();
 
-  private @MonotonicNonNull String testId;
+  private String testId;
   private @MonotonicNonNull EGLDisplay eglDisplay;
   private @MonotonicNonNull EGLContext eglContext;
   private @MonotonicNonNull EGLSurface placeholderEglSurface;
@@ -96,7 +94,6 @@ public class ContrastPixelTest {
   }
 
   @Before
-  @EnsuresNonNull("testId")
   public void setUpTestId() {
     testId = testName.getMethodName();
   }
@@ -110,7 +107,6 @@ public class ContrastPixelTest {
   }
 
   @Test
-  @RequiresNonNull("testId")
   public void drawFrame_noContrastChange_leavesFrameUnchanged() throws Exception {
     contrastShaderProgram =
         new Contrast(/* contrast= */ 0.0f).toGlShaderProgram(context, /* useHdr= */ false);
@@ -129,7 +125,6 @@ public class ContrastPixelTest {
   }
 
   @Test
-  @RequiresNonNull("testId")
   public void drawFrame_minimumContrast_producesAllGrayFrame() throws Exception {
     contrastShaderProgram =
         new Contrast(/* contrast= */ -1.0f).toGlShaderProgram(context, /* useHdr= */ false);
@@ -153,7 +148,6 @@ public class ContrastPixelTest {
   }
 
   @Test
-  @RequiresNonNull("testId")
   public void drawFrame_decreaseContrast_decreasesPixelsGreaterEqual128IncreasesBelow()
       throws Exception {
     contrastShaderProgram =
@@ -173,7 +167,6 @@ public class ContrastPixelTest {
   }
 
   @Test
-  @RequiresNonNull("testId")
   public void drawFrame_increaseContrast_increasesPixelsGreaterEqual128DecreasesBelow()
       throws Exception {
     contrastShaderProgram =
@@ -193,7 +186,6 @@ public class ContrastPixelTest {
   }
 
   @Test
-  @RequiresNonNull("testId")
   public void drawFrame_maximumContrast_pixelEither0or255() throws Exception {
     contrastShaderProgram =
         new Contrast(/* contrast= */ 1.0f).toGlShaderProgram(context, /* useHdr= */ false);

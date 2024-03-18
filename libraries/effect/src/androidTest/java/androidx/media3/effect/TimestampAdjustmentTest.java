@@ -47,9 +47,9 @@ public class TimestampAdjustmentTest {
   private static final String ASSET_PATH = "test-generated-goldens/TimestampAdjustmentTest";
 
   private @MonotonicNonNull TextureBitmapReader textureBitmapReader;
-  private @MonotonicNonNull String testId;
+  private String testId;
 
-  @EnsuresNonNull({"textureBitmapReader", "testId"})
+  @EnsuresNonNull({"textureBitmapReader"})
   @Before
   public void setUp() {
     textureBitmapReader = new TextureBitmapReader();
@@ -57,7 +57,7 @@ public class TimestampAdjustmentTest {
   }
 
   @Test
-  @RequiresNonNull({"textureBitmapReader", "testId"})
+  @RequiresNonNull({"textureBitmapReader"})
   public void timestampAdjustmentTest_outputsFramesAtTheCorrectPresentationTimesUs()
       throws Exception {
     ImmutableList<Long> frameTimesUs = ImmutableList.of(0L, 32_000L, 71_000L);
