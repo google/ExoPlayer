@@ -29,7 +29,6 @@ import static com.google.android.exoplayer2.transformer.SequenceEffectTestUtil.c
 import static com.google.android.exoplayer2.transformer.mh.HdrCapabilitiesUtil.assumeDeviceSupportsHdrEditing;
 import static com.google.android.exoplayer2.transformer.mh.HdrCapabilitiesUtil.skipAndLogIfOpenGlToneMappingUnsupported;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
-import static com.google.android.exoplayer2.util.MimeTypes.VIDEO_H265;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assume.assumeFalse;
 
@@ -117,8 +116,7 @@ public final class TransformerSequenceEffectTestWithHdr {
   @Test
   @RequiresNonNull("testId")
   public void export_withHdrThenSdr_throws_whenHdrEditingSupported() throws Exception {
-    assumeDeviceSupportsHdrEditing(
-        testId, VIDEO_H265, MP4_ASSET_720P_4_SECOND_HDR10_FORMAT.colorInfo);
+    assumeDeviceSupportsHdrEditing(testId, MP4_ASSET_720P_4_SECOND_HDR10_FORMAT);
     assumeFalse(
         skipAndLogIfFormatsUnsupported(
             context,
@@ -158,8 +156,7 @@ public final class TransformerSequenceEffectTestWithHdr {
   @Test
   @RequiresNonNull("testId")
   public void export_withHdrThenSdr_whenHdrEditingUnsupported() throws Exception {
-    assumeDeviceSupportsHdrEditing(
-        testId, VIDEO_H265, MP4_ASSET_720P_4_SECOND_HDR10_FORMAT.colorInfo);
+    assumeDeviceSupportsHdrEditing(testId, MP4_ASSET_720P_4_SECOND_HDR10_FORMAT);
     assumeFalse(
         skipAndLogIfOpenGlToneMappingUnsupported(
             testId, /* inputFormat= */ MP4_ASSET_720P_4_SECOND_HDR10_FORMAT));

@@ -230,7 +230,7 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
   public void noEffects_hlg10Input_matchesGoldenFile() throws Exception {
     Context context = getApplicationContext();
     Format format = MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT;
-    assumeDeviceSupportsHdrEditing(testId, format.sampleMimeType, format.colorInfo);
+    assumeDeviceSupportsHdrEditing(testId, format);
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context, testId, /* inputFormat= */ format, /* outputFormat= */ null)) {
       return;
@@ -258,7 +258,7 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
   public void noEffects_hlg10TextureInput_matchesGoldenFile() throws Exception {
     Context context = getApplicationContext();
     Format format = MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT;
-    assumeDeviceSupportsHdrEditing(testId, format.sampleMimeType, format.colorInfo);
+    assumeDeviceSupportsHdrEditing(testId, format);
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context, testId, /* inputFormat= */ format, /* outputFormat= */ null)) {
       return;
@@ -288,10 +288,7 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
 
   @Test
   public void noEffects_hlg10UltraHDRImageInput_matchesGoldenFile() throws Exception {
-    assumeDeviceSupportsHdrEditing(
-        testId,
-        MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT.sampleMimeType,
-        MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT.colorInfo);
+    assumeDeviceSupportsHdrEditing(testId, MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT);
     assumeDeviceSupportsUltraHdrEditing();
     ColorInfo outputColorInfo =
         new ColorInfo.Builder()
@@ -326,7 +323,7 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
   public void noEffects_hdr10Input_matchesGoldenFile() throws Exception {
     Context context = getApplicationContext();
     Format format = MP4_ASSET_720P_4_SECOND_HDR10_FORMAT;
-    assumeDeviceSupportsHdrEditing(testId, format.sampleMimeType, format.colorInfo);
+    assumeDeviceSupportsHdrEditing(testId, format);
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context, testId, /* inputFormat= */ format, /* outputFormat= */ null)) {
       return;
@@ -354,7 +351,7 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
   public void noEffects_hdr10TextureInput_matchesGoldenFile() throws Exception {
     Context context = getApplicationContext();
     Format format = MP4_ASSET_720P_4_SECOND_HDR10_FORMAT;
-    assumeDeviceSupportsHdrEditing(testId, format.sampleMimeType, format.colorInfo);
+    assumeDeviceSupportsHdrEditing(testId, format);
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context, testId, /* inputFormat= */ format, /* outputFormat= */ null)) {
       return;
@@ -384,10 +381,7 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
 
   @Test
   public void noEffects_hdr10UltraHDRImageInput_matchesGoldenFile() throws Exception {
-    assumeDeviceSupportsHdrEditing(
-        testId,
-        MP4_ASSET_720P_4_SECOND_HDR10_FORMAT.sampleMimeType,
-        MP4_ASSET_720P_4_SECOND_HDR10_FORMAT.colorInfo);
+    assumeDeviceSupportsHdrEditing(testId, MP4_ASSET_720P_4_SECOND_HDR10_FORMAT);
     assumeDeviceSupportsUltraHdrEditing();
     ColorInfo outputColorInfo =
         new ColorInfo.Builder()
@@ -422,7 +416,7 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
   public void noOpEffect_hlg10Input_matchesGoldenFile() throws Exception {
     Context context = getApplicationContext();
     Format format = MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT;
-    assumeDeviceSupportsHdrEditing(testId, format.sampleMimeType, format.colorInfo);
+    assumeDeviceSupportsHdrEditing(testId, format);
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context, testId, /* inputFormat= */ format, /* outputFormat= */ null)) {
       return;
@@ -451,7 +445,7 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
   public void noOpEffect_hlg10TextureInput_matchesGoldenFile() throws Exception {
     Context context = getApplicationContext();
     Format format = MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT;
-    assumeDeviceSupportsHdrEditing(testId, format.sampleMimeType, format.colorInfo);
+    assumeDeviceSupportsHdrEditing(testId, format);
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context, testId, /* inputFormat= */ format, /* outputFormat= */ null)) {
       return;
@@ -481,10 +475,7 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
 
   @Test
   public void noOpEffect_hlg10UltraHDRImageInput_matchesGoldenFile() throws Exception {
-    assumeDeviceSupportsHdrEditing(
-        testId,
-        MP4_ASSET_720P_4_SECOND_HDR10_FORMAT.sampleMimeType,
-        MP4_ASSET_720P_4_SECOND_HDR10_FORMAT.colorInfo);
+    assumeDeviceSupportsHdrEditing(testId, MP4_ASSET_720P_4_SECOND_HDR10_FORMAT);
     assumeDeviceSupportsUltraHdrEditing();
     ColorInfo outputColorInfo =
         new ColorInfo.Builder()
@@ -520,7 +511,7 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
   public void noOpEffect_hdr10Input_matchesGoldenFile() throws Exception {
     Context context = getApplicationContext();
     Format format = MP4_ASSET_720P_4_SECOND_HDR10_FORMAT;
-    assumeDeviceSupportsHdrEditing(testId, format.sampleMimeType, format.colorInfo);
+    assumeDeviceSupportsHdrEditing(testId, format);
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context, testId, /* inputFormat= */ format, /* outputFormat= */ null)) {
       return;
@@ -549,7 +540,7 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
   public void noOpEffect_hdr10TextureInput_matchesGoldenFile() throws Exception {
     Context context = getApplicationContext();
     Format format = MP4_ASSET_720P_4_SECOND_HDR10_FORMAT;
-    assumeDeviceSupportsHdrEditing(testId, format.sampleMimeType, format.colorInfo);
+    assumeDeviceSupportsHdrEditing(testId, format);
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context, testId, /* inputFormat= */ format, /* outputFormat= */ null)) {
       return;
@@ -579,10 +570,7 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
 
   @Test
   public void noOpEffect_hdr10UltraHDRImageInput_matchesGoldenFile() throws Exception {
-    assumeDeviceSupportsHdrEditing(
-        testId,
-        MP4_ASSET_720P_4_SECOND_HDR10_FORMAT.sampleMimeType,
-        MP4_ASSET_720P_4_SECOND_HDR10_FORMAT.colorInfo);
+    assumeDeviceSupportsHdrEditing(testId, MP4_ASSET_720P_4_SECOND_HDR10_FORMAT);
     assumeDeviceSupportsUltraHdrEditing();
     ColorInfo outputColorInfo =
         new ColorInfo.Builder()
