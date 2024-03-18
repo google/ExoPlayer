@@ -30,9 +30,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.TextureBitmapReader;
 import com.google.android.exoplayer2.util.Consumer;
 import com.google.common.collect.ImmutableList;
-import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
-import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -49,7 +47,6 @@ public class TimestampAdjustmentTest {
   private @MonotonicNonNull TextureBitmapReader textureBitmapReader;
   private String testId;
 
-  @EnsuresNonNull({"textureBitmapReader"})
   @Before
   public void setUp() {
     textureBitmapReader = new TextureBitmapReader();
@@ -57,7 +54,6 @@ public class TimestampAdjustmentTest {
   }
 
   @Test
-  @RequiresNonNull({"textureBitmapReader"})
   public void timestampAdjustmentTest_outputsFramesAtTheCorrectPresentationTimesUs()
       throws Exception {
     ImmutableList<Long> frameTimesUs = ImmutableList.of(0L, 32_000L, 71_000L);

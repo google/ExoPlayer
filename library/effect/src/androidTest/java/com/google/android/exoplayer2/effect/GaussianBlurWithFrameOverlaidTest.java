@@ -32,9 +32,7 @@ import com.google.android.exoplayer2.testutil.TextureBitmapReader;
 import com.google.android.exoplayer2.util.Consumer;
 import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 import com.google.common.collect.ImmutableList;
-import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
-import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -77,7 +75,6 @@ public class GaussianBlurWithFrameOverlaidTest {
   private String testId;
   private @MonotonicNonNull TextureBitmapReader textureBitmapReader;
 
-  @EnsuresNonNull({"textureBitmapReader"})
   @Before
   public void setUp() {
     textureBitmapReader = new TextureBitmapReader();
@@ -88,7 +85,6 @@ public class GaussianBlurWithFrameOverlaidTest {
   // different text rendering implementation that leads to a larger pixel difference.
 
   @Test
-  @RequiresNonNull({"textureBitmapReader"})
   public void gaussianBlurWithFrameOverlaid_blursFrameAndOverlaysSharpImage() throws Exception {
     ImmutableList<Long> frameTimesUs = ImmutableList.of(32_000L);
     ImmutableList<Long> actualPresentationTimesUs =
@@ -106,7 +102,6 @@ public class GaussianBlurWithFrameOverlaidTest {
   }
 
   @Test
-  @RequiresNonNull({"textureBitmapReader"})
   public void gaussianBlurWithFrameOverlaid_sigmaChangesWithTime_differentFramesHaveDifferentBlurs()
       throws Exception {
     ImmutableList<Long> frameTimesUs = ImmutableList.of(32_000L, 71_000L);
