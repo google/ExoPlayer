@@ -74,10 +74,10 @@ public class GaussianBlurWithFrameOverlaidTest {
             Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
       };
 
-  private @MonotonicNonNull String testId;
+  private String testId;
   private @MonotonicNonNull TextureBitmapReader textureBitmapReader;
 
-  @EnsuresNonNull({"textureBitmapReader", "testId"})
+  @EnsuresNonNull({"textureBitmapReader"})
   @Before
   public void setUp() {
     textureBitmapReader = new TextureBitmapReader();
@@ -88,7 +88,7 @@ public class GaussianBlurWithFrameOverlaidTest {
   // different text rendering implementation that leads to a larger pixel difference.
 
   @Test
-  @RequiresNonNull({"textureBitmapReader", "testId"})
+  @RequiresNonNull({"textureBitmapReader"})
   public void gaussianBlurWithFrameOverlaid_blursFrameAndOverlaysSharpImage() throws Exception {
     ImmutableList<Long> frameTimesUs = ImmutableList.of(32_000L);
     ImmutableList<Long> actualPresentationTimesUs =
@@ -106,7 +106,7 @@ public class GaussianBlurWithFrameOverlaidTest {
   }
 
   @Test
-  @RequiresNonNull({"textureBitmapReader", "testId"})
+  @RequiresNonNull({"textureBitmapReader"})
   public void gaussianBlurWithFrameOverlaid_sigmaChangesWithTime_differentFramesHaveDifferentBlurs()
       throws Exception {
     ImmutableList<Long> frameTimesUs = ImmutableList.of(32_000L, 71_000L);

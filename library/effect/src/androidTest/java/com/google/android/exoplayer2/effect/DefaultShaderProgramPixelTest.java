@@ -35,9 +35,7 @@ import com.google.android.exoplayer2.testutil.BitmapPixelTestUtil;
 import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 import java.io.IOException;
-import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
-import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -68,7 +66,7 @@ public final class DefaultShaderProgramPixelTest {
 
   private final Context context = getApplicationContext();
 
-  private @MonotonicNonNull String testId;
+  private String testId;
   private @MonotonicNonNull EGLDisplay eglDisplay;
   private @MonotonicNonNull EGLContext eglContext;
   private @MonotonicNonNull BaseGlShaderProgram defaultShaderProgram;
@@ -95,7 +93,6 @@ public final class DefaultShaderProgramPixelTest {
   }
 
   @Before
-  @EnsuresNonNull("testId")
   public void setUpTestId() {
     testId = testName.getMethodName();
   }
@@ -111,7 +108,6 @@ public final class DefaultShaderProgramPixelTest {
   }
 
   @Test
-  @RequiresNonNull("testId")
   public void drawFrame_noEdits_matchesGoldenFile() throws Exception {
     Matrix identityMatrix = new Matrix();
     MatrixTransformation noEditsTransformation = (long presentationTimeUs) -> identityMatrix;
@@ -130,7 +126,6 @@ public final class DefaultShaderProgramPixelTest {
   }
 
   @Test
-  @RequiresNonNull("testId")
   public void drawFrame_translateRight_matchesGoldenFile() throws Exception {
     Matrix translateRightMatrix = new Matrix();
     translateRightMatrix.postTranslate(/* dx= */ 1, /* dy= */ 0);
@@ -152,7 +147,6 @@ public final class DefaultShaderProgramPixelTest {
   }
 
   @Test
-  @RequiresNonNull("testId")
   public void drawFrame_scaleNarrow_matchesGoldenFile() throws Exception {
     Matrix scaleNarrowMatrix = new Matrix();
     scaleNarrowMatrix.postScale(.5f, 1.2f);
@@ -173,7 +167,6 @@ public final class DefaultShaderProgramPixelTest {
   }
 
   @Test
-  @RequiresNonNull("testId")
   public void drawFrame_rotate90_matchesGoldenFile() throws Exception {
     Matrix rotate90Matrix = new Matrix();
     rotate90Matrix.postRotate(/* degrees= */ 90);

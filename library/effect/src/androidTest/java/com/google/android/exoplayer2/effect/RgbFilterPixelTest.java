@@ -37,9 +37,7 @@ import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.Size;
 import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 import java.io.IOException;
-import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
-import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -68,7 +66,7 @@ public final class RgbFilterPixelTest {
 
   private final Context context = getApplicationContext();
 
-  private @MonotonicNonNull String testId;
+  private String testId;
   private @MonotonicNonNull EGLDisplay eglDisplay;
   private @MonotonicNonNull EGLContext eglContext;
   private @MonotonicNonNull BaseGlShaderProgram defaultShaderProgram;
@@ -101,7 +99,6 @@ public final class RgbFilterPixelTest {
   }
 
   @Before
-  @EnsuresNonNull("testId")
   public void setUpTestId() {
     testId = testName.getMethodName();
   }
@@ -115,7 +112,6 @@ public final class RgbFilterPixelTest {
   }
 
   @Test
-  @RequiresNonNull("testId")
   public void drawFrame_grayscale_producesGrayscaleImage() throws Exception {
     RgbMatrix grayscaleMatrix = RgbFilter.createGrayscaleFilter();
     defaultShaderProgram = grayscaleMatrix.toGlShaderProgram(context, /* useHdr= */ false);
@@ -133,7 +129,6 @@ public final class RgbFilterPixelTest {
   }
 
   @Test
-  @RequiresNonNull("testId")
   public void drawFrame_inverted_producesInvertedFrame() throws Exception {
     RgbMatrix invertedMatrix = RgbFilter.createInvertedFilter();
     defaultShaderProgram = invertedMatrix.toGlShaderProgram(context, /* useHdr= */ false);

@@ -47,9 +47,9 @@ public class FrameDropTest {
   private static final String ASSET_PATH = "test-generated-goldens/FrameDropTest";
 
   private @MonotonicNonNull TextureBitmapReader textureBitmapReader;
-  private @MonotonicNonNull String testId;
+  private String testId;
 
-  @EnsuresNonNull({"textureBitmapReader", "testId"})
+  @EnsuresNonNull({"textureBitmapReader"})
   @Before
   public void setUp() {
     textureBitmapReader = new TextureBitmapReader();
@@ -57,7 +57,7 @@ public class FrameDropTest {
   }
 
   @Test
-  @RequiresNonNull({"textureBitmapReader", "testId"})
+  @RequiresNonNull({"textureBitmapReader"})
   public void frameDrop_withDefaultStrategy_outputsFramesAtTheCorrectPresentationTimesUs()
       throws Exception {
     ImmutableList<Long> frameTimesUs =
@@ -73,7 +73,7 @@ public class FrameDropTest {
   }
 
   @Test
-  @RequiresNonNull({"textureBitmapReader", "testId"})
+  @RequiresNonNull({"textureBitmapReader"})
   public void frameDrop_withSimpleStrategy_outputsFramesAtTheCorrectPresentationTimesUs()
       throws Exception {
     ImmutableList<Long> frameTimesUs =
@@ -90,7 +90,7 @@ public class FrameDropTest {
   }
 
   @Test
-  @RequiresNonNull({"textureBitmapReader", "testId"})
+  @RequiresNonNull({"textureBitmapReader"})
   public void frameDrop_withSimpleStrategy_outputsAllFrames() throws Exception {
     ImmutableList<Long> frameTimesUs = ImmutableList.of(0L, 333_333L, 666_667L);
     FrameDropEffect frameDropEffect =

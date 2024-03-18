@@ -48,9 +48,6 @@ import com.google.android.exoplayer2.transformer.Transformer;
 import com.google.android.exoplayer2.transformer.TransformerAndroidTestRunner;
 import com.google.android.exoplayer2.util.Effect;
 import com.google.common.collect.ImmutableList;
-import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
-import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -69,16 +66,14 @@ public final class TransformerSequenceEffectTestWithHdr {
 
   private final Context context = ApplicationProvider.getApplicationContext();
 
-  private @MonotonicNonNull String testId;
+  private String testId;
 
   @Before
-  @EnsuresNonNull({"testId"})
   public void setUp() {
     testId = testName.getMethodName();
   }
 
   @Test
-  @RequiresNonNull("testId")
   public void export_withSdrThenHdr() throws Exception {
     assumeDeviceSupportsOpenGlToneMapping(
         testId, /* inputFormat= */ MP4_ASSET_720P_4_SECOND_HDR10_FORMAT);
@@ -113,7 +108,6 @@ public final class TransformerSequenceEffectTestWithHdr {
    * after already being configured for HDR output.
    */
   @Test
-  @RequiresNonNull("testId")
   public void export_withHdrThenSdr_throws_whenHdrEditingSupported() throws Exception {
     assumeDeviceSupportsHdrEditing(testId, MP4_ASSET_720P_4_SECOND_HDR10_FORMAT);
     assumeFalse(
@@ -153,7 +147,6 @@ public final class TransformerSequenceEffectTestWithHdr {
    * will fallback to OpenGL tone-mapping, and configure VideoFrameProcessor for SDR output.
    */
   @Test
-  @RequiresNonNull("testId")
   public void export_withHdrThenSdr_whenHdrEditingUnsupported() throws Exception {
     assumeDeviceSupportsHdrEditing(testId, MP4_ASSET_720P_4_SECOND_HDR10_FORMAT);
     assumeDeviceSupportsOpenGlToneMapping(
