@@ -70,6 +70,7 @@ public class PreloadAndPlaybackCoordinationTest {
 
   private final AtomicInteger preloadControlOnSourceInfoRefreshedCalledCounter;
   private final AtomicInteger preloadControlOnPreparedCalledCounter;
+  private final AtomicInteger preloadControlOnUsedByPlayerCounter;
   private final AtomicBoolean playbackSourceCallerOnSourceInfoRefreshedCalled;
   private final AtomicBoolean playbackPeriodCallbackOnPreparedCalled;
   private final AtomicReference<MediaPeriod> preloadMediaPeriodReference;
@@ -94,6 +95,7 @@ public class PreloadAndPlaybackCoordinationTest {
             };
     preloadControlOnSourceInfoRefreshedCalledCounter = new AtomicInteger();
     preloadControlOnPreparedCalledCounter = new AtomicInteger();
+    preloadControlOnUsedByPlayerCounter = new AtomicInteger();
     playbackSourceCallerOnSourceInfoRefreshedCalled = new AtomicBoolean();
     playbackPeriodCallbackOnPreparedCalled = new AtomicBoolean();
     preloadMediaPeriodReference = new AtomicReference<>();
@@ -116,6 +118,11 @@ public class PreloadAndPlaybackCoordinationTest {
           public boolean onContinueLoadingRequested(
               PreloadMediaSource mediaSource, long bufferedPositionUs) {
             return true;
+          }
+
+          @Override
+          public void onUsedByPlayer(PreloadMediaSource mediaSource) {
+            preloadControlOnUsedByPlayerCounter.addAndGet(1);
           }
         };
     PreloadMediaSource.Factory preloadMediaSourceFactory =
@@ -168,6 +175,7 @@ public class PreloadAndPlaybackCoordinationTest {
 
     assertThat(preloadControlOnSourceInfoRefreshedCalledCounter.get()).isEqualTo(0);
     assertThat(preloadControlOnPreparedCalledCounter.get()).isEqualTo(0);
+    assertThat(preloadControlOnUsedByPlayerCounter.get()).isEqualTo(1);
     assertThat(playbackSourceCallerOnSourceInfoRefreshedCalled.get()).isTrue();
     assertThat(playbackPeriodCallbackOnPreparedCalled.get()).isTrue();
     assertThat(preloadMediaPeriodReference.get()).isNotNull();
@@ -181,6 +189,7 @@ public class PreloadAndPlaybackCoordinationTest {
 
     assertThat(preloadControlOnSourceInfoRefreshedCalledCounter.get()).isEqualTo(1);
     assertThat(preloadControlOnPreparedCalledCounter.get()).isEqualTo(1);
+    assertThat(preloadControlOnUsedByPlayerCounter.get()).isEqualTo(1);
   }
 
   @Test
@@ -192,6 +201,7 @@ public class PreloadAndPlaybackCoordinationTest {
 
     assertThat(preloadControlOnSourceInfoRefreshedCalledCounter.get()).isEqualTo(0);
     assertThat(preloadControlOnPreparedCalledCounter.get()).isEqualTo(0);
+    assertThat(preloadControlOnUsedByPlayerCounter.get()).isEqualTo(2);
     assertThat(playbackSourceCallerOnSourceInfoRefreshedCalled.get()).isTrue();
     assertThat(playbackPeriodCallbackOnPreparedCalled.get()).isTrue();
     assertThat(preloadMediaPeriodReference.get()).isNotNull();
@@ -205,6 +215,7 @@ public class PreloadAndPlaybackCoordinationTest {
 
     assertThat(preloadControlOnSourceInfoRefreshedCalledCounter.get()).isEqualTo(1);
     assertThat(preloadControlOnPreparedCalledCounter.get()).isEqualTo(1);
+    assertThat(preloadControlOnUsedByPlayerCounter.get()).isEqualTo(2);
   }
 
   @Test
@@ -220,6 +231,7 @@ public class PreloadAndPlaybackCoordinationTest {
 
     assertThat(preloadControlOnSourceInfoRefreshedCalledCounter.get()).isEqualTo(0);
     assertThat(preloadControlOnPreparedCalledCounter.get()).isEqualTo(0);
+    assertThat(preloadControlOnUsedByPlayerCounter.get()).isEqualTo(1);
     assertThat(playbackSourceCallerOnSourceInfoRefreshedCalled.get()).isTrue();
     assertThat(playbackPeriodCallbackOnPreparedCalled.get()).isTrue();
     assertThat(preloadMediaPeriodReference.get()).isNotNull();
@@ -233,6 +245,7 @@ public class PreloadAndPlaybackCoordinationTest {
 
     assertThat(preloadControlOnSourceInfoRefreshedCalledCounter.get()).isEqualTo(1);
     assertThat(preloadControlOnPreparedCalledCounter.get()).isEqualTo(1);
+    assertThat(preloadControlOnUsedByPlayerCounter.get()).isEqualTo(1);
   }
 
   @Test
@@ -251,6 +264,7 @@ public class PreloadAndPlaybackCoordinationTest {
 
     assertThat(preloadControlOnSourceInfoRefreshedCalledCounter.get()).isEqualTo(1);
     assertThat(preloadControlOnPreparedCalledCounter.get()).isEqualTo(0);
+    assertThat(preloadControlOnUsedByPlayerCounter.get()).isEqualTo(1);
     assertThat(playbackSourceCallerOnSourceInfoRefreshedCalled.get()).isTrue();
     assertThat(playbackPeriodCallbackOnPreparedCalled.get()).isTrue();
     assertThat(preloadMediaPeriodReference.get()).isNotNull();
@@ -265,6 +279,7 @@ public class PreloadAndPlaybackCoordinationTest {
 
     assertThat(preloadControlOnSourceInfoRefreshedCalledCounter.get()).isEqualTo(2);
     assertThat(preloadControlOnPreparedCalledCounter.get()).isEqualTo(1);
+    assertThat(preloadControlOnUsedByPlayerCounter.get()).isEqualTo(1);
   }
 
   @Test
@@ -277,6 +292,7 @@ public class PreloadAndPlaybackCoordinationTest {
 
     assertThat(preloadControlOnSourceInfoRefreshedCalledCounter.get()).isEqualTo(1);
     assertThat(preloadControlOnPreparedCalledCounter.get()).isEqualTo(1);
+    assertThat(preloadControlOnUsedByPlayerCounter.get()).isEqualTo(1);
     assertThat(playbackSourceCallerOnSourceInfoRefreshedCalled.get()).isTrue();
     assertThat(playbackPeriodCallbackOnPreparedCalled.get()).isTrue();
     assertThat(preloadMediaPeriodReference.get()).isNotNull();
@@ -290,6 +306,7 @@ public class PreloadAndPlaybackCoordinationTest {
 
     assertThat(preloadControlOnSourceInfoRefreshedCalledCounter.get()).isEqualTo(2);
     assertThat(preloadControlOnPreparedCalledCounter.get()).isEqualTo(2);
+    assertThat(preloadControlOnUsedByPlayerCounter.get()).isEqualTo(1);
   }
 
   private static RendererCapabilities[] getRendererCapabilities(RenderersFactory renderersFactory) {

@@ -26,7 +26,6 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.common.util.Util
 import androidx.media3.exoplayer.RendererCapabilities
 import androidx.media3.exoplayer.RenderersFactory
-import androidx.media3.exoplayer.analytics.PlayerId
 import androidx.media3.exoplayer.audio.AudioRendererEventListener
 import androidx.media3.exoplayer.source.MediaSource
 import androidx.media3.exoplayer.source.preload.PreloadMediaSource
@@ -61,7 +60,7 @@ class MediaSourceManager(
         bandwidthMeter,
         getRendererCapabilities(renderersFactory = renderersFactory),
         allocator,
-        preloadLooper
+        preloadLooper,
       )
   }
 
@@ -104,7 +103,7 @@ class MediaSourceManager(
         Util.createHandlerForCurrentOrMainLooper(),
         object : VideoRendererEventListener {},
         object : AudioRendererEventListener {},
-        { _: CueGroup? -> }
+        { _: CueGroup? -> },
       ) { _: Metadata ->
       }
     val capabilities = ArrayList<RendererCapabilities>()
@@ -131,9 +130,14 @@ class MediaSourceManager(
 
     override fun onContinueLoadingRequested(
       mediaSource: PreloadMediaSource,
-      bufferedPositionUs: Long
+      bufferedPositionUs: Long,
     ): Boolean {
       return bufferedPositionUs < targetPreloadPositionUs
+    }
+
+    override fun onUsedByPlayer(mediaSource: PreloadMediaSource) {
+      // Implementation is no-op until the whole class is removed with the adoption of
+      // DefaultPreloadManager.
     }
   }
 }
