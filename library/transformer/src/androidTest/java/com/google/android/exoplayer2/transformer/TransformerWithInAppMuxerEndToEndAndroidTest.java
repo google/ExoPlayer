@@ -37,7 +37,7 @@ import org.junit.runners.Parameterized.Parameters;
 
 /** End-to-end instrumentation test for {@link Transformer} with {@link InAppMuxer}. */
 @RunWith(Parameterized.class)
-public class TransformerWithInAppMuxerEndToEndTest {
+public class TransformerWithInAppMuxerEndToEndAndroidTest {
   private static final String MP4_FILE_ASSET_DIRECTORY = "asset:///media/mp4/";
   private static final String H264_MP4 = "sample_no_bframes.mp4";
   private static final String H265_MP4 = "h265_with_metadata_track.mp4";
