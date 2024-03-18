@@ -74,5 +74,21 @@ public final class HdrCapabilitiesUtil {
     }
   }
 
+  /**
+   * Assumes that the device does not support HDR editing for the given {@code colorInfo}.
+   *
+   * @throws AssumptionViolatedException if the device does support HDR editing.
+   */
+  public static void assumeDeviceDoesNotSupportHdrEditing(String testId, Format format)
+      throws JSONException, IOException {
+    checkState(ColorInfo.isTransferHdr(format.colorInfo));
+    if (!EncoderUtil.getSupportedEncodersForHdrEditing(format.sampleMimeType, format.colorInfo)
+        .isEmpty()) {
+      String skipReason = "HDR editing support for " + format.colorInfo;
+      recordTestSkipped(getApplicationContext(), testId, skipReason);
+      throw new AssumptionViolatedException(skipReason);
+    }
+  }
+
   private HdrCapabilitiesUtil() {}
 }
