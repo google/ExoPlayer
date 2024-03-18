@@ -42,7 +42,7 @@ import org.junit.runner.RunWith;
 
 /** End-to-end instrumentation test for {@link Transformer} with {@link InAppMuxer}. */
 @RunWith(AndroidJUnit4.class)
-public class TransformerWithInAppMuxerEndToEndTest {
+public class TransformerWithInAppMuxerEndToEndMhTest {
   @Rule public final TestName testName = new TestName();
 
   private String testId;
