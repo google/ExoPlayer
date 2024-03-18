@@ -38,26 +38,24 @@ public final class HdrCapabilitiesUtil {
   private static final String SKIP_REASON_NO_YUV = "Device lacks YUV extension support.";
 
   /**
-   * Returns whether the test should be skipped because the device is incapable of tone-mapping the
-   * {@code inputFormat} using OpenGL.
+   * Assumes that the device supports OpenGL tone-mapping for the {@code inputFormat}.
    *
-   * <p>If the test should be skipped, logs the reason for skipping.
+   * @throws AssumptionViolatedException if the device does not support OpenGL tone-mapping.
    */
-  public static boolean skipAndLogIfOpenGlToneMappingUnsupported(String testId, Format inputFormat)
+  public static void assumeDeviceSupportsOpenGlToneMapping(String testId, Format inputFormat)
       throws JSONException, IOException, MediaCodecUtil.DecoderQueryException {
     Context context = getApplicationContext();
     if (Util.SDK_INT < 29) {
       recordTestSkipped(context, testId, SKIP_REASON_NO_OPENGL_UNDER_API_29);
-      return true;
+      throw new AssumptionViolatedException(SKIP_REASON_NO_OPENGL_UNDER_API_29);
     }
     if (!GlUtil.isYuvTargetExtensionSupported()) {
       recordTestSkipped(context, testId, SKIP_REASON_NO_YUV);
-      return true;
+      throw new AssumptionViolatedException(SKIP_REASON_NO_YUV);
     }
     if (skipAndLogIfFormatsUnsupported(context, testId, inputFormat, /* outputFormat= */ null)) {
-      return true;
+      throw new AssumptionViolatedException("Input format is unsupported: " + inputFormat);
     }
-    return false;
   }
 
   /**
