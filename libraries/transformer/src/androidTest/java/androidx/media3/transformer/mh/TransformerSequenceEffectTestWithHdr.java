@@ -28,14 +28,13 @@ import static androidx.media3.transformer.SequenceEffectTestUtil.SINGLE_30_FPS_V
 import static androidx.media3.transformer.SequenceEffectTestUtil.assertBitmapsMatchExpectedAndSave;
 import static androidx.media3.transformer.SequenceEffectTestUtil.clippedVideo;
 import static androidx.media3.transformer.SequenceEffectTestUtil.createComposition;
+import static androidx.media3.transformer.mh.HdrCapabilitiesUtil.assumeDeviceSupportsHdrEditing;
 import static androidx.media3.transformer.mh.HdrCapabilitiesUtil.skipAndLogIfOpenGlToneMappingUnsupported;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assume.assumeFalse;
-import static org.junit.Assume.assumeTrue;
 
 import android.content.Context;
 import androidx.annotation.Nullable;
-import androidx.media3.common.ColorInfo;
 import androidx.media3.common.Effect;
 import androidx.media3.common.MediaItem;
 import androidx.media3.effect.Presentation;
@@ -43,7 +42,6 @@ import androidx.media3.effect.RgbFilter;
 import androidx.media3.effect.ScaleAndRotateTransformation;
 import androidx.media3.transformer.Composition;
 import androidx.media3.transformer.EditedMediaItemSequence;
-import androidx.media3.transformer.EncoderUtil;
 import androidx.media3.transformer.ExportException;
 import androidx.media3.transformer.ExportTestResult;
 import androidx.media3.transformer.Transformer;
@@ -119,10 +117,8 @@ public final class TransformerSequenceEffectTestWithHdr {
   @Test
   @RequiresNonNull("testId")
   public void export_withHdrThenSdr_throws_whenHdrEditingSupported() throws Exception {
-    assumeTrue(
-        "Device does not support HDR10 editing.",
-        deviceSupportsHdrEditing(
-            VIDEO_H265, checkNotNull(MP4_ASSET_720P_4_SECOND_HDR10_FORMAT.colorInfo)));
+    assumeDeviceSupportsHdrEditing(
+        testId, VIDEO_H265, MP4_ASSET_720P_4_SECOND_HDR10_FORMAT.colorInfo);
     assumeFalse(
         skipAndLogIfFormatsUnsupported(
             context,
@@ -162,10 +158,8 @@ public final class TransformerSequenceEffectTestWithHdr {
   @Test
   @RequiresNonNull("testId")
   public void export_withHdrThenSdr_whenHdrEditingUnsupported() throws Exception {
-    assumeFalse(
-        "Device supports HDR10 editing.",
-        deviceSupportsHdrEditing(
-            VIDEO_H265, checkNotNull(MP4_ASSET_720P_4_SECOND_HDR10_FORMAT.colorInfo)));
+    assumeDeviceSupportsHdrEditing(
+        testId, VIDEO_H265, MP4_ASSET_720P_4_SECOND_HDR10_FORMAT.colorInfo);
     assumeFalse(
         skipAndLogIfOpenGlToneMappingUnsupported(
             testId, /* inputFormat= */ MP4_ASSET_720P_4_SECOND_HDR10_FORMAT));
@@ -198,9 +192,5 @@ public final class TransformerSequenceEffectTestWithHdr {
     // support decoding HDR, and the Pixel 7 Pro does support HDR editing.
     assertBitmapsMatchExpectedAndSave(
         extractBitmapsFromVideo(context, checkNotNull(result.filePath)), testId);
-  }
-
-  private static boolean deviceSupportsHdrEditing(String mimeType, ColorInfo colorInfo) {
-    return !EncoderUtil.getSupportedEncodersForHdrEditing(mimeType, colorInfo).isEmpty();
   }
 }

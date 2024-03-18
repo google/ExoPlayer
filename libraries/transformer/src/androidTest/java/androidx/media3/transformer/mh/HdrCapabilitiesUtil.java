@@ -15,17 +15,21 @@
  */
 package androidx.media3.transformer.mh;
 
+import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.transformer.AndroidTestUtil.recordTestSkipped;
 import static androidx.media3.transformer.AndroidTestUtil.skipAndLogIfFormatsUnsupported;
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 
 import android.content.Context;
+import androidx.media3.common.ColorInfo;
 import androidx.media3.common.Format;
 import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.Util;
 import androidx.media3.exoplayer.mediacodec.MediaCodecUtil;
+import androidx.media3.transformer.EncoderUtil;
 import java.io.IOException;
 import org.json.JSONException;
+import org.junit.AssumptionViolatedException;
 
 /** Utility class for checking HDR capabilities. */
 public final class HdrCapabilitiesUtil {
@@ -54,6 +58,21 @@ public final class HdrCapabilitiesUtil {
       return true;
     }
     return false;
+  }
+
+  /**
+   * Assumes that the device supports HDR editing for the given {@code colorInfo}.
+   *
+   * @throws AssumptionViolatedException if the device does not support HDR editing.
+   */
+  public static void assumeDeviceSupportsHdrEditing(
+      String testId, String mimeType, ColorInfo colorInfo) throws JSONException, IOException {
+    checkState(ColorInfo.isTransferHdr(colorInfo));
+    if (EncoderUtil.getSupportedEncodersForHdrEditing(mimeType, colorInfo).isEmpty()) {
+      String skipReason = "No HDR editing support for " + colorInfo;
+      recordTestSkipped(getApplicationContext(), testId, skipReason);
+      throw new AssumptionViolatedException(skipReason);
+    }
   }
 
   private HdrCapabilitiesUtil() {}
