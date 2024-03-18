@@ -140,7 +140,7 @@ public final class HdrEditingTest {
   public void exportAndTranscode_hdr10File_whenHdrEditingIsSupported() throws Exception {
     Context context = ApplicationProvider.getApplicationContext();
     Format format = MP4_ASSET_720P_4_SECOND_HDR10_FORMAT;
-    assumeDeviceSupportsHdrEditing(testId, format.sampleMimeType, format.colorInfo);
+    assumeDeviceSupportsHdrEditing(testId, format);
 
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context, testId, /* inputFormat= */ format, /* outputFormat= */ format)) {
@@ -168,7 +168,7 @@ public final class HdrEditingTest {
   public void exportAndTranscode_hlg10File_whenHdrEditingIsSupported() throws Exception {
     Context context = ApplicationProvider.getApplicationContext();
     Format format = MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT;
-    assumeDeviceSupportsHdrEditing(testId, format.sampleMimeType, format.colorInfo);
+    assumeDeviceSupportsHdrEditing(testId, format);
 
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context, testId, /* inputFormat= */ format, /* outputFormat= */ format)) {
@@ -196,7 +196,7 @@ public final class HdrEditingTest {
   public void exportAndTranscode_dolbyVisionFile_whenHdrEditingIsSupported() throws Exception {
     Context context = ApplicationProvider.getApplicationContext();
     Format format = MP4_ASSET_DOLBY_VISION_HDR_FORMAT;
-    assumeDeviceSupportsHdrEditing(testId, format.sampleMimeType, format.colorInfo);
+    assumeDeviceSupportsHdrEditing(testId, format);
 
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context, testId, /* inputFormat= */ format, /* outputFormat= */ format)) {
@@ -225,7 +225,7 @@ public final class HdrEditingTest {
       throws Exception {
     Context context = ApplicationProvider.getApplicationContext();
     Format format = MP4_ASSET_720P_4_SECOND_HDR10_FORMAT;
-    assumeDeviceSupportsHdrEditing(testId, format.sampleMimeType, format.colorInfo);
+    assumeDeviceSupportsHdrEditing(testId, format);
 
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context, testId, /* inputFormat= */ format, /* outputFormat= */ null)) {
@@ -287,7 +287,7 @@ public final class HdrEditingTest {
       throws Exception {
     Context context = ApplicationProvider.getApplicationContext();
     Format format = MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT;
-    assumeDeviceSupportsHdrEditing(testId, format.sampleMimeType, format.colorInfo);
+    assumeDeviceSupportsHdrEditing(testId, format);
 
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context, testId, /* inputFormat= */ format, /* outputFormat= */ null)) {

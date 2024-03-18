@@ -17,7 +17,6 @@
 
 package androidx.media3.transformer.mh;
 
-import static androidx.media3.common.MimeTypes.VIDEO_H265;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_720P_4_SECOND_HDR10;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_720P_4_SECOND_HDR10_FORMAT;
@@ -117,8 +116,7 @@ public final class TransformerSequenceEffectTestWithHdr {
   @Test
   @RequiresNonNull("testId")
   public void export_withHdrThenSdr_throws_whenHdrEditingSupported() throws Exception {
-    assumeDeviceSupportsHdrEditing(
-        testId, VIDEO_H265, MP4_ASSET_720P_4_SECOND_HDR10_FORMAT.colorInfo);
+    assumeDeviceSupportsHdrEditing(testId, MP4_ASSET_720P_4_SECOND_HDR10_FORMAT);
     assumeFalse(
         skipAndLogIfFormatsUnsupported(
             context,
@@ -158,8 +156,7 @@ public final class TransformerSequenceEffectTestWithHdr {
   @Test
   @RequiresNonNull("testId")
   public void export_withHdrThenSdr_whenHdrEditingUnsupported() throws Exception {
-    assumeDeviceSupportsHdrEditing(
-        testId, VIDEO_H265, MP4_ASSET_720P_4_SECOND_HDR10_FORMAT.colorInfo);
+    assumeDeviceSupportsHdrEditing(testId, MP4_ASSET_720P_4_SECOND_HDR10_FORMAT);
     assumeFalse(
         skipAndLogIfOpenGlToneMappingUnsupported(
             testId, /* inputFormat= */ MP4_ASSET_720P_4_SECOND_HDR10_FORMAT));
