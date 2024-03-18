@@ -19,7 +19,7 @@ import static androidx.media3.common.MimeTypes.VIDEO_H265;
 import static androidx.media3.test.utils.BitmapPixelTestUtil.getBitmapAveragePixelAbsoluteDifferenceArgb8888;
 import static androidx.media3.test.utils.BitmapPixelTestUtil.readBitmap;
 import static androidx.media3.transformer.AndroidTestUtil.recordTestSkipped;
-import static androidx.media3.transformer.mh.HdrCapabilitiesUtil.skipAndLogIfOpenGlToneMappingUnsupported;
+import static androidx.media3.transformer.mh.HdrCapabilitiesUtil.assumeDeviceSupportsOpenGlToneMapping;
 import static androidx.media3.transformer.mh.UnoptimizedGlEffect.NO_OP_EFFECT;
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static com.google.common.truth.Truth.assertThat;
@@ -137,9 +137,7 @@ public final class ToneMapHdrToSdrUsingOpenGlPixelTest {
 
   @Test
   public void toneMap_hlgFrame_matchesGoldenFile() throws Exception {
-    if (skipAndLogIfOpenGlToneMappingUnsupported(testId, HLG_ASSET_FORMAT)) {
-      return;
-    }
+    assumeDeviceSupportsOpenGlToneMapping(testId, HLG_ASSET_FORMAT);
     videoFrameProcessorTestRunner =
         getDefaultFrameProcessorTestRunnerBuilder(testId)
             .setVideoAssetPath(HLG_ASSET_STRING)
@@ -174,9 +172,7 @@ public final class ToneMapHdrToSdrUsingOpenGlPixelTest {
 
   @Test
   public void toneMapWithNoOpEffect_hlgFrame_matchesGoldenFile() throws Exception {
-    if (skipAndLogIfOpenGlToneMappingUnsupported(testId, HLG_ASSET_FORMAT)) {
-      return;
-    }
+    assumeDeviceSupportsOpenGlToneMapping(testId, HLG_ASSET_FORMAT);
     videoFrameProcessorTestRunner =
         getDefaultFrameProcessorTestRunnerBuilder(testId)
             .setVideoAssetPath(HLG_ASSET_STRING)
@@ -212,9 +208,7 @@ public final class ToneMapHdrToSdrUsingOpenGlPixelTest {
 
   @Test
   public void toneMap_pqFrame_matchesGoldenFile() throws Exception {
-    if (skipAndLogIfOpenGlToneMappingUnsupported(testId, PQ_ASSET_FORMAT)) {
-      return;
-    }
+    assumeDeviceSupportsOpenGlToneMapping(testId, PQ_ASSET_FORMAT);
 
     videoFrameProcessorTestRunner =
         getDefaultFrameProcessorTestRunnerBuilder(testId)
@@ -250,9 +244,7 @@ public final class ToneMapHdrToSdrUsingOpenGlPixelTest {
 
   @Test
   public void toneMapWithNoOpEffect_pqFrame_matchesGoldenFile() throws Exception {
-    if (skipAndLogIfOpenGlToneMappingUnsupported(testId, PQ_ASSET_FORMAT)) {
-      return;
-    }
+    assumeDeviceSupportsOpenGlToneMapping(testId, PQ_ASSET_FORMAT);
 
     videoFrameProcessorTestRunner =
         getDefaultFrameProcessorTestRunnerBuilder(testId)

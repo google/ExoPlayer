@@ -22,7 +22,7 @@ import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_720P_4_SECON
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_720P_4_SECOND_HDR10_FORMAT;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_DOLBY_VISION_HDR;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_DOLBY_VISION_HDR_FORMAT;
-import static androidx.media3.transformer.mh.HdrCapabilitiesUtil.skipAndLogIfOpenGlToneMappingUnsupported;
+import static androidx.media3.transformer.mh.HdrCapabilitiesUtil.assumeDeviceSupportsOpenGlToneMapping;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
@@ -60,30 +60,24 @@ public class ToneMapHdrToSdrUsingOpenGlTest {
 
   @Test
   public void export_toneMap_hlg10File_toneMaps() throws Exception {
-    if (skipAndLogIfOpenGlToneMappingUnsupported(
-        testId, /* inputFormat= */ MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT)) {
-      return;
-    }
+    assumeDeviceSupportsOpenGlToneMapping(
+        testId, /* inputFormat= */ MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT);
 
     runTransformerWithOpenGlToneMapping(testId, MP4_ASSET_1080P_5_SECOND_HLG10);
   }
 
   @Test
   public void export_toneMap_hdr10File_toneMaps() throws Exception {
-    if (skipAndLogIfOpenGlToneMappingUnsupported(
-        testId, /* inputFormat= */ MP4_ASSET_720P_4_SECOND_HDR10_FORMAT)) {
-      return;
-    }
+    assumeDeviceSupportsOpenGlToneMapping(
+        testId, /* inputFormat= */ MP4_ASSET_720P_4_SECOND_HDR10_FORMAT);
 
     runTransformerWithOpenGlToneMapping(testId, MP4_ASSET_720P_4_SECOND_HDR10);
   }
 
   @Test
   public void export_toneMap_dolbyVisionFile_toneMaps() throws Exception {
-    if (skipAndLogIfOpenGlToneMappingUnsupported(
-        testId, /* inputFormat= */ MP4_ASSET_DOLBY_VISION_HDR_FORMAT)) {
-      return;
-    }
+    assumeDeviceSupportsOpenGlToneMapping(
+        testId, /* inputFormat= */ MP4_ASSET_DOLBY_VISION_HDR_FORMAT);
 
     runTransformerWithOpenGlToneMapping(testId, MP4_ASSET_DOLBY_VISION_HDR);
   }

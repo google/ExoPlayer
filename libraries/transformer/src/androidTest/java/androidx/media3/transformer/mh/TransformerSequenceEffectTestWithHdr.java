@@ -28,7 +28,7 @@ import static androidx.media3.transformer.SequenceEffectTestUtil.assertBitmapsMa
 import static androidx.media3.transformer.SequenceEffectTestUtil.clippedVideo;
 import static androidx.media3.transformer.SequenceEffectTestUtil.createComposition;
 import static androidx.media3.transformer.mh.HdrCapabilitiesUtil.assumeDeviceSupportsHdrEditing;
-import static androidx.media3.transformer.mh.HdrCapabilitiesUtil.skipAndLogIfOpenGlToneMappingUnsupported;
+import static androidx.media3.transformer.mh.HdrCapabilitiesUtil.assumeDeviceSupportsOpenGlToneMapping;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assume.assumeFalse;
 
@@ -80,9 +80,8 @@ public final class TransformerSequenceEffectTestWithHdr {
   @Test
   @RequiresNonNull("testId")
   public void export_withSdrThenHdr() throws Exception {
-    assumeFalse(
-        skipAndLogIfOpenGlToneMappingUnsupported(
-            testId, /* inputFormat= */ MP4_ASSET_720P_4_SECOND_HDR10_FORMAT));
+    assumeDeviceSupportsOpenGlToneMapping(
+        testId, /* inputFormat= */ MP4_ASSET_720P_4_SECOND_HDR10_FORMAT);
     Composition composition =
         createComposition(
             Presentation.createForHeight(EXPORT_HEIGHT),
@@ -157,9 +156,8 @@ public final class TransformerSequenceEffectTestWithHdr {
   @RequiresNonNull("testId")
   public void export_withHdrThenSdr_whenHdrEditingUnsupported() throws Exception {
     assumeDeviceSupportsHdrEditing(testId, MP4_ASSET_720P_4_SECOND_HDR10_FORMAT);
-    assumeFalse(
-        skipAndLogIfOpenGlToneMappingUnsupported(
-            testId, /* inputFormat= */ MP4_ASSET_720P_4_SECOND_HDR10_FORMAT));
+    assumeDeviceSupportsOpenGlToneMapping(
+        testId, /* inputFormat= */ MP4_ASSET_720P_4_SECOND_HDR10_FORMAT);
     assumeFalse(
         skipAndLogIfFormatsUnsupported(
             context,
