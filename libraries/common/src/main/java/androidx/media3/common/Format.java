@@ -1338,9 +1338,6 @@ public final class Format implements Bundleable {
     if (format.language != null) {
       builder.append(", language=").append(format.language);
     }
-    if (format.label != null) {
-      builder.append(", label=").append(format.label);
-    }
     if (format.labels.size() > 0) {
       builder.append(", labels=[");
       Joiner.on(',').appendTo(builder, format.labels);
