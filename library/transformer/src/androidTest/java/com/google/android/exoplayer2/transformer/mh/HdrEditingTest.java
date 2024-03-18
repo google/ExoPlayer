@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.transformer.mh;
 
+import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static com.google.android.exoplayer2.testutil.TestUtil.retrieveTrackFormat;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.FORCE_TRANSCODE_VIDEO_EFFECTS;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_1080P_5_SECOND_HLG10;
@@ -27,6 +28,7 @@ import static com.google.android.exoplayer2.transformer.AndroidTestUtil.recordTe
 import static com.google.android.exoplayer2.transformer.Composition.HDR_MODE_KEEP_HDR;
 import static com.google.android.exoplayer2.transformer.Composition.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL;
 import static com.google.android.exoplayer2.transformer.mh.HdrCapabilitiesUtil.assumeDeviceSupportsHdrEditing;
+import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
@@ -39,15 +41,20 @@ import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.transformer.AndroidTestUtil;
 import com.google.android.exoplayer2.transformer.Composition;
 import com.google.android.exoplayer2.transformer.EditedMediaItem;
+import com.google.android.exoplayer2.transformer.EncoderUtil;
 import com.google.android.exoplayer2.transformer.ExportException;
 import com.google.android.exoplayer2.transformer.ExportTestResult;
 import com.google.android.exoplayer2.transformer.TransformationRequest;
 import com.google.android.exoplayer2.transformer.Transformer;
 import com.google.android.exoplayer2.transformer.TransformerAndroidTestRunner;
 import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.video.ColorInfo;
+import java.io.IOException;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.json.JSONException;
+import org.junit.AssumptionViolatedException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -225,7 +232,7 @@ public final class HdrEditingTest {
       throws Exception {
     Context context = ApplicationProvider.getApplicationContext();
     Format format = MP4_ASSET_720P_4_SECOND_HDR10_FORMAT;
-    assumeDeviceSupportsHdrEditing(testId, format);
+    assumeDeviceDoesNotSupportHdrEditing(testId, format);
 
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context, testId, /* inputFormat= */ format, /* outputFormat= */ null)) {
@@ -287,7 +294,7 @@ public final class HdrEditingTest {
       throws Exception {
     Context context = ApplicationProvider.getApplicationContext();
     Format format = MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT;
-    assumeDeviceSupportsHdrEditing(testId, format);
+    assumeDeviceDoesNotSupportHdrEditing(testId, format);
 
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context, testId, /* inputFormat= */ format, /* outputFormat= */ null)) {
@@ -339,6 +346,22 @@ public final class HdrEditingTest {
         }
       }
       throw exception;
+    }
+  }
+
+  /**
+   * Assumes that the device does not support HDR editing for the given {@code colorInfo}.
+   *
+   * @throws AssumptionViolatedException if the device does support HDR editing.
+   */
+  private static void assumeDeviceDoesNotSupportHdrEditing(String testId, Format format)
+      throws JSONException, IOException {
+    checkState(ColorInfo.isTransferHdr(format.colorInfo));
+    if (!EncoderUtil.getSupportedEncodersForHdrEditing(format.sampleMimeType, format.colorInfo)
+        .isEmpty()) {
+      String skipReason = "HDR editing support for " + format.colorInfo;
+      recordTestSkipped(getApplicationContext(), testId, skipReason);
+      throw new AssumptionViolatedException(skipReason);
     }
   }
 }
