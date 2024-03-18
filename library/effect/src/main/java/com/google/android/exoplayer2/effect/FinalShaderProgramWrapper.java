@@ -451,6 +451,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         defaultShaderProgram.release();
         defaultShaderProgram = null;
       }
+      Log.w(TAG, "Output surface and size not set, dropping frame.");
       return false;
     }
 
