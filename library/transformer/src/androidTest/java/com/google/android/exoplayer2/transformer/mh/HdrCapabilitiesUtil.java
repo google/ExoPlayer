@@ -18,14 +18,18 @@ package com.google.android.exoplayer2.transformer.mh;
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.recordTestSkipped;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.skipAndLogIfFormatsUnsupported;
+import static com.google.android.exoplayer2.util.Assertions.checkState;
 
 import android.content.Context;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
+import com.google.android.exoplayer2.transformer.EncoderUtil;
 import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.video.ColorInfo;
 import java.io.IOException;
 import org.json.JSONException;
+import org.junit.AssumptionViolatedException;
 
 /** Utility class for checking HDR capabilities. */
 public final class HdrCapabilitiesUtil {
@@ -54,6 +58,21 @@ public final class HdrCapabilitiesUtil {
       return true;
     }
     return false;
+  }
+
+  /**
+   * Assumes that the device supports HDR editing for the given {@code colorInfo}.
+   *
+   * @throws AssumptionViolatedException if the device does not support HDR editing.
+   */
+  public static void assumeDeviceSupportsHdrEditing(
+      String testId, String mimeType, ColorInfo colorInfo) throws JSONException, IOException {
+    checkState(ColorInfo.isTransferHdr(colorInfo));
+    if (EncoderUtil.getSupportedEncodersForHdrEditing(mimeType, colorInfo).isEmpty()) {
+      String skipReason = "No HDR editing support for " + colorInfo;
+      recordTestSkipped(getApplicationContext(), testId, skipReason);
+      throw new AssumptionViolatedException(skipReason);
+    }
   }
 
   private HdrCapabilitiesUtil() {}
