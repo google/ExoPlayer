@@ -410,8 +410,8 @@ public final class CommandButton implements Bundleable {
 
     /**
      * [will be deprecated] Use {@link #Builder(int)} instead to define the {@link Icon} for this
-     * button. A separate resource id via {@link #setIconResId(int)} is no longer required unless
-     * for {@link #ICON_UNDEFINED}.
+     * button. A separate resource id via {@link #setIconResId(int)} or {@link #setIconUri} is no
+     * longer required unless for {@link #ICON_UNDEFINED}.
      */
     public Builder() {
       this(ICON_UNDEFINED);
@@ -506,6 +506,10 @@ public final class CommandButton implements Bundleable {
 
     /**
      * Sets a {@link Uri} for the icon of this button.
+     *
+     * <p>Note that this {@link Uri} may be used when the predefined {@link Icon} is not available
+     * or set to {@link #ICON_UNDEFINED}. It can be used in addition or instead of {@link
+     * #setCustomIconResId} for consumers that are capable of loading the {@link Uri}.
      *
      * @param uri The uri to an icon.
      * @return This builder for chaining.
@@ -735,7 +739,13 @@ public final class CommandButton implements Bundleable {
    */
   @DrawableRes public final int iconResId;
 
-  /** The {@link Uri} for the icon of the button. Can be {@code null}. */
+  /**
+   * The {@link Uri} for the icon of the button that is used when the predefined {@link #icon} is
+   * not available or set to {@link #ICON_UNDEFINED}. Can be {@code null}.
+   *
+   * <p>Note that this value can be used in addition or instead of {@link #iconResId} for consumers
+   * that are capable of loading the {@link Uri}.
+   */
   @UnstableApi @Nullable public final Uri iconUri;
 
   /**
