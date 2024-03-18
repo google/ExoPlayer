@@ -104,6 +104,7 @@ public final class PreloadMediaSourceTest {
     AtomicBoolean onPreparedCalled = new AtomicBoolean();
     AtomicBoolean onContinueLoadingStopped = new AtomicBoolean();
     AtomicReference<PreloadMediaSource> preloadMediaSourceReference = new AtomicReference<>();
+    AtomicBoolean onUsedByPlayerCalled = new AtomicBoolean();
     PreloadMediaSource.PreloadControl preloadControl =
         new PreloadMediaSource.PreloadControl() {
           @Override
@@ -127,6 +128,11 @@ public final class PreloadMediaSourceTest {
               return false;
             }
             return true;
+          }
+
+          @Override
+          public void onUsedByPlayer(PreloadMediaSource mediaSource) {
+            onUsedByPlayerCalled.set(true);
           }
         };
     ProgressiveMediaSource.Factory mediaSourceFactory =
@@ -156,6 +162,7 @@ public final class PreloadMediaSourceTest {
 
     assertThat(onTimelineRefreshedCalled.get()).isTrue();
     assertThat(onPreparedCalled.get()).isTrue();
+    assertThat(onUsedByPlayerCalled.get()).isFalse();
     assertThat(preloadMediaSourceReference.get()).isSameInstanceAs(preloadMediaSource);
   }
 
@@ -165,6 +172,7 @@ public final class PreloadMediaSourceTest {
     AtomicBoolean onPreparedCalled = new AtomicBoolean();
     AtomicReference<PreloadMediaSource> preloadMediaSourceReference = new AtomicReference<>();
     AtomicBoolean onContinueLoadingRequestedCalled = new AtomicBoolean();
+    AtomicBoolean onUsedByPlayerCalled = new AtomicBoolean();
     PreloadMediaSource.PreloadControl preloadControl =
         new PreloadMediaSource.PreloadControl() {
           @Override
@@ -185,6 +193,11 @@ public final class PreloadMediaSourceTest {
               PreloadMediaSource mediaSource, long bufferedPositionUs) {
             onContinueLoadingRequestedCalled.set(true);
             return false;
+          }
+
+          @Override
+          public void onUsedByPlayer(PreloadMediaSource mediaSource) {
+            onUsedByPlayerCalled.set(true);
           }
         };
     ProgressiveMediaSource.Factory mediaSourceFactory =
@@ -215,6 +228,7 @@ public final class PreloadMediaSourceTest {
     assertThat(onTimelineRefreshedCalled.get()).isTrue();
     assertThat(preloadMediaSourceReference.get()).isSameInstanceAs(preloadMediaSource);
     assertThat(onContinueLoadingRequestedCalled.get()).isFalse();
+    assertThat(onUsedByPlayerCalled.get()).isFalse();
   }
 
   @Test
@@ -223,6 +237,7 @@ public final class PreloadMediaSourceTest {
     AtomicReference<PreloadMediaSource> preloadMediaSourceReference = new AtomicReference<>();
     AtomicBoolean onPreparedCalled = new AtomicBoolean();
     AtomicBoolean onContinueLoadingRequestedCalled = new AtomicBoolean();
+    AtomicBoolean onUsedByPlayerCalled = new AtomicBoolean();
     PreloadMediaSource.PreloadControl preloadControl =
         new PreloadMediaSource.PreloadControl() {
           @Override
@@ -243,6 +258,11 @@ public final class PreloadMediaSourceTest {
               PreloadMediaSource mediaSource, long bufferedPositionUs) {
             onContinueLoadingRequestedCalled.set(true);
             return false;
+          }
+
+          @Override
+          public void onUsedByPlayer(PreloadMediaSource mediaSource) {
+            onUsedByPlayerCalled.set(true);
           }
         };
     ProgressiveMediaSource.Factory mediaSourceFactory =
@@ -272,12 +292,14 @@ public final class PreloadMediaSourceTest {
     assertThat(preloadMediaSourceReference.get()).isSameInstanceAs(preloadMediaSource);
     assertThat(onPreparedCalled.get()).isFalse();
     assertThat(onContinueLoadingRequestedCalled.get()).isFalse();
+    assertThat(onUsedByPlayerCalled.get()).isFalse();
   }
 
   @Test
   public void preload_whileSourceIsAccessedByExternalCaller_notProceedWithPreloading() {
     AtomicBoolean onTimelineRefreshedCalled = new AtomicBoolean(false);
     AtomicBoolean onPreparedCalled = new AtomicBoolean(false);
+    AtomicBoolean onUsedByPlayerCalled = new AtomicBoolean();
     PreloadMediaSource.PreloadControl preloadControl =
         new PreloadMediaSource.PreloadControl() {
           @Override
@@ -296,6 +318,11 @@ public final class PreloadMediaSourceTest {
           public boolean onContinueLoadingRequested(
               PreloadMediaSource mediaSource, long bufferedPositionUs) {
             return true;
+          }
+
+          @Override
+          public void onUsedByPlayer(PreloadMediaSource mediaSource) {
+            onUsedByPlayerCalled.set(true);
           }
         };
     TrackSelector trackSelector = new FakeTrackSelector();
@@ -332,6 +359,7 @@ public final class PreloadMediaSourceTest {
     assertThat(externalCallerMediaSourceReference.get()).isSameInstanceAs(preloadMediaSource);
     assertThat(onTimelineRefreshedCalled.get()).isFalse();
     assertThat(onPreparedCalled.get()).isFalse();
+    assertThat(onUsedByPlayerCalled.get()).isTrue();
   }
 
   @Test
@@ -339,6 +367,7 @@ public final class PreloadMediaSourceTest {
       prepareSource_beforeSourceInfoRefreshedForPreloading_onlyInvokeExternalCallerOnSourceInfoRefreshed() {
     AtomicBoolean onTimelineRefreshedCalled = new AtomicBoolean(false);
     AtomicBoolean onPreparedCalled = new AtomicBoolean(false);
+    AtomicBoolean onUsedByPlayerCalled = new AtomicBoolean();
     PreloadMediaSource.PreloadControl preloadControl =
         new PreloadMediaSource.PreloadControl() {
           @Override
@@ -357,6 +386,11 @@ public final class PreloadMediaSourceTest {
           public boolean onContinueLoadingRequested(
               PreloadMediaSource mediaSource, long bufferedPositionUs) {
             return true;
+          }
+
+          @Override
+          public void onUsedByPlayer(PreloadMediaSource mediaSource) {
+            onUsedByPlayerCalled.set(true);
           }
         };
     FakeMediaSourceFactory mediaSourceFactory = new FakeMediaSourceFactory();
@@ -396,12 +430,14 @@ public final class PreloadMediaSourceTest {
     assertThat(externalCallerMediaSourceReference.get()).isSameInstanceAs(preloadMediaSource);
     assertThat(onTimelineRefreshedCalled.get()).isFalse();
     assertThat(onPreparedCalled.get()).isFalse();
+    assertThat(onUsedByPlayerCalled.get()).isTrue();
   }
 
   @Test
   public void prepareSource_afterPreload_immediatelyInvokeExternalCallerOnSourceInfoRefreshed() {
     AtomicBoolean onTimelineRefreshedCalled = new AtomicBoolean(false);
     AtomicBoolean onPreparedCalled = new AtomicBoolean(false);
+    AtomicBoolean onUsedByPlayerCalled = new AtomicBoolean();
     PreloadMediaSource.PreloadControl preloadControl =
         new PreloadMediaSource.PreloadControl() {
           @Override
@@ -420,6 +456,11 @@ public final class PreloadMediaSourceTest {
           public boolean onContinueLoadingRequested(
               PreloadMediaSource mediaSource, long bufferedPositionUs) {
             return true;
+          }
+
+          @Override
+          public void onUsedByPlayer(PreloadMediaSource mediaSource) {
+            onUsedByPlayerCalled.set(true);
           }
         };
     FakeMediaSourceFactory mediaSourceFactory = new FakeMediaSourceFactory();
@@ -456,6 +497,7 @@ public final class PreloadMediaSourceTest {
     assertThat(onTimelineRefreshedCalled.get()).isTrue();
     assertThat(onPreparedCalled.get()).isTrue();
     assertThat(externalCallerMediaSourceReference.get()).isSameInstanceAs(preloadMediaSource);
+    assertThat(onUsedByPlayerCalled.get()).isTrue();
   }
 
   @Test
@@ -480,6 +522,9 @@ public final class PreloadMediaSourceTest {
               PreloadMediaSource mediaSource, long bufferedPositionUs) {
             return false;
           }
+
+          @Override
+          public void onUsedByPlayer(PreloadMediaSource mediaSource) {}
         };
     AtomicReference<MediaSource> internalSourceReference = new AtomicReference<>();
     MediaSource.Factory mockMediaSourceFactory = mock(MediaSource.Factory.class);
@@ -587,6 +632,9 @@ public final class PreloadMediaSourceTest {
               PreloadMediaSource mediaSource, long bufferedPositionUs) {
             return false;
           }
+
+          @Override
+          public void onUsedByPlayer(PreloadMediaSource mediaSource) {}
         };
     AtomicReference<MediaSource> internalSourceReference = new AtomicReference<>();
     MediaSource.Factory mockMediaSourceFactory = mock(MediaSource.Factory.class);
@@ -692,6 +740,9 @@ public final class PreloadMediaSourceTest {
               PreloadMediaSource mediaSource, long bufferedPositionUs) {
             return false;
           }
+
+          @Override
+          public void onUsedByPlayer(PreloadMediaSource mediaSource) {}
         };
     AtomicReference<MediaSource> internalSourceReference = new AtomicReference<>();
     MediaSource.Factory mockMediaSourceFactory = mock(MediaSource.Factory.class);
@@ -769,6 +820,9 @@ public final class PreloadMediaSourceTest {
               PreloadMediaSource mediaSource, long bufferedPositionUs) {
             return true;
           }
+
+          @Override
+          public void onUsedByPlayer(PreloadMediaSource mediaSource) {}
         };
     AtomicReference<MediaSource> internalSourceReference = new AtomicReference<>();
     MediaSource.Factory mockMediaSourceFactory = mock(MediaSource.Factory.class);
@@ -847,6 +901,9 @@ public final class PreloadMediaSourceTest {
               PreloadMediaSource mediaSource, long bufferedPositionUs) {
             return false;
           }
+
+          @Override
+          public void onUsedByPlayer(PreloadMediaSource mediaSource) {}
         };
     AtomicReference<MediaSource> internalSourceReference = new AtomicReference<>();
     MediaSource.Factory mockMediaSourceFactory = mock(MediaSource.Factory.class);
@@ -935,6 +992,9 @@ public final class PreloadMediaSourceTest {
               PreloadMediaSource mediaSource, long bufferedPositionUs) {
             return false;
           }
+
+          @Override
+          public void onUsedByPlayer(PreloadMediaSource mediaSource) {}
         };
     AtomicReference<MediaSource> internalSourceReference = new AtomicReference<>();
     MediaSource.Factory mockMediaSourceFactory = mock(MediaSource.Factory.class);
@@ -1004,6 +1064,9 @@ public final class PreloadMediaSourceTest {
               PreloadMediaSource mediaSource, long bufferedPositionUs) {
             return false;
           }
+
+          @Override
+          public void onUsedByPlayer(PreloadMediaSource mediaSource) {}
         };
     AtomicReference<MediaSource> internalSourceReference = new AtomicReference<>();
     MediaSource.Factory mockMediaSourceFactory = mock(MediaSource.Factory.class);

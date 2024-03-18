@@ -90,6 +90,13 @@ public final class PreloadMediaSource extends WrappingMediaSource {
      *     data is buffered, or {@link C#TIME_END_OF_SOURCE} if the track is fully buffered.
      */
     boolean onContinueLoadingRequested(PreloadMediaSource mediaSource, long bufferedPositionUs);
+
+    /**
+     * Called from {@link PreloadMediaSource} when the player starts using this source.
+     *
+     * @param mediaSource The {@link PreloadMediaSource} that the player starts using.
+     */
+    void onUsedByPlayer(PreloadMediaSource mediaSource);
   }
 
   /** Factory for {@link PreloadMediaSource}. */
@@ -201,6 +208,7 @@ public final class PreloadMediaSource extends WrappingMediaSource {
   @Nullable private Timeline timeline;
   @Nullable private Pair<PreloadMediaPeriod, MediaPeriodKey> preloadingMediaPeriodAndKey;
   @Nullable private Pair<PreloadMediaPeriod, MediaPeriodId> playingPreloadedMediaPeriodAndId;
+  private boolean onUsedByPlayerNotified;
 
   private PreloadMediaSource(
       MediaSource mediaSource,
@@ -234,7 +242,9 @@ public final class PreloadMediaSource extends WrappingMediaSource {
         () -> {
           preloadCalled = true;
           this.startPositionUs = startPositionUs;
-          if (!isUsedByPlayer()) {
+          if (isUsedByPlayer()) {
+            notifyOnUsedByPlayer();
+          } else {
             setPlayerId(PlayerId.UNSET); // Set to PlayerId.UNSET as there is no ongoing playback.
             prepareSourceInternal(bandwidthMeter.getTransferListener());
           }
@@ -243,6 +253,9 @@ public final class PreloadMediaSource extends WrappingMediaSource {
 
   @Override
   protected void prepareSourceInternal() {
+    if (isUsedByPlayer() && !onUsedByPlayerNotified) {
+      notifyOnUsedByPlayer();
+    }
     if (timeline != null) {
       onChildSourceInfoRefreshed(timeline);
     } else if (!prepareChildSourceCalled) {
@@ -322,10 +335,13 @@ public final class PreloadMediaSource extends WrappingMediaSource {
 
   @Override
   protected void releaseSourceInternal() {
-    if (!preloadCalled && !isUsedByPlayer()) {
-      timeline = null;
-      prepareChildSourceCalled = false;
-      super.releaseSourceInternal();
+    if (!isUsedByPlayer()) {
+      onUsedByPlayerNotified = false;
+      if (!preloadCalled) {
+        timeline = null;
+        prepareChildSourceCalled = false;
+        super.releaseSourceInternal();
+      }
     }
   }
 
@@ -359,6 +375,9 @@ public final class PreloadMediaSource extends WrappingMediaSource {
 
     @Override
     public void onPrepared(MediaPeriod mediaPeriod) {
+      if (isUsedByPlayer()) {
+        return;
+      }
       prepared = true;
       PreloadMediaPeriod preloadMediaPeriod = (PreloadMediaPeriod) mediaPeriod;
       TrackGroupArray trackGroups = preloadMediaPeriod.getTrackGroups();
@@ -383,6 +402,9 @@ public final class PreloadMediaSource extends WrappingMediaSource {
 
     @Override
     public void onContinueLoadingRequested(MediaPeriod mediaPeriod) {
+      if (isUsedByPlayer()) {
+        return;
+      }
       PreloadMediaPeriod preloadMediaPeriod = (PreloadMediaPeriod) mediaPeriod;
       if (!prepared
           || preloadControl.onContinueLoadingRequested(
@@ -393,8 +415,13 @@ public final class PreloadMediaSource extends WrappingMediaSource {
     }
   }
 
-  /* package */ boolean isUsedByPlayer() {
+  private boolean isUsedByPlayer() {
     return prepareSourceCalled();
+  }
+
+  private void notifyOnUsedByPlayer() {
+    preloadControl.onUsedByPlayer(this);
+    onUsedByPlayerNotified = true;
   }
 
   private static boolean mediaPeriodIdEqualsWithoutWindowSequenceNumber(

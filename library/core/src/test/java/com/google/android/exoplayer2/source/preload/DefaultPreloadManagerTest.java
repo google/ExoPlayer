@@ -246,11 +246,10 @@ public class DefaultPreloadManagerTest {
     FakeMediaSource wrappedMediaSource2 = fakeMediaSourceFactory.getLastCreatedSource();
     wrappedMediaSource2.setAllowPreparation(false);
 
-    MediaSource.MediaSourceCaller externalCaller = (source, timeline) -> {};
     PreloadMediaSource preloadMediaSource2 =
         (PreloadMediaSource) preloadManager.getMediaSource(mediaItem2);
     preloadMediaSource2.prepareSource(
-        externalCaller, bandwidthMeter.getTransferListener(), PlayerId.UNSET);
+        (source, timeline) -> {}, bandwidthMeter.getTransferListener(), PlayerId.UNSET);
     preloadManager.setCurrentPlayingIndex(2);
     preloadManager.invalidate();
     shadowOf(Looper.getMainLooper()).idle();
@@ -259,6 +258,51 @@ public class DefaultPreloadManagerTest {
     wrappedMediaSource1.setAllowPreparation(true);
     shadowOf(Looper.getMainLooper()).idle();
     assertThat(targetPreloadStatusControlCallReference).containsExactly(2, 1, 0).inOrder();
+  }
+
+  @Test
+  public void invalidate_sourceHandedOverToPlayerDuringPreloading_continuesPreloadingNextSource() {
+    ArrayList<Integer> targetPreloadStatusControlCallReference = new ArrayList<>();
+    TargetPreloadStatusControl<Integer> targetPreloadStatusControl =
+        rankingData -> {
+          targetPreloadStatusControlCallReference.add(rankingData);
+          return new DefaultPreloadManager.Status(
+              DefaultPreloadManager.Status.STAGE_TIMELINE_REFRESHED);
+        };
+    FakeMediaSourceFactory fakeMediaSourceFactory = new FakeMediaSourceFactory();
+    DefaultPreloadManager preloadManager =
+        new DefaultPreloadManager(
+            targetPreloadStatusControl,
+            fakeMediaSourceFactory,
+            trackSelector,
+            bandwidthMeter,
+            rendererCapabilitiesListFactory,
+            allocator,
+            Util.getCurrentOrMainLooper());
+    MediaItem.Builder mediaItemBuilder = new MediaItem.Builder();
+    MediaItem mediaItem0 =
+        mediaItemBuilder.setMediaId("mediaId0").setUri("http://exoplayer.dev/video0").build();
+    MediaItem mediaItem1 =
+        mediaItemBuilder.setMediaId("mediaId1").setUri("http://exoplayer.dev/video1").build();
+
+    preloadManager.add(mediaItem0, /* rankingData= */ 0);
+    FakeMediaSource wrappedMediaSource0 = fakeMediaSourceFactory.getLastCreatedSource();
+    wrappedMediaSource0.setAllowPreparation(false);
+    preloadManager.add(mediaItem1, /* rankingData= */ 1);
+    FakeMediaSource wrappedMediaSource1 = fakeMediaSourceFactory.getLastCreatedSource();
+    wrappedMediaSource1.setAllowPreparation(false);
+    preloadManager.invalidate();
+    assertThat(targetPreloadStatusControlCallReference).containsExactly(0);
+
+    PreloadMediaSource preloadMediaSource0 =
+        (PreloadMediaSource) preloadManager.getMediaSource(mediaItem0);
+    preloadMediaSource0.prepareSource(
+        (source, timeline) -> {}, bandwidthMeter.getTransferListener(), PlayerId.UNSET);
+    shadowOf(Looper.getMainLooper()).idle();
+
+    // The preload of mediaItem0 should complete and the preload manager continues to preload
+    // mediaItem1, even when the preloadMediaSource0 hasn't finished preparation.
+    assertThat(targetPreloadStatusControlCallReference).containsExactly(0, 1).inOrder();
   }
 
   @Test

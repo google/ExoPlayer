@@ -175,10 +175,6 @@ public final class DefaultPreloadManager extends BasePreloadManager<Integer> {
   protected void preloadSourceInternal(MediaSource mediaSource, long startPositionsUs) {
     checkArgument(mediaSource instanceof PreloadMediaSource);
     PreloadMediaSource preloadMediaSource = (PreloadMediaSource) mediaSource;
-    if (preloadMediaSource.isUsedByPlayer()) {
-      onPreloadCompleted(preloadMediaSource);
-      return;
-    }
     preloadMediaSource.preload(startPositionsUs);
   }
 
@@ -229,6 +225,11 @@ public final class DefaultPreloadManager extends BasePreloadManager<Integer> {
           status ->
               (status.getStage() == Status.STAGE_LOADED_TO_POSITION_MS
                   && status.getValue() > Util.usToMs(bufferedPositionUs)));
+    }
+
+    @Override
+    public void onUsedByPlayer(PreloadMediaSource mediaSource) {
+      onPreloadCompleted(mediaSource);
     }
 
     private boolean continueOrCompletePreloading(
