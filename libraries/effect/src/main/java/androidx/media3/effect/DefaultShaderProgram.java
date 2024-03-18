@@ -15,6 +15,8 @@
  */
 package androidx.media3.effect;
 
+import static android.opengl.GLES20.GL_FALSE;
+import static android.opengl.GLES20.GL_TRUE;
 import static androidx.media3.common.VideoFrameProcessor.INPUT_TYPE_BITMAP;
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkState;
@@ -104,9 +106,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     0.0000f, -0.1881f, 2.1502f,
     1.6853f, -0.6530f, 0.0000f,
   };
-
-  private static final int GL_FALSE = 0;
-  private static final int GL_TRUE = 1;
 
   private final GlProgram glProgram;
 
