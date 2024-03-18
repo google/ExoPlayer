@@ -45,7 +45,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
-import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.junit.After;
 import org.junit.Test;
@@ -274,7 +273,6 @@ public final class DefaultVideoFrameProcessorVideoFrameRenderingTest {
     void onFrameAvailableForRendering(long presentationTimeUs);
   }
 
-  @EnsuresNonNull("defaultVideoFrameProcessor")
   private void processFramesToEndOfStream(
       List<Long> inputPresentationTimesUs,
       OnOutputFrameAvailableForRenderingListener onFrameAvailableListener,
