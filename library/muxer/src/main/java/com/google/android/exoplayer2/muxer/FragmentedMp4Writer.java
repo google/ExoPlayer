@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.muxer;
 
+import static com.google.android.exoplayer2.muxer.AnnexBUtils.doesSampleContainAnnexBNalUnits;
 import static com.google.android.exoplayer2.muxer.Boxes.BOX_HEADER_SIZE;
 import static com.google.android.exoplayer2.muxer.Boxes.MFHD_BOX_CONTENT_SIZE;
 import static com.google.android.exoplayer2.muxer.Boxes.TFHD_BOX_CONTENT_SIZE;
@@ -253,7 +254,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
         // Convert the H.264/H.265 samples from Annex-B format (output by MediaCodec) to
         // Avcc format (required by MP4 container).
-        if (MimeTypes.isVideo(currentTrack.format.sampleMimeType)) {
+        if (doesSampleContainAnnexBNalUnits(checkNotNull(currentTrack.format.sampleMimeType))) {
           annexBToAvccConverter.process(currentSampleByteBuffer);
         }
         bytesWritten += output.write(currentSampleByteBuffer);
