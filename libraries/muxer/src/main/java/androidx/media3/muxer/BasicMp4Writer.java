@@ -18,12 +18,12 @@ package androidx.media3.muxer;
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
+import static androidx.media3.muxer.AnnexBUtils.doesSampleContainAnnexBNalUnits;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
 import android.media.MediaCodec.BufferInfo;
 import androidx.media3.common.Format;
-import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.Util;
 import androidx.media3.muxer.Mp4Muxer.TrackToken;
 import com.google.common.collect.Range;
@@ -297,7 +297,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
       // Convert the H.264/H.265 samples from Annex-B format (output by MediaCodec) to
       // Avcc format (required by MP4 container).
-      if (MimeTypes.isVideo(track.format.sampleMimeType)) {
+      if (doesSampleContainAnnexBNalUnits(checkNotNull(track.format.sampleMimeType))) {
         annexBToAvccConverter.process(currentSampleByteBuffer);
       }
 

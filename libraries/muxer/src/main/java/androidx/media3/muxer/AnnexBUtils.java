@@ -15,6 +15,7 @@
  */
 package androidx.media3.muxer;
 
+import androidx.media3.common.MimeTypes;
 import com.google.common.collect.ImmutableList;
 import java.nio.ByteBuffer;
 
@@ -85,6 +86,15 @@ import java.nio.ByteBuffer;
     output.flip();
 
     return output;
+  }
+
+  /**
+   * Returns whether the sample of the given MIME type will contain NAL units in Annex-B format
+   * (ISO/IEC 14496-10 Annex B, which uses start codes to delineate NAL units).
+   */
+  public static boolean doesSampleContainAnnexBNalUnits(String sampleMimeType) {
+    return sampleMimeType.equals(MimeTypes.VIDEO_H264)
+        || sampleMimeType.equals(MimeTypes.VIDEO_H265);
   }
 
   private static ByteBuffer getBytes(ByteBuffer buf, int offset, int length) {
