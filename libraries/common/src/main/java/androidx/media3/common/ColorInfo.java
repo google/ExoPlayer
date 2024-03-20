@@ -21,6 +21,7 @@ import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.Arrays;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.dataflow.qual.Pure;
 
 /**
@@ -173,6 +174,34 @@ public final class ColorInfo implements Bundleable {
           .build();
 
   /**
+   * Returns whether the given color info is equivalent to values for a standard dynamic range video
+   * that could generally be assumed if no further information is given.
+   *
+   * <p>The color info is deemed to be equivalent to SDR video if it either has unset values or
+   * values matching a 8-bit (chroma+luma), BT.709 or BT.601 color space, SDR transfer and Limited
+   * range color info.
+   *
+   * @param colorInfo The color info to evaluate.
+   * @return Whether the given color info is equivalent to the assumed default SDR color info.
+   */
+  @EnsuresNonNullIf(result = false, expression = "#1")
+  public static boolean isEquivalentToAssumedSdrDefault(@Nullable ColorInfo colorInfo) {
+    if (colorInfo == null) {
+      return true;
+    }
+    return (colorInfo.colorSpace == Format.NO_VALUE
+            || colorInfo.colorSpace == C.COLOR_SPACE_BT709
+            || colorInfo.colorSpace == C.COLOR_SPACE_BT601)
+        && (colorInfo.colorRange == Format.NO_VALUE
+            || colorInfo.colorRange == C.COLOR_RANGE_LIMITED)
+        && (colorInfo.colorTransfer == Format.NO_VALUE
+            || colorInfo.colorTransfer == C.COLOR_TRANSFER_SDR)
+        && colorInfo.hdrStaticInfo == null
+        && (colorInfo.chromaBitdepth == Format.NO_VALUE || colorInfo.chromaBitdepth == 8)
+        && (colorInfo.lumaBitdepth == Format.NO_VALUE || colorInfo.lumaBitdepth == 8);
+  }
+
+  /**
    * Returns the {@link C.ColorSpace} corresponding to the given ISO color primary code, as per
    * table A.7.21.1 in Rec. ITU-T T.832 (03/2009), or {@link Format#NO_VALUE} if no mapping can be
    * made.
@@ -232,22 +261,25 @@ public final class ColorInfo implements Bundleable {
             || colorInfo.colorTransfer == C.COLOR_TRANSFER_ST2084);
   }
 
-  /** The {@link C.ColorSpace}. */
+  /** The {@link C.ColorSpace}, or {@link Format#NO_VALUE} if not set. */
   public final @C.ColorSpace int colorSpace;
 
-  /** The {@link C.ColorRange}. */
+  /** The {@link C.ColorRange}, or {@link Format#NO_VALUE} if not set. */
   public final @C.ColorRange int colorRange;
 
-  /** The {@link C.ColorTransfer}. */
+  /** The {@link C.ColorTransfer}, or {@link Format#NO_VALUE} if not set. */
   public final @C.ColorTransfer int colorTransfer;
 
   /** HdrStaticInfo as defined in CTA-861.3, or null if none specified. */
   @Nullable public final byte[] hdrStaticInfo;
 
-  /** The bit depth of the luma samples of the video. */
+  /** The bit depth of the luma samples of the video, or {@link Format#NO_VALUE} if not set. */
   public final int lumaBitdepth;
 
-  /** The bit depth of the chroma samples of the video. It may differ from the luma bit depth. */
+  /**
+   * The bit depth of the chroma samples of the video, or {@link Format#NO_VALUE} if not set. It may
+   * differ from the luma bit depth.
+   */
   public final int chromaBitdepth;
 
   // Lazily initialized hashcode.

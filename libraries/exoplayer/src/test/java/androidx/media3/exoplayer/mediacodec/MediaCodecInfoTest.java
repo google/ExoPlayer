@@ -74,7 +74,7 @@ public final class MediaCodecInfoTest {
           .build();
 
   @Test
-  public void canKeepCodec_withDifferentMimeType_returnsNo() {
+  public void canReuseCodec_withDifferentMimeType_returnsNo() {
     MediaCodecInfo codecInfo = buildH264CodecInfo(/* adaptive= */ true);
 
     Format hdAv1Format = FORMAT_H264_HD.buildUpon().setSampleMimeType(VIDEO_AV1).build();
@@ -89,7 +89,7 @@ public final class MediaCodecInfoTest {
   }
 
   @Test
-  public void canKeepCodec_withRotation_returnsNo() {
+  public void canReuseCodec_withRotation_returnsNo() {
     MediaCodecInfo codecInfo = buildH264CodecInfo(/* adaptive= */ true);
 
     Format hdRotatedFormat = FORMAT_H264_HD.buildUpon().setRotationDegrees(90).build();
@@ -104,7 +104,7 @@ public final class MediaCodecInfoTest {
   }
 
   @Test
-  public void canKeepCodec_withResolutionChange_adaptiveCodec_returnsYesWithReconfiguration() {
+  public void canReuseCodec_withResolutionChange_adaptiveCodec_returnsYesWithReconfiguration() {
     MediaCodecInfo codecInfo = buildH264CodecInfo(/* adaptive= */ true);
 
     assertThat(codecInfo.canReuseCodec(FORMAT_H264_HD, FORMAT_H264_4K))
@@ -118,7 +118,7 @@ public final class MediaCodecInfoTest {
   }
 
   @Test
-  public void canKeepCodec_withResolutionChange_nonAdaptiveCodec_returnsNo() {
+  public void canReuseCodec_withResolutionChange_nonAdaptiveCodec_returnsNo() {
     MediaCodecInfo codecInfo = buildH264CodecInfo(/* adaptive= */ false);
 
     assertThat(codecInfo.canReuseCodec(FORMAT_H264_HD, FORMAT_H264_4K))
@@ -132,7 +132,7 @@ public final class MediaCodecInfoTest {
   }
 
   @Test
-  public void canKeepCodec_noResolutionChange_nonAdaptiveCodec_returnsYesWithReconfiguration() {
+  public void canReuseCodec_noResolutionChange_nonAdaptiveCodec_returnsYesWithReconfiguration() {
     MediaCodecInfo codecInfo = buildH264CodecInfo(/* adaptive= */ false);
 
     Format hdVariantFormat =
@@ -148,11 +148,11 @@ public final class MediaCodecInfoTest {
   }
 
   @Test
-  public void canKeepCodec_colorInfoOmittedFromNewFormat_returnsNo() {
+  public void canReuseCodec_hdrToSdr_returnsNo() {
     MediaCodecInfo codecInfo = buildH264CodecInfo(/* adaptive= */ false);
 
     Format hdrVariantFormat =
-        FORMAT_H264_4K.buildUpon().setColorInfo(buildColorInfo(C.COLOR_SPACE_BT601)).build();
+        FORMAT_H264_4K.buildUpon().setColorInfo(buildHdrColorInfo(C.COLOR_SPACE_BT601)).build();
     assertThat(codecInfo.canReuseCodec(hdrVariantFormat, FORMAT_H264_4K))
         .isEqualTo(
             new DecoderReuseEvaluation(
@@ -164,11 +164,11 @@ public final class MediaCodecInfoTest {
   }
 
   @Test
-  public void canKeepCodec_colorInfoOmittedFromOldFormat_returnsNo() {
+  public void canReuseCodec_sdrToHdr_returnsNo() {
     MediaCodecInfo codecInfo = buildH264CodecInfo(/* adaptive= */ false);
 
     Format hdrVariantFormat =
-        FORMAT_H264_4K.buildUpon().setColorInfo(buildColorInfo(C.COLOR_SPACE_BT601)).build();
+        FORMAT_H264_4K.buildUpon().setColorInfo(buildHdrColorInfo(C.COLOR_SPACE_BT601)).build();
     assertThat(codecInfo.canReuseCodec(FORMAT_H264_4K, hdrVariantFormat))
         .isEqualTo(
             new DecoderReuseEvaluation(
@@ -180,13 +180,13 @@ public final class MediaCodecInfoTest {
   }
 
   @Test
-  public void canKeepCodec_colorInfoChange_returnsNo() {
+  public void canReuseCodec_hdrColorInfoChange_returnsNo() {
     MediaCodecInfo codecInfo = buildH264CodecInfo(/* adaptive= */ false);
 
     Format hdrVariantFormat1 =
-        FORMAT_H264_4K.buildUpon().setColorInfo(buildColorInfo(C.COLOR_SPACE_BT601)).build();
+        FORMAT_H264_4K.buildUpon().setColorInfo(buildHdrColorInfo(C.COLOR_SPACE_BT601)).build();
     Format hdrVariantFormat2 =
-        FORMAT_H264_4K.buildUpon().setColorInfo(buildColorInfo(C.COLOR_SPACE_BT709)).build();
+        FORMAT_H264_4K.buildUpon().setColorInfo(buildHdrColorInfo(C.COLOR_SPACE_BT709)).build();
     assertThat(codecInfo.canReuseCodec(hdrVariantFormat1, hdrVariantFormat2))
         .isEqualTo(
             new DecoderReuseEvaluation(
@@ -198,7 +198,61 @@ public final class MediaCodecInfoTest {
   }
 
   @Test
-  public void canKeepCodec_audioWithDifferentChannelCounts_returnsNo() {
+  public void canReuseCodec_nullColorInfoToSdr_returnsYesWithoutReconfiguration() {
+    MediaCodecInfo codecInfo = buildH264CodecInfo(/* adaptive= */ false);
+
+    Format variantWithColorInfo =
+        FORMAT_H264_4K.buildUpon().setColorInfo(ColorInfo.SDR_BT709_LIMITED).build();
+    assertThat(codecInfo.canReuseCodec(FORMAT_H264_4K, variantWithColorInfo))
+        .isEqualTo(
+            new DecoderReuseEvaluation(
+                codecInfo.name,
+                FORMAT_H264_4K,
+                variantWithColorInfo,
+                DecoderReuseEvaluation.REUSE_RESULT_YES_WITHOUT_RECONFIGURATION,
+                /* discardReasons= */ 0));
+  }
+
+  @Test
+  public void canReuseCodec_sdrToNullColorInfo_returnsYesWithoutReconfiguration() {
+    MediaCodecInfo codecInfo = buildH264CodecInfo(/* adaptive= */ false);
+
+    Format variantWithColorInfo =
+        FORMAT_H264_4K.buildUpon().setColorInfo(ColorInfo.SDR_BT709_LIMITED).build();
+    assertThat(codecInfo.canReuseCodec(variantWithColorInfo, FORMAT_H264_4K))
+        .isEqualTo(
+            new DecoderReuseEvaluation(
+                codecInfo.name,
+                variantWithColorInfo,
+                FORMAT_H264_4K,
+                DecoderReuseEvaluation.REUSE_RESULT_YES_WITHOUT_RECONFIGURATION,
+                /* discardReasons= */ 0));
+  }
+
+  @Test
+  public void canReuseCodec_sdrToSdrWithPartialInformation_returnsYesWithoutReconfiguration() {
+    MediaCodecInfo codecInfo = buildH264CodecInfo(/* adaptive= */ false);
+
+    Format variantWithFullColorInfo =
+        FORMAT_H264_4K.buildUpon().setColorInfo(ColorInfo.SDR_BT709_LIMITED).build();
+    Format variantWithPartialColorInfo =
+        FORMAT_H264_4K
+            .buildUpon()
+            .setColorInfo(
+                ColorInfo.SDR_BT709_LIMITED.buildUpon().setColorTransfer(Format.NO_VALUE).build())
+            .build();
+    assertThat(codecInfo.canReuseCodec(variantWithFullColorInfo, variantWithPartialColorInfo))
+        .isEqualTo(
+            new DecoderReuseEvaluation(
+                codecInfo.name,
+                variantWithFullColorInfo,
+                variantWithPartialColorInfo,
+                DecoderReuseEvaluation.REUSE_RESULT_YES_WITHOUT_RECONFIGURATION,
+                /* discardReasons= */ 0));
+  }
+
+  @Test
+  public void canReuseCodec_audioWithDifferentChannelCounts_returnsNo() {
     MediaCodecInfo codecInfo = buildAacCodecInfo();
 
     assertThat(codecInfo.canReuseCodec(FORMAT_AAC_STEREO, FORMAT_AAC_SURROUND))
@@ -212,7 +266,7 @@ public final class MediaCodecInfoTest {
   }
 
   @Test
-  public void canKeepCodec_audioWithSameChannelCounts_returnsYesWithFlush() {
+  public void canReuseCodec_audioWithSameChannelCounts_returnsYesWithFlush() {
     MediaCodecInfo codecInfo = buildAacCodecInfo();
 
     Format stereoVariantFormat = FORMAT_AAC_STEREO.buildUpon().setAverageBitrate(100).build();
@@ -227,7 +281,7 @@ public final class MediaCodecInfoTest {
   }
 
   @Test
-  public void canKeepCodec_audioWithDifferentInitializationData_returnsNo() {
+  public void canReuseCodec_audioWithDifferentInitializationData_returnsNo() {
     MediaCodecInfo codecInfo = buildAacCodecInfo();
 
     Format stereoVariantFormat =
@@ -310,7 +364,7 @@ public final class MediaCodecInfoTest {
     MediaCodecInfo codecInfo = buildH264CodecInfo(/* adaptive= */ false);
 
     Format hdrVariantFormat =
-        FORMAT_H264_4K.buildUpon().setColorInfo(buildColorInfo(C.COLOR_SPACE_BT601)).build();
+        FORMAT_H264_4K.buildUpon().setColorInfo(buildHdrColorInfo(C.COLOR_SPACE_BT601)).build();
     assertThat(
             codecInfo.isSeamlessAdaptationSupported(
                 hdrVariantFormat, FORMAT_H264_4K, /* isNewFormatComplete= */ true))
@@ -323,7 +377,7 @@ public final class MediaCodecInfoTest {
     MediaCodecInfo codecInfo = buildH264CodecInfo(/* adaptive= */ false);
 
     Format hdrVariantFormat =
-        FORMAT_H264_4K.buildUpon().setColorInfo(buildColorInfo(C.COLOR_SPACE_BT601)).build();
+        FORMAT_H264_4K.buildUpon().setColorInfo(buildHdrColorInfo(C.COLOR_SPACE_BT601)).build();
     assertThat(
             codecInfo.isSeamlessAdaptationSupported(
                 hdrVariantFormat, FORMAT_H264_4K, /* isNewFormatComplete= */ false))
@@ -336,7 +390,7 @@ public final class MediaCodecInfoTest {
     MediaCodecInfo codecInfo = buildH264CodecInfo(/* adaptive= */ false);
 
     Format hdrVariantFormat =
-        FORMAT_H264_4K.buildUpon().setColorInfo(buildColorInfo(C.COLOR_SPACE_BT601)).build();
+        FORMAT_H264_4K.buildUpon().setColorInfo(buildHdrColorInfo(C.COLOR_SPACE_BT601)).build();
     assertThat(
             codecInfo.isSeamlessAdaptationSupported(
                 FORMAT_H264_4K, hdrVariantFormat, /* isNewFormatComplete= */ true))
@@ -349,9 +403,9 @@ public final class MediaCodecInfoTest {
     MediaCodecInfo codecInfo = buildH264CodecInfo(/* adaptive= */ false);
 
     Format hdrVariantFormat1 =
-        FORMAT_H264_4K.buildUpon().setColorInfo(buildColorInfo(C.COLOR_SPACE_BT601)).build();
+        FORMAT_H264_4K.buildUpon().setColorInfo(buildHdrColorInfo(C.COLOR_SPACE_BT601)).build();
     Format hdrVariantFormat2 =
-        FORMAT_H264_4K.buildUpon().setColorInfo(buildColorInfo(C.COLOR_SPACE_BT709)).build();
+        FORMAT_H264_4K.buildUpon().setColorInfo(buildHdrColorInfo(C.COLOR_SPACE_BT709)).build();
     assertThat(
             codecInfo.isSeamlessAdaptationSupported(
                 hdrVariantFormat1, hdrVariantFormat2, /* isNewFormatComplete= */ true))
@@ -429,7 +483,7 @@ public final class MediaCodecInfoTest {
         /* secure= */ false);
   }
 
-  private static ColorInfo buildColorInfo(@C.ColorSpace int colorSpace) {
+  private static ColorInfo buildHdrColorInfo(@C.ColorSpace int colorSpace) {
     return new ColorInfo.Builder()
         .setColorSpace(colorSpace)
         .setColorRange(C.COLOR_RANGE_FULL)
