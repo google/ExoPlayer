@@ -17,6 +17,7 @@ package androidx.media3.muxer;
 
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkNotNull;
+import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.muxer.AnnexBUtils.doesSampleContainAnnexBNalUnits;
 import static androidx.media3.muxer.Boxes.BOX_HEADER_SIZE;
 import static androidx.media3.muxer.Boxes.MFHD_BOX_CONTENT_SIZE;
@@ -226,12 +227,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
     output.write(Boxes.moof(Boxes.mfhd(currentFragmentSequenceNumber), trafBoxes));
 
-    writeMdatBox();
+    writeMdatBox(trackInfos);
 
     currentFragmentSequenceNumber++;
   }
 
-  private void writeMdatBox() throws IOException {
+  private void writeMdatBox(List<ProcessedTrackInfo> trackInfos) throws IOException {
     long mdatStartPosition = output.position();
     int mdatHeaderSize = 8; // 4 bytes (box size) + 4 bytes (box name)
     ByteBuffer header = ByteBuffer.allocate(mdatHeaderSize);
@@ -241,17 +242,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     output.write(header);
 
     long bytesWritten = 0;
-    for (int i = 0; i < tracks.size(); i++) {
-      Track currentTrack = tracks.get(i);
-      while (!currentTrack.pendingSamplesByteBuffer.isEmpty()) {
-        ByteBuffer currentSampleByteBuffer = currentTrack.pendingSamplesByteBuffer.removeFirst();
-
-        // Convert the H.264/H.265 samples from Annex-B format (output by MediaCodec) to
-        // Avcc format (required by MP4 container).
-        if (doesSampleContainAnnexBNalUnits(checkNotNull(currentTrack.format.sampleMimeType))) {
-          annexBToAvccConverter.process(currentSampleByteBuffer);
-        }
-        bytesWritten += output.write(currentSampleByteBuffer);
+    for (int trackInfoIndex = 0; trackInfoIndex < trackInfos.size(); trackInfoIndex++) {
+      ProcessedTrackInfo currentTrackInfo = trackInfos.get(trackInfoIndex);
+      for (int sampleIndex = 0;
+          sampleIndex < currentTrackInfo.pendingSamplesByteBuffer.size();
+          sampleIndex++) {
+        bytesWritten += output.write(currentTrackInfo.pendingSamplesByteBuffer.get(sampleIndex));
       }
     }
 
@@ -280,42 +276,66 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   private ProcessedTrackInfo processTrack(int trackId, Track track) {
-    List<BufferInfo> sampleBufferInfos = new ArrayList<>(track.pendingSamplesBufferInfo);
+    checkState(track.pendingSamplesByteBuffer.size() == track.pendingSamplesBufferInfo.size());
+    ImmutableList.Builder<ByteBuffer> pendingSamplesByteBuffer = new ImmutableList.Builder<>();
+    if (doesSampleContainAnnexBNalUnits(checkNotNull(track.format.sampleMimeType))) {
+      while (!track.pendingSamplesByteBuffer.isEmpty()) {
+        ByteBuffer currentSampleByteBuffer = track.pendingSamplesByteBuffer.removeFirst();
+        annexBToAvccConverter.process(currentSampleByteBuffer);
+        pendingSamplesByteBuffer.add(currentSampleByteBuffer);
+      }
+    } else {
+      pendingSamplesByteBuffer.addAll(track.pendingSamplesByteBuffer);
+      track.pendingSamplesByteBuffer.clear();
+    }
 
+    ImmutableList.Builder<BufferInfo> pendingSamplesBufferInfoBuilder =
+        new ImmutableList.Builder<>();
+    pendingSamplesBufferInfoBuilder.addAll(track.pendingSamplesBufferInfo);
+    track.pendingSamplesBufferInfo.clear();
+
+    ImmutableList<BufferInfo> pendingSamplesBufferInfo = pendingSamplesBufferInfoBuilder.build();
     List<Long> sampleDurations =
         Boxes.convertPresentationTimestampsToDurationsVu(
-            sampleBufferInfos,
+            pendingSamplesBufferInfo,
             /* firstSamplePresentationTimeUs= */ currentFragmentSequenceNumber == 1
                 ? minInputPresentationTimeUs
-                : sampleBufferInfos.get(0).presentationTimeUs,
+                : pendingSamplesBufferInfo.get(0).presentationTimeUs,
             track.videoUnitTimebase(),
             Mp4Muxer.LAST_FRAME_DURATION_BEHAVIOR_DUPLICATE_PREV_DURATION);
 
     ImmutableList.Builder<SampleMetadata> pendingSamplesMetadata = new ImmutableList.Builder<>();
     int totalSamplesSize = 0;
-    for (int i = 0; i < sampleBufferInfos.size(); i++) {
-      totalSamplesSize += sampleBufferInfos.get(i).size;
+    for (int i = 0; i < pendingSamplesBufferInfo.size(); i++) {
+      totalSamplesSize += pendingSamplesBufferInfo.get(i).size;
       pendingSamplesMetadata.add(
           new SampleMetadata(
               sampleDurations.get(i),
-              sampleBufferInfos.get(i).size,
-              sampleBufferInfos.get(i).flags));
+              pendingSamplesBufferInfo.get(i).size,
+              pendingSamplesBufferInfo.get(i).flags));
     }
 
-    // Clear the queue.
-    track.pendingSamplesBufferInfo.clear();
-    return new ProcessedTrackInfo(trackId, totalSamplesSize, pendingSamplesMetadata.build());
+    return new ProcessedTrackInfo(
+        trackId,
+        totalSamplesSize,
+        pendingSamplesByteBuffer.build(),
+        pendingSamplesMetadata.build());
   }
 
   private static class ProcessedTrackInfo {
     public final int trackId;
     public final int totalSamplesSize;
+    public final ImmutableList<ByteBuffer> pendingSamplesByteBuffer;
     public final ImmutableList<SampleMetadata> pendingSamplesMetadata;
 
     public ProcessedTrackInfo(
-        int trackId, int totalSamplesSize, ImmutableList<SampleMetadata> pendingSamplesMetadata) {
+        int trackId,
+        int totalSamplesSize,
+        ImmutableList<ByteBuffer> pendingSamplesByteBuffer,
+        ImmutableList<SampleMetadata> pendingSamplesMetadata) {
       this.trackId = trackId;
       this.totalSamplesSize = totalSamplesSize;
+      this.pendingSamplesByteBuffer = pendingSamplesByteBuffer;
       this.pendingSamplesMetadata = pendingSamplesMetadata;
     }
   }
