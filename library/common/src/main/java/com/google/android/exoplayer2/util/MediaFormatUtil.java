@@ -258,7 +258,7 @@ public final class MediaFormatUtil {
    */
   @SuppressWarnings("InlinedApi")
   public static void maybeSetColorInfo(MediaFormat format, @Nullable ColorInfo colorInfo) {
-    if (!ColorInfo.isEquivalentToAssumedSdrDefault(colorInfo)) {
+    if (colorInfo != null) {
       maybeSetInteger(format, MediaFormat.KEY_COLOR_TRANSFER, colorInfo.colorTransfer);
       maybeSetInteger(format, MediaFormat.KEY_COLOR_STANDARD, colorInfo.colorSpace);
       maybeSetInteger(format, MediaFormat.KEY_COLOR_RANGE, colorInfo.colorRange);
