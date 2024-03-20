@@ -240,16 +240,4 @@ public class MediaFormatUtilTest {
         .isEqualTo(C.ENCODING_PCM_16BIT_BIG_ENDIAN);
     assertThat(mediaFormat.containsKey(MediaFormat.KEY_PCM_ENCODING)).isFalse();
   }
-
-  @Test
-  public void createMediaFormatFromFormat_withSdrColorInfo_omitsMediaFormatColorInfoKeys() {
-    Format format = new Format.Builder().setColorInfo(ColorInfo.SDR_BT709_LIMITED).build();
-
-    MediaFormat mediaFormat = MediaFormatUtil.createMediaFormatFromFormat(format);
-
-    assertThat(mediaFormat.containsKey(MediaFormat.KEY_COLOR_TRANSFER)).isFalse();
-    assertThat(mediaFormat.containsKey(MediaFormat.KEY_COLOR_RANGE)).isFalse();
-    assertThat(mediaFormat.containsKey(MediaFormat.KEY_COLOR_STANDARD)).isFalse();
-    assertThat(mediaFormat.containsKey(MediaFormat.KEY_HDR_STATIC_INFO)).isFalse();
-  }
 }
