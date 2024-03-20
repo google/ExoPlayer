@@ -49,6 +49,7 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.video.ColorInfo;
 
 /**
  * Information about a {@link MediaCodec} for a given MIME type.
@@ -428,7 +429,10 @@ public final class MediaCodecInfo {
           && (oldFormat.width != newFormat.width || oldFormat.height != newFormat.height)) {
         discardReasons |= DISCARD_REASON_VIDEO_RESOLUTION_CHANGED;
       }
-      if (!Util.areEqual(oldFormat.colorInfo, newFormat.colorInfo)) {
+      if ((!ColorInfo.isEquivalentToAssumedSdrDefault(oldFormat.colorInfo)
+              || !ColorInfo.isEquivalentToAssumedSdrDefault(newFormat.colorInfo))
+          && !Util.areEqual(oldFormat.colorInfo, newFormat.colorInfo)) {
+        // Don't perform detailed checks if both ColorInfos fall within the default SDR assumption.
         discardReasons |= DISCARD_REASON_VIDEO_COLOR_INFO_CHANGED;
       }
       if (needsAdaptationReconfigureWorkaround(name)
