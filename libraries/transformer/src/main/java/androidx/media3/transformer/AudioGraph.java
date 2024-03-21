@@ -42,6 +42,8 @@ import java.util.Objects;
   private final AudioMixer mixer;
 
   private AudioFormat mixerAudioFormat;
+  private long pendingStartTimeUs;
+  private int mixerSourcesToAdd;
   private ByteBuffer mixerOutput;
   private AudioProcessingPipeline audioProcessingPipeline;
   private int finishedInputs;
@@ -134,6 +136,12 @@ import java.util.Objects;
    * unless the graph was {@linkplain #flush() flushed}.
    */
   public ByteBuffer getOutput() throws ExportException {
+    if (mixerSourcesToAdd > 0) {
+      addMixerSources();
+      if (mixerSourcesToAdd > 0) {
+        return EMPTY_BUFFER;
+      }
+    }
     if (!mixer.isEnded()) {
       feedMixer();
     }
@@ -149,6 +157,28 @@ import java.util.Objects;
     return mixerOutput;
   }
 
+  /** Instructs the {@code AudioGraph} to not queue any input buffer. */
+  public void blockInput() {
+    for (int i = 0; i < inputInfos.size(); i++) {
+      inputInfos.get(i).audioGraphInput.blockInput();
+    }
+  }
+
+  /** Unblocks incoming data if {@linkplain #blockInput() blocked}. */
+  public void unblockInput() {
+    for (int i = 0; i < inputInfos.size(); i++) {
+      inputInfos.get(i).audioGraphInput.unblockInput();
+    }
+  }
+
+  /**
+   * Sets the start time of the audio streams that will enter the audio graph after the next calls
+   * to {@link #flush()}, in microseconds.
+   */
+  public void setPendingStartTimeUs(long startTimeUs) {
+    this.pendingStartTimeUs = startTimeUs;
+  }
+
   /** Clears any pending data. */
   public void flush() {
     for (int i = 0; i < inputInfos.size(); i++) {
@@ -158,12 +188,12 @@ import java.util.Objects;
     }
     mixer.reset();
     try {
-      mixer.configure(mixerAudioFormat, /* bufferSizeMs= */ C.LENGTH_UNSET, /* startTimeUs= */ 0);
-      addMixerSources();
+      mixer.configure(mixerAudioFormat, /* bufferSizeMs= */ C.LENGTH_UNSET, pendingStartTimeUs);
     } catch (UnhandledAudioFormatException e) {
-      // Should never happen because mixer has already been configured with the same formats.
+      // Should never happen because mixer has already been configured with the same format.
       Log.e(TAG, "Unexpected mixer configuration error");
     }
+    mixerSourcesToAdd = inputInfos.size();
     mixerOutput = EMPTY_BUFFER;
     audioProcessingPipeline.flush();
     finishedInputs = 0;
@@ -207,6 +237,33 @@ import java.util.Objects;
     audioProcessingPipeline.queueInput(mixerOutput);
   }
 
+  private void addMixerSources() throws ExportException {
+    for (int i = 0; i < inputInfos.size(); i++) {
+      InputInfo inputInfo = inputInfos.get(i);
+      if (inputInfo.mixerSourceId != C.INDEX_UNSET) {
+        continue; // The source has already been added.
+      }
+      AudioGraphInput audioGraphInput = inputInfo.audioGraphInput;
+      try {
+        // Force processing input.
+        audioGraphInput.getOutput();
+        long sourceStartTimeUs = audioGraphInput.getStartTimeUs();
+        if (sourceStartTimeUs == C.TIME_UNSET) {
+          continue;
+        } else if (sourceStartTimeUs == C.TIME_END_OF_SOURCE) {
+          mixerSourcesToAdd--;
+          continue;
+        }
+        inputInfo.mixerSourceId =
+            mixer.addSource(audioGraphInput.getOutputAudioFormat(), sourceStartTimeUs);
+      } catch (UnhandledAudioFormatException e) {
+        throw ExportException.createForAudioProcessing(
+            e, "Unhandled format while adding source " + inputInfo.mixerSourceId);
+      }
+      mixerSourcesToAdd--;
+    }
+  }
+
   private void feedMixer() throws ExportException {
     for (int i = 0; i < inputInfos.size(); i++) {
       feedMixerFromInput(inputInfos.get(i));
@@ -232,14 +289,6 @@ import java.util.Objects;
     } catch (UnhandledAudioFormatException e) {
       throw ExportException.createForAudioProcessing(
           e, "AudioGraphInput (sourceId=" + sourceId + ") reconfiguration");
-    }
-  }
-
-  private void addMixerSources() throws UnhandledAudioFormatException {
-    for (int i = 0; i < inputInfos.size(); i++) {
-      InputInfo inputInfo = inputInfos.get(i);
-      inputInfo.mixerSourceId =
-          mixer.addSource(inputInfo.audioGraphInput.getOutputAudioFormat(), /* startTimeUs= */ 0);
     }
   }
 

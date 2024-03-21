@@ -187,6 +187,112 @@ public class AudioGraphTest {
   }
 
   @Test
+  public void blockInput_blocksInputData() throws Exception {
+    AudioGraph audioGraph = new AudioGraph(new DefaultAudioMixer.Factory());
+    audioGraph.configure(ImmutableList.of());
+    AudioGraphInput audioGraphInput =
+        audioGraph.registerInput(FAKE_ITEM, getPcmFormat(STEREO_44100));
+    audioGraphInput.onMediaItemChanged(
+        FAKE_ITEM,
+        /* durationUs= */ 1_000_000,
+        /* decodedFormat= */ getPcmFormat(STEREO_44100),
+        /* isLast= */ true);
+    audioGraphInput.getOutput(); // Force the media item change to be processed.
+    DecoderInputBuffer inputBuffer = audioGraphInput.getInputBuffer();
+    byte[] inputData = TestUtil.buildTestData(/* length= */ 100 * STEREO_44100.bytesPerFrame);
+    inputBuffer.ensureSpaceForWrite(inputData.length);
+    inputBuffer.data.put(inputData).flip();
+
+    audioGraph.blockInput();
+
+    assertThat(audioGraphInput.queueInputBuffer()).isFalse();
+  }
+
+  @Test
+  public void unblockInput_unblocksInputData() throws Exception {
+    AudioGraph audioGraph = new AudioGraph(new DefaultAudioMixer.Factory());
+    audioGraph.configure(ImmutableList.of());
+    AudioGraphInput audioGraphInput =
+        audioGraph.registerInput(FAKE_ITEM, getPcmFormat(STEREO_44100));
+    audioGraphInput.onMediaItemChanged(
+        FAKE_ITEM,
+        /* durationUs= */ 1_000_000,
+        /* decodedFormat= */ getPcmFormat(STEREO_44100),
+        /* isLast= */ true);
+    audioGraphInput.getOutput(); // Force the media item change to be processed.
+    DecoderInputBuffer inputBuffer = audioGraphInput.getInputBuffer();
+    byte[] inputData = TestUtil.buildTestData(/* length= */ 100 * STEREO_44100.bytesPerFrame);
+    inputBuffer.ensureSpaceForWrite(inputData.length);
+    inputBuffer.data.put(inputData).flip();
+    audioGraph.blockInput();
+
+    audioGraph.unblockInput();
+
+    assertThat(audioGraphInput.queueInputBuffer()).isTrue();
+  }
+
+  @Test
+  public void setPendingStartTimeUs_discardsPrecedingData() throws Exception {
+    AudioGraph audioGraph = new AudioGraph(new DefaultAudioMixer.Factory());
+    audioGraph.configure(ImmutableList.of());
+    AudioGraphInput audioGraphInput =
+        audioGraph.registerInput(FAKE_ITEM, getPcmFormat(STEREO_44100));
+    audioGraphInput.onMediaItemChanged(
+        FAKE_ITEM,
+        /* durationUs= */ 1_000_000,
+        /* decodedFormat= */ getPcmFormat(STEREO_44100),
+        /* isLast= */ true);
+    audioGraphInput.getOutput(); // Force the media item change to be processed.
+
+    audioGraph.setPendingStartTimeUs(500_000);
+    audioGraph.flush();
+    // Queue input buffer with timestamp 0.
+    DecoderInputBuffer inputBuffer = audioGraphInput.getInputBuffer();
+    byte[] inputData = TestUtil.buildTestData(/* length= */ 100 * STEREO_44100.bytesPerFrame);
+    inputBuffer.ensureSpaceForWrite(inputData.length);
+    inputBuffer.data.put(inputData).flip();
+    checkState(audioGraphInput.queueInputBuffer());
+    // Queue EOS.
+    audioGraphInput.getInputBuffer().setFlags(C.BUFFER_FLAG_END_OF_STREAM);
+    checkState(audioGraphInput.queueInputBuffer());
+    // Drain output.
+    int bytesOutput = drainAudioGraph(audioGraph);
+
+    assertThat(bytesOutput).isEqualTo(0);
+  }
+
+  @Test
+  public void setPendingStartTimeUs_doesNotDiscardFollowingData() throws Exception {
+    AudioGraph audioGraph = new AudioGraph(new DefaultAudioMixer.Factory());
+    audioGraph.configure(ImmutableList.of());
+    AudioGraphInput audioGraphInput =
+        audioGraph.registerInput(FAKE_ITEM, getPcmFormat(STEREO_44100));
+    audioGraphInput.onMediaItemChanged(
+        FAKE_ITEM,
+        /* durationUs= */ 1_000_000,
+        /* decodedFormat= */ getPcmFormat(STEREO_44100),
+        /* isLast= */ true);
+    audioGraphInput.getOutput(); // Force the media item change to be processed.
+
+    audioGraph.setPendingStartTimeUs(500_000);
+    audioGraph.flush();
+    // Queue input buffer with timestamp 600 ms.
+    DecoderInputBuffer inputBuffer = audioGraphInput.getInputBuffer();
+    byte[] inputData = TestUtil.buildTestData(/* length= */ 100 * STEREO_44100.bytesPerFrame);
+    inputBuffer.ensureSpaceForWrite(inputData.length);
+    inputBuffer.data.put(inputData).flip();
+    inputBuffer.timeUs = 600_000;
+    checkState(audioGraphInput.queueInputBuffer());
+    // Queue EOS.
+    audioGraphInput.getInputBuffer().setFlags(C.BUFFER_FLAG_END_OF_STREAM);
+    checkState(audioGraphInput.queueInputBuffer());
+    // Drain output.
+    int bytesOutput = drainAudioGraph(audioGraph);
+
+    assertThat(bytesOutput).isGreaterThan(0);
+  }
+
+  @Test
   public void flush_withoutAudioProcessor_clearsPendingData() throws Exception {
     AudioGraph audioGraph = new AudioGraph(new DefaultAudioMixer.Factory());
     audioGraph.configure(ImmutableList.of());
