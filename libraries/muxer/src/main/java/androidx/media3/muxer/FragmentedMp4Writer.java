@@ -277,22 +277,29 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   private ProcessedTrackInfo processTrack(int trackId, Track track) {
     checkState(track.pendingSamplesByteBuffer.size() == track.pendingSamplesBufferInfo.size());
+
     ImmutableList.Builder<ByteBuffer> pendingSamplesByteBuffer = new ImmutableList.Builder<>();
+    ImmutableList.Builder<BufferInfo> pendingSamplesBufferInfoBuilder =
+        new ImmutableList.Builder<>();
     if (doesSampleContainAnnexBNalUnits(checkNotNull(track.format.sampleMimeType))) {
       while (!track.pendingSamplesByteBuffer.isEmpty()) {
         ByteBuffer currentSampleByteBuffer = track.pendingSamplesByteBuffer.removeFirst();
-        annexBToAvccConverter.process(currentSampleByteBuffer);
+        currentSampleByteBuffer = annexBToAvccConverter.process(currentSampleByteBuffer);
         pendingSamplesByteBuffer.add(currentSampleByteBuffer);
+        BufferInfo currentSampleBufferInfo = track.pendingSamplesBufferInfo.removeFirst();
+        currentSampleBufferInfo.set(
+            currentSampleByteBuffer.position(),
+            currentSampleByteBuffer.remaining(),
+            currentSampleBufferInfo.presentationTimeUs,
+            currentSampleBufferInfo.flags);
+        pendingSamplesBufferInfoBuilder.add(currentSampleBufferInfo);
       }
     } else {
       pendingSamplesByteBuffer.addAll(track.pendingSamplesByteBuffer);
       track.pendingSamplesByteBuffer.clear();
+      pendingSamplesBufferInfoBuilder.addAll(track.pendingSamplesBufferInfo);
+      track.pendingSamplesBufferInfo.clear();
     }
-
-    ImmutableList.Builder<BufferInfo> pendingSamplesBufferInfoBuilder =
-        new ImmutableList.Builder<>();
-    pendingSamplesBufferInfoBuilder.addAll(track.pendingSamplesBufferInfo);
-    track.pendingSamplesBufferInfo.clear();
 
     ImmutableList<BufferInfo> pendingSamplesBufferInfo = pendingSamplesBufferInfoBuilder.build();
     List<Long> sampleDurations =

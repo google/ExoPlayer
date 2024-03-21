@@ -2,18 +2,18 @@ seekMap:
   isSeekable = true
   duration = 200
   getPosition(0) = [[timeUs=0, position=44]]
-  getPosition(1) = [[timeUs=0, position=44], [timeUs=100, position=99]]
-  getPosition(100) = [[timeUs=100, position=99]]
-  getPosition(200) = [[timeUs=100, position=99]]
+  getPosition(1) = [[timeUs=0, position=44], [timeUs=100, position=100]]
+  getPosition(100) = [[timeUs=100, position=100]]
+  getPosition(200) = [[timeUs=100, position=100]]
 numberOfTracks = 2
 track 0:
-  total output bytes = 110
+  total output bytes = 112
   sample count = 2
   format 0:
     id = 1
     sampleMimeType = video/avc
     codecs = avc1.F4000A
-    maxInputSize = 85
+    maxInputSize = 86
     width = 12
     height = 10
     frameRate = 20000.0
@@ -28,19 +28,19 @@ track 0:
   sample 0:
     time = 0
     flags = 1
-    data = length 55, hash A481CEF4
+    data = length 56, hash C4551A2E
   sample 1:
     time = 100
     flags = 536870913
-    data = length 55, hash A481CEF4
+    data = length 56, hash C4551A2E
 track 1:
-  total output bytes = 110
+  total output bytes = 112
   sample count = 2
   format 0:
     id = 2
     sampleMimeType = video/avc
     codecs = avc1.F4000A
-    maxInputSize = 85
+    maxInputSize = 86
     width = 12
     height = 10
     frameRate = 10000.0
@@ -55,9 +55,9 @@ track 1:
   sample 0:
     time = 0
     flags = 1
-    data = length 55, hash A481CEF4
+    data = length 56, hash C4551A2E
   sample 1:
     time = 200
     flags = 536870913
-    data = length 55, hash A481CEF4
+    data = length 56, hash C4551A2E
 tracksEnded = true

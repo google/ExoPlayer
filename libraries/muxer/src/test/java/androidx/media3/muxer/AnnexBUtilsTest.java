@@ -17,6 +17,7 @@ package androidx.media3.muxer;
 
 import static androidx.media3.common.util.Util.getBytesFromHexString;
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertThrows;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
@@ -29,76 +30,109 @@ import org.junit.runner.RunWith;
 public class AnnexBUtilsTest {
   @Test
   public void findNalUnits_emptyBuffer_returnsEmptyList() {
-    ByteBuffer buf = ByteBuffer.wrap(getBytesFromHexString(""));
+    ByteBuffer buffer = ByteBuffer.wrap(getBytesFromHexString(""));
 
-    ImmutableList<ByteBuffer> components = AnnexBUtils.findNalUnits(buf);
-
-    assertThat(components).isEmpty();
-  }
-
-  @Test
-  public void findNalUnits_noNalUnit_returnsEmptyList() {
-    ByteBuffer buf = ByteBuffer.wrap(getBytesFromHexString("ABCDEFABC"));
-
-    ImmutableList<ByteBuffer> components = AnnexBUtils.findNalUnits(buf);
+    ImmutableList<ByteBuffer> components = AnnexBUtils.findNalUnits(buffer);
 
     assertThat(components).isEmpty();
   }
 
   @Test
-  public void findNalUnits_singleNalUnit_returnsSingleElement() {
-    ByteBuffer buf = ByteBuffer.wrap(getBytesFromHexString("00000001ABCDEF"));
+  public void findNalUnits_noNalUnit_throws() {
+    ByteBuffer buffer = ByteBuffer.wrap(getBytesFromHexString("ABCDEFABC"));
 
-    ImmutableList<ByteBuffer> components = AnnexBUtils.findNalUnits(buf);
-
-    assertThat(components).hasSize(1);
-    assertThat(components.get(0)).isEqualTo(ByteBuffer.wrap(getBytesFromHexString("ABCDEF")));
+    assertThrows(IllegalStateException.class, () -> AnnexBUtils.findNalUnits(buffer));
   }
 
   @Test
-  public void findNalUnits_multipleNalUnits_allReturned() {
-    ByteBuffer buf =
+  public void findNalUnits_singleNalUnitWithFourByteStartCode_returnsSingleElement() {
+    ByteBuffer buffer = ByteBuffer.wrap(getBytesFromHexString("00000001ABCDEF"));
+
+    ImmutableList<ByteBuffer> components = AnnexBUtils.findNalUnits(buffer);
+
+    assertThat(components).containsExactly(ByteBuffer.wrap(getBytesFromHexString("ABCDEF")));
+  }
+
+  @Test
+  public void findNalUnits_singleNalUnitWithThreeByteStartCode_returnsSingleElement() {
+    ByteBuffer buffer = ByteBuffer.wrap(getBytesFromHexString("000001ABCDEF"));
+
+    ImmutableList<ByteBuffer> components = AnnexBUtils.findNalUnits(buffer);
+
+    assertThat(components).containsExactly(ByteBuffer.wrap(getBytesFromHexString("ABCDEF")));
+  }
+
+  @Test
+  public void findNalUnits_multipleNalUnitsWithFourByteStartCode_allReturned() {
+    ByteBuffer buffer =
         ByteBuffer.wrap(getBytesFromHexString("00000001ABCDEF00000001DDCC00000001BBAA"));
 
-    ImmutableList<ByteBuffer> components = AnnexBUtils.findNalUnits(buf);
+    ImmutableList<ByteBuffer> components = AnnexBUtils.findNalUnits(buffer);
 
-    assertThat(components).hasSize(3);
-    assertThat(components.get(0)).isEqualTo(ByteBuffer.wrap(getBytesFromHexString("ABCDEF")));
-    assertThat(components.get(1)).isEqualTo(ByteBuffer.wrap(getBytesFromHexString("DDCC")));
-    assertThat(components.get(2)).isEqualTo(ByteBuffer.wrap(getBytesFromHexString("BBAA")));
+    assertThat(components)
+        .containsExactly(
+            ByteBuffer.wrap(getBytesFromHexString("ABCDEF")),
+            ByteBuffer.wrap(getBytesFromHexString("DDCC")),
+            ByteBuffer.wrap(getBytesFromHexString("BBAA")))
+        .inOrder();
   }
 
   @Test
-  public void findNalUnits_partialStartCodes_ignored() {
+  public void findNalUnits_multipleNalUnitsWithThreeByteStartCode_allReturned() {
+    ByteBuffer buffer = ByteBuffer.wrap(getBytesFromHexString("000001ABCDEF000001DDCC000001BBAA"));
+
+    ImmutableList<ByteBuffer> components = AnnexBUtils.findNalUnits(buffer);
+
+    assertThat(components)
+        .containsExactly(
+            ByteBuffer.wrap(getBytesFromHexString("ABCDEF")),
+            ByteBuffer.wrap(getBytesFromHexString("DDCC")),
+            ByteBuffer.wrap(getBytesFromHexString("BBAA")))
+        .inOrder();
+  }
+
+  @Test
+  public void findNalUnits_withTrainingZeroesFollowedByGarbageData_throws() {
     // The NAL unit has lots of zeros but no start code.
-    ByteBuffer buf =
+    ByteBuffer buffer =
         ByteBuffer.wrap(getBytesFromHexString("00000001ABCDEF0000AB0000CDEF00000000AB"));
 
-    ImmutableList<ByteBuffer> components = AnnexBUtils.findNalUnits(buf);
-
-    assertThat(components).hasSize(1);
-    assertThat(components.get(0))
-        .isEqualTo(ByteBuffer.wrap(getBytesFromHexString("ABCDEF0000AB0000CDEF00000000AB")));
+    assertThrows(IllegalStateException.class, () -> AnnexBUtils.findNalUnits(buffer));
   }
 
   @Test
-  public void findNalUnits_startCodeWithManyZeros_stillSplits() {
-    // The NAL unit has a start code that starts with more than 3 zeros (although too many zeros
-    // aren't allowed).
-    ByteBuffer buf = ByteBuffer.wrap(getBytesFromHexString("00000001ABCDEF000000000001AB"));
+  public void findNalUnits_withTrailingZeroes_stripsTrailingZeroes() {
+    // The first NAL unit has some training zeroes.
+    ByteBuffer buffer = ByteBuffer.wrap(getBytesFromHexString("00000001ABCDEF000000000001AB"));
 
-    ImmutableList<ByteBuffer> components = AnnexBUtils.findNalUnits(buf);
+    ImmutableList<ByteBuffer> components = AnnexBUtils.findNalUnits(buffer);
 
-    assertThat(components).hasSize(2);
-    assertThat(components.get(0)).isEqualTo(ByteBuffer.wrap(getBytesFromHexString("ABCDEF0000")));
-    assertThat(components.get(1)).isEqualTo(ByteBuffer.wrap(getBytesFromHexString("AB")));
+    assertThat(components)
+        .containsExactly(
+            ByteBuffer.wrap(getBytesFromHexString("ABCDEF")),
+            ByteBuffer.wrap(getBytesFromHexString("AB")))
+        .inOrder();
+  }
+
+  @Test
+  public void findNalUnits_withBothThreeBytesAndFourBytesNalStartCode_returnsAllNalUnits() {
+    ByteBuffer buffer = ByteBuffer.wrap(getBytesFromHexString("00000001ABCDEF000001AB000001CDEF"));
+
+    ImmutableList<ByteBuffer> components = AnnexBUtils.findNalUnits(buffer);
+
+    assertThat(components)
+        .containsExactly(
+            ByteBuffer.wrap(getBytesFromHexString("ABCDEF")),
+            ByteBuffer.wrap(getBytesFromHexString("AB")),
+            ByteBuffer.wrap(getBytesFromHexString("CDEF")))
+        .inOrder();
   }
 
   @Test
   public void stripEmulationPrevention_noEmulationPreventionBytes_copiesInput() {
-    ByteBuffer buf = ByteBuffer.wrap(getBytesFromHexString("00000001ABCDEF000000000001AB"));
+    ByteBuffer buffer = ByteBuffer.wrap(getBytesFromHexString("00000001ABCDEF000000000001AB"));
 
-    ByteBuffer output = AnnexBUtils.stripEmulationPrevention(buf);
+    ByteBuffer output = AnnexBUtils.stripEmulationPrevention(buffer);
 
     assertThat(output)
         .isEqualTo(ByteBuffer.wrap(getBytesFromHexString("00000001ABCDEF000000000001AB")));
@@ -107,9 +141,9 @@ public class AnnexBUtilsTest {
   @Test
   public void stripEmulationPrevention_emulationPreventionPresent_bytesStripped() {
     // The NAL unit has a 00 00 03 * sequence.
-    ByteBuffer buf = ByteBuffer.wrap(getBytesFromHexString("00000001ABCDEF00000300000001AB"));
+    ByteBuffer buffer = ByteBuffer.wrap(getBytesFromHexString("00000001ABCDEF00000300000001AB"));
 
-    ByteBuffer output = AnnexBUtils.stripEmulationPrevention(buf);
+    ByteBuffer output = AnnexBUtils.stripEmulationPrevention(buffer);
 
     assertThat(output)
         .isEqualTo(ByteBuffer.wrap(getBytesFromHexString("00000001ABCDEF000000000001AB")));
@@ -118,9 +152,9 @@ public class AnnexBUtilsTest {
   @Test
   public void stripEmulationPrevention_03WithoutEnoughZeros_notStripped() {
     // The NAL unit has a 03 byte around, but not preceded by enough zeros.
-    ByteBuffer buf = ByteBuffer.wrap(getBytesFromHexString("ABCDEFABCD0003EFABCD03ABCD"));
+    ByteBuffer buffer = ByteBuffer.wrap(getBytesFromHexString("ABCDEFABCD0003EFABCD03ABCD"));
 
-    ByteBuffer output = AnnexBUtils.stripEmulationPrevention(buf);
+    ByteBuffer output = AnnexBUtils.stripEmulationPrevention(buffer);
 
     assertThat(output)
         .isEqualTo(ByteBuffer.wrap(getBytesFromHexString("ABCDEFABCD0003EFABCD03ABCD")));
@@ -129,9 +163,9 @@ public class AnnexBUtilsTest {
   @Test
   public void stripEmulationPrevention_03AtEnd_stripped() {
     // The NAL unit has a 03 byte at the very end of the input.
-    ByteBuffer buf = ByteBuffer.wrap(getBytesFromHexString("ABCDEF000003"));
+    ByteBuffer buffer = ByteBuffer.wrap(getBytesFromHexString("ABCDEF000003"));
 
-    ByteBuffer output = AnnexBUtils.stripEmulationPrevention(buf);
+    ByteBuffer output = AnnexBUtils.stripEmulationPrevention(buffer);
 
     assertThat(output).isEqualTo(ByteBuffer.wrap(getBytesFromHexString("ABCDEF0000")));
   }

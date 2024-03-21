@@ -16,6 +16,7 @@
 package androidx.media3.transformer;
 
 import static androidx.media3.common.util.Assertions.checkState;
+import static androidx.media3.test.utils.TestUtil.extractAllSamplesFromFilePath;
 import static androidx.media3.test.utils.TestUtil.retrieveTrackFormat;
 import static com.google.common.truth.Truth.assertThat;
 
@@ -51,6 +52,7 @@ import org.junit.runner.RunWith;
 public class TransformerWithInAppMuxerEndToEndTest {
   private static final String MP4_FILE_PATH = "asset:///media/mp4/sample_no_bframes.mp4";
   private static final String MP4_FILE_NAME = "mp4/sample_no_bframes.mp4";
+
   @Rule public final TemporaryFolder outputDir = new TemporaryFolder();
 
   private final Context context = ApplicationProvider.getApplicationContext();
@@ -85,13 +87,53 @@ public class TransformerWithInAppMuxerEndToEndTest {
     TransformerTestRunner.runLooper(transformer);
 
     FakeExtractorOutput fakeExtractorOutput =
-        androidx.media3.test.utils.TestUtil.extractAllSamplesFromFilePath(
+        extractAllSamplesFromFilePath(
             new Mp4Extractor(new DefaultSubtitleParserFactory()), outputPath);
     DumpFileAsserts.assertOutput(
         context,
         fakeExtractorOutput,
         TestUtil.getDumpFileName(
             /* originalFileName= */ MP4_FILE_NAME,
+            /* modifications...= */ "transmuxed_with_inappmuxer"));
+  }
+
+  @Test
+  public void transmux_tsFileHavingThreeByteNalStartCode_outputMatchesExpected() throws Exception {
+    String tsFilePath = "asset:///media/ts/sample_no_bframes.ts";
+    String tsFileName = "ts/sample_no_bframes.ts";
+    Muxer.Factory inAppMuxerFactory =
+        new InAppMuxer.Factory.Builder()
+            .setMetadataProvider(
+                metadataEntries ->
+                    // Add timestamp to make output file deterministic.
+                    metadataEntries.add(
+                        new Mp4TimestampData(
+                            /* creationTimestampSeconds= */ 3_000_000_000L,
+                            /* modificationTimestampSeconds= */ 4_000_000_000L)))
+            .build();
+
+    Transformer transformer =
+        new Transformer.Builder(context)
+            .setClock(new FakeClock(/* isAutoAdvancing= */ true))
+            .setMuxerFactory(inAppMuxerFactory)
+            .build();
+    MediaItem mediaItem =
+        new MediaItem.Builder()
+            .setUri(Uri.parse(tsFilePath))
+            .setClippingConfiguration(
+                new MediaItem.ClippingConfiguration.Builder().setEndPositionMs(2_000).build())
+            .build();
+    transformer.start(mediaItem, outputPath);
+    TransformerTestRunner.runLooper(transformer);
+
+    FakeExtractorOutput fakeExtractorOutput =
+        extractAllSamplesFromFilePath(
+            new Mp4Extractor(new DefaultSubtitleParserFactory()), outputPath);
+    DumpFileAsserts.assertOutput(
+        context,
+        fakeExtractorOutput,
+        TestUtil.getDumpFileName(
+            /* originalFileName= */ tsFileName,
             /* modifications...= */ "transmuxed_with_inappmuxer"));
   }
 

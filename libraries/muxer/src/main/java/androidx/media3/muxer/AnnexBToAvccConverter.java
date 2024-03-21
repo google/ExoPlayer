@@ -32,7 +32,7 @@ public interface AnnexBToAvccConverter {
   AnnexBToAvccConverter DEFAULT =
       (ByteBuffer inputBuffer) -> {
         if (!inputBuffer.hasRemaining()) {
-          return;
+          return inputBuffer;
         }
 
         checkArgument(
@@ -40,25 +40,33 @@ public interface AnnexBToAvccConverter {
 
         ImmutableList<ByteBuffer> nalUnitList = AnnexBUtils.findNalUnits(inputBuffer);
 
+        int totalBytesNeeded = 0;
+
         for (int i = 0; i < nalUnitList.size(); i++) {
-          int currentNalUnitLength = nalUnitList.get(i).remaining();
-
-          // Replace the start code with the NAL unit length.
-          inputBuffer.putInt(currentNalUnitLength);
-
-          // Shift the input buffer's position to next start code.
-          int newPosition = inputBuffer.position() + currentNalUnitLength;
-          inputBuffer.position(newPosition);
+          // 4 bytes to store NAL unit length.
+          totalBytesNeeded += 4 + nalUnitList.get(i).remaining();
         }
-        inputBuffer.rewind();
+
+        ByteBuffer outputBuffer = ByteBuffer.allocate(totalBytesNeeded);
+
+        for (int i = 0; i < nalUnitList.size(); i++) {
+          ByteBuffer currentNalUnit = nalUnitList.get(i);
+          int currentNalUnitLength = currentNalUnit.remaining();
+
+          // Rewrite NAL units with NAL unit length in place of start code.
+          outputBuffer.putInt(currentNalUnitLength);
+          outputBuffer.put(currentNalUnit);
+        }
+        outputBuffer.rewind();
+        return outputBuffer;
       };
 
   /**
-   * Processes a buffer in-place.
+   * Returns the processed {@link ByteBuffer}.
    *
    * <p>Expects a {@link ByteBuffer} input with a zero offset.
    *
    * @param inputBuffer The buffer to be converted.
    */
-  void process(ByteBuffer inputBuffer);
+  ByteBuffer process(ByteBuffer inputBuffer);
 }

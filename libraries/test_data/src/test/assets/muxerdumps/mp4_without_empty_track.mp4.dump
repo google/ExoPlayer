@@ -1,7 +1,7 @@
 ftyp (28 bytes):
   Data = length 20, hash EF896440
-mdat (126 bytes):
-  Data = length 110, hash 48173D41
+mdat (128 bytes):
+  Data = length 112, hash 1AAF8FF5
 moov (674 bytes):
   mvhd (108 bytes):
     Data = length 100, hash 105FA889
@@ -24,7 +24,7 @@ moov (674 bytes):
           stts (32 bytes):
             Data = length 24, hash 4A7D0E0E
           stsz (28 bytes):
-            Data = length 20, hash 3828E071
+            Data = length 20, hash 3836F7F3
           stsc (28 bytes):
             Data = length 20, hash 8F7C9A06
           co64 (24 bytes):
