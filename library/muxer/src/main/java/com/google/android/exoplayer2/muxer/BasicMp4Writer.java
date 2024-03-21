@@ -270,6 +270,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
   /** Writes out any pending samples to the file. */
   private void flushPending(Track track) throws IOException {
+    checkState(track.pendingSamplesByteBuffer.size() == track.pendingSamplesBufferInfo.size());
     if (track.pendingSamplesBufferInfo.isEmpty()) {
       return;
     }
@@ -284,13 +285,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
       bytesNeededInMdat += sample.limit();
     }
 
-    // If the required number of bytes doesn't fit in the gap between the actual data and the moov
-    // box, extend the file and write out the moov box to the end again.
-    if (mdatDataEnd + bytesNeededInMdat >= mdatEnd) {
-      // Reserve some extra space than required, so that mdat box extension is less frequent.
-      rewriteMoovWithMdatEmptySpace(
-          /* bytesNeeded= */ getMdatExtensionAmount(mdatDataEnd) + bytesNeededInMdat);
-    }
+    extendMdatIfRequired(bytesNeededInMdat);
 
     track.writtenChunkOffsets.add(mdatDataEnd);
     track.writtenChunkSampleCounts.add(track.pendingSamplesBufferInfo.size());
@@ -299,20 +294,36 @@ import java.util.concurrent.atomic.AtomicBoolean;
       BufferInfo currentSampleBufferInfo = track.pendingSamplesBufferInfo.removeFirst();
       ByteBuffer currentSampleByteBuffer = track.pendingSamplesByteBuffer.removeFirst();
 
-      track.writtenSamples.add(currentSampleBufferInfo);
-
       // Convert the H.264/H.265 samples from Annex-B format (output by MediaCodec) to
       // Avcc format (required by MP4 container).
       if (doesSampleContainAnnexBNalUnits(checkNotNull(track.format.sampleMimeType))) {
-        annexBToAvccConverter.process(currentSampleByteBuffer);
+        currentSampleByteBuffer = annexBToAvccConverter.process(currentSampleByteBuffer);
+        currentSampleBufferInfo.set(
+            currentSampleByteBuffer.position(),
+            currentSampleByteBuffer.remaining(),
+            currentSampleBufferInfo.presentationTimeUs,
+            currentSampleBufferInfo.flags);
       }
 
-      currentSampleByteBuffer.rewind();
+      // If the original sample had 3 bytes NAL start code instead of 4 bytes, then after AnnexB to
+      // Avcc conversion it will have 1 additional byte.
+      extendMdatIfRequired(currentSampleByteBuffer.remaining());
 
       mdatDataEnd += output.write(currentSampleByteBuffer, mdatDataEnd);
+      track.writtenSamples.add(currentSampleBufferInfo);
     } while (!track.pendingSamplesBufferInfo.isEmpty());
 
     checkState(mdatDataEnd <= mdatEnd);
+  }
+
+  private void extendMdatIfRequired(long additionalBytesNeeded) throws IOException {
+    // If the required number of bytes doesn't fit in the gap between the actual data and the moov
+    // box, extend the file and write out the moov box to the end again.
+    if (mdatDataEnd + additionalBytesNeeded >= mdatEnd) {
+      // Reserve some extra space than required, so that mdat box extension is less frequent.
+      rewriteMoovWithMdatEmptySpace(
+          /* bytesNeeded= */ getMdatExtensionAmount(mdatDataEnd) + additionalBytesNeeded);
+    }
   }
 
   private void updateMdatSize() throws IOException {

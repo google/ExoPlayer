@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.muxer;
 
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.common.collect.ImmutableList;
 import java.nio.ByteBuffer;
@@ -29,41 +30,80 @@ import java.nio.ByteBuffer;
  */
 @Deprecated
 /* package */ final class AnnexBUtils {
+  private static final int THREE_BYTE_NAL_START_CODE_SIZE = 3;
+
   private AnnexBUtils() {}
 
   /**
-   * Splits a {@link ByteBuffer} into individual NAL units (0x00000001 start code).
+   * Splits a {@link ByteBuffer} into individual NAL units (0x000001 or 0x00000001 start code).
    *
-   * <p>An empty list is returned if the input is not NAL units.
+   * <p>An {@link IllegalStateException} is thrown if the NAL units are invalid. The NAL units are
+   * identified as per ITU-T H264 spec:Annex B.2.
    *
-   * <p>The position of the input buffer is unchanged after calling this method.
+   * <p>The input buffer must have position set to 0 and the position remains unchanged after
+   * calling this method.
    */
   public static ImmutableList<ByteBuffer> findNalUnits(ByteBuffer input) {
-    if (input.remaining() < 4 || input.getInt(0) != 1) {
+    if (input.remaining() == 0) {
       return ImmutableList.of();
     }
 
-    ImmutableList.Builder<ByteBuffer> nalUnits = new ImmutableList.Builder<>();
+    int nalStartIndex = C.INDEX_UNSET;
+    int inputLimit = input.limit();
+    boolean readingNalUnit = false;
 
-    int lastStart = 4;
-    int zerosSeen = 0;
-
-    for (int i = 4; i < input.limit(); i++) {
-      if (input.get(i) == 1 && zerosSeen >= 3) {
-        // We're just looking at a start code.
-        nalUnits.add(getBytes(input, lastStart, i - 3 - lastStart));
-        lastStart = i + 1;
-      }
-
-      // Handle the end of the stream.
-      if (i == input.limit() - 1) {
-        nalUnits.add(getBytes(input, lastStart, input.limit() - lastStart));
-      }
-
-      if (input.get(i) == 0) {
-        zerosSeen++;
+    // The input must start with a NAL unit.
+    for (int i = 0; i < inputLimit; i++) {
+      if (isThreeByteNalStartCode(input, i)) {
+        nalStartIndex = i + THREE_BYTE_NAL_START_CODE_SIZE;
+        readingNalUnit = true;
+        break;
+      } else if (input.get(i) == 0) {
+        // Skip the leading zeroes.
       } else {
-        zerosSeen = 0;
+        throw new IllegalStateException("Sample does not start with a NAL unit");
+      }
+    }
+
+    ImmutableList.Builder<ByteBuffer> nalUnits = new ImmutableList.Builder<>();
+    // Look for start code 0x000001. The logic will work for 0x00000001 start code as well because a
+    // NAL unit gets ended even when 0x000000 (which is a prefix of 0x00000001 start code) is found.
+    for (int i = nalStartIndex; i < inputLimit; ) {
+      if (readingNalUnit) {
+        // Found next start code 0x000001.
+        if (isThreeByteNalStartCode(input, i)) {
+          nalUnits.add(getBytes(input, nalStartIndex, i - nalStartIndex));
+          i = i + THREE_BYTE_NAL_START_CODE_SIZE;
+          nalStartIndex = i;
+          continue;
+        } else if (isThreeBytesZeroSequence(input, i)) {
+          // Found code 0x000000; The previous NAL unit should be ended.
+          nalUnits.add(getBytes(input, nalStartIndex, i - nalStartIndex));
+          // Stop reading NAL unit until next start code is found.
+          readingNalUnit = false;
+          i++;
+        } else {
+          // Continue reading NAL unit.
+          i++;
+        }
+      } else {
+        // Found new start code 0x000001.
+        if (isThreeByteNalStartCode(input, i)) {
+          i = i + THREE_BYTE_NAL_START_CODE_SIZE;
+          nalStartIndex = i;
+          readingNalUnit = true;
+        } else if (input.get(i) == 0x00) {
+          // Skip trailing zeroes.
+          i++;
+        } else {
+          // Found garbage data.
+          throw new IllegalStateException("Invalid NAL units");
+        }
+      }
+
+      // Add the last NAL unit.
+      if (i == inputLimit && readingNalUnit) {
+        nalUnits.add(getBytes(input, nalStartIndex, i - nalStartIndex));
       }
     }
     input.rewind();
@@ -103,6 +143,20 @@ import java.nio.ByteBuffer;
   public static boolean doesSampleContainAnnexBNalUnits(String sampleMimeType) {
     return sampleMimeType.equals(MimeTypes.VIDEO_H264)
         || sampleMimeType.equals(MimeTypes.VIDEO_H265);
+  }
+
+  private static boolean isThreeByteNalStartCode(ByteBuffer input, int currentIndex) {
+    return (currentIndex < input.limit() - THREE_BYTE_NAL_START_CODE_SIZE
+        && input.get(currentIndex) == 0x00
+        && input.get(currentIndex + 1) == 0x00
+        && input.get(currentIndex + 2) == 0x01);
+  }
+
+  private static boolean isThreeBytesZeroSequence(ByteBuffer input, int currentIndex) {
+    return (currentIndex < input.limit() - THREE_BYTE_NAL_START_CODE_SIZE
+        && input.get(currentIndex) == 0x00
+        && input.get(currentIndex + 1) == 0x00
+        && input.get(currentIndex + 2) == 0x00);
   }
 
   private static ByteBuffer getBytes(ByteBuffer buf, int offset, int length) {

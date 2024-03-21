@@ -7,13 +7,13 @@ seekMap:
   getPosition(0) = [[timeUs=0, position=44]]
 numberOfTracks = 1
 track 0:
-  total output bytes = 55
+  total output bytes = 56
   sample count = 1
   format 0:
     id = 1
     sampleMimeType = video/avc
     codecs = avc1.F4000A
-    maxInputSize = 85
+    maxInputSize = 86
     width = 12
     height = 10
     rotationDegrees = 180
@@ -28,5 +28,5 @@ track 0:
   sample 0:
     time = 0
     flags = 536870913
-    data = length 55, hash A481CEF4
+    data = length 56, hash C4551A2E
 tracksEnded = true
