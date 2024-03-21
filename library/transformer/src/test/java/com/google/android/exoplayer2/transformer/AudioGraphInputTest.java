@@ -368,6 +368,64 @@ public class AudioGraphInputTest {
     assertThat(outputBytes).containsExactlyElementsIn(Bytes.asList(inputData));
   }
 
+  @Test
+  public void blockInput_blocksInputData() throws Exception {
+    AudioGraphInput audioGraphInput =
+        new AudioGraphInput(
+            /* requestedOutputAudioFormat= */ AudioFormat.NOT_SET,
+            /* editedMediaItem= */ FAKE_ITEM,
+            /* inputFormat= */ getPcmFormat(STEREO_44100));
+    byte[] inputData = TestUtil.buildTestData(/* length= */ 100 * STEREO_44100.bytesPerFrame);
+
+    audioGraphInput.onMediaItemChanged(
+        /* editedMediaItem= */ FAKE_ITEM,
+        /* durationUs= */ 1_000_000,
+        /* decodedFormat= */ getPcmFormat(STEREO_44100),
+        /* isLast= */ true);
+
+    // Force the media item change to be processed.
+    checkState(!audioGraphInput.getOutput().hasRemaining());
+
+    // Queue inputData.
+    DecoderInputBuffer inputBuffer = audioGraphInput.getInputBuffer();
+    inputBuffer.ensureSpaceForWrite(inputData.length);
+    inputBuffer.data.put(inputData).flip();
+
+    audioGraphInput.blockInput();
+
+    assertThat(audioGraphInput.queueInputBuffer()).isFalse();
+    assertThat(audioGraphInput.getInputBuffer()).isNull();
+  }
+
+  @Test
+  public void unblockInput_unblocksInputData() throws Exception {
+    AudioGraphInput audioGraphInput =
+        new AudioGraphInput(
+            /* requestedOutputAudioFormat= */ AudioFormat.NOT_SET,
+            /* editedMediaItem= */ FAKE_ITEM,
+            /* inputFormat= */ getPcmFormat(STEREO_44100));
+    byte[] inputData = TestUtil.buildTestData(/* length= */ 100 * STEREO_44100.bytesPerFrame);
+
+    audioGraphInput.onMediaItemChanged(
+        /* editedMediaItem= */ FAKE_ITEM,
+        /* durationUs= */ 1_000_000,
+        /* decodedFormat= */ getPcmFormat(STEREO_44100),
+        /* isLast= */ true);
+
+    // Force the media item change to be processed.
+    checkState(!audioGraphInput.getOutput().hasRemaining());
+
+    // Queue inputData.
+    DecoderInputBuffer inputBuffer = audioGraphInput.getInputBuffer();
+    inputBuffer.ensureSpaceForWrite(inputData.length);
+    inputBuffer.data.put(inputData).flip();
+
+    audioGraphInput.blockInput();
+    audioGraphInput.unblockInput();
+
+    assertThat(audioGraphInput.queueInputBuffer()).isTrue();
+  }
+
   /** Drains the graph and returns the bytes output. */
   private static List<Byte> drainAudioGraphInputUntilEnded(AudioGraphInput audioGraphInput)
       throws Exception {

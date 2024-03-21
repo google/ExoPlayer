@@ -76,6 +76,8 @@ import java.util.concurrent.atomic.AtomicReference;
   private boolean processedFirstMediaItemChange;
   private boolean receivedEndOfStreamFromInput;
   private boolean queueEndOfStreamAfterSilence;
+  private long startTimeUs;
+  private boolean inputBlocked;
 
   /**
    * Creates an instance.
@@ -108,6 +110,7 @@ import java.util.concurrent.atomic.AtomicReference;
     // APP configuration not active until flush called. getOutputAudioFormat based on active config.
     audioProcessingPipeline.flush();
     outputAudioFormat = audioProcessingPipeline.getOutputAudioFormat();
+    startTimeUs = C.TIME_UNSET;
   }
 
   /** Returns the {@link AudioFormat} of {@linkplain #getOutput() output buffers}. */
@@ -170,7 +173,7 @@ import java.util.concurrent.atomic.AtomicReference;
   @Override
   @Nullable
   public DecoderInputBuffer getInputBuffer() {
-    if (pendingMediaItemChange.get() != null) {
+    if (inputBlocked || (pendingMediaItemChange.get() != null)) {
       return null;
     }
     return availableInputBuffers.peek();
@@ -183,16 +186,52 @@ import java.util.concurrent.atomic.AtomicReference;
    */
   @Override
   public boolean queueInputBuffer() {
+    if (inputBlocked) {
+      return false;
+    }
     checkState(pendingMediaItemChange.get() == null);
     DecoderInputBuffer inputBuffer = availableInputBuffers.remove();
     pendingInputBuffers.add(inputBuffer);
+    if (startTimeUs == C.TIME_UNSET) {
+      startTimeUs = inputBuffer.timeUs;
+    }
     return true;
   }
 
   /**
-   * Clears any pending input and output data.
+   * Returns the stream start time in microseconds, or {@link C#TIME_UNSET} if unknown.
    *
-   * <p>Should only be called by the processing thread.
+   * <p>Should only be called if the input thread and processing thread are the same.
+   */
+  public long getStartTimeUs() {
+    return startTimeUs;
+  }
+
+  /**
+   * Instructs the {@code AudioGraphInput} to not queue any input buffer.
+   *
+   * <p>Should only be called if the input thread and processing thread are the same.
+   */
+  public void blockInput() {
+    inputBlocked = true;
+  }
+
+  /**
+   * Unblocks incoming data if {@linkplain #blockInput() blocked}.
+   *
+   * <p>Should only be called if the input thread and processing thread are the same.
+   */
+  public void unblockInput() {
+    inputBlocked = false;
+  }
+
+  /**
+   * Clears any pending data.
+   *
+   * <p>If an {@linkplain #getInputBuffer() input buffer} has been retrieved without being queued,
+   * it shouldn't be used after calling this method.
+   *
+   * <p>Should only be called if the input thread and processing thread are the same.
    */
   public void flush() {
     pendingMediaItemChange.set(null);
@@ -210,6 +249,7 @@ import java.util.concurrent.atomic.AtomicReference;
     currentInputBufferBeingOutput = null;
     receivedEndOfStreamFromInput = false;
     queueEndOfStreamAfterSilence = false;
+    startTimeUs = C.TIME_UNSET;
   }
 
   /**
