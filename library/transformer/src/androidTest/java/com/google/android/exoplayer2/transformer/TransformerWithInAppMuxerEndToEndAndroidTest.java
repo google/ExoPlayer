@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.transformer;
 
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_FORMAT;
+import static com.google.android.exoplayer2.transformer.AndroidTestUtil.assumeFormatsSupported;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static org.junit.Assume.assumeTrue;
 
@@ -57,13 +58,8 @@ public class TransformerWithInAppMuxerEndToEndAndroidTest {
     // Use MP4_ASSET_FORMAT for H265_MP4_ASSET_URI_STRING test skipping as well, because emulators
     // signal a lack of support for H265_MP4's actual format, but pass this test when using
     // MP4_ASSET_FORMAT for skipping.
-    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
-        context,
-        testId,
-        /* inputFormat= */ MP4_ASSET_FORMAT,
-        /* outputFormat= */ MP4_ASSET_FORMAT)) {
-      return;
-    }
+    assumeFormatsSupported(
+        context, testId, /* inputFormat= */ MP4_ASSET_FORMAT, /* outputFormat= */ MP4_ASSET_FORMAT);
     Transformer transformer =
         new Transformer.Builder(context)
             .setMuxerFactory(new InAppMuxer.Factory.Builder().build())

@@ -16,8 +16,8 @@
 package com.google.android.exoplayer2.transformer.mh;
 
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
+import static com.google.android.exoplayer2.transformer.AndroidTestUtil.assumeFormatsSupported;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.recordTestSkipped;
-import static com.google.android.exoplayer2.transformer.AndroidTestUtil.skipAndLogIfFormatsUnsupported;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 
 import android.content.Context;
@@ -53,9 +53,7 @@ public final class HdrCapabilitiesUtil {
       recordTestSkipped(context, testId, SKIP_REASON_NO_YUV);
       throw new AssumptionViolatedException(SKIP_REASON_NO_YUV);
     }
-    if (skipAndLogIfFormatsUnsupported(context, testId, inputFormat, /* outputFormat= */ null)) {
-      throw new AssumptionViolatedException("Input format is unsupported: " + inputFormat);
-    }
+    assumeFormatsSupported(context, testId, inputFormat, /* outputFormat= */ null);
   }
 
   /**

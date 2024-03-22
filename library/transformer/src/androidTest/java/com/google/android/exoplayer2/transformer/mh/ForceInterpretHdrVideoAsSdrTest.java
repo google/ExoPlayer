@@ -20,8 +20,8 @@ import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSE
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_720P_4_SECOND_HDR10;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_720P_4_SECOND_HDR10_FORMAT;
+import static com.google.android.exoplayer2.transformer.AndroidTestUtil.assumeFormatsSupported;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.recordTestSkipped;
-import static com.google.android.exoplayer2.transformer.AndroidTestUtil.skipAndLogIfFormatsUnsupported;
 import static com.google.android.exoplayer2.util.Util.SDK_INT;
 import static com.google.common.truth.Truth.assertThat;
 
@@ -78,10 +78,7 @@ public class ForceInterpretHdrVideoAsSdrTest {
             .buildUpon()
             .setColorInfo(ColorInfo.SDR_BT709_LIMITED)
             .build();
-    if (skipAndLogIfFormatsUnsupported(
-        context, testId, decoderInputFormat, /* outputFormat= */ null)) {
-      return;
-    }
+    assumeFormatsSupported(context, testId, decoderInputFormat, /* outputFormat= */ null);
 
     Transformer transformer = new Transformer.Builder(context).build();
     EditedMediaItem editedMediaItem =
@@ -121,10 +118,7 @@ public class ForceInterpretHdrVideoAsSdrTest {
             .buildUpon()
             .setColorInfo(ColorInfo.SDR_BT709_LIMITED)
             .build();
-    if (skipAndLogIfFormatsUnsupported(
-        context, testId, decoderInputFormat, /* outputFormat= */ null)) {
-      return;
-    }
+    assumeFormatsSupported(context, testId, decoderInputFormat, /* outputFormat= */ null);
 
     Transformer transformer = new Transformer.Builder(context).build();
     EditedMediaItem editedMediaItem =

@@ -53,6 +53,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.AssumptionViolatedException;
 
 /** Utilities for instrumentation tests. */
 public final class AndroidTestUtil {
@@ -717,20 +718,18 @@ public final class AndroidTestUtil {
   }
 
   /**
-   * Returns whether the test should be skipped because the device is incapable of decoding the
-   * input format, or encoding/muxing the output format. Assumes the input will always need to be
-   * decoded, and both encoded and muxed if {@code outputFormat} is non-null.
-   *
-   * <p>If the test should be skipped, logs the reason for skipping.
+   * Assumes that the device supports decoding the input format, and encoding/muxing the output
+   * format if needed.
    *
    * @param context The {@link Context context}.
    * @param testId The test ID.
    * @param inputFormat The {@link Format format} to decode.
    * @param outputFormat The {@link Format format} to encode/mux or {@code null} if the output won't
    *     be encoded or muxed.
-   * @return Whether the test should be skipped.
+   * @throws AssumptionViolatedException If the device does not support the formats. In this case,
+   *     the reason for skipping the test is logged.
    */
-  public static boolean skipAndLogIfFormatsUnsupported(
+  public static void assumeFormatsSupported(
       Context context, String testId, Format inputFormat, @Nullable Format outputFormat)
       throws IOException, JSONException, MediaCodecUtil.DecoderQueryException {
     // TODO(b/278657595): Make this capability check match the default codec factory selection code.
@@ -739,7 +738,7 @@ public final class AndroidTestUtil {
     boolean canEncode = outputFormat == null || canEncode(outputFormat);
     boolean canMux = outputFormat == null || canMux(outputFormat);
     if (canDecode && canEncode && canMux) {
-      return false;
+      return;
     }
 
     StringBuilder skipReasonBuilder = new StringBuilder();
@@ -752,8 +751,9 @@ public final class AndroidTestUtil {
     if (!canMux) {
       skipReasonBuilder.append("Cannot mux ").append(outputFormat);
     }
-    recordTestSkipped(context, testId, skipReasonBuilder.toString());
-    return true;
+    String skipReason = skipReasonBuilder.toString();
+    recordTestSkipped(context, testId, skipReason);
+    throw new AssumptionViolatedException(skipReason);
   }
 
   /**

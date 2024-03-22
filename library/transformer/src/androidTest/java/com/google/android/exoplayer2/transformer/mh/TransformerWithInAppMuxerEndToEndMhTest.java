@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.transformer.mh;
 
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_AV1_VIDEO_FORMAT;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_AV1_VIDEO_URI_STRING;
+import static com.google.android.exoplayer2.transformer.AndroidTestUtil.assumeFormatsSupported;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
@@ -25,7 +26,6 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.effect.RgbFilter;
-import com.google.android.exoplayer2.transformer.AndroidTestUtil;
 import com.google.android.exoplayer2.transformer.EditedMediaItem;
 import com.google.android.exoplayer2.transformer.Effects;
 import com.google.android.exoplayer2.transformer.ExportTestResult;
@@ -55,10 +55,8 @@ public class TransformerWithInAppMuxerEndToEndMhTest {
   @Test
   public void videoEditing_forAv1Video_completesSuccessfully() throws Exception {
     Context context = ApplicationProvider.getApplicationContext();
-    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
-        context, testId, /* inputFormat= */ MP4_ASSET_AV1_VIDEO_FORMAT, /* outputFormat= */ null)) {
-      return;
-    }
+    assumeFormatsSupported(
+        context, testId, /* inputFormat= */ MP4_ASSET_AV1_VIDEO_FORMAT, /* outputFormat= */ null);
     Transformer transformer =
         new Transformer.Builder(context)
             .setMuxerFactory(new InAppMuxer.Factory.Builder().build())

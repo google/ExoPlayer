@@ -39,8 +39,8 @@ import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_REMO
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_REMOTE_7680W_4320H_31_SECOND_ROOF_SAMSUNGS20ULTRA5G;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_REMOTE_854W_480H_30_SECOND_ROOF_ONEPLUSNORD2_DOWNSAMPLED;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_REMOTE_854W_480H_30_SECOND_ROOF_REDMINOTE9_DOWNSAMPLED;
+import static com.google.android.exoplayer2.transformer.AndroidTestUtil.assumeFormatsSupported;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.getFormatForTestFile;
-import static com.google.android.exoplayer2.transformer.AndroidTestUtil.skipAndLogIfFormatsUnsupported;
 import static com.google.android.exoplayer2.transformer.ExportTestResult.SSIM_UNSET;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
@@ -144,13 +144,11 @@ public class SsimMapperTest {
         String.format(
             "ssim_search_VBR_%s", checkNotNull(getLast(FORWARD_SLASH_SPLITTER.split(mimeType))));
 
-    if (skipAndLogIfFormatsUnsupported(
+    assumeFormatsSupported(
         ApplicationProvider.getApplicationContext(),
         testIdPrefix + "_codecSupport",
         /* inputFormat= */ getFormatForTestFile(fileUri),
-        /* outputFormat= */ null)) {
-      return;
-    }
+        /* outputFormat= */ null);
 
     new SsimBinarySearcher(
             ApplicationProvider.getApplicationContext(), testIdPrefix, fileUri, mimeType)

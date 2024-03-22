@@ -23,6 +23,7 @@ import static com.google.android.exoplayer2.testutil.BitmapPixelTestUtil.readBit
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.JPG_ASSET_URI_STRING;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_FORMAT;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_URI_STRING;
+import static com.google.android.exoplayer2.transformer.AndroidTestUtil.assumeFormatsSupported;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.extractBitmapsFromVideo;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Util.msToUs;
@@ -79,13 +80,8 @@ public final class TransformerMultiSequenceCompositionTest {
 
   @Test
   public void export_withTwoSequencesEachWithOneVideoMediaItem_succeeds() throws Exception {
-    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
-        context,
-        testId,
-        /* inputFormat= */ MP4_ASSET_FORMAT,
-        /* outputFormat= */ MP4_ASSET_FORMAT)) {
-      return;
-    }
+    assumeFormatsSupported(
+        context, testId, /* inputFormat= */ MP4_ASSET_FORMAT, /* outputFormat= */ MP4_ASSET_FORMAT);
 
     Composition composition =
         createComposition(
@@ -118,13 +114,8 @@ public final class TransformerMultiSequenceCompositionTest {
 
   @Test
   public void export_withTwoSequencesOneWithVideoOneWithImage_succeeds() throws Exception {
-    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
-        context,
-        testId,
-        /* inputFormat= */ MP4_ASSET_FORMAT,
-        /* outputFormat= */ MP4_ASSET_FORMAT)) {
-      return;
-    }
+    assumeFormatsSupported(
+        context, testId, /* inputFormat= */ MP4_ASSET_FORMAT, /* outputFormat= */ MP4_ASSET_FORMAT);
 
     Composition composition =
         createComposition(
@@ -157,13 +148,8 @@ public final class TransformerMultiSequenceCompositionTest {
 
   @Test
   public void export_withTwoSequencesWithVideoCompositorSettings_succeeds() throws Exception {
-    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
-        context,
-        testId,
-        /* inputFormat= */ MP4_ASSET_FORMAT,
-        /* outputFormat= */ MP4_ASSET_FORMAT)) {
-      return;
-    }
+    assumeFormatsSupported(
+        context, testId, /* inputFormat= */ MP4_ASSET_FORMAT, /* outputFormat= */ MP4_ASSET_FORMAT);
 
     VideoCompositorSettings pictureInPictureVideoCompositorSettings =
         new VideoCompositorSettings() {

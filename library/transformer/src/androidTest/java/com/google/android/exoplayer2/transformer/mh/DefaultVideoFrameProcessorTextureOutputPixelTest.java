@@ -24,6 +24,7 @@ import static com.google.android.exoplayer2.testutil.VideoFrameProcessorTestRunn
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_720P_4_SECOND_HDR10_FORMAT;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_FORMAT;
+import static com.google.android.exoplayer2.transformer.AndroidTestUtil.assumeFormatsSupported;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.recordTestSkipped;
 import static com.google.android.exoplayer2.transformer.mh.HdrCapabilitiesUtil.assumeDeviceSupportsHdrEditing;
 import static com.google.android.exoplayer2.transformer.mh.UnoptimizedGlEffect.NO_OP_EFFECT;
@@ -44,7 +45,6 @@ import com.google.android.exoplayer2.effect.OverlayEffect;
 import com.google.android.exoplayer2.testutil.BitmapPixelTestUtil;
 import com.google.android.exoplayer2.testutil.TextureBitmapReader;
 import com.google.android.exoplayer2.testutil.VideoFrameProcessorTestRunner;
-import com.google.android.exoplayer2.transformer.AndroidTestUtil;
 import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.GlObjectsProvider;
 import com.google.android.exoplayer2.util.GlTextureInfo;
@@ -120,13 +120,11 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
 
   @Test
   public void noEffects_matchesGoldenFile() throws Exception {
-    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
+    assumeFormatsSupported(
         getApplicationContext(),
         testId,
         /* inputFormat= */ MP4_ASSET_FORMAT,
-        /* outputFormat= */ null)) {
-      return;
-    }
+        /* outputFormat= */ null);
     videoFrameProcessorTestRunner = getDefaultFrameProcessorTestRunnerBuilder(testId).build();
     Bitmap expectedBitmap = readBitmap(ORIGINAL_PNG_ASSET_PATH);
 
@@ -142,13 +140,11 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
 
   @Test
   public void noEffects_textureInput_matchesGoldenFile() throws Exception {
-    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
+    assumeFormatsSupported(
         getApplicationContext(),
         testId,
         /* inputFormat= */ MP4_ASSET_FORMAT,
-        /* outputFormat= */ null)) {
-      return;
-    }
+        /* outputFormat= */ null);
     TextureBitmapReader consumersBitmapReader = new TextureBitmapReader();
     VideoFrameProcessorTestRunner texIdProducingVideoFrameProcessorTestRunner =
         getTexIdProducingFrameProcessorTestRunner(
@@ -172,13 +168,11 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
 
   @Test
   public void bitmapOverlay_matchesGoldenFile() throws Exception {
-    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
+    assumeFormatsSupported(
         getApplicationContext(),
         testId,
         /* inputFormat= */ MP4_ASSET_FORMAT,
-        /* outputFormat= */ null)) {
-      return;
-    }
+        /* outputFormat= */ null);
     Bitmap overlayBitmap = readBitmap(OVERLAY_PNG_ASSET_PATH);
     BitmapOverlay bitmapOverlay = BitmapOverlay.createStaticBitmapOverlay(overlayBitmap);
     videoFrameProcessorTestRunner =
@@ -198,13 +192,11 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
 
   @Test
   public void bitmapOverlay_textureInput_matchesGoldenFile() throws Exception {
-    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
+    assumeFormatsSupported(
         getApplicationContext(),
         testId,
         /* inputFormat= */ MP4_ASSET_FORMAT,
-        /* outputFormat= */ null)) {
-      return;
-    }
+        /* outputFormat= */ null);
     Bitmap overlayBitmap = readBitmap(OVERLAY_PNG_ASSET_PATH);
     BitmapOverlay bitmapOverlay = BitmapOverlay.createStaticBitmapOverlay(overlayBitmap);
     ImmutableList<Effect> effects =
@@ -231,10 +223,7 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
     Context context = getApplicationContext();
     Format format = MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT;
     assumeDeviceSupportsHdrEditing(testId, format);
-    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
-        context, testId, /* inputFormat= */ format, /* outputFormat= */ null)) {
-      return;
-    }
+    assumeFormatsSupported(context, testId, /* inputFormat= */ format, /* outputFormat= */ null);
     ColorInfo colorInfo = checkNotNull(format.colorInfo);
     videoFrameProcessorTestRunner =
         getDefaultFrameProcessorTestRunnerBuilder(testId)
@@ -259,10 +248,7 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
     Context context = getApplicationContext();
     Format format = MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT;
     assumeDeviceSupportsHdrEditing(testId, format);
-    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
-        context, testId, /* inputFormat= */ format, /* outputFormat= */ null)) {
-      return;
-    }
+    assumeFormatsSupported(context, testId, /* inputFormat= */ format, /* outputFormat= */ null);
     ColorInfo colorInfo = checkNotNull(format.colorInfo);
     TextureBitmapReader consumersBitmapReader = new TextureBitmapReader();
     VideoFrameProcessorTestRunner texIdProducingVideoFrameProcessorTestRunner =
@@ -324,10 +310,7 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
     Context context = getApplicationContext();
     Format format = MP4_ASSET_720P_4_SECOND_HDR10_FORMAT;
     assumeDeviceSupportsHdrEditing(testId, format);
-    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
-        context, testId, /* inputFormat= */ format, /* outputFormat= */ null)) {
-      return;
-    }
+    assumeFormatsSupported(context, testId, /* inputFormat= */ format, /* outputFormat= */ null);
     ColorInfo colorInfo = checkNotNull(format.colorInfo);
     videoFrameProcessorTestRunner =
         getDefaultFrameProcessorTestRunnerBuilder(testId)
@@ -352,10 +335,7 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
     Context context = getApplicationContext();
     Format format = MP4_ASSET_720P_4_SECOND_HDR10_FORMAT;
     assumeDeviceSupportsHdrEditing(testId, format);
-    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
-        context, testId, /* inputFormat= */ format, /* outputFormat= */ null)) {
-      return;
-    }
+    assumeFormatsSupported(context, testId, /* inputFormat= */ format, /* outputFormat= */ null);
     ColorInfo colorInfo = checkNotNull(format.colorInfo);
     TextureBitmapReader consumersBitmapReader = new TextureBitmapReader();
     VideoFrameProcessorTestRunner texIdProducingVideoFrameProcessorTestRunner =
@@ -417,10 +397,7 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
     Context context = getApplicationContext();
     Format format = MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT;
     assumeDeviceSupportsHdrEditing(testId, format);
-    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
-        context, testId, /* inputFormat= */ format, /* outputFormat= */ null)) {
-      return;
-    }
+    assumeFormatsSupported(context, testId, /* inputFormat= */ format, /* outputFormat= */ null);
     ColorInfo colorInfo = checkNotNull(format.colorInfo);
     videoFrameProcessorTestRunner =
         getDefaultFrameProcessorTestRunnerBuilder(testId)
@@ -446,10 +423,7 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
     Context context = getApplicationContext();
     Format format = MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT;
     assumeDeviceSupportsHdrEditing(testId, format);
-    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
-        context, testId, /* inputFormat= */ format, /* outputFormat= */ null)) {
-      return;
-    }
+    assumeFormatsSupported(context, testId, /* inputFormat= */ format, /* outputFormat= */ null);
     ColorInfo colorInfo = checkNotNull(format.colorInfo);
     TextureBitmapReader consumersBitmapReader = new TextureBitmapReader();
     VideoFrameProcessorTestRunner texIdProducingVideoFrameProcessorTestRunner =
@@ -512,10 +486,7 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
     Context context = getApplicationContext();
     Format format = MP4_ASSET_720P_4_SECOND_HDR10_FORMAT;
     assumeDeviceSupportsHdrEditing(testId, format);
-    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
-        context, testId, /* inputFormat= */ format, /* outputFormat= */ null)) {
-      return;
-    }
+    assumeFormatsSupported(context, testId, /* inputFormat= */ format, /* outputFormat= */ null);
     ColorInfo colorInfo = checkNotNull(format.colorInfo);
     videoFrameProcessorTestRunner =
         getDefaultFrameProcessorTestRunnerBuilder(testId)
@@ -541,10 +512,7 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
     Context context = getApplicationContext();
     Format format = MP4_ASSET_720P_4_SECOND_HDR10_FORMAT;
     assumeDeviceSupportsHdrEditing(testId, format);
-    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
-        context, testId, /* inputFormat= */ format, /* outputFormat= */ null)) {
-      return;
-    }
+    assumeFormatsSupported(context, testId, /* inputFormat= */ format, /* outputFormat= */ null);
     ColorInfo colorInfo = checkNotNull(format.colorInfo);
     TextureBitmapReader consumersBitmapReader = new TextureBitmapReader();
     VideoFrameProcessorTestRunner texIdProducingVideoFrameProcessorTestRunner =
