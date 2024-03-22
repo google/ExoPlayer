@@ -23,6 +23,7 @@ import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_720P_4_SECON
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_720P_4_SECOND_HDR10_FORMAT;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_DOLBY_VISION_HDR;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_DOLBY_VISION_HDR_FORMAT;
+import static androidx.media3.transformer.AndroidTestUtil.assumeFormatsSupported;
 import static androidx.media3.transformer.AndroidTestUtil.recordTestSkipped;
 import static androidx.media3.transformer.Composition.HDR_MODE_KEEP_HDR;
 import static androidx.media3.transformer.Composition.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL;
@@ -36,7 +37,6 @@ import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.util.Util;
-import androidx.media3.transformer.AndroidTestUtil;
 import androidx.media3.transformer.Composition;
 import androidx.media3.transformer.EditedMediaItem;
 import androidx.media3.transformer.ExportException;
@@ -81,13 +81,11 @@ public final class HdrEditingTest {
       return;
     }
 
-    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
+    assumeFormatsSupported(
         context,
         testId,
         /* inputFormat= */ MP4_ASSET_720P_4_SECOND_HDR10_FORMAT,
-        /* outputFormat= */ null)) {
-      return;
-    }
+        /* outputFormat= */ null);
 
     Transformer transformer = new Transformer.Builder(context).build();
     MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_ASSET_720P_4_SECOND_HDR10));
@@ -114,13 +112,11 @@ public final class HdrEditingTest {
       return;
     }
 
-    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
+    assumeFormatsSupported(
         context,
         testId,
         /* inputFormat= */ MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT,
-        /* outputFormat= */ null)) {
-      return;
-    }
+        /* outputFormat= */ null);
 
     Transformer transformer = new Transformer.Builder(context).build();
     MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_5_SECOND_HLG10));
@@ -143,10 +139,7 @@ public final class HdrEditingTest {
     Format format = MP4_ASSET_720P_4_SECOND_HDR10_FORMAT;
     assumeDeviceSupportsHdrEditing(testId, format);
 
-    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
-        context, testId, /* inputFormat= */ format, /* outputFormat= */ format)) {
-      return;
-    }
+    assumeFormatsSupported(context, testId, /* inputFormat= */ format, /* outputFormat= */ format);
 
     Transformer transformer = new Transformer.Builder(context).build();
     MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_ASSET_720P_4_SECOND_HDR10));
@@ -171,10 +164,7 @@ public final class HdrEditingTest {
     Format format = MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT;
     assumeDeviceSupportsHdrEditing(testId, format);
 
-    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
-        context, testId, /* inputFormat= */ format, /* outputFormat= */ format)) {
-      return;
-    }
+    assumeFormatsSupported(context, testId, /* inputFormat= */ format, /* outputFormat= */ format);
 
     Transformer transformer = new Transformer.Builder(context).build();
     MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_ASSET_1080P_5_SECOND_HLG10));
@@ -199,10 +189,7 @@ public final class HdrEditingTest {
     Format format = MP4_ASSET_DOLBY_VISION_HDR_FORMAT;
     assumeDeviceSupportsHdrEditing(testId, format);
 
-    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
-        context, testId, /* inputFormat= */ format, /* outputFormat= */ format)) {
-      return;
-    }
+    assumeFormatsSupported(context, testId, /* inputFormat= */ format, /* outputFormat= */ format);
 
     Transformer transformer = new Transformer.Builder(context).build();
     MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_ASSET_DOLBY_VISION_HDR));
@@ -228,10 +215,7 @@ public final class HdrEditingTest {
     Format format = MP4_ASSET_720P_4_SECOND_HDR10_FORMAT;
     assumeDeviceDoesNotSupportHdrEditing(testId, format);
 
-    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
-        context, testId, /* inputFormat= */ format, /* outputFormat= */ null)) {
-      return;
-    }
+    assumeFormatsSupported(context, testId, /* inputFormat= */ format, /* outputFormat= */ null);
 
     AtomicBoolean isFallbackListenerInvoked = new AtomicBoolean();
     AtomicBoolean isToneMappingFallbackApplied = new AtomicBoolean();
@@ -290,10 +274,7 @@ public final class HdrEditingTest {
     Format format = MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT;
     assumeDeviceDoesNotSupportHdrEditing(testId, format);
 
-    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
-        context, testId, /* inputFormat= */ format, /* outputFormat= */ null)) {
-      return;
-    }
+    assumeFormatsSupported(context, testId, /* inputFormat= */ format, /* outputFormat= */ null);
 
     AtomicBoolean isToneMappingFallbackApplied = new AtomicBoolean();
     Transformer transformer =

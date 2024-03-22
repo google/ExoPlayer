@@ -21,13 +21,13 @@ import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_1080P_5_SECO
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_720P_4_SECOND_HDR10;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_720P_4_SECOND_HDR10_FORMAT;
+import static androidx.media3.transformer.AndroidTestUtil.assumeFormatsSupported;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
 import android.net.Uri;
 import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
-import androidx.media3.transformer.AndroidTestUtil;
 import androidx.media3.transformer.Composition;
 import androidx.media3.transformer.EditedMediaItem;
 import androidx.media3.transformer.EditedMediaItemSequence;
@@ -64,13 +64,11 @@ public class ToneMapHdrToSdrUsingMediaCodecTest {
   public void export_toneMapNoRequestedTranscode_hdr10File_toneMapsOrThrows() throws Exception {
     Context context = ApplicationProvider.getApplicationContext();
 
-    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
+    assumeFormatsSupported(
         context,
         testId,
         /* inputFormat= */ MP4_ASSET_720P_4_SECOND_HDR10_FORMAT,
-        /* outputFormat= */ null)) {
-      return;
-    }
+        /* outputFormat= */ null);
 
     Transformer transformer =
         new Transformer.Builder(context)
@@ -126,13 +124,11 @@ public class ToneMapHdrToSdrUsingMediaCodecTest {
   public void export_toneMapNoRequestedTranscode_hlg10File_toneMapsOrThrows() throws Exception {
     Context context = ApplicationProvider.getApplicationContext();
 
-    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
+    assumeFormatsSupported(
         context,
         testId,
         /* inputFormat= */ MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT,
-        /* outputFormat= */ null)) {
-      return;
-    }
+        /* outputFormat= */ null);
 
     Transformer transformer =
         new Transformer.Builder(context)
@@ -188,13 +184,11 @@ public class ToneMapHdrToSdrUsingMediaCodecTest {
   public void export_toneMapAndTranscode_hdr10File_toneMapsOrThrows() throws Exception {
     Context context = ApplicationProvider.getApplicationContext();
 
-    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
+    assumeFormatsSupported(
         context,
         testId,
         /* inputFormat= */ MP4_ASSET_720P_4_SECOND_HDR10_FORMAT,
-        /* outputFormat= */ null)) {
-      return;
-    }
+        /* outputFormat= */ null);
 
     Transformer transformer =
         new Transformer.Builder(context)
@@ -251,13 +245,11 @@ public class ToneMapHdrToSdrUsingMediaCodecTest {
   public void export_toneMapAndTranscode_hlg10File_toneMapsOrThrows() throws Exception {
     Context context = ApplicationProvider.getApplicationContext();
 
-    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
+    assumeFormatsSupported(
         context,
         testId,
         /* inputFormat= */ MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT,
-        /* outputFormat= */ null)) {
-      return;
-    }
+        /* outputFormat= */ null);
 
     Transformer transformer =
         new Transformer.Builder(context)

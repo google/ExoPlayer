@@ -22,6 +22,7 @@ import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_FORMAT;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_FRAME_COUNT;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_URI_STRING;
 import static androidx.media3.transformer.AndroidTestUtil.PNG_ASSET_URI_STRING;
+import static androidx.media3.transformer.AndroidTestUtil.assumeFormatsSupported;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
@@ -62,13 +63,8 @@ public class TransformerMixedInputEndToEndTest {
   @Test
   public void videoEditing_withImageThenVideoInputs_completesWithCorrectFrameCount()
       throws Exception {
-    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
-        context,
-        testId,
-        /* inputFormat= */ MP4_ASSET_FORMAT,
-        /* outputFormat= */ MP4_ASSET_FORMAT)) {
-      return;
-    }
+    assumeFormatsSupported(
+        context, testId, /* inputFormat= */ MP4_ASSET_FORMAT, /* outputFormat= */ MP4_ASSET_FORMAT);
     Transformer transformer =
         new Transformer.Builder(context)
             .setEncoderFactory(
@@ -93,13 +89,8 @@ public class TransformerMixedInputEndToEndTest {
   @Test
   public void videoEditing_withVideoThenImageInputs_completesWithCorrectFrameCount()
       throws Exception {
-    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
-        context,
-        testId,
-        /* inputFormat= */ MP4_ASSET_FORMAT,
-        /* outputFormat= */ MP4_ASSET_FORMAT)) {
-      return;
-    }
+    assumeFormatsSupported(
+        context, testId, /* inputFormat= */ MP4_ASSET_FORMAT, /* outputFormat= */ MP4_ASSET_FORMAT);
     Transformer transformer =
         new Transformer.Builder(context)
             .setEncoderFactory(
@@ -124,13 +115,8 @@ public class TransformerMixedInputEndToEndTest {
   public void
       videoEditing_withComplexVideoAndImageInputsEndWithVideo_completesWithCorrectFrameCount()
           throws Exception {
-    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
-        context,
-        testId,
-        /* inputFormat= */ MP4_ASSET_FORMAT,
-        /* outputFormat= */ MP4_ASSET_FORMAT)) {
-      return;
-    }
+    assumeFormatsSupported(
+        context, testId, /* inputFormat= */ MP4_ASSET_FORMAT, /* outputFormat= */ MP4_ASSET_FORMAT);
     Transformer transformer =
         new Transformer.Builder(context)
             .setEncoderFactory(
@@ -166,13 +152,8 @@ public class TransformerMixedInputEndToEndTest {
   public void
       videoEditing_withComplexVideoAndImageInputsEndWithImage_completesWithCorrectFrameCount()
           throws Exception {
-    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
-        context,
-        testId,
-        /* inputFormat= */ MP4_ASSET_FORMAT,
-        /* outputFormat= */ MP4_ASSET_FORMAT)) {
-      return;
-    }
+    assumeFormatsSupported(
+        context, testId, /* inputFormat= */ MP4_ASSET_FORMAT, /* outputFormat= */ MP4_ASSET_FORMAT);
     Transformer transformer =
         new Transformer.Builder(context)
             .setEncoderFactory(

@@ -27,6 +27,7 @@ import static androidx.media3.transformer.AndroidTestUtil.JPG_PORTRAIT_ASSET_URI
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_FORMAT;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_URI_STRING;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_PORTRAIT_ASSET_URI_STRING;
+import static androidx.media3.transformer.AndroidTestUtil.assumeFormatsSupported;
 import static androidx.media3.transformer.AndroidTestUtil.extractBitmapsFromVideo;
 import static androidx.media3.transformer.SequenceEffectTestUtil.SINGLE_30_FPS_VIDEO_FRAME_THRESHOLD_MS;
 import static androidx.media3.transformer.SequenceEffectTestUtil.assertBitmapsMatchExpectedAndSave;
@@ -80,13 +81,8 @@ public final class TransformerSequenceEffectTest {
 
   @Test
   public void export_withNoCompositionPresentationAndWithPerMediaItemEffects() throws Exception {
-    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
-        context,
-        testId,
-        /* inputFormat= */ MP4_ASSET_FORMAT,
-        /* outputFormat= */ MP4_ASSET_FORMAT)) {
-      return;
-    }
+    assumeFormatsSupported(
+        context, testId, /* inputFormat= */ MP4_ASSET_FORMAT, /* outputFormat= */ MP4_ASSET_FORMAT);
     OverlayEffect overlayEffect = createOverlayEffect();
     Composition composition =
         createComposition(
@@ -132,13 +128,8 @@ public final class TransformerSequenceEffectTest {
             && (Ascii.equalsIgnoreCase(Util.MODEL, "redmi 6a")
                 || Ascii.equalsIgnoreCase(Util.MODEL, "vivo 1820")));
 
-    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
-        context,
-        testId,
-        /* inputFormat= */ MP4_ASSET_FORMAT,
-        /* outputFormat= */ MP4_ASSET_FORMAT)) {
-      return;
-    }
+    assumeFormatsSupported(
+        context, testId, /* inputFormat= */ MP4_ASSET_FORMAT, /* outputFormat= */ MP4_ASSET_FORMAT);
     Composition composition =
         createComposition(
             Presentation.createForWidthAndHeight(
@@ -174,13 +165,8 @@ public final class TransformerSequenceEffectTest {
 
   @Test
   public void export_withCompositionPresentationAndNoVideoEffects() throws Exception {
-    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
-        context,
-        testId,
-        /* inputFormat= */ MP4_ASSET_FORMAT,
-        /* outputFormat= */ MP4_ASSET_FORMAT)) {
-      return;
-    }
+    assumeFormatsSupported(
+        context, testId, /* inputFormat= */ MP4_ASSET_FORMAT, /* outputFormat= */ MP4_ASSET_FORMAT);
     Composition composition =
         createComposition(
             Presentation.createForHeight(EXPORT_HEIGHT),
@@ -203,13 +189,8 @@ public final class TransformerSequenceEffectTest {
   @Test
   public void export_withCompositionPresentationAndNoVideoEffectsForFirstMediaItem()
       throws Exception {
-    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
-        context,
-        testId,
-        /* inputFormat= */ MP4_ASSET_FORMAT,
-        /* outputFormat= */ MP4_ASSET_FORMAT)) {
-      return;
-    }
+    assumeFormatsSupported(
+        context, testId, /* inputFormat= */ MP4_ASSET_FORMAT, /* outputFormat= */ MP4_ASSET_FORMAT);
     Composition composition =
         createComposition(
             Presentation.createForHeight(EXPORT_HEIGHT),
@@ -231,17 +212,10 @@ public final class TransformerSequenceEffectTest {
 
   @Test
   public void export_withBt601AndBt709MediaItems() throws Exception {
-    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
-        context,
-        testId,
-        /* inputFormat= */ MP4_ASSET_FORMAT,
-        /* outputFormat= */ MP4_ASSET_FORMAT)) {
-      return;
-    }
-    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
-        context, testId, /* inputFormat= */ BT601_ASSET_FORMAT, /* outputFormat= */ null)) {
-      return;
-    }
+    assumeFormatsSupported(
+        context, testId, /* inputFormat= */ MP4_ASSET_FORMAT, /* outputFormat= */ MP4_ASSET_FORMAT);
+    assumeFormatsSupported(
+        context, testId, /* inputFormat= */ BT601_ASSET_FORMAT, /* outputFormat= */ null);
     Composition composition =
         createComposition(
             Presentation.createForHeight(EXPORT_HEIGHT),
@@ -263,17 +237,10 @@ public final class TransformerSequenceEffectTest {
 
   @Test
   public void export_withBt601VideoAndBt709ImageMediaItems() throws Exception {
-    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
-        context,
-        testId,
-        /* inputFormat= */ MP4_ASSET_FORMAT,
-        /* outputFormat= */ MP4_ASSET_FORMAT)) {
-      return;
-    }
-    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
-        context, testId, /* inputFormat= */ BT601_ASSET_FORMAT, /* outputFormat= */ null)) {
-      return;
-    }
+    assumeFormatsSupported(
+        context, testId, /* inputFormat= */ MP4_ASSET_FORMAT, /* outputFormat= */ MP4_ASSET_FORMAT);
+    assumeFormatsSupported(
+        context, testId, /* inputFormat= */ BT601_ASSET_FORMAT, /* outputFormat= */ null);
     Composition composition =
         createComposition(
             Presentation.createForHeight(EXPORT_HEIGHT),

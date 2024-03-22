@@ -17,6 +17,7 @@ package androidx.media3.transformer;
 
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_320W_240H_15S_FORMAT;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_320W_240H_15S_URI_STRING;
+import static androidx.media3.transformer.AndroidTestUtil.assumeFormatsSupported;
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static com.google.common.truth.Truth.assertThat;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -381,14 +382,14 @@ public class TransformerPauseResumeTest {
   }
 
   private static boolean shouldSkipDevice(String testId) throws Exception {
+    assumeFormatsSupported(
+        getApplicationContext(),
+        testId,
+        /* inputFormat= */ MP4_ASSET_WITH_INCREASING_TIMESTAMPS_320W_240H_15S_FORMAT,
+        /* outputFormat= */ MP4_ASSET_WITH_INCREASING_TIMESTAMPS_320W_240H_15S_FORMAT);
     // v26 emulators are not producing I-frames, due to which resuming export does not work as
     // expected.
-    return AndroidTestUtil.skipAndLogIfFormatsUnsupported(
-            getApplicationContext(),
-            testId,
-            /* inputFormat= */ MP4_ASSET_WITH_INCREASING_TIMESTAMPS_320W_240H_15S_FORMAT,
-            /* outputFormat= */ MP4_ASSET_WITH_INCREASING_TIMESTAMPS_320W_240H_15S_FORMAT)
-        || (Util.SDK_INT == 26 && Util.isRunningOnEmulator());
+    return Util.SDK_INT == 26 && Util.isRunningOnEmulator();
   }
 
   private static int getDeviceSpecificMissingFrameCount() {

@@ -19,6 +19,7 @@ package androidx.media3.transformer.mh.analysis;
 import static androidx.media3.common.C.MEDIA_CODEC_PRIORITY_NON_REALTIME;
 import static androidx.media3.common.C.MEDIA_CODEC_PRIORITY_REALTIME;
 import static androidx.media3.common.util.Assertions.checkNotNull;
+import static androidx.media3.transformer.AndroidTestUtil.assumeFormatsSupported;
 import static androidx.media3.transformer.AndroidTestUtil.recordTestSkipped;
 
 import android.content.Context;
@@ -100,13 +101,11 @@ public class EncoderPerformanceAnalysisTest {
             "analyzePerformance_%s_OpRate_%d_Priority_%d", filename, operatingRate, priority);
     Context context = ApplicationProvider.getApplicationContext();
 
-    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
+    assumeFormatsSupported(
         context,
         testId,
         /* inputFormat= */ AndroidTestUtil.getFormatForTestFile(fileUri),
-        /* outputFormat= */ AndroidTestUtil.getFormatForTestFile(fileUri))) {
-      return;
-    }
+        /* outputFormat= */ AndroidTestUtil.getFormatForTestFile(fileUri));
 
     if (Util.SDK_INT < 23) {
       recordTestSkipped(
