@@ -563,7 +563,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     boolean shouldSpliceIn =
         HlsMediaChunk.shouldSpliceIn(
-            previous, selectedPlaylistUrl, playlist, segmentBaseHolder, startOfPlaylistInPeriodUs);
+            previous, selectedPlaylistUrl, playlist, playlistFormats[selectedTrackIndex], segmentBaseHolder, startOfPlaylistInPeriodUs);
     if (shouldSpliceIn && segmentBaseHolder.isPreload) {
       // We don't support discarding spliced-in segments [internal: b/159904763], but preload
       // parts may need to be discarded if they are removed before becoming permanently published.
