@@ -2041,6 +2041,10 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer
       // Google OMX decoders are not known to have this issue on any API level.
       return false;
     }
+    if (name.indexOf("amlogic") != -1) {
+      // Amlogic decoder also do not support switching from SurfaceTexture to SurfaceView after init.
+      return true;
+    }
     synchronized (MediaCodecVideoRenderer.class) {
       if (!evaluatedDeviceNeedsSetOutputSurfaceWorkaround) {
         deviceNeedsSetOutputSurfaceWorkaround = evaluateDeviceNeedsSetOutputSurfaceWorkaround();
