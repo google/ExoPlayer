@@ -56,8 +56,10 @@ import org.robolectric.shadows.ShadowSystemClock;
 public class HlsChunkSourceTest {
 
   private static final String PLAYLIST = "media/m3u8/media_playlist";
-  private static final String PLAYLIST_INDEPENDENT_SEGMENTS =
-      "media/m3u8/media_playlist_independent_segments";
+  private static final String PLAYLIST_LIVE_FIRST =
+      "media/m3u8/media_playlist_live_first";
+  private static final String PLAYLIST_LIVE_SECOND =
+      "media/m3u8/media_playlist_live_second";
   private static final String PLAYLIST_EMPTY = "media/m3u8/media_playlist_empty";
   private static final Uri PLAYLIST_URI = Uri.parse("http://example.com/");
   private static final long PLAYLIST_START_PERIOD_OFFSET_US = 8_000_000L;
@@ -79,7 +81,7 @@ public class HlsChunkSourceTest {
 
     InputStream inputStream =
         TestUtil.getInputStream(
-            ApplicationProvider.getApplicationContext(), PLAYLIST_INDEPENDENT_SEGMENTS);
+            ApplicationProvider.getApplicationContext(), PLAYLIST_LIVE_FIRST);
     HlsMediaPlaylist playlist =
         (HlsMediaPlaylist) new HlsPlaylistParser().parse(PLAYLIST_URI, inputStream);
     when(mockPlaylistTracker.getPlaylistSnapshot(eq(PLAYLIST_URI), anyBoolean()))
@@ -171,7 +173,22 @@ public class HlsChunkSourceTest {
 
     long adjustedPositionUs =
         testChunkSource.getAdjustedSeekPositionUs(
-            playlistTimeToPeriodTimeUs(100_000_000), SeekParameters.EXACT);
+            playlistTimeToPeriodTimeUs(100_000_000), SeekParameters.NEXT_SYNC);
+
+    assertThat(periodTimeToPlaylistTimeUs(adjustedPositionUs)).isEqualTo(100_000_000);
+  }
+
+  @Test
+  public void getAdjustedSeekPositionUs_stalePlaylist() throws IOException {
+    InputStream inputStream =
+        TestUtil.getInputStream(ApplicationProvider.getApplicationContext(), PLAYLIST_LIVE_SECOND);
+    HlsMediaPlaylist playlist =
+        (HlsMediaPlaylist) new HlsPlaylistParser().parse(PLAYLIST_URI, inputStream);
+    when(mockPlaylistTracker.getPlaylistSnapshot(eq(PLAYLIST_URI), anyBoolean()))
+        .thenReturn(playlist);
+    long adjustedPositionUs =
+        testChunkSource.getAdjustedSeekPositionUs(
+            playlistTimeToPeriodTimeUs(100_000_000), SeekParameters.NEXT_SYNC);
 
     assertThat(periodTimeToPlaylistTimeUs(adjustedPositionUs)).isEqualTo(100_000_000);
   }
@@ -189,7 +206,7 @@ public class HlsChunkSourceTest {
 
     long adjustedPositionUs =
         testChunkSource.getAdjustedSeekPositionUs(
-            playlistTimeToPeriodTimeUs(100_000_000), SeekParameters.EXACT);
+            playlistTimeToPeriodTimeUs(100_000_000), SeekParameters.NEXT_SYNC);
 
     assertThat(periodTimeToPlaylistTimeUs(adjustedPositionUs)).isEqualTo(100_000_000);
   }
