@@ -24,7 +24,9 @@ import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.util.Util;
 import com.google.android.gms.cast.MediaInfo;
+import com.google.android.gms.cast.MediaLiveSeekableRange;
 import com.google.android.gms.cast.MediaQueueItem;
 import com.google.android.gms.cast.MediaStatus;
 import com.google.android.gms.cast.framework.media.RemoteMediaClient;
@@ -114,6 +116,11 @@ import java.util.List;
       return CastTimeline.EMPTY_CAST_TIMELINE;
     }
 
+    MediaLiveSeekableRange seekableRange = mediaStatus.getLiveSeekableRange();
+    long durationMs =
+        seekableRange != null
+            ? seekableRange.getEndTime() - seekableRange.getStartTime()
+            : C.TIME_UNSET;
     int currentItemId = mediaStatus.getCurrentItemId();
     String currentContentId = checkNotNull(mediaStatus.getMediaInfo()).getContentId();
     MediaItem mediaItem = mediaItemsByContentId.get(currentContentId);
@@ -122,7 +129,8 @@ import java.util.List;
         mediaItem != null ? mediaItem : MediaItem.EMPTY,
         mediaStatus.getMediaInfo(),
         currentContentId,
-        /* defaultPositionUs= */ C.TIME_UNSET);
+        /* defaultPositionUs= */ C.TIME_UNSET,
+        Util.msToUs(durationMs));
 
     for (MediaQueueItem queueItem : mediaStatus.getQueueItems()) {
       long defaultPositionUs = (long) (queueItem.getStartTime() * C.MICROS_PER_SECOND);
@@ -134,7 +142,8 @@ import java.util.List;
           mediaItem != null ? mediaItem : mediaItemConverter.toMediaItem(queueItem),
           mediaInfo,
           contentId,
-          defaultPositionUs);
+          defaultPositionUs,
+          C.TIME_UNSET);
     }
     return new CastTimeline(itemIds, itemIdToData);
   }
@@ -144,9 +153,12 @@ import java.util.List;
       MediaItem mediaItem,
       @Nullable MediaInfo mediaInfo,
       String contentId,
-      long defaultPositionUs) {
+      long defaultPositionUs,
+      long durationUs) {
     CastTimeline.ItemData previousData = itemIdToData.get(itemId, CastTimeline.ItemData.EMPTY);
-    long durationUs = CastUtils.getStreamDurationUs(mediaInfo);
+    if (durationUs == C.TIME_UNSET) {
+      durationUs = CastUtils.getStreamDurationUs(mediaInfo);
+    }
     if (durationUs == C.TIME_UNSET) {
       durationUs = previousData.durationUs;
     }

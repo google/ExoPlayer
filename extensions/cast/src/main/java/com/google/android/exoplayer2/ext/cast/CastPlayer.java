@@ -20,6 +20,7 @@ import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
 import static java.lang.Math.min;
 
+import android.os.Handler;
 import android.os.Looper;
 import android.view.Surface;
 import android.view.SurfaceHolder;
@@ -122,6 +123,7 @@ public final class CastPlayer extends BasePlayer {
   private static final String TAG = "CastPlayer";
 
   private static final long PROGRESS_REPORT_PERIOD_MS = 1000;
+  private static final long REFRESH_LIVE_STREAM_STATUS_PERIOD_MS = 1000;
   private static final long[] EMPTY_TRACK_ID_ARRAY = new long[0];
 
   private final CastContext castContext;
@@ -156,6 +158,9 @@ public final class CastPlayer extends BasePlayer {
   private long pendingSeekPositionMs;
   @Nullable private PositionInfo pendingMediaItemRemovalPosition;
   private MediaMetadata mediaMetadata;
+  private long refreshLiveStreamStatusPeriodMs;
+  private final Handler refreshLiveStreamStatusHandler;
+  private final Runnable refreshLiveStreamStatusRunnable;
 
   /**
    * Creates a new cast player.
@@ -228,6 +233,22 @@ public final class CastPlayer extends BasePlayer {
     availableCommands = new Commands.Builder().addAll(PERMANENT_AVAILABLE_COMMANDS).build();
     pendingSeekWindowIndex = C.INDEX_UNSET;
     pendingSeekPositionMs = C.TIME_UNSET;
+    refreshLiveStreamStatusPeriodMs = REFRESH_LIVE_STREAM_STATUS_PERIOD_MS;
+    // RemoteMediaClient methods must be called on the main thread or
+    // an IllegalStateException would be thrown.
+    refreshLiveStreamStatusHandler = new Handler(Looper.getMainLooper());
+    refreshLiveStreamStatusRunnable =
+        new Runnable() {
+          @Override
+          public void run() {
+            if (remoteMediaClient != null && remoteMediaClient.isLiveStream()) {
+              remoteMediaClient.requestStatus();
+            }
+            refreshLiveStreamStatusHandler.removeCallbacksAndMessages(null);
+            refreshLiveStreamStatusHandler.postDelayed(
+                refreshLiveStreamStatusRunnable, refreshLiveStreamStatusPeriodMs);
+          }
+    };
 
     SessionManager sessionManager = castContext.getSessionManager();
     sessionManager.addSessionManagerListener(statusListener, CastSession.class);
@@ -1023,6 +1044,15 @@ public final class CastPlayer extends BasePlayer {
                     getCurrentMediaItem(), MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED));
       }
       updateAvailableCommandsAndNotifyIfChanged();
+
+      if (playingPeriodChanged) {
+        // If the new source is a live stream enable live stream status updates.
+        refreshLiveStreamStatusHandler.removeCallbacksAndMessages(null);
+        if (remoteMediaClient != null && remoteMediaClient.isLiveStream()) {
+          refreshLiveStreamStatusHandler.postDelayed(
+              refreshLiveStreamStatusRunnable, refreshLiveStreamStatusPeriodMs);
+        }
+      }
     }
     return playingPeriodChanged;
   }
