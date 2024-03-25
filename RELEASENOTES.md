@@ -3,6 +3,7 @@
 ### Unreleased changes
 
 *   Common Library:
+    *   Add `Format.labels` to allow localized or other alternative labels.
 *   ExoPlayer:
     *   Fix issue where `PreloadMediaPeriod` cannot retain the streams when it
         is preloaded again.
@@ -100,6 +101,8 @@
 *   RTMP Extension:
 *   HLS Extension:
 *   DASH Extension:
+    *   Populate all `Label` elements from the manifest into `Format.labels`
+        ([#1054](https://github.com/androidx/media/pull/1054)).
 *   Smooth Streaming Extension:
 *   RTSP Extension:
     *   Skip empty session information values (i-tags) in SDP parsing

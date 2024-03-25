@@ -281,7 +281,10 @@ public class DashManifestParserTest {
 
     assertThat(adaptationSets.get(0).representations.get(0).format.label).isEqualTo("audio label");
     assertThat(adaptationSets.get(1).representations.get(0).format.label).isEqualTo("video label");
-    assertThat(adaptationSets.get(0).representations.get(0).format.labels.size()).isEqualTo(0);
+    assertThat(adaptationSets.get(0).representations.get(0).format.labels).hasSize(1);
+    assertThat(adaptationSets.get(0).representations.get(0).format.labels.get(0).value)
+        .isEqualTo("audio label");
+    assertThat(adaptationSets.get(1).representations.get(0).format.labels).hasSize(1);
     assertThat(adaptationSets.get(1).representations.get(0).format.labels.get(0).value)
         .isEqualTo("video label");
   }
@@ -441,7 +444,7 @@ public class DashManifestParserTest {
     xpp.next();
 
     Label label = parser.parseLabel(xpp);
-    assertThat(label.lang).isEqualTo("en");
+    assertThat(label.language).isEqualTo("en");
     assertThat(label.value).isEqualTo("test label");
     assertNextTag(xpp);
   }
@@ -454,7 +457,7 @@ public class DashManifestParserTest {
     xpp.next();
 
     Label label = parser.parseLabel(xpp);
-    assertThat(label.lang).isEqualTo(null);
+    assertThat(label.language).isNull();
     assertNextTag(xpp);
   }
 
@@ -466,7 +469,8 @@ public class DashManifestParserTest {
     xpp.next();
 
     Label label = parser.parseLabel(xpp);
-    assertThat(label.value).isEqualTo("");
+    assertThat(label.value).isNotNull();
+    assertThat(label.value).isEmpty();
     assertNextTag(xpp);
   }
 

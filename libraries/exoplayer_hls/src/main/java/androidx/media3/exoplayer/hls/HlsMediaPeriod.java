@@ -877,7 +877,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     int roleFlags = 0;
     @Nullable String language = null;
     @Nullable String label = null;
-    @Nullable List<Label> labels = null;
+    List<Label> labels = ImmutableList.of();
     if (mediaTagFormat != null) {
       codecs = mediaTagFormat.codecs;
       metadata = mediaTagFormat.metadata;

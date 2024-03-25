@@ -864,10 +864,11 @@ public class DashManifestParser extends DefaultHandler
       ArrayList<SchemeData> extraDrmSchemeDatas,
       ArrayList<Descriptor> extraInbandEventStreams) {
     Format.Builder formatBuilder = representationInfo.format.buildUpon();
-    if (label != null) {
+    if (label != null && labels.isEmpty()) {
       formatBuilder.setLabel(label);
+    } else {
+      formatBuilder.setLabels(labels);
     }
-    formatBuilder.setLabels(labels);
     @Nullable String drmSchemeType = representationInfo.drmSchemeType;
     if (drmSchemeType == null) {
       drmSchemeType = extraDrmSchemeType;
