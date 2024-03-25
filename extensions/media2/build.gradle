@@ -26,8 +26,8 @@ android {
 dependencies {
     implementation project(modulePrefix + 'library-common')
     implementation 'androidx.collection:collection:' + androidxCollectionVersion
-    implementation 'androidx.concurrent:concurrent-futures:' + androidxFuturesVersion
-    api 'androidx.media2:media2-session:' + androidxMedia2Version
+    implementation 'androidx.concurrent:concurrent-futures:1.1.0'
+    api 'androidx.media2:media2-session:1.2.1'
     compileOnly 'com.google.errorprone:error_prone_annotations:' + errorProneVersion
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
     compileOnly 'org.jetbrains.kotlin:kotlin-annotations-jvm:' + kotlinAnnotationsVersion
