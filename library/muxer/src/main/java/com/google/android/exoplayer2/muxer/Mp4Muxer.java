@@ -74,9 +74,7 @@ import java.nio.ByteBuffer;
  *     migration guide</a> for more details, including a script to help with the migration.
  */
 @Deprecated
-public final class Mp4Muxer {
-  /** A token representing an added track. */
-  public interface TrackToken {}
+public final class Mp4Muxer implements Muxer {
 
   /** Behavior for the last sample duration. */
   @Documented
@@ -228,6 +226,22 @@ public final class Mp4Muxer {
   }
 
   /**
+   * {@inheritDoc}
+   *
+   * <p>Tracks can be added at any point before the muxer is closed, even after writing samples to
+   * other tracks.
+   *
+   * <p>The order of tracks remains same in which they are added.
+   *
+   * @param format The {@link Format} for the track.
+   * @return A unique {@link TrackToken}. It should be used in {@link #writeSampleData}.
+   */
+  @Override
+  public TrackToken addTrack(Format format) {
+    return addTrack(/* sortKey= */ 1, format);
+  }
+
+  /**
    * Adds a track of the given media format.
    *
    * <p>Tracks can be added at any point before the muxer is closed, even after writing samples to
@@ -246,7 +260,7 @@ public final class Mp4Muxer {
   }
 
   /**
-   * Writes encoded sample data.
+   * {@inheritDoc}
    *
    * <p>The samples are cached and are written in batches so the caller must not change/release the
    * {@link ByteBuffer} and the {@link BufferInfo} after calling this method.
@@ -258,13 +272,14 @@ public final class Mp4Muxer {
    * @param bufferInfo The {@link BufferInfo} related to this sample.
    * @throws IOException If there is any error while writing data to the disk.
    */
+  @Override
   public void writeSampleData(TrackToken trackToken, ByteBuffer byteBuffer, BufferInfo bufferInfo)
       throws IOException {
     mp4Writer.writeSampleData(trackToken, byteBuffer, bufferInfo);
   }
 
   /**
-   * Adds metadata for the output file.
+   * {@inheritDoc}
    *
    * <p>List of supported {@linkplain Metadata.Entry metadata entries}:
    *
@@ -281,12 +296,13 @@ public final class Mp4Muxer {
    * @param metadata The {@linkplain Metadata.Entry metadata}. An {@link IllegalArgumentException}
    *     is throw if the {@linkplain Metadata.Entry metadata} is not supported.
    */
+  @Override
   public void addMetadata(Metadata.Entry metadata) {
     checkArgument(isMetadataSupported(metadata), "Unsupported metadata");
     metadataCollector.addMetadata(metadata);
   }
 
-  /** Closes the MP4 file. */
+  @Override
   public void close() throws IOException {
     mp4Writer.close();
   }

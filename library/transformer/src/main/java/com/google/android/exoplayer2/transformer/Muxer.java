@@ -36,6 +36,7 @@ import java.nio.ByteBuffer;
  *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
  *     migration guide</a> for more details, including a script to help with the migration.
  */
+// TODO: b/330695864 - Replace with the Muxer interface from the Muxer module.
 @Deprecated
 public interface Muxer {
 

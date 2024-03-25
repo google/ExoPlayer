@@ -24,7 +24,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.container.Mp4OrientationData;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.muxer.Mp4Muxer;
-import com.google.android.exoplayer2.muxer.Mp4Muxer.TrackToken;
+import com.google.android.exoplayer2.muxer.Muxer.TrackToken;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;

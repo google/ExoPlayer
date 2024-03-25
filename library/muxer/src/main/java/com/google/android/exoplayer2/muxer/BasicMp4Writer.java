@@ -24,7 +24,7 @@ import static java.lang.Math.min;
 
 import android.media.MediaCodec.BufferInfo;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.muxer.Mp4Muxer.TrackToken;
+import com.google.android.exoplayer2.muxer.Muxer.TrackToken;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.Range;
 import java.io.FileOutputStream;

@@ -32,7 +32,7 @@ import com.google.android.exoplayer2.container.Mp4TimestampData;
 import com.google.android.exoplayer2.container.XmpData;
 import com.google.android.exoplayer2.extractor.mp4.Mp4Extractor;
 import com.google.android.exoplayer2.metadata.mp4.MdtaMetadataEntry;
-import com.google.android.exoplayer2.muxer.Mp4Muxer.TrackToken;
+import com.google.android.exoplayer2.muxer.Muxer.TrackToken;
 import com.google.android.exoplayer2.testutil.DumpFileAsserts;
 import com.google.android.exoplayer2.testutil.DumpableMp4Box;
 import com.google.android.exoplayer2.testutil.FakeExtractorOutput;

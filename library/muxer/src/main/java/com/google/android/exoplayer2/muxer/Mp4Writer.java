@@ -21,7 +21,7 @@ import android.media.MediaCodec;
 import android.media.MediaCodec.BufferInfo;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.muxer.Mp4Muxer.TrackToken;
+import com.google.android.exoplayer2.muxer.Muxer.TrackToken;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
@@ -49,7 +49,7 @@ import java.util.List;
 
   void close() throws IOException;
 
-  class Track implements Mp4Muxer.TrackToken, Mp4MoovStructure.TrackMetadataProvider {
+  class Track implements TrackToken, Mp4MoovStructure.TrackMetadataProvider {
     public final Format format;
     public final int sortKey;
     public final List<BufferInfo> writtenSamples;
