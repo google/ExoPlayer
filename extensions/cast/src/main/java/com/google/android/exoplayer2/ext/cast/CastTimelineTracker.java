@@ -28,6 +28,8 @@ import com.google.android.gms.cast.MediaInfo;
 import com.google.android.gms.cast.MediaQueueItem;
 import com.google.android.gms.cast.MediaStatus;
 import com.google.android.gms.cast.framework.media.RemoteMediaClient;
+import com.google.common.primitives.Ints;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -101,13 +103,6 @@ import java.util.List;
    * @return A {@link CastTimeline} that represents the given {@code remoteMediaClient} status.
    */
   public CastTimeline getCastTimeline(RemoteMediaClient remoteMediaClient) {
-    int[] itemIds = remoteMediaClient.getMediaQueue().getItemIds();
-    if (itemIds.length > 0) {
-      // Only remove unused items when there is something in the queue to avoid removing all entries
-      // if the remote media client clears the queue temporarily. See [Internal ref: b/128825216].
-      removeUnusedItemDataEntries(itemIds);
-    }
-
     // TODO: Reset state when the app instance changes [Internal ref: b/129672468].
     MediaStatus mediaStatus = remoteMediaClient.getMediaStatus();
     if (mediaStatus == null || mediaStatus.getMediaInfo() == null) {
@@ -124,7 +119,11 @@ import java.util.List;
         currentContentId,
         /* defaultPositionUs= */ C.TIME_UNSET);
 
+    // Collect the item ids manually, MediaQueue#getItemIds is empty after a reconnect.
+    ArrayList<Integer> itemIdList = new ArrayList<>();
+
     for (MediaQueueItem queueItem : mediaStatus.getQueueItems()) {
+      itemIdList.add(queueItem.getItemId());
       long defaultPositionUs = (long) (queueItem.getStartTime() * C.MICROS_PER_SECOND);
       @Nullable MediaInfo mediaInfo = queueItem.getMedia();
       String contentId = mediaInfo != null ? mediaInfo.getContentId() : UNKNOWN_CONTENT_ID;
@@ -136,6 +135,14 @@ import java.util.List;
           contentId,
           defaultPositionUs);
     }
+
+    int[] itemIds = Ints.toArray(itemIdList);
+    if (itemIds.length > 0) {
+      // Only remove unused items when there is something in the queue to avoid removing all entries
+      // if the remote media client clears the queue temporarily. See [Internal ref: b/128825216].
+      removeUnusedItemDataEntries(itemIds);
+    }
+
     return new CastTimeline(itemIds, itemIdToData);
   }
 

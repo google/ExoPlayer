@@ -34,7 +34,6 @@ import com.google.android.gms.cast.framework.media.RemoteMediaClient;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
@@ -315,11 +314,20 @@ public class CastTimelineTrackerTest {
         .build();
   }
 
-  private static RemoteMediaClient mockRemoteMediaClient(
+  private List<MediaQueueItem> createMediaQueueItems(int[] itemIds) {
+    ArrayList<MediaQueueItem> items = new ArrayList<>(itemIds.length);
+    for (int itemId : itemIds) {
+      MediaItem mediaItem = createMediaItem(itemId);
+      items.add(createMediaQueueItem(mediaItem, itemId));
+    }
+    return items;
+  }
+
+  private RemoteMediaClient mockRemoteMediaClient(
       int[] itemIds, int currentItemId, long currentDurationMs) {
     RemoteMediaClient remoteMediaClient = mock(RemoteMediaClient.class);
     MediaStatus status = mock(MediaStatus.class);
-    when(status.getQueueItems()).thenReturn(Collections.emptyList());
+    when(status.getQueueItems()).thenReturn(createMediaQueueItems(itemIds));
     when(remoteMediaClient.getMediaStatus()).thenReturn(status);
     when(status.getMediaInfo()).thenReturn(getMediaInfo(currentDurationMs));
     when(status.getCurrentItemId()).thenReturn(currentItemId);
