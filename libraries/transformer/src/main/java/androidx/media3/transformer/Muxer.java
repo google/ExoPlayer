@@ -33,6 +33,7 @@ import java.nio.ByteBuffer;
  * finish writing to the output and return any resources to the system.
  */
 @UnstableApi
+// TODO: b/330695864 - Replace with the Muxer interface from the Muxer module.
 public interface Muxer {
 
   /** Thrown when a muxing failure occurs. */

@@ -22,7 +22,7 @@ import android.media.MediaCodec.BufferInfo;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
-import androidx.media3.muxer.Mp4Muxer.TrackToken;
+import androidx.media3.muxer.Muxer.TrackToken;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -41,7 +41,7 @@ import java.util.List;
 
   void close() throws IOException;
 
-  class Track implements Mp4Muxer.TrackToken, Mp4MoovStructure.TrackMetadataProvider {
+  class Track implements TrackToken, Mp4MoovStructure.TrackMetadataProvider {
     public final Format format;
     public final int sortKey;
     public final List<BufferInfo> writtenSamples;

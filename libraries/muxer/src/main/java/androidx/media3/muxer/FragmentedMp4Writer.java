@@ -32,7 +32,7 @@ import android.media.MediaCodec.BufferInfo;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.Util;
-import androidx.media3.muxer.Mp4Muxer.TrackToken;
+import androidx.media3.muxer.Muxer.TrackToken;
 import com.google.common.collect.ImmutableList;
 import java.io.FileOutputStream;
 import java.io.IOException;

@@ -26,7 +26,7 @@ import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.container.Mp4OrientationData;
 import androidx.media3.muxer.Mp4Muxer;
-import androidx.media3.muxer.Mp4Muxer.TrackToken;
+import androidx.media3.muxer.Muxer.TrackToken;
 import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.io.FileNotFoundException;
