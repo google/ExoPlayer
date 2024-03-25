@@ -1086,8 +1086,9 @@ public final class MediaMetadata implements Bundleable {
   /**
    * Optional extras {@link Bundle}.
    *
-   * <p>Given the complexities of checking the equality of two {@link Bundle}s, this is not
-   * considered in the {@link #equals(Object)} or {@link #hashCode()}.
+   * <p>Given the complexities of checking the equality of two {@link Bundle} instances, the
+   * contents of these extras are not considered in the {@link #equals(Object)} and {@link
+   * #hashCode()} implementation.
    */
   @Nullable public final Bundle extras;
 
@@ -1192,7 +1193,8 @@ public final class MediaMetadata implements Bundleable {
         && Util.areEqual(genre, that.genre)
         && Util.areEqual(compilation, that.compilation)
         && Util.areEqual(station, that.station)
-        && Util.areEqual(mediaType, that.mediaType);
+        && Util.areEqual(mediaType, that.mediaType)
+        && ((extras == null) == (that.extras == null));
   }
 
   @SuppressWarnings("deprecation") // Hashing deprecated fields.
@@ -1230,7 +1232,8 @@ public final class MediaMetadata implements Bundleable {
         genre,
         compilation,
         station,
-        mediaType);
+        mediaType,
+        extras == null);
   }
 
   // Bundleable implementation.

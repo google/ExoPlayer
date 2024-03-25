@@ -2218,8 +2218,9 @@ public final class MediaItem implements Bundleable {
     /**
      * Optional extras {@link Bundle}.
      *
-     * <p>Given the complexities of checking the equality of two {@link Bundle}s, the contents of
-     * these extras are not considered in the {@link #equals(Object)} or {@link #hashCode()}.
+     * <p>Given the complexities of checking the equality of two {@link Bundle} instances, the
+     * contents of these extras are not considered in the {@link #equals(Object)} or {@link
+     * #hashCode()} implementation.
      */
     @Nullable public final Bundle extras;
 

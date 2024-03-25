@@ -163,6 +163,20 @@ public class MediaMetadataTest {
     assertThat(mediaMetadataFromBundle.extras.getString(EXTRAS_KEY)).isEqualTo(EXTRAS_VALUE);
   }
 
+  /** Regression test for https://github.com/androidx/media/issues/1176. */
+  @Test
+  public void roundTripViaBundle_withJustNonNullExtras_restoresAllData() {
+    Bundle extras = new Bundle();
+    extras.putString("key", "value");
+    MediaMetadata mediaMetadata = new MediaMetadata.Builder().setExtras(extras).build();
+
+    MediaMetadata restoredMetadata = MediaMetadata.fromBundle(mediaMetadata.toBundle());
+
+    assertThat(restoredMetadata).isEqualTo(mediaMetadata);
+    assertThat(restoredMetadata.extras).isNotNull();
+    assertThat(restoredMetadata.extras.get("key")).isEqualTo("value");
+  }
+
   @SuppressWarnings("deprecation") // Testing deprecated setter.
   @Test
   public void builderSetFolderType_toNone_setsIsBrowsableToFalse() {
