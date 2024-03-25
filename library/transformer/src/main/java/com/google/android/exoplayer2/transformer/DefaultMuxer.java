@@ -34,39 +34,22 @@ public final class DefaultMuxer implements Muxer {
 
   /** A {@link Muxer.Factory} for {@link DefaultMuxer}. */
   public static final class Factory implements Muxer.Factory {
-
-    /** The default value returned by {@link #getMaxDelayBetweenSamplesMs()}. */
-    public static final long DEFAULT_MAX_DELAY_BETWEEN_SAMPLES_MS = 10_000;
-
     private final Muxer.Factory muxerFactory;
 
-    /**
-     * Creates an instance with {@link Muxer#getMaxDelayBetweenSamplesMs() maxDelayBetweenSamplesMs}
-     * set to {@link #DEFAULT_MAX_DELAY_BETWEEN_SAMPLES_MS}.
-     */
+    /** Creates an instance with {@code videoDurationMs} set to {@link C#TIME_UNSET}. */
     public Factory() {
-      this(/* maxDelayBetweenSamplesMs= */ DEFAULT_MAX_DELAY_BETWEEN_SAMPLES_MS);
+      this(/* videoDurationMs= */ C.TIME_UNSET);
     }
 
     /**
      * Creates an instance.
      *
-     * @param maxDelayBetweenSamplesMs See {@link Muxer#getMaxDelayBetweenSamplesMs()}.
-     */
-    public Factory(long maxDelayBetweenSamplesMs) {
-      this(maxDelayBetweenSamplesMs, /* videoDurationMs= */ C.TIME_UNSET);
-    }
-
-    /**
-     * Creates an instance.
-     *
-     * @param maxDelayBetweenSamplesMs See {@link Muxer#getMaxDelayBetweenSamplesMs()}.
      * @param videoDurationMs The duration of the video track (in milliseconds) to enforce in the
      *     output, or {@link C#TIME_UNSET} to not enforce. Only applicable when a video track is
      *     {@linkplain #addTrack(Format) added}.
      */
-    public Factory(long maxDelayBetweenSamplesMs, long videoDurationMs) {
-      this.muxerFactory = new FrameworkMuxer.Factory(maxDelayBetweenSamplesMs, videoDurationMs);
+    public Factory(long videoDurationMs) {
+      this.muxerFactory = new FrameworkMuxer.Factory(videoDurationMs);
     }
 
     @Override
@@ -106,10 +89,5 @@ public final class DefaultMuxer implements Muxer {
   @Override
   public void release(boolean forCancellation) throws MuxerException {
     muxer.release(forCancellation);
-  }
-
-  @Override
-  public long getMaxDelayBetweenSamplesMs() {
-    return muxer.getMaxDelayBetweenSamplesMs();
   }
 }

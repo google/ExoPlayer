@@ -69,7 +69,8 @@ public final class EncodedSampleExporterTest {
                 mock(MuxerWrapper.Listener.class),
                 MuxerWrapper.MUXER_MODE_DEFAULT,
                 /* dropSamplesBeforeFirstVideoSample= */ false,
-                /* appendVideoFormat= */ null),
+                /* appendVideoFormat= */ null,
+                Transformer.DEFAULT_MAX_DELAY_BETWEEN_MUXER_SAMPLES_MS),
             fallbackListener,
             /* initialTimestampOffsetUs= */ 0);
   }

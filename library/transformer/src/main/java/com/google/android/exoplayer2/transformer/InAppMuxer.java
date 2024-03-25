@@ -68,22 +68,13 @@ public final class InAppMuxer implements Muxer {
 
     /** A builder for {@link Factory} instances. */
     public static final class Builder {
-      private long maxDelayBetweenSamplesMs;
       private @Nullable MetadataProvider metadataProvider;
       private boolean fragmentedMp4Enabled;
       private int fragmentDurationUs;
 
       /** Creates a {@link Builder} instance with default values. */
       public Builder() {
-        maxDelayBetweenSamplesMs = DefaultMuxer.Factory.DEFAULT_MAX_DELAY_BETWEEN_SAMPLES_MS;
         fragmentDurationUs = Mp4Muxer.DEFAULT_FRAGMENT_DURATION_US;
-      }
-
-      /** See {@link Muxer#getMaxDelayBetweenSamplesMs()}. */
-      @CanIgnoreReturnValue
-      public Builder setMaxDelayBetweenSamplesMs(long maxDelayBetweenSamplesMs) {
-        this.maxDelayBetweenSamplesMs = maxDelayBetweenSamplesMs;
-        return this;
       }
 
       /**
@@ -116,22 +107,18 @@ public final class InAppMuxer implements Muxer {
 
       /** Builds a {@link Factory} instance. */
       public Factory build() {
-        return new Factory(
-            maxDelayBetweenSamplesMs, metadataProvider, fragmentedMp4Enabled, fragmentDurationUs);
+        return new Factory(metadataProvider, fragmentedMp4Enabled, fragmentDurationUs);
       }
     }
 
-    private final long maxDelayBetweenSamplesMs;
     private final @Nullable MetadataProvider metadataProvider;
     private final boolean fragmentedMp4Enabled;
     private final int fragmentDurationUs;
 
     private Factory(
-        long maxDelayBetweenSamplesMs,
         @Nullable MetadataProvider metadataProvider,
         boolean fragmentedMp4Enabled,
         int fragmentDurationUs) {
-      this.maxDelayBetweenSamplesMs = maxDelayBetweenSamplesMs;
       this.metadataProvider = metadataProvider;
       this.fragmentedMp4Enabled = fragmentedMp4Enabled;
       this.fragmentDurationUs = fragmentDurationUs;
@@ -151,7 +138,7 @@ public final class InAppMuxer implements Muxer {
               .setFragmentedMp4Enabled(fragmentedMp4Enabled)
               .setFragmentDurationUs(fragmentDurationUs)
               .build();
-      return new InAppMuxer(mp4Muxer, maxDelayBetweenSamplesMs, metadataProvider);
+      return new InAppMuxer(mp4Muxer, metadataProvider);
     }
 
     @Override
@@ -166,18 +153,13 @@ public final class InAppMuxer implements Muxer {
   }
 
   private final Mp4Muxer mp4Muxer;
-  private final long maxDelayBetweenSamplesMs;
   private final @Nullable MetadataProvider metadataProvider;
   private final List<TrackToken> trackTokenList;
   private final BufferInfo bufferInfo;
   private final Set<Metadata.Entry> metadataEntries;
 
-  private InAppMuxer(
-      Mp4Muxer mp4Muxer,
-      long maxDelayBetweenSamplesMs,
-      @Nullable MetadataProvider metadataProvider) {
+  private InAppMuxer(Mp4Muxer mp4Muxer, @Nullable MetadataProvider metadataProvider) {
     this.mp4Muxer = mp4Muxer;
-    this.maxDelayBetweenSamplesMs = maxDelayBetweenSamplesMs;
     this.metadataProvider = metadataProvider;
     trackTokenList = new ArrayList<>();
     bufferInfo = new BufferInfo();
@@ -251,11 +233,6 @@ public final class InAppMuxer implements Muxer {
     } catch (IOException e) {
       throw new MuxerException("Error closing muxer", e);
     }
-  }
-
-  @Override
-  public long getMaxDelayBetweenSamplesMs() {
-    return maxDelayBetweenSamplesMs;
   }
 
   private void writeMetadata() {

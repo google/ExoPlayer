@@ -187,7 +187,7 @@ public final class ExportException extends Exception {
   /**
    * Caused by a timeout while muxing media samples.
    *
-   * @see Muxer#getMaxDelayBetweenSamplesMs()
+   * @see Transformer.Builder#setMaxDelayBetweenMuxerSamplesMs(long)
    */
   public static final int ERROR_CODE_MUXING_TIMEOUT = 7002;
 

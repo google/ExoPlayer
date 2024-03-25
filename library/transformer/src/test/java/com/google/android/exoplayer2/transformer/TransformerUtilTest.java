@@ -71,7 +71,8 @@ public final class TransformerUtilTest {
             new NoOpMuxerListenerImpl(),
             MUXER_MODE_DEFAULT,
             /* dropSamplesBeforeFirstVideoSample= */ false,
-            /* appendVideoFormat= */ null);
+            /* appendVideoFormat= */ null,
+            Transformer.DEFAULT_MAX_DELAY_BETWEEN_MUXER_SAMPLES_MS);
 
     assertThat(
             shouldTranscodeVideo(
@@ -104,7 +105,8 @@ public final class TransformerUtilTest {
             new NoOpMuxerListenerImpl(),
             MUXER_MODE_DEFAULT,
             /* dropSamplesBeforeFirstVideoSample= */ false,
-            /* appendVideoFormat= */ null);
+            /* appendVideoFormat= */ null,
+            Transformer.DEFAULT_MAX_DELAY_BETWEEN_MUXER_SAMPLES_MS);
 
     assertThat(
             shouldTranscodeVideo(

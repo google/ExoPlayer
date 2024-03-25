@@ -151,6 +151,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final SparseArray<TrackInfo> trackTypeToInfo;
   private final ScheduledExecutorService abortScheduledExecutorService;
   private final @MonotonicNonNull Format appendVideoFormat;
+  private final long maxDelayBetweenSamplesMs;
 
   private boolean isReady;
   private boolean isEnded;
@@ -183,6 +184,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    *     presentation timestamps before the first video sample.
    * @param appendVideoFormat The format which will be used to write samples after transitioning
    *     from {@link #MUXER_MODE_MUX_PARTIAL} to {@link #MUXER_MODE_APPEND}.
+   * @param maxDelayBetweenSamplesMs The maximum delay allowed between output samples regardless of
+   *     the track type, or {@link C#TIME_UNSET} if there is no maximum.
    */
   public MuxerWrapper(
       String outputPath,
@@ -190,7 +193,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       Listener listener,
       @MuxerMode int muxerMode,
       boolean dropSamplesBeforeFirstVideoSample,
-      @Nullable Format appendVideoFormat) {
+      @Nullable Format appendVideoFormat,
+      long maxDelayBetweenSamplesMs) {
     this.outputPath = outputPath;
     this.muxerFactory = muxerFactory;
     this.listener = listener;
@@ -202,6 +206,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             || (muxerMode == MUXER_MODE_MUX_PARTIAL && appendVideoFormat != null),
         "appendVideoFormat must be present if and only if muxerMode is MUXER_MODE_MUX_PARTIAL.");
     this.appendVideoFormat = appendVideoFormat;
+    this.maxDelayBetweenSamplesMs = maxDelayBetweenSamplesMs;
     trackTypeToInfo = new SparseArray<>();
     previousTrackType = C.TRACK_TYPE_NONE;
     firstVideoPresentationTimeUs = C.TIME_UNSET;
@@ -679,7 +684,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   private void resetAbortTimer() {
     checkStateNotNull(muxer);
-    long maxDelayBetweenSamplesMs = muxer.getMaxDelayBetweenSamplesMs();
     if (maxDelayBetweenSamplesMs == C.TIME_UNSET) {
       return;
     }

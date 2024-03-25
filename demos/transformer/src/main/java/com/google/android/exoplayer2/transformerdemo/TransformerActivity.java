@@ -334,18 +334,13 @@ public final class TransformerActivity extends AppCompatActivity {
               .setEnableFallback(bundle.getBoolean(ConfigurationActivity.ENABLE_FALLBACK))
               .build());
 
-      long maxDelayBetweenSamplesMs = DefaultMuxer.Factory.DEFAULT_MAX_DELAY_BETWEEN_SAMPLES_MS;
       if (!bundle.getBoolean(ConfigurationActivity.ABORT_SLOW_EXPORT)) {
-        maxDelayBetweenSamplesMs = C.TIME_UNSET;
+        transformerBuilder.setMaxDelayBetweenMuxerSamplesMs(C.TIME_UNSET);
       }
 
-      Muxer.Factory muxerFactory = new DefaultMuxer.Factory(maxDelayBetweenSamplesMs);
+      Muxer.Factory muxerFactory = new DefaultMuxer.Factory();
       if (bundle.getBoolean(ConfigurationActivity.PRODUCE_FRAGMENTED_MP4)) {
-        muxerFactory =
-            new InAppMuxer.Factory.Builder()
-                .setMaxDelayBetweenSamplesMs(maxDelayBetweenSamplesMs)
-                .setFragmentedMp4Enabled(true)
-                .build();
+        muxerFactory = new InAppMuxer.Factory.Builder().setFragmentedMp4Enabled(true).build();
       }
       transformerBuilder.setMuxerFactory(muxerFactory);
 

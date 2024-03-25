@@ -19,7 +19,6 @@ package com.google.android.exoplayer2.transformer;
 import static com.google.android.exoplayer2.robolectric.RobolectricUtil.runLooperUntil;
 import static com.google.android.exoplayer2.transformer.AssetLoader.SUPPORTED_OUTPUT_TYPE_DECODED;
 import static com.google.android.exoplayer2.transformer.AssetLoader.SUPPORTED_OUTPUT_TYPE_ENCODED;
-import static com.google.android.exoplayer2.transformer.DefaultMuxer.Factory.DEFAULT_MAX_DELAY_BETWEEN_SAMPLES_MS;
 import static com.google.android.exoplayer2.transformer.ExportResult.CONVERSION_PROCESS_NA;
 import static com.google.android.exoplayer2.transformer.ExportResult.CONVERSION_PROCESS_TRANSMUXED;
 import static com.google.android.exoplayer2.transformer.ExportResult.OPTIMIZATION_ABANDONED_KEYFRAME_PLACEMENT_OPTIMAL_FOR_TRIM;
@@ -919,10 +918,10 @@ public final class MediaItemExportTest {
             decoderFactory,
             new FakeClock(/* isAutoAdvancing= */ true),
             mediaSourceFactory);
-    CapturingMuxer.Factory muxerFactory =
-        new CapturingMuxer.Factory(/* maxDelayBetweenSamplesMs= */ 1);
+    CapturingMuxer.Factory muxerFactory = new CapturingMuxer.Factory();
     Transformer transformer =
         createTransformerBuilder(muxerFactory, /* enableFallback= */ false)
+            .setMaxDelayBetweenMuxerSamplesMs(1)
             .setAssetLoaderFactory(assetLoaderFactory)
             .build();
     MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
@@ -936,10 +935,11 @@ public final class MediaItemExportTest {
 
   @Test
   public void start_withUnsetMaxDelayBetweenSamples_completesSuccessfully() throws Exception {
-    CapturingMuxer.Factory muxerFactory =
-        new CapturingMuxer.Factory(/* maxDelayBetweenSamplesMs= */ C.TIME_UNSET);
+    CapturingMuxer.Factory muxerFactory = new CapturingMuxer.Factory();
     Transformer transformer =
-        createTransformerBuilder(muxerFactory, /* enableFallback= */ false).build();
+        createTransformerBuilder(muxerFactory, /* enableFallback= */ false)
+            .setMaxDelayBetweenMuxerSamplesMs(C.TIME_UNSET)
+            .build();
     MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
 
     transformer.start(mediaItem, outputDir.newFile().getPath());
@@ -1490,8 +1490,7 @@ public final class MediaItemExportTest {
     // FrameworkMuxer.
     Transformer transformer =
         createTransformerBuilder(
-                new FrameworkMuxer.Factory(DEFAULT_MAX_DELAY_BETWEEN_SAMPLES_MS, C.TIME_UNSET),
-                /* enableFallback= */ false)
+                new FrameworkMuxer.Factory(C.TIME_UNSET), /* enableFallback= */ false)
             .build();
     MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_ELST_SKIP_500MS);
 

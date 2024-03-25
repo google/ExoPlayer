@@ -52,11 +52,7 @@ public final class CapturingMuxer implements Muxer, Dumpable {
     @Nullable private CapturingMuxer muxer;
 
     public Factory() {
-      this(/* maxDelayBetweenSamplesMs= */ C.TIME_UNSET);
-    }
-
-    public Factory(long maxDelayBetweenSamplesMs) {
-      this.wrappedFactory = new DefaultMuxer.Factory(maxDelayBetweenSamplesMs);
+      this.wrappedFactory = new DefaultMuxer.Factory();
     }
 
     /** Returns the most recently {@linkplain #create created} {@code TestMuxer}. */
@@ -134,11 +130,6 @@ public final class CapturingMuxer implements Muxer, Dumpable {
   public void release(boolean forCancellation) throws MuxerException {
     released = true;
     wrappedMuxer.release(forCancellation);
-  }
-
-  @Override
-  public long getMaxDelayBetweenSamplesMs() {
-    return wrappedMuxer.getMaxDelayBetweenSamplesMs();
   }
 
   // Dumper.Dumpable implementation.

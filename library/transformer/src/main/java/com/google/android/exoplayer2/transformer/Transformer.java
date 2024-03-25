@@ -116,6 +116,7 @@ public final class Transformer {
     private boolean flattenForSlowMotion;
     private boolean trimOptimizationEnabled;
     private boolean fileStartsOnVideoFrameEnabled;
+    private long maxDelayBetweenMuxerSamplesMs;
     private ListenerSet<Transformer.Listener> listeners;
     private AssetLoader.@MonotonicNonNull Factory assetLoaderFactory;
     private AudioMixer.Factory audioMixerFactory;
@@ -133,6 +134,7 @@ public final class Transformer {
      */
     public Builder(Context context) {
       this.context = context.getApplicationContext();
+      maxDelayBetweenMuxerSamplesMs = DEFAULT_MAX_DELAY_BETWEEN_MUXER_SAMPLES_MS;
       audioProcessors = ImmutableList.of();
       videoEffects = ImmutableList.of();
       audioMixerFactory = new DefaultAudioMixer.Factory();
@@ -157,6 +159,7 @@ public final class Transformer {
       this.removeVideo = transformer.removeVideo;
       this.trimOptimizationEnabled = transformer.trimOptimizationEnabled;
       this.fileStartsOnVideoFrameEnabled = transformer.fileStartsOnVideoFrameEnabled;
+      this.maxDelayBetweenMuxerSamplesMs = transformer.maxDelayBetweenMuxerSamplesMs;
       this.listeners = transformer.listeners;
       this.assetLoaderFactory = transformer.assetLoaderFactory;
       this.audioMixerFactory = transformer.audioMixerFactory;
@@ -333,7 +336,7 @@ public final class Transformer {
     }
 
     /**
-     * Set whether to ensure that the output file starts on a video frame.
+     * Sets whether to ensure that the output file starts on a video frame.
      *
      * <p>Any audio samples that are earlier than the first video frame will be dropped. This can
      * make the output of trimming operations more compatible with player implementations that don't
@@ -348,6 +351,24 @@ public final class Transformer {
     @CanIgnoreReturnValue
     public Builder setEnsureFileStartsOnVideoFrameEnabled(boolean enabled) {
       fileStartsOnVideoFrameEnabled = enabled;
+      return this;
+    }
+
+    /**
+     * Sets the maximum delay allowed between output samples regardless of the track type, or {@link
+     * C#TIME_UNSET} if there is no maximum. The default value is {@link
+     * #DEFAULT_MAX_DELAY_BETWEEN_MUXER_SAMPLES_MS}.
+     *
+     * <p>The export will be aborted when no sample is written in {@code
+     * maxDelayBetweenMuxerSamplesMs}. Note that there is no guarantee that the export will be
+     * aborted exactly at that time.
+     *
+     * @param maxDelayBetweenMuxerSamplesMs The maximum delay allowed (in microseconds).
+     * @return This builder.
+     */
+    @CanIgnoreReturnValue
+    public Builder setMaxDelayBetweenMuxerSamplesMs(long maxDelayBetweenMuxerSamplesMs) {
+      this.maxDelayBetweenMuxerSamplesMs = maxDelayBetweenMuxerSamplesMs;
       return this;
     }
 
@@ -568,6 +589,7 @@ public final class Transformer {
           flattenForSlowMotion,
           trimOptimizationEnabled,
           fileStartsOnVideoFrameEnabled,
+          maxDelayBetweenMuxerSamplesMs,
           listeners,
           assetLoaderFactory,
           audioMixerFactory,
@@ -734,6 +756,12 @@ public final class Transformer {
   /** Indicates that the progress is permanently unavailable. */
   public static final int PROGRESS_STATE_UNAVAILABLE = 3;
 
+  /**
+   * The default value for the {@linkplain Builder#setMaxDelayBetweenMuxerSamplesMs maximum delay
+   * between output samples}.
+   */
+  public static final long DEFAULT_MAX_DELAY_BETWEEN_MUXER_SAMPLES_MS = 10_000;
+
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @Target(TYPE_USE)
@@ -812,6 +840,8 @@ public final class Transformer {
   private final boolean flattenForSlowMotion;
   private final boolean trimOptimizationEnabled;
   private final boolean fileStartsOnVideoFrameEnabled;
+  private final long maxDelayBetweenMuxerSamplesMs;
+
   private final ListenerSet<Transformer.Listener> listeners;
   @Nullable private final AssetLoader.Factory assetLoaderFactory;
   private final AudioMixer.Factory audioMixerFactory;
@@ -847,6 +877,7 @@ public final class Transformer {
       boolean flattenForSlowMotion,
       boolean trimOptimizationEnabled,
       boolean fileStartsOnVideoFrameEnabled,
+      long maxDelayBetweenMuxerSamplesMs,
       ListenerSet<Listener> listeners,
       @Nullable AssetLoader.Factory assetLoaderFactory,
       AudioMixer.Factory audioMixerFactory,
@@ -866,6 +897,7 @@ public final class Transformer {
     this.flattenForSlowMotion = flattenForSlowMotion;
     this.trimOptimizationEnabled = trimOptimizationEnabled;
     this.fileStartsOnVideoFrameEnabled = fileStartsOnVideoFrameEnabled;
+    this.maxDelayBetweenMuxerSamplesMs = maxDelayBetweenMuxerSamplesMs;
     this.listeners = listeners;
     this.assetLoaderFactory = assetLoaderFactory;
     this.audioMixerFactory = audioMixerFactory;
@@ -1010,7 +1042,8 @@ public final class Transformer {
               componentListener,
               MuxerWrapper.MUXER_MODE_DEFAULT,
               /* dropSamplesBeforeFirstVideoSample= */ fileStartsOnVideoFrameEnabled,
-              /* appendVideoFormat= */ null),
+              /* appendVideoFormat= */ null,
+              maxDelayBetweenMuxerSamplesMs),
           componentListener,
           /* initialTimestampOffsetUs= */ 0,
           /* useDefaultAssetLoaderFactory= */ false);
@@ -1260,7 +1293,8 @@ public final class Transformer {
             componentListener,
             MuxerWrapper.MUXER_MODE_DEFAULT,
             /* dropSamplesBeforeFirstVideoSample= */ false,
-            /* appendVideoFormat= */ null),
+            /* appendVideoFormat= */ null,
+            maxDelayBetweenMuxerSamplesMs),
         componentListener,
         /* initialTimestampOffsetUs= */ 0,
         /* useDefaultAssetLoaderFactory= */ false);
@@ -1293,7 +1327,8 @@ public final class Transformer {
                     componentListener,
                     MuxerWrapper.MUXER_MODE_MUX_PARTIAL,
                     /* dropSamplesBeforeFirstVideoSample= */ false,
-                    /* appendVideoFormat= */ resumeMetadata.videoFormat);
+                    /* appendVideoFormat= */ resumeMetadata.videoFormat,
+                    maxDelayBetweenMuxerSamplesMs);
 
             startInternal(
                 TransmuxTranscodeHelper.createVideoOnlyComposition(
@@ -1344,7 +1379,8 @@ public final class Transformer {
             componentListener,
             MuxerWrapper.MUXER_MODE_DEFAULT,
             /* dropSamplesBeforeFirstVideoSample= */ false,
-            /* appendVideoFormat= */ null);
+            /* appendVideoFormat= */ null,
+            maxDelayBetweenMuxerSamplesMs);
 
     startInternal(
         TransmuxTranscodeHelper.createAudioTranscodeAndVideoTransmuxComposition(
@@ -1439,7 +1475,8 @@ public final class Transformer {
                     componentListener,
                     MuxerWrapper.MUXER_MODE_MUX_PARTIAL,
                     /* dropSamplesBeforeFirstVideoSample= */ false,
-                    mp4Info.videoFormat);
+                    mp4Info.videoFormat,
+                    maxDelayBetweenMuxerSamplesMs);
             if (shouldTranscodeVideo(
                     checkNotNull(mp4Info.videoFormat),
                     composition,

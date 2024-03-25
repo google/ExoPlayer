@@ -471,10 +471,5 @@ public class TransformerPauseResumeTest {
     public void release(boolean forCancellation) throws MuxerException {
       wrappedMuxer.release(forCancellation);
     }
-
-    @Override
-    public long getMaxDelayBetweenSamplesMs() {
-      return wrappedMuxer.getMaxDelayBetweenSamplesMs();
-    }
   }
 }
