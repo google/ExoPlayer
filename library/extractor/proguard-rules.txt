@@ -13,6 +13,12 @@
 -keepclassmembers class com.google.android.exoplayer2.ext.midi.MidiExtractor {
   <init>();
 }
+# copybara:strip_begin
+# See b/329087264
+-keep class com.google.android.exoplayer2.extractor.BinarySearchSeeker {
+  getSeekMap();
+}
+# copybara:strip_end
 
 # Don't warn about checkerframework and Kotlin annotations
 -dontwarn org.checkerframework.**
