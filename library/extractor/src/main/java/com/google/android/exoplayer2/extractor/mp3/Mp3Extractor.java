@@ -286,7 +286,7 @@ public final class Mp3Extractor implements Extractor {
     if (seeker == null) {
       seeker = computeSeeker(input);
       extractorOutput.seekMap(seeker);
-      currentTrackOutput.format(
+      Format.Builder format =
           new Format.Builder()
               .setSampleMimeType(synchronizedHeader.mimeType)
               .setMaxInputSize(MpegAudioUtil.MAX_FRAME_SIZE_BYTES)
@@ -294,8 +294,11 @@ public final class Mp3Extractor implements Extractor {
               .setSampleRate(synchronizedHeader.sampleRate)
               .setEncoderDelay(gaplessInfoHolder.encoderDelay)
               .setEncoderPadding(gaplessInfoHolder.encoderPadding)
-              .setMetadata((flags & FLAG_DISABLE_ID3_METADATA) != 0 ? null : metadata)
-              .build());
+              .setMetadata((flags & FLAG_DISABLE_ID3_METADATA) != 0 ? null : metadata);
+      if (seeker.getAverageBitrate() != C.RATE_UNSET_INT) {
+        format.setAverageBitrate(seeker.getAverageBitrate());
+      }
+      currentTrackOutput.format(format.build());
       firstSamplePosition = input.getPosition();
     } else if (firstSamplePosition != 0) {
       long inputPosition = input.getPosition();

@@ -30,6 +30,8 @@ import com.google.android.exoplayer2.extractor.ConstantBitrateSeekMap;
 @Deprecated
 /* package */ final class ConstantBitrateSeeker extends ConstantBitrateSeekMap implements Seeker {
 
+  private final int bitrate;
+
   /**
    * @param inputLength The length of the stream in bytes, or {@link C#LENGTH_UNSET} if unknown.
    * @param firstFramePosition The position of the first frame in the stream.
@@ -51,6 +53,7 @@ import com.google.android.exoplayer2.extractor.ConstantBitrateSeekMap;
         mpegAudioHeader.bitrate,
         mpegAudioHeader.frameSize,
         allowSeeksIfLengthUnknown);
+    bitrate = mpegAudioHeader.bitrate;
   }
 
   @Override
@@ -61,5 +64,10 @@ import com.google.android.exoplayer2.extractor.ConstantBitrateSeekMap;
   @Override
   public long getDataEndPosition() {
     return C.INDEX_UNSET;
+  }
+
+  @Override
+  public int getAverageBitrate() {
+    return bitrate;
   }
 }

@@ -20,6 +20,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.SeekPoint;
 import com.google.android.exoplayer2.util.LongArray;
 import com.google.android.exoplayer2.util.Util;
+import java.math.RoundingMode;
 
 /**
  * MP3 seeker that builds a time-to-byte mapping as the stream is read.
@@ -38,6 +39,7 @@ import com.google.android.exoplayer2.util.Util;
   private final long dataEndPosition;
   private final LongArray timesUs;
   private final LongArray positions;
+  private final int averageBitrate;
 
   private long durationUs;
 
@@ -48,6 +50,15 @@ import com.google.android.exoplayer2.util.Util;
     positions = new LongArray();
     timesUs.add(0L);
     positions.add(dataStartPosition);
+    if (durationUs != C.TIME_UNSET) {
+      long bitrate =
+          Util.scaleLargeValue(
+              dataStartPosition - dataEndPosition, 8, durationUs, RoundingMode.HALF_UP);
+      this.averageBitrate =
+          bitrate > 0 && bitrate <= Integer.MAX_VALUE ? (int) bitrate : C.RATE_UNSET_INT;
+    } else {
+      this.averageBitrate = C.RATE_UNSET_INT;
+    }
   }
 
   @Override
@@ -85,6 +96,11 @@ import com.google.android.exoplayer2.util.Util;
           new SeekPoint(timesUs.get(targetIndex + 1), positions.get(targetIndex + 1));
       return new SeekPoints(seekPoint, nextSeekPoint);
     }
+  }
+
+  @Override
+  public int getAverageBitrate() {
+    return averageBitrate;
   }
 
   /**

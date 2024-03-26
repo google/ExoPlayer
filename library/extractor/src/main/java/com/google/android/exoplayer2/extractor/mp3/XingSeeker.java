@@ -63,7 +63,8 @@ import com.google.android.exoplayer2.util.Util;
             xingFrame.header.sampleRate);
     if (xingFrame.dataSize == C.LENGTH_UNSET || xingFrame.tableOfContents == null) {
       // If the size in bytes or table of contents is missing, the stream is not seekable.
-      return new XingSeeker(position, xingFrame.header.frameSize, durationUs);
+      return new XingSeeker(
+          position, xingFrame.header.frameSize, durationUs, xingFrame.header.bitrate);
     }
 
     if (inputLength != C.LENGTH_UNSET && inputLength != position + xingFrame.dataSize) {
@@ -74,6 +75,7 @@ import com.google.android.exoplayer2.util.Util;
         position,
         xingFrame.header.frameSize,
         durationUs,
+        xingFrame.header.bitrate,
         xingFrame.dataSize,
         xingFrame.tableOfContents);
   }
@@ -81,6 +83,7 @@ import com.google.android.exoplayer2.util.Util;
   private final long dataStartPosition;
   private final int xingFrameSize;
   private final long durationUs;
+  private final int bitrate;
 
   /** Data size, including the XING frame. */
   private final long dataSize;
@@ -93,11 +96,12 @@ import com.google.android.exoplayer2.util.Util;
    */
   @Nullable private final long[] tableOfContents;
 
-  private XingSeeker(long dataStartPosition, int xingFrameSize, long durationUs) {
+  private XingSeeker(long dataStartPosition, int xingFrameSize, long durationUs, int bitrate) {
     this(
         dataStartPosition,
         xingFrameSize,
         durationUs,
+        bitrate,
         /* dataSize= */ C.LENGTH_UNSET,
         /* tableOfContents= */ null);
   }
@@ -106,13 +110,15 @@ import com.google.android.exoplayer2.util.Util;
       long dataStartPosition,
       int xingFrameSize,
       long durationUs,
+      int bitrate,
       long dataSize,
       @Nullable long[] tableOfContents) {
     this.dataStartPosition = dataStartPosition;
     this.xingFrameSize = xingFrameSize;
     this.durationUs = durationUs;
-    this.tableOfContents = tableOfContents;
+    this.bitrate = bitrate;
     this.dataSize = dataSize;
+    this.tableOfContents = tableOfContents;
     dataEndPosition = dataSize == C.LENGTH_UNSET ? C.INDEX_UNSET : dataStartPosition + dataSize;
   }
 
@@ -178,6 +184,11 @@ import com.google.android.exoplayer2.util.Util;
   @Override
   public long getDataEndPosition() {
     return dataEndPosition;
+  }
+
+  @Override
+  public int getAverageBitrate() {
+    return bitrate;
   }
 
   /**

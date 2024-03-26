@@ -45,6 +45,12 @@ import com.google.android.exoplayer2.extractor.SeekMap;
    */
   long getDataEndPosition();
 
+  /**
+   * Returns the average bitrate (usually derived from the duration and length of the file), or
+   * {@link C#RATE_UNSET_INT} if not known.
+   */
+  int getAverageBitrate();
+
   /** A {@link Seeker} that does not support seeking through audio data. */
   /* package */ class UnseekableSeeker extends SeekMap.Unseekable implements Seeker {
 
@@ -61,6 +67,11 @@ import com.google.android.exoplayer2.extractor.SeekMap;
     public long getDataEndPosition() {
       // Position unset as we do not know the data end position. Note that returning 0 doesn't work.
       return C.INDEX_UNSET;
+    }
+
+    @Override
+    public int getAverageBitrate() {
+      return C.RATE_UNSET_INT;
     }
   }
 }

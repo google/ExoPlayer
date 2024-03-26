@@ -135,4 +135,9 @@ import com.google.android.exoplayer2.util.Util;
   public long getDataEndPosition() {
     return C.INDEX_UNSET;
   }
+
+  @Override
+  public int getAverageBitrate() {
+    return C.RATE_UNSET_INT;
+  }
 }
