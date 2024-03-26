@@ -11257,6 +11257,54 @@ public final class ExoPlayerTest {
   }
 
   @Test
+  public void seekTo_toPositionZero_overridesLiveStartPosition()
+          throws Exception {
+    ExoPlayer player =
+        new TestExoPlayerBuilder(context)
+            .setClock(
+                new FakeClock(/* initialTimeMs= */ 20_000, /* isAutoAdvancing= */ true))
+            .setUseLazyPreparation(true)  // This is default for ExoPlayer.Builder()
+            .build();
+
+    // TODO - if you set expectedInitialPositionUs to 0, the test will fail... And it shouldn't
+    int expectedInitialPositionUs = 10_000;
+    player.seekTo(expectedInitialPositionUs);
+    FakeMediaSource mediaSource = new FakeMediaSource();
+    player.setMediaSource(mediaSource, false);
+    player.prepare();
+    TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_BUFFERING);
+
+    MediaItem mediaItem =
+        new MediaItem.Builder().setUri(Uri.EMPTY).build();
+    Timeline liveTimeline =
+        new SinglePeriodTimeline(
+            /* presentationStartTimeMs= */ C.TIME_UNSET,
+            /* windowStartTimeMs= */ C.TIME_UNSET,
+            /* elapsedRealtimeEpochOffsetMs= */ C.TIME_UNSET,
+            /* periodDurationUs= */ 1000 * C.MICROS_PER_SECOND,
+            /* windowDurationUs= */ 1000 * C.MICROS_PER_SECOND,
+            /* windowPositionInPeriodUs= */ 0,
+            /* windowDefaultStartPositionUs= */ 20 * C.MICROS_PER_SECOND,
+            /* isSeekable= */ true,
+            /* isDynamic= */ true,
+            /* manifest= */ null,
+            mediaItem,
+            mediaItem.liveConfiguration);
+    mediaSource.setNewSourceInfo(liveTimeline, true);
+
+    runUntilTimelineChanged(player);
+
+    // Trigger EPII to copy current PlaybackInfo to EP - TODO I'll use
+    player.setPlaybackParameters(new PlaybackParameters(/* speed= */ 2.0f));
+    runUntilPendingCommandsAreFullyHandled(player);
+    long contentPosition = player.getCurrentPosition();
+    player.release();
+
+    assertThat(contentPosition).isEqualTo(expectedInitialPositionUs);
+
+  }
+
+  @Test
   public void onEvents_correspondToListenerCalls() throws Exception {
     ExoPlayer player = new TestExoPlayerBuilder(context).build();
     Player.Listener listener = mock(Player.Listener.class);
