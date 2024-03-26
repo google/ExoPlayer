@@ -5,47 +5,47 @@ AudioSink:
     channelCount = 1
     sampleRate = 44100
   buffer #0:
-    time = 1000000000000
+    time = 0
     data = -85819864
   buffer #1:
-    time = 1000000100000
+    time = 100000
     data = 566487491
   buffer #2:
-    time = 1000000200000
+    time = 200000
     data = -1256531710
   buffer #3:
-    time = 1000000300000
+    time = 300000
     data = 793455796
   buffer #4:
-    time = 1000000400000
+    time = 400000
     data = -268235582
   buffer #5:
-    time = 1000000500000
+    time = 500000
     data = -8136122
   buffer #6:
-    time = 1000000600000
+    time = 600000
     data = 1750866613
   buffer #7:
-    time = 1000000700000
+    time = 700000
     data = -1100753636
   buffer #8:
-    time = 1000000800000
+    time = 800000
     data = 507833230
   buffer #9:
-    time = 1000000900000
+    time = 900000
     data = 1472467506
   buffer #10:
-    time = 1000001000000
+    time = 1000000
     data = 1785344804
   buffer #11:
-    time = 1000001100000
+    time = 1100000
     data = 458152960
   buffer #12:
-    time = 1000001200000
+    time = 1200000
     data = -2129352270
   buffer #13:
-    time = 1000001300000
+    time = 1300000
     data = 1572219123
   buffer #14:
-    time = 1000001348616
+    time = 1348616
     data = -2263
