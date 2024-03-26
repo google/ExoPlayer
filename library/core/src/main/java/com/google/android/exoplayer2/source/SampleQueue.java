@@ -699,9 +699,7 @@ public class SampleQueue implements TrackOutput {
     sampleDataQueue.rewind();
   }
 
-  // Setting deprecated decode-only flag for compatibility with renderers that are still using it.
-  // See comments in setUpstreamFormat for reference equality warning.
-  @SuppressWarnings({"ReferenceEquality", "deprecation"})
+  @SuppressWarnings("ReferenceEquality") // See comments in setUpstreamFormat.
   private synchronized int peekSampleMetadata(
       FormatHolder formatHolder,
       DecoderInputBuffer buffer,
@@ -739,9 +737,6 @@ public class SampleQueue implements TrackOutput {
       buffer.addFlag(C.BUFFER_FLAG_LAST_SAMPLE);
     }
     buffer.timeUs = timesUs[relativeReadIndex];
-    if (buffer.timeUs < startTimeUs) {
-      buffer.addFlag(C.BUFFER_FLAG_DECODE_ONLY);
-    }
     extrasHolder.size = sizes[relativeReadIndex];
     extrasHolder.offset = offsets[relativeReadIndex];
     extrasHolder.cryptoData = cryptoDatas[relativeReadIndex];

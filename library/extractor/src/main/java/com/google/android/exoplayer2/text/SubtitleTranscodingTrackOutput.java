@@ -163,16 +163,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
   }
 
-  // Clearing deprecated decode-only flag for compatibility with decoders that are still using it.
-  @SuppressWarnings("deprecation")
   private void outputSample(CuesWithTiming cuesWithTiming, long timeUs, int flags) {
     checkStateNotNull(currentFormat); // format() must be called before sampleMetadata()
     byte[] cuesWithDurationBytes =
         cueEncoder.encode(cuesWithTiming.cues, cuesWithTiming.durationUs);
     parsableScratch.reset(cuesWithDurationBytes);
     delegate.sampleData(parsableScratch, cuesWithDurationBytes.length);
-    // Clear FLAG_DECODE_ONLY if it is set.
-    flags &= ~C.BUFFER_FLAG_DECODE_ONLY;
     long outputSampleTimeUs;
     if (cuesWithTiming.startTimeUs == C.TIME_UNSET) {
       checkState(currentFormat.subsampleOffsetUs == Format.OFFSET_SAMPLE_RELATIVE);

@@ -209,7 +209,6 @@ public final class SampleQueueTest {
       assertReadSample(
           /* timeUs= */ i * 1000,
           /* isKeyFrame= */ true,
-          /* isDecodeOnly= */ false,
           /* isEncrypted= */ false,
           /* sampleData= */ new byte[1],
           /* offset= */ 0,
@@ -272,7 +271,6 @@ public final class SampleQueueTest {
     assertReadSample(
         0,
         /* isKeyFrame= */ true,
-        /* isDecodeOnly= */ false,
         /* isEncrypted= */ false,
         DATA,
         /* offset= */ 0,
@@ -281,7 +279,6 @@ public final class SampleQueueTest {
     assertReadSample(
         1000,
         /* isKeyFrame= */ true,
-        /* isDecodeOnly= */ false,
         /* isEncrypted= */ false,
         DATA,
         /* offset= */ 0,
@@ -297,7 +294,6 @@ public final class SampleQueueTest {
     assertReadSample(
         2000,
         /* isKeyFrame= */ true,
-        /* isDecodeOnly= */ false,
         /* isEncrypted= */ false,
         DATA,
         /* offset= */ 0,
@@ -327,7 +323,6 @@ public final class SampleQueueTest {
     assertReadSample(
         1000,
         /* isKeyFrame= */ true,
-        /* isDecodeOnly= */ false,
         /* isEncrypted= */ false,
         DATA,
         /* offset= */ 0,
@@ -351,7 +346,6 @@ public final class SampleQueueTest {
     assertReadSample(
         2000,
         /* isKeyFrame= */ false,
-        /* isDecodeOnly= */ false,
         /* isEncrypted= */ false,
         DATA,
         /* offset= */ 0,
@@ -370,13 +364,7 @@ public final class SampleQueueTest {
     assertReadFormat(true, FORMAT_1);
     // Read the sample.
     assertReadSample(
-        3000,
-        /* isKeyFrame= */ false,
-        /* isDecodeOnly= */ false,
-        /* isEncrypted= */ false,
-        DATA,
-        ALLOCATION_SIZE - 1,
-        1);
+        3000, /* isKeyFrame= */ false, /* isEncrypted= */ false, DATA, ALLOCATION_SIZE - 1, 1);
     // Allocation should still be held.
     assertAllocationCount(1);
     sampleQueue.discardToRead();
@@ -397,7 +385,6 @@ public final class SampleQueueTest {
     assertReadLastSample(
         1000,
         /* isKeyFrame= */ true,
-        /* isDecodeOnly= */ false,
         /* isEncrypted= */ false,
         DATA,
         /* offset= */ 0,
@@ -681,7 +668,6 @@ public final class SampleQueueTest {
     assertReadSample(
         /* timeUs= */ 0,
         /* isKeyFrame= */ true,
-        /* isDecodeOnly= */ false,
         /* isEncrypted= */ false,
         DATA,
         /* offset= */ 0,
@@ -778,8 +764,7 @@ public final class SampleQueueTest {
         /* startFormat= */ null,
         DATA_SECOND_KEYFRAME_INDEX,
         /* sampleCount= */ SAMPLE_TIMESTAMPS.length - DATA_SECOND_KEYFRAME_INDEX,
-        /* sampleOffsetUs= */ 0,
-        /* decodeOnlyUntilUs= */ LAST_SAMPLE_TIMESTAMP);
+        /* sampleOffsetUs= */ 0);
     assertNoSamplesToRead(FORMAT_2);
   }
 
@@ -811,8 +796,7 @@ public final class SampleQueueTest {
         /* startFormat= */ null,
         DATA_SECOND_KEYFRAME_INDEX,
         /* sampleCount= */ SAMPLE_TIMESTAMPS.length - DATA_SECOND_KEYFRAME_INDEX,
-        /* sampleOffsetUs= */ 0,
-        /* decodeOnlyUntilUs= */ LAST_SAMPLE_TIMESTAMP + 1);
+        /* sampleOffsetUs= */ 0);
     assertNoSamplesToRead(FORMAT_2);
   }
 
@@ -829,8 +813,7 @@ public final class SampleQueueTest {
         /* startFormat= */ null,
         DATA_SECOND_KEYFRAME_INDEX,
         /* sampleCount= */ SAMPLE_TIMESTAMPS.length - DATA_SECOND_KEYFRAME_INDEX,
-        /* sampleOffsetUs= */ 0,
-        /* decodeOnlyUntilUs= */ LAST_SAMPLE_TIMESTAMP);
+        /* sampleOffsetUs= */ 0);
     assertNoSamplesToRead(FORMAT_2);
 
     // Seek back to the start.
@@ -947,7 +930,6 @@ public final class SampleQueueTest {
     assertReadSample(
         SAMPLE_TIMESTAMPS[7],
         /* isKeyFrame= */ true,
-        /* isDecodeOnly= */ false,
         /* isEncrypted= */ false,
         DATA,
         DATA.length - SAMPLE_OFFSETS[7] - SAMPLE_SIZES[7],
@@ -964,8 +946,7 @@ public final class SampleQueueTest {
         /* startFormat= */ null,
         /* firstSampleIndex= */ 0,
         /* sampleCount= */ SAMPLE_TIMESTAMPS.length,
-        /* sampleOffsetUs= */ 0,
-        /* decodeOnlyUntilUs= */ LAST_SAMPLE_TIMESTAMP);
+        /* sampleOffsetUs= */ 0);
   }
 
   @Test
@@ -1351,11 +1332,7 @@ public final class SampleQueueTest {
     sampleQueue.setSampleOffsetUs(sampleOffsetUs);
     writeTestData();
     assertReadTestData(
-        /* startFormat= */ null,
-        /* firstSampleIndex= */ 0,
-        /* sampleCount= */ 8,
-        sampleOffsetUs,
-        /* decodeOnlyUntilUs= */ 0);
+        /* startFormat= */ null, /* firstSampleIndex= */ 0, /* sampleCount= */ 8, sampleOffsetUs);
     assertReadEndOfStream(/* formatRequired= */ false);
   }
 
@@ -1378,7 +1355,6 @@ public final class SampleQueueTest {
     assertReadSample(
         unadjustedTimestampUs + sampleOffsetUs,
         /* isKeyFrame= */ false,
-        /* isDecodeOnly= */ false,
         /* isEncrypted= */ false,
         DATA,
         /* offset= */ 0,
@@ -1426,7 +1402,6 @@ public final class SampleQueueTest {
     assertReadSample(
         /* timeUs= */ 0,
         /* isKeyFrame= */ true,
-        /* isDecodeOnly= */ false,
         /* isEncrypted= */ false,
         DATA,
         /* offset= */ 0,
@@ -1435,7 +1410,6 @@ public final class SampleQueueTest {
     assertReadSample(
         /* timeUs= */ 1,
         /* isKeyFrame= */ false,
-        /* isDecodeOnly= */ false,
         /* isEncrypted= */ false,
         DATA,
         /* offset= */ 0,
@@ -1456,7 +1430,6 @@ public final class SampleQueueTest {
     assertReadSample(
         spliceSampleTimeUs,
         /* isKeyFrame= */ true,
-        /* isDecodeOnly= */ false,
         /* isEncrypted= */ false,
         DATA,
         /* offset= */ 0,
@@ -1487,7 +1460,6 @@ public final class SampleQueueTest {
     assertReadSample(
         spliceSampleTimeUs,
         /* isKeyFrame= */ true,
-        /* isDecodeOnly= */ false,
         /* isEncrypted= */ false,
         DATA,
         /* offset= */ 0,
@@ -1505,13 +1477,12 @@ public final class SampleQueueTest {
     long spliceSampleTimeUs = SAMPLE_TIMESTAMPS[4];
     writeFormat(FORMAT_SPLICED);
     writeSample(DATA, spliceSampleTimeUs, C.BUFFER_FLAG_KEY_FRAME);
-    assertReadTestData(/* startFormat= */ null, 0, 4, sampleOffsetUs, /* decodeOnlyUntilUs= */ 0);
+    assertReadTestData(/* startFormat= */ null, 0, 4, sampleOffsetUs);
     assertReadFormat(
         false, FORMAT_SPLICED.buildUpon().setSubsampleOffsetUs(sampleOffsetUs).build());
     assertReadSample(
         spliceSampleTimeUs + sampleOffsetUs,
         /* isKeyFrame= */ true,
-        /* isDecodeOnly= */ false,
         /* isEncrypted= */ false,
         DATA,
         /* offset= */ 0,
@@ -1619,7 +1590,6 @@ public final class SampleQueueTest {
         firstSampleIndex,
         sampleCount,
         /* sampleOffsetUs= */ 0,
-        /* decodeOnlyUntilUs= */ 0,
         SAMPLE_FORMATS_SYNC_SAMPLES_ONLY,
         SAMPLE_FLAGS_SYNC_SAMPLES_ONLY);
   }
@@ -1656,12 +1626,7 @@ public final class SampleQueueTest {
    * @param sampleCount The number of samples to read.
    */
   private void assertReadTestData(Format startFormat, int firstSampleIndex, int sampleCount) {
-    assertReadTestData(
-        startFormat,
-        firstSampleIndex,
-        sampleCount,
-        /* sampleOffsetUs= */ 0,
-        /* decodeOnlyUntilUs= */ 0);
+    assertReadTestData(startFormat, firstSampleIndex, sampleCount, /* sampleOffsetUs= */ 0);
   }
 
   /**
@@ -1673,19 +1638,9 @@ public final class SampleQueueTest {
    * @param sampleOffsetUs The expected sample offset.
    */
   private void assertReadTestData(
-      Format startFormat,
-      int firstSampleIndex,
-      int sampleCount,
-      long sampleOffsetUs,
-      long decodeOnlyUntilUs) {
+      Format startFormat, int firstSampleIndex, int sampleCount, long sampleOffsetUs) {
     assertReadTestData(
-        startFormat,
-        firstSampleIndex,
-        sampleCount,
-        sampleOffsetUs,
-        decodeOnlyUntilUs,
-        SAMPLE_FORMATS,
-        SAMPLE_FLAGS);
+        startFormat, firstSampleIndex, sampleCount, sampleOffsetUs, SAMPLE_FORMATS, SAMPLE_FLAGS);
   }
 
   /**
@@ -1701,7 +1656,6 @@ public final class SampleQueueTest {
       int firstSampleIndex,
       int sampleCount,
       long sampleOffsetUs,
-      long decodeOnlyUntilUs,
       Format[] sampleFormats,
       int[] sampleFlags) {
     Format format = adjustFormat(startFormat, sampleOffsetUs);
@@ -1721,7 +1675,6 @@ public final class SampleQueueTest {
       assertReadSample(
           expectedTimeUs,
           (sampleFlags[i] & C.BUFFER_FLAG_KEY_FRAME) != 0,
-          /* isDecodeOnly= */ expectedTimeUs < decodeOnlyUntilUs,
           /* isEncrypted= */ false,
           DATA,
           DATA.length - SAMPLE_OFFSETS[i] - SAMPLE_SIZES[i],
@@ -1798,7 +1751,6 @@ public final class SampleQueueTest {
     // inputBuffer should not contain sample data, but end of stream flag should be set.
     assertInputBufferContainsNoSampleData();
     assertThat(inputBuffer.isEndOfStream()).isTrue();
-    assertThat(inputBuffer.isDecodeOnly()).isFalse();
     assertThat(inputBuffer.isEncrypted()).isFalse();
   }
 
@@ -1833,7 +1785,6 @@ public final class SampleQueueTest {
     assertReadSample(
         ENCRYPTED_SAMPLE_TIMESTAMPS[sampleIndex],
         isKeyFrame,
-        /* isDecodeOnly= */ false,
         isEncrypted,
         sampleData,
         /* offset= */ 0,
@@ -1846,7 +1797,6 @@ public final class SampleQueueTest {
    *
    * @param timeUs The expected buffer timestamp.
    * @param isKeyFrame The expected keyframe flag.
-   * @param isDecodeOnly The expected decodeOnly flag.
    * @param isEncrypted The expected encrypted flag.
    * @param sampleData An array containing the expected sample data.
    * @param offset The offset in {@code sampleData} of the expected sample data.
@@ -1855,7 +1805,6 @@ public final class SampleQueueTest {
   private void assertReadSample(
       long timeUs,
       boolean isKeyFrame,
-      boolean isDecodeOnly,
       boolean isEncrypted,
       byte[] sampleData,
       int offset,
@@ -1870,13 +1819,7 @@ public final class SampleQueueTest {
             FLAG_OMIT_SAMPLE_DATA | FLAG_PEEK,
             /* loadingFinished= */ false);
     assertSampleBufferReadResult(
-        flagsOnlyBuffer,
-        result,
-        timeUs,
-        isKeyFrame,
-        isDecodeOnly,
-        isEncrypted,
-        /* isLastSample= */ false);
+        flagsOnlyBuffer, result, timeUs, isKeyFrame, isEncrypted, /* isLastSample= */ false);
 
     // Check that peek yields the expected values.
     clearFormatHolderAndInputBuffer();
@@ -1885,7 +1828,6 @@ public final class SampleQueueTest {
         result,
         timeUs,
         isKeyFrame,
-        isDecodeOnly,
         isEncrypted,
         /* isLastSample= */ false,
         sampleData,
@@ -1901,7 +1843,6 @@ public final class SampleQueueTest {
         result,
         timeUs,
         isKeyFrame,
-        isDecodeOnly,
         isEncrypted,
         /* isLastSample= */ false,
         sampleData,
@@ -1916,7 +1857,6 @@ public final class SampleQueueTest {
    *
    * @param timeUs The expected buffer timestamp.
    * @param isKeyFrame The expected keyframe flag.
-   * @param isDecodeOnly The expected decodeOnly flag.
    * @param isEncrypted The expected encrypted flag.
    * @param sampleData An array containing the expected sample data.
    * @param offset The offset in {@code sampleData} of the expected sample data.
@@ -1925,7 +1865,6 @@ public final class SampleQueueTest {
   private void assertReadLastSample(
       long timeUs,
       boolean isKeyFrame,
-      boolean isDecodeOnly,
       boolean isEncrypted,
       byte[] sampleData,
       int offset,
@@ -1940,13 +1879,7 @@ public final class SampleQueueTest {
             FLAG_OMIT_SAMPLE_DATA | FLAG_PEEK,
             /* loadingFinished= */ true);
     assertSampleBufferReadResult(
-        flagsOnlyBuffer,
-        result,
-        timeUs,
-        isKeyFrame,
-        isDecodeOnly,
-        isEncrypted,
-        /* isLastSample= */ true);
+        flagsOnlyBuffer, result, timeUs, isKeyFrame, isEncrypted, /* isLastSample= */ true);
 
     // Check that peek yields the expected values.
     clearFormatHolderAndInputBuffer();
@@ -1955,7 +1888,6 @@ public final class SampleQueueTest {
         result,
         timeUs,
         isKeyFrame,
-        isDecodeOnly,
         isEncrypted,
         /* isLastSample= */ true,
         sampleData,
@@ -1971,7 +1903,6 @@ public final class SampleQueueTest {
         result,
         timeUs,
         isKeyFrame,
-        isDecodeOnly,
         isEncrypted,
         /* isLastSample= */ true,
         sampleData,
@@ -1984,7 +1915,6 @@ public final class SampleQueueTest {
       int result,
       long timeUs,
       boolean isKeyFrame,
-      boolean isDecodeOnly,
       boolean isEncrypted,
       boolean isLastSample) {
     assertThat(result).isEqualTo(RESULT_BUFFER_READ);
@@ -1993,7 +1923,6 @@ public final class SampleQueueTest {
     // inputBuffer should be populated with metadata.
     assertThat(inputBuffer.timeUs).isEqualTo(timeUs);
     assertThat(inputBuffer.isKeyFrame()).isEqualTo(isKeyFrame);
-    assertThat(inputBuffer.isDecodeOnly()).isEqualTo(isDecodeOnly);
     assertThat(inputBuffer.isEncrypted()).isEqualTo(isEncrypted);
     assertThat(inputBuffer.isLastSample()).isEqualTo(isLastSample);
   }
@@ -2002,14 +1931,13 @@ public final class SampleQueueTest {
       int result,
       long timeUs,
       boolean isKeyFrame,
-      boolean isDecodeOnly,
       boolean isEncrypted,
       boolean isLastSample,
       byte[] sampleData,
       int offset,
       int length) {
     assertSampleBufferReadResult(
-        inputBuffer, result, timeUs, isKeyFrame, isDecodeOnly, isEncrypted, isLastSample);
+        inputBuffer, result, timeUs, isKeyFrame, isEncrypted, isLastSample);
     // inputBuffer should be populated with data.
     inputBuffer.flip();
     assertThat(inputBuffer.data.limit()).isEqualTo(length);
@@ -2038,7 +1966,6 @@ public final class SampleQueueTest {
 
   private void assertInputBufferHasNoDefaultFlagsSet() {
     assertThat(inputBuffer.isEndOfStream()).isFalse();
-    assertThat(inputBuffer.isDecodeOnly()).isFalse();
     assertThat(inputBuffer.isEncrypted()).isFalse();
   }
 

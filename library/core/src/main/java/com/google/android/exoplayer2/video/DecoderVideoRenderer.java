@@ -742,8 +742,6 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
     }
   }
 
-  // Setting deprecated decode-only flag for compatibility with decoders that are still using it.
-  @SuppressWarnings("deprecation")
   private boolean feedInputBuffer() throws DecoderException, ExoPlaybackException {
     if (decoder == null
         || decoderReinitializationState == REINITIALIZATION_STATE_WAIT_END_OF_STREAM
@@ -785,9 +783,6 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
         if (waitingForFirstSampleInFormat) {
           formatQueue.add(inputBuffer.timeUs, checkNotNull(inputFormat));
           waitingForFirstSampleInFormat = false;
-        }
-        if (inputBuffer.timeUs < getLastResetPositionUs()) {
-          inputBuffer.addFlag(C.BUFFER_FLAG_DECODE_ONLY);
         }
         inputBuffer.flip();
         inputBuffer.format = inputFormat;

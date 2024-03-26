@@ -430,7 +430,6 @@ public class ImageRenderer extends BaseRenderer {
    *     current iteration of the rendering loop.
    * @return Whether we can feed more input data to the decoder.
    */
-  @SuppressWarnings("deprecation") // Clearing C.BUFFER_FLAG_DECODE_ONLY for compatibility
   private boolean feedInputBuffer(long positionUs) throws ImageDecoderException {
     if (readyToOutputTiles && tileInfo != null) {
       return false;
@@ -467,8 +466,6 @@ public class ImageRenderer extends BaseRenderer {
             checkStateNotNull(inputBuffer.data).remaining() > 0
                 || checkStateNotNull(inputBuffer).isEndOfStream();
         if (shouldQueueBuffer) {
-          // TODO: b/318696449 - Don't use the deprecated BUFFER_FLAG_DECODE_ONLY with image chunks.
-          checkStateNotNull(inputBuffer).clearFlag(C.BUFFER_FLAG_DECODE_ONLY);
           checkStateNotNull(decoder).queueInputBuffer(checkStateNotNull(inputBuffer));
           currentTileIndex = 0;
         }
