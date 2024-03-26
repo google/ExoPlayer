@@ -340,7 +340,7 @@ public final class TransformerActivity extends AppCompatActivity {
 
       Muxer.Factory muxerFactory = new DefaultMuxer.Factory();
       if (bundle.getBoolean(ConfigurationActivity.PRODUCE_FRAGMENTED_MP4)) {
-        muxerFactory = new InAppMuxer.Factory.Builder().setFragmentedMp4Enabled(true).build();
+        muxerFactory = new InAppMuxer.Factory.Builder().setOutputFragmentedMp4(true).build();
       }
       transformerBuilder.setMuxerFactory(muxerFactory);
 
