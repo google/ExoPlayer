@@ -115,7 +115,14 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       /**
        * Sets whether to transfer colors to an intermediate color space when applying effects.
        *
+       * <p>The default value is {@code true}.
+       *
        * <p>If the input or output is HDR, this must be {@code true}.
+       *
+       * <p>If all input and output content will be SDR, it's recommended to set this value to
+       * {@code false}. This is because 8-bit colors in SDR may result in color banding.
+       *
+       * <p>This doesn't currently work with overlay effects (ex. {@link TextureOverlay}).
        */
       @CanIgnoreReturnValue
       public Builder setEnableColorTransfers(boolean enableColorTransfers) {
