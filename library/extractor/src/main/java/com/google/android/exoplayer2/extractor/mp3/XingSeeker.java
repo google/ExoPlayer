@@ -42,9 +42,7 @@ import com.google.android.exoplayer2.util.Util;
    *
    * @param inputLength The length of the stream in bytes, or {@link C#LENGTH_UNSET} if unknown.
    * @param position The position of the start of this frame in the stream.
-   * @param mpegAudioHeader The MPEG audio header associated with the frame.
-   * @param frame The data in this audio frame, with its position set to immediately after the
-   *     'Xing' or 'Info' tag.
+   * @param xingFrame The parsed XING data from this audio frame.
    * @return A {@link XingSeeker} for seeking in the stream, or {@code null} if the required
    *     information is not present.
    */
