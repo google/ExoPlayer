@@ -451,6 +451,15 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     isPublished = true;
   }
 
+  /**
+   * If their are any samples loaded in this chunk.
+   *
+   * @return true if samples were loaded
+   */
+  boolean hasSamples() {
+    return ! hasGapTag;   // TOOD - could expand upon this to be more accurate, but for sure GAP has none
+  }
+
   // Internal methods.
 
   @RequiresNonNull("output")
