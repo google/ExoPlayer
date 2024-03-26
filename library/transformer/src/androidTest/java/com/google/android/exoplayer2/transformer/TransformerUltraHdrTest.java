@@ -141,6 +141,26 @@ public final class TransformerUltraHdrTest {
     assertThat(colorInfo.colorTransfer).isEqualTo(C.COLOR_TRANSFER_SDR);
   }
 
+  @Test
+  public void exportSdrImageThenUltraHdrImage_exportsSdr() throws Exception {
+    Composition composition =
+        createUltraHdrComposition(
+            /* tonemap= */ false,
+            oneFrameFromImage(JPG_ASSET_URI_STRING, NO_EFFECT),
+            oneFrameFromImage(ULTRA_HDR_URI_STRING, NO_EFFECT));
+
+    ExportTestResult result =
+        new TransformerAndroidTestRunner.Builder(context, new Transformer.Builder(context).build())
+            .build()
+            .run(testId, composition);
+
+    assertThat(result.filePath).isNotNull();
+    ColorInfo colorInfo =
+        retrieveTrackFormat(context, result.filePath, C.TRACK_TYPE_VIDEO).colorInfo;
+    assertThat(colorInfo.colorSpace).isEqualTo(C.COLOR_SPACE_BT709);
+    assertThat(colorInfo.colorTransfer).isEqualTo(C.COLOR_TRANSFER_SDR);
+  }
+
   private static Composition createUltraHdrComposition(
       boolean tonemap, EditedMediaItem editedMediaItem, EditedMediaItem... editedMediaItems) {
     Composition.Builder builder =

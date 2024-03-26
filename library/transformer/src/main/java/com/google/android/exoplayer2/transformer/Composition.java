@@ -241,6 +241,7 @@ public final class Composition {
      *
      * <p>If the {@link HdrMode} is {@link #HDR_MODE_KEEP_HDR}, then setting this to {@code true}
      * applies the recovery map (i.e. the gainmap) to the base image to produce HDR video frames.
+     * This is automatically overridden to true, if the first asset is a HDR video.
      *
      * <p>The output video will have the same color encoding as the first {@link EditedMediaItem}
      * the sequence. If the Ultra HDR image is first in the sequence, output video will default to
