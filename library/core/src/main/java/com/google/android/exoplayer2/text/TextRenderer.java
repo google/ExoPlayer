@@ -237,7 +237,9 @@ public final class TextRenderer extends BaseRenderer implements Callback {
         replaceSubtitleDecoder();
       } else {
         releaseSubtitleBuffers();
-        checkNotNull(subtitleDecoder).flush();
+        SubtitleDecoder subtitleDecoder = checkNotNull(this.subtitleDecoder);
+        subtitleDecoder.flush();
+        subtitleDecoder.setOutputStartTimeUs(getLastResetPositionUs());
       }
     }
   }
@@ -503,6 +505,7 @@ public final class TextRenderer extends BaseRenderer implements Callback {
   private void initSubtitleDecoder() {
     waitingForKeyFrame = true;
     subtitleDecoder = subtitleDecoderFactory.createDecoder(checkNotNull(streamFormat));
+    subtitleDecoder.setOutputStartTimeUs(getLastResetPositionUs());
   }
 
   private void replaceSubtitleDecoder() {

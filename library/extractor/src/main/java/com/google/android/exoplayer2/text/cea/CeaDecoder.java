@@ -49,6 +49,7 @@ import java.util.PriorityQueue;
   @Nullable private CeaInputBuffer dequeuedInputBuffer;
   private long playbackPositionUs;
   private long queuedInputBufferCount;
+  private long outputStartTimeUs;
 
   @SuppressWarnings("nullness:methodref.receiver.bound")
   public CeaDecoder() {
@@ -61,6 +62,7 @@ import java.util.PriorityQueue;
       availableOutputBuffers.add(new CeaOutputBuffer(this::releaseOutputBuffer));
     }
     queuedInputBuffers = new PriorityQueue<>();
+    outputStartTimeUs = C.TIME_UNSET;
   }
 
   @Override
@@ -68,7 +70,7 @@ import java.util.PriorityQueue;
 
   @Override
   public final void setOutputStartTimeUs(long outputStartTimeUs) {
-    // Do nothing.
+    this.outputStartTimeUs = outputStartTimeUs;
   }
 
   @Override
@@ -87,13 +89,11 @@ import java.util.PriorityQueue;
     return dequeuedInputBuffer;
   }
 
-  // Still using deprecated decoder-only flag until this decoder is replaced by a SubtitleParser.
-  @SuppressWarnings("deprecation")
   @Override
   public void queueInputBuffer(SubtitleInputBuffer inputBuffer) throws SubtitleDecoderException {
     Assertions.checkArgument(inputBuffer == dequeuedInputBuffer);
     CeaInputBuffer ceaInputBuffer = (CeaInputBuffer) inputBuffer;
-    if (ceaInputBuffer.isDecodeOnly()) {
+    if (outputStartTimeUs != C.TIME_UNSET && ceaInputBuffer.timeUs < outputStartTimeUs) {
       // We can start decoding anywhere in CEA formats, so discarding on the input side is fine.
       releaseInputBuffer(ceaInputBuffer);
     } else {
