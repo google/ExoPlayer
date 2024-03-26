@@ -141,6 +141,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
      * Checks if the CDD-requirement to support H264 720p at 60 fps is covered by PerformancePoints.
      */
     private static boolean shouldIgnorePerformancePoints() {
+      if (Util.SDK_INT >= 35) {
+        // The same check as below is tested in CTS and we should get reliable results from API 35.
+        return false;
+      }
       try {
         Format formatH264 = new Format.Builder().setSampleMimeType(MimeTypes.VIDEO_H264).build();
         // Null check required to pass RequiresNonNull annotation on getDecoderInfosSoftMatch.
