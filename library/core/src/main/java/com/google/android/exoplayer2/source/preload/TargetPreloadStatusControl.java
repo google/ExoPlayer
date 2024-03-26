@@ -15,6 +15,9 @@
  */
 package com.google.android.exoplayer2.source.preload;
 
+import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.source.MediaSource;
+
 /**
  * Controls the target preload status.
  *
@@ -26,10 +29,14 @@ package com.google.android.exoplayer2.source.preload;
 @Deprecated
 public interface TargetPreloadStatusControl<T> {
 
-  /** Returns the target preload status for a source with the given {@code rankingData}. */
+  /**
+   * Returns the target preload status for a source with the given {@code rankingData}. May be null
+   * if a {@link MediaSource} with the given {@code rankingData} should not be preloaded.
+   */
+  @Nullable
   PreloadStatus getTargetPreloadStatus(T rankingData);
 
-  /** Defines the status of the preloading for a source. */
+  /** Defines the status of the preloading for a {@link MediaSource}. */
   interface PreloadStatus {
 
     /** The stage of the preloading. */

@@ -130,7 +130,9 @@ public abstract class BasePreloadManager<T> {
     synchronized (lock) {
       sourceHolderPriorityQueue.clear();
       sourceHolderPriorityQueue.addAll(mediaItemMediaSourceHolderMap.values());
-      maybeStartPreloadNextSource();
+      while (!sourceHolderPriorityQueue.isEmpty() && !maybeStartPreloadNextSource()) {
+        sourceHolderPriorityQueue.poll();
+      }
     }
   }
 
@@ -184,8 +186,9 @@ public abstract class BasePreloadManager<T> {
                 || checkNotNull(sourceHolderPriorityQueue.peek()).mediaSource != source) {
               return;
             }
-            sourceHolderPriorityQueue.poll();
-            maybeStartPreloadNextSource();
+            do {
+              sourceHolderPriorityQueue.poll();
+            } while (!sourceHolderPriorityQueue.isEmpty() && !maybeStartPreloadNextSource());
           }
         });
   }
@@ -241,14 +244,26 @@ public abstract class BasePreloadManager<T> {
   /** Releases the preload manager, see {@link #release()}. */
   protected void releaseInternal() {}
 
+  /**
+   * Starts to preload the {@link MediaSource} at the head of the priority queue, if the {@linkplain
+   * TargetPreloadStatusControl.PreloadStatus target preload status} for that source is not null.
+   *
+   * @return {@code true} if the {@link MediaSource} at the head of the priority queue starts to
+   *     preload, otherwise {@code false}.
+   * @throws NullPointerException if the priority queue is empty.
+   */
   @GuardedBy("lock")
-  private void maybeStartPreloadNextSource() {
-    if (!sourceHolderPriorityQueue.isEmpty() && shouldStartPreloadingNextSource()) {
+  private boolean maybeStartPreloadNextSource() {
+    if (shouldStartPreloadingNextSource()) {
       MediaSourceHolder preloadingHolder = checkNotNull(sourceHolderPriorityQueue.peek());
       this.targetPreloadStatusOfCurrentPreloadingSource =
           targetPreloadStatusControl.getTargetPreloadStatus(preloadingHolder.rankingData);
-      preloadSourceInternal(preloadingHolder.mediaSource, preloadingHolder.startPositionUs);
+      if (targetPreloadStatusOfCurrentPreloadingSource != null) {
+        preloadSourceInternal(preloadingHolder.mediaSource, preloadingHolder.startPositionUs);
+        return true;
+      }
     }
+    return false;
   }
 
   /** A holder for information for preloading a single media source. */
