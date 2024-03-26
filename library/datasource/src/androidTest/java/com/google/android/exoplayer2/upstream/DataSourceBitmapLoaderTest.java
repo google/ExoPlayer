@@ -25,6 +25,7 @@ import android.net.Uri;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.MediaMetadata;
+import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -114,9 +115,7 @@ public class DataSourceBitmapLoaderTest {
     ListenableFuture<Bitmap> future = bitmapLoader.decodeBitmap(new byte[0]);
 
     assertException(
-        future::get,
-        IllegalArgumentException.class,
-        /* messagePart= */ "Could not decode image data");
+        future::get, ParserException.class, /* messagePart= */ "Could not decode image data");
   }
 
   @Test
