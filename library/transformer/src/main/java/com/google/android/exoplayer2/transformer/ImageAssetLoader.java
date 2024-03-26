@@ -37,6 +37,7 @@ import com.google.android.exoplayer2.transformer.SampleConsumer.InputResult;
 import com.google.android.exoplayer2.util.BitmapLoader;
 import com.google.android.exoplayer2.util.ConstantRateTimestampIterator;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.util.concurrent.FutureCallback;
@@ -60,6 +61,8 @@ import java.util.concurrent.ScheduledExecutorService;
 @Deprecated
 public final class ImageAssetLoader implements AssetLoader {
 
+  private final boolean retainHdrFromUltraHdrImage;
+
   /** An {@link AssetLoader.Factory} for {@link ImageAssetLoader} instances. */
   public static final class Factory implements AssetLoader.Factory {
 
@@ -80,7 +83,8 @@ public final class ImageAssetLoader implements AssetLoader {
         Looper looper,
         Listener listener,
         CompositionSettings compositionSettings) {
-      return new ImageAssetLoader(editedMediaItem, listener, bitmapLoader);
+      return new ImageAssetLoader(
+          editedMediaItem, listener, bitmapLoader, compositionSettings.retainHdrFromUltraHdrImage);
     }
   }
 
@@ -99,7 +103,11 @@ public final class ImageAssetLoader implements AssetLoader {
   private volatile int progress;
 
   private ImageAssetLoader(
-      EditedMediaItem editedMediaItem, Listener listener, BitmapLoader bitmapLoader) {
+      EditedMediaItem editedMediaItem,
+      Listener listener,
+      BitmapLoader bitmapLoader,
+      boolean retainHdrFromUltraHdrImage) {
+    this.retainHdrFromUltraHdrImage = retainHdrFromUltraHdrImage;
     checkState(editedMediaItem.durationUs != C.TIME_UNSET);
     checkState(editedMediaItem.frameRate != C.RATE_UNSET_INT);
     this.editedMediaItem = editedMediaItem;
@@ -128,16 +136,20 @@ public final class ImageAssetLoader implements AssetLoader {
           @Override
           public void onSuccess(Bitmap bitmap) {
             progress = 50;
+            Format inputFormat =
+                new Format.Builder()
+                    .setHeight(bitmap.getHeight())
+                    .setWidth(bitmap.getWidth())
+                    .setSampleMimeType(MIME_TYPE_IMAGE_ALL)
+                    .setColorInfo(ColorInfo.SRGB_BT709_FULL)
+                    .build();
+            Format outputFormat =
+                retainHdrFromUltraHdrImage && Util.SDK_INT >= 34 && bitmap.hasGainmap()
+                    ? inputFormat.buildUpon().setSampleMimeType(MimeTypes.IMAGE_JPEG_R).build()
+                    : inputFormat;
             try {
-              Format format =
-                  new Format.Builder()
-                      .setHeight(bitmap.getHeight())
-                      .setWidth(bitmap.getWidth())
-                      .setSampleMimeType(MIME_TYPE_IMAGE_ALL)
-                      .setColorInfo(ColorInfo.SRGB_BT709_FULL)
-                      .build();
-              listener.onTrackAdded(format, SUPPORTED_OUTPUT_TYPE_DECODED);
-              scheduledExecutorService.submit(() -> queueBitmapInternal(bitmap, format));
+              listener.onTrackAdded(inputFormat, SUPPORTED_OUTPUT_TYPE_DECODED);
+              scheduledExecutorService.submit(() -> queueBitmapInternal(bitmap, outputFormat));
             } catch (RuntimeException e) {
               listener.onError(ExportException.createForAssetLoader(e, ERROR_CODE_UNSPECIFIED));
             }

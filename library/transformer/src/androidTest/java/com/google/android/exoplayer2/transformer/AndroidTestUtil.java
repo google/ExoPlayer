@@ -26,6 +26,7 @@ import static org.junit.Assume.assumeFalse;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Bitmap.Config;
 import android.media.Image;
 import android.media.MediaFormat;
 import android.opengl.EGLContext;
@@ -69,6 +70,7 @@ public final class AndroidTestUtil {
   public static final String PNG_ASSET_URI_STRING = "asset:///media/png/media3test.png";
   public static final String JPG_ASSET_URI_STRING = "asset:///media/jpeg/london.jpg";
   public static final String JPG_PORTRAIT_ASSET_URI_STRING = "asset:///media/jpeg/tokyo.jpg";
+  public static final String ULTRA_HDR_URI_STRING = "asset:///media/jpeg/ultraHDR.jpg";
 
   public static final String MP4_TRIM_OPTIMIZATION_URI_STRING =
       "asset:///media/mp4/internal_emulator_transformer_output.mp4";
@@ -633,6 +635,12 @@ public final class AndroidTestUtil {
 
   public static ImmutableList<Bitmap> extractBitmapsFromVideo(Context context, String filePath)
       throws IOException, InterruptedException {
+    return extractBitmapsFromVideo(context, filePath, Config.ARGB_8888);
+  }
+
+  public static ImmutableList<Bitmap> extractBitmapsFromVideo(
+      Context context, String filePath, Bitmap.Config config)
+      throws IOException, InterruptedException {
     // b/298599172 - runUntilComparisonFrameOrEnded fails on this device because reading decoder
     //  output as a bitmap doesn't work.
     assumeFalse(Util.SDK_INT == 21 && Ascii.toLowerCase(Util.MODEL).contains("nexus"));
@@ -645,7 +653,7 @@ public final class AndroidTestUtil {
         if (image == null) {
           break;
         }
-        bitmaps.add(BitmapPixelTestUtil.createGrayscaleArgb8888BitmapFromYuv420888Image(image));
+        bitmaps.add(BitmapPixelTestUtil.createGrayscaleBitmapFromYuv420888Image(image, config));
         image.close();
       }
     }

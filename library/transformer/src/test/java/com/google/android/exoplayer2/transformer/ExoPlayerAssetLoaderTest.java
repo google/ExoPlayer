@@ -145,7 +145,12 @@ public class ExoPlayerAssetLoaderTest {
     EditedMediaItem editedMediaItem =
         new EditedMediaItem.Builder(MediaItem.fromUri("asset:///media/mp4/sample.mp4")).build();
     return new ExoPlayerAssetLoader.Factory(context, decoderFactory, clock)
-        .createAssetLoader(editedMediaItem, Looper.myLooper(), listener, new CompositionSettings());
+        .createAssetLoader(
+            editedMediaItem,
+            Looper.myLooper(),
+            listener,
+            new CompositionSettings(
+                Composition.HDR_MODE_KEEP_HDR, /* retainHdrFromUltraHdrImage= */ false));
   }
 
   private static final class FakeSampleConsumer implements SampleConsumer {

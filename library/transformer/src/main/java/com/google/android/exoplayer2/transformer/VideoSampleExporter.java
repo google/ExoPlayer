@@ -16,6 +16,9 @@
 
 package com.google.android.exoplayer2.transformer;
 
+import static com.google.android.exoplayer2.C.COLOR_RANGE_FULL;
+import static com.google.android.exoplayer2.C.COLOR_SPACE_BT2020;
+import static com.google.android.exoplayer2.C.COLOR_TRANSFER_HLG;
 import static com.google.android.exoplayer2.transformer.Composition.HDR_MODE_KEEP_HDR;
 import static com.google.android.exoplayer2.transformer.Composition.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL;
 import static com.google.android.exoplayer2.transformer.EncoderUtil.getSupportedEncodersForHdrEditing;
@@ -52,6 +55,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.Objects;
 import org.checkerframework.checker.initialization.qual.Initialized;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.dataflow.qual.Pure;
@@ -102,26 +106,40 @@ import org.checkerframework.dataflow.qual.Pure;
     this.initialTimestampOffsetUs = initialTimestampOffsetUs;
     finalFramePresentationTimeUs = C.TIME_UNSET;
 
+    ColorInfo videoGraphInputColor = checkNotNull(firstInputFormat.colorInfo);
+    ColorInfo videoGraphOutputColor;
+    if (videoGraphInputColor.colorTransfer == C.COLOR_TRANSFER_SRGB) {
+      // The sRGB color transfer is only used for images.
+      // When an Ultra HDR image transcoded into a video, we use BT2020 HLG full range colors in the
+      // resulting HDR video.
+      // When an SDR image gets transcoded into a video, we use the SMPTE 170M transfer function for
+      // the resulting video.
+      videoGraphOutputColor =
+          Objects.equals(firstInputFormat.sampleMimeType, MimeTypes.IMAGE_JPEG_R)
+              ? new ColorInfo.Builder()
+                  .setColorSpace(COLOR_SPACE_BT2020)
+                  .setColorTransfer(COLOR_TRANSFER_HLG)
+                  .setColorRange(COLOR_RANGE_FULL)
+                  .build()
+              : SDR_BT709_LIMITED;
+    } else {
+      videoGraphOutputColor = videoGraphInputColor;
+    }
+
     encoderWrapper =
         new EncoderWrapper(
             encoderFactory,
-            firstInputFormat,
+            firstInputFormat.buildUpon().setColorInfo(videoGraphOutputColor).build(),
             muxerWrapper.getSupportedSampleMimeTypes(C.TRACK_TYPE_VIDEO),
             transformationRequest,
             fallbackListener);
     encoderOutputBuffer =
         new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);
 
-    ColorInfo videoGraphInputColor = checkNotNull(firstInputFormat.colorInfo);
     boolean isGlToneMapping =
         encoderWrapper.getHdrModeAfterFallback() == HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL
             && ColorInfo.isTransferHdr(videoGraphInputColor);
-    ColorInfo videoGraphOutputColor;
-    if (videoGraphInputColor.colorTransfer == C.COLOR_TRANSFER_SRGB) {
-      // The sRGB color transfer is only used for images, so when an image gets transcoded into a
-      // video, we use the SMPTE 170M transfer function for the resulting video.
-      videoGraphOutputColor = SDR_BT709_LIMITED;
-    } else if (isGlToneMapping) {
+    if (isGlToneMapping) {
       // For consistency with the Android platform, OpenGL tone mapping outputs colors with
       // C.COLOR_TRANSFER_GAMMA_2_2 instead of C.COLOR_TRANSFER_SDR, and outputs this as
       // C.COLOR_TRANSFER_SDR to the encoder.
@@ -131,8 +149,6 @@ import org.checkerframework.dataflow.qual.Pure;
               .setColorRange(C.COLOR_RANGE_LIMITED)
               .setColorTransfer(C.COLOR_TRANSFER_GAMMA_2_2)
               .build();
-    } else {
-      videoGraphOutputColor = videoGraphInputColor;
     }
 
     try {

@@ -23,6 +23,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.transformer.Composition.HdrMode;
 import com.google.common.collect.ImmutableMap;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -148,14 +149,12 @@ public interface AssetLoader {
    */
   /* package */ class CompositionSettings {
 
-    public final @Composition.HdrMode int hdrMode;
+    public final @HdrMode int hdrMode;
+    public final boolean retainHdrFromUltraHdrImage;
 
-    public CompositionSettings() {
-      this.hdrMode = Composition.HDR_MODE_KEEP_HDR;
-    }
-
-    public CompositionSettings(@Composition.HdrMode int hdrMode) {
+    public CompositionSettings(@HdrMode int hdrMode, boolean retainHdrFromUltraHdrImage) {
       this.hdrMode = hdrMode;
+      this.retainHdrFromUltraHdrImage = retainHdrFromUltraHdrImage;
     }
   }
 

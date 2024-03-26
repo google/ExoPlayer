@@ -161,6 +161,7 @@ public final class MimeTypes {
   // image/ MIME types
 
   public static final String IMAGE_JPEG = BASE_TYPE_IMAGE + "/jpeg";
+  public static final String IMAGE_JPEG_R = BASE_TYPE_IMAGE + "/jpeg_r";
   public static final String IMAGE_PNG = BASE_TYPE_IMAGE + "/png";
   public static final String IMAGE_HEIF = BASE_TYPE_IMAGE + "/heif";
   public static final String IMAGE_BMP = BASE_TYPE_IMAGE + "/bmp";

@@ -98,13 +98,9 @@ public final class DefaultAssetLoaderFactory implements AssetLoader.Factory {
    * The frame loaded is determined by the {@link BitmapLoader} implementation.
    *
    * @param context The {@link Context}.
-   * @param hdrMode The {@link Composition.HdrMode} to apply. Only {@link
-   *     Composition#HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC} and {@link
-   *     Composition#HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR} are applied.
    * @param bitmapLoader The {@link BitmapLoader} to use to load and decode images.
    */
-  public DefaultAssetLoaderFactory(
-      Context context, @Composition.HdrMode int hdrMode, BitmapLoader bitmapLoader) {
+  public DefaultAssetLoaderFactory(Context context, BitmapLoader bitmapLoader) {
     this.context = context.getApplicationContext();
     this.decoderFactory = new DefaultDecoderFactory(context);
     this.clock = Clock.DEFAULT;

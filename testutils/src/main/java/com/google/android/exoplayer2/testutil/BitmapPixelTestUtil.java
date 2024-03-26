@@ -224,7 +224,8 @@ public class BitmapPixelTestUtil {
   /**
    * Returns a grayscale bitmap from the Luma channel in the {@link ImageFormat#YUV_420_888} image.
    */
-  public static Bitmap createGrayscaleArgb8888BitmapFromYuv420888Image(Image image) {
+  public static Bitmap createGrayscaleBitmapFromYuv420888Image(
+      Image image, Bitmap.Config bitmapConfig) {
     int width = image.getWidth();
     int height = image.getHeight();
     assertThat(image.getPlanes()).hasLength(3);
@@ -245,7 +246,7 @@ public class BitmapPixelTestUtil {
                 /* blue= */ lumaValue);
       }
     }
-    return Bitmap.createBitmap(colors, width, height, Bitmap.Config.ARGB_8888);
+    return Bitmap.createBitmap(colors, width, height, bitmapConfig);
   }
 
   /**

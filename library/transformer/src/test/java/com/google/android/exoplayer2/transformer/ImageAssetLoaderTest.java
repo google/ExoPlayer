@@ -123,7 +123,12 @@ public class ImageAssetLoaderTest {
             .build();
     return new ImageAssetLoader.Factory(
             new DataSourceBitmapLoader(ApplicationProvider.getApplicationContext()))
-        .createAssetLoader(editedMediaItem, Looper.myLooper(), listener, new CompositionSettings());
+        .createAssetLoader(
+            editedMediaItem,
+            Looper.myLooper(),
+            listener,
+            new CompositionSettings(
+                Composition.HDR_MODE_KEEP_HDR, /* retainHdrFromUltraHdrImage= */ false));
   }
 
   private static final class FakeSampleConsumer implements SampleConsumer {

@@ -34,6 +34,7 @@ import java.util.List;
 
 /** Utility class for checking testing {@link EditedMediaItemSequence} instances. */
 public final class SequenceEffectTestUtil {
+  public static final ImmutableList<Effect> NO_EFFECT = ImmutableList.of();
   private static final String PNG_ASSET_BASE_PATH =
       "test-generated-goldens/transformer_sequence_effect_test";
   public static final long SINGLE_30_FPS_VIDEO_FRAME_THRESHOLD_MS = 50;

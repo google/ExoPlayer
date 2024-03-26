@@ -54,6 +54,7 @@ public final class Composition {
     private boolean transmuxAudio;
     private boolean transmuxVideo;
     private @HdrMode int hdrMode;
+    private boolean retainHdrFromUltraHdrImage;
 
     /**
      * Creates an instance.
@@ -92,6 +93,7 @@ public final class Composition {
       transmuxAudio = composition.transmuxAudio;
       transmuxVideo = composition.transmuxVideo;
       hdrMode = composition.hdrMode;
+      retainHdrFromUltraHdrImage = composition.retainHdrFromUltraHdrImage;
     }
 
     /**
@@ -234,6 +236,33 @@ public final class Composition {
       return this;
     }
 
+    /**
+     * Sets whether to use produce an HDR output video from Ultra HDR image input.
+     *
+     * <p>If the {@link HdrMode} is {@link #HDR_MODE_KEEP_HDR}, then setting this to {@code true}
+     * applies the recovery map (i.e. the gainmap) to the base image to produce HDR video frames.
+     *
+     * <p>The output video will have the same color encoding as the first {@link EditedMediaItem}
+     * the sequence. If the Ultra HDR image is first in the sequence, output video will default to
+     * BT2020 HLG full range colors.
+     *
+     * <p>Ignored if {@link HdrMode} is not {@link #HDR_MODE_KEEP_HDR}.
+     *
+     * <p>Supported on API 34+, by some device and HDR format combinations. Ignored if unsupported
+     * by device or API level.
+     *
+     * <p>The default value is {@code false}.
+     *
+     * @param retainHdrFromUltraHdrImage Whether to use produce an HDR output video from Ultra HDR
+     *     image input.
+     * @return This builder.
+     */
+    @CanIgnoreReturnValue
+    public Builder experimentalSetRetainHdrFromUltraHdrImage(boolean retainHdrFromUltraHdrImage) {
+      this.retainHdrFromUltraHdrImage = retainHdrFromUltraHdrImage;
+      return this;
+    }
+
     /** Builds a {@link Composition} instance. */
     public Composition build() {
       return new Composition(
@@ -243,7 +272,8 @@ public final class Composition {
           forceAudioTrack,
           transmuxAudio,
           transmuxVideo,
-          hdrMode);
+          hdrMode,
+          retainHdrFromUltraHdrImage && hdrMode == HDR_MODE_KEEP_HDR);
     }
 
     /**
@@ -381,6 +411,14 @@ public final class Composition {
    */
   public final @HdrMode int hdrMode;
 
+  /**
+   * Sets whether to use produce an HDR output video from Ultra HDR image input.
+   *
+   * <p>For more information, see {@link
+   * Builder#experimentalSetRetainHdrFromUltraHdrImage(boolean)}.
+   */
+  public final boolean retainHdrFromUltraHdrImage;
+
   /** Returns a {@link Composition.Builder} initialized with the values of this instance. */
   /* package */ Builder buildUpon() {
     return new Builder(this);
@@ -393,7 +431,8 @@ public final class Composition {
       boolean forceAudioTrack,
       boolean transmuxAudio,
       boolean transmuxVideo,
-      @HdrMode int hdrMode) {
+      @HdrMode int hdrMode,
+      boolean retainHdrFromUltraHdrImage) {
     checkArgument(
         !transmuxAudio || !forceAudioTrack,
         "Audio transmuxing and audio track forcing are not allowed together.");
@@ -404,5 +443,6 @@ public final class Composition {
     this.transmuxVideo = transmuxVideo;
     this.forceAudioTrack = forceAudioTrack;
     this.hdrMode = hdrMode;
+    this.retainHdrFromUltraHdrImage = retainHdrFromUltraHdrImage;
   }
 }

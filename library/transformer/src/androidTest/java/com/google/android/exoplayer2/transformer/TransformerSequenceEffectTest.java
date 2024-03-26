@@ -27,6 +27,7 @@ import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSE
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_PORTRAIT_ASSET_URI_STRING;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.assumeFormatsSupported;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.extractBitmapsFromVideo;
+import static com.google.android.exoplayer2.transformer.SequenceEffectTestUtil.NO_EFFECT;
 import static com.google.android.exoplayer2.transformer.SequenceEffectTestUtil.SINGLE_30_FPS_VIDEO_FRAME_THRESHOLD_MS;
 import static com.google.android.exoplayer2.transformer.SequenceEffectTestUtil.assertBitmapsMatchExpectedAndSave;
 import static com.google.android.exoplayer2.transformer.SequenceEffectTestUtil.clippedVideo;
@@ -64,7 +65,6 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public final class TransformerSequenceEffectTest {
 
-  private static final ImmutableList<Effect> NO_EFFECT = ImmutableList.of();
   private static final String OVERLAY_PNG_ASSET_PATH = "media/png/media3test.png";
   private static final int EXPORT_WIDTH = 360;
   private static final int EXPORT_HEIGHT = 240;
