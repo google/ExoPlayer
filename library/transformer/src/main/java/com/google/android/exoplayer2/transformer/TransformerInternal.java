@@ -51,6 +51,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.transformer.AssetLoader.CompositionSettings;
@@ -59,6 +60,7 @@ import com.google.android.exoplayer2.util.ConditionVariable;
 import com.google.android.exoplayer2.util.DebugViewProvider;
 import com.google.android.exoplayer2.util.HandlerWrapper;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.util.VideoFrameProcessor;
 import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.collect.ImmutableList;
@@ -202,6 +204,19 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.clock = clock;
     this.videoSampleTimestampOffsetUs = videoSampleTimestampOffsetUs;
     this.muxerWrapper = muxerWrapper;
+
+    // It's safe to use "this" because the reference won't change.
+    @SuppressWarnings("nullness:argument.type.incompatible")
+    String referenceName = Integer.toHexString(System.identityHashCode(this));
+    Log.i(
+        TAG,
+        "Init "
+            + referenceName
+            + " ["
+            + ExoPlayerLibraryInfo.VERSION_SLASHY
+            + "] ["
+            + Util.DEVICE_DEBUG_INFO
+            + "]");
     internalHandlerThread = new HandlerThread("Transformer:Internal");
     internalHandlerThread.start();
     sequenceAssetLoaders = new ArrayList<>();
@@ -383,6 +398,17 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         progressValue = 0;
       }
 
+      Log.i(
+          TAG,
+          "Release "
+              + Integer.toHexString(System.identityHashCode(this))
+              + " ["
+              + ExoPlayerLibraryInfo.VERSION_SLASHY
+              + "] ["
+              + Util.DEVICE_DEBUG_INFO
+              + "] ["
+              + ExoPlayerLibraryInfo.registeredModules()
+              + "]");
       // VideoSampleExporter can hold buffers from the asset loader's decoder in a surface texture,
       // so we release the VideoSampleExporter first to avoid releasing the codec while its buffers
       // are pending processing.
