@@ -15,28 +15,21 @@
  */
 package com.google.android.exoplayer2.muxer;
 
+import static com.google.android.exoplayer2.muxer.AndroidMuxerTestUtil.feedInputDataToMuxer;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static org.junit.Assume.assumeTrue;
 
 import android.content.Context;
-import android.media.MediaCodec;
-import android.media.MediaExtractor;
 import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import com.google.android.exoplayer2.container.Mp4TimestampData;
-import com.google.android.exoplayer2.extractor.mp4.FragmentedMp4Extractor;
 import com.google.android.exoplayer2.extractor.mp4.Mp4Extractor;
 import com.google.android.exoplayer2.testutil.DumpFileAsserts;
-import com.google.android.exoplayer2.testutil.DumpableMp4Box;
 import com.google.android.exoplayer2.testutil.FakeExtractorOutput;
 import com.google.android.exoplayer2.testutil.TestUtil;
-import com.google.android.exoplayer2.util.MediaFormatUtil;
 import com.google.common.collect.ImmutableList;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.List;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.junit.After;
 import org.junit.Before;
@@ -64,7 +57,6 @@ public class Mp4MuxerEndToEndAndroidTest {
   @Parameter public @MonotonicNonNull String inputFile;
   @Rule public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-  private static final String MP4_FILE_ASSET_DIRECTORY = "media/mp4/";
   private final Context context = ApplicationProvider.getApplicationContext();
   private @MonotonicNonNull String outputPath;
   private @MonotonicNonNull FileOutputStream outputStream;
@@ -90,7 +82,7 @@ public class Mp4MuxerEndToEndAndroidTest {
           new Mp4TimestampData(
               /* creationTimestampSeconds= */ 100_000_000L,
               /* modificationTimestampSeconds= */ 500_000_000L));
-      feedInputDataToMuxer(mp4Muxer, checkNotNull(inputFile));
+      feedInputDataToMuxer(context, mp4Muxer, checkNotNull(inputFile));
     } finally {
       if (mp4Muxer != null) {
         mp4Muxer.close();
@@ -114,7 +106,7 @@ public class Mp4MuxerEndToEndAndroidTest {
         new Mp4TimestampData(
             /* creationTimestampSeconds= */ 100_000_000L,
             /* modificationTimestampSeconds= */ 500_000_000L));
-    feedInputDataToMuxer(mp4Muxer, inputFile);
+    feedInputDataToMuxer(context, mp4Muxer, inputFile);
 
     // Muxer not closed.
 
@@ -127,101 +119,5 @@ public class Mp4MuxerEndToEndAndroidTest {
         context,
         fakeExtractorOutput,
         AndroidMuxerTestUtil.getExpectedDumpFilePath("partial_" + inputFile));
-  }
-
-  @Test
-  public void createFragmentedMp4File_fromInputFileSampleData_matchesExpected() throws IOException {
-    // Test case doesn't need to be parameterized, so skip all but one input file to avoid creating
-    // many dump files.
-    assumeTrue(checkNotNull(inputFile).equals(H265_HDR10_MP4));
-    @Nullable Mp4Muxer mp4Muxer = null;
-
-    try {
-      mp4Muxer =
-          new Mp4Muxer.Builder(checkNotNull(outputStream)).setFragmentedMp4Enabled(true).build();
-      mp4Muxer.addMetadata(
-          new Mp4TimestampData(
-              /* creationTimestampSeconds= */ 100_000_000L,
-              /* modificationTimestampSeconds= */ 500_000_000L));
-      feedInputDataToMuxer(mp4Muxer, inputFile);
-    } finally {
-      if (mp4Muxer != null) {
-        mp4Muxer.close();
-      }
-    }
-
-    FakeExtractorOutput fakeExtractorOutput =
-        TestUtil.extractAllSamplesFromFilePath(
-            new FragmentedMp4Extractor(), checkNotNull(outputPath));
-    DumpFileAsserts.assertOutput(
-        context,
-        fakeExtractorOutput,
-        AndroidMuxerTestUtil.getExpectedDumpFilePath(inputFile + "_fragmented"));
-  }
-
-  @Test
-  public void createFragmentedMp4File_fromInputFileSampleData_matchesExpectedBoxStructure()
-      throws IOException {
-    // Test case doesn't need to be parameterized, so skip all but one input file to avoid creating
-    // many dump files.
-    assumeTrue(checkNotNull(inputFile).equals(H265_HDR10_MP4));
-    @Nullable Mp4Muxer mp4Muxer = null;
-
-    try {
-      mp4Muxer =
-          new Mp4Muxer.Builder(checkNotNull(outputStream)).setFragmentedMp4Enabled(true).build();
-      mp4Muxer.addMetadata(
-          new Mp4TimestampData(
-              /* creationTimestampSeconds= */ 100_000_000L,
-              /* modificationTimestampSeconds= */ 500_000_000L));
-      feedInputDataToMuxer(mp4Muxer, inputFile);
-    } finally {
-      if (mp4Muxer != null) {
-        mp4Muxer.close();
-      }
-    }
-
-    DumpableMp4Box dumpableMp4Box =
-        new DumpableMp4Box(
-            ByteBuffer.wrap(TestUtil.getByteArrayFromFilePath(checkNotNull(outputPath))));
-    DumpFileAsserts.assertOutput(
-        context,
-        dumpableMp4Box,
-        AndroidMuxerTestUtil.getExpectedDumpFilePath(inputFile + "_fragmented_box_structure"));
-  }
-
-  private void feedInputDataToMuxer(Mp4Muxer mp4Muxer, String inputFileName) throws IOException {
-    MediaExtractor extractor = new MediaExtractor();
-    extractor.setDataSource(
-        context.getResources().getAssets().openFd(MP4_FILE_ASSET_DIRECTORY + inputFileName));
-
-    List<Mp4Muxer.TrackToken> addedTracks = new ArrayList<>();
-    int sortKey = 0;
-    for (int i = 0; i < extractor.getTrackCount(); i++) {
-      Mp4Muxer.TrackToken trackToken =
-          mp4Muxer.addTrack(
-              sortKey++, MediaFormatUtil.createFormatFromMediaFormat(extractor.getTrackFormat(i)));
-      addedTracks.add(trackToken);
-      extractor.selectTrack(i);
-    }
-
-    do {
-      MediaCodec.BufferInfo bufferInfo = new MediaCodec.BufferInfo();
-      bufferInfo.flags = extractor.getSampleFlags();
-      bufferInfo.offset = 0;
-      bufferInfo.presentationTimeUs = extractor.getSampleTime();
-      int sampleSize = (int) extractor.getSampleSize();
-      bufferInfo.size = sampleSize;
-
-      ByteBuffer sampleBuffer = ByteBuffer.allocateDirect(sampleSize);
-      extractor.readSampleData(sampleBuffer, /* offset= */ 0);
-
-      sampleBuffer.rewind();
-
-      mp4Muxer.writeSampleData(
-          addedTracks.get(extractor.getSampleTrackIndex()), sampleBuffer, bufferInfo);
-    } while (extractor.advance());
-
-    extractor.release();
   }
 }
