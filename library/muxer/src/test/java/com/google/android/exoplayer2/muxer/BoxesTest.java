@@ -68,7 +68,7 @@ public class BoxesTest {
     ByteBuffer tkhdBox =
         Boxes.tkhd(
             /* trackId= */ 1,
-            /* trackDurationVu= */ 5_000_000,
+            /* trackDurationUs= */ 500_000_000,
             /* creationTimestampSeconds= */ 1_000_000_000,
             /* modificationTimestampSeconds= */ 2_000_000_000,
             /* orientation= */ 90,
@@ -84,7 +84,7 @@ public class BoxesTest {
     ByteBuffer tkhdBox =
         Boxes.tkhd(
             /* trackId= */ 1,
-            /* trackDurationVu= */ 5_000_000,
+            /* trackDurationUs= */ 500_000_000,
             /* creationTimestampSeconds= */ 1_000_000_000,
             /* modificationTimestampSeconds= */ 2_000_000_000,
             /* orientation= */ 90,

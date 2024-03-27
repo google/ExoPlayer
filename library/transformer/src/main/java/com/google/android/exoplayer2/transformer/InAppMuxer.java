@@ -18,14 +18,11 @@ package com.google.android.exoplayer2.transformer;
 import android.media.MediaCodec.BufferInfo;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.container.Mp4LocationData;
 import com.google.android.exoplayer2.container.Mp4OrientationData;
-import com.google.android.exoplayer2.container.Mp4TimestampData;
-import com.google.android.exoplayer2.container.XmpData;
 import com.google.android.exoplayer2.metadata.Metadata;
-import com.google.android.exoplayer2.metadata.mp4.MdtaMetadataEntry;
 import com.google.android.exoplayer2.muxer.FragmentedMp4Muxer;
 import com.google.android.exoplayer2.muxer.Mp4Muxer;
+import com.google.android.exoplayer2.muxer.Mp4Utils;
 import com.google.android.exoplayer2.muxer.Muxer.TrackToken;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.common.collect.ImmutableList;
@@ -233,7 +230,7 @@ public final class InAppMuxer implements Muxer {
   public void addMetadata(Metadata metadata) {
     for (int i = 0; i < metadata.length(); i++) {
       Metadata.Entry entry = metadata.get(i);
-      if (isMetadataSupported(entry)) {
+      if (Mp4Utils.isMetadataSupported(entry)) {
         metadataEntries.add(entry);
       }
     }
@@ -261,20 +258,5 @@ public final class InAppMuxer implements Muxer {
     for (Metadata.Entry entry : metadataEntries) {
       muxer.addMetadata(entry);
     }
-  }
-
-  /** Returns whether a given {@link Metadata.Entry metadata} is supported. */
-  private static boolean isMetadataSupported(Metadata.Entry metadata) {
-    return metadata instanceof Mp4OrientationData
-        || metadata instanceof Mp4LocationData
-        || metadata instanceof Mp4TimestampData
-        || (metadata instanceof MdtaMetadataEntry
-            && isMdtaMetadataEntrySupported((MdtaMetadataEntry) metadata))
-        || metadata instanceof XmpData;
-  }
-
-  private static boolean isMdtaMetadataEntrySupported(MdtaMetadataEntry mdtaMetadataEntry) {
-    return mdtaMetadataEntry.typeIndicator == MdtaMetadataEntry.TYPE_INDICATOR_STRING
-        || mdtaMetadataEntry.typeIndicator == MdtaMetadataEntry.TYPE_INDICATOR_FLOAT32;
   }
 }

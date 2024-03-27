@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.muxer;
 
-import static com.google.android.exoplayer2.muxer.Mp4Utils.MVHD_TIMEBASE;
 import static java.lang.Math.max;
 
 import android.media.MediaCodec.BufferInfo;
@@ -100,8 +99,7 @@ import org.checkerframework.checker.nullness.qual.PolyNull;
         trackDurationInTrackUnitsVu += sampleDurationsVu.get(j);
       }
 
-      long trackDurationUs =
-          Mp4Utils.usFromVu(trackDurationInTrackUnitsVu, track.videoUnitTimebase());
+      long trackDurationUs = usFromVu(trackDurationInTrackUnitsVu, track.videoUnitTimebase());
 
       @C.TrackType int trackType = MimeTypes.getTrackType(format.sampleMimeType);
       ByteBuffer stts = Boxes.stts(sampleDurationsVu);
@@ -160,9 +158,7 @@ import org.checkerframework.checker.nullness.qual.PolyNull;
           Boxes.trak(
               Boxes.tkhd(
                   nextTrackId,
-                  // Using the time base of the entire file, not that of the track; otherwise,
-                  // Quicktime will stretch the audio accordingly, see b/158120042.
-                  (int) Mp4Utils.vuFromUs(trackDurationUs, MVHD_TIMEBASE),
+                  trackDurationUs,
                   creationTimestampSeconds,
                   modificationTimestampSeconds,
                   metadataCollector.orientationData.orientation,
@@ -224,5 +220,10 @@ import org.checkerframework.checker.nullness.qual.PolyNull;
         Util.SDK_INT >= 21 ? Locale.forLanguageTag(languageTag) : new Locale(languageTag);
 
     return locale.getISO3Language().isEmpty() ? languageTag : locale.getISO3Language();
+  }
+
+  /** Converts video units to microseconds, using the provided timebase. */
+  private static long usFromVu(long timestampVu, long videoUnitTimebase) {
+    return timestampVu * 1_000_000L / videoUnitTimebase;
   }
 }
