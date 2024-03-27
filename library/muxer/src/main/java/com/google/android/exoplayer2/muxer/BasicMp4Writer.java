@@ -37,7 +37,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * The basic implementation of {@link Mp4Writer} which writes all the samples in a single mdat box.
+ * Writes all media samples into a single mdat box.
  *
  * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
  *     contains the same ExoPlayer code). See <a
@@ -45,7 +45,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *     migration guide</a> for more details, including a script to help with the migration.
  */
 @Deprecated
-/* package */ final class BasicMp4Writer implements Mp4Writer {
+/* package */ final class BasicMp4Writer {
   private static final long INTERLEAVE_DURATION_US = 1_000_000L;
 
   private final FileOutputStream outputStream;
@@ -84,7 +84,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
     lastMoovWritten = Range.closed(0L, 0L);
   }
 
-  @Override
   public TrackToken addTrack(int sortKey, Format format) {
     Track track = new Track(format, sortKey);
     tracks.add(track);
@@ -92,7 +91,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
     return track;
   }
 
-  @Override
   public void writeSampleData(TrackToken token, ByteBuffer byteBuffer, BufferInfo bufferInfo)
       throws IOException {
     checkArgument(token instanceof Track);
@@ -100,7 +98,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
     doInterleave();
   }
 
-  @Override
   public void close() throws IOException {
     try {
       for (int i = 0; i < tracks.size(); i++) {
