@@ -935,7 +935,7 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
   }
 
   /**
-   * Sets the {@link StyledPlayerControlView.VisibilityListener}.
+   * Sets the {@link ControllerVisibilityListener}.
    *
    * <p>If {@code listener} is non-null then any listener set by {@link
    * #setControllerVisibilityListener(StyledPlayerControlView.VisibilityListener)} is removed.
