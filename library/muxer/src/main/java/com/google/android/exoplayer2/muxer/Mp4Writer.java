@@ -45,7 +45,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *     migration guide</a> for more details, including a script to help with the migration.
  */
 @Deprecated
-/* package */ final class BasicMp4Writer {
+/* package */ final class Mp4Writer {
   private static final long INTERLEAVE_DURATION_US = 1_000_000L;
 
   private final FileOutputStream outputStream;
@@ -71,7 +71,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
    *     H.265 NAL units from the Annex-B format (using start codes to delineate NAL units) to the
    *     AVCC format (which uses length prefixes).
    */
-  public BasicMp4Writer(
+  public Mp4Writer(
       FileOutputStream outputStream,
       Mp4MoovStructure moovGenerator,
       AnnexBToAvccConverter annexBToAvccConverter) {

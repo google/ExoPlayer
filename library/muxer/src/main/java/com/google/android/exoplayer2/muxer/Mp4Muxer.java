@@ -141,16 +141,16 @@ public final class Mp4Muxer implements Muxer {
           new Mp4MoovStructure(metadataCollector, lastFrameDurationBehavior);
       AnnexBToAvccConverter avccConverter =
           annexBToAvccConverter == null ? AnnexBToAvccConverter.DEFAULT : annexBToAvccConverter;
-      BasicMp4Writer mp4Writer = new BasicMp4Writer(fileOutputStream, moovStructure, avccConverter);
+      Mp4Writer mp4Writer = new Mp4Writer(fileOutputStream, moovStructure, avccConverter);
 
       return new Mp4Muxer(mp4Writer, metadataCollector);
     }
   }
 
-  private final BasicMp4Writer mp4Writer;
+  private final Mp4Writer mp4Writer;
   private final MetadataCollector metadataCollector;
 
-  private Mp4Muxer(BasicMp4Writer mp4Writer, MetadataCollector metadataCollector) {
+  private Mp4Muxer(Mp4Writer mp4Writer, MetadataCollector metadataCollector) {
     this.mp4Writer = mp4Writer;
     this.metadataCollector = metadataCollector;
   }
