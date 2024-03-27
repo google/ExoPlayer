@@ -952,6 +952,15 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
   }
 
   /**
+   * Sets whether {@linkplain StyledPlayerControlView#isAnimationEnabled() controller animation is
+   * enabled}.
+   */
+  public void setControllerAnimationEnabled(boolean animationEnabled) {
+    Assertions.checkStateNotNull(controller);
+    controller.setAnimationEnabled(animationEnabled);
+  }
+
+  /**
    * Sets the {@link StyledPlayerControlView.VisibilityListener}.
    *
    * <p>If {@code listener} is non-null then any listener set by {@link
