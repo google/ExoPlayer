@@ -52,5 +52,6 @@ public final class SsManifestParserTest {
             TestUtil.getInputStream(ApplicationProvider.getApplicationContext(), SAMPLE_ISMC_1));
 
     assertThat(ssManifest.streamElements[0].formats[0].label).isEqualTo("video");
+    assertThat(ssManifest.streamElements[0].formats[0].labels.get(0).value).isEqualTo("video");
   }
 }

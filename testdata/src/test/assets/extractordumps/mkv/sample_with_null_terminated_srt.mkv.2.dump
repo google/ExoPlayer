@@ -275,6 +275,9 @@ track 3:
     selectionFlags = [default]
     language = en
     label = Subs Label
+    labels:
+      lang = en
+      value = Subs Label
   sample 0:
     time = 0
     flags = 1

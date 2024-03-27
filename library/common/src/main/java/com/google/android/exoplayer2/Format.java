@@ -15,9 +15,11 @@
  */
 package com.google.android.exoplayer2;
 
+import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.os.Bundle;
+import android.text.TextUtils;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.drm.DrmInitData;
@@ -27,6 +29,7 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -53,6 +56,7 @@ import java.util.UUID;
  * <ul>
  *   <li>{@link #id}
  *   <li>{@link #label}
+ *   <li>{@link #labels}
  *   <li>{@link #language}
  *   <li>{@link #selectionFlags}
  *   <li>{@link #roleFlags}
@@ -145,6 +149,7 @@ public final class Format implements Bundleable {
 
     @Nullable private String id;
     @Nullable private String label;
+    private List<Label> labels;
     @Nullable private String language;
     private @C.SelectionFlags int selectionFlags;
     private @C.RoleFlags int roleFlags;
@@ -200,6 +205,7 @@ public final class Format implements Bundleable {
 
     /** Creates a new instance with default values. */
     public Builder() {
+      labels = ImmutableList.of();
       averageBitrate = NO_VALUE;
       peakBitrate = NO_VALUE;
       // Sample specific.
@@ -233,6 +239,7 @@ public final class Format implements Bundleable {
     private Builder(Format format) {
       this.id = format.id;
       this.label = format.label;
+      this.labels = format.labels;
       this.language = format.language;
       this.selectionFlags = format.selectionFlags;
       this.roleFlags = format.roleFlags;
@@ -301,12 +308,30 @@ public final class Format implements Bundleable {
     /**
      * Sets {@link Format#label}. The default value is {@code null}.
      *
+     * <p>If both this default label and a list of {@link #setLabels labels} are set, this default
+     * label must be part of label list.
+     *
      * @param label The {@link Format#label}.
      * @return The builder.
      */
     @CanIgnoreReturnValue
     public Builder setLabel(@Nullable String label) {
       this.label = label;
+      return this;
+    }
+
+    /**
+     * Sets {@link Format#labels}. The default value is an empty list.
+     *
+     * <p>If both the default {@linkplain #setLabel label} and this list are set, the default label
+     * must be part of this list of labels.
+     *
+     * @param labels The {@link Format#labels}.
+     * @return The builder.
+     */
+    @CanIgnoreReturnValue
+    public Builder setLabels(List<Label> labels) {
+      this.labels = ImmutableList.copyOf(labels);
       return this;
     }
 
@@ -747,8 +772,21 @@ public final class Format implements Bundleable {
   /** An identifier for the format, or null if unknown or not applicable. */
   @Nullable public final String id;
 
-  /** The human readable label, or null if unknown or not applicable. */
+  /**
+   * The default human readable label, or null if unknown or not applicable.
+   *
+   * <p>If non-null, the same label will be part of {@link #labels} too. If null, {@link #labels}
+   * will be empty.
+   */
   @Nullable public final String label;
+
+  /**
+   * The human readable list of labels, or an empty list if unknown or not applicable.
+   *
+   * <p>If non-empty, the default {@link #label} will be part of this list. If empty, the default
+   * {@link #label} will be null.
+   */
+  public final List<Label> labels;
 
   /** The language as an IETF BCP 47 conformant tag, or null if unknown or not applicable. */
   @Nullable public final String language;
@@ -938,8 +976,20 @@ public final class Format implements Bundleable {
 
   private Format(Builder builder) {
     id = builder.id;
-    label = builder.label;
     language = Util.normalizeLanguageCode(builder.language);
+    if (builder.labels.isEmpty() && builder.label != null) {
+      labels = ImmutableList.of(new Label(language, builder.label));
+      label = builder.label;
+    } else if (!builder.labels.isEmpty() && builder.label == null) {
+      labels = builder.labels;
+      label = getDefaultLabel(builder.labels, language);
+    } else {
+      checkState(
+          (builder.labels.isEmpty() && builder.label == null)
+              || (builder.labels.stream().anyMatch(l -> l.value.equals(builder.label))));
+      labels = builder.labels;
+      label = builder.label;
+    }
     selectionFlags = builder.selectionFlags;
     roleFlags = builder.roleFlags;
     averageBitrate = builder.averageBitrate;
@@ -1008,6 +1058,7 @@ public final class Format implements Bundleable {
 
     // Prefer manifest values, but fill in from sample format if missing.
     @Nullable String label = manifestFormat.label != null ? manifestFormat.label : this.label;
+    List<Label> labels = !manifestFormat.labels.isEmpty() ? manifestFormat.labels : this.labels;
     @Nullable String language = this.language;
     if ((trackType == C.TRACK_TYPE_TEXT || trackType == C.TRACK_TYPE_AUDIO)
         && manifestFormat.language != null) {
@@ -1049,6 +1100,7 @@ public final class Format implements Bundleable {
     return buildUpon()
         .setId(id)
         .setLabel(label)
+        .setLabels(labels)
         .setLanguage(language)
         .setSelectionFlags(selectionFlags)
         .setRoleFlags(roleFlags)
@@ -1114,7 +1166,8 @@ public final class Format implements Bundleable {
       // Some fields for which hashing is expensive are deliberately omitted.
       int result = 17;
       result = 31 * result + (id == null ? 0 : id.hashCode());
-      result = 31 * result + (label != null ? label.hashCode() : 0);
+      result = 31 * result + (label == null ? 0 : label.hashCode());
+      result = 31 * result + labels.hashCode();
       result = 31 * result + (language == null ? 0 : language.hashCode());
       result = 31 * result + selectionFlags;
       result = 31 * result + roleFlags;
@@ -1193,6 +1246,7 @@ public final class Format implements Bundleable {
         && Float.compare(pixelWidthHeightRatio, other.pixelWidthHeightRatio) == 0
         && Util.areEqual(id, other.id)
         && Util.areEqual(label, other.label)
+        && labels.equals(other.labels)
         && Util.areEqual(codecs, other.codecs)
         && Util.areEqual(containerMimeType, other.containerMimeType)
         && Util.areEqual(sampleMimeType, other.sampleMimeType)
@@ -1282,8 +1336,10 @@ public final class Format implements Bundleable {
     if (format.language != null) {
       builder.append(", language=").append(format.language);
     }
-    if (format.label != null) {
-      builder.append(", label=").append(format.label);
+    if (!format.labels.isEmpty()) {
+      builder.append(", labels=[");
+      Joiner.on(',').appendTo(builder, format.labels);
+      builder.append("]");
     }
     if (format.selectionFlags != 0) {
       builder.append(", selectionFlags=[");
@@ -1332,6 +1388,7 @@ public final class Format implements Bundleable {
   private static final String FIELD_CRYPTO_TYPE = Util.intToStringMaxRadix(29);
   private static final String FIELD_TILE_COUNT_HORIZONTAL = Util.intToStringMaxRadix(30);
   private static final String FIELD_TILE_COUNT_VERTICAL = Util.intToStringMaxRadix(31);
+  private static final String FIELD_LABELS = Util.intToStringMaxRadix(32);
 
   @Override
   public Bundle toBundle() {
@@ -1346,6 +1403,8 @@ public final class Format implements Bundleable {
     Bundle bundle = new Bundle();
     bundle.putString(FIELD_ID, id);
     bundle.putString(FIELD_LABEL, label);
+    bundle.putParcelableArrayList(
+        FIELD_LABELS, BundleCollectionUtil.toBundleArrayList(labels, Label::toBundle));
     bundle.putString(FIELD_LANGUAGE, language);
     bundle.putInt(FIELD_SELECTION_FLAGS, selectionFlags);
     bundle.putInt(FIELD_ROLE_FLAGS, roleFlags);
@@ -1410,7 +1469,14 @@ public final class Format implements Bundleable {
     BundleCollectionUtil.ensureClassLoader(bundle);
     builder
         .setId(defaultIfNull(bundle.getString(FIELD_ID), DEFAULT.id))
-        .setLabel(defaultIfNull(bundle.getString(FIELD_LABEL), DEFAULT.label))
+        .setLabel(defaultIfNull(bundle.getString(FIELD_LABEL), DEFAULT.label));
+    @Nullable List<Bundle> labelsBundles = bundle.getParcelableArrayList(FIELD_LABELS);
+    List<Label> labels =
+        labelsBundles == null
+            ? ImmutableList.of()
+            : BundleCollectionUtil.fromBundleList(Label::fromBundle, labelsBundles);
+    builder
+        .setLabels(labels)
         .setLanguage(defaultIfNull(bundle.getString(FIELD_LANGUAGE), DEFAULT.language))
         .setSelectionFlags(bundle.getInt(FIELD_SELECTION_FLAGS, DEFAULT.selectionFlags))
         .setRoleFlags(bundle.getInt(FIELD_ROLE_FLAGS, DEFAULT.roleFlags))
@@ -1488,5 +1554,14 @@ public final class Format implements Bundleable {
   @Nullable
   private static <T> T defaultIfNull(@Nullable T value, @Nullable T defaultValue) {
     return value != null ? value : defaultValue;
+  }
+
+  private static String getDefaultLabel(List<Label> labels, @Nullable String language) {
+    for (Label l : labels) {
+      if (TextUtils.equals(l.language, language)) {
+        return l.value;
+      }
+    }
+    return labels.get(0).value;
   }
 }

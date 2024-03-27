@@ -20,6 +20,7 @@ import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.Label;
 import com.google.android.exoplayer2.LoadingInfo;
 import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.analytics.PlayerId;
@@ -860,6 +861,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     return new Format.Builder()
         .setId(variantFormat.id)
         .setLabel(variantFormat.label)
+        .setLabels(variantFormat.labels)
         .setContainerMimeType(variantFormat.containerMimeType)
         .setSampleMimeType(sampleMimeType)
         .setCodecs(codecs)
@@ -883,6 +885,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     int roleFlags = 0;
     @Nullable String language = null;
     @Nullable String label = null;
+    List<Label> labels = ImmutableList.of();
     if (mediaTagFormat != null) {
       codecs = mediaTagFormat.codecs;
       metadata = mediaTagFormat.metadata;
@@ -891,6 +894,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       roleFlags = mediaTagFormat.roleFlags;
       language = mediaTagFormat.language;
       label = mediaTagFormat.label;
+      labels = mediaTagFormat.labels;
     } else {
       codecs = Util.getCodecsOfType(variantFormat.codecs, C.TRACK_TYPE_AUDIO);
       metadata = variantFormat.metadata;
@@ -900,6 +904,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         roleFlags = variantFormat.roleFlags;
         language = variantFormat.language;
         label = variantFormat.label;
+        labels = variantFormat.labels;
       }
     }
     @Nullable String sampleMimeType = MimeTypes.getMediaMimeType(codecs);
@@ -908,6 +913,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     return new Format.Builder()
         .setId(variantFormat.id)
         .setLabel(label)
+        .setLabels(labels)
         .setContainerMimeType(variantFormat.containerMimeType)
         .setSampleMimeType(sampleMimeType)
         .setCodecs(codecs)

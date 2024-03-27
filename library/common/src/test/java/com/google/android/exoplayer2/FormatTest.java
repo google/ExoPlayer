@@ -20,6 +20,7 @@ import static com.google.android.exoplayer2.testutil.TestUtil.buildTestData;
 import static com.google.android.exoplayer2.util.MimeTypes.VIDEO_MP4;
 import static com.google.android.exoplayer2.util.MimeTypes.VIDEO_WEBM;
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertThrows;
 
 import android.os.Bundle;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -28,6 +29,7 @@ import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.testutil.FakeMetadataEntry;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.video.ColorInfo;
+import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Test;
@@ -61,6 +63,62 @@ public final class FormatTest {
     assertThat(formatWithMetadataExcluded).isEqualTo(format.buildUpon().setMetadata(null).build());
   }
 
+  @Test
+  public void formatBuild_withLabelAndWithoutLabels_labelIsInLabels() {
+    Format format = new Format.Builder().setLabel("label").setLabels(ImmutableList.of()).build();
+
+    assertThat(format.label).isEqualTo("label");
+    assertThat(format.labels).hasSize(1);
+    assertThat(format.labels.get(0).value).isEqualTo("label");
+  }
+
+  @Test
+  public void formatBuild_withLabelsAndLanguageMatchingAndWithoutLabel_theLanguageMatchIsInLabel() {
+    Format format =
+        new Format.Builder()
+            .setLabel(null)
+            .setLabels(
+                ImmutableList.of(
+                    new Label("en", "nonDefaultLabel"), new Label("zh", "matchingLabel")))
+            .setLanguage("zh")
+            .build();
+
+    assertThat(format.label).isEqualTo("matchingLabel");
+  }
+
+  @Test
+  public void formatBuild_withLabelsAndNoLanguageMatchingAndWithoutLabel_theFirstIsInLabel() {
+    Format format =
+        new Format.Builder()
+            .setLabel(null)
+            .setLabels(
+                ImmutableList.of(new Label("fr", "firstLabel"), new Label("de", "secondLabel")))
+            .setLanguage("en")
+            .build();
+
+    assertThat(format.label).isEqualTo("firstLabel");
+  }
+
+  @Test
+  public void formatBuild_withoutLabelsOrLabel_bothEmpty() {
+    Format format = createTestFormat();
+    format = format.buildUpon().setLabel(null).setLabels(ImmutableList.of()).build();
+
+    assertThat(format.label).isNull();
+    assertThat(format.labels).isEmpty();
+  }
+
+  @Test
+  public void formatBuild_withLabelAndLabelsSetButNoMatch_throwsException() {
+    assertThrows(
+        IllegalStateException.class,
+        () ->
+            new Format.Builder()
+                .setLabel("otherLabel")
+                .setLabels(ImmutableList.of(new Label("en", "label")))
+                .build());
+  }
+
   private static Format createTestFormat() {
     byte[] initData1 = new byte[] {1, 2, 3};
     byte[] initData2 = new byte[] {4, 5, 6};
@@ -90,6 +148,7 @@ public final class FormatTest {
     return new Format.Builder()
         .setId("id")
         .setLabel("label")
+        .setLabels(ImmutableList.of(new Label("en", "label")))
         .setLanguage("language")
         .setSelectionFlags(C.SELECTION_FLAG_DEFAULT)
         .setRoleFlags(C.ROLE_FLAG_MAIN)

@@ -23,6 +23,7 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.Label;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.metadata.emsg.EventMessage;
 import com.google.android.exoplayer2.source.dash.manifest.Representation.MultiSegmentRepresentation;
@@ -280,6 +281,12 @@ public class DashManifestParserTest {
 
     assertThat(adaptationSets.get(0).representations.get(0).format.label).isEqualTo("audio label");
     assertThat(adaptationSets.get(1).representations.get(0).format.label).isEqualTo("video label");
+    assertThat(adaptationSets.get(0).representations.get(0).format.labels).hasSize(1);
+    assertThat(adaptationSets.get(0).representations.get(0).format.labels.get(0).value)
+        .isEqualTo("audio label");
+    assertThat(adaptationSets.get(1).representations.get(0).format.labels).hasSize(1);
+    assertThat(adaptationSets.get(1).representations.get(0).format.labels.get(0).value)
+        .isEqualTo("video label");
   }
 
   @Test
@@ -433,11 +440,24 @@ public class DashManifestParserTest {
   public void parseLabel() throws Exception {
     DashManifestParser parser = new DashManifestParser();
     XmlPullParser xpp = XmlPullParserFactory.newInstance().newPullParser();
+    xpp.setInput(new StringReader("<Label lang=\"en\">test label</Label>" + NEXT_TAG));
+    xpp.next();
+
+    Label label = parser.parseLabel(xpp);
+    assertThat(label.language).isEqualTo("en");
+    assertThat(label.value).isEqualTo("test label");
+    assertNextTag(xpp);
+  }
+
+  @Test
+  public void parseLabel_noLang() throws Exception {
+    DashManifestParser parser = new DashManifestParser();
+    XmlPullParser xpp = XmlPullParserFactory.newInstance().newPullParser();
     xpp.setInput(new StringReader("<Label>test label</Label>" + NEXT_TAG));
     xpp.next();
 
-    String label = parser.parseLabel(xpp);
-    assertThat(label).isEqualTo("test label");
+    Label label = parser.parseLabel(xpp);
+    assertThat(label.language).isNull();
     assertNextTag(xpp);
   }
 
@@ -448,8 +468,9 @@ public class DashManifestParserTest {
     xpp.setInput(new StringReader("<Label/>" + NEXT_TAG));
     xpp.next();
 
-    String label = parser.parseLabel(xpp);
-    assertThat(label).isEqualTo("");
+    Label label = parser.parseLabel(xpp);
+    assertThat(label.value).isNotNull();
+    assertThat(label.value).isEmpty();
     assertNextTag(xpp);
   }
 
