@@ -421,7 +421,11 @@ public final class ExportResult {
   /** The track was both transcoded and transmuxed. */
   public static final int CONVERSION_PROCESS_TRANSMUXED_AND_TRANSCODED = 3;
 
-  /** The list of {@linkplain ProcessedInput processed inputs}. */
+  /**
+   * The list of {@linkplain ProcessedInput processed inputs}. The list might have some intermediate
+   * {@linkplain ProcessedInput processed inputs} if the export is {@link Transformer#resume
+   * resumed} or any optimization is applied.
+   */
   public final ImmutableList<ProcessedInput> processedInputs;
 
   /** The duration of the file in milliseconds, or {@link C#TIME_UNSET} if unset or unknown. */
