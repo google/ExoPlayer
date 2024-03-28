@@ -25,11 +25,13 @@ import android.os.Message;
 import android.util.SparseIntArray;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.DefaultRendererCapabilitiesList;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.LoadingInfo;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RendererCapabilities;
+import com.google.android.exoplayer2.RendererCapabilitiesList;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Tracks;
@@ -147,12 +149,12 @@ public final class DownloadHelper {
   public static class LiveContentUnsupportedException extends IOException {}
 
   /**
-   * Extracts renderer capabilities for the renderers created by the provided renderers factory.
-   *
-   * @param renderersFactory A {@link RenderersFactory}.
-   * @return The {@link RendererCapabilities} for each renderer created by the {@code
-   *     renderersFactory}.
+   * @deprecated This method leaks un-released {@link Renderer} instances. There is no direct
+   *     replacement. Equivalent functionality can be implemented by constructing the renderer
+   *     instances, calling {@link Renderer#getCapabilities()} on each one, then releasing the
+   *     renderers when the capabilities are no longer required.
    */
+  @Deprecated
   public static RendererCapabilities[] getRendererCapabilities(RenderersFactory renderersFactory) {
     Renderer[] renderers =
         renderersFactory.createRenderers(
@@ -277,8 +279,9 @@ public final class DownloadHelper {
                 mediaItem, castNonNull(dataSourceFactory), drmSessionManager),
         trackSelectionParameters,
         renderersFactory != null
-            ? getRendererCapabilities(renderersFactory)
-            : new RendererCapabilities[0]);
+            ? new DefaultRendererCapabilitiesList.Factory(renderersFactory)
+                .createRendererCapabilitiesList()
+            : new UnreleaseableRendererCapabilitiesList(new RendererCapabilities[0]));
   }
 
   /**
@@ -311,7 +314,7 @@ public final class DownloadHelper {
   private final MediaItem.LocalConfiguration localConfiguration;
   @Nullable private final MediaSource mediaSource;
   private final DefaultTrackSelector trackSelector;
-  private final RendererCapabilities[] rendererCapabilities;
+  private final RendererCapabilitiesList rendererCapabilities;
   private final SparseIntArray scratchSet;
   private final Handler callbackHandler;
   private final Timeline.Window window;
@@ -326,6 +329,26 @@ public final class DownloadHelper {
       immutableTrackSelectionsByPeriodAndRenderer;
 
   /**
+   * @deprecated The {@link Renderer} instances used to produce {@code rendererCapabilities} must be
+   *     kept alive for the lifetime of this {@code DownloadHelper} instance and then released (to
+   *     avoid a resource leak). Use {@link DownloadHelper#DownloadHelper(MediaItem, MediaSource,
+   *     TrackSelectionParameters, RendererCapabilitiesList)} instead to avoid needing to manually
+   *     manage this bookkeeping.
+   */
+  @Deprecated
+  public DownloadHelper(
+      MediaItem mediaItem,
+      @Nullable MediaSource mediaSource,
+      TrackSelectionParameters trackSelectionParameters,
+      RendererCapabilities[] rendererCapabilities) {
+    this(
+        mediaItem,
+        mediaSource,
+        trackSelectionParameters,
+        new UnreleaseableRendererCapabilitiesList(rendererCapabilities));
+  }
+
+  /**
    * Creates download helper.
    *
    * @param mediaItem The media item.
@@ -333,14 +356,14 @@ public final class DownloadHelper {
    *     selection needs to be made.
    * @param trackSelectionParameters {@link TrackSelectionParameters} for selecting tracks for
    *     downloading.
-   * @param rendererCapabilities The {@link RendererCapabilities} of the renderers for which tracks
-   *     are selected.
+   * @param rendererCapabilities The {@link RendererCapabilitiesList} of the renderers for which
+   *     tracks are selected.
    */
   public DownloadHelper(
       MediaItem mediaItem,
       @Nullable MediaSource mediaSource,
       TrackSelectionParameters trackSelectionParameters,
-      RendererCapabilities[] rendererCapabilities) {
+      RendererCapabilitiesList rendererCapabilities) {
     this.localConfiguration = checkNotNull(mediaItem.localConfiguration);
     this.mediaSource = mediaSource;
     this.trackSelector =
@@ -374,6 +397,7 @@ public final class DownloadHelper {
       mediaPreparer.release();
     }
     trackSelector.release();
+    rendererCapabilities.release();
   }
 
   /**
@@ -465,7 +489,7 @@ public final class DownloadHelper {
    */
   public void clearTrackSelections(int periodIndex) {
     assertPreparedWithMedia();
-    for (int i = 0; i < rendererCapabilities.length; i++) {
+    for (int i = 0; i < rendererCapabilities.size(); i++) {
       trackSelectionsByPeriodAndRenderer[periodIndex][i].clear();
     }
   }
@@ -524,7 +548,7 @@ public final class DownloadHelper {
       // Prefer highest supported bitrate for downloads.
       parametersBuilder.setForceHighestSupportedBitrate(true);
       // Disable all non-audio track types supported by the renderers.
-      for (RendererCapabilities capabilities : rendererCapabilities) {
+      for (RendererCapabilities capabilities : rendererCapabilities.getRendererCapabilities()) {
         @C.TrackType int trackType = capabilities.getTrackType();
         parametersBuilder.setTrackTypeDisabled(
             trackType, /* disabled= */ trackType != C.TRACK_TYPE_AUDIO);
@@ -565,7 +589,7 @@ public final class DownloadHelper {
       // Prefer highest supported bitrate for downloads.
       parametersBuilder.setForceHighestSupportedBitrate(true);
       // Disable all non-text track types supported by the renderers.
-      for (RendererCapabilities capabilities : rendererCapabilities) {
+      for (RendererCapabilities capabilities : rendererCapabilities.getRendererCapabilities()) {
         @C.TrackType int trackType = capabilities.getTrackType();
         parametersBuilder.setTrackTypeDisabled(
             trackType, /* disabled= */ trackType != C.TRACK_TYPE_TEXT);
@@ -697,7 +721,7 @@ public final class DownloadHelper {
     checkNotNull(mediaPreparer.mediaPeriods);
     checkNotNull(mediaPreparer.timeline);
     int periodCount = mediaPreparer.mediaPeriods.length;
-    int rendererCount = rendererCapabilities.length;
+    int rendererCount = rendererCapabilities.size();
     trackSelectionsByPeriodAndRenderer =
         (List<ExoTrackSelection>[][]) new List<?>[periodCount][rendererCount];
     immutableTrackSelectionsByPeriodAndRenderer =
@@ -765,7 +789,7 @@ public final class DownloadHelper {
   private TrackSelectorResult runTrackSelection(int periodIndex) throws ExoPlaybackException {
     TrackSelectorResult trackSelectorResult =
         trackSelector.selectTracks(
-            rendererCapabilities,
+            rendererCapabilities.getRendererCapabilities(),
             trackGroupArrays[periodIndex],
             new MediaPeriodId(mediaPreparer.timeline.getUidOfPeriod(periodIndex)),
             mediaPreparer.timeline);
@@ -1068,5 +1092,28 @@ public final class DownloadHelper {
     public void removeEventListener(EventListener eventListener) {
       // Do nothing.
     }
+  }
+
+  private static final class UnreleaseableRendererCapabilitiesList
+      implements RendererCapabilitiesList {
+
+    private final RendererCapabilities[] rendererCapabilities;
+
+    private UnreleaseableRendererCapabilitiesList(RendererCapabilities[] rendererCapabilities) {
+      this.rendererCapabilities = rendererCapabilities;
+    }
+
+    @Override
+    public RendererCapabilities[] getRendererCapabilities() {
+      return rendererCapabilities;
+    }
+
+    @Override
+    public int size() {
+      return rendererCapabilities.length;
+    }
+
+    @Override
+    public void release() {}
   }
 }

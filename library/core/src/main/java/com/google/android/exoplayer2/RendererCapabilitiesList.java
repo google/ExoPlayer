@@ -36,6 +36,9 @@ public interface RendererCapabilitiesList {
   /** Returns an array of {@link RendererCapabilities}. */
   RendererCapabilities[] getRendererCapabilities();
 
+  /** Returns the number of {@link RendererCapabilities}. */
+  int size();
+
   /** Releases any resources associated with this {@link RendererCapabilitiesList}. */
   void release();
 }

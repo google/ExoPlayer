@@ -91,6 +91,11 @@ public final class DefaultRendererCapabilitiesList implements RendererCapabiliti
   }
 
   @Override
+  public int size() {
+    return renderers.length;
+  }
+
+  @Override
   public void release() {
     for (Renderer renderer : renderers) {
       renderer.release();
