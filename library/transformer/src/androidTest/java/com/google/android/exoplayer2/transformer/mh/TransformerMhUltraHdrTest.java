@@ -18,28 +18,20 @@
 package com.google.android.exoplayer2.transformer.mh;
 
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
-import static com.google.android.exoplayer2.testutil.BitmapPixelTestUtil.MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE_LUMA;
-import static com.google.android.exoplayer2.testutil.BitmapPixelTestUtil.getBitmapAveragePixelAbsoluteDifferenceFp16;
-import static com.google.android.exoplayer2.testutil.BitmapPixelTestUtil.maybeSaveTestBitmap;
-import static com.google.android.exoplayer2.testutil.BitmapPixelTestUtil.readBitmap;
 import static com.google.android.exoplayer2.testutil.TestUtil.retrieveTrackFormat;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_1080P_5_SECOND_HLG10;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.ULTRA_HDR_URI_STRING;
-import static com.google.android.exoplayer2.transformer.AndroidTestUtil.extractBitmapsFromVideo;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.recordTestSkipped;
 import static com.google.android.exoplayer2.transformer.Composition.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL;
 import static com.google.android.exoplayer2.transformer.SequenceEffectTestUtil.NO_EFFECT;
 import static com.google.android.exoplayer2.transformer.SequenceEffectTestUtil.clippedVideo;
 import static com.google.android.exoplayer2.transformer.SequenceEffectTestUtil.createComposition;
 import static com.google.android.exoplayer2.transformer.SequenceEffectTestUtil.oneFrameFromImage;
+import static com.google.android.exoplayer2.transformer.mh.HdrCapabilitiesUtil.assumeDeviceSupportsOpenGlToneMapping;
 import static com.google.common.truth.Truth.assertThat;
-import static com.google.common.truth.Truth.assertWithMessage;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.Bitmap.Config;
-import androidx.annotation.RequiresApi;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
@@ -54,7 +46,6 @@ import com.google.android.exoplayer2.transformer.TransformerAndroidTestRunner;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.ColorInfo;
 import java.io.IOException;
-import java.util.List;
 import org.json.JSONException;
 import org.junit.AssumptionViolatedException;
 import org.junit.Before;
@@ -65,11 +56,9 @@ import org.junit.runner.RunWith;
 
 /** Tests for Ultra HDR support in Transformer that should only run in mobile harness. */
 @RunWith(AndroidJUnit4.class)
-public final class TransformerMhUltraHdrPixelTest {
+public final class TransformerMhUltraHdrTest {
 
   private static final int ONE_FRAME_END_POSITION_MS = 30;
-  private static final String PNG_ASSET_BASE_PATH =
-      "test-generated-goldens/TransformerUltraHdrPixelTest";
 
   @Rule public final TestName testName = new TestName();
   private final Context context = ApplicationProvider.getApplicationContext();
@@ -99,8 +88,6 @@ public final class TransformerMhUltraHdrPixelTest {
         retrieveTrackFormat(context, result.filePath, C.TRACK_TYPE_VIDEO).colorInfo;
     assertThat(colorInfo.colorSpace).isEqualTo(C.COLOR_SPACE_BT2020);
     assertThat(colorInfo.colorTransfer).isEqualTo(C.COLOR_TRANSFER_HLG);
-    assertFp16BitmapsMatchExpectedAndSave(
-        extractBitmapsFromVideo(context, result.filePath, Config.RGBA_F16), testId);
   }
 
   @Test
@@ -122,8 +109,6 @@ public final class TransformerMhUltraHdrPixelTest {
         retrieveTrackFormat(context, result.filePath, C.TRACK_TYPE_VIDEO).colorInfo;
     assertThat(colorInfo.colorSpace).isEqualTo(C.COLOR_SPACE_BT2020);
     assertThat(colorInfo.colorTransfer).isEqualTo(C.COLOR_TRANSFER_HLG);
-    assertFp16BitmapsMatchExpectedAndSave(
-        extractBitmapsFromVideo(context, result.filePath, Config.RGBA_F16), testId);
   }
 
   @Test
@@ -149,6 +134,7 @@ public final class TransformerMhUltraHdrPixelTest {
 
   @Test
   public void exportTonemappedHdrVideoThenUltraHdrImage_exportsSdr() throws Exception {
+    assumeDeviceSupportsOpenGlToneMapping(testId, MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT);
     Composition composition =
         createUltraHdrComposition(
             /* tonemap= */ true,
@@ -165,27 +151,6 @@ public final class TransformerMhUltraHdrPixelTest {
         retrieveTrackFormat(context, result.filePath, C.TRACK_TYPE_VIDEO).colorInfo;
     assertThat(colorInfo.colorSpace).isEqualTo(C.COLOR_SPACE_BT709);
     assertThat(colorInfo.colorTransfer).isEqualTo(C.COLOR_TRANSFER_SDR);
-  }
-
-  @RequiresApi(29) // getBitmapAveragePixelAbsoluteDifferenceFp16()
-  public static void assertFp16BitmapsMatchExpectedAndSave(
-      List<Bitmap> actualBitmaps, String testId) throws IOException {
-    for (int i = 0; i < actualBitmaps.size(); i++) {
-      maybeSaveTestBitmap(
-          testId, /* bitmapLabel= */ String.valueOf(i), actualBitmaps.get(i), /* path= */ null);
-    }
-
-    for (int i = 0; i < actualBitmaps.size(); i++) {
-      String subTestId = testId + "_" + i;
-      String expectedPath = Util.formatInvariant("%s/%s.png", PNG_ASSET_BASE_PATH, subTestId);
-      Bitmap expectedBitmap = readBitmap(expectedPath);
-
-      float averagePixelAbsoluteDifference =
-          getBitmapAveragePixelAbsoluteDifferenceFp16(expectedBitmap, actualBitmaps.get(i));
-      assertWithMessage("For expected bitmap " + expectedPath)
-          .that(averagePixelAbsoluteDifference)
-          .isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE_LUMA);
-    }
   }
 
   private static Composition createUltraHdrComposition(

@@ -48,7 +48,7 @@ import org.junit.runner.RunWith;
 /**
  * Tests for Ultra HDR support in Transformer that can run on an emulator.
  *
- * <p>See {@code TransformerMhUltraHdrPixelTest} for other UltraHdr tests.
+ * <p>See {@code TransformerMhUltraHdrTest} for other UltraHdr tests.
  */
 @RunWith(AndroidJUnit4.class)
 public final class TransformerUltraHdrTest {
