@@ -660,7 +660,7 @@ MediaCodecAdapter (exotest.audio.mpegl2):
       rendered = false
 MediaCodecAdapter (exotest.video.mpeg2):
   inputBuffers:
-    count = 59
+    count = 58
     input buffer #0:
       timeUs = 1000000125000
       contents = length 32732, hash 7B7C01FD
@@ -833,14 +833,11 @@ MediaCodecAdapter (exotest.video.mpeg2):
       timeUs = 1000002541666
       contents = length 2738, hash 8F8FDE0A
     input buffer #57:
-      timeUs = 1000002583333
-      contents = length 2970, hash 78651B41
-    input buffer #58:
       timeUs = 0
       flags = 4
       contents = length 0, hash 1
   outputBuffers:
-    count = 58
+    count = 57
     output buffer #0:
       timeUs = 1000000125000
       size = 32732
@@ -1068,10 +1065,6 @@ MediaCodecAdapter (exotest.video.mpeg2):
     output buffer #56:
       timeUs = 1000002541666
       size = 2738
-      rendered = true
-    output buffer #57:
-      timeUs = 1000002583333
-      size = 2970
       rendered = true
 AudioSink:
   buffer count = 93

@@ -113,8 +113,7 @@ public final class PesReader implements TsPayloadReader {
             Log.w(TAG, "Unexpected start indicator: expected " + payloadSize + " more bytes");
           }
           // Either way, notify the reader that it has now finished.
-          boolean isEndOfInput = (data.limit() == 0);
-          reader.packetFinished(isEndOfInput);
+          reader.packetFinished();
           break;
         default:
           throw new IllegalStateException();
@@ -154,8 +153,7 @@ public final class PesReader implements TsPayloadReader {
           if (payloadSize != C.LENGTH_UNSET) {
             payloadSize -= readLength;
             if (payloadSize == 0) {
-              // There are bytes left in data, see above, so this is not the end of input
-              reader.packetFinished(/* isEndOfInput= */ false);
+              reader.packetFinished();
               setState(STATE_READING_HEADER);
             }
           }

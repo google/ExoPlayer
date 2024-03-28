@@ -7,8 +7,8 @@ seekMap:
   getPosition(1065600) = [[timeUs=0, position=44]]
 numberOfTracks = 2
 track 0:
-  total output bytes = 301430
-  sample count = 30
+  total output bytes = 287190
+  sample count = 29
   format 0:
     id = 1
     sampleMimeType = video/avc
@@ -16,7 +16,7 @@ track 0:
     maxInputSize = 22910
     width = 1080
     height = 720
-    frameRate = 31.004547
+    frameRate = 31.042604
     colorInfo:
       colorSpace = 1
       colorRange = 2
@@ -141,12 +141,8 @@ track 0:
     data = length 20866, hash 219DA8C0
   sample 28:
     time = 934255
-    flags = 0
-    data = length 7215, hash A853B1A9
-  sample 29:
-    time = 967622
     flags = 536870912
-    data = length 14240, hash 4EE77DF9
+    data = length 7215, hash A853B1A9
 track 1:
   total output bytes = 9529
   sample count = 45

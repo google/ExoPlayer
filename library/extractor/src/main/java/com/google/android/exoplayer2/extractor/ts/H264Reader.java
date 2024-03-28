@@ -173,11 +173,8 @@ public final class H264Reader implements ElementaryStreamReader {
   }
 
   @Override
-  public void packetFinished(boolean isEndOfInput) {
-    assertTracksCreated();
-    if (isEndOfInput) {
-      sampleReader.end(totalBytesWritten);
-    }
+  public void packetFinished() {
+    // Do nothing.
   }
 
   @RequiresNonNull("sampleReader")
@@ -515,13 +512,6 @@ public final class H264Reader implements ElementaryStreamReader {
       @C.BufferFlags int flags = sampleIsKeyframe ? C.BUFFER_FLAG_KEY_FRAME : 0;
       int size = (int) (nalUnitStartPosition - samplePosition);
       output.sampleMetadata(sampleTimeUs, flags, size, offset, null);
-    }
-
-    public void end(long position) {
-      // Output a final sample with the NAL units currently held
-      nalUnitStartPosition = position;
-      outputSample(/* offset= */ 0);
-      readingSample = false;
     }
 
     private static final class SliceHeaderData {

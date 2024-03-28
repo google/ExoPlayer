@@ -159,7 +159,7 @@ public final class LatmReader implements ElementaryStreamReader {
   }
 
   @Override
-  public void packetFinished(boolean isEndOfInput) {
+  public void packetFinished() {
     // Do nothing.
   }
 

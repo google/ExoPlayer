@@ -220,13 +220,8 @@ public final class H263Reader implements ElementaryStreamReader {
   }
 
   @Override
-  public void packetFinished(boolean isEndOfInput) {
-    // Assert that createTracks has been called.
-    checkStateNotNull(sampleReader);
-    if (isEndOfInput) {
-      sampleReader.onDataEnd(totalBytesWritten, /* bytesWrittenPastPosition= */ 0, hasOutputFormat);
-      sampleReader.reset();
-    }
+  public void packetFinished() {
+    // Do nothing.
   }
 
   /**

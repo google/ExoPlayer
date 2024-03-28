@@ -165,7 +165,7 @@ public final class Ac3Reader implements ElementaryStreamReader {
   }
 
   @Override
-  public void packetFinished(boolean isEndOfInput) {
+  public void packetFinished() {
     // Do nothing.
   }
 
