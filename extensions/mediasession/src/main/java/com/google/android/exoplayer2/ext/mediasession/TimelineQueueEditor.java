@@ -34,10 +34,9 @@ import java.util.List;
  * the {@link #COMMAND_MOVE_QUEUE_ITEM} to move a queue item instead of removing and inserting it.
  * This allows to move the currently playing window without interrupting playback.
  *
- * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
- *     contains the same ExoPlayer code). See <a
- *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
- *     migration guide</a> for more details, including a script to help with the migration.
+ * @deprecated Use the <a
+ *     href="https://developer.android.com/media/media3/session/control-playback">androidx.media3
+ *     session integration</a> instead.
  */
 @Deprecated
 public final class TimelineQueueEditor
