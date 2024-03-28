@@ -88,6 +88,7 @@ public final class DefaultAudioMixer implements AudioMixer {
   // TODO(b/290002438, b/276734854): Improve buffer management & determine best default size.
   private static final int DEFAULT_BUFFER_SIZE_MS = 500;
 
+  private final boolean outputSilenceWithNoSources;
   private final boolean clipFloatOutput;
   private final SparseArray<SourceInfo> sources;
   private int nextSourceId;
@@ -112,6 +113,7 @@ public final class DefaultAudioMixer implements AudioMixer {
   private long maxPositionOfRemovedSources;
 
   private DefaultAudioMixer(boolean outputSilenceWithNoSources, boolean clipFloatOutput) {
+    this.outputSilenceWithNoSources = outputSilenceWithNoSources;
     this.clipFloatOutput = clipFloatOutput;
     sources = new SparseArray<>();
     outputAudioFormat = AudioFormat.NOT_SET;
@@ -317,6 +319,7 @@ public final class DefaultAudioMixer implements AudioMixer {
     inputLimit = C.LENGTH_UNSET;
     outputPosition = 0;
     endPosition = Long.MAX_VALUE;
+    maxPositionOfRemovedSources = outputSilenceWithNoSources ? Long.MAX_VALUE : 0;
   }
 
   private void checkStateIsConfigured() {

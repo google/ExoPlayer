@@ -389,6 +389,28 @@ public final class DefaultAudioMixerTest {
   }
 
   @Test
+  public void reset_afterRemoveSource_whenNotOutputSilenceWithNoSources_resetsSourceEndPosition()
+      throws Exception {
+    assumeFalse(outputSilenceWithNoSources);
+    mixer.configure(AUDIO_FORMAT_STEREO_PCM_FLOAT, /* bufferSizeMs= */ 3, /* startTimeUs= */ 0);
+    int sourceId = mixer.addSource(AUDIO_FORMAT_STEREO_PCM_FLOAT, /* startTimeUs= */ 0);
+    ByteBuffer sourceBuffer = createByteBuffer(new float[] {0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f});
+    mixer.queueInput(sourceId, sourceBuffer);
+    assertThat(sourceBuffer.remaining()).isEqualTo(0);
+    mixer.removeSource(sourceId);
+
+    mixer.reset();
+    mixer.configure(AUDIO_FORMAT_STEREO_PCM_FLOAT, /* bufferSizeMs= */ 3, /* startTimeUs= */ 0);
+    sourceId = mixer.addSource(AUDIO_FORMAT_STEREO_PCM_FLOAT, /* startTimeUs= */ 0);
+    sourceBuffer = createByteBuffer(new float[] {0.1f, 0.2f});
+    mixer.queueInput(sourceId, sourceBuffer);
+    assertThat(sourceBuffer.remaining()).isEqualTo(0);
+    mixer.removeSource(sourceId);
+
+    assertThat(createFloatArray(mixer.getOutput())).isEqualTo(new float[] {0.1f, 0.2f});
+  }
+
+  @Test
   public void input_whileIsEnded_isNotConsumed() throws Exception {
     mixer.configure(
         AUDIO_FORMAT_STEREO_PCM_FLOAT, /* bufferSizeMs= */ 3, /* startTimeUs= */ 10_000);
