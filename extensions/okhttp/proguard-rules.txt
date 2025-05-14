@@ -1,6 +1,0 @@
-# Proguard rules specific to the OkHttp extension.
-
-# Options specified by https://github.com/square/okhttp/blob/master/README.md
--dontwarn okio.**
--dontwarn javax.annotation.**
--dontwarn org.conscrypt.**
