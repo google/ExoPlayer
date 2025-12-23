@@ -80,26 +80,26 @@ CLASS_MAPPINGS='com.google.android.exoplayer2.text.span androidx.media3.common.t
 com.google.android.exoplayer2.text androidx.media3.common.text CueGroup Cue
 com.google.android.exoplayer2.text androidx.media3.exoplayer.text ExoplayerCuesDecoder SubtitleDecoderFactory TextOutput TextRenderer
 com.google.android.exoplayer2.upstream.crypto androidx.media3.datasource AesCipherDataSource AesCipherDataSink AesFlushingCipher
+com.google.android.exoplayer2.upstream androidx.media3.common DataReader
+com.google.android.exoplayer2.upstream androidx.media3.exoplayer.upstream Allocation Allocator BandwidthMeter CachedRegionTracker DefaultAllocator DefaultBandwidthMeter DefaultLoadErrorHandlingPolicy Loader LoaderErrorThrower ParsingLoadable SlidingPercentile TimeToFirstByteEstimator
 com.google.android.exoplayer2.util androidx.media3.common.util AtomicFile Assertions BitmapLoader BundleableUtil BundleUtil Clock ClosedSource CodecSpecificDataUtil ColorParser ConditionVariable Consumer CopyOnWriteMultiset EGLSurfaceTexture GlProgram GlUtil HandlerWrapper LibraryLoader ListenerSet Log LongArray MediaFormatUtil NetworkTypeObserver NonNullApi NotificationUtil NullableType ParsableBitArray ParsableByteArray RepeatModeUtil RunnableFutureTask Size SystemClock SystemHandlerWrapper TimedValueQueue TimestampAdjuster TraceUtil UnknownNull UnstableApi UriUtil Util XmlPullParserUtil
 com.google.android.exoplayer2.util androidx.media3.common DebugViewProvider Effect ErrorMessageProvider FlagSet FileTypes FrameInfo GlObjectsProvider GlTextureInfo VideoFrameProcessingException VideoFrameProcessor OnInputFrameProcessedListener MimeTypes PriorityTaskManager SurfaceInfo
-com.google.android.exoplayer2.metadata androidx.media3.common Metadata
+com.google.android.exoplayer2.util androidx.media3.container NalUnitUtil ParsableNalUnitBitArray
+com.google.android.exoplayer2.util androidx.media3.exoplayer MediaClock StandaloneMediaClock
+com.google.android.exoplayer2.metadata.mp4 androidx.media3.container MdtaMetadataEntry
 com.google.android.exoplayer2.metadata androidx.media3.exoplayer.metadata MetadataDecoderFactory MetadataOutput MetadataRenderer
+com.google.android.exoplayer2.metadata androidx.media3.common Metadata
 com.google.android.exoplayer2.audio androidx.media3.common AudioAttributes AuxEffectInfo
+com.google.android.exoplayer2.audio androidx.media3.extractor AacUtil Ac3Util Ac4Util DtsUtil MpegAudioUtil OpusUtil WavUtil
 com.google.android.exoplayer2.ui androidx.media3.common AdOverlayInfo AdViewProvider
+com.google.android.exoplayer2.ui androidx.media3.exoplayer.offline DownloadNotificationHelper
 com.google.android.exoplayer2.source.ads androidx.media3.common AdPlaybackState
 com.google.android.exoplayer2.source androidx.media3.common MediaPeriodId TrackGroup
 com.google.android.exoplayer2.offline androidx.media3.common StreamKey
-com.google.android.exoplayer2.ui androidx.media3.exoplayer.offline DownloadNotificationHelper
 com.google.android.exoplayer2.trackselection androidx.media3.common TrackSelectionParameters TrackSelectionOverride
 com.google.android.exoplayer2.video androidx.media3.common ColorInfo VideoSize VideoGraph PreviewingVideoGraph
-com.google.android.exoplayer2.upstream androidx.media3.common DataReader
-com.google.android.exoplayer2.upstream androidx.media3.exoplayer.upstream Allocation Allocator BandwidthMeter CachedRegionTracker DefaultAllocator DefaultBandwidthMeter DefaultLoadErrorHandlingPolicy Loader LoaderErrorThrower ParsingLoadable SlidingPercentile TimeToFirstByteEstimator
-com.google.android.exoplayer2.audio androidx.media3.extractor AacUtil Ac3Util Ac4Util DtsUtil MpegAudioUtil OpusUtil WavUtil
-com.google.android.exoplayer2.util androidx.media3.container NalUnitUtil ParsableNalUnitBitArray
-com.google.android.exoplayer2.metadata.mp4 androidx.media3.container MdtaMetadataEntry
 com.google.android.exoplayer2.video androidx.media3.extractor AvcConfig DolbyVisionConfig HevcConfig
 com.google.android.exoplayer2.decoder androidx.media3.exoplayer DecoderCounters DecoderReuseEvaluation
-com.google.android.exoplayer2.util androidx.media3.exoplayer MediaClock StandaloneMediaClock
 com.google.android.exoplayer2 androidx.media3.exoplayer FormatHolder PlayerMessage
 com.google.android.exoplayer2 androidx.media3.common BasePlayer BundleListRetriever Bundleable ControlDispatcher C DefaultControlDispatcher DeviceInfo ErrorMessageProvider ExoPlayerLibraryInfo Format ForwardingPlayer HeartRating IllegalSeekPositionException LegacyMediaPlayerWrapper MediaItem MediaMetadata ParserException PercentageRating PlaybackException PlaybackParameters Player PositionInfo Rating SimpleBasePlayer StarRating ThumbRating Timeline Tracks
 com.google.android.exoplayer2.drm androidx.media3.common DrmInitData'
